@@ -1,0 +1,41 @@
+#version 330 core
+
+//in vec3 TexCoords;
+in vec3 FragPos;
+
+out vec4 FragColor;
+
+
+uniform samplerCube skybox;
+
+
+vec4 lower_color = vec4(0.0, 0.4, 0.3, 1.0);
+vec4 upper_color = vec4(0.0, 0.2, 0.4, 1.0);
+vec4 white = vec4(1.0, 1.0, 1.0, 1.0);
+
+float lb = -0.1;
+float band = 0.0005;
+float ub = 0.1;
+
+void main()
+{    
+   if(FragPos.y < lb){
+   	FragColor = lower_color;
+   }
+   else if(FragPos.y <= -1 * band){
+   	float rgb_param = (FragPos.y - lb) / (-1 * band - lb);
+   	FragColor = vec4( mix(lower_color, white, rgb_param));
+   }
+   else if(FragPos.y < band){
+   	FragColor = white;
+   }
+   else if(FragPos.y <= ub){
+   	float rgb_param = (FragPos.y - band) / (ub - band);
+   	FragColor = vec4( mix(white, upper_color, rgb_param));
+   }
+   else{
+	FragColor = upper_color;
+   }
+    //vec4 rgba = vec4(0.8, 0.8, , 1.0);
+    //FragColor = rgba;
+}
