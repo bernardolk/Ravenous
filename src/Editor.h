@@ -6,7 +6,8 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
-#include "file_browser/file_browser_modal.h"
+#include <algorithm>
+
 
 bool moveMode = false;
 float light_icons_scaling = 0.2f;
@@ -115,8 +116,6 @@ struct EditorControls {
 } editor_controls;
 u32 pt_vao;
 ImGuiStyle* imStyle;
-static imgui_ext::file_browser_modal filebrowser_model("Model", "C:\\World Editor Assets\\Models", "obj");
-static imgui_ext::file_browser_modal filebrowser_scene("Scene", "C:\\World Editor Assets\\Scenes");
 
 double lastXMouseCoord;
 double lastYMouseCoord;
@@ -225,9 +224,9 @@ void editor_initialize(float viewportWidth, float viewportHeight) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//load shaders
-	grid_shader = create_shader_program("Grid Shader", "shaders/editor_grid_vertex.shd", "shaders/editor_grid_fragment.shd");
-	bounding_box_shader = create_shader_program("Bounding Box Shader", "shaders/bounding_box_vertex.shd", "shaders/bounding_box_fragment.shd");
-	text_shader = create_shader_program("Text Shader", "shaders/vertex_text.shd", "shaders/fragment_text.shd");
+	grid_shader = create_shader_program("Grid Shader", "editor_grid_vertex", "editor_grid_fragment");
+	bounding_box_shader = create_shader_program("Bounding Box Shader", "bounding_box_vertex", "bounding_box_fragment");
+	text_shader = create_shader_program("Text Shader", "vertex_text", "fragment_text");
 
 	//generate text buffers
 	glGenVertexArrays(1, &text_VAO);
@@ -340,7 +339,7 @@ void editor_process_input_mouse_move(double xpos, double ypos) {
 			int entityId = entity_controls.selected_entity;
 			auto it = active_scene->entities.begin();
 			auto end = active_scene->entities.end();
-			auto entity = find_if(it, end, [entityId](const Entity& entity) {
+			auto entity = std::find_if(it, end, [entityId](const Entity& entity) {
 				if (entity.id == entityId)
 					return true;
 				else return false;
@@ -356,7 +355,7 @@ void editor_process_input_mouse_move(double xpos, double ypos) {
 			int entityId = entity_controls.selected_light;
 			auto it = active_scene->pointLights.begin();
 			auto end = active_scene->pointLights.end();
-			auto entity = find_if(it, end, [entityId](const PointLight& entity) {
+			auto entity = std::find_if(it, end, [entityId](const PointLight& entity) {
 				if (entity.id == entityId)
 					return true;
 				else return false;
@@ -488,16 +487,6 @@ void editor_render_gui(Camera& camera) {
 			}
 
 			std::string path;
-			if (filebrowser_model.render(isModelLoadClicked, path)) {
-				/*	Model new_model = Model(path);
-					Entity new_entity = Entity{ entity_counter,++entity_counter, &new_model, &model_shader,vec3(0.0f, 0.0f,0.0f) };
-					cast_pickray();
-					new_entity.position = vec3(pickray_dir * 10.0f);
-					active_scene->entities.push_back(new_entity);*/
-			}
-			if (filebrowser_scene.render(isSceneLoadClicked, path)) {
-
-			}
 		} // render GUI controls
 }
 
@@ -506,7 +495,7 @@ void show_entity_controls(int entityId) {
 	// @fixMe
 	auto it = active_scene->entities.begin();
 	auto end = active_scene->entities.end();
-	auto entity = find_if(it, end, [entityId](const Entity& entity) {
+	auto entity = std::find_if(it, end, [entityId](const Entity& entity) {
 		if (entity.id == entityId)
 			return true;
 		else return false;
@@ -579,7 +568,7 @@ void render_bounding_box(int entityId) {
 	//@attention: this sould be a hashtable outside everything!
 	auto it = active_scene->entities.begin();
 	auto end = active_scene->entities.end();
-	auto entity = find_if(it, end, [entityId](const Entity& entity) {
+	auto entity = std::find_if(it, end, [entityId](const Entity& entity) {
 		if (entity.id == entityId)
 			return true;
 		else return false;
@@ -656,7 +645,7 @@ void show_light_controls(int lightId) {
 	// @fixMe
 	auto it = active_scene->pointLights.begin();
 	auto end = active_scene->pointLights.end();
-	auto light_entity = find_if(it, end, [lightId](const PointLight& light) {
+	auto light_entity = std::find_if(it, end, [lightId](const PointLight& light) {
 		if (light.id == lightId)
 			return true;
 		else return false;

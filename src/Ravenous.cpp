@@ -1,5 +1,3 @@
-#pragma once
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -96,13 +94,13 @@ int main() {
 	glEnable(GL_DEPTH_TEST);
 
 	// MAIN SHADERS
-	//Shader model_shader("shaders/vertex_model.shd", "shaders/fragment_model.shd");
-	model_shader = create_shader_program("Model Shader", "shaders/vertex_model.shd", "shaders/fragment_multiple_lights.shd");
-	//Shader cube_shader("shaders/vertex_main.shd", "shaders/fragment_main.shd");
-	Shader obj_shader = create_shader_program("Obj Shader", "shaders/vertex_color_cube.shd", "shaders/fragment_multiple_lights.shd");
-	Shader light_shader = create_shader_program("Light Props Shader", "shaders/vertex_color_cube.shd", "shaders/fragment_light.shd");
-	quad_shader = create_shader_program("Billboard Shader", "shaders/quad_vertex.shd", "shaders/textured_quad_fragment.shd");
-	//Shader pink_shader = create_shader_program("Pink", "shaders/bounding_box_vertex.shd", "shaders/bounding_box_fragment.shd");
+	//Shader model_shader("vertex_model.shd", "fragment_model.shd");
+	model_shader = create_shader_program("Model Shader", "vertex_model", "fragment_multiple_lights");
+	//Shader cube_shader("vertex_main.shd", "fragment_main.shd");
+	Shader obj_shader = create_shader_program("Obj Shader", "vertex_color_cube", "fragment_multiple_lights");
+	Shader light_shader = create_shader_program("Light Props Shader", "vertex_color_cube", "fragment_light");
+	quad_shader = create_shader_program("Billboard Shader", "quad_vertex", "textured_quad_fragment");
+	//Shader pink_shader = create_shader_program("Pink", "bounding_box_vertex", "bounding_box_fragment");
 
 	// Text shaders (GUI)
 	//Shader text_shader = initialize_text_shader();

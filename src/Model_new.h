@@ -54,7 +54,7 @@ inline Parse parse_letter(Parse toparse) {
 
 inline Parse parse_int(Parse toparse) {
 	Parse outparse{ toparse.string, toparse.size, 0};
-	u16 ten_powers[10]{1, 10, 100, 1000, 10000,
+	u32 ten_powers[10]{1, 10, 100, 1000, 10000,
 		100000, 1000000, 10000000, 100000000, 1000000000};
 	char int_buf[10];
 	u16 count = 0;
@@ -84,7 +84,7 @@ inline Parse parse_int(Parse toparse) {
 
 inline Parse parse_uint(Parse toparse) {
 	Parse outparse{ toparse.string, toparse.size, 0};
-	u16 ten_powers[10]{1, 10, 100, 1000, 10000,
+	u32 ten_powers[10]{1, 10, 100, 1000, 10000,
 		100000, 1000000, 10000000, 100000000, 1000000000};
 	char int_buf[10];
 	u16 count = 0;
