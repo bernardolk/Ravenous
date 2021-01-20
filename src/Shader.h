@@ -10,7 +10,7 @@
 // holds all utilized shader names
 std::string shader_names[30];
 
-const std::string SHADERS_FOLDER_PATH = "w://shaders/";
+const std::string SHADERS_FOLDER_PATH = "w:/shaders/";
 const std::string SHADERS_FILE_EXTENSION = ".shd";
 
 struct Shader {
@@ -69,13 +69,14 @@ Shader create_shader_program(std::string name, const std::string vertex_shader_f
    shader.name = name;
    shader.vertex_path = SHADERS_FOLDER_PATH + vertex_shader_filename + SHADERS_FILE_EXTENSION;
    shader.fragment_path = SHADERS_FOLDER_PATH + fragment_shader_filename + SHADERS_FILE_EXTENSION;
+   
    std::string vertexCode;
    std::string fragmentCode;
    std::ifstream vShaderFile;
    std::ifstream fShaderFile;
 
    // VERTEX SHADER
-   vShaderFile.open(vertex_shader_filename);
+   vShaderFile.open(shader.vertex_path);
    std::stringstream vShaderStream;
    vShaderStream << vShaderFile.rdbuf();
    vShaderFile.close();
@@ -85,7 +86,7 @@ Shader create_shader_program(std::string name, const std::string vertex_shader_f
       std::cout << "ERROR::VERTEX SHADER::FILE_NOT_SUCCESFULLY_READ : " << vertex_shader_filename << std::endl;
 
    // FRAGMENT SHADER
-   fShaderFile.open(fragment_shader_filename);
+   fShaderFile.open(shader.fragment_path);
    std::stringstream fShaderStream;
    fShaderStream << fShaderFile.rdbuf();
    fShaderFile.close();
