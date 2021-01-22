@@ -101,7 +101,7 @@ vector<u32> quad_vertex_indices = { 0,1,2,2,3,0 };
 glm::vec3 bg_color(0.008f, 0.314f, 0.275f);
 Shader grid_shader;
 Shader bounding_box_shader;
-Shader text_shader;
+// Shader text_shader;
 u32 editor_textures[15];
 struct EditorControls {
 	bool camera_align_x = false;
@@ -444,50 +444,55 @@ void editor_render_gui(Camera& camera) {
 				format_float_tostr(camera.Position.z,2),
 				format_float_tostr(camera.Pitch,2),
 				format_float_tostr(camera.Yaw,2),
+            format_float_tostr(camera.Front.x,2),
+				format_float_tostr(camera.Front.y,2),
+				format_float_tostr(camera.Front.z,2)
 			};
 
-			string camera_stats = "x: " + GUI_atts[0] + " y:" + GUI_atts[1] + " z:" + GUI_atts[2];
+			string camera_position = "pos :: x: " + GUI_atts[0] + " y:" + GUI_atts[1] + " z:" + GUI_atts[2];
+			string camera_front = "dir :: x: " + GUI_atts[5] + " y:" + GUI_atts[6] + " z:" + GUI_atts[7];
 			string mouse_stats = "pitch: " + GUI_atts[3] + " yaw: " + GUI_atts[4];
 			string fps = to_string(current_fps);
 			string fps_gui = "FPS: " + fps.substr(0, fps.find('.', 0) + 2);
 
 
 			float scale = 1;
-			render_text(camera_stats, GUI_x, GUI_y, scale, glm::vec3(1.0f, 1.0f, 1.0f));
-			render_text(mouse_stats, GUI_x, GUI_y - 25, scale, glm::vec3(1.0f, 1.0f, 1.0f));
+			render_text(camera_position, GUI_x, GUI_y, scale, glm::vec3(1.0f, 1.0f, 1.0f));
+			render_text(camera_front, GUI_x, GUI_y - 25, scale, glm::vec3(1.0f, 1.0f, 1.0f));
+			render_text(mouse_stats, GUI_x, GUI_y - 50, scale, glm::vec3(1.0f, 1.0f, 1.0f));
 			render_text(fps_gui, viewport_height - 100, 25, scale, glm::vec3(1.0f, 1.0f, 1.0f));
 		} // render GUI text
 
 
-		// render GUI controls
-		{
-			ImGui::Begin("Bg Color");
-			ImGui::ColorPicker3("BG", &bg_color.x);
-			ImGui::End();
+		// // render GUI controls
+		// {
+		// 	ImGui::Begin("Bg Color");
+		// 	ImGui::ColorPicker3("BG", &bg_color.x);
+		// 	ImGui::End();
 
-			ImGui::Begin("##Cam");
-			editor_controls.camera_align_x = ImGui::ImageButton((void*)(intptr_t)editor_textures[0], ImVec2(16, 16));
-			editor_controls.camera_align_y = ImGui::ImageButton((void*)(intptr_t)editor_textures[1], ImVec2(16, 16));
-			editor_controls.camera_align_z = ImGui::ImageButton((void*)(intptr_t)editor_textures[2], ImVec2(16, 16));
-			ImGui::End();
+		// 	ImGui::Begin("##Cam");
+		// 	editor_controls.camera_align_x = ImGui::ImageButton((void*)(intptr_t)editor_textures[0], ImVec2(16, 16));
+		// 	editor_controls.camera_align_y = ImGui::ImageButton((void*)(intptr_t)editor_textures[1], ImVec2(16, 16));
+		// 	editor_controls.camera_align_z = ImGui::ImageButton((void*)(intptr_t)editor_textures[2], ImVec2(16, 16));
+		// 	ImGui::End();
 
-			bool isModelLoadClicked = false;
-			bool isSceneLoadClicked = false;
-			if (ImGui::BeginMainMenuBar()) {
-				if (ImGui::BeginMenu("Load")) {
-					if (ImGui::MenuItem("Model")) {
-						isModelLoadClicked = true;
-					}
-					if (ImGui::MenuItem("Scene")) {
-						isSceneLoadClicked = true;
-					}
-					ImGui::EndMenu();
-				}
-				ImGui::EndMainMenuBar();
-			}
+		// 	bool isModelLoadClicked = false;
+		// 	bool isSceneLoadClicked = false;
+		// 	if (ImGui::BeginMainMenuBar()) {
+		// 		if (ImGui::BeginMenu("Load")) {
+		// 			if (ImGui::MenuItem("Model")) {
+		// 				isModelLoadClicked = true;
+		// 			}
+		// 			if (ImGui::MenuItem("Scene")) {
+		// 				isSceneLoadClicked = true;
+		// 			}
+		// 			ImGui::EndMenu();
+		// 		}
+		// 		ImGui::EndMainMenuBar();
+		// 	}
 
-			std::string path;
-		} // render GUI controls
+			//std::string path;
+		//} // render GUI controls
 }
 
 void show_entity_controls(int entityId) {
@@ -523,46 +528,46 @@ void show_entity_controls(int entityId) {
 
 }
 
-void render_text(std::string text, float x, float y, float scale, glm::vec3 color) {
-	text_shader.use();
-	text_shader.setFloat3("textColor", color.x, color.y, color.z);
-	glActiveTexture(GL_TEXTURE0);
-	glBindVertexArray(text_VAO);
+// void render_text(std::string text, float x, float y, float scale, glm::vec3 color) {
+// 	text_shader.use();
+// 	text_shader.setFloat3("textColor", color.x, color.y, color.z);
+// 	glActiveTexture(GL_TEXTURE0);
+// 	glBindVertexArray(text_VAO);
 
-	std::string::iterator c;
-	for (c = text.begin(); c != text.end(); c++) {
-		Character ch = Characters[*c];
+// 	std::string::iterator c;
+// 	for (c = text.begin(); c != text.end(); c++) {
+// 		Character ch = Characters[*c];
 
-		GLfloat xpos = x + ch.Bearing.x * scale;
-		GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
-		GLfloat w = ch.Size.x * scale;
-		GLfloat h = ch.Size.y * scale;
-		// Update VBO for each character
-		GLfloat vertices[6][4] = {
-		{ xpos, ypos + h, 0.0, 0.0 },
-		{ xpos, ypos, 0.0, 1.0 },
-		{ xpos + w, ypos, 1.0, 1.0 },
-		{ xpos, ypos + h, 0.0, 0.0 },
-		{ xpos + w, ypos, 1.0, 1.0 },
-		{ xpos + w, ypos + h, 1.0, 0.0 }
-		};
+// 		GLfloat xpos = x + ch.Bearing.x * scale;
+// 		GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+// 		GLfloat w = ch.Size.x * scale;
+// 		GLfloat h = ch.Size.y * scale;
+// 		// Update VBO for each character
+// 		GLfloat vertices[6][4] = {
+// 		{ xpos, ypos + h, 0.0, 0.0 },
+// 		{ xpos, ypos, 0.0, 1.0 },
+// 		{ xpos + w, ypos, 1.0, 1.0 },
+// 		{ xpos, ypos + h, 0.0, 0.0 },
+// 		{ xpos + w, ypos, 1.0, 1.0 },
+// 		{ xpos + w, ypos + h, 1.0, 0.0 }
+// 		};
 
-		//std::cout << "xpos: " << xpos << ", ypos:" << ypos << ", h: " << h << ", w: " << w << std::endl;
-		// Render glyph texture over quad
-		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
-		// Update content of VBO memory
-		glBindBuffer(GL_ARRAY_BUFFER, text_VBO);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-		// Render quad
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
-	}
-}
+// 		//std::cout << "xpos: " << xpos << ", ypos:" << ypos << ", h: " << h << ", w: " << w << std::endl;
+// 		// Render glyph texture over quad
+// 		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+// 		// Update content of VBO memory
+// 		glBindBuffer(GL_ARRAY_BUFFER, text_VBO);
+// 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+// 		// Render quad
+// 		glDrawArrays(GL_TRIANGLES, 0, 6);
+// 		x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
+// 	}
+// }
 
-string format_float_tostr(float num, int precision) {
-	string temp = std::to_string(num);
-	return temp.substr(0, temp.find(".") + 3);
-}
+// string format_float_tostr(float num, int precision) {
+// 	string temp = std::to_string(num);
+// 	return temp.substr(0, temp.find(".") + 3);
+// }
 
 void render_bounding_box(int entityId) {
 	//@attention: this sould be a hashtable outside everything!

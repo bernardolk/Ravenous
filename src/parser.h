@@ -290,6 +290,19 @@ float* load_camera_settings(string path){
 }
 
 
+void save_camera_settings_to_file(string path, vec3 position, vec3 direction) {
+   std::ofstream ofs;
+   ofs.open(path);
+   ofs << position.x << " ";
+   ofs << position.y << " ";
+   ofs << position.z << "\n";
+   ofs << direction.x << " ";
+   ofs << direction.y << " ";
+   ofs << direction.z;
+   ofs.close();
+}
+
+
 // An obj model may be more like a scene, having multiple objects inside of it.
 // I don't care whether it is a single object or multiple, each individual thing in the file must be
 // constructed as a single entity in the editor. So it can be moved around and have its materials changed.

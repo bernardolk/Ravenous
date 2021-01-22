@@ -39,7 +39,7 @@ float global_shininess = 32.0f;
 
 // OPENGL OBJECTS
 unsigned int texture, texture_specular;
-Shader quad_shader, model_shader;
+Shader quad_shader, model_shader, text_shader;
 
 // METHOD PROTOTYPES
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -53,6 +53,11 @@ void render_ray();
 void render_scene();
 void update_scene_objects();
 void render_scene_lights();
+void initialize_shaders();
+
+
+
+
 Entity make_platform(float y, float x, float z, float length, float width, Model model, Shader shader);
 
 
@@ -87,7 +92,6 @@ unsigned int setup_object(MeshData objData);
 
 int main() {
 
-
    // reads from camera position file
    float* camera_pos = load_camera_settings("w:/camera.txt");
 
@@ -121,6 +125,7 @@ int main() {
 	// Text shaders (GUI)
 	//Shader text_shader = initialize_text_shader();
 	load_text_textures("Consola.ttf", 12);
+   initialize_shaders();
 
 	// CREATE SCENE 
    Scene demo_scene;
@@ -215,6 +220,8 @@ int main() {
 		//if (!moveMode)
 		//	render_scene_lights();
 
+      editor_render_gui(active_camera);
+
 	   //editor_loop();
 
 		//editor_end_frame();	
@@ -237,6 +244,67 @@ Entity make_platform(float y, float x, float z, float length, float width, Model
          vec3(length, 2.0f, width)
       };
    return platform;
+}
+
+
+void initialize_shaders() {
+
+	text_shader = create_shader_program("Text Shader", "vertex_text", "fragment_text");
+   text_shader.use();
+	text_shader.setMatrix4("projection", glm::ortho(0.0f, viewportWidth, 0.0f, viewportHeight));
+
+	//generate text buffers
+	glGenVertexArrays(1, &text_VAO);
+	glGenBuffers(1, &text_VBO);
+	glBindVertexArray(text_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, text_VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+}
+
+string format_float_tostr(float num, int precision) {
+	string temp = std::to_string(num);
+	return temp.substr(0, temp.find(".") + 3);
+}
+
+void render_text(std::string text, float x, float y, float scale, glm::vec3 color) {
+	text_shader.use();
+	text_shader.setFloat3("textColor", color.x, color.y, color.z);
+	glActiveTexture(GL_TEXTURE0);
+	glBindVertexArray(text_VAO);
+
+	std::string::iterator c;
+	for (c = text.begin(); c != text.end(); c++) {
+		Character ch = Characters[*c];
+
+		GLfloat xpos = x + ch.Bearing.x * scale;
+		GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+		GLfloat w = ch.Size.x * scale;
+		GLfloat h = ch.Size.y * scale;
+		// Update VBO for each character
+		GLfloat vertices[6][4] = {
+		{ xpos, ypos + h, 0.0, 0.0 },
+		{ xpos, ypos, 0.0, 1.0 },
+		{ xpos + w, ypos, 1.0, 1.0 },
+		{ xpos, ypos + h, 0.0, 0.0 },
+		{ xpos + w, ypos, 1.0, 1.0 },
+		{ xpos + w, ypos + h, 1.0, 0.0 }
+		};
+
+		//std::cout << "xpos: " << xpos << ", ypos:" << ypos << ", h: " << h << ", w: " << w << std::endl;
+		// Render glyph texture over quad
+		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+		// Update content of VBO memory
+		glBindBuffer(GL_ARRAY_BUFFER, text_VBO);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+		// Render quad
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
+	}
 }
 
 unsigned int setup_object(MeshData objData){
@@ -397,7 +465,9 @@ void processInput(GLFWwindow* window)
 		}
 		if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
 			global_shininess += 10 * deltaTime;
-
+      if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
+			save_camera_settings_to_file("w:/camera.txt", active_camera.Position, active_camera.Front);
+		}
 
 
 		// Toggle GUI (substitute all checks for just one varible holding last key pressed (or keys)
