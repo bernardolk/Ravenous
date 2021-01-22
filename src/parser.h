@@ -221,6 +221,75 @@ MeshData import_wavefront_obj(string path) {
 }
 
 
+float* load_camera_settings(string path){
+   ifstream reader(path);
+	std::string line;
+
+	static float camera_settings[6];
+
+   // get camera position
+   {
+	   getline(reader, line);
+      const char* cline = line.c_str();
+      size_t size = line.size();
+
+      Parse p { 
+         cline, 
+         size 
+      };
+
+      do {
+         p = parse_whitespace(p);
+      } while (p.hasToken);
+      p = parse_float(p);
+      camera_settings[0] = p.fToken;
+
+      do {
+         p = parse_whitespace(p);
+      } while (p.hasToken);
+      p = parse_float(p);
+      camera_settings[1] = p.fToken;
+
+      do {
+         p = parse_whitespace(p);
+      } while (p.hasToken);
+      p = parse_float(p);
+      camera_settings[2] = p.fToken;
+   }
+    // get camera direction
+   {
+	   getline(reader, line);
+      const char* cline = line.c_str();
+      size_t size = line.size();
+
+      Parse p { 
+         cline, 
+         size 
+      };
+
+      do {
+         p = parse_whitespace(p);
+      } while (p.hasToken);
+      p = parse_float(p);
+      camera_settings[3] = p.fToken;
+
+      do {
+         p = parse_whitespace(p);
+      } while (p.hasToken);
+      p = parse_float(p);
+      camera_settings[4] = p.fToken;
+
+      do {
+         p = parse_whitespace(p);
+      } while (p.hasToken);
+      p = parse_float(p);
+      camera_settings[5] = p.fToken;
+   }
+
+   return &camera_settings[0];
+}
+
+
 // An obj model may be more like a scene, having multiple objects inside of it.
 // I don't care whether it is a single object or multiple, each individual thing in the file must be
 // constructed as a single entity in the editor. So it can be moved around and have its materials changed.

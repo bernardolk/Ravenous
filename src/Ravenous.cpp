@@ -8,6 +8,7 @@
 #include <glm/gtx/compatibility.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
+#include <fstream>
 #include <map>
 #include <vector>
 #include <stdio.h>
@@ -73,22 +74,37 @@ const float viewportWidth = 1000;
 const float viewportHeight = 800;
 
 
-const string textures_path = "assets/textures/";
-const string models_path = "assets/models/";
-const string fonts_path = "assets/fonts/";
+const string textures_path = "w:/assets/textures/";
+const string models_path = "w:/assets/models/";
+const string fonts_path = "w:/assets/fonts/";
 
 
 #include <Editor.h>
-#include <Model_new.h>
+#include <parser.h>
 
 unsigned int setup_object(MeshData objData);
 
 
 int main() {
 
+
+   // reads from camera position file
+   float* camera_pos = load_camera_settings("w:/camera.txt");
+
+   // Todo: read camera.front position from file as well
+   // Todo: implement function that stores current camera settings to the .txt file
+   // Todo: make function be called when press the '9' key
+
+
+   std::cout << "camera " << camera_pos[0] << "," << camera_pos[1] << "," << camera_pos[2] << "\n";
+   std::cout << "camera dir " << camera_pos[3] << "," << camera_pos[4] << "," << camera_pos[5] << "\n";
+	u16 camera_id = camera_create(vec3(camera_pos[0], camera_pos[1], camera_pos[2]), vec3(camera_pos[3], camera_pos[4], camera_pos[5]));
+	active_camera = cameraList[camera_id];
+
+
 	// INITIAL GLFW AND GLAD SETUPS
 	setup_window(true);
-	editor_initialize(viewportWidth, viewportHeight);
+	// editor_initialize(viewportWidth, viewportHeight);
 
 	// SHADERS
 	glEnable(GL_DEPTH_TEST);
@@ -106,71 +122,68 @@ int main() {
 	//Shader text_shader = initialize_text_shader();
 	load_text_textures("Consola.ttf", 12);
 
-	// CREATE SCENE
-	u16 camera_id = camera_create(vec3(2.0, 2.0, 2.0), vec3(-1.0, 0.0, 0.0));
-	active_camera = cameraList[camera_id];
-   
-      Scene demo_scene;
-      demo_scene.id = 1;
+	// CREATE SCENE 
+   Scene demo_scene;
+   demo_scene.id = 1;
 
 
-      // QUAD MODEL TESTS
-      unsigned int brick_texture = load_texture_from_file("brickwall.jpg", "assets/textures");
-      unsigned int brick_normal_texture = load_texture_from_file("brickwall_normal.jpg", "assets/textures");
-      Texture quad_wall_texture{
-         brick_texture,
-         "texture_diffuse",
-         "whatever"
-      };
-      Texture quad_wall_normal_texture{
-         brick_normal_texture,
-         "texture_normal",
-         "whatever"
-      };
-      vector<Texture> texture_vec;
-      texture_vec.push_back(quad_wall_texture);
-      texture_vec.push_back(quad_wall_normal_texture);
-      Mesh quad_mesh = Mesh(quad_vertex_vec, quad_vertex_indices, texture_vec);
-      Model quad_model(quad_mesh);
+   // QUAD MODEL TESTS
+   unsigned int brick_texture = load_texture_from_file("brickwall.jpg", "assets/textures");
+   unsigned int brick_normal_texture = load_texture_from_file("brickwall_normal.jpg", "assets/textures");
+   Texture quad_wall_texture{
+      brick_texture,
+      "texture_diffuse",
+      "whatever"
+   };
+   Texture quad_wall_normal_texture{
+      brick_normal_texture,
+      "texture_normal",
+      "whatever"
+   };
+   vector<Texture> texture_vec;
+   texture_vec.push_back(quad_wall_texture);
+   texture_vec.push_back(quad_wall_normal_texture);
+   Mesh quad_mesh = Mesh(quad_vertex_vec, quad_vertex_indices, texture_vec);
+   Model quad_model(quad_mesh);
 
-      quad_model.textures_loaded = texture_vec;
+   quad_model.textures_loaded = texture_vec;
 
-      Entity quad_wall{
-         entity_counter,
-         ++entity_counter,
-         &quad_model,
-         &model_shader,
-         vec3(0,0,0),
-         vec3(90, 0, 90),
-         vec3(1.0f,1.0f,1.0f)
-      };
-      demo_scene.entities.push_back(quad_wall);
+   Entity quad_wall{
+      entity_counter,
+      ++entity_counter,
+      &quad_model,
+      &model_shader,
+      vec3(0,0,0),
+      vec3(90, 0, 90),
+      vec3(1.0f,1.0f,1.0f)
+   };
+   demo_scene.entities.push_back(quad_wall);
 
-      Entity quad_wall2{
-         entity_counter,
-         ++entity_counter,
-         &quad_model,
-         &model_shader,
-         vec3(2,-3,2),
-         vec3(90, 0, 90),
-         vec3(8.0f,2.0f,8.0f)
-      };
-      demo_scene.entities.push_back(quad_wall2);
+   Entity quad_wall2{
+      entity_counter,
+      ++entity_counter,
+      &quad_model,
+      &model_shader,
+      vec3(2,-3,2),
+      vec3(90, 0, 90),
+      vec3(8.0f,2.0f,8.0f)
+   };
+   demo_scene.entities.push_back(quad_wall2);
 
-      //Entity platform = make_platform(-3.0f, -3.0f, 0.0f, 20, 20, quad_model, quad_shader);
-      //demo_scene.entities.push_back(platform);
+   //Entity platform = make_platform(-3.0f, -3.0f, 0.0f, 20, 20, quad_model, quad_shader);
+   //demo_scene.entities.push_back(platform);
 
 
-      // LIGHTSOURCES
-      PointLight l1;
-      l1.id = 1;
-      l1.position = vec3(-3, 1.5, -1.5);
-      l1.diffuse = vec3(1.0, 1.0, 1.0);
-      l1.intensity_linear = 0.05f;
-      l1.intensity_quadratic = 0.001f;
-      demo_scene.pointLights.push_back(l1);
+   // LIGHTSOURCES
+   PointLight l1;
+   l1.id = 1;
+   l1.position = vec3(-3, 1.5, -1.5);
+   l1.diffuse = vec3(1.0, 1.0, 1.0);
+   l1.intensity_linear = 0.05f;
+   l1.intensity_quadratic = 0.001f;
+   demo_scene.pointLights.push_back(l1);
 
-      active_scene = &demo_scene;
+   active_scene = &demo_scene;
    
 
 	// MAIN LOOP
@@ -183,12 +196,12 @@ int main() {
 
 		//	INPUT PHASE
 		glfwPollEvents();
-		editor_start_frame();
+		//editor_start_frame();
 		processInput(window);
 
 
 		//	UPDATE PHASE
-		editor_update();
+		//editor_update();
 		camera_update(active_camera, viewportWidth, viewportHeight);
 		update_scene_objects();
 
@@ -199,16 +212,16 @@ int main() {
 
 		render_scene();
 
-		if (!moveMode)
-			render_scene_lights();
+		//if (!moveMode)
+		//	render_scene_lights();
 
-	   editor_loop();
+	   //editor_loop();
 
-		editor_end_frame();	
+		//editor_end_frame();	
 		glfwSwapBuffers(window);
 	}
 
-	editor_terminate();
+	//editor_terminate();
 	glfwTerminate();
 	return 0;
 }
@@ -429,33 +442,92 @@ void processInput(GLFWwindow* window)
 
 void onMouseMove(GLFWwindow* window, double xpos, double ypos)
 {
-	if (editor_mode) {
-		editor_process_input_mouse_move(xpos, ypos);
+	// if (editor_mode) {
+	// 	editor_process_input_mouse_move(xpos, ypos);
+	// }
+
+   if (moveMode || (editor_controls.is_mouse_drag && !entity_controls.is_dragging_entity)) {
+      // 'teleports' stored coordinates to current mouse coordinates
+      if (resetMouseCoords) {
+         lastXMouseCoord = xpos;
+         lastYMouseCoord = ypos;
+         resetMouseCoords = false;
+      }
+
+      // calculates offsets
+      float xoffset = xpos - lastXMouseCoord;
+      float yoffset = lastYMouseCoord - ypos;
+      lastXMouseCoord = xpos;
+      lastYMouseCoord = ypos;
+
+      xoffset *= active_camera.Sensitivity;
+      yoffset *= active_camera.Sensitivity;
+
+      camera_change_direction(active_camera, xoffset, yoffset);
+
+      // Unallows camera to perform a flip
+      if (active_camera.Pitch > 89.0f)
+         active_camera.Pitch = 89.0f;
+      if (active_camera.Pitch < -89.0f)
+         active_camera.Pitch = -89.0f;
+
+      // Make sure we don't overflow floats when camera is spinning indefinetely
+      if (active_camera.Yaw > 360.0f)
+         active_camera.Yaw = active_camera.Yaw - 360.0f;
+      if (active_camera.Yaw < -360.0f)
+         active_camera.Yaw = active_camera.Yaw + 360.0f;
+   }
+
+   currentMouseX = xpos;
+	currentMouseY = ypos;
+
+	// mouse dragging controls
+	if (editor_controls.is_mouse_left_btn_press
+		&& (abs(editor_controls.mouse_btn_down_x - currentMouseX) > 2
+			|| abs(editor_controls.mouse_btn_down_y - currentMouseY) > 2)) {
+		editor_controls.is_mouse_drag = true;
 	}
 }
 
 void onMouseScroll(GLFWwindow* window, double xoffset, double yoffset) {
-	if (editor_mode) {
-		if (!ImGui::GetIO().WantCaptureMouse) {
-			if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL)) {
-				if (active_camera.FOVy <= 45.0f && active_camera.FOVy >= 1.0f)
-					active_camera.FOVy -= yoffset * 3;
-				if (active_camera.FOVy < 1.0f)
-					active_camera.FOVy = 1.0f;
-				if (active_camera.FOVy > 45.0f)
-					active_camera.FOVy = 45.0f;
-			}
-			else {
+	// if (editor_mode) {
+	// 	if (!ImGui::GetIO().WantCaptureMouse) {
+	// 		if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL)) {
+	// 			if (active_camera.FOVy <= 45.0f && active_camera.FOVy >= 1.0f)
+	// 				active_camera.FOVy -= yoffset * 3;
+	// 			if (active_camera.FOVy < 1.0f)
+	// 				active_camera.FOVy = 1.0f;
+	// 			if (active_camera.FOVy > 45.0f)
+	// 				active_camera.FOVy = 45.0f;
+	// 		}
+	// 		else {
 				active_camera.Position += (float)(3 * yoffset) * active_camera.Front;
-			}
-		}
-	}
+	// 		}
+	// 	}
+	// }
 }
 
 void onMouseBtn(GLFWwindow* window, int button, int action, int mods) {
-	if (editor_mode) {
-		editor_process_input_mouse_btn(button, action);
-	}
+	// if (editor_mode) {
+	// 	editor_process_input_mouse_btn(button, action);
+	// }
+
+   if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+      editor_controls.is_mouse_left_btn_press = true;
+      resetMouseCoords = true;
+   }
+   else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+      cout << "left_btn_release" << endl;
+      editor_controls.is_mouse_left_btn_press = false;
+      cout << editor_controls.is_mouse_drag << endl;
+      if (!editor_controls.is_mouse_drag && !moveMode) {
+
+
+      }
+      editor_controls.press_release_toggle = GLFW_RELEASE;
+      editor_controls.is_mouse_drag = false;
+      entity_controls.is_dragging_entity = false;
+   }
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
