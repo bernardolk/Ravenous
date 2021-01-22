@@ -66,10 +66,10 @@ void camera_look_at(Camera& camera, glm::vec3 position, bool isPosition) {
 	camera.Front = glm::normalize(camera.Front);
 }
 
-int camera_create(glm::vec3 initialPosition, glm::vec3 direction) {
+int camera_create(glm::vec3 initialPosition, glm::vec3 direction, bool isPosition = true) {
 	Camera new_camera;
 	new_camera.Position = initialPosition;
-	camera_look_at(new_camera, direction, true);
+	camera_look_at(new_camera, direction, isPosition);
 	cameraList.push_back(new_camera);
 	return cameraList.size() - 1;
 }

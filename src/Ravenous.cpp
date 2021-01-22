@@ -94,15 +94,10 @@ int main() {
 
    // reads from camera position file
    float* camera_pos = load_camera_settings("w:/camera.txt");
-
-   // Todo: read camera.front position from file as well
-   // Todo: implement function that stores current camera settings to the .txt file
-   // Todo: make function be called when press the '9' key
-
-
    std::cout << "camera " << camera_pos[0] << "," << camera_pos[1] << "," << camera_pos[2] << "\n";
    std::cout << "camera dir " << camera_pos[3] << "," << camera_pos[4] << "," << camera_pos[5] << "\n";
-	u16 camera_id = camera_create(vec3(camera_pos[0], camera_pos[1], camera_pos[2]), vec3(camera_pos[3], camera_pos[4], camera_pos[5]));
+	u16 camera_id = 
+            camera_create(vec3(camera_pos[0], camera_pos[1], camera_pos[2]), vec3(camera_pos[3], camera_pos[4], camera_pos[5]), false);
 	active_camera = cameraList[camera_id];
 
 
