@@ -37,6 +37,7 @@ const float VIEWPORT_HEIGHT = 800;
 #include <Camera.h>
 #include <Entities.h>
 #include <Renderer.h>
+#include <parser.h>
 
 
 #define glCheckError() glCheckError_(__FILE__, __LINE__) 
@@ -98,13 +99,6 @@ struct GlobalInputInfo {
 } G_INPUT_INFO;
 
 
-
-
-// #include <Editor.h>
-#include <parser.h>
-
-
-
 int main() {
 
    // reads from camera position file
@@ -119,17 +113,18 @@ int main() {
 	// INITIAL GLFW AND GLAD SETUPS
 	setup_window(true);
 
-	// SHADERS
+	// gl enables
 	glEnable(GL_DEPTH_TEST);
+   glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	// MAIN SHADERS
+	// shaders
 	model_shader = create_shader_program("Model Shader", "vertex_model", "fragment_multiple_lights");
 	Shader obj_shader = create_shader_program("Obj Shader", "vertex_color_cube", "fragment_multiple_lights");
 	Shader light_shader = create_shader_program("Light Props Shader", "vertex_color_cube", "fragment_light");
 	quad_shader = create_shader_program("Billboard Shader", "quad_vertex", "textured_quad_fragment");
 
 	// Text shaders (GUI)
-	//Shader Text_shader = initialize_Text_shader();
 	load_text_textures("Consola.ttf", 12);
    initialize_shaders();
 
@@ -139,6 +134,8 @@ int main() {
 
    Mesh quad_mesh = Mesh(quad_vertex_vec, quad_vertex_indices);
    Model quad_model(quad_mesh);
+   Entity plat = make_platform(0, 0, 0, 10, 4, quad_model, quad_shader);
+   demo_scene.entities.push_back(plat);
 
    // LIGHTSOURCES
    PointLight l1;
@@ -151,7 +148,6 @@ int main() {
 
    active_scene = &demo_scene;
    
-
 	// MAIN LOOP
 	while (!glfwWindowShouldClose(window))
 	{
@@ -162,15 +158,11 @@ int main() {
 
 		//	INPUT PHASE
 		glfwPollEvents();
-		//editor_start_frame();
 		processInput(window);
 
-
 		//	UPDATE PHASE
-		//editor_update();
 		camera_update(active_camera, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
 		update_scene_objects();
-
 
 		//	RENDER PHASE
 		glClearColor(0.196, 0.298, 0.3607, 1.0f);
@@ -180,7 +172,6 @@ int main() {
 
       editor_render_gui(active_camera);
 
-		//editor_end_frame();	
 		glfwSwapBuffers(window);
 	}
 
@@ -189,7 +180,8 @@ int main() {
 	return 0;
 }
 
-Entity make_platform(float y, float x, float z, float length, float width, Model model, Shader shader) {
+Entity make_platform(float y, float x, float z, float length, float width, Model model, Shader shader) 
+{
    Entity platform{
          G_ENTITY_INFO.entity_counter,
          ++G_ENTITY_INFO.entity_counter,
@@ -203,7 +195,8 @@ Entity make_platform(float y, float x, float z, float length, float width, Model
 }
 
 
-void editor_render_gui(Camera& camera) {
+void editor_render_gui(Camera& camera) 
+{
    // render GUI text
    // text render
    float GUI_x = 25;
@@ -236,8 +229,8 @@ void editor_render_gui(Camera& camera) {
 
 
 
-void initialize_shaders() {
-
+void initialize_shaders() 
+{
    // text shader
 	Text_shader = create_shader_program("Text Shader", "vertex_text", "fragment_text");
    Text_shader.use();
@@ -253,22 +246,24 @@ void initialize_shaders() {
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-
 }
 
-std::string format_float_tostr(float num, int precision) {
+std::string format_float_tostr(float num, int precision) 
+{
 	string temp = std::to_string(num);
 	return temp.substr(0, temp.find(".") + 3);
 }
 
-void render_text(std::string text, float x, float y, float scale, glm::vec3 color) {
+void render_text(std::string text, float x, float y, float scale, glm::vec3 color) 
+{
 	Text_shader.use();
 	Text_shader.setFloat3("textColor", color.x, color.y, color.z);
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(Text_VAO);
 
 	std::string::iterator c;
-	for (c = text.begin(); c != text.end(); c++) {
+	for (c = text.begin(); c != text.end(); c++) 
+   {
 		Character ch = Characters[*c];
 
 		GLfloat xpos = x + ch.Bearing.x * scale;
@@ -277,12 +272,12 @@ void render_text(std::string text, float x, float y, float scale, glm::vec3 colo
 		GLfloat h = ch.Size.y * scale;
 		// Update VBO for each character
 		GLfloat vertices[6][4] = {
-		{ xpos, ypos + h, 0.0, 0.0 },
-		{ xpos, ypos, 0.0, 1.0 },
-		{ xpos + w, ypos, 1.0, 1.0 },
-		{ xpos, ypos + h, 0.0, 0.0 },
-		{ xpos + w, ypos, 1.0, 1.0 },
-		{ xpos + w, ypos + h, 1.0, 0.0 }
+         { xpos, ypos + h, 0.0, 0.0 },
+         { xpos, ypos, 0.0, 1.0 },
+         { xpos + w, ypos, 1.0, 1.0 },
+         { xpos, ypos + h, 0.0, 0.0 },
+         { xpos + w, ypos, 1.0, 1.0 },
+         { xpos + w, ypos + h, 1.0, 0.0 }
 		};
 
 		//std::cout << "xpos: " << xpos << ", ypos:" << ypos << ", h: " << h << ", w: " << w << std::endl;
@@ -317,10 +312,12 @@ void render_text(std::string text, float x, float y, float scale, glm::vec3 colo
 // }
 
 
-inline void update_scene_objects() {
+inline void update_scene_objects() 
+{
 	auto entity = active_scene->entities.begin();
 	auto end = active_scene->entities.end();
-	for (entity; entity < end; entity++) {
+	for (entity; entity < end; entity++) 
+   {
 		// Updates model matrix;	
 		mat4 model = translate(mat4identity, entity->position);
 		model = rotate(model, radians(entity->rotation.x), vec3(1.0f, 0.0f, 0.0f));
@@ -369,11 +366,13 @@ void setup_window(bool debug) {
 void render_scene() 
 {
 	auto entity_ptr = active_scene->entities.begin();
-	for (entity_ptr; entity_ptr != active_scene->entities.end(); entity_ptr++) {
+	for (entity_ptr; entity_ptr != active_scene->entities.end(); entity_ptr++) 
+   {
 		entity_ptr->shader->use();
 		auto point_light_ptr = active_scene->pointLights.begin();
 		int point_light_count = 0;
-		for (point_light_ptr; point_light_ptr != active_scene->pointLights.end(); point_light_ptr++) {
+		for (point_light_ptr; point_light_ptr != active_scene->pointLights.end(); point_light_ptr++)
+      {
 			PointLight point_light = *point_light_ptr;
 			string uniform_name = "pointLights[" + to_string(point_light_count) + "]";
 			entity_ptr->shader->setFloat3(uniform_name + ".position", point_light.position);
@@ -498,17 +497,15 @@ void onMouseScroll(GLFWwindow* window, double xoffset, double yoffset)
 
 void onMouseBtn(GLFWwindow* window, int button, int action, int mods) 
 {
-	// if (editor_mode) {
-	// 	editor_process_input_mouse_btn(button, action);
-	// }
-
-   if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+   if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) 
+   {
       G_INPUT_INFO.is_mouse_left_btn_press = true;
       G_INPUT_INFO.reset_mouse_coords = true;
       G_INPUT_INFO.mouse_btn_down_x = G_INPUT_INFO.currentMouseX;
       G_INPUT_INFO.mouse_btn_down_y = G_INPUT_INFO.currentMouseY;
    }
-   else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+   else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) 
+   {
       cout << "left_btn_release" << endl;
       G_INPUT_INFO.is_mouse_left_btn_press = false;
       cout << G_INPUT_INFO.is_mouse_drag << endl;
