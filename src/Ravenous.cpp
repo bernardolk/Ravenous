@@ -86,14 +86,15 @@ struct GlobalSceneInfo {
 #define glCheckError() glCheckError_(__FILE__, __LINE__) 
 
 
-using namespace glm;
-
 // SHADER SETTINGS
 float global_shininess = 32.0f;
 
 // OPENGL OBJECTS
 unsigned int texture, texture_specular;
 Shader quad_shader, model_shader, Text_shader;
+
+
+using namespace glm;
 
 // FUNCTION PROTOTYPES
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -102,7 +103,7 @@ void render_ray();
 void render_scene();
 void update_scene_objects();
 void initialize_shaders();
-void editor_render_gui(Camera& camera);
+void render_text_overlay(Camera& camera);
 Entity make_platform(float y, float x, float z, float length, float width, Model model, Shader shader);
 GLenum glCheckError_(const char* file, int line);
 std::string format_float_tostr(float num, int precision);
@@ -154,17 +155,35 @@ int main() {
 	// CREATE SCENE 
    Scene demo_scene;
 
-   // setup platform geometry
-   Mesh quad_mesh = Mesh(quad_vertex_vec, quad_vertex_indices);
-   Model quad_model(quad_mesh);
 
-   // basic platform
+
+   // ENTITY SETUP
+   unsigned int brick_texture = load_texture_from_file("brickwall.jpg", "w:/assets/textures");
+   unsigned int brick_normal_texture = load_texture_from_file("brickwall_normal.jpg", "w:/assets/textures");
+   Texture quad_wall_texture{
+      brick_texture,
+      "texture_diffuse",
+      "whatever"
+   };
+   Texture quad_wall_normal_texture{
+      brick_normal_texture,
+      "texture_normal",
+      "whatever"
+   };
+   vector<Texture> texture_vec;
+   texture_vec.push_back(quad_wall_texture);
+   texture_vec.push_back(quad_wall_normal_texture);
+
+   Mesh quad_mesh = Mesh(quad_vertex_vec, quad_vertex_indices, texture_vec);
+   Model quad_model(quad_mesh);
+   quad_model.textures_loaded = texture_vec;
+
    Entity platform{
       G_ENTITY_INFO.entity_counter,
       ++G_ENTITY_INFO.entity_counter,
       &quad_model,
       &model_shader,
-      vec3(0,0,0),
+      vec3(0.5,0,0.5),
       vec3(90, 0, 90),
       vec3(1.0f,1.0f,1.0f)
    };
@@ -174,10 +193,11 @@ int main() {
    // lightsource
    PointLight l1;
    l1.id = 1;
-   l1.position = vec3(-3, 1.5, -1.5);
+   l1.position = vec3(0.5, 2.5, 0.5);
    l1.diffuse = vec3(1.0, 1.0, 1.0);
-   l1.intensity_linear = 0.05f;
-   l1.intensity_quadratic = 0.001f;
+   l1.ambient = vec3(0.6,0.6,0.6);
+   l1.intensity_linear = 0.4f;
+   l1.intensity_quadratic = 0.04f;
    demo_scene.pointLights.push_back(l1);
 
    G_SCENE_INFO.active_scene = &demo_scene;
@@ -185,6 +205,7 @@ int main() {
 	// MAIN LOOP
 	while (!glfwWindowShouldClose(G_DISPLAY_INFO.window))
 	{
+      // START FRAME
 		float currentFrame = glfwGetTime();
 		G_FRAME_INFO.delta_time = currentFrame - G_FRAME_INFO.last_frame_time;
 		G_FRAME_INFO.last_frame_time = currentFrame;
@@ -200,15 +221,13 @@ int main() {
 		//	RENDER PHASE
 		glClearColor(0.196, 0.298, 0.3607, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		render_scene();
+      render_text_overlay(G_SCENE_INFO.camera);
 
-      editor_render_gui(G_SCENE_INFO.camera);
-
+      // FINISH FRAME
 		glfwSwapBuffers(G_DISPLAY_INFO.window);
 	}
 
-	//editor_terminate();
 	glfwTerminate();
 	return 0;
 }
@@ -230,10 +249,9 @@ Entity make_platform(float y, float x, float z, float length, float width, Model
 }
 
 
-void editor_render_gui(Camera& camera) 
+void render_text_overlay(Camera& camera) 
 {
-   // render GUI text
-   // text render
+   // render info text
    float GUI_x = 25;
    float GUI_y = G_DISPLAY_INFO.VIEWPORT_HEIGHT - 60;
 
