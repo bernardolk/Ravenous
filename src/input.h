@@ -16,33 +16,35 @@ void process_keyboard_input(GLFWwindow* window)
 	//Todo: get a real input toggling system in place
 	// something that allows you to wait for release to get in the if again
 	float cameraSpeed = G_FRAME_INFO.delta_time * G_SCENE_INFO.camera.Acceleration;
-	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE) {
 
-		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-			cameraSpeed = G_FRAME_INFO.delta_time * G_SCENE_INFO.camera.Acceleration * 2;
-		}
-		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-			glfwSetWindowShouldClose(window, true);
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			G_SCENE_INFO.camera.Position += cameraSpeed * G_SCENE_INFO.camera.Front;
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			G_SCENE_INFO.camera.Position -= cameraSpeed * G_SCENE_INFO.camera.Front;
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-			G_SCENE_INFO.camera.Position -= cameraSpeed * glm::normalize(glm::cross(G_SCENE_INFO.camera.Front, G_SCENE_INFO.camera.Up));
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-			G_SCENE_INFO.camera.Position += cameraSpeed * glm::normalize(glm::cross(G_SCENE_INFO.camera.Front, G_SCENE_INFO.camera.Up));
-		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-			G_SCENE_INFO.camera.Position -= cameraSpeed * G_SCENE_INFO.camera.Up;
-		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-			G_SCENE_INFO.camera.Position += cameraSpeed * G_SCENE_INFO.camera.Up;
-		if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
-			camera_look_at(G_SCENE_INFO.camera, glm::vec3(0.0f, 0.0f, 0.0f), true);
-			G_INPUT_INFO.reset_mouse_coords = true;
-		}
-      if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
-			save_camera_settings_to_file("w:/camera.txt", G_SCENE_INFO.camera.Position, G_SCENE_INFO.camera.Front);
-		}
-	}
+   if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+      cameraSpeed = cameraSpeed * 2;
+   }
+   if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+      cameraSpeed = cameraSpeed / 2.0;
+   }
+   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+      glfwSetWindowShouldClose(window, true);
+   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+      G_SCENE_INFO.camera.Position += cameraSpeed * G_SCENE_INFO.camera.Front;
+   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+      G_SCENE_INFO.camera.Position -= cameraSpeed * G_SCENE_INFO.camera.Front;
+   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+      G_SCENE_INFO.camera.Position -= cameraSpeed * glm::normalize(glm::cross(G_SCENE_INFO.camera.Front, G_SCENE_INFO.camera.Up));
+   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+      G_SCENE_INFO.camera.Position += cameraSpeed * glm::normalize(glm::cross(G_SCENE_INFO.camera.Front, G_SCENE_INFO.camera.Up));
+   if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+      G_SCENE_INFO.camera.Position -= cameraSpeed * G_SCENE_INFO.camera.Up;
+   if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+      G_SCENE_INFO.camera.Position += cameraSpeed * G_SCENE_INFO.camera.Up;
+   if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
+      camera_look_at(G_SCENE_INFO.camera, glm::vec3(0.0f, 0.0f, 0.0f), true);
+      G_INPUT_INFO.reset_mouse_coords = true;
+   }
+   if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
+      save_camera_settings_to_file("w:/camera.txt", G_SCENE_INFO.camera.Position, G_SCENE_INFO.camera.Front);
+   }
+
 
 	// This solution will only work while i have only one key combo implemented (i guess)
 	if (G_INPUT_INFO.key_combo_pressed) {

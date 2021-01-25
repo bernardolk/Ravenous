@@ -7,7 +7,7 @@ struct GlobalEntityInfo {
 struct Entity {
 	unsigned int index;
 	unsigned int id;
-	Model* model3d;
+	Model* model;
 	Shader* shader;
 	glm::vec3 position;
 	glm::vec3 rotation = glm::vec3(0.0f);

@@ -35,7 +35,13 @@ const glm::mat4 mat4identity(
 );
 
 
-// GLOBAL STRUCT VARIABLES (WITH PURE TYPES)
+// GLOBAL STRUCT VARIABLES OR TYPES 
+struct GLData {
+   GLuint VAO = 0;
+   GLuint VBO = 0;
+   GLuint EBO = 0;
+};
+
 struct GlobalDisplayInfo {
    GLFWwindow* window;
    const float VIEWPORT_WIDTH = 1000;
@@ -65,11 +71,14 @@ struct GlobalFrameInfo {
 
 // SOURCE INCLUDES
 #include <text.h>
-#include <Shader.h>
-#include <Mesh.h>
-#include <Model.h>
-#include <Camera.h>
-#include <Entities.h>
+#include <shader.h>
+#include <mesh.h>
+#include <model.h>
+#include <camera.h>
+#include <entities.h>
+#include <parser.h>
+#include <loaders.h>
+#include <render.h>
 //#include <Renderer.h>
 
 // GLOBAL STRUCT VARIABLES (WITH CUSTOM TYPES)
@@ -174,9 +183,15 @@ int main() {
    texture_vec.push_back(quad_wall_texture);
    texture_vec.push_back(quad_wall_normal_texture);
 
-   Mesh quad_mesh = Mesh(quad_vertex_vec, quad_vertex_indices, texture_vec);
-   Model quad_model(quad_mesh);
-   quad_model.textures_loaded = texture_vec;
+   Mesh quad_mesh;
+   quad_mesh.vertices = quad_vertex_vec;
+   quad_mesh.indices = quad_vertex_indices;
+   
+
+   Model quad_model;
+   quad_model.mesh = quad_mesh;
+   quad_model.textures = texture_vec;
+   quad_model.gl_data = setup_gl_data_for_mesh(&quad_mesh);
 
    Entity platform{
       G_ENTITY_INFO.entity_counter,
@@ -418,8 +433,9 @@ void setup_window(bool debug) {
 
 void render_scene() 
 {
-	auto entity_ptr = G_SCENE_INFO.active_scene->entities.begin();
-	for (entity_ptr; entity_ptr != G_SCENE_INFO.active_scene->entities.end(); entity_ptr++) 
+	Entity *entity_ptr = &(G_SCENE_INFO.active_scene->entities[0]);
+   int entities_vec_size =  G_SCENE_INFO.active_scene->entities.size();
+	for(int it = 0; it < entities_vec_size; it++) 
    {
 		entity_ptr->shader->use();
 		auto point_light_ptr = G_SCENE_INFO.active_scene->pointLights.begin();
@@ -437,16 +453,18 @@ void render_scene()
 			entity_ptr->shader->setFloat(uniform_name + ".quadratic", point_light.intensity_quadratic);
 			point_light_count++;
 		}
-		entity_ptr->shader->setInt("num_point_lights"		,point_light_count);
-		entity_ptr->shader->setInt("num_directional_light"	, 0);
-		entity_ptr->shader->setInt("num_spot_lights"		, 0);
-		entity_ptr->shader->setMatrix4("view"				, G_SCENE_INFO.camera.View4x4);
-		entity_ptr->shader->setMatrix4("projection"			, G_SCENE_INFO.camera.Projection4x4);
-		entity_ptr->shader->setFloat("shininess"			, global_shininess);
-		entity_ptr->shader->setFloat3("viewPos"				, G_SCENE_INFO.camera.Position);
-		//mat4 model_matrix = scale(mat4identity				, vec3(0.01,0.01,0.01));
-		entity_ptr->shader->setMatrix4("model"				, entity_ptr->matModel);
-		entity_ptr->model3d->Draw(*entity_ptr->shader);
+		entity_ptr->shader->setInt    ("num_point_lights", point_light_count);
+		entity_ptr->shader->setInt    ("num_directional_light", 0);
+		entity_ptr->shader->setInt    ("num_spot_lights", 0);
+		entity_ptr->shader->setMatrix4("view", G_SCENE_INFO.camera.View4x4);
+		entity_ptr->shader->setMatrix4("projection", G_SCENE_INFO.camera.Projection4x4);
+		entity_ptr->shader->setFloat  ("shininess", global_shininess);
+		entity_ptr->shader->setFloat3 ("viewPos", G_SCENE_INFO.camera.Position);
+		//mat4 model_matrix = scale   (mat4identity, vec3(0.01,0.01,0.01));
+		entity_ptr->shader->setMatrix4("model", entity_ptr->matModel);
+		render_entity(entity_ptr);
+
+      entity_ptr++;
 	}
 }
 

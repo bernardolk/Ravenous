@@ -11,7 +11,7 @@ struct Camera {
 	glm::vec3 Position;
 	glm::vec3 Front;
 	glm::vec3 Up = glm::vec3(0.0f, 1.0f, 0.0f);
-	float Acceleration = 10.0f;
+	float Acceleration = 3.5f;
 	float FOVy = 45.0f;
 	float FarPlane = 300.0f;
 	float NearPlane = 0.1f;
