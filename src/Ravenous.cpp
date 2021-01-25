@@ -15,6 +15,22 @@
 #include <stdlib.h>
 #include <string>
 
+
+typedef unsigned char u8;
+typedef unsigned short int u16;
+typedef unsigned int u32;
+typedef unsigned long int u64;
+const float PI = 3.141592;
+
+const std::string textures_path = "w:/assets/textures/";
+const std::string models_path = "w:/assets/models/";
+const std::string FONTS_PATH = "w:/assets/fonts/";
+
+const float VIEWPORT_WIDTH = 1000;
+const float VIEWPORT_HEIGHT = 800;
+
+
+#include <text.h>
 #include <Shader.h>
 #include <Mesh.h>
 #include <Model.h>
@@ -22,26 +38,19 @@
 #include <Entities.h>
 #include <Renderer.h>
 
+
 #define glCheckError() glCheckError_(__FILE__, __LINE__) 
 
 using namespace glm;
-
-
-const float PI = 3.141592;
-
-typedef unsigned short int u16;
-typedef unsigned int u32;
-typedef unsigned long int u64;
-
 
 // SHADER SETTINGS
 float global_shininess = 32.0f;
 
 // OPENGL OBJECTS
 unsigned int texture, texture_specular;
-Shader quad_shader, model_shader, text_shader;
+Shader quad_shader, model_shader, Text_shader;
 
-// METHOD PROTOTYPES
+// FUNCTION PROTOTYPES
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void onMouseScroll(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
@@ -52,42 +61,48 @@ void onMouseBtn(GLFWwindow* window, int button, int action, int mods);
 void render_ray();
 void render_scene();
 void update_scene_objects();
-void render_scene_lights();
+//void render_scene_lights();
 void initialize_shaders();
-
-
-
-
+void editor_render_gui(Camera& camera);
+//unsigned int setup_object(MeshData objData);
 Entity make_platform(float y, float x, float z, float length, float width, Model model, Shader shader);
-
-
 GLenum glCheckError_(const char* file, int line);
+std::string format_float_tostr(float num, int precision);
+void render_text(std::string text, float x, float y, float scale, glm::vec3 color);
 
 
+// Variables
+GlobalEntityInfo G_ENTITY_INFO;
 GLFWwindow* window;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 int frameCounter = 0;
 float current_fps;
 bool editor_mode = true;
-double currentMouseX;
-double currentMouseY;
+
 Scene* active_scene;
 Camera active_camera;
+GLuint Text_VAO, Text_VBO;
 
-const float viewportWidth = 1000;
-const float viewportHeight = 800;
+struct GlobalInputInfo {
+   bool reset_mouse_coords = true;
+   bool key_combo_pressed = false;
+   bool is_mouse_left_btn_press = false;
+   bool is_mouse_drag = false;
+   double last_registered_mouse_coord_x = 0;
+   double last_registered_mouse_coord_y = 0; 
+   double mouse_btn_down_x;
+   double mouse_btn_down_y;
+   double currentMouseX;
+   double currentMouseY;
+} G_INPUT_INFO;
 
 
-const string textures_path = "w:/assets/textures/";
-const string models_path = "w:/assets/models/";
-const string fonts_path = "w:/assets/fonts/";
 
 
-#include <Editor.h>
+// #include <Editor.h>
 #include <parser.h>
 
-unsigned int setup_object(MeshData objData);
 
 
 int main() {
@@ -103,22 +118,18 @@ int main() {
 
 	// INITIAL GLFW AND GLAD SETUPS
 	setup_window(true);
-	// editor_initialize(viewportWidth, viewportHeight);
 
 	// SHADERS
 	glEnable(GL_DEPTH_TEST);
 
 	// MAIN SHADERS
-	//Shader model_shader("vertex_model.shd", "fragment_model.shd");
 	model_shader = create_shader_program("Model Shader", "vertex_model", "fragment_multiple_lights");
-	//Shader cube_shader("vertex_main.shd", "fragment_main.shd");
 	Shader obj_shader = create_shader_program("Obj Shader", "vertex_color_cube", "fragment_multiple_lights");
 	Shader light_shader = create_shader_program("Light Props Shader", "vertex_color_cube", "fragment_light");
 	quad_shader = create_shader_program("Billboard Shader", "quad_vertex", "textured_quad_fragment");
-	//Shader pink_shader = create_shader_program("Pink", "bounding_box_vertex", "bounding_box_fragment");
 
 	// Text shaders (GUI)
-	//Shader text_shader = initialize_text_shader();
+	//Shader Text_shader = initialize_Text_shader();
 	load_text_textures("Consola.ttf", 12);
    initialize_shaders();
 
@@ -126,53 +137,8 @@ int main() {
    Scene demo_scene;
    demo_scene.id = 1;
 
-
-   // QUAD MODEL TESTS
-   unsigned int brick_texture = load_texture_from_file("brickwall.jpg", "assets/textures");
-   unsigned int brick_normal_texture = load_texture_from_file("brickwall_normal.jpg", "assets/textures");
-   Texture quad_wall_texture{
-      brick_texture,
-      "texture_diffuse",
-      "whatever"
-   };
-   Texture quad_wall_normal_texture{
-      brick_normal_texture,
-      "texture_normal",
-      "whatever"
-   };
-   vector<Texture> texture_vec;
-   texture_vec.push_back(quad_wall_texture);
-   texture_vec.push_back(quad_wall_normal_texture);
-   Mesh quad_mesh = Mesh(quad_vertex_vec, quad_vertex_indices, texture_vec);
+   Mesh quad_mesh = Mesh(quad_vertex_vec, quad_vertex_indices);
    Model quad_model(quad_mesh);
-
-   quad_model.textures_loaded = texture_vec;
-
-   Entity quad_wall{
-      entity_counter,
-      ++entity_counter,
-      &quad_model,
-      &model_shader,
-      vec3(0,0,0),
-      vec3(90, 0, 90),
-      vec3(1.0f,1.0f,1.0f)
-   };
-   demo_scene.entities.push_back(quad_wall);
-
-   Entity quad_wall2{
-      entity_counter,
-      ++entity_counter,
-      &quad_model,
-      &model_shader,
-      vec3(2,-3,2),
-      vec3(90, 0, 90),
-      vec3(8.0f,2.0f,8.0f)
-   };
-   demo_scene.entities.push_back(quad_wall2);
-
-   //Entity platform = make_platform(-3.0f, -3.0f, 0.0f, 20, 20, quad_model, quad_shader);
-   //demo_scene.entities.push_back(platform);
-
 
    // LIGHTSOURCES
    PointLight l1;
@@ -202,7 +168,7 @@ int main() {
 
 		//	UPDATE PHASE
 		//editor_update();
-		camera_update(active_camera, viewportWidth, viewportHeight);
+		camera_update(active_camera, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
 		update_scene_objects();
 
 
@@ -212,12 +178,7 @@ int main() {
 
 		render_scene();
 
-		//if (!moveMode)
-		//	render_scene_lights();
-
       editor_render_gui(active_camera);
-
-	   //editor_loop();
 
 		//editor_end_frame();	
 		glfwSwapBuffers(window);
@@ -230,8 +191,8 @@ int main() {
 
 Entity make_platform(float y, float x, float z, float length, float width, Model model, Shader shader) {
    Entity platform{
-         entity_counter,
-         ++entity_counter,
+         G_ENTITY_INFO.entity_counter,
+         ++G_ENTITY_INFO.entity_counter,
          &model,
          &shader,
          vec3(x,y,z),
@@ -242,17 +203,51 @@ Entity make_platform(float y, float x, float z, float length, float width, Model
 }
 
 
+void editor_render_gui(Camera& camera) {
+   // render GUI text
+   // text render
+   float GUI_x = 25;
+   float GUI_y = VIEWPORT_HEIGHT - 60;
+
+   string GUI_atts[]{
+      format_float_tostr(camera.Position.x, 2),
+      format_float_tostr(camera.Position.y,2),
+      format_float_tostr(camera.Position.z,2),
+      format_float_tostr(camera.Pitch,2),
+      format_float_tostr(camera.Yaw,2),
+      format_float_tostr(camera.Front.x,2),
+      format_float_tostr(camera.Front.y,2),
+      format_float_tostr(camera.Front.z,2)
+   };
+
+   string camera_position = "pos :: x: " + GUI_atts[0] + " y:" + GUI_atts[1] + " z:" + GUI_atts[2];
+   string camera_front = "dir :: x: " + GUI_atts[5] + " y:" + GUI_atts[6] + " z:" + GUI_atts[7];
+   string mouse_stats = "pitch: " + GUI_atts[3] + " yaw: " + GUI_atts[4];
+   string fps = to_string(current_fps);
+   string fps_gui = "FPS: " + fps.substr(0, fps.find('.', 0) + 2);
+
+
+   float scale = 1;
+   render_text(camera_position, GUI_x, GUI_y, scale, glm::vec3(1.0f, 1.0f, 1.0f));
+   render_text(camera_front, GUI_x, GUI_y - 25, scale, glm::vec3(1.0f, 1.0f, 1.0f));
+   render_text(mouse_stats, GUI_x, GUI_y - 50, scale, glm::vec3(1.0f, 1.0f, 1.0f));
+   render_text(fps_gui, VIEWPORT_HEIGHT - 100, 25, scale, glm::vec3(1.0f, 1.0f, 1.0f));
+}
+
+
+
 void initialize_shaders() {
 
-	text_shader = create_shader_program("Text Shader", "vertex_text", "fragment_text");
-   text_shader.use();
-	text_shader.setMatrix4("projection", glm::ortho(0.0f, viewportWidth, 0.0f, viewportHeight));
+   // text shader
+	Text_shader = create_shader_program("Text Shader", "vertex_text", "fragment_text");
+   Text_shader.use();
+	Text_shader.setMatrix4("projection", glm::ortho(0.0f, VIEWPORT_WIDTH, 0.0f, VIEWPORT_HEIGHT));
 
 	//generate text buffers
-	glGenVertexArrays(1, &text_VAO);
-	glGenBuffers(1, &text_VBO);
-	glBindVertexArray(text_VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, text_VBO);
+	glGenVertexArrays(1, &Text_VAO);
+	glGenBuffers(1, &Text_VBO);
+	glBindVertexArray(Text_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, Text_VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
 	glEnableVertexAttribArray(0);
@@ -261,16 +256,16 @@ void initialize_shaders() {
 
 }
 
-string format_float_tostr(float num, int precision) {
+std::string format_float_tostr(float num, int precision) {
 	string temp = std::to_string(num);
 	return temp.substr(0, temp.find(".") + 3);
 }
 
 void render_text(std::string text, float x, float y, float scale, glm::vec3 color) {
-	text_shader.use();
-	text_shader.setFloat3("textColor", color.x, color.y, color.z);
+	Text_shader.use();
+	Text_shader.setFloat3("textColor", color.x, color.y, color.z);
 	glActiveTexture(GL_TEXTURE0);
-	glBindVertexArray(text_VAO);
+	glBindVertexArray(Text_VAO);
 
 	std::string::iterator c;
 	for (c = text.begin(); c != text.end(); c++) {
@@ -294,7 +289,7 @@ void render_text(std::string text, float x, float y, float scale, glm::vec3 colo
 		// Render glyph texture over quad
 		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
 		// Update content of VBO memory
-		glBindBuffer(GL_ARRAY_BUFFER, text_VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, Text_VBO);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
 		// Render quad
 		glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -302,24 +297,24 @@ void render_text(std::string text, float x, float y, float scale, glm::vec3 colo
 	}
 }
 
-unsigned int setup_object(MeshData objData){
-	unsigned int objVAO, objVBO, objEBO;
-	glGenVertexArrays(1, &objVAO);
-	glGenBuffers(1, &objVBO);
-	glGenBuffers(1, &objEBO);
-	glBindVertexArray(objVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, objVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * objData.vertexes.size() , &objData.vertexes[0], GL_STATIC_DRAW);	
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, objEBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, objData.indices.size() * sizeof(unsigned int),
-		     &objData.indices[0], GL_STATIC_DRAW);
-	// vertex Positions
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-	glBindVertexArray(0);
+// unsigned int setup_object(MeshData objData){
+// 	unsigned int objVAO, objVBO, objEBO;
+// 	glGenVertexArrays(1, &objVAO);
+// 	glGenBuffers(1, &objVBO);
+// 	glGenBuffers(1, &objEBO);
+// 	glBindVertexArray(objVAO);
+// 	glBindBuffer(GL_ARRAY_BUFFER, objVBO);
+// 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * objData.vertexes.size() , &objData.vertexes[0], GL_STATIC_DRAW);	
+// 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, objEBO);
+//     glBufferData(GL_ELEMENT_ARRAY_BUFFER, objData.indices.size() * sizeof(unsigned int),
+// 		     &objData.indices[0], GL_STATIC_DRAW);
+// 	// vertex Positions
+// 	glEnableVertexAttribArray(0);
+// 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+// 	glBindVertexArray(0);
 
-	return objVAO;
-}
+// 	return objVAO;
+// }
 
 
 inline void update_scene_objects() {
@@ -344,7 +339,7 @@ void setup_window(bool debug) {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Creates the window
-	window = glfwCreateWindow(viewportWidth, viewportHeight, "Ravenous", NULL, NULL);
+	window = glfwCreateWindow(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, "Ravenous", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -358,7 +353,7 @@ void setup_window(bool debug) {
 	}
 
 	// Setups openGL viewport
-	glViewport(0, 0, viewportWidth, viewportHeight);
+	glViewport(0, 0, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window, onMouseMove);
 	glfwSetScrollCallback(window, onMouseScroll);
@@ -370,31 +365,9 @@ void setup_window(bool debug) {
 
 }
 
-void render_scene_lights() {
-	auto it = active_scene->pointLights.begin();
-	auto end = active_scene->pointLights.end();
-	for (it; it != end; it++) {
-		quad_shader.use();
-		quad_shader.setMatrix4("view", active_camera.View4x4);
-		quad_shader.setMatrix4("projection", active_camera.Projection4x4);
 
-		vec3 light_norm = active_camera.Position - it->position;
-		float angle_pitch = atan(light_norm.x / light_norm.z);
-
-		glm::mat4 model_m = glm::translate(mat4identity, it->position);
-		model_m = rotate(model_m, angle_pitch, active_camera.Up);
-		model_m = glm::scale(model_m, vec3(light_icons_scaling, light_icons_scaling * 1.5f, light_icons_scaling));
-		quad_shader.setMatrix4("model", model_m);
-
-		glBindVertexArray(quad_vao);
-		glActiveTexture(0);
-		glBindTexture(GL_TEXTURE_2D, quad_lightbulb_texture);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-	}
-}
-
-
-void render_scene() {
+void render_scene() 
+{
 	auto entity_ptr = active_scene->entities.begin();
 	for (entity_ptr; entity_ptr != active_scene->entities.end(); entity_ptr++) {
 		entity_ptr->shader->use();
@@ -451,7 +424,7 @@ void processInput(GLFWwindow* window)
 			active_camera.Position += cameraSpeed * active_camera.Up;
 		if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
 			camera_look_at(active_camera, glm::vec3(0.0f, 0.0f, 0.0f), true);
-			resetMouseCoords = true;
+			G_INPUT_INFO.reset_mouse_coords = true;
 		}
 		if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
 			global_shininess -= 10 * deltaTime;
@@ -463,67 +436,31 @@ void processInput(GLFWwindow* window)
       if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
 			save_camera_settings_to_file("w:/camera.txt", active_camera.Position, active_camera.Front);
 		}
-
-
-		// Toggle GUI (substitute all checks for just one varible holding last key pressed (or keys)
-		// then when released, set it to null or zero or something.
-		if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS && !GUI_btn_down) {
-			GUI_btn_down = true;
-			if (show_GUI)
-				show_GUI = false;
-			else show_GUI = true;
-		}
-		if (glfwGetKey(window, GLFW_KEY_G) == GLFW_RELEASE && GUI_btn_down)
-			GUI_btn_down = false;
-
-		if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
-			active_camera = cameraList[0];
-		}
-		if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
-			active_camera = cameraList[1];
-		}
-
 	}
-	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS && !keyComboPressed) {
-		if (moveMode) {
-			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-			moveMode = false;
-			keyComboPressed = true;
-		}
-		else {
-			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-			moveMode = true;
-			resetMouseCoords = true;
-			keyComboPressed = true;
-		}
-	}
+
 	// This solution will only work while i have only one key combo implemented (i guess)
-	if (keyComboPressed) {
+	if (G_INPUT_INFO.key_combo_pressed) {
 		if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE || glfwGetKey(window, GLFW_KEY_M) == GLFW_RELEASE)
-			keyComboPressed = false;
+			G_INPUT_INFO.key_combo_pressed = false;
 	}
 
 }
 
 void onMouseMove(GLFWwindow* window, double xpos, double ypos)
 {
-	// if (editor_mode) {
-	// 	editor_process_input_mouse_move(xpos, ypos);
-	// }
-
-   if (moveMode || (editor_controls.is_mouse_drag && !entity_controls.is_dragging_entity)) {
+   if (G_INPUT_INFO.is_mouse_drag) {
       // 'teleports' stored coordinates to current mouse coordinates
-      if (resetMouseCoords) {
-         lastXMouseCoord = xpos;
-         lastYMouseCoord = ypos;
-         resetMouseCoords = false;
+      if (G_INPUT_INFO.reset_mouse_coords) {
+         G_INPUT_INFO.last_registered_mouse_coord_x = xpos;
+         G_INPUT_INFO.last_registered_mouse_coord_y = ypos;
+         G_INPUT_INFO.reset_mouse_coords = false;
       }
 
       // calculates offsets
-      float xoffset = xpos - lastXMouseCoord;
-      float yoffset = lastYMouseCoord - ypos;
-      lastXMouseCoord = xpos;
-      lastYMouseCoord = ypos;
+      float xoffset = xpos - G_INPUT_INFO.last_registered_mouse_coord_x;
+      float yoffset = G_INPUT_INFO.last_registered_mouse_coord_y - ypos;
+      G_INPUT_INFO.last_registered_mouse_coord_x = xpos;
+      G_INPUT_INFO.last_registered_mouse_coord_y = ypos;
 
       xoffset *= active_camera.Sensitivity;
       yoffset *= active_camera.Sensitivity;
@@ -543,55 +480,39 @@ void onMouseMove(GLFWwindow* window, double xpos, double ypos)
          active_camera.Yaw = active_camera.Yaw + 360.0f;
    }
 
-   currentMouseX = xpos;
-	currentMouseY = ypos;
+   G_INPUT_INFO.currentMouseX = xpos;
+	G_INPUT_INFO.currentMouseY = ypos;
 
 	// mouse dragging controls
-	if (editor_controls.is_mouse_left_btn_press
-		&& (abs(editor_controls.mouse_btn_down_x - currentMouseX) > 2
-			|| abs(editor_controls.mouse_btn_down_y - currentMouseY) > 2)) {
-		editor_controls.is_mouse_drag = true;
+	if (G_INPUT_INFO.is_mouse_left_btn_press
+		&& (abs(G_INPUT_INFO.mouse_btn_down_x - G_INPUT_INFO.currentMouseX) > 2
+			|| abs(G_INPUT_INFO.mouse_btn_down_y - G_INPUT_INFO.currentMouseY) > 2)) {
+		G_INPUT_INFO.is_mouse_drag = true;
 	}
 }
 
-void onMouseScroll(GLFWwindow* window, double xoffset, double yoffset) {
-	// if (editor_mode) {
-	// 	if (!ImGui::GetIO().WantCaptureMouse) {
-	// 		if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL)) {
-	// 			if (active_camera.FOVy <= 45.0f && active_camera.FOVy >= 1.0f)
-	// 				active_camera.FOVy -= yoffset * 3;
-	// 			if (active_camera.FOVy < 1.0f)
-	// 				active_camera.FOVy = 1.0f;
-	// 			if (active_camera.FOVy > 45.0f)
-	// 				active_camera.FOVy = 45.0f;
-	// 		}
-	// 		else {
-				active_camera.Position += (float)(3 * yoffset) * active_camera.Front;
-	// 		}
-	// 	}
-	// }
+void onMouseScroll(GLFWwindow* window, double xoffset, double yoffset) 
+{
+		active_camera.Position += (float)(3 * yoffset) * active_camera.Front;
 }
 
-void onMouseBtn(GLFWwindow* window, int button, int action, int mods) {
+void onMouseBtn(GLFWwindow* window, int button, int action, int mods) 
+{
 	// if (editor_mode) {
 	// 	editor_process_input_mouse_btn(button, action);
 	// }
 
    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-      editor_controls.is_mouse_left_btn_press = true;
-      resetMouseCoords = true;
+      G_INPUT_INFO.is_mouse_left_btn_press = true;
+      G_INPUT_INFO.reset_mouse_coords = true;
+      G_INPUT_INFO.mouse_btn_down_x = G_INPUT_INFO.currentMouseX;
+      G_INPUT_INFO.mouse_btn_down_y = G_INPUT_INFO.currentMouseY;
    }
    else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
       cout << "left_btn_release" << endl;
-      editor_controls.is_mouse_left_btn_press = false;
-      cout << editor_controls.is_mouse_drag << endl;
-      if (!editor_controls.is_mouse_drag && !moveMode) {
-
-
-      }
-      editor_controls.press_release_toggle = GLFW_RELEASE;
-      editor_controls.is_mouse_drag = false;
-      entity_controls.is_dragging_entity = false;
+      G_INPUT_INFO.is_mouse_left_btn_press = false;
+      cout << G_INPUT_INFO.is_mouse_drag << endl;
+      G_INPUT_INFO.is_mouse_drag = false;
    }
 }
 

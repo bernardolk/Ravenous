@@ -1,8 +1,5 @@
 #pragma once
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
-
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -10,7 +7,6 @@
 
 
 bool moveMode = false;
-float light_icons_scaling = 0.2f;
 
 
 void editor_start_frame();
@@ -31,16 +27,8 @@ void show_entity_controls(int entityId);
 glm::vec3 cast_pickray(Camera activeCamera);
 float check_box_collision(int entityIndex, glm::vec3 pickray);
 bool check_collision(Entity entity, glm::vec3 pickray);
-void load_text_textures(std::string font, int size);
 void editor_update();
 void render_bounding_box(int entityId);
-
-
-
-bool GUI_btn_down = false;
-bool resetMouseCoords = true;
-bool keyComboPressed = false;
-bool show_GUI = false;
 
 
 u32 buf, vao, vbo, entity_counter = 0;
@@ -52,7 +40,6 @@ using namespace std;
 float viewport_height;
 float viewport_width;
 
-GLuint text_VAO, text_VBO;
 
 // Temporary, for the editor bounding boxes
 u32 bounding_box_indices[] = {
@@ -83,20 +70,7 @@ float quad[] = {
 	0.0f, 1.0f, 0.0f, 0.0f, 1.0f
 };
 
-vector<Vertex> quad_vertex_vec = {
-	Vertex{glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 0.0f)},
-	Vertex{glm::vec3(1.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 0.0f)},
-	Vertex{glm::vec3(1.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 1.0f)},
-	Vertex{glm::vec3(0.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 1.0f)}
-};
 
-
-u32 quad_indices[] = {
-	0,1,2,
-	2,3,0
-};
-
-vector<u32> quad_vertex_indices = { 0,1,2,2,3,0 };
 
 glm::vec3 bg_color(0.008f, 0.314f, 0.275f);
 Shader grid_shader;
@@ -117,13 +91,10 @@ struct EditorControls {
 u32 pt_vao;
 ImGuiStyle* imStyle;
 
-double lastXMouseCoord;
-double lastYMouseCoord;
 
 bool render_pickray = false;
 
 // Function declarations
-string format_float_tostr(float num, int precision);
 void render_text(std::string text, float x, float y, float scale, glm::vec3 color);
 float check_light_collision(int lightIndex, glm::vec3 pickray);
 
@@ -138,14 +109,7 @@ struct EntityControls {
 }entity_controls;
 
 
-struct Character {
-	GLuint TextureID; // ID handle of the glyph texture
-	glm::ivec2 Size; // Size of glyph
-	glm::ivec2 Bearing; // Offset from baseline to left/top of glyph
-	GLuint Advance; // Offset to advance to next glyph
-};
 
-map<GLchar, Character> Characters; // GUI character set
 
 		// --- Pickray ---
 //glm::vec3 pickray_collision_point;
@@ -429,70 +393,6 @@ void editor_process_input_mouse_btn(int button, int action) {
 		}
 	}
 
-}
-
-void editor_render_gui(Camera& camera) {
-		// render GUI text
-		{
-			// text render
-			float GUI_x = 25;
-			float GUI_y = viewport_height - 60;
-
-			string GUI_atts[]{
-				format_float_tostr(camera.Position.x, 2),
-				format_float_tostr(camera.Position.y,2),
-				format_float_tostr(camera.Position.z,2),
-				format_float_tostr(camera.Pitch,2),
-				format_float_tostr(camera.Yaw,2),
-            format_float_tostr(camera.Front.x,2),
-				format_float_tostr(camera.Front.y,2),
-				format_float_tostr(camera.Front.z,2)
-			};
-
-			string camera_position = "pos :: x: " + GUI_atts[0] + " y:" + GUI_atts[1] + " z:" + GUI_atts[2];
-			string camera_front = "dir :: x: " + GUI_atts[5] + " y:" + GUI_atts[6] + " z:" + GUI_atts[7];
-			string mouse_stats = "pitch: " + GUI_atts[3] + " yaw: " + GUI_atts[4];
-			string fps = to_string(current_fps);
-			string fps_gui = "FPS: " + fps.substr(0, fps.find('.', 0) + 2);
-
-
-			float scale = 1;
-			render_text(camera_position, GUI_x, GUI_y, scale, glm::vec3(1.0f, 1.0f, 1.0f));
-			render_text(camera_front, GUI_x, GUI_y - 25, scale, glm::vec3(1.0f, 1.0f, 1.0f));
-			render_text(mouse_stats, GUI_x, GUI_y - 50, scale, glm::vec3(1.0f, 1.0f, 1.0f));
-			render_text(fps_gui, viewport_height - 100, 25, scale, glm::vec3(1.0f, 1.0f, 1.0f));
-		} // render GUI text
-
-
-		// // render GUI controls
-		// {
-		// 	ImGui::Begin("Bg Color");
-		// 	ImGui::ColorPicker3("BG", &bg_color.x);
-		// 	ImGui::End();
-
-		// 	ImGui::Begin("##Cam");
-		// 	editor_controls.camera_align_x = ImGui::ImageButton((void*)(intptr_t)editor_textures[0], ImVec2(16, 16));
-		// 	editor_controls.camera_align_y = ImGui::ImageButton((void*)(intptr_t)editor_textures[1], ImVec2(16, 16));
-		// 	editor_controls.camera_align_z = ImGui::ImageButton((void*)(intptr_t)editor_textures[2], ImVec2(16, 16));
-		// 	ImGui::End();
-
-		// 	bool isModelLoadClicked = false;
-		// 	bool isSceneLoadClicked = false;
-		// 	if (ImGui::BeginMainMenuBar()) {
-		// 		if (ImGui::BeginMenu("Load")) {
-		// 			if (ImGui::MenuItem("Model")) {
-		// 				isModelLoadClicked = true;
-		// 			}
-		// 			if (ImGui::MenuItem("Scene")) {
-		// 				isSceneLoadClicked = true;
-		// 			}
-		// 			ImGui::EndMenu();
-		// 		}
-		// 		ImGui::EndMainMenuBar();
-		// 	}
-
-			//std::string path;
-		//} // render GUI controls
 }
 
 void show_entity_controls(int entityId) {
@@ -892,53 +792,6 @@ float ray_triangle_intersection(glm::vec3 ray_origin, glm::vec3 ray_dir, glm::ve
 	}
 
 	return -1;
-}
-
-void load_text_textures(string font, int size) {
-	// Load font
-	FT_Library ft;
-	if (FT_Init_FreeType(&ft))
-		std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
-	FT_Face face;
-
-	string filepath = fonts_path + font;
-	if (FT_New_Face(ft, filepath.c_str(), 0, &face))
-		std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
-
-	FT_Set_Pixel_Sizes(face, 0, size);
-
-	//Sets opengl to require just 1 byte per pixel in textures
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	//we will store all characters inside the Characters map
-	for (GLubyte c = 0; c < 128; c++)
-	{
-		//Load character glyph
-		if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
-			std::cout << "ERROR::FREETYPE: Failed to load Glyph" << std::endl;
-			continue;
-		}
-
-		GLuint gylphTexture;
-		glGenTextures(1, &gylphTexture);
-		glBindTexture(GL_TEXTURE_2D, gylphTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, face->glyph->bitmap.width,
-			face->glyph->bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
-		// Set texture options
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		// Now store character for later use
-		Character character = { gylphTexture, glm::ivec2(face->glyph->bitmap.width,
-			face->glyph->bitmap.rows), glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top), face->glyph->advance.x };
-		Characters.insert(std::pair<GLchar, Character>(c, character));
-		//std::cout << "c: " << (GLchar)c << " sizeInfo: " << character.Size.x << " (x) " << character.Size.y << " (y)" << std::endl;
-	}
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	FT_Done_Face(face);
-	FT_Done_FreeType(ft);
 }
 
 

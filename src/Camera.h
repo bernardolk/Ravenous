@@ -5,6 +5,7 @@
 #include <glm/ext/vector_float3.hpp> // vec3
 #include <glm/gtx/compatibility.hpp>
 #include <vector>
+#include <parser.h>
 
 struct Camera {
 	glm::vec3 Position;
@@ -24,15 +25,19 @@ struct Camera {
 
 vector<Camera> cameraList;
 
+
+// Prototypes
 void camera_update(Camera& camera, float viewportWidth, float viewportHeight);
 void camera_change_direction(Camera& camera, float yawOffset, float pitchOffset);
 // Make camera look at a place in world coordinates to look at. If isPosition is set to true, then
 // a position is expected, if else, then a direction is expected.
 void camera_look_at(Camera& camera, glm::vec3 position, bool isPosition);
-
 int camera_create(glm::vec3 initialPosition, glm::vec3 direction);
+void save_camera_settings_to_file(string path, glm::vec3 position, glm::vec3 direction);
+float* load_camera_settings(string path);
 
 
+// Functions
 void camera_update(Camera& camera, float viewportWidth, float viewportHeight) {
 	camera.View4x4 = glm::lookAt(camera.Position, camera.Position + camera.Front, camera.Up);
 	camera.Projection4x4 = glm::perspective(glm::radians(camera.FOVy), viewportWidth / viewportHeight, camera.NearPlane, camera.FarPlane);
@@ -72,4 +77,84 @@ int camera_create(glm::vec3 initialPosition, glm::vec3 direction, bool isPositio
 	camera_look_at(new_camera, direction, isPosition);
 	cameraList.push_back(new_camera);
 	return cameraList.size() - 1;
+}
+
+float* load_camera_settings(string path){
+   ifstream reader(path);
+	std::string line;
+
+	static float camera_settings[6];
+
+   // get camera position
+   {
+	   getline(reader, line);
+      const char* cline = line.c_str();
+      size_t size = line.size();
+
+      Parse p { 
+         cline, 
+         size 
+      };
+
+      do {
+         p = parse_whitespace(p);
+      } while (p.hasToken);
+      p = parse_float(p);
+      camera_settings[0] = p.fToken;
+
+      do {
+         p = parse_whitespace(p);
+      } while (p.hasToken);
+      p = parse_float(p);
+      camera_settings[1] = p.fToken;
+
+      do {
+         p = parse_whitespace(p);
+      } while (p.hasToken);
+      p = parse_float(p);
+      camera_settings[2] = p.fToken;
+   }
+    // get camera direction
+   {
+	   getline(reader, line);
+      const char* cline = line.c_str();
+      size_t size = line.size();
+
+      Parse p { 
+         cline, 
+         size 
+      };
+
+      do {
+         p = parse_whitespace(p);
+      } while (p.hasToken);
+      p = parse_float(p);
+      camera_settings[3] = p.fToken;
+
+      do {
+         p = parse_whitespace(p);
+      } while (p.hasToken);
+      p = parse_float(p);
+      camera_settings[4] = p.fToken;
+
+      do {
+         p = parse_whitespace(p);
+      } while (p.hasToken);
+      p = parse_float(p);
+      camera_settings[5] = p.fToken;
+   }
+
+   return &camera_settings[0];
+}
+
+void save_camera_settings_to_file(string path, glm::vec3 position, glm::vec3 direction) {
+   std::ofstream ofs;
+   ofs.open(path);
+   ofs << position.x << " ";
+   ofs << position.y << " ";
+   ofs << position.z << "\n";
+   ofs << direction.x << " ";
+   ofs << direction.y << " ";
+   ofs << direction.z;
+   ofs.close();
 }

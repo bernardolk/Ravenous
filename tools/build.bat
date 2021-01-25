@@ -14,14 +14,17 @@ kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32
 /EHsc /Zi /I w:\include /I w:\src /link /LIBPATH:w:\lib
 popd
 
+
 @set /A _toc=%time:~0,2%*3600^
-            +%time:~3,1%*10*60^
-            +%time:~4,1%*60^
-            +%time:~6,1%*10^
-            +%time:~7,1% >nul
+		+%time:~3,1%*10*60^
+		+%time:~4,1%*60^
+		+%time:~6,1%*10^
+		+%time:~7,1% >nul
 
 @set /A _elapsed=%_toc%-%_tic
 @echo ..
 @echo total compilation time: %_elapsed% s.
 
-"w:\build\Ravenous.exe"
+
+
+

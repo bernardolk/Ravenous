@@ -8,15 +8,10 @@
 using namespace std;
 
 struct Vertex {
-    // position
     glm::vec3 Position;
-    // normal
     glm::vec3 Normal;
-    // texCoords
     glm::vec2 TexCoords;
-    // tangent
     glm::vec3 Tangent;
-    // bitangent
     glm::vec3 Bitangent;
 };
 
@@ -26,16 +21,19 @@ struct Texture {
     string path;
 };
 
+struct MeshData {
+	std::vector<Vertex> vertexes;
+	std::vector<unsigned int> indices;
+	unsigned int faceCount = 0;
+};
+
 class Mesh {
 public:
-    /*  Mesh Data  */
     vector<Vertex> vertices;
     vector<unsigned int> indices;
     vector<Texture> textures;
     unsigned int VAO;
 
-    /*  Functions  */
-    // constructor
     Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures)
     {
         this->vertices = vertices;
