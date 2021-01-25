@@ -1,12 +1,5 @@
 #pragma once
 
-
-const glm::mat4 mat4identity(
-	1.0f, 0.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f, 0.0f,
-	0.0f, 0.0f, 1.0f, 0.0f,
-	0.0f, 0.0f, 0.0f, 1.0f);
-
 struct GlobalEntityInfo {
    u32 entity_counter = 0;
 };

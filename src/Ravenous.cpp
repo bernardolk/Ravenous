@@ -29,6 +29,13 @@ const std::string FONTS_PATH = "w:/assets/fonts/";
 const float VIEWPORT_WIDTH = 1000;
 const float VIEWPORT_HEIGHT = 800;
 
+const glm::mat4 mat4identity(
+	1.0f, 0.0f, 0.0f, 0.0f,
+	0.0f, 1.0f, 0.0f, 0.0f,
+	0.0f, 0.0f, 1.0f, 0.0f,
+	0.0f, 0.0f, 0.0f, 1.0f
+);
+
 
 #include <text.h>
 #include <Shader.h>
@@ -122,7 +129,8 @@ int main() {
 	model_shader = create_shader_program("Model Shader", "vertex_model", "fragment_multiple_lights");
 	Shader obj_shader = create_shader_program("Obj Shader", "vertex_color_cube", "fragment_multiple_lights");
 	Shader light_shader = create_shader_program("Light Props Shader", "vertex_color_cube", "fragment_light");
-	quad_shader = create_shader_program("Billboard Shader", "quad_vertex", "textured_quad_fragment");
+	//quad_shader = create_shader_program("Billboard Shader", "quad_vertex", "textured_quad_fragment");
+	quad_shader = create_shader_program("Debug", "quad_vertex", "fragment_multiple_lights");
 
 	// Text shaders (GUI)
 	load_text_textures("Consola.ttf", 12);
@@ -134,8 +142,20 @@ int main() {
 
    Mesh quad_mesh = Mesh(quad_vertex_vec, quad_vertex_indices);
    Model quad_model(quad_mesh);
-   Entity plat = make_platform(0, 0, 0, 10, 4, quad_model, quad_shader);
-   demo_scene.entities.push_back(plat);
+   //Entity plat = make_platform(1.0, 1.0, 1.0, 5.0, 3.0, quad_model, quad_shader);
+   //demo_scene.entities.push_back(plat);
+
+   Entity quad_wall{
+      G_ENTITY_INFO.entity_counter,
+      ++G_ENTITY_INFO.entity_counter,
+      &quad_model,
+      &model_shader,
+      vec3(0,0,0),
+      vec3(90, 0, 90),
+      vec3(1.0f,1.0f,1.0f)
+   };
+   demo_scene.entities.push_back(quad_wall);
+
 
    // LIGHTSOURCES
    PointLight l1;
@@ -180,6 +200,8 @@ int main() {
 	return 0;
 }
 
+// this most likely should allocate memory for the platform and return a pointer to the thing
+// goddamn i dont know anything yet...
 Entity make_platform(float y, float x, float z, float length, float width, Model model, Shader shader) 
 {
    Entity platform{
