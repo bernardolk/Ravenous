@@ -1,3 +1,4 @@
+// DEPENDENCY INCLUDES
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -15,7 +16,7 @@
 #include <stdlib.h>
 #include <string>
 
-
+// DEFINES
 typedef unsigned char u8;
 typedef unsigned short int u16;
 typedef unsigned int u32;
@@ -26,9 +27,6 @@ const std::string textures_path = "w:/assets/textures/";
 const std::string models_path = "w:/assets/models/";
 const std::string FONTS_PATH = "w:/assets/fonts/";
 
-const float VIEWPORT_WIDTH = 1000;
-const float VIEWPORT_HEIGHT = 800;
-
 const glm::mat4 mat4identity(
 	1.0f, 0.0f, 0.0f, 0.0f,
 	0.0f, 1.0f, 0.0f, 0.0f,
@@ -37,60 +35,12 @@ const glm::mat4 mat4identity(
 );
 
 
-#include <text.h>
-#include <Shader.h>
-#include <Mesh.h>
-#include <Model.h>
-#include <Camera.h>
-#include <Entities.h>
-#include <Renderer.h>
-#include <parser.h>
-
-
-#define glCheckError() glCheckError_(__FILE__, __LINE__) 
-
-using namespace glm;
-
-// SHADER SETTINGS
-float global_shininess = 32.0f;
-
-// OPENGL OBJECTS
-unsigned int texture, texture_specular;
-Shader quad_shader, model_shader, Text_shader;
-
-// FUNCTION PROTOTYPES
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void onMouseScroll(GLFWwindow* window, double xoffset, double yoffset);
-void processInput(GLFWwindow* window);
-void onMouseMove(GLFWwindow* window, double xpos, double ypos);
-// void render_model(Entity ent, glm::vec3 lightPos[], glm::vec3 lightRgb[]);
-void setup_window(bool debug);
-void onMouseBtn(GLFWwindow* window, int button, int action, int mods);
-void render_ray();
-void render_scene();
-void update_scene_objects();
-//void render_scene_lights();
-void initialize_shaders();
-void editor_render_gui(Camera& camera);
-//unsigned int setup_object(MeshData objData);
-Entity make_platform(float y, float x, float z, float length, float width, Model model, Shader shader);
-GLenum glCheckError_(const char* file, int line);
-std::string format_float_tostr(float num, int precision);
-void render_text(std::string text, float x, float y, float scale, glm::vec3 color);
-
-
-// Variables
-GlobalEntityInfo G_ENTITY_INFO;
-GLFWwindow* window;
-float deltaTime = 0.0f;
-float lastFrame = 0.0f;
-int frameCounter = 0;
-float current_fps;
-bool editor_mode = true;
-
-Scene* active_scene;
-Camera active_camera;
-GLuint Text_VAO, Text_VBO;
+// GLOBAL STRUCT VARIABLES (WITH PURE TYPES)
+struct GlobalDisplayInfo {
+   GLFWwindow* window;
+   const float VIEWPORT_WIDTH = 1000;
+   const float VIEWPORT_HEIGHT = 800;
+} G_DISPLAY_INFO;
 
 struct GlobalInputInfo {
    bool reset_mouse_coords = true;
@@ -105,6 +55,71 @@ struct GlobalInputInfo {
    double currentMouseY;
 } G_INPUT_INFO;
 
+struct GlobalFrameInfo {
+   float delta_time;
+   float last_frame_time;
+   int frame_counter;
+   float current_fps;
+} G_FRAME_INFO;
+
+
+// SOURCE INCLUDES
+#include <text.h>
+#include <Shader.h>
+#include <Mesh.h>
+#include <Model.h>
+#include <Camera.h>
+#include <Entities.h>
+//#include <Renderer.h>
+
+// GLOBAL STRUCT VARIABLES (WITH CUSTOM TYPES)
+GlobalEntityInfo G_ENTITY_INFO;
+
+struct GlobalSceneInfo {
+   Scene* active_scene;
+   Camera camera;
+} G_SCENE_INFO;
+
+
+#include <parser.h>
+#include <input.h>
+#define glCheckError() glCheckError_(__FILE__, __LINE__) 
+
+
+using namespace glm;
+
+// SHADER SETTINGS
+float global_shininess = 32.0f;
+
+// OPENGL OBJECTS
+unsigned int texture, texture_specular;
+Shader quad_shader, model_shader, Text_shader;
+
+// FUNCTION PROTOTYPES
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void setup_window(bool debug);
+void render_ray();
+void render_scene();
+void update_scene_objects();
+void initialize_shaders();
+void editor_render_gui(Camera& camera);
+Entity make_platform(float y, float x, float z, float length, float width, Model model, Shader shader);
+GLenum glCheckError_(const char* file, int line);
+std::string format_float_tostr(float num, int precision);
+void render_text(std::string text, float x, float y, float scale, glm::vec3 color);
+// void render_model(Entity ent, glm::vec3 lightPos[], glm::vec3 lightRgb[]);
+// void render_scene_lights();
+// unsigned int setup_object(MeshData objData);
+
+
+
+
+
+// text vao and vbo
+GLuint Text_VAO, Text_VBO;
+
+//std::map<std::string, Shader> Shader_catalog;
+
 
 int main() {
 
@@ -114,7 +129,7 @@ int main() {
    std::cout << "camera dir " << camera_pos[3] << "," << camera_pos[4] << "," << camera_pos[5] << "\n";
 	u16 camera_id = 
             camera_create(vec3(camera_pos[0], camera_pos[1], camera_pos[2]), vec3(camera_pos[3], camera_pos[4], camera_pos[5]), false);
-	active_camera = cameraList[camera_id];
+	G_SCENE_INFO.camera = cameraList[camera_id];
 
 
 	// INITIAL GLFW AND GLAD SETUPS
@@ -127,10 +142,10 @@ int main() {
 
 	// shaders
 	model_shader = create_shader_program("Model Shader", "vertex_model", "fragment_multiple_lights");
-	Shader obj_shader = create_shader_program("Obj Shader", "vertex_color_cube", "fragment_multiple_lights");
-	Shader light_shader = create_shader_program("Light Props Shader", "vertex_color_cube", "fragment_light");
+	//Shader obj_shader = create_shader_program("Obj Shader", "vertex_color_cube", "fragment_multiple_lights");
+	//Shader light_shader = create_shader_program("Light Props Shader", "vertex_color_cube", "fragment_light");
 	//quad_shader = create_shader_program("Billboard Shader", "quad_vertex", "textured_quad_fragment");
-	quad_shader = create_shader_program("Debug", "quad_vertex", "fragment_multiple_lights");
+	//quad_shader = create_shader_program("Debug", "quad_vertex", "fragment_multiple_lights");
 
 	// Text shaders (GUI)
 	load_text_textures("Consola.ttf", 12);
@@ -138,14 +153,13 @@ int main() {
 
 	// CREATE SCENE 
    Scene demo_scene;
-   demo_scene.id = 1;
 
+   // setup platform geometry
    Mesh quad_mesh = Mesh(quad_vertex_vec, quad_vertex_indices);
    Model quad_model(quad_mesh);
-   //Entity plat = make_platform(1.0, 1.0, 1.0, 5.0, 3.0, quad_model, quad_shader);
-   //demo_scene.entities.push_back(plat);
 
-   Entity quad_wall{
+   // basic platform
+   Entity platform{
       G_ENTITY_INFO.entity_counter,
       ++G_ENTITY_INFO.entity_counter,
       &quad_model,
@@ -154,10 +168,10 @@ int main() {
       vec3(90, 0, 90),
       vec3(1.0f,1.0f,1.0f)
    };
-   demo_scene.entities.push_back(quad_wall);
+   demo_scene.entities.push_back(platform);
 
 
-   // LIGHTSOURCES
+   // lightsource
    PointLight l1;
    l1.id = 1;
    l1.position = vec3(-3, 1.5, -1.5);
@@ -166,22 +180,21 @@ int main() {
    l1.intensity_quadratic = 0.001f;
    demo_scene.pointLights.push_back(l1);
 
-   active_scene = &demo_scene;
+   G_SCENE_INFO.active_scene = &demo_scene;
    
 	// MAIN LOOP
-	while (!glfwWindowShouldClose(window))
+	while (!glfwWindowShouldClose(G_DISPLAY_INFO.window))
 	{
 		float currentFrame = glfwGetTime();
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
-		current_fps = 1.0f / deltaTime;
+		G_FRAME_INFO.delta_time = currentFrame - G_FRAME_INFO.last_frame_time;
+		G_FRAME_INFO.last_frame_time = currentFrame;
+		G_FRAME_INFO.current_fps = 1.0f / G_FRAME_INFO.delta_time;
 
 		//	INPUT PHASE
-		glfwPollEvents();
-		processInput(window);
+      input_phase();
 
 		//	UPDATE PHASE
-		camera_update(active_camera, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
+		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT);
 		update_scene_objects();
 
 		//	RENDER PHASE
@@ -190,9 +203,9 @@ int main() {
 
 		render_scene();
 
-      editor_render_gui(active_camera);
+      editor_render_gui(G_SCENE_INFO.camera);
 
-		glfwSwapBuffers(window);
+		glfwSwapBuffers(G_DISPLAY_INFO.window);
 	}
 
 	//editor_terminate();
@@ -222,7 +235,7 @@ void editor_render_gui(Camera& camera)
    // render GUI text
    // text render
    float GUI_x = 25;
-   float GUI_y = VIEWPORT_HEIGHT - 60;
+   float GUI_y = G_DISPLAY_INFO.VIEWPORT_HEIGHT - 60;
 
    string GUI_atts[]{
       format_float_tostr(camera.Position.x, 2),
@@ -238,7 +251,7 @@ void editor_render_gui(Camera& camera)
    string camera_position = "pos :: x: " + GUI_atts[0] + " y:" + GUI_atts[1] + " z:" + GUI_atts[2];
    string camera_front = "dir :: x: " + GUI_atts[5] + " y:" + GUI_atts[6] + " z:" + GUI_atts[7];
    string mouse_stats = "pitch: " + GUI_atts[3] + " yaw: " + GUI_atts[4];
-   string fps = to_string(current_fps);
+   string fps = to_string(G_FRAME_INFO.current_fps);
    string fps_gui = "FPS: " + fps.substr(0, fps.find('.', 0) + 2);
 
 
@@ -246,7 +259,7 @@ void editor_render_gui(Camera& camera)
    render_text(camera_position, GUI_x, GUI_y, scale, glm::vec3(1.0f, 1.0f, 1.0f));
    render_text(camera_front, GUI_x, GUI_y - 25, scale, glm::vec3(1.0f, 1.0f, 1.0f));
    render_text(mouse_stats, GUI_x, GUI_y - 50, scale, glm::vec3(1.0f, 1.0f, 1.0f));
-   render_text(fps_gui, VIEWPORT_HEIGHT - 100, 25, scale, glm::vec3(1.0f, 1.0f, 1.0f));
+   render_text(fps_gui, G_DISPLAY_INFO.VIEWPORT_HEIGHT - 100, 25, scale, glm::vec3(1.0f, 1.0f, 1.0f));
 }
 
 
@@ -256,7 +269,7 @@ void initialize_shaders()
    // text shader
 	Text_shader = create_shader_program("Text Shader", "vertex_text", "fragment_text");
    Text_shader.use();
-	Text_shader.setMatrix4("projection", glm::ortho(0.0f, VIEWPORT_WIDTH, 0.0f, VIEWPORT_HEIGHT));
+	Text_shader.setMatrix4("projection", glm::ortho(0.0f, G_DISPLAY_INFO.VIEWPORT_WIDTH, 0.0f, G_DISPLAY_INFO.VIEWPORT_HEIGHT));
 
 	//generate text buffers
 	glGenVertexArrays(1, &Text_VAO);
@@ -336,8 +349,8 @@ void render_text(std::string text, float x, float y, float scale, glm::vec3 colo
 
 inline void update_scene_objects() 
 {
-	auto entity = active_scene->entities.begin();
-	auto end = active_scene->entities.end();
+	auto entity = G_SCENE_INFO.active_scene->entities.begin();
+	auto end = G_SCENE_INFO.active_scene->entities.end();
 	for (entity; entity < end; entity++) 
    {
 		// Updates model matrix;	
@@ -358,13 +371,13 @@ void setup_window(bool debug) {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Creates the window
-	window = glfwCreateWindow(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, "Ravenous", NULL, NULL);
-	if (window == NULL)
+	G_DISPLAY_INFO.window = glfwCreateWindow(G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, "Ravenous", NULL, NULL);
+	if (G_DISPLAY_INFO.window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
 	}
-	glfwMakeContextCurrent(window);
+	glfwMakeContextCurrent(G_DISPLAY_INFO.window);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -372,11 +385,11 @@ void setup_window(bool debug) {
 	}
 
 	// Setups openGL viewport
-	glViewport(0, 0, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	glfwSetCursorPosCallback(window, onMouseMove);
-	glfwSetScrollCallback(window, onMouseScroll);
-	glfwSetMouseButtonCallback(window, onMouseBtn);
+	glViewport(0, 0, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT);
+	glfwSetFramebufferSizeCallback(G_DISPLAY_INFO.window, framebuffer_size_callback);
+	glfwSetCursorPosCallback(G_DISPLAY_INFO.window, on_mouse_move);
+	glfwSetScrollCallback(G_DISPLAY_INFO.window, on_mouse_scroll);
+	glfwSetMouseButtonCallback(G_DISPLAY_INFO.window, on_mouse_btn);
 
 	if (debug) {
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
@@ -387,13 +400,13 @@ void setup_window(bool debug) {
 
 void render_scene() 
 {
-	auto entity_ptr = active_scene->entities.begin();
-	for (entity_ptr; entity_ptr != active_scene->entities.end(); entity_ptr++) 
+	auto entity_ptr = G_SCENE_INFO.active_scene->entities.begin();
+	for (entity_ptr; entity_ptr != G_SCENE_INFO.active_scene->entities.end(); entity_ptr++) 
    {
 		entity_ptr->shader->use();
-		auto point_light_ptr = active_scene->pointLights.begin();
+		auto point_light_ptr = G_SCENE_INFO.active_scene->pointLights.begin();
 		int point_light_count = 0;
-		for (point_light_ptr; point_light_ptr != active_scene->pointLights.end(); point_light_ptr++)
+		for (point_light_ptr; point_light_ptr != G_SCENE_INFO.active_scene->pointLights.end(); point_light_ptr++)
       {
 			PointLight point_light = *point_light_ptr;
 			string uniform_name = "pointLights[" + to_string(point_light_count) + "]";
@@ -409,130 +422,14 @@ void render_scene()
 		entity_ptr->shader->setInt("num_point_lights"		,point_light_count);
 		entity_ptr->shader->setInt("num_directional_light"	, 0);
 		entity_ptr->shader->setInt("num_spot_lights"		, 0);
-		entity_ptr->shader->setMatrix4("view"				, active_camera.View4x4);
-		entity_ptr->shader->setMatrix4("projection"			, active_camera.Projection4x4);
+		entity_ptr->shader->setMatrix4("view"				, G_SCENE_INFO.camera.View4x4);
+		entity_ptr->shader->setMatrix4("projection"			, G_SCENE_INFO.camera.Projection4x4);
 		entity_ptr->shader->setFloat("shininess"			, global_shininess);
-		entity_ptr->shader->setFloat3("viewPos"				, active_camera.Position);
+		entity_ptr->shader->setFloat3("viewPos"				, G_SCENE_INFO.camera.Position);
 		//mat4 model_matrix = scale(mat4identity				, vec3(0.01,0.01,0.01));
 		entity_ptr->shader->setMatrix4("model"				, entity_ptr->matModel);
 		entity_ptr->model3d->Draw(*entity_ptr->shader);
 	}
-}
-
-void processInput(GLFWwindow* window)
-{
-	//Todo: get a real input toggling system in place
-	// something that allows you to wait for release to get in the if again
-	float cameraSpeed = deltaTime * active_camera.Acceleration;
-	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE) {
-
-		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-			cameraSpeed = deltaTime * active_camera.Acceleration * 2;
-		}
-		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-			glfwSetWindowShouldClose(window, true);
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			active_camera.Position += cameraSpeed * active_camera.Front;
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			active_camera.Position -= cameraSpeed * active_camera.Front;
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-			active_camera.Position -= cameraSpeed * glm::normalize(glm::cross(active_camera.Front, active_camera.Up));
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-			active_camera.Position += cameraSpeed * glm::normalize(glm::cross(active_camera.Front, active_camera.Up));
-		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-			active_camera.Position -= cameraSpeed * active_camera.Up;
-		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-			active_camera.Position += cameraSpeed * active_camera.Up;
-		if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
-			camera_look_at(active_camera, glm::vec3(0.0f, 0.0f, 0.0f), true);
-			G_INPUT_INFO.reset_mouse_coords = true;
-		}
-		if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
-			global_shininess -= 10 * deltaTime;
-			if (global_shininess < 1)
-				global_shininess = 1;
-		}
-		if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
-			global_shininess += 10 * deltaTime;
-      if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
-			save_camera_settings_to_file("w:/camera.txt", active_camera.Position, active_camera.Front);
-		}
-	}
-
-	// This solution will only work while i have only one key combo implemented (i guess)
-	if (G_INPUT_INFO.key_combo_pressed) {
-		if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE || glfwGetKey(window, GLFW_KEY_M) == GLFW_RELEASE)
-			G_INPUT_INFO.key_combo_pressed = false;
-	}
-
-}
-
-void onMouseMove(GLFWwindow* window, double xpos, double ypos)
-{
-   if (G_INPUT_INFO.is_mouse_drag) {
-      // 'teleports' stored coordinates to current mouse coordinates
-      if (G_INPUT_INFO.reset_mouse_coords) {
-         G_INPUT_INFO.last_registered_mouse_coord_x = xpos;
-         G_INPUT_INFO.last_registered_mouse_coord_y = ypos;
-         G_INPUT_INFO.reset_mouse_coords = false;
-      }
-
-      // calculates offsets
-      float xoffset = xpos - G_INPUT_INFO.last_registered_mouse_coord_x;
-      float yoffset = G_INPUT_INFO.last_registered_mouse_coord_y - ypos;
-      G_INPUT_INFO.last_registered_mouse_coord_x = xpos;
-      G_INPUT_INFO.last_registered_mouse_coord_y = ypos;
-
-      xoffset *= active_camera.Sensitivity;
-      yoffset *= active_camera.Sensitivity;
-
-      camera_change_direction(active_camera, xoffset, yoffset);
-
-      // Unallows camera to perform a flip
-      if (active_camera.Pitch > 89.0f)
-         active_camera.Pitch = 89.0f;
-      if (active_camera.Pitch < -89.0f)
-         active_camera.Pitch = -89.0f;
-
-      // Make sure we don't overflow floats when camera is spinning indefinetely
-      if (active_camera.Yaw > 360.0f)
-         active_camera.Yaw = active_camera.Yaw - 360.0f;
-      if (active_camera.Yaw < -360.0f)
-         active_camera.Yaw = active_camera.Yaw + 360.0f;
-   }
-
-   G_INPUT_INFO.currentMouseX = xpos;
-	G_INPUT_INFO.currentMouseY = ypos;
-
-	// mouse dragging controls
-	if (G_INPUT_INFO.is_mouse_left_btn_press
-		&& (abs(G_INPUT_INFO.mouse_btn_down_x - G_INPUT_INFO.currentMouseX) > 2
-			|| abs(G_INPUT_INFO.mouse_btn_down_y - G_INPUT_INFO.currentMouseY) > 2)) {
-		G_INPUT_INFO.is_mouse_drag = true;
-	}
-}
-
-void onMouseScroll(GLFWwindow* window, double xoffset, double yoffset) 
-{
-		active_camera.Position += (float)(3 * yoffset) * active_camera.Front;
-}
-
-void onMouseBtn(GLFWwindow* window, int button, int action, int mods) 
-{
-   if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) 
-   {
-      G_INPUT_INFO.is_mouse_left_btn_press = true;
-      G_INPUT_INFO.reset_mouse_coords = true;
-      G_INPUT_INFO.mouse_btn_down_x = G_INPUT_INFO.currentMouseX;
-      G_INPUT_INFO.mouse_btn_down_y = G_INPUT_INFO.currentMouseY;
-   }
-   else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) 
-   {
-      cout << "left_btn_release" << endl;
-      G_INPUT_INFO.is_mouse_left_btn_press = false;
-      cout << G_INPUT_INFO.is_mouse_drag << endl;
-      G_INPUT_INFO.is_mouse_drag = false;
-   }
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)

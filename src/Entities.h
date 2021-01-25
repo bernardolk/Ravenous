@@ -51,7 +51,6 @@ struct DirectionalLight {
 };
 
 struct Scene {
-	int id;
 	std::vector<Entity> entities;
 	std::vector<SpotLight> spotLights;
 	std::vector<DirectionalLight> directionalLights;
