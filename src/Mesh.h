@@ -64,3 +64,29 @@ GLData setup_gl_data_for_mesh(Mesh* mesh)
 
    return gl_data;
 }
+
+std::vector<Vertex> construct_cylinder(float radius, float half_lenght, int slices) 
+{
+   std::vector<Vertex> vertices;
+   for(int i=0; i<slices; i++) {
+      float theta = ((float)i) * 2.0 * PI;
+      float nextTheta = ((float)i+1) * 2.0 * PI;
+      // vertex at middle of end  
+      Vertex v = Vertex{0.0, half_lenght, 0.0};
+      vertices.push_back(v);
+      //vertices at edges of circle 
+      v = Vertex{glm::vec3(radius*cos(theta), half_lenght, radius*sin(theta))};
+      vertices.push_back(v);
+      v = Vertex{glm::vec3(radius*cos(nextTheta), half_lenght, radius*sin(nextTheta))};
+      vertices.push_back(v);
+      // the same vertices at the bottom of the cylinder
+      v = Vertex{glm::vec3(radius*cos(nextTheta), -half_lenght, radius*sin(nextTheta))};
+      vertices.push_back(v);
+      v = Vertex{glm::vec3(radius*cos(theta), -half_lenght, radius*sin(theta))};
+      vertices.push_back(v);
+      v = Vertex{glm::vec3(0.0, -half_lenght, 0.0)};
+      vertices.push_back(v);
+   }
+
+   return vertices;
+}

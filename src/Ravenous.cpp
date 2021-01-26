@@ -164,8 +164,6 @@ int main() {
 	// CREATE SCENE 
    Scene demo_scene;
 
-
-
    // ENTITY SETUP
    unsigned int brick_texture = load_texture_from_file("brickwall.jpg", "w:/assets/textures");
    unsigned int brick_normal_texture = load_texture_from_file("brickwall_normal.jpg", "w:/assets/textures");
@@ -186,7 +184,6 @@ int main() {
    Mesh quad_mesh;
    quad_mesh.vertices = quad_vertex_vec;
    quad_mesh.indices = quad_vertex_indices;
-   
 
    Model quad_model;
    quad_model.mesh = quad_mesh;
@@ -203,6 +200,13 @@ int main() {
       vec3(1.0f,1.0f,1.0f)
    };
    demo_scene.entities.push_back(platform);
+
+
+   // CYLINDER
+
+   Mesh cylinder_mesh;
+   cylinder_mesh.vertices = construct_cylinder(1.0f, 2.0f, 8);
+   
 
 
    // lightsource
