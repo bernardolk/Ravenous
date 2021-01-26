@@ -184,6 +184,7 @@ int main() {
    Mesh quad_mesh;
    quad_mesh.vertices = quad_vertex_vec;
    quad_mesh.indices = quad_vertex_indices;
+   quad_mesh.render_method = GL_TRIANGLES;
 
    Model quad_model;
    quad_model.mesh = quad_mesh;
@@ -203,10 +204,9 @@ int main() {
 
 
    // CYLINDER
-
    Mesh cylinder_mesh;
    cylinder_mesh.vertices = construct_cylinder(1.0f, 2.0f, 8);
-   
+   cylinder_mesh.render_method = GL_TRIANGLE_STRIP;
 
 
    // lightsource

@@ -24,6 +24,7 @@ struct Texture {
 struct Mesh {
     vector<Vertex> vertices;
     vector<unsigned int> indices;
+    GLEnum render_method;
 };
 
 
