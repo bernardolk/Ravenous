@@ -30,7 +30,14 @@ void render_entity(Entity* entity)
 
    // draw mesh
    glBindVertexArray(entity->model->gl_data.VAO);
-   glDrawElements(entity->model->mesh.render_method, entity->model->mesh.indices.size(), GL_UNSIGNED_INT, 0);
+   if(entity->model->mesh.render_method == 5) 
+   {
+      glDrawArrays(GL_TRIANGLE_STRIP, 0, entity->model->mesh.vertices.size());
+   }
+   else
+   {
+      glDrawElements(GL_TRIANGLES,  entity->model->mesh.indices.size(), GL_UNSIGNED_INT, 0);
+   }  
    glBindVertexArray(0);
 
    // always good practice to set everything back to defaults once configured.

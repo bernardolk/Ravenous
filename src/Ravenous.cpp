@@ -204,9 +204,31 @@ int main() {
 
 
    // CYLINDER
+   unsigned int pink_texture = load_texture_from_file("pink.jpg", "w:/assets/textures");
+   Texture cylinder_texture{
+      pink_texture,
+      "texture_diffuse",
+      "whatever"
+   };
+
    Mesh cylinder_mesh;
-   cylinder_mesh.vertices = construct_cylinder(1.0f, 2.0f, 8);
+   cylinder_mesh.vertices = construct_cylinder(0.15f, 0.35f, 24);
    cylinder_mesh.render_method = GL_TRIANGLE_STRIP;
+
+   Model cylinder_model;
+   cylinder_model.mesh = cylinder_mesh;
+   cylinder_model.textures = std::vector<Texture>{cylinder_texture};
+   cylinder_model.gl_data = setup_gl_data_for_mesh(&cylinder_mesh);
+
+   Entity cylinder{
+      G_ENTITY_INFO.entity_counter,
+      ++G_ENTITY_INFO.entity_counter,
+      &cylinder_model,
+      &model_shader,
+      vec3(0,1,1)
+   };
+   demo_scene.entities.push_back(cylinder);
+
 
 
    // lightsource
@@ -489,8 +511,8 @@ GLenum glCheckError_(const char* file, int line)
 		case GL_INVALID_ENUM:                  error = "INVALID_ENUM"; break;
 		case GL_INVALID_VALUE:                 error = "INVALID_VALUE"; break;
 		case GL_INVALID_OPERATION:             error = "INVALID_OPERATION"; break;
-			//case GL_STACK_OVERFLOW:                error = "STACK_OVERFLOW"; break;
-			//case GL_STACK_UNDERFLOW:               error = "STACK_UNDERFLOW"; break;
+      //case GL_STACK_OVERFLOW:                error = "STACK_OVERFLOW"; break;
+      //case GL_STACK_UNDERFLOW:               error = "STACK_UNDERFLOW"; break;
 		case GL_OUT_OF_MEMORY:                 error = "OUT_OF_MEMORY"; break;
 		case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
 		}

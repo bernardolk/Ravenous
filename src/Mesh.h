@@ -24,7 +24,7 @@ struct Texture {
 struct Mesh {
     vector<Vertex> vertices;
     vector<unsigned int> indices;
-    GLEnum render_method;
+    GLenum render_method;
 };
 
 
@@ -69,21 +69,36 @@ GLData setup_gl_data_for_mesh(Mesh* mesh)
 std::vector<Vertex> construct_cylinder(float radius, float half_lenght, int slices) 
 {
    std::vector<Vertex> vertices;
-   for(int i=0; i<slices; i++) {
-      float theta = ((float)i) * 2.0 * PI;
-      float nextTheta = ((float)i+1) * 2.0 * PI;
+   for(int i=0; i < slices; i++) {
+      float theta = ((float)i) * 2.0 * PI * (1.0 / slices);
+      float nextTheta = ((float)i+1) * 2.0 * PI * (1.0 / slices);
       // vertex at middle of end  
-      Vertex v = Vertex{0.0, half_lenght, 0.0};
+      Vertex v = Vertex{glm::vec3(0.0), glm::vec3(half_lenght), glm::vec3(0.0)};
       vertices.push_back(v);
       //vertices at edges of circle 
       v = Vertex{glm::vec3(radius*cos(theta), half_lenght, radius*sin(theta))};
       vertices.push_back(v);
       v = Vertex{glm::vec3(radius*cos(nextTheta), half_lenght, radius*sin(nextTheta))};
       vertices.push_back(v);
-      // the same vertices at the bottom of the cylinder
+      // the same vertices at the bottom of the cylinder (half face)
       v = Vertex{glm::vec3(radius*cos(nextTheta), -half_lenght, radius*sin(nextTheta))};
       vertices.push_back(v);
       v = Vertex{glm::vec3(radius*cos(theta), -half_lenght, radius*sin(theta))};
+      vertices.push_back(v);
+      // other half face
+      v = Vertex{glm::vec3(radius*cos(theta), half_lenght, radius*sin(theta))};
+      vertices.push_back(v);
+      v = Vertex{glm::vec3(radius*cos(nextTheta), half_lenght, radius*sin(nextTheta))};
+      vertices.push_back(v);
+      // back from the middle
+      v = Vertex{glm::vec3(radius*cos(nextTheta), -half_lenght, radius*sin(nextTheta))};
+      vertices.push_back(v);
+      v = Vertex{glm::vec3(0.0, -half_lenght, 0.0)};
+      vertices.push_back(v);
+      // roundabout
+      v = Vertex{glm::vec3(radius*cos(theta), -half_lenght, radius*sin(theta))};
+      vertices.push_back(v);
+      v = Vertex{glm::vec3(radius*cos(nextTheta), -half_lenght, radius*sin(nextTheta))};
       vertices.push_back(v);
       v = Vertex{glm::vec3(0.0, -half_lenght, 0.0)};
       vertices.push_back(v);
