@@ -9,18 +9,29 @@ enum CollisionGeometryEnum {
    COLLISION_ALIGNED_BOX
 };
 
+struct CollisionGeometryAlignedCylinder{
+   float half_length;
+   float radius;
+};
+
+struct CollisionGeometryAlignedBox{
+   float length_x;
+   float length_z;
+   float length_y;
+};
+
 struct Entity {
 	unsigned int index;
 	unsigned int id;
 	Model* model;
 	Shader* shader;
-   void* collision_geometry_ptr;
-   CollisionGeometryEnum collision_geometry_type;
 	glm::vec3 position;
-   glm::vec3 velocity;
 	glm::vec3 rotation = glm::vec3(0.0f);
 	glm::vec3 scale = glm::vec3(1.0f);
 	glm::mat4 matModel = mat4identity;
+   glm::vec3 velocity;
+   void* collision_geometry_ptr;
+   CollisionGeometryEnum collision_geometry_type;
 };
 
 enum PlayerStateEnum {
@@ -35,8 +46,8 @@ enum PlayerStateEnum {
 };
 
 struct Player {
-   Entity* entity_ptr,
-   PlayerStateEnum player_state
+   Entity* entity_ptr;
+   PlayerStateEnum player_state;
 };
 
 struct SpotLight {
@@ -75,7 +86,7 @@ struct DirectionalLight {
 };
 
 struct Scene {
-	std::vector<Entity> entities;
+	std::vector<Entity*> entities;
 	std::vector<SpotLight> spotLights;
 	std::vector<DirectionalLight> directionalLights;
 	std::vector<PointLight> pointLights;

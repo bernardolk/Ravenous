@@ -95,6 +95,7 @@ struct GlobalSceneInfo {
 
 #include <parser.h>
 #include <input.h>
+#include <collision.h>
 #define glCheckError() glCheckError_(__FILE__, __LINE__) 
 
 
@@ -119,15 +120,11 @@ void render_text_overlay(Camera& camera);
 GLenum glCheckError_(const char* file, int line);
 std::string format_float_tostr(float num, int precision);
 void render_text(std::string text, float x, float y, float scale, glm::vec3 color);
-void update_player_state();
-void adjust_player_position_and_velocity(Player* player, float distance, glm::vec3 velocity)
+void update_player_state(Player* player);
+void adjust_player_position_and_velocity(Player* player, float distance, glm::vec3 velocity);
 // void render_model(Entity ent, glm::vec3 lightPos[], glm::vec3 lightRgb[]);
 // void render_scene_lights();
 // unsigned int setup_object(MeshData objData);
-
-
-
-
 
 // text vao and vbo
 GLuint Text_VAO, Text_VBO;
@@ -204,7 +201,7 @@ int main() {
       vec3(90, 0, 90),
       vec3(1.0f,1.0f,1.0f)
    };
-   demo_scene.entities.push_back(platform);
+   demo_scene.entities.push_back(&platform);
 
 
    // CYLINDER
@@ -231,7 +228,7 @@ int main() {
       &model_shader,
       vec3(0,1,1)
    };
-   demo_scene.entities.push_back(cylinder);
+   demo_scene.entities.push_back(&cylinder);
 
 
 
@@ -247,8 +244,6 @@ int main() {
 
    G_SCENE_INFO.active_scene = &demo_scene;
 
-
-
    // GAMEPLAY CODE
 
    // create player
@@ -256,8 +251,6 @@ int main() {
    player.entity_ptr = &cylinder;
    player.player_state = PLAYER_STATE_FALLING;
    player.entity_ptr->velocity.y = -0.1;
-
-
    
 	// MAIN LOOP
 	while (!glfwWindowShouldClose(G_DISPLAY_INFO.window))
@@ -274,7 +267,7 @@ int main() {
 		//	UPDATE PHASE
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT);
 		update_scene_objects();
-      update_player_state();
+      update_player_state(&player);
 
 		//	RENDER PHASE
 		glClearColor(0.196, 0.298, 0.3607, 1.0f);
@@ -290,22 +283,31 @@ int main() {
 	return 0;
 }
 
-void update_player_state()
+void update_player_state(Player* player)
 {
-   if(player.player_state == PLAYER_STATE_FALLING)
+   Entity* &player_entity = player->entity_ptr;
+   if(player->player_state == PLAYER_STATE_FALLING)
    {
-   CollisionData cd = check_player_collision_with_scene(&player, &active_scene->entities[0]);
-   if(cd.collided_entity_ptr != NULL)
-      adjust_player_position_and_velocity(&player, cd.distance_from_position, glm::vec3(0,0,0));
-   }
-}
+      auto entity_ptr = G_SCENE_INFO.active_scene->entities[0];
+      size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
 
-void adjust_player_position_and_velocity(Player* player, float distance, glm::vec3 velocity)
-{
-   player->position = position + glm::normalize(velocity) * distance;
-   player->velocity = 0;
-   player->player_state = PLAYER_STATE_STANDING;
-}
+      CollisionData cd = check_player_collision_with_scene(player_entity, entity_ptr, entity_list_size);
+      if(cd.collided_entity_ptr != NULL)
+      {
+         // move player to collision point
+         player_entity->position = 
+            player_entity->position + glm::normalize(player_entity->velocity) * cd.distance_from_position * -1.0f; //gimmick (* -1)
+         player_entity->velocity = glm::vec3(0,0,0);
+         player->player_state = PLAYER_STATE_STANDING;
+      }
+   }
+   
+   player_entity->position = player_entity->position + player_entity->velocity * G_FRAME_INFO.delta_time;
+   //std::cout << "player position: (" << player_entity->position.x << ","  << player_entity->position.y << ","  << player_entity->position.z << ")\n";
+   // std::cout << "update player state original: " << &player->entity_ptr->position << "\n";
+   // std::cout << "update player state: " << &player_entity->position << "\n";
+
+} 
 
 void render_text_overlay(Camera& camera) 
 {
@@ -425,10 +427,11 @@ void render_text(std::string text, float x, float y, float scale, glm::vec3 colo
 
 inline void update_scene_objects() 
 {
-	auto entity = G_SCENE_INFO.active_scene->entities.begin();
-	auto end = G_SCENE_INFO.active_scene->entities.end();
-	for (entity; entity < end; entity++) 
+	Entity** entity_iterator = &G_SCENE_INFO.active_scene->entities[0];
+	size_t list_size = G_SCENE_INFO.active_scene->entities.size();
+	for (int i = 0; i < list_size; i++) 
    {
+      Entity* &entity = *entity_iterator;
 		// Updates model matrix;	
 		mat4 model = translate(mat4identity, entity->position);
 		model = rotate(model, radians(entity->rotation.x), vec3(1.0f, 0.0f, 0.0f));
@@ -436,6 +439,13 @@ inline void update_scene_objects()
 		model = rotate(model, radians(entity->rotation.z), vec3(0.0f, 0.0f, 1.0f));
 		model = scale(model, entity->scale);
 		entity->matModel = model;
+
+      // if(entity->collision_geometry_type == COLLISION_ALIGNED_CYLINDER)
+      // {
+      //    std::cout << "update scene: " << &entity->position << "\n";
+      // }
+
+      entity_iterator++;
 	}
 }
 
@@ -476,10 +486,11 @@ void setup_window(bool debug) {
 
 void render_scene() 
 {
-	Entity *entity_ptr = &(G_SCENE_INFO.active_scene->entities[0]);
+	Entity **entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
    int entities_vec_size =  G_SCENE_INFO.active_scene->entities.size();
 	for(int it = 0; it < entities_vec_size; it++) 
    {
+	   Entity *entity_ptr = *entity_iterator;
 		entity_ptr->shader->use();
 		auto point_light_ptr = G_SCENE_INFO.active_scene->pointLights.begin();
 		int point_light_count = 0;
@@ -507,7 +518,7 @@ void render_scene()
 		entity_ptr->shader->setMatrix4("model", entity_ptr->matModel);
 		render_entity(entity_ptr);
 
-      entity_ptr++;
+      entity_iterator++;
 	}
 }
 

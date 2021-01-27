@@ -1,3 +1,14 @@
 build/*
 .vscode
 .ignore
+ravenous.vcxproj
+ravenous.vcxproj.filters
+ravenous.vcxproj.user
+ProjectSettings.json
+.sqlite
+.suo
+.db
+.opendb
+.vs/*
+Debug/*
+ravenous.sln

@@ -6,7 +6,7 @@ struct CollisionData{
 };
 
 
-float check_collision_aligned_cylinder_vs_aligned_box(Entity* entity, glm::vec3 position, glm::vec3 velocity);
+float check_collision_aligned_cylinder_vs_aligned_box(Entity* entity, Entity* player);
 CollisionData check_player_collision_with_scene(Entity* player, Entity* entity, size_t entity_list_size); 
 
 
@@ -22,11 +22,11 @@ CollisionData check_player_collision_with_scene(Entity* player, Entity* entity, 
       {
          case COLLISION_ALIGNED_BOX:
          distance_to_collision =
-            check_collision_aligned_cylinder_vs_aligned_box(entity->collision_geometry_prt, entity->position, entity->velocity);
+            check_collision_aligned_cylinder_vs_aligned_box(entity, player);
          break;
       }
 
-      if(distance_to_collision < distance_to_nearest_collision)
+      if(distance_to_collision > 0 && distance_to_collision < distance_to_nearest_collision)
       {
          distance_to_nearest_collision = distance_to_collision;
          collided_first_with_player = entity;
@@ -36,22 +36,35 @@ CollisionData check_player_collision_with_scene(Entity* player, Entity* entity, 
       i++;
    }
 
-   CollisionData cd { collided_fisrt_with_player, distance_to_nearest_collision };
+   CollisionData cd { collided_first_with_player, distance_to_nearest_collision };
    return cd;
 }
 
 
-float check_collision_aligned_cylinder_vs_aligned_box(Entity* entity, glm::vec3 position, glm::vec3 velocity)
+float check_collision_aligned_cylinder_vs_aligned_box(Entity* entity, Entity* player)
 {
-   // takes player's position and velocity this frame and next frame ( velocity is in units/second, take
-   // the delta_time from frame and calculate position in units of next frame)
+   glm::vec3 player_next_frame_position = player->position + player->velocity * G_FRAME_INFO.delta_time;
+   auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player->collision_geometry_ptr;
+   float player_bottom = player->position.y - player_collision_geometry->half_length;
+   float player_top = player->position.y + player_collision_geometry->half_length;
+   auto box_collision_geometry = *((CollisionGeometryAlignedBox*) entity->collision_geometry_ptr);
+   float box_top = entity->position.y + box_collision_geometry.length_y;
+   float box_bottom = entity->position.y;
 
-   // then subdivide that space of motion into smaller steps
+   if(player_bottom <= box_top) 
+   {
+      float player_x = player->position.x;
+      float player_z = player->position.z;
 
-   // now it becomes a matter of strategy. How to check for player collision against boxes?
+      float box_x0 = entity->position.x;
+      float box_z0 = entity->position.z;
+      float box_x1 = entity->position.x + box_collision_geometry.length_x;
+      float box_z1 = entity->position.z + box_collision_geometry.length_z;
+      if(box_x0 <= player_x && box_x1 >= player_x && box_z0 <= player_z && box_z1 >= player_z)
+      {
+         return 3;
+      }
+   }
 
-   // check for each subdivision, either moving forward in time from start until finish (o(n) always) or start at 
-   // the end and come back ((log n) worst case, but doesnt really make much sense to me)
-
-   // etc. 
+   return -1;
 }
