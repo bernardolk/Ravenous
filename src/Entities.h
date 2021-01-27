@@ -4,15 +4,39 @@ struct GlobalEntityInfo {
    u32 entity_counter = 0;
 };
 
+enum CollisionGeometryEnum {
+   COLLISION_ALIGNED_CYLINDER,
+   COLLISION_ALIGNED_BOX
+};
+
 struct Entity {
 	unsigned int index;
 	unsigned int id;
 	Model* model;
 	Shader* shader;
+   void* collision_geometry_ptr;
+   CollisionGeometryEnum collision_geometry_type;
 	glm::vec3 position;
+   glm::vec3 velocity;
 	glm::vec3 rotation = glm::vec3(0.0f);
 	glm::vec3 scale = glm::vec3(1.0f);
 	glm::mat4 matModel = mat4identity;
+};
+
+enum PlayerStateEnum {
+   PLAYER_STATE_FALLING,
+   PLAYER_STATE_STANDING,
+   PLAYER_STATE_WALKING,
+   PLAYER_STATE_RUNNING,
+   PLAYER_STATE_SPRINTING,
+   PLAYER_STATE_JUMPING,
+   PLAYER_STATE_SLIDING,
+   PLAYER_STATE_GRABBING
+};
+
+struct Player {
+   Entity* entity_ptr,
+   PlayerStateEnum player_state
 };
 
 struct SpotLight {

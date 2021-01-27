@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <limits>
 
 // DEFINES
 typedef unsigned char u8;
@@ -22,6 +23,8 @@ typedef unsigned short int u16;
 typedef unsigned int u32;
 typedef unsigned long int u64;
 const float PI = 3.141592;
+
+const float MAX_FLOAT = std::numeric_limits<float>::max();
 
 const std::string textures_path = "w:/assets/textures/";
 const std::string models_path = "w:/assets/models/";
@@ -113,10 +116,11 @@ void render_scene();
 void update_scene_objects();
 void initialize_shaders();
 void render_text_overlay(Camera& camera);
-Entity make_platform(float y, float x, float z, float length, float width, Model model, Shader shader);
 GLenum glCheckError_(const char* file, int line);
 std::string format_float_tostr(float num, int precision);
 void render_text(std::string text, float x, float y, float scale, glm::vec3 color);
+void update_player_state();
+void adjust_player_position_and_velocity(Player* player, float distance, glm::vec3 velocity)
 // void render_model(Entity ent, glm::vec3 lightPos[], glm::vec3 lightRgb[]);
 // void render_scene_lights();
 // unsigned int setup_object(MeshData objData);
@@ -242,6 +246,18 @@ int main() {
    demo_scene.pointLights.push_back(l1);
 
    G_SCENE_INFO.active_scene = &demo_scene;
+
+
+
+   // GAMEPLAY CODE
+
+   // create player
+   Player player;
+   player.entity_ptr = &cylinder;
+   player.player_state = PLAYER_STATE_FALLING;
+   player.entity_ptr->velocity.y = -0.1;
+
+
    
 	// MAIN LOOP
 	while (!glfwWindowShouldClose(G_DISPLAY_INFO.window))
@@ -258,6 +274,7 @@ int main() {
 		//	UPDATE PHASE
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT);
 		update_scene_objects();
+      update_player_state();
 
 		//	RENDER PHASE
 		glClearColor(0.196, 0.298, 0.3607, 1.0f);
@@ -273,22 +290,22 @@ int main() {
 	return 0;
 }
 
-// this most likely should allocate memory for the platform and return a pointer to the thing
-// goddamn i dont know anything yet...
-Entity make_platform(float y, float x, float z, float length, float width, Model model, Shader shader) 
+void update_player_state()
 {
-   Entity platform{
-         G_ENTITY_INFO.entity_counter,
-         ++G_ENTITY_INFO.entity_counter,
-         &model,
-         &shader,
-         vec3(x,y,z),
-         vec3(90, 0, 90),
-         vec3(length, 2.0f, width)
-      };
-   return platform;
+   if(player.player_state == PLAYER_STATE_FALLING)
+   {
+   CollisionData cd = check_player_collision_with_scene(&player, &active_scene->entities[0]);
+   if(cd.collided_entity_ptr != NULL)
+      adjust_player_position_and_velocity(&player, cd.distance_from_position, glm::vec3(0,0,0));
+   }
 }
 
+void adjust_player_position_and_velocity(Player* player, float distance, glm::vec3 velocity)
+{
+   player->position = position + glm::normalize(velocity) * distance;
+   player->velocity = 0;
+   player->player_state = PLAYER_STATE_STANDING;
+}
 
 void render_text_overlay(Camera& camera) 
 {
