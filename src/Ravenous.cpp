@@ -201,10 +201,20 @@ int main() {
       vec3(90, 0, 90),
       vec3(1.0f,1.0f,1.0f)
    };
+
+   // collision geometry for platform
+   platform.collision_geometry_type = COLLISION_ALIGNED_BOX;
+   CollisionGeometryAlignedBox cgab { 1, 0, 1 };
+   platform.collision_geometry_ptr = &cgab;
+
+   // add to scene
    demo_scene.entities.push_back(&platform);
 
 
    // CYLINDER
+
+   float cylinder_half_length = 0.35f;
+   float cylinder_radius = 0.15f;
    unsigned int pink_texture = load_texture_from_file("pink.jpg", "w:/assets/textures");
    Texture cylinder_texture{
       pink_texture,
@@ -213,7 +223,7 @@ int main() {
    };
 
    Mesh cylinder_mesh;
-   cylinder_mesh.vertices = construct_cylinder(0.15f, 0.35f, 24);
+   cylinder_mesh.vertices = construct_cylinder(cylinder_radius, cylinder_half_length, 24);
    cylinder_mesh.render_method = GL_TRIANGLE_STRIP;
 
    Model cylinder_model;
@@ -228,6 +238,12 @@ int main() {
       &model_shader,
       vec3(0,1,1)
    };
+
+   // player collision geometry
+   cylinder.collision_geometry_type = COLLISION_ALIGNED_CYLINDER;
+   CollisionGeometryAlignedCylinder cgac { cylinder_half_length, cylinder_radius};
+   cylinder.collision_geometry_ptr = &cgac;
+
    demo_scene.entities.push_back(&cylinder);
 
 
@@ -288,10 +304,10 @@ void update_player_state(Player* player)
    Entity* &player_entity = player->entity_ptr;
    if(player->player_state == PLAYER_STATE_FALLING)
    {
-      auto entity_ptr = G_SCENE_INFO.active_scene->entities[0];
+      Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
       size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
 
-      CollisionData cd = check_player_collision_with_scene(player_entity, entity_ptr, entity_list_size);
+      CollisionData cd = check_player_collision_with_scene(player_entity, entity_iterator, entity_list_size);
       if(cd.collided_entity_ptr != NULL)
       {
          // move player to collision point

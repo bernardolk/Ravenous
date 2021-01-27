@@ -16,8 +16,8 @@ struct CollisionGeometryAlignedCylinder{
 
 struct CollisionGeometryAlignedBox{
    float length_x;
-   float length_z;
    float length_y;
+   float length_z;
 };
 
 struct Entity {

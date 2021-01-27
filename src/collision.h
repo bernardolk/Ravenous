@@ -10,20 +10,23 @@ float check_collision_aligned_cylinder_vs_aligned_box(Entity* entity, Entity* pl
 CollisionData check_player_collision_with_scene(Entity* player, Entity* entity, size_t entity_list_size); 
 
 
-CollisionData check_player_collision_with_scene(Entity* player, Entity* entity, size_t entity_list_size) 
+CollisionData check_player_collision_with_scene(Entity* player, Entity** entity_iterator, size_t entity_list_size) 
 {
 
    Entity* collided_first_with_player = NULL;
    float distance_to_nearest_collision = MAX_FLOAT;
-   for(int i = 0; i < entity_list_size; i++) 
+   for (int i = 0; i < entity_list_size; i++)
    {
-      float distance_to_collision = MAX_FLOAT;
-      switch(entity->collision_geometry_type)
-      {
-         case COLLISION_ALIGNED_BOX:
+	   Entity* &entity = *entity_iterator;
+	   float distance_to_collision = MAX_FLOAT;
+	   /* switch(entity->collision_geometry_type)
+		{*/
+		//case COLLISION_ALIGNED_BOX:
+	   if (entity->collision_geometry_type == COLLISION_ALIGNED_BOX)
+	   {
          distance_to_collision =
             check_collision_aligned_cylinder_vs_aligned_box(entity, player);
-         break;
+        // break;
       }
 
       if(distance_to_collision > 0 && distance_to_collision < distance_to_nearest_collision)
@@ -32,8 +35,7 @@ CollisionData check_player_collision_with_scene(Entity* player, Entity* entity, 
          collided_first_with_player = entity;
       }
 
-      entity++;
-      i++;
+      entity_iterator++;
    }
 
    CollisionData cd { collided_first_with_player, distance_to_nearest_collision };
