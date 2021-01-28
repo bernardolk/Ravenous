@@ -197,9 +197,9 @@ int main() {
       ++G_ENTITY_INFO.entity_counter,
       &quad_model,
       &model_shader,
-      vec3(0.5,0,0.5),
+      vec3(0.5, 0, 0.5),
       vec3(90, 0, 90),
-      vec3(1.0f,1.0f,1.0f)
+      vec3(1.0f, 1.0f, 1.0f)
    };
 
    // collision geometry for platform
@@ -266,7 +266,7 @@ int main() {
    Player player;
    player.entity_ptr = &cylinder;
    player.player_state = PLAYER_STATE_FALLING;
-   player.entity_ptr->velocity.y = -0.1;
+   player.entity_ptr->velocity.y = -0.5f;
    
 	// MAIN LOOP
 	while (!glfwWindowShouldClose(G_DISPLAY_INFO.window))
@@ -278,7 +278,7 @@ int main() {
 		G_FRAME_INFO.current_fps = 1.0f / G_FRAME_INFO.delta_time;
 
 		//	INPUT PHASE
-      input_phase();
+      input_phase(&player);
 
 		//	UPDATE PHASE
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT);
@@ -311,8 +311,9 @@ void update_player_state(Player* player)
       if(cd.collided_entity_ptr != NULL)
       {
          // move player to collision point
-         player_entity->position = 
-            player_entity->position + glm::normalize(player_entity->velocity) * cd.distance_from_position * -1.0f; //gimmick (* -1)
+         auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player_entity->collision_geometry_ptr;
+         player_entity->position += player_collision_geometry->half_length - cd.distance_from_position; 
+		 //player_entity->position.y = 1.0f;
          player_entity->velocity = glm::vec3(0,0,0);
          player->player_state = PLAYER_STATE_STANDING;
       }

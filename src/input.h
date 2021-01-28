@@ -1,22 +1,23 @@
 
 void on_mouse_btn(GLFWwindow* window, int button, int action, int mods);
 void on_mouse_move(GLFWwindow* window, double xpos, double ypos);
-void process_keyboard_input(GLFWwindow* window);
+void process_keyboard_input(GLFWwindow* window, Player* player);
 void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset);
-void input_phase();
+void input_phase(Player* player);
 
-void input_phase() {
+void input_phase(Player* player) {
 		glfwPollEvents();
-		process_keyboard_input(G_DISPLAY_INFO.window);
+		process_keyboard_input(G_DISPLAY_INFO.window, player);
 }
 
 
-void process_keyboard_input(GLFWwindow* window)
+void process_keyboard_input(GLFWwindow* window, Player* player)
 {
 	//Todo: get a real input toggling system in place
 	// something that allows you to wait for release to get in the if again
 	float cameraSpeed = G_FRAME_INFO.delta_time * G_SCENE_INFO.camera.Acceleration;
 
+   // camera movement
    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
       cameraSpeed = cameraSpeed * 2;
    }
@@ -45,12 +46,24 @@ void process_keyboard_input(GLFWwindow* window)
       save_camera_settings_to_file("w:/camera.txt", G_SCENE_INFO.camera.Position, G_SCENE_INFO.camera.Front);
    }
 
-
-	// This solution will only work while i have only one key combo implemented (i guess)
-	if (G_INPUT_INFO.key_combo_pressed) {
-		if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE || glfwGetKey(window, GLFW_KEY_M) == GLFW_RELEASE)
-			G_INPUT_INFO.key_combo_pressed = false;
-	}
+   // player movement
+   if(player->player_state == PLAYER_STATE_STANDING)
+   {
+      if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+         player->entity_ptr->position.z += player->speed;
+      if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+         player->entity_ptr->position.z -= player->speed;
+      if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+         player->entity_ptr->position.x -= player->speed;
+      if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+         player->entity_ptr->position.x += player->speed;
+      if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) 
+      {
+         player->player_state = PLAYER_STATE_FALLING;
+         player->entity_ptr->velocity.y = -0.5f;
+         player->entity_ptr->position.y = player->entity_ptr->position.y + 0.5f;  
+      }
+   }
 
 }
 

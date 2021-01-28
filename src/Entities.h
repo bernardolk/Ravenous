@@ -47,6 +47,7 @@ enum PlayerStateEnum {
 
 struct Player {
    Entity* entity_ptr;
+   float speed = 0.1f;
    PlayerStateEnum player_state;
 };
 
