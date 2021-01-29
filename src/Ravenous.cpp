@@ -113,10 +113,6 @@ struct GlobalSceneInfo {
 #include <collision.h>
 #define glCheckError() glCheckError_(__FILE__, __LINE__) 
 
-
-// SHADER SETTINGS
-float global_shininess = 32.0f;
-
 // OPENGL OBJECTS
 unsigned int texture, texture_specular;
 Shader quad_shader, model_shader, Text_shader, line_shader;
@@ -128,7 +124,6 @@ using namespace glm;
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void setup_window(bool debug);
 void render_ray();
-void render_scene();
 void update_scene_objects();
 void initialize_shaders();
 void render_text_overlay(Camera& camera);
@@ -202,7 +197,7 @@ int main() {
 		//	RENDER PHASE
 		glClearColor(0.196, 0.298, 0.3607, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		render_scene();
+		render_scene(G_SCENE_INFO.active_scene, &G_SCENE_INFO.camera);
       render_text_overlay(G_SCENE_INFO.camera);
 
       // FINISH FRAME
@@ -218,16 +213,17 @@ void update_player_state(Player* player)
    Entity* &player_entity = player->entity_ptr;
    if(player->player_state == PLAYER_STATE_FALLING)
    {
+      // test collision with every object in scene entities vector
       Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
       size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
-
       CollisionData cd = check_player_collision_with_scene(player_entity, entity_iterator, entity_list_size);
+
+      // if collided
       if(cd.collided_entity_ptr != NULL)
       {
-         // move player to collision point
+         // move player to collision point, stop player and set him to standing
          auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player_entity->collision_geometry_ptr;
          player_entity->position.y += player_collision_geometry->half_length - cd.distance_from_position; 
-		 //player_entity->position.y = 1.0f;
          player_entity->velocity = glm::vec3(0,0,0);
          player->player_state = PLAYER_STATE_STANDING;
       }
@@ -407,45 +403,6 @@ void setup_window(bool debug) {
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 	}
 
-}
-
-
-void render_scene() 
-{
-	Entity **entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
-   int entities_vec_size =  G_SCENE_INFO.active_scene->entities.size();
-	for(int it = 0; it < entities_vec_size; it++) 
-   {
-	   Entity *entity_ptr = *entity_iterator;
-		entity_ptr->shader->use();
-		auto point_light_ptr = G_SCENE_INFO.active_scene->pointLights.begin();
-		int point_light_count = 0;
-		for (point_light_ptr; point_light_ptr != G_SCENE_INFO.active_scene->pointLights.end(); point_light_ptr++)
-      {
-			PointLight point_light = *point_light_ptr;
-			string uniform_name = "pointLights[" + to_string(point_light_count) + "]";
-			entity_ptr->shader->setFloat3(uniform_name + ".position", point_light.position);
-			entity_ptr->shader->setFloat3(uniform_name + ".diffuse", point_light.diffuse);
-			entity_ptr->shader->setFloat3(uniform_name + ".specular", point_light.specular);
-			entity_ptr->shader->setFloat3(uniform_name + ".ambient", point_light.ambient);
-			entity_ptr->shader->setFloat(uniform_name + ".constant", point_light.intensity_constant);
-			entity_ptr->shader->setFloat(uniform_name + ".linear", point_light.intensity_linear);
-			entity_ptr->shader->setFloat(uniform_name + ".quadratic", point_light.intensity_quadratic);
-			point_light_count++;
-		}
-		entity_ptr->shader->setInt    ("num_point_lights", point_light_count);
-		entity_ptr->shader->setInt    ("num_directional_light", 0);
-		entity_ptr->shader->setInt    ("num_spot_lights", 0);
-		entity_ptr->shader->setMatrix4("view", G_SCENE_INFO.camera.View4x4);
-		entity_ptr->shader->setMatrix4("projection", G_SCENE_INFO.camera.Projection4x4);
-		entity_ptr->shader->setFloat  ("shininess", global_shininess);
-		entity_ptr->shader->setFloat3 ("viewPos", G_SCENE_INFO.camera.Position);
-		//mat4 model_matrix = scale   (mat4identity, vec3(0.01,0.01,0.01));
-		entity_ptr->shader->setMatrix4("model", entity_ptr->matModel);
-		render_entity(entity_ptr);
-
-      entity_iterator++;
-	}
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)

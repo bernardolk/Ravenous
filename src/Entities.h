@@ -92,6 +92,7 @@ struct Scene {
 	std::vector<SpotLight> spotLights;
 	std::vector<DirectionalLight> directionalLights;
 	std::vector<PointLight> pointLights;
+   float global_shininess = 32.0f;
 	//vector<LightEntity> lights;
 };
 
