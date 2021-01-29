@@ -28,6 +28,13 @@ struct Mesh {
 };
 
 
+// prototypes
+GLData setup_gl_data_for_mesh(Mesh* mesh);
+GLData setup_gl_data_for_lines(Vertex* vertices, size_t size);
+std::vector<Vertex> construct_cylinder(float radius, float half_lenght, int slices); 
+
+
+
 GLData setup_gl_data_for_mesh(Mesh* mesh)
 {
    GLData gl_data;
@@ -65,6 +72,27 @@ GLData setup_gl_data_for_mesh(Mesh* mesh)
 
    return gl_data;
 }
+
+GLData setup_gl_data_for_lines(Vertex* vertices, size_t size) 
+{
+   GLData gl_data;
+
+   // create buffers/arrays
+   glGenVertexArrays(1, &gl_data.VAO);
+   glGenBuffers     (1, &gl_data.VBO);
+
+   // load data into vertex buffers
+   glBindVertexArray(gl_data.VAO);
+   glBindBuffer(GL_ARRAY_BUFFER, gl_data.VBO);
+   glBufferData(GL_ARRAY_BUFFER, size * sizeof(Vertex), vertices, GL_STATIC_DRAW);
+
+   glEnableVertexAttribArray(0);
+   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) 0);
+
+   return gl_data;
+} 
+
+
 
 std::vector<Vertex> construct_cylinder(float radius, float half_lenght, int slices) 
 {

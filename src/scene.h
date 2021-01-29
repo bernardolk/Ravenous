@@ -1,6 +1,26 @@
 // CREATE SCENE 
    Scene demo_scene;
 
+// CREATE GEOMETRY
+
+// quad geometry
+vector<Vertex> quad_vertex_vec = {
+	Vertex{glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 0.0f)},
+	Vertex{glm::vec3(1.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 0.0f)},
+	Vertex{glm::vec3(1.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 1.0f)},
+	Vertex{glm::vec3(0.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 1.0f)}
+};
+
+vector<u32> quad_vertex_indices = { 0, 1, 2, 2, 3, 0 };
+
+// line geometry (get updated inside the collision code)
+vector<Vertex> line_vertex_vec = {
+      Vertex{glm::vec3(1, 1, 0)},
+      Vertex{glm::vec3(1, 1, 1)},
+      Vertex{glm::vec3(0, 1, 1)},
+      Vertex{glm::vec3(0, 1, 0)}
+};
+
 // ENTITY SETUP
 unsigned int brick_texture = load_texture_from_file("brickwall.jpg", "w:/assets/textures");
 unsigned int brick_normal_texture = load_texture_from_file("brickwall_normal.jpg", "w:/assets/textures");
@@ -38,6 +58,7 @@ Entity platform{
    vec3(90, 0, 90),
    vec3(1.0f, 1.0f, 1.0f)
 };
+platform.name = "Platform 1";
 
 // platform 2
 Entity platform2{
@@ -49,6 +70,8 @@ Entity platform2{
    vec3(90, 0, 90),
    vec3(1.0f, 1.0f, 1.0f)
 };
+platform2.name = "Platform 2";
+
 
 // collision geometry for platform
 CollisionGeometryAlignedBox cgab { 1, 0, 1 };
@@ -66,8 +89,30 @@ demo_scene.entities.push_back(&platform2);
 
 
 
-// CYLINDER
+// COLLISION DEBUG BOUNDARY LINES
 
+Mesh line_mesh;
+line_mesh.vertices = line_vertex_vec;
+line_mesh.render_method = GL_LINE_LOOP;
+
+Model line_model;
+line_model.mesh = line_mesh;
+line_model.gl_data = setup_gl_data_for_mesh(&line_mesh);
+
+Entity collision_lines {
+     G_ENTITY_INFO.entity_counter,
+   ++G_ENTITY_INFO.entity_counter,
+   &line_model,
+   &line_shader
+};
+
+collision_lines.name = "LINE";
+
+demo_scene.entities.push_back(&collision_lines);
+
+
+
+// CYLINDER
 float cylinder_half_length = 0.35f;
 float cylinder_radius = 0.15f;
 unsigned int pink_texture = load_texture_from_file("pink.jpg", "w:/assets/textures");

@@ -55,16 +55,34 @@ float check_collision_aligned_cylinder_vs_aligned_box(Entity* entity, Entity* pl
    float box_top = entity->position.y + box_collision_geometry.length_y;
    float box_bottom = entity->position.y;
 
+   //box boundaries
+   float box_x0 = entity->position.x - box_collision_geometry.length_x;
+   float box_z0 = entity->position.z;
+   float box_x1 = entity->position.x;
+   float box_z1 = entity->position.z + box_collision_geometry.length_z;
+
+   // for debug, draw boundaries
+   if(entity->name == "Platform 1")
+   {
+      Entity* line = find_entity_in_scene(G_SCENE_INFO.active_scene, "LINE");
+
+      line->model->mesh.vertices[0].position = glm::vec3(box_x0, box_top + 0.2, box_z0);
+      line->model->mesh.vertices[1].position = glm::vec3(box_x1, box_top + 0.2, box_z0);
+      line->model->mesh.vertices[2].position = glm::vec3(box_x1, box_top + 0.2, box_z1);
+      line->model->mesh.vertices[3].position = glm::vec3(box_x0, box_top + 0.2, box_z1);
+
+      glBindVertexArray(line->model->gl_data.VAO);
+      glBindBuffer(GL_ARRAY_BUFFER, line->model->gl_data.VBO);
+      glBufferData(GL_ARRAY_BUFFER, line->model->mesh.vertices.size() * sizeof(Vertex), &(line->model->mesh.vertices[0]), GL_STATIC_DRAW);
+   }
+
    // only takes account for player falling (player above going down)
    if(player_bottom <= box_top) 
    {
       float player_x = player->position.x;
       float player_z = player->position.z;
 
-      float box_x0 = entity->position.x - box_collision_geometry.length_x;
-      float box_z0 = entity->position.z;
-      float box_x1 = entity->position.x;
-      float box_z1 = entity->position.z + box_collision_geometry.length_z;
+      
       if(box_x0 <= player_x && box_x1 >= player_x && box_z0 <= player_z && box_z1 >= player_z)
       {
          return player->position.y - box_top;

@@ -30,9 +30,15 @@ void render_entity(Entity* entity)
 
    // draw mesh
    glBindVertexArray(entity->model->gl_data.VAO);
-   if(entity->model->mesh.render_method == 5) 
+   if(entity->model->mesh.render_method == GL_TRIANGLE_STRIP) 
    {
       glDrawArrays(GL_TRIANGLE_STRIP, 0, entity->model->mesh.vertices.size());
+   }
+   else if(entity->model->mesh.render_method == GL_LINE_LOOP)
+   {
+      //print_position(&entity->model->mesh.vertices[0], entity->model->mesh.vertices.size(), "line position");
+      std::cout << "VERTICES : " << entity->model->mesh.vertices.size() << "\n";
+      glDrawArrays(GL_LINE_LOOP, 0, entity->model->mesh.vertices.size());
    }
    else
    {

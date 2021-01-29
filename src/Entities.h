@@ -32,6 +32,7 @@ struct Entity {
    glm::vec3 velocity;
    void* collision_geometry_ptr;
    CollisionGeometryEnum collision_geometry_type;
+   std::string name = "NONAME";
 };
 
 enum PlayerStateEnum {
@@ -95,11 +96,16 @@ struct Scene {
 };
 
 
-vector<Vertex> quad_vertex_vec = {
-	Vertex{glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 0.0f)},
-	Vertex{glm::vec3(1.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 0.0f)},
-	Vertex{glm::vec3(1.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 1.0f)},
-	Vertex{glm::vec3(0.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 1.0f)}
-};
 
-vector<u32> quad_vertex_indices = { 0, 1, 2, 2, 3, 0 };
+Entity* find_entity_in_scene(Scene* scene, std::string name) 
+{
+   for(int i = 0; i < scene->entities.size() ; i++)
+   {
+      if(scene->entities[i]->name == name)
+      {
+         return scene->entities[i];
+      }
+   }
+
+   return NULL;
+}

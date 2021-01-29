@@ -71,11 +71,27 @@ struct GlobalFrameInfo {
    float current_fps;
 } G_FRAME_INFO;
 
+#include <mesh.h>
+
+void print_vec(glm::vec3 vec, std::string prefix)
+{
+   std::cout << prefix << ": (" << vec.x << ", " << vec.y << ", " << vec.z << ") \n";
+}
+
+void print_position(Vertex* vertex, size_t length, std::string title)
+{
+   std::cout << title << "\n";
+   for(int i = 0; i < length; i++)
+   {
+      glm::vec3 pos = vertex[i].position;
+      std::cout << "[" << i << "] : (" << pos.x << ", " << pos.y << ", " << pos.z << ") \n";
+   }
+}
+
 
 // SOURCE INCLUDES
 #include <text.h>
 #include <shader.h>
-#include <mesh.h>
 #include <model.h>
 #include <camera.h>
 #include <entities.h>
@@ -92,7 +108,6 @@ struct GlobalSceneInfo {
    Camera camera;
 } G_SCENE_INFO;
 
-
 #include <parser.h>
 #include <input.h>
 #include <collision.h>
@@ -104,7 +119,7 @@ float global_shininess = 32.0f;
 
 // OPENGL OBJECTS
 unsigned int texture, texture_specular;
-Shader quad_shader, model_shader, Text_shader;
+Shader quad_shader, model_shader, Text_shader, line_shader;
 
 
 using namespace glm;
@@ -153,6 +168,7 @@ int main() {
 
 	// shaders
 	model_shader = create_shader_program("Model Shader", "vertex_model", "fragment_multiple_lights");
+	line_shader = create_shader_program("Line Shader", "vertex_debug_line", "fragment_debug_line");
 	//Shader obj_shader = create_shader_program("Obj Shader", "vertex_color_cube", "fragment_multiple_lights");
 	//Shader light_shader = create_shader_program("Light Props Shader", "vertex_color_cube", "fragment_light");
 	//quad_shader = create_shader_program("Billboard Shader", "quad_vertex", "textured_quad_fragment");
@@ -179,8 +195,9 @@ int main() {
 
 		//	UPDATE PHASE
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT);
-		update_scene_objects();
       update_player_state(&player);
+		update_scene_objects();
+
 
 		//	RENDER PHASE
 		glClearColor(0.196, 0.298, 0.3607, 1.0f);
@@ -273,6 +290,8 @@ void initialize_shaders()
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+
+   // 
 }
 
 std::string format_float_tostr(float num, int precision) 
@@ -353,11 +372,6 @@ inline void update_scene_objects()
 		model = rotate(model, radians(entity->rotation.z), vec3(0.0f, 0.0f, 1.0f));
 		model = scale(model, entity->scale);
 		entity->matModel = model;
-
-      // if(entity->collision_geometry_type == COLLISION_ALIGNED_CYLINDER)
-      // {
-      //    std::cout << "update scene: " << &entity->position << "\n";
-      // }
 
       entity_iterator++;
 	}
