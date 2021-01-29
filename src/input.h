@@ -49,14 +49,20 @@ void process_keyboard_input(GLFWwindow* window, Player* player)
    // player movement
    if(player->player_state == PLAYER_STATE_STANDING)
    {
-      if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-         player->entity_ptr->position.z += player->speed;
-      if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-         player->entity_ptr->position.z -= player->speed;
       if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-         player->entity_ptr->position.x -= player->speed;
+         player->entity_ptr->position += player->speed * glm::vec3(G_SCENE_INFO.camera.Front.x, 0, G_SCENE_INFO.camera.Front.z);
       if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-         player->entity_ptr->position.x += player->speed;
+         player->entity_ptr->position -= player->speed * glm::vec3(G_SCENE_INFO.camera.Front.x, 0, G_SCENE_INFO.camera.Front.z);
+      if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+      {
+         glm::vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera.Front, G_SCENE_INFO.camera.Up));
+         player->entity_ptr->position -= player->speed * glm::vec3(onwards_vector.x, 0, onwards_vector.z);
+      }
+      if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+      {
+         glm::vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera.Front, G_SCENE_INFO.camera.Up));
+         player->entity_ptr->position += player->speed * glm::vec3(onwards_vector.x, 0, onwards_vector.z);
+      }
       if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) 
       {
          player->player_state = PLAYER_STATE_FALLING;
