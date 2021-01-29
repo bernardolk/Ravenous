@@ -69,6 +69,8 @@ struct GlobalFrameInfo {
    float last_frame_time;
    int frame_counter;
    float current_fps;
+   u16 frame_counter_3 = 0;
+   u16 frame_counter_10 = 0;
 } G_FRAME_INFO;
 
 #include <mesh.h>
@@ -95,6 +97,7 @@ void print_position(Vertex* vertex, size_t length, std::string title)
 #include <model.h>
 #include <camera.h>
 #include <entities.h>
+#include <player.h>
 #include <parser.h>
 #include <loaders.h>
 #include <render.h>
@@ -184,6 +187,8 @@ int main() {
 		G_FRAME_INFO.delta_time = currentFrame - G_FRAME_INFO.last_frame_time;
 		G_FRAME_INFO.last_frame_time = currentFrame;
 		G_FRAME_INFO.current_fps = 1.0f / G_FRAME_INFO.delta_time;
+      G_FRAME_INFO.frame_counter_3 = ++G_FRAME_INFO.frame_counter_3 % 3;
+      G_FRAME_INFO.frame_counter_10 = ++G_FRAME_INFO.frame_counter_10 % 10;   
 
 		//	INPUT PHASE
       input_phase(&player);
@@ -226,14 +231,33 @@ void update_player_state(Player* player)
          player_entity->position.y += player_collision_geometry->half_length - cd.distance_from_position; 
          player_entity->velocity = glm::vec3(0,0,0);
          player->player_state = PLAYER_STATE_STANDING;
+         player->standing_entity_ptr = cd.collided_entity_ptr;
       }
    }
-   
-   player_entity->position = player_entity->position + player_entity->velocity * G_FRAME_INFO.delta_time;
-   //std::cout << "player position: (" << player_entity->position.x << ","  << player_entity->position.y << ","  << player_entity->position.z << ")\n";
-   // std::cout << "update player state original: " << &player->entity_ptr->position << "\n";
-   // std::cout << "update player state: " << &player_entity->position << "\n";
+   else if(player->player_state == PLAYER_STATE_STANDING)
+   {
+      if(G_FRAME_INFO.frame_counter_10 == 0)
+      {
+         std::cout << "standing on: " << player->standing_entity_ptr->name << "\n";
+      }
+      auto terrain_collision = sample_terrain_height_below_player(player_entity, player->standing_entity_ptr);
+      if(!terrain_collision.collision)
+      {
+         std::cout << "PLAYER FELL" << "\n";
+         player->player_state = PLAYER_STATE_FALLING;
+         player->standing_entity_ptr = NULL;
+         player_entity->velocity.y = -1 * player->fall_speed; 
+      }
+   }
 
+   if(G_FRAME_INFO.frame_counter_10 == 0)
+   {
+      std::cout << "player state: " << player->player_state << "\n";
+   }
+
+
+   // makes player move
+   player_entity->position = player_entity->position + player_entity->velocity * G_FRAME_INFO.delta_time;
 } 
 
 void render_text_overlay(Camera& camera) 

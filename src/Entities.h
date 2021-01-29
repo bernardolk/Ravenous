@@ -35,23 +35,6 @@ struct Entity {
    std::string name = "NONAME";
 };
 
-enum PlayerStateEnum {
-   PLAYER_STATE_FALLING,
-   PLAYER_STATE_STANDING,
-   PLAYER_STATE_WALKING,
-   PLAYER_STATE_RUNNING,
-   PLAYER_STATE_SPRINTING,
-   PLAYER_STATE_JUMPING,
-   PLAYER_STATE_SLIDING,
-   PLAYER_STATE_GRABBING
-};
-
-struct Player {
-   Entity* entity_ptr;
-   float speed = 0.02f;
-   PlayerStateEnum player_state;
-};
-
 struct SpotLight {
 	unsigned int id;
 	glm::vec3 position;

@@ -106,9 +106,29 @@ Entity collision_lines {
    &line_shader
 };
 
-collision_lines.name = "LINE";
+collision_lines.name = "LINE1";
 
 demo_scene.entities.push_back(&collision_lines);
+
+// COLLISION DEBUG LINES 2
+Mesh line_mesh2;
+line_mesh2.vertices = line_vertex_vec;
+line_mesh2.render_method = GL_LINE_LOOP;
+
+Model line_model2;
+line_model2.mesh = line_mesh2;
+line_model2.gl_data = setup_gl_data_for_mesh(&line_mesh2);
+
+Entity collision_lines2 {
+     G_ENTITY_INFO.entity_counter,
+   ++G_ENTITY_INFO.entity_counter,
+   &line_model2,
+   &line_shader
+};
+
+collision_lines2.name = "LINE2";
+
+demo_scene.entities.push_back(&collision_lines2);
 
 
 
@@ -165,4 +185,4 @@ G_SCENE_INFO.active_scene = &demo_scene;
 Player player;
 player.entity_ptr = &cylinder;
 player.player_state = PLAYER_STATE_FALLING;
-player.entity_ptr->velocity.y = -0.5f;
+player.entity_ptr->velocity.y = -1 * player.fall_speed;
