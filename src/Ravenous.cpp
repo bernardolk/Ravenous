@@ -226,7 +226,7 @@ void update_player_state(Player* player)
       {
          // move player to collision point
          auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player_entity->collision_geometry_ptr;
-         player_entity->position += player_collision_geometry->half_length - cd.distance_from_position; 
+         player_entity->position.y += player_collision_geometry->half_length - cd.distance_from_position; 
 		 //player_entity->position.y = 1.0f;
          player_entity->velocity = glm::vec3(0,0,0);
          player->player_state = PLAYER_STATE_STANDING;
@@ -290,8 +290,6 @@ void initialize_shaders()
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-
-   // 
 }
 
 std::string format_float_tostr(float num, int precision) 

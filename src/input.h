@@ -47,6 +47,8 @@ void process_keyboard_input(GLFWwindow* window, Player* player)
    }
 
    // player movement
+
+   // NOTE: should NOT change player position directly. Should change player's velocity. Update phase will use that.
    if(player->player_state == PLAYER_STATE_STANDING)
    {
       if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
