@@ -17,6 +17,8 @@
 #include <stdlib.h>
 #include <string>
 #include <limits>
+#include <assert.h>
+#include <algorithm>
 
 // DEFINES
 typedef unsigned char u8;
@@ -186,6 +188,7 @@ int main() {
       // START FRAME
 		float currentFrame = glfwGetTime();
 		G_FRAME_INFO.delta_time = currentFrame - G_FRAME_INFO.last_frame_time;
+      if(G_FRAME_INFO.delta_time > 0.02) G_FRAME_INFO.delta_time = 0.2;
 		G_FRAME_INFO.last_frame_time = currentFrame;
 		G_FRAME_INFO.current_fps = 1.0f / G_FRAME_INFO.delta_time;
       G_FRAME_INFO.frame_counter_3 = ++G_FRAME_INFO.frame_counter_3 % 3;
@@ -240,31 +243,37 @@ void update_player_state(Player* player)
       }
       case PLAYER_STATE_STANDING:
       {
-         if(G_FRAME_INFO.frame_counter_10 == 0)
-         {
-            std::cout << "standing on: " << player->standing_entity_ptr->name << "\n";
-         }
+         // if(G_FRAME_INFO.frame_counter_10 == 0)
+         // {
+         //    std::cout << "standing on: " << player->standing_entity_ptr->name << "\n";
+         // }
          auto terrain_collision = sample_terrain_height_below_player(player_entity, player->standing_entity_ptr);
          if(!terrain_collision.collision)
          {
             std::cout << "PLAYER FELL" << "\n";
             // player->player_state = PLAYER_STATE_FALLING_FALLING_FROM_EDGE;
-            player->player_state = PLAYER_STATE_FALLING;
-            player->standing_entity_ptr = NULL;
-            player_entity->velocity.y = -1 * player->fall_speed; 
+            player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
          }
          break;
       }
-      // case PLAYER_STATE_FALLING_FROM_EDGE:
-
-
-      //    break;
+      case PLAYER_STATE_FALLING_FROM_EDGE:
+      {
+         // player_entity->velocity *= 1.6;
+         bool collision = check_2D_collision_circle_and_aligned_square(player_entity, player->standing_entity_ptr);
+         if(!collision)
+         {
+            player->player_state = PLAYER_STATE_FALLING;
+            player->standing_entity_ptr = NULL;
+            player_entity->velocity = glm::vec3(0, -1 * player->fall_speed, 0); 
+         }
+         break;
+      }
    }
 
-   if(G_FRAME_INFO.frame_counter_10 == 0)
-   {
-      std::cout << "player state: " << player->player_state << "\n";
-   }
+   // if(G_FRAME_INFO.frame_counter_10 == 0)
+   // {
+   //    std::cout << "player state: " << player->player_state << "\n";
+   // }
 
 
    // makes player move

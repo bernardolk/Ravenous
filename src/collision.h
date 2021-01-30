@@ -10,6 +10,9 @@ struct CollisionData{
 float check_collision_aligned_cylinder_vs_aligned_box(Entity* entity, Entity* player);
 CollisionData check_player_collision_with_scene(Entity* player, Entity* entity, size_t entity_list_size);
 CollisionData sample_terrain_height_below_player(Entity* player, Entity* entity); 
+bool check_2D_collision_circle_and_aligned_square(Entity* circle, Entity* square);
+float squared_distance_between_point_and_line(float x1, float y1, float x2, float y2, float x0, float y0);
+float squared_minimum_distance(glm::vec2 v, glm::vec2 w, glm::vec2 p);
 
 
 CollisionData check_player_collision_with_scene(Entity* player, Entity** entity_iterator, size_t entity_list_size) 
@@ -154,3 +157,82 @@ CollisionData sample_terrain_height_below_player(Entity* player, Entity* entity)
       return cd;
    }
 }
+
+
+float squared_distance_between_point_and_line(float x1, float y1, float x2, float y2, float x0, float y0)
+{
+   // 0 is point, 1 and 2 define a line
+
+   float numerator = (x2 - x1) * (y1 - y0) - (x1 - x0) * (y2 - y1);
+   numerator = numerator * numerator;
+   float denominator = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
+   assert(denominator > 0);
+   return numerator / denominator;
+}
+
+
+bool check_2D_collision_circle_and_aligned_square(Entity* circle, Entity* square)
+{
+   // Note: this will only check if there are edges of the quare inside the circle.
+   // If the circle is completely inside the square, this will not work!
+
+   auto box_collision_geometry = *((CollisionGeometryAlignedBox*) square->collision_geometry_ptr);
+
+   //square vertices
+   float square_x0 = square->position.x - box_collision_geometry.length_x;
+   float square_z0 = square->position.z;
+   float square_x1 = square->position.x;
+   float square_z1 = square->position.z + box_collision_geometry.length_z;
+
+   float player_x = circle->position.x;
+   float player_z = circle->position.z;
+
+   float d_1 = squared_minimum_distance(glm::vec2(square_x0, square_z0), glm::vec2(square_x1, square_z0), glm::vec2(player_x, player_z));
+   float d_2 = squared_minimum_distance(glm::vec2(square_x1, square_z0), glm::vec2(square_x1, square_z1), glm::vec2(player_x, player_z));
+   float d_3 = squared_minimum_distance(glm::vec2(square_x1, square_z1), glm::vec2(square_x0, square_z1), glm::vec2(player_x, player_z));
+   float d_4 = squared_minimum_distance(glm::vec2(square_x0, square_z1), glm::vec2(square_x0, square_z0), glm::vec2(player_x, player_z));
+
+   std::cout << "player: (" << player_x << "," << player_z << ") ; d1: " << d_1 << ", d2: " << d_2 << ", d3: " << d_3 << ", d4: " << d_4 << "\n";
+
+   auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) circle->collision_geometry_ptr;
+   float p_radius2 = player_collision_geometry->radius * player_collision_geometry->radius;
+   std::cout << "radius2: " << p_radius2 << "\n";
+   if(d_1 <= p_radius2)
+   {
+      std::cout << "intersecting with 1 !" << "\n";
+      return true;
+   }
+   else if(d_2 <= p_radius2)
+   {
+      std::cout << "intersecting with 2 !" << "\n";
+      return true;
+   }
+   else if(d_3 <= p_radius2)
+   {
+      std::cout << "intersecting with 3 !" << "\n";
+      return true;
+   }
+   else if(d_4 <= p_radius2)
+   {
+      std::cout << "intersecting with 4 !" << "\n";
+      return true;
+   }
+
+   return false;
+}
+
+
+float squared_minimum_distance(glm::vec2 v, glm::vec2 w, glm::vec2 p) 
+{
+  // Return minimum distance between line segment vw and point p
+  float l2 = glm::length2(v - w);  // i.e. |w-v|^2 -  avoid a sqrt
+  if (l2 == 0.0) return glm::distance(p,v);   // v == w case
+  float dot = glm::dot(p - v, w - v) / l2;
+  float min = 1 > dot ? dot : 1;
+  float t = 0 > min ? 0 : min;
+  glm::vec2 projection = v + t * (w - v);  // Projection falls on the segment
+  float d = glm::distance(p, projection);
+  return d * d;
+}
+
+
