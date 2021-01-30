@@ -194,7 +194,12 @@ int main() {
       // START FRAME
 		float currentFrame = glfwGetTime();
 		G_FRAME_INFO.delta_time = currentFrame - G_FRAME_INFO.last_frame_time;
-      if(G_FRAME_INFO.delta_time > 0.02) G_FRAME_INFO.delta_time = 0.2;
+      if(G_FRAME_INFO.delta_time > 0.02)
+      {
+         // @BUG: Player will stutter if we set delta_time here below. Why?
+         // G_FRAME_INFO.delta_time = 0.2;
+         std::cout << "delta time exceeded.\n";
+      } 
 		G_FRAME_INFO.last_frame_time = currentFrame;
 		G_FRAME_INFO.current_fps = 1.0f / G_FRAME_INFO.delta_time;
       G_FRAME_INFO.frame_counter_3 = ++G_FRAME_INFO.frame_counter_3 % 3;
@@ -228,6 +233,7 @@ void update_player_state(Player* player)
    Entity* &player_entity = player->entity_ptr;
 
    // makes player move
+   auto player_prior_position = player_entity->position;
    player_entity->position += player_entity->velocity * G_FRAME_INFO.delta_time;
 
    switch(player->player_state)
@@ -253,6 +259,21 @@ void update_player_state(Player* player)
       }
       case PLAYER_STATE_STANDING:
       {
+         // step 1: check if player is colliding with a wall
+         Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
+         size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
+         CollisionData cd = check_player_collision_with_scene(player_entity, entity_iterator, entity_list_size);
+
+         // if collided
+         if(cd.collided_entity_ptr != NULL && cd.collided_entity_ptr != player->standing_entity_ptr)
+         {
+            // move player to collision point, stop player and set him to standing
+            player_entity->velocity = glm::vec3(0,0,0);
+            player_entity->position = player_prior_position;
+            break;
+         }
+
+         // step 2: check if player is still standing
          auto terrain_collision = sample_terrain_height_below_player(player_entity, player->standing_entity_ptr);
          if(!terrain_collision.collision)
          {
