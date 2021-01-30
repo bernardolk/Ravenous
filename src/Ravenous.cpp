@@ -83,7 +83,7 @@ void print_vec(glm::vec3 vec, std::string prefix)
    std::cout << prefix << ": (" << vec.x << ", " << vec.y << ", " << vec.z << ") \n";
 }
 
-void print_position(Vertex* vertex, size_t length, std::string title)
+void print_vertex_array_position(Vertex* vertex, size_t length, std::string title)
 {
    std::cout << title << "\n";
    for(int i = 0; i < length; i++)
@@ -91,6 +91,12 @@ void print_position(Vertex* vertex, size_t length, std::string title)
       glm::vec3 pos = vertex[i].position;
       std::cout << "[" << i << "] : (" << pos.x << ", " << pos.y << ", " << pos.z << ") \n";
    }
+}
+
+void print_vec_every_3rd_frame(glm::vec3 vec, std::string prefix)
+{
+   if(G_FRAME_INFO.frame_counter_3 == 0)
+      print_vec(vec, prefix);
 }
 
 
@@ -252,7 +258,7 @@ void update_player_state(Player* player)
          {
             std::cout << "PLAYER FELL" << "\n";
             player_entity->velocity *= 1.3;
-            player_entity->velocity.y = - 0.3 * player->fall_speed;
+            player_entity->velocity.y = - 1 * player->fall_speed;
             player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
          }
          break;
