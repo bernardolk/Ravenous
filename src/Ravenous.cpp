@@ -264,12 +264,33 @@ void update_player_state(Player* player)
          size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
          CollisionData cd = check_player_collision_with_scene(player_entity, entity_iterator, entity_list_size);
 
-         // if collided
+         // if collided with something else then the floor player is currently standing on
          if(cd.collided_entity_ptr != NULL && cd.collided_entity_ptr != player->standing_entity_ptr)
          {
-            // move player to collision point, stop player and set him to standing
-            player_entity->velocity = glm::vec3(0,0,0);
+            // move player back to where he was last frame 
+            auto player_v = player_entity->velocity;
+            auto edge = get_nearest_edge(player_entity, cd.collided_entity_ptr);
+            // since we know the edges are axis-aligned...
+            if(edge.x == 0)
+            {
+               player_entity->velocity.x = 0;
+               int sign = player_entity->velocity.z > 0 ? 1 : -1;
+               player_entity->velocity.z = player->speed * sign;
+            }
+            else if(edge.z == 0)
+            {
+               player_entity->velocity.z = 0;
+               int sign = player_entity->velocity.x > 0 ? 1 : -1;
+               player_entity->velocity.x = player->speed * sign;
+            }
+            else{
+               assert(false);
+            }
+                           print_vec(edge, "Edge vector");
+
+            //player_entity->velocity = glm::vec3(0,0,0);
             player_entity->position = player_prior_position;
+            player_entity->position +=  player_entity->velocity * G_FRAME_INFO.delta_time;
             break;
          }
 
@@ -298,6 +319,7 @@ void update_player_state(Player* player)
       }
    }
 
+   print_vec_every_3rd_frame(player_entity->velocity, "player velocity");
    //print_vec(player_entity->position, "player position");
    //print_vec(player_entity->velocity, "player velocity");
    

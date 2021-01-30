@@ -13,6 +13,7 @@ CollisionData sample_terrain_height_below_player(Entity* player, Entity* entity)
 bool check_2D_collision_circle_and_aligned_square(Entity* circle, Entity* square);
 float squared_distance_between_point_and_line(float x1, float y1, float x2, float y2, float x0, float y0);
 float squared_minimum_distance(glm::vec2 v, glm::vec2 w, glm::vec2 p);
+glm::vec3 get_nearest_edge(Entity* point, Entity* square);
 
 
 CollisionData check_player_collision_with_scene(Entity* player, Entity** entity_iterator, size_t entity_list_size) 
@@ -82,8 +83,6 @@ CollisionData check_player_collision_with_walls(Entity* player, Entity** entity_
 
 float check_collision_aligned_cylinder_vs_aligned_box(Entity* entity, Entity* player)
 {
-   // this method is pretty stupid and gimmecky
-
    // it only works given prior knowledge of objects orientation (box)
    auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player->collision_geometry_ptr;
    float player_bottom = player->position.y - player_collision_geometry->half_length;
@@ -127,13 +126,13 @@ float check_collision_aligned_cylinder_vs_aligned_box(Entity* entity, Entity* pl
       glBufferData(GL_ARRAY_BUFFER, line->model->mesh.vertices.size() * sizeof(Vertex), &(line->model->mesh.vertices[0]), GL_STATIC_DRAW);
    }
 
-   // only takes account for player falling (player above going down)
+   // check player height comparing to box
    if(player_bottom <= box_top && player_top >= box_bottom) 
    {
       float player_x = player->position.x;
       float player_z = player->position.z;
 
-      
+      // check if player centroid lies inside the box      
       if(box_x0 <= player_x && box_x1 >= player_x && box_z0 <= player_z && box_z1 >= player_z)
       {
          return player->position.y - box_top;
@@ -237,6 +236,44 @@ bool check_2D_collision_circle_and_aligned_square(Entity* circle, Entity* square
    }
 
    return false;
+}
+
+glm::vec3 get_nearest_edge(Entity* point, Entity* square)
+{
+    auto box_collision_geometry = *((CollisionGeometryAlignedBox*) square->collision_geometry_ptr);
+
+   //square vertices
+   float square_x0 = square->position.x - box_collision_geometry.length_x;
+   float square_z0 = square->position.z;
+   float square_x1 = square->position.x;
+   float square_z1 = square->position.z + box_collision_geometry.length_z;
+
+   float player_x = point->position.x;
+   float player_z = point->position.z;
+
+   float d_1 = squared_minimum_distance(glm::vec2(square_x0, square_z0), glm::vec2(square_x1, square_z0), glm::vec2(player_x, player_z));
+   float d_2 = squared_minimum_distance(glm::vec2(square_x1, square_z0), glm::vec2(square_x1, square_z1), glm::vec2(player_x, player_z));
+   float d_3 = squared_minimum_distance(glm::vec2(square_x1, square_z1), glm::vec2(square_x0, square_z1), glm::vec2(player_x, player_z));
+   float d_4 = squared_minimum_distance(glm::vec2(square_x0, square_z1), glm::vec2(square_x0, square_z0), glm::vec2(player_x, player_z));
+
+   if(d_1 <= d_2 && d_1 <= d_3 && d_1 <= d_4)
+   {
+      return glm::vec3(square_x0, 0, square_z0) - glm::vec3(square_x1, 0, square_z0);
+   }
+   else if(d_2 <= d_1 && d_2 <= d_3 && d_2 <= d_4)
+   {
+      return glm::vec3(square_x1, 0, square_z0) - glm::vec3(square_x1, 0, square_z1);
+   }
+   else if(d_3 <= d_1 && d_3 <= d_2 && d_3 <= d_4)
+   {
+      return glm::vec3(square_x1, 0, square_z1) - glm::vec3(square_x0, 0, square_z1);
+   }
+    else if(d_4 <= d_1 && d_4 <= d_2 && d_4 <= d_3)
+   {
+      return glm::vec3(square_x0, 0, square_z1) - glm::vec3(square_x0, 0, square_z0);
+   }
+
+   assert(false);
 }
 
 
