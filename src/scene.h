@@ -54,7 +54,7 @@ Entity platform{
    ++G_ENTITY_INFO.entity_counter,
    &quad_model,
    &model_shader,
-   vec3(0.5, 0, 0.5),
+   vec3(0.5, 0, 1.0),
    vec3(90, 0, 90),
    vec3(1.0f, 1.0f, 1.0f)
 };
@@ -87,6 +87,18 @@ Entity platform2{
 };
 platform2.name = "Platform 2";
 
+// platform 3
+Entity platform3{
+   G_ENTITY_INFO.entity_counter,
+   ++G_ENTITY_INFO.entity_counter,
+   &quad_model,
+   &model_shader,
+   vec3(0, 0.4, 0.5),
+   vec3(90, 0, 90),
+   vec3(1.0f, 1.0f, 1.0f)
+};
+platform3.name = "Platform 3";
+
 
 // collision geometry for platform
 CollisionGeometryAlignedBox cgab { 1, 0, 1 };
@@ -98,9 +110,14 @@ CollisionGeometryAlignedBox cgab2 { 3, 0, 3 };
 platform2.collision_geometry_type = COLLISION_ALIGNED_BOX;
 platform2.collision_geometry_ptr = &cgab2;
 
+platform3.collision_geometry_type = COLLISION_ALIGNED_BOX;
+platform3.collision_geometry_ptr = &cgab;
+
+
 // add to scene
 demo_scene.entities.push_back(&platform);
 demo_scene.entities.push_back(&platform2);
+demo_scene.entities.push_back(&platform3);
 
 
 
@@ -144,6 +161,26 @@ Entity collision_lines2 {
 collision_lines2.name = "LINE2";
 
 demo_scene.entities.push_back(&collision_lines2);
+
+// COLLISION DEBUG LINES 2
+Mesh line_mesh3;
+line_mesh3.vertices = line_vertex_vec;
+line_mesh3.render_method = GL_LINE_LOOP;
+
+Model line_model3;
+line_model3.mesh = line_mesh3;
+line_model3.gl_data = setup_gl_data_for_mesh(&line_mesh3);
+
+Entity collision_lines3 {
+     G_ENTITY_INFO.entity_counter,
+   ++G_ENTITY_INFO.entity_counter,
+   &line_model3,
+   &line_shader
+};
+
+collision_lines3.name = "LINE3";
+
+demo_scene.entities.push_back(&collision_lines3);
 
 
 

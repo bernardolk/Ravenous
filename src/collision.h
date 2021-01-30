@@ -8,7 +8,7 @@ struct CollisionData{
 
 
 float check_collision_aligned_cylinder_vs_aligned_box(Entity* entity, Entity* player);
-CollisionData check_player_collision_with_scene(Entity* player, Entity* entity, size_t entity_list_size);
+CollisionData check_player_collision_with_scene(Entity* player, Entity** entity_iterator, size_t entity_list_size, std::string unless_its_this_one); 
 CollisionData sample_terrain_height_below_player(Entity* player, Entity* entity); 
 bool check_2D_collision_circle_and_aligned_square(Entity* circle, Entity* square);
 float squared_distance_between_point_and_line(float x1, float y1, float x2, float y2, float x0, float y0);
@@ -16,7 +16,9 @@ float squared_minimum_distance(glm::vec2 v, glm::vec2 w, glm::vec2 p);
 glm::vec3 get_nearest_edge(Entity* point, Entity* square);
 
 
-CollisionData check_player_collision_with_scene(Entity* player, Entity** entity_iterator, size_t entity_list_size) 
+CollisionData 
+check_player_collision_with_scene(Entity* player, Entity** entity_iterator, size_t entity_list_size, 
+                                  std::string unless_its_this_one = "") 
 {
 
    Entity* collided_first_with_player = NULL;
@@ -26,7 +28,7 @@ CollisionData check_player_collision_with_scene(Entity* player, Entity** entity_
 	   Entity* &entity = *entity_iterator;
 	   float distance_to_collision = MAX_FLOAT;
 
-	   if (entity->collision_geometry_type == COLLISION_ALIGNED_BOX)
+	   if (entity->collision_geometry_type == COLLISION_ALIGNED_BOX && entity->name != unless_its_this_one)
 	   {
          distance_to_collision =
             check_collision_aligned_cylinder_vs_aligned_box(entity, player);
@@ -44,6 +46,7 @@ CollisionData check_player_collision_with_scene(Entity* player, Entity** entity_
    CollisionData cd { collided_first_with_player, distance_to_nearest_collision };
    return cd;
 }
+
 
 CollisionData check_player_collision_with_walls(Entity* player, Entity** entity_iterator, size_t entity_list_size) 
 {
@@ -125,6 +128,19 @@ float check_collision_aligned_cylinder_vs_aligned_box(Entity* entity, Entity* pl
       glBindBuffer(GL_ARRAY_BUFFER, line->model->gl_data.VBO);
       glBufferData(GL_ARRAY_BUFFER, line->model->mesh.vertices.size() * sizeof(Vertex), &(line->model->mesh.vertices[0]), GL_STATIC_DRAW);
    }
+   else if(entity->name == "Platform 3")
+   {
+      Entity* line = find_entity_in_scene(G_SCENE_INFO.active_scene, "LINE3");
+
+      line->model->mesh.vertices[0].position = glm::vec3(box_x0, box_top + 0.2, box_z0);
+      line->model->mesh.vertices[1].position = glm::vec3(box_x1, box_top + 0.2, box_z0);
+      line->model->mesh.vertices[2].position = glm::vec3(box_x1, box_top + 0.2, box_z1);
+      line->model->mesh.vertices[3].position = glm::vec3(box_x0, box_top + 0.2, box_z1);
+
+      glBindVertexArray(line->model->gl_data.VAO);
+      glBindBuffer(GL_ARRAY_BUFFER, line->model->gl_data.VBO);
+      glBufferData(GL_ARRAY_BUFFER, line->model->mesh.vertices.size() * sizeof(Vertex), &(line->model->mesh.vertices[0]), GL_STATIC_DRAW);
+   }
 
    // check player height comparing to box
    if(player_bottom <= box_top && player_top >= box_bottom) 
@@ -135,7 +151,8 @@ float check_collision_aligned_cylinder_vs_aligned_box(Entity* entity, Entity* pl
       // check if player centroid lies inside the box      
       if(box_x0 <= player_x && box_x1 >= player_x && box_z0 <= player_z && box_z1 >= player_z)
       {
-         return player->position.y - box_top;
+         float distance = player->position.y - box_top;
+         return distance < 0 ? distance * -1: distance;
       }
    }
 

@@ -99,6 +99,12 @@ void print_vec_every_3rd_frame(glm::vec3 vec, std::string prefix)
       print_vec(vec, prefix);
 }
 
+void print_every_3rd_frame(std::string thing, std::string prefix)
+{
+   if(G_FRAME_INFO.frame_counter_3 == 0)
+      std::cout << prefix << ": " << thing << "\n";
+}
+
 
 // SOURCE INCLUDES
 #include <text.h>
@@ -262,10 +268,12 @@ void update_player_state(Player* player)
          // step 1: check if player is colliding with a wall
          Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
          size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
-         CollisionData cd = check_player_collision_with_scene(player_entity, entity_iterator, entity_list_size);
+         // check for collisions with scene BUT with floor
+         CollisionData cd = check_player_collision_with_scene(player_entity, entity_iterator, entity_list_size,
+                                                                        player->standing_entity_ptr->name);
 
          // if collided with something else then the floor player is currently standing on
-         if(cd.collided_entity_ptr != NULL && cd.collided_entity_ptr != player->standing_entity_ptr)
+         if(cd.collided_entity_ptr != NULL)
          {
             // move player back to where he was last frame 
             auto player_v = player_entity->velocity;
@@ -286,7 +294,7 @@ void update_player_state(Player* player)
             else{
                assert(false);
             }
-                           print_vec(edge, "Edge vector");
+            //print_vec(edge, "Edge vector");
 
             //player_entity->velocity = glm::vec3(0,0,0);
             player_entity->position = player_prior_position;
