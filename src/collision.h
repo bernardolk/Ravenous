@@ -192,29 +192,14 @@ bool check_2D_collision_circle_and_aligned_square(Entity* circle, Entity* square
    float d_3 = squared_minimum_distance(glm::vec2(square_x1, square_z1), glm::vec2(square_x0, square_z1), glm::vec2(player_x, player_z));
    float d_4 = squared_minimum_distance(glm::vec2(square_x0, square_z1), glm::vec2(square_x0, square_z0), glm::vec2(player_x, player_z));
 
-   std::cout << "player: (" << player_x << "," << player_z << ") ; d1: " << d_1 << ", d2: " << d_2 << ", d3: " << d_3 << ", d4: " << d_4 << "\n";
+   //std::cout << "player: (" << player_x << "," << player_z << ") ; d1: " << d_1 << ", d2: " << d_2 << ", d3: " << d_3 << ", d4: " << d_4 << "\n";
 
    auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) circle->collision_geometry_ptr;
    float p_radius2 = player_collision_geometry->radius * player_collision_geometry->radius;
    std::cout << "radius2: " << p_radius2 << "\n";
-   if(d_1 <= p_radius2)
+   if(d_1 <= p_radius2 || d_2 <= p_radius2 || d_3 <= p_radius2 || d_4 <= p_radius2)
    {
-      std::cout << "intersecting with 1 !" << "\n";
-      return true;
-   }
-   else if(d_2 <= p_radius2)
-   {
-      std::cout << "intersecting with 2 !" << "\n";
-      return true;
-   }
-   else if(d_3 <= p_radius2)
-   {
-      std::cout << "intersecting with 3 !" << "\n";
-      return true;
-   }
-   else if(d_4 <= p_radius2)
-   {
-      std::cout << "intersecting with 4 !" << "\n";
+      //std::cout << "intersecting with square !" << "\n";
       return true;
    }
 

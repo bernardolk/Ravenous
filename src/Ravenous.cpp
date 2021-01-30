@@ -220,6 +220,10 @@ int main() {
 void update_player_state(Player* player)
 {
    Entity* &player_entity = player->entity_ptr;
+
+   // makes player move
+   player_entity->position += player_entity->velocity * G_FRAME_INFO.delta_time;
+
    switch(player->player_state)
    {
       case PLAYER_STATE_FALLING:
@@ -243,22 +247,19 @@ void update_player_state(Player* player)
       }
       case PLAYER_STATE_STANDING:
       {
-         // if(G_FRAME_INFO.frame_counter_10 == 0)
-         // {
-         //    std::cout << "standing on: " << player->standing_entity_ptr->name << "\n";
-         // }
          auto terrain_collision = sample_terrain_height_below_player(player_entity, player->standing_entity_ptr);
          if(!terrain_collision.collision)
          {
             std::cout << "PLAYER FELL" << "\n";
-            // player->player_state = PLAYER_STATE_FALLING_FALLING_FROM_EDGE;
+            player_entity->velocity *= 1.3;
+            player_entity->velocity.y = - 0.3 * player->fall_speed;
             player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
          }
          break;
       }
       case PLAYER_STATE_FALLING_FROM_EDGE:
       {
-         // player_entity->velocity *= 1.6;
+         assert(glm::length(player_entity->velocity) > 0);
          bool collision = check_2D_collision_circle_and_aligned_square(player_entity, player->standing_entity_ptr);
          if(!collision)
          {
@@ -269,15 +270,6 @@ void update_player_state(Player* player)
          break;
       }
    }
-
-   // if(G_FRAME_INFO.frame_counter_10 == 0)
-   // {
-   //    std::cout << "player state: " << player->player_state << "\n";
-   // }
-
-
-   // makes player move
-   player_entity->position += player_entity->velocity * G_FRAME_INFO.delta_time;
 
    //print_vec(player_entity->position, "player position");
    //print_vec(player_entity->velocity, "player velocity");
