@@ -61,14 +61,29 @@ Entity platform{
 platform.name = "Platform 1";
 
 // platform 2
+unsigned int green_tex = load_texture_from_file("green.jpg", "w:/assets/textures");
+Texture green_texture{
+   green_tex,
+   "texture_diffuse",
+   "whatever"
+};
+vector<Texture> plat_texture_vec;
+plat_texture_vec.push_back(green_texture);
+
+
+Model plat_2_model;
+plat_2_model.mesh = quad_mesh;
+plat_2_model.textures = plat_texture_vec;
+plat_2_model.gl_data = quad_model.gl_data;
+
 Entity platform2{
    G_ENTITY_INFO.entity_counter,
    ++G_ENTITY_INFO.entity_counter,
-   &quad_model,
+   &plat_2_model,
    &model_shader,
-   vec3(1, -0.3, 1   ),
+   vec3(1.5, -0.3, 0),
    vec3(90, 0, 90),
-   vec3(1.0f, 1.0f, 1.0f)
+   vec3(3.0f, 3.0f, 1.0f) // local mesh coordinates... quad is defined in the x-y plane!
 };
 platform2.name = "Platform 2";
 
@@ -79,9 +94,9 @@ CollisionGeometryAlignedBox cgab { 1, 0, 1 };
 platform.collision_geometry_type = COLLISION_ALIGNED_BOX;
 platform.collision_geometry_ptr = &cgab;
 
-
+CollisionGeometryAlignedBox cgab2 { 3, 0, 3 };
 platform2.collision_geometry_type = COLLISION_ALIGNED_BOX;
-platform2.collision_geometry_ptr = &cgab;
+platform2.collision_geometry_ptr = &cgab2;
 
 // add to scene
 demo_scene.entities.push_back(&platform);
