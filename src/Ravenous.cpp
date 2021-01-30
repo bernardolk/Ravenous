@@ -7,6 +7,7 @@
 #include <glm/ext/matrix_float4x4.hpp> // mat4x4
 #include <glm/ext/matrix_transform.hpp> // translate, rotate, scale, identity
 #include <glm/gtx/compatibility.hpp>
+#include <glm/gtx/norm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <fstream>
@@ -216,38 +217,48 @@ int main() {
 void update_player_state(Player* player)
 {
    Entity* &player_entity = player->entity_ptr;
-   if(player->player_state == PLAYER_STATE_FALLING)
+   switch(player->player_state)
    {
-      // test collision with every object in scene entities vector
-      Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
-      size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
-      CollisionData cd = check_player_collision_with_scene(player_entity, entity_iterator, entity_list_size);
+      case PLAYER_STATE_FALLING:
+      {
+         // test collision with every object in scene entities vector
+         Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
+         size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
+         CollisionData cd = check_player_collision_with_scene(player_entity, entity_iterator, entity_list_size);
 
-      // if collided
-      if(cd.collided_entity_ptr != NULL)
-      {
-         // move player to collision point, stop player and set him to standing
-         auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player_entity->collision_geometry_ptr;
-         player_entity->position.y += player_collision_geometry->half_length - cd.distance_from_position; 
-         player_entity->velocity = glm::vec3(0,0,0);
-         player->player_state = PLAYER_STATE_STANDING;
-         player->standing_entity_ptr = cd.collided_entity_ptr;
+         // if collided
+         if(cd.collided_entity_ptr != NULL)
+         {
+            // move player to collision point, stop player and set him to standing
+            auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player_entity->collision_geometry_ptr;
+            player_entity->position.y += player_collision_geometry->half_length - cd.distance_from_position; 
+            player_entity->velocity = glm::vec3(0,0,0);
+            player->player_state = PLAYER_STATE_STANDING;
+            player->standing_entity_ptr = cd.collided_entity_ptr;
+         }
+         break;
       }
-   }
-   else if(player->player_state == PLAYER_STATE_STANDING)
-   {
-      if(G_FRAME_INFO.frame_counter_10 == 0)
+      case PLAYER_STATE_STANDING:
       {
-         std::cout << "standing on: " << player->standing_entity_ptr->name << "\n";
+         if(G_FRAME_INFO.frame_counter_10 == 0)
+         {
+            std::cout << "standing on: " << player->standing_entity_ptr->name << "\n";
+         }
+         auto terrain_collision = sample_terrain_height_below_player(player_entity, player->standing_entity_ptr);
+         if(!terrain_collision.collision)
+         {
+            std::cout << "PLAYER FELL" << "\n";
+            // player->player_state = PLAYER_STATE_FALLING_FALLING_FROM_EDGE;
+            player->player_state = PLAYER_STATE_FALLING;
+            player->standing_entity_ptr = NULL;
+            player_entity->velocity.y = -1 * player->fall_speed; 
+         }
+         break;
       }
-      auto terrain_collision = sample_terrain_height_below_player(player_entity, player->standing_entity_ptr);
-      if(!terrain_collision.collision)
-      {
-         std::cout << "PLAYER FELL" << "\n";
-         player->player_state = PLAYER_STATE_FALLING;
-         player->standing_entity_ptr = NULL;
-         player_entity->velocity.y = -1 * player->fall_speed; 
-      }
+      // case PLAYER_STATE_FALLING_FROM_EDGE:
+
+
+      //    break;
    }
 
    if(G_FRAME_INFO.frame_counter_10 == 0)
@@ -257,7 +268,11 @@ void update_player_state(Player* player)
 
 
    // makes player move
-   player_entity->position = player_entity->position + player_entity->velocity * G_FRAME_INFO.delta_time;
+   player_entity->position += player_entity->velocity * G_FRAME_INFO.delta_time;
+
+   //print_vec(player_entity->position, "player position");
+   //print_vec(player_entity->velocity, "player velocity");
+   
 } 
 
 void render_text_overlay(Camera& camera) 

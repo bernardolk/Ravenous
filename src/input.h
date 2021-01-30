@@ -51,24 +51,31 @@ void process_keyboard_input(GLFWwindow* window, Player* player)
    // NOTE: should NOT change player position directly. Should change player's velocity. Update phase will use that.
    if(player->player_state == PLAYER_STATE_STANDING)
    {
+      player->entity_ptr->velocity = glm::vec3(0); // resets velocity
+
       if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-         player->entity_ptr->position += player->speed * 
-            glm::normalize(glm::vec3(G_SCENE_INFO.camera.Front.x, 0, G_SCENE_INFO.camera.Front.z));
+         player->entity_ptr->velocity += glm::vec3(G_SCENE_INFO.camera.Front.x, 0, G_SCENE_INFO.camera.Front.z);
+
       if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-         player->entity_ptr->position -= player->speed * 
-            glm::normalize(glm::vec3(G_SCENE_INFO.camera.Front.x, 0, G_SCENE_INFO.camera.Front.z));
+         player->entity_ptr->velocity -= glm::vec3(G_SCENE_INFO.camera.Front.x, 0, G_SCENE_INFO.camera.Front.z);
+
       if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
       {
          glm::vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera.Front, G_SCENE_INFO.camera.Up));
-         player->entity_ptr->position -= player->speed * 
-            glm::normalize(glm::vec3(onwards_vector.x, 0, onwards_vector.z));
+         player->entity_ptr->velocity -= glm::vec3(onwards_vector.x, 0, onwards_vector.z);
       }
+
       if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
       {
          glm::vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera.Front, G_SCENE_INFO.camera.Up));
-         player->entity_ptr->position += player->speed * 
-            glm::normalize(glm::vec3(onwards_vector.x, 0, onwards_vector.z));
+         player->entity_ptr->velocity += glm::vec3(onwards_vector.x, 0, onwards_vector.z);
       }
+
+      // because above we sum all combos of keys pressed, here we normalize the direction and give the movement intensity
+      if(glm::length2(player->entity_ptr->velocity) > 0)
+         player->entity_ptr->velocity = player->speed * glm::normalize(player->entity_ptr->velocity);
+      
+
       if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) 
       {
          player->player_state = PLAYER_STATE_FALLING;
