@@ -126,6 +126,11 @@ struct GlobalSceneInfo {
    Camera camera;
 } G_SCENE_INFO;
 
+// catalogues 
+std::map<string, Model*> Model_Catalogue;
+std::map<string, Shader> Shader_Catalogue;
+std::map<string, Texture> Texture_Catalogue;
+
 #include <input.h>
 #include <collision.h>
 #include <scene.h>
@@ -134,11 +139,6 @@ struct GlobalSceneInfo {
 // OPENGL OBJECTS
 unsigned int texture, texture_specular;
 Shader quad_shader, model_shader, Text_shader, line_shader;
-
-// catalogues 
-std::map<string, Model*> Model_Catalogue;
-std::map<string, Shader> Shader_Catalogue;
-std::map<string, Texture> Texture_Catalogue;
 
 
 using namespace glm;

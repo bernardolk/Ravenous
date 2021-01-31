@@ -9,9 +9,9 @@ void load_scene_entities_from_file(std::string path)
    p = parse_symbol(p);
    if(p.cToken == '#')
    {
-      Entity temp;
+      Entity* new_entity = new Entity();
       p = parse_name(p);
-      temp.name = p.string_buffer;
+      new_entity->name = p.string_buffer;
 
       while(parser_nextline(&reader, &line, &p))
       {
@@ -32,7 +32,7 @@ void load_scene_entities_from_file(std::string path)
                p = parse_float(p);
                z = p.fToken;
 
-               temp.position = glm::vec3(x,y,z);
+               new_entity->position = glm::vec3(x,y,z);
          }
          else if(property == "rotation")
          {
@@ -49,7 +49,7 @@ void load_scene_entities_from_file(std::string path)
                p = parse_float(p);
                omega = p.fToken;
 
-               temp.rotation = glm::vec3(theta, phi, omega);
+               new_entity->rotation = glm::vec3(theta, phi, omega);
          }
          else if(property == "scale")
          {
@@ -66,20 +66,46 @@ void load_scene_entities_from_file(std::string path)
                p = parse_float(p);
                sz = p.fToken;
 
-               temp.scale = glm::vec3(sx, sy, sz);
+               new_entity->scale = glm::vec3(sx, sy, sz);
          }
          else if(property == "shader")
          {
+            std::string shader_name;
+            p = parse_all_whitespace(p);
+            p = parse_name(p);
+            shader_name = p.string_buffer;
 
-         }
-         else if(property == "texture_diffuse")
-         {
-
+            auto find = Shader_Catalogue.find(shader_name);
+            if(find != Shader_Catalogue.end())
+            {
+               new_entity->shader = &find->second;
+            }
+            else
+            {
+               std::cout << "SHADER '" << shader_name << "' NOT FOUND WHILE LOADING SCENE DESCRIPTION FILE \n"; 
+               assert(false);
+            }   
          }
          else if(property == "model")
          {
+            std::string model_name;
+            p = parse_all_whitespace(p);
+            p = parse_name(p);
+            model_name = p.string_buffer;
 
+            auto find = Model_Catalogue.find(model_name);
+            if(find != Model_Catalogue.end())
+            {
+               new_entity->model = find->second;
+            }
+            else
+            {
+               std::cout << "MODEL '" << model_name << "' NOT FOUND WHILE LOADING SCENE DESCRIPTION FILE \n"; 
+               assert(false);
+            }   
          }
       }
+
+      G_SCENE_INFO.active_scene->entities.push_back(new_entity);
    }
 } 
