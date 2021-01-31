@@ -1,17 +1,17 @@
 // CREATE SCENE 
    Scene demo_scene;
 
-// CREATE GEOMETRY
+// // QUAD
+// vector<Vertex> quad_vertex_vec = {
+//    Vertex{glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 0.0f)},
+//    Vertex{glm::vec3(1.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 0.0f)},
+//    Vertex{glm::vec3(1.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 1.0f)},
+//    Vertex{glm::vec3(0.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 1.0f)}
+// };
 
-// quad geometry
-vector<Vertex> quad_vertex_vec = {
-	Vertex{glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 0.0f)},
-	Vertex{glm::vec3(1.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 0.0f)},
-	Vertex{glm::vec3(1.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 1.0f)},
-	Vertex{glm::vec3(0.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 1.0f)}
-};
+// vector<u32> quad_vertex_indices = { 0, 1, 2, 2, 3, 0 };
 
-vector<u32> quad_vertex_indices = { 0, 1, 2, 2, 3, 0 };
+
 
 // line geometry (get updated inside the collision code)
 vector<Vertex> line_vertex_vec = {
@@ -21,38 +21,47 @@ vector<Vertex> line_vertex_vec = {
       Vertex{glm::vec3(0, 1, 0)}
 };
 
+
+
 // ENTITY SETUP
-unsigned int brick_texture = load_texture_from_file("brickwall.jpg", "w:/assets/textures");
-unsigned int brick_normal_texture = load_texture_from_file("brickwall_normal.jpg", "w:/assets/textures");
-Texture quad_wall_texture{
-   brick_texture,
-   "texture_diffuse",
-   "whatever"
-};
-Texture quad_wall_normal_texture{
-   brick_normal_texture,
-   "texture_normal",
-   "whatever"
-};
-vector<Texture> texture_vec;
-texture_vec.push_back(quad_wall_texture);
-texture_vec.push_back(quad_wall_normal_texture);
+// unsigned int brick_texture = load_texture_from_file("brickwall.jpg", "w:/assets/textures");
+// unsigned int brick_normal_texture = load_texture_from_file("brickwall_normal.jpg", "w:/assets/textures");
+// Texture quad_wall_texture{
+//    brick_texture,
+//    "texture_diffuse",
+//    "whatever"
+// };
+// Texture quad_wall_normal_texture{
+//    brick_normal_texture,
+//    "texture_normal",
+//    "whatever"
+// };
+// vector<Texture> texture_vec;
+// texture_vec.push_back(quad_wall_texture);
+// texture_vec.push_back(quad_wall_normal_texture);
 
-Mesh quad_mesh;
-quad_mesh.vertices = quad_vertex_vec;
-quad_mesh.indices = quad_vertex_indices;
-quad_mesh.render_method = GL_TRIANGLES;
+// Mesh quad_mesh;
+// quad_mesh.vertices = quad_vertex_vec;
+// quad_mesh.indices = quad_vertex_indices;
+// quad_mesh.render_method = GL_TRIANGLES;
 
-Model quad_model;
-quad_model.mesh = quad_mesh;
-quad_model.textures = texture_vec;
-quad_model.gl_data = setup_gl_data_for_mesh(&quad_mesh);
+// Model* quad_model = new Model();
+// quad_model->mesh = quad_mesh;
+// quad_model->textures = texture_vec;
+// quad_model->gl_data = setup_gl_data_for_mesh(&quad_mesh);
+
+
+auto find1 = Shader_Catalogue.find("model");
+auto model_shader = find1->second;
+
+auto find2 = Model_Catalogue.find("quad");
+auto quad_model = find2->second;
 
 // platform 1
 Entity platform{
    G_ENTITY_INFO.entity_counter,
    ++G_ENTITY_INFO.entity_counter,
-   &quad_model,
+   quad_model,
    &model_shader,
    vec3(0.5, 0, 1.0),
    vec3(90, 0, 90),
@@ -61,25 +70,28 @@ Entity platform{
 platform.name = "Platform 1";
 
 // platform 2
-unsigned int green_tex = load_texture_from_file("green.jpg", "w:/assets/textures");
-Texture green_texture{
-   green_tex,
-   "texture_diffuse",
-   "whatever"
-};
-vector<Texture> plat_texture_vec;
-plat_texture_vec.push_back(green_texture);
+// unsigned int green_tex = load_texture_from_file("green.jpg", "w:/assets/textures");
+// Texture green_texture{
+//    green_tex,
+//    "texture_diffuse",
+//    "whatever"
+// };
+// vector<Texture> plat_texture_vec;
+// plat_texture_vec.push_back(green_texture);
 
 
-Model plat_2_model;
-plat_2_model.mesh = quad_mesh;
-plat_2_model.textures = plat_texture_vec;
-plat_2_model.gl_data = quad_model.gl_data;
+// Model plat_2_model;
+// plat_2_model.mesh = quad_mesh;
+// plat_2_model.textures = plat_texture_vec;
+// plat_2_model.gl_data = quad_model->gl_data;
+
+auto find3 = Model_Catalogue.find("green quad");
+auto green_quad_model = find3->second;
 
 Entity platform2{
    G_ENTITY_INFO.entity_counter,
    ++G_ENTITY_INFO.entity_counter,
-   &plat_2_model,
+   green_quad_model,
    &model_shader,
    vec3(1.5, -0.3, 0),
    vec3(90, 0, 90),
@@ -91,7 +103,7 @@ platform2.name = "Platform 2";
 Entity platform3{
    G_ENTITY_INFO.entity_counter,
    ++G_ENTITY_INFO.entity_counter,
-   &quad_model,
+   quad_model,
    &model_shader,
    vec3(0, 0.4, 0.5),
    vec3(90, 0, 90),

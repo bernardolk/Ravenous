@@ -247,6 +247,75 @@ void initialize_models()
    text_model->gl_data = text_gl_data;
    Model_Catalogue.insert({"text", text_model});
 
+   // GEOMETRY
+      // QUAD
+      // VBO
+      vector<Vertex> quad_vertex_vec = {
+         Vertex{glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 0.0f)},
+         Vertex{glm::vec3(1.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 0.0f)},
+         Vertex{glm::vec3(1.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 1.0f)},
+         Vertex{glm::vec3(0.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 1.0f)}
+      };
+      // EBO
+      vector<u32> quad_vertex_indices = { 0, 1, 2, 2, 3, 0 };
+
+      // LINE (position is updated directly into VBO)
+      vector<Vertex> line_vertex_vec = {
+            Vertex{glm::vec3(1, 1, 0)},
+            Vertex{glm::vec3(1, 1, 1)},
+            Vertex{glm::vec3(0, 1, 1)},
+            Vertex{glm::vec3(0, 1, 0)}
+      };
+
+   // TEXTURES
+      unsigned int brick_texture = load_texture_from_file("brickwall.jpg", "w:/assets/textures");
+      unsigned int brick_normal_texture = load_texture_from_file("brickwall_normal.jpg", "w:/assets/textures");
+      unsigned int green_tex = load_texture_from_file("green.jpg", "w:/assets/textures");
+
+      Texture quad_wall_texture{
+         brick_texture,
+         "texture_diffuse",
+         "whatever"
+      };
+      Texture quad_wall_normal_texture{
+         brick_normal_texture,
+         "texture_normal",
+         "whatever"
+      };
+      Texture green_texture{
+         green_tex,
+         "texture_diffuse",
+         "whatever"
+      };
+
+      // DEFAULT TEX VEC
+      vector<Texture> texture_vec;
+      texture_vec.push_back(quad_wall_texture);
+      texture_vec.push_back(quad_wall_normal_texture);
+
+      // TEX VEC WITH GREEN TEX
+      vector<Texture> plat_texture_vec;
+      plat_texture_vec.push_back(green_texture);
+
+   // QUAD MESH AND MODELS
+      Mesh quad_mesh;
+      quad_mesh.vertices = quad_vertex_vec;
+      quad_mesh.indices = quad_vertex_indices;
+      quad_mesh.render_method = GL_TRIANGLES;
+
+      Model* quad_model = new Model();
+      quad_model->mesh = quad_mesh;
+      quad_model->textures = texture_vec;
+      quad_model->gl_data = setup_gl_data_for_mesh(&quad_mesh);
+      Model_Catalogue.insert({"quad", quad_model});
+
+   // GREEN TEX MODEL
+      Model* green_model = new Model();
+      green_model->mesh = quad_mesh;
+      green_model->textures = plat_texture_vec;
+      green_model->gl_data = quad_model->gl_data;
+      Model_Catalogue.insert({"green quad", green_model});
+
 }
 
 void update_player_state(Player* player)
