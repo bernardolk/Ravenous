@@ -96,21 +96,15 @@ float* load_camera_settings(string path){
          size 
       };
 
-      do {
-         p = parse_whitespace(p);
-      } while (p.hasToken);
+      p = parse_all_whitespace(p);
       p = parse_float(p);
       camera_settings[0] = p.fToken;
 
-      do {
-         p = parse_whitespace(p);
-      } while (p.hasToken);
+      p = parse_all_whitespace(p);
       p = parse_float(p);
       camera_settings[1] = p.fToken;
 
-      do {
-         p = parse_whitespace(p);
-      } while (p.hasToken);
+      p = parse_all_whitespace(p);
       p = parse_float(p);
       camera_settings[2] = p.fToken;
    }
@@ -125,21 +119,15 @@ float* load_camera_settings(string path){
          size 
       };
 
-      do {
-         p = parse_whitespace(p);
-      } while (p.hasToken);
+      p = parse_all_whitespace(p);
       p = parse_float(p);
       camera_settings[3] = p.fToken;
 
-      do {
-         p = parse_whitespace(p);
-      } while (p.hasToken);
+      p = parse_all_whitespace(p);
       p = parse_float(p);
       camera_settings[4] = p.fToken;
 
-      do {
-         p = parse_whitespace(p);
-      } while (p.hasToken);
+      p = parse_all_whitespace(p);
       p = parse_float(p);
       camera_settings[5] = p.fToken;
    }

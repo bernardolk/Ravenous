@@ -126,14 +126,19 @@ struct GlobalSceneInfo {
    Camera camera;
 } G_SCENE_INFO;
 
-#include <parser.h>
 #include <input.h>
 #include <collision.h>
+#include <scene.h>
 #define glCheckError() glCheckError_(__FILE__, __LINE__) 
 
 // OPENGL OBJECTS
 unsigned int texture, texture_specular;
 Shader quad_shader, model_shader, Text_shader, line_shader;
+
+// catalogues 
+std::map<string, Model*> Model_Catalogue;
+std::map<string, Shader> Shader_Catalogue;
+std::map<string, Texture> Texture_Catalogue;
 
 
 using namespace glm;
@@ -144,6 +149,7 @@ void setup_window(bool debug);
 void render_ray();
 void update_scene_objects();
 void initialize_shaders();
+void initialize_models();
 void render_text_overlay(Camera& camera);
 GLenum glCheckError_(const char* file, int line);
 std::string format_float_tostr(float num, int precision);
@@ -153,12 +159,6 @@ void adjust_player_position_and_velocity(Player* player, float distance, glm::ve
 // void render_model(Entity ent, glm::vec3 lightPos[], glm::vec3 lightRgb[]);
 // void render_scene_lights();
 // unsigned int setup_object(MeshData objData);
-
-// text vao and vbo
-GLuint Text_VAO, Text_VBO;
-
-//std::map<std::string, Shader> Shader_catalog;
-
 
 int main() {
 
@@ -179,20 +179,15 @@ int main() {
    glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	// shaders
-	model_shader = create_shader_program("Model Shader", "vertex_model", "fragment_multiple_lights");
-	line_shader = create_shader_program("Line Shader", "vertex_debug_line", "fragment_debug_line");
-	//Shader obj_shader = create_shader_program("Obj Shader", "vertex_color_cube", "fragment_multiple_lights");
-	//Shader light_shader = create_shader_program("Light Props Shader", "vertex_color_cube", "fragment_light");
-	//quad_shader = create_shader_program("Billboard Shader", "quad_vertex", "textured_quad_fragment");
-	//quad_shader = create_shader_program("Debug", "quad_vertex", "fragment_multiple_lights");
-
-	// Text shaders (GUI)
+	// SHADERS
 	load_text_textures("Consola.ttf", 12);
    initialize_shaders();
+   initialize_models();
 
    // creates the scene (objects and player)
-	#include<scene.h>
+	#include<scene_description.h>
+
+   load_scene_entities_from_file("w:/test.txt");
    
 	// MAIN LOOP
 	while (!glfwWindowShouldClose(G_DISPLAY_INFO.window))
@@ -234,9 +229,31 @@ int main() {
 	return 0;
 }
 
+void initialize_models()
+{
+   //TEXT
+   GLData text_gl_data;
+	glGenVertexArrays(1, &text_gl_data.VAO);
+	glGenBuffers(1, &text_gl_data.VBO);
+	glBindVertexArray(text_gl_data.VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, text_gl_data.VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+   Model* text_model = (Model*) malloc(sizeof(Model));
+   text_model->gl_data = text_gl_data;
+   Model_Catalogue.insert({"text", text_model});
+
+}
+
 void update_player_state(Player* player)
 {
    Entity* &player_entity = player->entity_ptr;
+
+   // @bug: when moving towards an edge, player gets roundabouted (collision system gets crazy)
 
    // makes player move
    auto player_prior_position = player_entity->position;
@@ -369,21 +386,20 @@ void render_text_overlay(Camera& camera)
 void initialize_shaders() 
 {
    // text shader
-	Text_shader = create_shader_program("Text Shader", "vertex_text", "fragment_text");
-   Text_shader.use();
-	Text_shader.setMatrix4("projection", glm::ortho(0.0f, G_DISPLAY_INFO.VIEWPORT_WIDTH, 0.0f, G_DISPLAY_INFO.VIEWPORT_HEIGHT));
+	Shader text_shader = create_shader_program("Text Shader", "vertex_text", "fragment_text");
+   text_shader.use();
+	text_shader.setMatrix4("projection", glm::ortho(0.0f, G_DISPLAY_INFO.VIEWPORT_WIDTH, 0.0f, G_DISPLAY_INFO.VIEWPORT_HEIGHT));
+   Shader_Catalogue.insert({"text", text_shader});
 
-	//generate text buffers
-	glGenVertexArrays(1, &Text_VAO);
-	glGenBuffers(1, &Text_VBO);
-	glBindVertexArray(Text_VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, Text_VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+   // general model shader
+   model_shader = create_shader_program("Model Shader", "vertex_model", "fragment_multiple_lights");
+   Shader_Catalogue.insert({"model", model_shader});
+
+   // draw line shader
+	line_shader = create_shader_program("Line Shader", "vertex_debug_line", "fragment_debug_line");
+   Shader_Catalogue.insert({"line", line_shader});
 }
+
 
 std::string format_float_tostr(float num, int precision) 
 {
@@ -391,12 +407,18 @@ std::string format_float_tostr(float num, int precision)
 	return temp.substr(0, temp.find(".") + 3);
 }
 
+
 void render_text(std::string text, float x, float y, float scale, glm::vec3 color) 
 {
-	Text_shader.use();
-	Text_shader.setFloat3("textColor", color.x, color.y, color.z);
+   auto find1 = Shader_Catalogue.find("text");
+   Shader text_shader = find1->second;
+	text_shader.use();
+	text_shader.setFloat3("textColor", color.x, color.y, color.z);
+
+   auto find2 = Model_Catalogue.find("text");
+   Model* text_model = find2->second;
 	glActiveTexture(GL_TEXTURE0);
-	glBindVertexArray(Text_VAO);
+	glBindVertexArray(text_model->gl_data.VAO);
 
 	std::string::iterator c;
 	for (c = text.begin(); c != text.end(); c++) 
@@ -417,36 +439,16 @@ void render_text(std::string text, float x, float y, float scale, glm::vec3 colo
          { xpos + w, ypos + h, 1.0, 0.0 }
 		};
 
-		//std::cout << "xpos: " << xpos << ", ypos:" << ypos << ", h: " << h << ", w: " << w << std::endl;
 		// Render glyph texture over quad
 		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
 		// Update content of VBO memory
-		glBindBuffer(GL_ARRAY_BUFFER, Text_VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, text_model->gl_data.VBO);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
 		// Render quad
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
 	}
 }
-
-// unsigned int setup_object(MeshData objData){
-// 	unsigned int objVAO, objVBO, objEBO;
-// 	glGenVertexArrays(1, &objVAO);
-// 	glGenBuffers(1, &objVBO);
-// 	glGenBuffers(1, &objEBO);
-// 	glBindVertexArray(objVAO);
-// 	glBindBuffer(GL_ARRAY_BUFFER, objVBO);
-// 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * objData.vertexes.size() , &objData.vertexes[0], GL_STATIC_DRAW);	
-// 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, objEBO);
-//     glBufferData(GL_ELEMENT_ARRAY_BUFFER, objData.indices.size() * sizeof(unsigned int),
-// 		     &objData.indices[0], GL_STATIC_DRAW);
-// 	// vertex Positions
-// 	glEnableVertexAttribArray(0);
-// 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-// 	glBindVertexArray(0);
-
-// 	return objVAO;
-// }
 
 
 inline void update_scene_objects() 
