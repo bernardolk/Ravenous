@@ -86,22 +86,92 @@ void load_scene_entities_from_file(std::string path)
                assert(false);
             }   
          }
-         else if(property == "model")
+         else if(property == "mesh")
          {
             std::string model_name;
             p = parse_all_whitespace(p);
-            p = parse_name(p);
+            p = parse_token(p);
             model_name = p.string_buffer;
 
-            auto find = Model_Catalogue.find(model_name);
-            if(find != Model_Catalogue.end())
+            auto find = Geometry_Catalogue.find(model_name);
+            if(find != Geometry_Catalogue.end())
             {
-               new_entity->model = find->second;
+               new_entity->mesh = *find->second;
             }
             else
             {
-               std::cout << "MODEL '" << model_name << "' NOT FOUND WHILE LOADING SCENE DESCRIPTION FILE \n"; 
+               std::cout << "MESH DATA FOR MESH '" << model_name << "' NOT FOUND WHILE LOADING SCENE DESCRIPTION FILE \n"; 
                assert(false);
+            }   
+         }
+         else if(property == "texture")
+         {
+            std::string texture_type, texture_name, texture_filename;
+            p = parse_all_whitespace(p);
+            p = parse_token(p);
+            texture_type = p.string_buffer;
+
+            p = parse_all_whitespace(p);
+            p = parse_token(p);
+            texture_name = p.string_buffer;
+
+            p = parse_all_whitespace(p);
+            p = parse_token(p);
+            texture_filename = p.string_buffer;
+
+            auto find = Texture_Catalogue.find(texture_name);
+            if(find != Texture_Catalogue.end())
+            {
+               new_entity->textures.push_back(find->second);
+            }
+            else if(texture_name == "")
+            {
+                std::cout << "TEXTURE NAME MISSING FOR ENTITY '" << new_entity->name << "' :: FATAL \n"; 
+                assert(false);
+            }
+            else if(texture_type == "")
+            {
+                std::cout << "TEXTURE TYPE MISSING FOR TEXTURE '" << texture_name << "' AT ENTITY '"<< new_entity->name << "' :: FATAL \n"; 
+                assert(false);
+            }
+            else if(texture_filename == "")
+            {
+                std::cout << "TEXTURE FILENAME MISSING FOR TEXTURE '"<<texture_name <<"' AT ENTITY '"<<new_entity->name<<"' :: FATAL \n"; 
+                assert(false);
+            }
+            else
+            {
+               unsigned int texture_id = load_texture_from_file(texture_filename, "w:/assets/textures");
+
+               if(texture_id == 0)
+               {
+                  std::cout << "TEXTURE '" <<texture_name<< "' COULD NOT BE LOADED WHILE LOADING SCENE DESCRIPTION FILE :: FATAL \n"; 
+                  assert(false);
+               }
+
+               std::string texture_type_def;
+               if(texture_type == "diffuse")
+               {
+                  texture_type_def = "texture_diffuse";
+               } 
+               else if(texture_type == "normal")
+               {
+                  texture_type_def = "texture_normal";
+               }
+               else
+               {
+                  std::cout<<"TEXTURE '"<<texture_name<<"' HAS UNKNOWN TEXTURE TYPE. ERROR WHILE LOADING SCENE DESCRIPTION FILE :: FATAL \n"; 
+                  assert(false);
+               }
+
+               Texture new_texture{
+                  texture_id,
+                  texture_type_def,
+                  texture_filename
+               };
+
+               Texture_Catalogue.insert({texture_name, new_texture});
+               new_entity->textures.push_back(new_texture);
             }   
          }
       }

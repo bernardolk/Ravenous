@@ -101,46 +101,46 @@ float check_collision_aligned_cylinder_vs_aligned_box(Entity* entity, Entity* pl
    float box_x1 = entity->position.x;
    float box_z1 = entity->position.z + box_collision_geometry.length_z;
 
-   // for debug, draw boundaries
-   if(entity->name == "Platform 1")
-   {
-      Entity* line = find_entity_in_scene(G_SCENE_INFO.active_scene, "LINE1");
+   // // for debug, draw boundaries
+   // if(entity->name == "Platform 1")
+   // {
+   //    Entity* line = find_entity_in_scene(G_SCENE_INFO.active_scene, "LINE1");
 
-      line->model->mesh.vertices[0].position = glm::vec3(box_x0, box_top + 0.2, box_z0);
-      line->model->mesh.vertices[1].position = glm::vec3(box_x1, box_top + 0.2, box_z0);
-      line->model->mesh.vertices[2].position = glm::vec3(box_x1, box_top + 0.2, box_z1);
-      line->model->mesh.vertices[3].position = glm::vec3(box_x0, box_top + 0.2, box_z1);
+   //    line->model->mesh.vertices[0].position = glm::vec3(box_x0, box_top + 0.2, box_z0);
+   //    line->model->mesh.vertices[1].position = glm::vec3(box_x1, box_top + 0.2, box_z0);
+   //    line->model->mesh.vertices[2].position = glm::vec3(box_x1, box_top + 0.2, box_z1);
+   //    line->model->mesh.vertices[3].position = glm::vec3(box_x0, box_top + 0.2, box_z1);
 
-      glBindVertexArray(line->model->gl_data.VAO);
-      glBindBuffer(GL_ARRAY_BUFFER, line->model->gl_data.VBO);
-      glBufferData(GL_ARRAY_BUFFER, line->model->mesh.vertices.size() * sizeof(Vertex), &(line->model->mesh.vertices[0]), GL_STATIC_DRAW);
-   }
-   else if(entity->name == "Platform 2")
-   {
-      Entity* line = find_entity_in_scene(G_SCENE_INFO.active_scene, "LINE2");
+   //    glBindVertexArray(line->model->gl_data.VAO);
+   //    glBindBuffer(GL_ARRAY_BUFFER, line->model->gl_data.VBO);
+   //    glBufferData(GL_ARRAY_BUFFER, line->model->mesh.vertices.size() * sizeof(Vertex), &(line->model->mesh.vertices[0]), GL_STATIC_DRAW);
+   // }
+   // else if(entity->name == "Platform 2")
+   // {
+   //    Entity* line = find_entity_in_scene(G_SCENE_INFO.active_scene, "LINE2");
 
-      line->model->mesh.vertices[0].position = glm::vec3(box_x0, box_top + 0.2, box_z0);
-      line->model->mesh.vertices[1].position = glm::vec3(box_x1, box_top + 0.2, box_z0);
-      line->model->mesh.vertices[2].position = glm::vec3(box_x1, box_top + 0.2, box_z1);
-      line->model->mesh.vertices[3].position = glm::vec3(box_x0, box_top + 0.2, box_z1);
+   //    line->model->mesh.vertices[0].position = glm::vec3(box_x0, box_top + 0.2, box_z0);
+   //    line->model->mesh.vertices[1].position = glm::vec3(box_x1, box_top + 0.2, box_z0);
+   //    line->model->mesh.vertices[2].position = glm::vec3(box_x1, box_top + 0.2, box_z1);
+   //    line->model->mesh.vertices[3].position = glm::vec3(box_x0, box_top + 0.2, box_z1);
 
-      glBindVertexArray(line->model->gl_data.VAO);
-      glBindBuffer(GL_ARRAY_BUFFER, line->model->gl_data.VBO);
-      glBufferData(GL_ARRAY_BUFFER, line->model->mesh.vertices.size() * sizeof(Vertex), &(line->model->mesh.vertices[0]), GL_STATIC_DRAW);
-   }
-   else if(entity->name == "Platform 3")
-   {
-      Entity* line = find_entity_in_scene(G_SCENE_INFO.active_scene, "LINE3");
+   //    glBindVertexArray(line->model->gl_data.VAO);
+   //    glBindBuffer(GL_ARRAY_BUFFER, line->model->gl_data.VBO);
+   //    glBufferData(GL_ARRAY_BUFFER, line->model->mesh.vertices.size() * sizeof(Vertex), &(line->model->mesh.vertices[0]), GL_STATIC_DRAW);
+   // }
+   // else if(entity->name == "Platform 3")
+   // {
+   //    Entity* line = find_entity_in_scene(G_SCENE_INFO.active_scene, "LINE3");
 
-      line->model->mesh.vertices[0].position = glm::vec3(box_x0, box_top + 0.2, box_z0);
-      line->model->mesh.vertices[1].position = glm::vec3(box_x1, box_top + 0.2, box_z0);
-      line->model->mesh.vertices[2].position = glm::vec3(box_x1, box_top + 0.2, box_z1);
-      line->model->mesh.vertices[3].position = glm::vec3(box_x0, box_top + 0.2, box_z1);
+   //    line->model->mesh.vertices[0].position = glm::vec3(box_x0, box_top + 0.2, box_z0);
+   //    line->model->mesh.vertices[1].position = glm::vec3(box_x1, box_top + 0.2, box_z0);
+   //    line->model->mesh.vertices[2].position = glm::vec3(box_x1, box_top + 0.2, box_z1);
+   //    line->model->mesh.vertices[3].position = glm::vec3(box_x0, box_top + 0.2, box_z1);
 
-      glBindVertexArray(line->model->gl_data.VAO);
-      glBindBuffer(GL_ARRAY_BUFFER, line->model->gl_data.VBO);
-      glBufferData(GL_ARRAY_BUFFER, line->model->mesh.vertices.size() * sizeof(Vertex), &(line->model->mesh.vertices[0]), GL_STATIC_DRAW);
-   }
+   //    glBindVertexArray(line->model->gl_data.VAO);
+   //    glBindBuffer(GL_ARRAY_BUFFER, line->model->gl_data.VBO);
+   //    glBufferData(GL_ARRAY_BUFFER, line->model->mesh.vertices.size() * sizeof(Vertex), &(line->model->mesh.vertices[0]), GL_STATIC_DRAW);
+   // }
 
    // check player height comparing to box
    if(player_bottom <= box_top && player_top >= box_bottom) 

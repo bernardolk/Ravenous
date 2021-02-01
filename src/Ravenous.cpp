@@ -127,7 +127,7 @@ struct GlobalSceneInfo {
 } G_SCENE_INFO;
 
 // catalogues 
-std::map<string, Model*> Model_Catalogue;
+std::map<string, Mesh*> Geometry_Catalogue;
 std::map<string, Shader> Shader_Catalogue;
 std::map<string, Texture> Texture_Catalogue;
 
@@ -238,84 +238,66 @@ void initialize_models()
 	glBindVertexArray(text_gl_data.VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, text_gl_data.VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-   Model* text_model = (Model*) malloc(sizeof(Model));
-   text_model->gl_data = text_gl_data;
-   Model_Catalogue.insert({"text", text_model});
+   Mesh* text_mesh = new Mesh();
+   text_mesh->gl_data = text_gl_data;
+   Geometry_Catalogue.insert({"text", text_mesh});
 
    // GEOMETRY
-      // QUAD
-      // VBO
-      vector<Vertex> quad_vertex_vec = {
-         Vertex{glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 0.0f)},
-         Vertex{glm::vec3(1.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 0.0f)},
-         Vertex{glm::vec3(1.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 1.0f)},
-         Vertex{glm::vec3(0.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 1.0f)}
-      };
-      // EBO
-      vector<u32> quad_vertex_indices = { 0, 1, 2, 2, 3, 0 };
+   // QUAD VBO
+   vector<Vertex> quad_vertex_vec = {
+      Vertex{glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 0.0f)},
+      Vertex{glm::vec3(1.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 0.0f)},
+      Vertex{glm::vec3(1.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 1.0f)},
+      Vertex{glm::vec3(0.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 1.0f)}
+   };
+   // QUAD EBO
+   vector<u32> quad_vertex_indices = { 0, 1, 2, 2, 3, 0 };
 
-      // LINE (position is updated directly into VBO)
-      vector<Vertex> line_vertex_vec = {
-            Vertex{glm::vec3(1, 1, 0)},
-            Vertex{glm::vec3(1, 1, 1)},
-            Vertex{glm::vec3(0, 1, 1)},
-            Vertex{glm::vec3(0, 1, 0)}
-      };
+
+   // LINE (position is updated directly into VBO)
+   vector<Vertex> line_vertex_vec = {
+         Vertex{glm::vec3(1, 1, 0)},
+         Vertex{glm::vec3(1, 1, 1)},
+         Vertex{glm::vec3(0, 1, 1)},
+         Vertex{glm::vec3(0, 1, 0)}
+   };
+
+   Mesh* quad_mesh = new Mesh();
+   quad_mesh->vertices = quad_vertex_vec;
+   quad_mesh->indices = quad_vertex_indices;
+   quad_mesh->render_method = GL_TRIANGLES;
+   quad_mesh->gl_data = setup_gl_data_for_mesh(quad_mesh);
+   Geometry_Catalogue.insert({"quad", quad_mesh});
 
    // TEXTURES
-      unsigned int brick_texture = load_texture_from_file("brickwall.jpg", "w:/assets/textures");
-      unsigned int brick_normal_texture = load_texture_from_file("brickwall_normal.jpg", "w:/assets/textures");
-      unsigned int green_tex = load_texture_from_file("green.jpg", "w:/assets/textures");
+   unsigned int brick_texture = load_texture_from_file("brickwall.jpg", "w:/assets/textures");
+   unsigned int brick_normal_texture = load_texture_from_file("brickwall_normal.jpg", "w:/assets/textures");
+   unsigned int green_tex = load_texture_from_file("green.jpg", "w:/assets/textures");
 
-      Texture quad_wall_texture{
-         brick_texture,
-         "texture_diffuse",
-         "whatever"
-      };
-      Texture quad_wall_normal_texture{
-         brick_normal_texture,
-         "texture_normal",
-         "whatever"
-      };
-      Texture green_texture{
-         green_tex,
-         "texture_diffuse",
-         "whatever"
-      };
+   Texture quad_wall_texture{
+      brick_texture,
+      "texture_diffuse",
+      "whatever"
+   };
+   Texture quad_wall_normal_texture{
+      brick_normal_texture,
+      "texture_normal",
+      "whatever"
+   };
+   Texture green_texture{
+      green_tex,
+      "texture_diffuse",
+      "whatever"
+   };
 
-      // DEFAULT TEX VEC
-      vector<Texture> texture_vec;
-      texture_vec.push_back(quad_wall_texture);
-      texture_vec.push_back(quad_wall_normal_texture);
-
-      // TEX VEC WITH GREEN TEX
-      vector<Texture> plat_texture_vec;
-      plat_texture_vec.push_back(green_texture);
-
-   // QUAD MESH AND MODELS
-      Mesh quad_mesh;
-      quad_mesh.vertices = quad_vertex_vec;
-      quad_mesh.indices = quad_vertex_indices;
-      quad_mesh.render_method = GL_TRIANGLES;
-
-      Model* quad_model = new Model();
-      quad_model->mesh = quad_mesh;
-      quad_model->textures = texture_vec;
-      quad_model->gl_data = setup_gl_data_for_mesh(&quad_mesh);
-      Model_Catalogue.insert({"quad", quad_model});
-
-   // GREEN TEX MODEL
-      Model* green_model = new Model();
-      green_model->mesh = quad_mesh;
-      green_model->textures = plat_texture_vec;
-      green_model->gl_data = quad_model->gl_data;
-      Model_Catalogue.insert({"green quad", green_model});
-
+   Texture_Catalogue.insert({ "brick_wall_diffuse", quad_wall_texture });
+   Texture_Catalogue.insert({ "brick_wall_normal", quad_wall_normal_texture });
+   Texture_Catalogue.insert({ "green_texture", green_texture });
 }
 
 void update_player_state(Player* player)
@@ -484,10 +466,10 @@ void render_text(std::string text, float x, float y, float scale, glm::vec3 colo
 	text_shader.use();
 	text_shader.setFloat3("textColor", color.x, color.y, color.z);
 
-   auto find2 = Model_Catalogue.find("text");
-   Model* text_model = find2->second;
+   auto find2 = Geometry_Catalogue.find("text");
+   Mesh* text_geometry = find2->second;
 	glActiveTexture(GL_TEXTURE0);
-	glBindVertexArray(text_model->gl_data.VAO);
+	glBindVertexArray(text_geometry->gl_data.VAO);
 
 	std::string::iterator c;
 	for (c = text.begin(); c != text.end(); c++) 
@@ -511,7 +493,7 @@ void render_text(std::string text, float x, float y, float scale, glm::vec3 colo
 		// Render glyph texture over quad
 		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
 		// Update content of VBO memory
-		glBindBuffer(GL_ARRAY_BUFFER, text_model->gl_data.VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, text_geometry->gl_data.VBO);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
 		// Render quad
 		glDrawArrays(GL_TRIANGLES, 0, 6);

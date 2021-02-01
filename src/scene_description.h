@@ -1,198 +1,116 @@
 // CREATE SCENE 
-   Scene demo_scene;
-
-// // QUAD
-// vector<Vertex> quad_vertex_vec = {
-//    Vertex{glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 0.0f)},
-//    Vertex{glm::vec3(1.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 0.0f)},
-//    Vertex{glm::vec3(1.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 1.0f)},
-//    Vertex{glm::vec3(0.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 1.0f)}
-// };
-
-// vector<u32> quad_vertex_indices = { 0, 1, 2, 2, 3, 0 };
-
-
-
-// line geometry (get updated inside the collision code)
-vector<Vertex> line_vertex_vec = {
-      Vertex{glm::vec3(1, 1, 0)},
-      Vertex{glm::vec3(1, 1, 1)},
-      Vertex{glm::vec3(0, 1, 1)},
-      Vertex{glm::vec3(0, 1, 0)}
-};
-
-
+ Scene demo_scene;
 
 // ENTITY SETUP
-// unsigned int brick_texture = load_texture_from_file("brickwall.jpg", "w:/assets/textures");
-// unsigned int brick_normal_texture = load_texture_from_file("brickwall_normal.jpg", "w:/assets/textures");
-// Texture quad_wall_texture{
-//    brick_texture,
-//    "texture_diffuse",
-//    "whatever"
-// };
-// Texture quad_wall_normal_texture{
-//    brick_normal_texture,
-//    "texture_normal",
-//    "whatever"
-// };
-// vector<Texture> texture_vec;
-// texture_vec.push_back(quad_wall_texture);
-// texture_vec.push_back(quad_wall_normal_texture);
-
-// Mesh quad_mesh;
-// quad_mesh.vertices = quad_vertex_vec;
-// quad_mesh.indices = quad_vertex_indices;
-// quad_mesh.render_method = GL_TRIANGLES;
-
-// Model* quad_model = new Model();
-// quad_model->mesh = quad_mesh;
-// quad_model->textures = texture_vec;
-// quad_model->gl_data = setup_gl_data_for_mesh(&quad_mesh);
 
 
 auto find1 = Shader_Catalogue.find("model");
 auto model_shader = find1->second;
 
-auto find2 = Model_Catalogue.find("quad");
-auto quad_model = find2->second;
+auto find2 = Geometry_Catalogue.find("quad");
+auto quad_mesh = find2->second;
 
-// platform 1
-Entity platform{
-   G_ENTITY_INFO.entity_counter,
-   ++G_ENTITY_INFO.entity_counter,
-   quad_model,
-   &model_shader,
-   vec3(0.5, 0, 1.0),
-   vec3(90, 0, 90),
-   vec3(1.0f, 1.0f, 1.0f)
+/* 
+struct Entity {
+	unsigned int index;
+	unsigned int id;
+	Shader* shader;
+	glm::vec3 position;
+	glm::vec3 rotation = glm::vec3(0.0f);
+	glm::vec3 scale = glm::vec3(1.0f);
+	glm::mat4 matModel = mat4identity;
+   glm::vec3 velocity;
+   void* collision_geometry_ptr;
+   CollisionGeometryEnum collision_geometry_type;
+   std::string name = "NONAME";
+   std::vector<Texture> textures;
+   GLData gl_data;
 };
-platform.name = "Platform 1";
-
-// platform 2
-// unsigned int green_tex = load_texture_from_file("green.jpg", "w:/assets/textures");
-// Texture green_texture{
-//    green_tex,
-//    "texture_diffuse",
-//    "whatever"
-// };
-// vector<Texture> plat_texture_vec;
-// plat_texture_vec.push_back(green_texture);
-
-
-// Model plat_2_model;
-// plat_2_model.mesh = quad_mesh;
-// plat_2_model.textures = plat_texture_vec;
-// plat_2_model.gl_data = quad_model->gl_data;
-
-auto find3 = Model_Catalogue.find("green quad");
-auto green_quad_model = find3->second;
-
-Entity platform2{
-   G_ENTITY_INFO.entity_counter,
-   ++G_ENTITY_INFO.entity_counter,
-   green_quad_model,
-   &model_shader,
-   vec3(1.5, -0.3, 0),
-   vec3(90, 0, 90),
-   vec3(3.0f, 3.0f, 1.0f) // local mesh coordinates... quad is defined in the x-y plane!
-};
-platform2.name = "Platform 2";
-
-// platform 3
-Entity platform3{
-   G_ENTITY_INFO.entity_counter,
-   ++G_ENTITY_INFO.entity_counter,
-   quad_model,
-   &model_shader,
-   vec3(0, 0.4, 0.5),
-   vec3(90, 0, 90),
-   vec3(1.0f, 1.0f, 1.0f)
-};
-platform3.name = "Platform 3";
+*/
 
 
 // collision geometry for platform
 CollisionGeometryAlignedBox cgab { 1, 0, 1 };
 
-platform.collision_geometry_type = COLLISION_ALIGNED_BOX;
-platform.collision_geometry_ptr = &cgab;
+/*
+   // platform 1
+   Entity platform;
+   platform.name = "Platform 1";
+   platform.index = G_ENTITY_INFO.entity_counter;
+   platform.id = ++G_ENTITY_INFO.entity_counter;
+   platform.shader = &model_shader;
+   platform.position = vec3(0.5, 0, 1.0);
+   platform.rotation = vec3(90, 0, 90);
+   platform.scale = vec3(1.0f, 1.0f, 1.0f);
+   platform.mesh = quad_mesh;
+   platform.collision_geometry_type = COLLISION_ALIGNED_BOX;
+   platform.collision_geometry_ptr = &cgab;
 
-CollisionGeometryAlignedBox cgab2 { 3, 0, 3 };
-platform2.collision_geometry_type = COLLISION_ALIGNED_BOX;
-platform2.collision_geometry_ptr = &cgab2;
-
-platform3.collision_geometry_type = COLLISION_ALIGNED_BOX;
-platform3.collision_geometry_ptr = &cgab;
+   // add to scene
+   demo_scene.entities.push_back(&platform);
+*/
 
 
-// add to scene
-demo_scene.entities.push_back(&platform);
-demo_scene.entities.push_back(&platform2);
-demo_scene.entities.push_back(&platform3);
+// // COLLISION DEBUG BOUNDARY LINES
 
+// Mesh line_mesh;
+// line_mesh.vertices = line_vertex_vec;
+// line_mesh.render_method = GL_LINE_LOOP;
 
+// Model line_model;
+// line_model.mesh = line_mesh;
+// line_model.gl_data = setup_gl_data_for_mesh(&line_mesh);
 
-// COLLISION DEBUG BOUNDARY LINES
+// Entity collision_lines {
+//      G_ENTITY_INFO.entity_counter,
+//    ++G_ENTITY_INFO.entity_counter,
+//    &line_model,
+//    &line_shader
+// };
 
-Mesh line_mesh;
-line_mesh.vertices = line_vertex_vec;
-line_mesh.render_method = GL_LINE_LOOP;
+// collision_lines.name = "LINE1";
 
-Model line_model;
-line_model.mesh = line_mesh;
-line_model.gl_data = setup_gl_data_for_mesh(&line_mesh);
+// demo_scene.entities.push_back(&collision_lines);
 
-Entity collision_lines {
-     G_ENTITY_INFO.entity_counter,
-   ++G_ENTITY_INFO.entity_counter,
-   &line_model,
-   &line_shader
-};
+// // COLLISION DEBUG LINES 2
+// Mesh line_mesh2;
+// line_mesh2.vertices = line_vertex_vec;
+// line_mesh2.render_method = GL_LINE_LOOP;
 
-collision_lines.name = "LINE1";
+// Model line_model2;
+// line_model2.mesh = line_mesh2;
+// line_model2.gl_data = setup_gl_data_for_mesh(&line_mesh2);
 
-demo_scene.entities.push_back(&collision_lines);
+// Entity collision_lines2 {
+//      G_ENTITY_INFO.entity_counter,
+//    ++G_ENTITY_INFO.entity_counter,
+//    &line_model2,
+//    &line_shader
+// };
 
-// COLLISION DEBUG LINES 2
-Mesh line_mesh2;
-line_mesh2.vertices = line_vertex_vec;
-line_mesh2.render_method = GL_LINE_LOOP;
+// collision_lines2.name = "LINE2";
 
-Model line_model2;
-line_model2.mesh = line_mesh2;
-line_model2.gl_data = setup_gl_data_for_mesh(&line_mesh2);
+// demo_scene.entities.push_back(&collision_lines2);
 
-Entity collision_lines2 {
-     G_ENTITY_INFO.entity_counter,
-   ++G_ENTITY_INFO.entity_counter,
-   &line_model2,
-   &line_shader
-};
+// // COLLISION DEBUG LINES 2
+// Mesh line_mesh3;
+// line_mesh3.vertices = line_vertex_vec;
+// line_mesh3.render_method = GL_LINE_LOOP;
 
-collision_lines2.name = "LINE2";
+// Model line_model3;
+// line_model3.mesh = line_mesh3;
+// line_model3.gl_data = setup_gl_data_for_mesh(&line_mesh3);
 
-demo_scene.entities.push_back(&collision_lines2);
+// Entity collision_lines3 {
+//      G_ENTITY_INFO.entity_counter,
+//    ++G_ENTITY_INFO.entity_counter,
+//    &line_model3,
+//    &line_shader
+// };
 
-// COLLISION DEBUG LINES 2
-Mesh line_mesh3;
-line_mesh3.vertices = line_vertex_vec;
-line_mesh3.render_method = GL_LINE_LOOP;
+// collision_lines3.name = "LINE3";
 
-Model line_model3;
-line_model3.mesh = line_mesh3;
-line_model3.gl_data = setup_gl_data_for_mesh(&line_mesh3);
-
-Entity collision_lines3 {
-     G_ENTITY_INFO.entity_counter,
-   ++G_ENTITY_INFO.entity_counter,
-   &line_model3,
-   &line_shader
-};
-
-collision_lines3.name = "LINE3";
-
-demo_scene.entities.push_back(&collision_lines3);
+// demo_scene.entities.push_back(&collision_lines3);
 
 
 
@@ -206,22 +124,18 @@ Texture cylinder_texture{
    "whatever"
 };
 
-Mesh cylinder_mesh;
-cylinder_mesh.vertices = construct_cylinder(cylinder_radius, cylinder_half_length, 24);
-cylinder_mesh.render_method = GL_TRIANGLE_STRIP;
+Mesh* cylinder_mesh = new Mesh();
+cylinder_mesh->vertices = construct_cylinder(cylinder_radius, cylinder_half_length, 24);
+cylinder_mesh->render_method = GL_TRIANGLE_STRIP;
+cylinder_mesh->gl_data = setup_gl_data_for_mesh(cylinder_mesh);
 
-Model cylinder_model;
-cylinder_model.mesh = cylinder_mesh;
-cylinder_model.textures = std::vector<Texture>{cylinder_texture};
-cylinder_model.gl_data = setup_gl_data_for_mesh(&cylinder_mesh);
-
-Entity cylinder{
-   G_ENTITY_INFO.entity_counter,
-   ++G_ENTITY_INFO.entity_counter,
-   &cylinder_model,
-   &model_shader,
-   vec3(0,1,1)
-};
+Entity cylinder;
+cylinder.index = G_ENTITY_INFO.entity_counter;
+cylinder.id = ++G_ENTITY_INFO.entity_counter;
+cylinder.shader = &model_shader;
+cylinder.position = vec3(0,1,1);
+cylinder.textures = std::vector<Texture>{cylinder_texture};
+cylinder.mesh = *cylinder_mesh;
 
 // player collision geometry
 cylinder.collision_geometry_type = COLLISION_ALIGNED_CYLINDER;

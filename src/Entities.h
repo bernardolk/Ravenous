@@ -23,7 +23,6 @@ struct CollisionGeometryAlignedBox{
 struct Entity {
 	unsigned int index;
 	unsigned int id;
-	Model* model;
 	Shader* shader;
 	glm::vec3 position;
 	glm::vec3 rotation = glm::vec3(0.0f);
@@ -33,6 +32,9 @@ struct Entity {
    void* collision_geometry_ptr;
    CollisionGeometryEnum collision_geometry_type;
    std::string name = "NONAME";
+   std::vector<Texture> textures;
+   GLData gl_data;
+   Mesh mesh;
 };
 
 struct SpotLight {

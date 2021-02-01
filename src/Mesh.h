@@ -25,6 +25,7 @@ struct Mesh {
     vector<Vertex> vertices;
     vector<unsigned int> indices;
     GLenum render_method;
+    GLData gl_data;
 };
 
 

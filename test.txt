@@ -1,5 +1,8 @@
 #platform 4
 position 0 2 0
 rotation 90 0 90
-model quad
+mesh quad
 shader model
+texture diffuse brick_wall_diffuse brickwall.jpg
+
+
