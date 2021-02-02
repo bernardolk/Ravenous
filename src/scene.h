@@ -1,181 +1,247 @@
-void load_scene_entities_from_file(std::string path)
-//std::vector<Entity*> &entity_vector
+
+void load_scene_from_file(std::string path);
+void parse_and_load_entity(Parse p, ifstream* reader, int line_count);
+void parse_and_load_attribute(Parse p, ifstream* reader, int line_count, std::string path);
+
+
+
+void load_scene_from_file(std::string path)
 {
    ifstream reader(path);
    std::string line;
-   Parse p = parser_start(&reader, &line);
-   
+   Parse p;
+   int line_count = 0;
+
    // parses entity
-   p = parse_symbol(p);
-   if(p.cToken == '#')
+   while(parser_nextline(&reader, &line, &p))
    {
-      Entity* new_entity = new Entity();
-      p = parse_name(p);
-      new_entity->name = p.string_buffer;
-
-      while(parser_nextline(&reader, &line, &p))
+      line_count++;
+      p = parse_symbol(p);
+      if(p.cToken == '#')
       {
-         p = parse_token(p);
-         const std::string property = p.string_buffer;
-         if(property == "position")
-         {
-               float x, y, z;
-               p = parse_all_whitespace(p);
-               p = parse_float(p);
-               x = p.fToken;
-
-               p = parse_all_whitespace(p);
-               p = parse_float(p);
-               y = p.fToken;
-
-               p = parse_all_whitespace(p);
-               p = parse_float(p);
-               z = p.fToken;
-
-               new_entity->position = glm::vec3(x,y,z);
-         }
-         else if(property == "rotation")
-         {
-               float theta, phi, omega;
-               p = parse_all_whitespace(p);
-               p = parse_float(p);
-               theta = p.fToken;
-
-               p = parse_all_whitespace(p);
-               p = parse_float(p);
-               phi = p.fToken;
-
-               p = parse_all_whitespace(p);
-               p = parse_float(p);
-               omega = p.fToken;
-
-               new_entity->rotation = glm::vec3(theta, phi, omega);
-         }
-         else if(property == "scale")
-         {
-               float sx, sy, sz;
-               p = parse_all_whitespace(p);
-               p = parse_float(p);
-               sx = p.fToken;
-
-               p = parse_all_whitespace(p);
-               p = parse_float(p);
-               sy = p.fToken;
-
-               p = parse_all_whitespace(p);
-               p = parse_float(p);
-               sz = p.fToken;
-
-               new_entity->scale = glm::vec3(sx, sy, sz);
-         }
-         else if(property == "shader")
-         {
-            std::string shader_name;
-            p = parse_all_whitespace(p);
-            p = parse_name(p);
-            shader_name = p.string_buffer;
-
-            auto find = Shader_Catalogue.find(shader_name);
-            if(find != Shader_Catalogue.end())
-            {
-               new_entity->shader = &find->second;
-            }
-            else
-            {
-               std::cout << "SHADER '" << shader_name << "' NOT FOUND WHILE LOADING SCENE DESCRIPTION FILE \n"; 
-               assert(false);
-            }   
-         }
-         else if(property == "mesh")
-         {
-            std::string model_name;
-            p = parse_all_whitespace(p);
-            p = parse_token(p);
-            model_name = p.string_buffer;
-
-            auto find = Geometry_Catalogue.find(model_name);
-            if(find != Geometry_Catalogue.end())
-            {
-               new_entity->mesh = *find->second;
-            }
-            else
-            {
-               std::cout << "MESH DATA FOR MESH '" << model_name << "' NOT FOUND WHILE LOADING SCENE DESCRIPTION FILE \n"; 
-               assert(false);
-            }   
-         }
-         else if(property == "texture")
-         {
-            std::string texture_type, texture_name, texture_filename;
-            p = parse_all_whitespace(p);
-            p = parse_token(p);
-            texture_type = p.string_buffer;
-
-            p = parse_all_whitespace(p);
-            p = parse_token(p);
-            texture_name = p.string_buffer;
-
-            p = parse_all_whitespace(p);
-            p = parse_token(p);
-            texture_filename = p.string_buffer;
-
-            auto find = Texture_Catalogue.find(texture_name);
-            if(find != Texture_Catalogue.end())
-            {
-               new_entity->textures.push_back(find->second);
-            }
-            else if(texture_name == "")
-            {
-                std::cout << "TEXTURE NAME MISSING FOR ENTITY '" << new_entity->name << "' :: FATAL \n"; 
-                assert(false);
-            }
-            else if(texture_type == "")
-            {
-                std::cout << "TEXTURE TYPE MISSING FOR TEXTURE '" << texture_name << "' AT ENTITY '"<< new_entity->name << "' :: FATAL \n"; 
-                assert(false);
-            }
-            else if(texture_filename == "")
-            {
-                std::cout << "TEXTURE FILENAME MISSING FOR TEXTURE '"<<texture_name <<"' AT ENTITY '"<<new_entity->name<<"' :: FATAL \n"; 
-                assert(false);
-            }
-            else
-            {
-               unsigned int texture_id = load_texture_from_file(texture_filename, "w:/assets/textures");
-
-               if(texture_id == 0)
-               {
-                  std::cout << "TEXTURE '" <<texture_name<< "' COULD NOT BE LOADED WHILE LOADING SCENE DESCRIPTION FILE :: FATAL \n"; 
-                  assert(false);
-               }
-
-               std::string texture_type_def;
-               if(texture_type == "diffuse")
-               {
-                  texture_type_def = "texture_diffuse";
-               } 
-               else if(texture_type == "normal")
-               {
-                  texture_type_def = "texture_normal";
-               }
-               else
-               {
-                  std::cout<<"TEXTURE '"<<texture_name<<"' HAS UNKNOWN TEXTURE TYPE. ERROR WHILE LOADING SCENE DESCRIPTION FILE :: FATAL \n"; 
-                  assert(false);
-               }
-
-               Texture new_texture{
-                  texture_id,
-                  texture_type_def,
-                  texture_filename
-               };
-
-               Texture_Catalogue.insert({texture_name, new_texture});
-               new_entity->textures.push_back(new_texture);
-            }   
-         }
+         parse_and_load_entity(p, &reader, line_count);
       }
-
-      G_SCENE_INFO.active_scene->entities.push_back(new_entity);
+      else if(p.cToken == '@')
+      {
+         parse_and_load_attribute(p, &reader, line_count, path);
+      }
    }
 } 
+
+void parse_and_load_attribute(Parse p, ifstream* reader, int line_count, std::string path)
+{
+   p = parse_token(p);
+   std::string attribute = p.string_buffer;
+   if(attribute == "player_position")
+   {
+      p = parse_all_whitespace(p);
+      p = parse_symbol(p);
+      if(p.cToken != '=')
+      {
+         std::cout << "SYNTAX ERROR, MISSING '=' CHARACTER AT SCENE DESCRIPTION FILE ('" << path << "') LINE NUMBER " << line_count << "\n";
+      }
+
+      float x, y, z;
+      p = parse_all_whitespace(p);
+      p = parse_float(p);
+      x = p.fToken;
+
+      p = parse_all_whitespace(p);
+      p = parse_float(p);
+      y = p.fToken;
+
+      p = parse_all_whitespace(p);
+      p = parse_float(p);
+      z = p.fToken;
+
+      // find player in active scene's entity list
+      int entities_size = G_SCENE_INFO.active_scene->entities.size();
+      for (int i = 0; i < entities_size; i ++)
+      {
+         std::string e_name = G_SCENE_INFO.active_scene->entities[i]->name;
+         if (e_name == "player")
+         {
+            G_SCENE_INFO.active_scene->entities[i]->position = glm::vec3(x,y,z);
+         }
+      }
+   }
+}
+
+
+void parse_and_load_entity(Parse p, ifstream* reader, int line_count)
+{
+   std::string line;
+
+   Entity* new_entity = new Entity();
+   p = parse_name(p);
+   new_entity->name = p.string_buffer;
+
+   while(parser_nextline(reader, &line, &p))
+   {
+      p = parse_token(p);
+      const std::string property = p.string_buffer;
+      if(property == "position")
+      {
+            float x, y, z;
+            p = parse_all_whitespace(p);
+            p = parse_float(p);
+            x = p.fToken;
+
+            p = parse_all_whitespace(p);
+            p = parse_float(p);
+            y = p.fToken;
+
+            p = parse_all_whitespace(p);
+            p = parse_float(p);
+            z = p.fToken;
+
+            new_entity->position = glm::vec3(x,y,z);
+      }
+      else if(property == "rotation")
+      {
+            float theta, phi, omega;
+            p = parse_all_whitespace(p);
+            p = parse_float(p);
+            theta = p.fToken;
+
+            p = parse_all_whitespace(p);
+            p = parse_float(p);
+            phi = p.fToken;
+
+            p = parse_all_whitespace(p);
+            p = parse_float(p);
+            omega = p.fToken;
+
+            new_entity->rotation = glm::vec3(theta, phi, omega);
+      }
+      else if(property == "scale")
+      {
+            float sx, sy, sz;
+            p = parse_all_whitespace(p);
+            p = parse_float(p);
+            sx = p.fToken;
+
+            p = parse_all_whitespace(p);
+            p = parse_float(p);
+            sy = p.fToken;
+
+            p = parse_all_whitespace(p);
+            p = parse_float(p);
+            sz = p.fToken;
+
+            new_entity->scale = glm::vec3(sx, sy, sz);
+      }
+      else if(property == "shader")
+      {
+         std::string shader_name;
+         p = parse_all_whitespace(p);
+         p = parse_name(p);
+         shader_name = p.string_buffer;
+
+         auto find = Shader_Catalogue.find(shader_name);
+         if(find != Shader_Catalogue.end())
+         {
+            new_entity->shader = &find->second;
+         }
+         else
+         {
+            std::cout << "SHADER '" << shader_name << "' NOT FOUND WHILE LOADING SCENE DESCRIPTION FILE \n"; 
+            assert(false);
+         }   
+      }
+      else if(property == "mesh")
+      {
+         std::string model_name;
+         p = parse_all_whitespace(p);
+         p = parse_token(p);
+         model_name = p.string_buffer;
+
+         auto find = Geometry_Catalogue.find(model_name);
+         if(find != Geometry_Catalogue.end())
+         {
+            new_entity->mesh = *find->second;
+         }
+         else
+         {
+            std::cout << "MESH DATA FOR MESH '" << model_name << "' NOT FOUND WHILE LOADING SCENE DESCRIPTION FILE \n"; 
+            assert(false);
+         }   
+      }
+      else if(property == "texture")
+      {
+         std::string texture_type, texture_name, texture_filename;
+         p = parse_all_whitespace(p);
+         p = parse_token(p);
+         texture_type = p.string_buffer;
+
+         p = parse_all_whitespace(p);
+         p = parse_token(p);
+         texture_name = p.string_buffer;
+
+         p = parse_all_whitespace(p);
+         p = parse_token(p);
+         texture_filename = p.string_buffer;
+
+         auto find = Texture_Catalogue.find(texture_name);
+         if(find != Texture_Catalogue.end())
+         {
+            new_entity->textures.push_back(find->second);
+         }
+         else if(texture_name == "")
+         {
+            std::cout << "TEXTURE NAME MISSING FOR ENTITY '" << new_entity->name << "' :: FATAL \n"; 
+            assert(false);
+         }
+         else if(texture_type == "")
+         {
+            std::cout << "TEXTURE TYPE MISSING FOR TEXTURE '" << texture_name << "' AT ENTITY '"<< new_entity->name << "' :: FATAL \n"; 
+            assert(false);
+         }
+         else if(texture_filename == "")
+         {
+            std::cout << "TEXTURE FILENAME MISSING FOR TEXTURE '"<<texture_name <<"' AT ENTITY '"<<new_entity->name<<"' :: FATAL \n"; 
+            assert(false);
+         }
+         else
+         {
+            unsigned int texture_id = load_texture_from_file(texture_filename, "w:/assets/textures");
+
+            if(texture_id == 0)
+            {
+               std::cout << "TEXTURE '" <<texture_name<< "' COULD NOT BE LOADED WHILE LOADING SCENE DESCRIPTION FILE :: FATAL \n"; 
+               assert(false);
+            }
+
+            std::string texture_type_def;
+            if(texture_type == "diffuse")
+            {
+               texture_type_def = "texture_diffuse";
+            } 
+            else if(texture_type == "normal")
+            {
+               texture_type_def = "texture_normal";
+            }
+            else
+            {
+               std::cout<<"TEXTURE '"<<texture_name<<"' HAS UNKNOWN TEXTURE TYPE. ERROR WHILE LOADING SCENE DESCRIPTION FILE :: FATAL \n"; 
+               assert(false);
+            }
+
+            Texture new_texture{
+               texture_id,
+               texture_type_def,
+               texture_filename
+            };
+
+            Texture_Catalogue.insert({texture_name, new_texture});
+            new_entity->textures.push_back(new_texture);
+         }   
+      }
+      else
+      {
+         break;
+      }
+   }
+
+   G_SCENE_INFO.active_scene->entities.push_back(new_entity);
+}

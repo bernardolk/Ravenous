@@ -187,7 +187,7 @@ int main() {
    // creates the scene (objects and player)
 	#include<scene_description.h>
 
-   load_scene_entities_from_file("w:/test.txt");
+   load_scene_from_file("w:/test.txt");
    
 	// MAIN LOOP
 	while (!glfwWindowShouldClose(G_DISPLAY_INFO.window))

@@ -20,19 +20,19 @@
 	};
 };
 
-Parse parser_start(ifstream* reader, std::string* line)
-{
-   getline(*reader, *line);
-   const char* cline = line->c_str();
-   size_t size = line->size();
+// Parse parser_start(ifstream* reader, std::string* line)
+// {
+//    getline(*reader, *line);
+//    const char* cline = line->c_str();
+//    size_t size = line->size();
 
-   Parse p { 
-      cline, 
-      size 
-   };
+//    Parse p { 
+//       cline, 
+//       size 
+//    };
 
-   return p;
-}
+//    return p;
+// }
 
 
 bool parser_nextline(ifstream* reader, std::string* line, Parse* toparse)
