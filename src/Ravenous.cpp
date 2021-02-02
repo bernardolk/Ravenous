@@ -150,10 +150,10 @@ void render_ray();
 void update_scene_objects();
 void initialize_shaders();
 void create_boilerplate_geometry();
-void render_text_overlay(Camera& camera);
+void render_text_overlay(Camera& camera, Player* player);
 GLenum glCheckError_(const char* file, int line);
 std::string format_float_tostr(float num, int precision);
-void render_text(std::string text, float x, float y, float scale, glm::vec3 color);
+void render_text(std::string text, float x, float y, float scale, glm::vec3 color = glm::vec3(1,1,1));
 void update_player_state(Player* player);
 void adjust_player_position_and_velocity(Player* player, float distance, glm::vec3 velocity);
 // void render_model(Entity ent, glm::vec3 lightPos[], glm::vec3 lightRgb[]);
@@ -219,7 +219,7 @@ int main() {
 		glClearColor(0.196, 0.298, 0.3607, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		render_scene(G_SCENE_INFO.active_scene, &G_SCENE_INFO.camera);
-      render_text_overlay(G_SCENE_INFO.camera);
+      render_text_overlay(G_SCENE_INFO.camera, &player);
 
       // FINISH FRAME
 		glfwSwapBuffers(G_DISPLAY_INFO.window);
@@ -376,7 +376,7 @@ void update_player_state(Player* player)
    
 } 
 
-void render_text_overlay(Camera& camera) 
+void render_text_overlay(Camera& camera, Player* player) 
 {
    // render info text
    float GUI_x = 25;
@@ -399,12 +399,30 @@ void render_text_overlay(Camera& camera)
    string fps = to_string(G_FRAME_INFO.current_fps);
    string fps_gui = "FPS: " + fps.substr(0, fps.find('.', 0) + 2);
 
+   glm::vec3 player_state_text_color;
+   std::string player_state;
+   switch(player->player_state)
+   {
+      case PLAYER_STATE_STANDING:
+         player_state_text_color = glm::vec3(0, 0.8, 0.1);
+         player_state = "PLAYER STANDING";
+         break;
+      case PLAYER_STATE_FALLING:
+         player_state_text_color = glm::vec3(0.8, 0.1, 0.1);
+         player_state = "PLAYER FALLING";
+         break;
+      case PLAYER_STATE_FALLING_FROM_EDGE:
+         player_state_text_color = glm::vec3(0.8, 0.1, 0.3);
+         player_state = "PLAYER FALLING FROM EDGE";
+         break;
+   }
 
    float scale = 1;
-   render_text(camera_position, GUI_x, GUI_y, scale, glm::vec3(1.0f, 1.0f, 1.0f));
-   render_text(camera_front, GUI_x, GUI_y - 25, scale, glm::vec3(1.0f, 1.0f, 1.0f));
-   render_text(mouse_stats, GUI_x, GUI_y - 50, scale, glm::vec3(1.0f, 1.0f, 1.0f));
-   render_text(fps_gui, G_DISPLAY_INFO.VIEWPORT_HEIGHT - 100, 25, scale, glm::vec3(1.0f, 1.0f, 1.0f));
+   render_text(camera_position,  GUI_x, GUI_y, scale);
+   render_text(camera_front,     GUI_x, GUI_y - 25, scale);
+   render_text(mouse_stats,      GUI_x, GUI_y - 50, scale);
+   render_text(fps_gui,          G_DISPLAY_INFO.VIEWPORT_WIDTH - 100, 25, scale);
+   render_text(player_state,     GUI_x, 25, 1.4, player_state_text_color);
 }
 
 

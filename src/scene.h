@@ -219,12 +219,11 @@ void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::stri
          {
             // CREATES AXIS ALIGNED BOUNDING BOX
             auto cgab = new CollisionGeometryAlignedBox;
-            cgab->length_x = new_entity->scale.x;
-            cgab->length_y = new_entity->scale.z;   //@!
-            cgab->length_z = new_entity->scale.y;   //@!
+            cgab->length_x = new_entity->scale.y;
+            cgab->length_y = new_entity->scale.x;   //@!
+            cgab->length_z = new_entity->scale.z;   //@!
             
             // THIS is what I mean when our collision of AABBs is dependent on knowledge of entity's orientation... BADBADNOTGOOD
-
             new_entity->collision_geometry_ptr = cgab;
             new_entity->collision_geometry_type = COLLISION_ALIGNED_BOX;
          }
