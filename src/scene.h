@@ -1,7 +1,7 @@
 
 void load_scene_from_file(std::string path);
-void parse_and_load_entity(Parse p, ifstream* reader, int line_count);
-void parse_and_load_attribute(Parse p, ifstream* reader, int line_count, std::string path);
+void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::string path);
+void parse_and_load_attribute(Parse p, ifstream* reader, int& line_count, std::string path);
 
 
 
@@ -19,7 +19,7 @@ void load_scene_from_file(std::string path)
       p = parse_symbol(p);
       if(p.cToken == '#')
       {
-         parse_and_load_entity(p, &reader, line_count);
+         parse_and_load_entity(p, &reader, line_count, path);
       }
       else if(p.cToken == '@')
       {
@@ -28,31 +28,23 @@ void load_scene_from_file(std::string path)
    }
 } 
 
-void parse_and_load_attribute(Parse p, ifstream* reader, int line_count, std::string path)
+void parse_and_load_attribute(Parse p, ifstream* reader, int& line_count, std::string path)
 {
    p = parse_token(p);
    std::string attribute = p.string_buffer;
+
+   p = parse_all_whitespace(p);
+   p = parse_symbol(p);
+
+   if(p.cToken != '=')
+   {
+      std::cout << "SYNTAX ERROR, MISSING '=' CHARACTER AT SCENE DESCRIPTION FILE ('" << path << "') LINE NUMBER " << line_count << "\n";
+      assert(false);
+   }
+
    if(attribute == "player_position")
    {
-      p = parse_all_whitespace(p);
-      p = parse_symbol(p);
-      if(p.cToken != '=')
-      {
-         std::cout << "SYNTAX ERROR, MISSING '=' CHARACTER AT SCENE DESCRIPTION FILE ('" << path << "') LINE NUMBER " << line_count << "\n";
-      }
-
-      float x, y, z;
-      p = parse_all_whitespace(p);
-      p = parse_float(p);
-      x = p.fToken;
-
-      p = parse_all_whitespace(p);
-      p = parse_float(p);
-      y = p.fToken;
-
-      p = parse_all_whitespace(p);
-      p = parse_float(p);
-      z = p.fToken;
+      p = parse_float_vector(p);
 
       // find player in active scene's entity list
       int entities_size = G_SCENE_INFO.active_scene->entities.size();
@@ -61,16 +53,22 @@ void parse_and_load_attribute(Parse p, ifstream* reader, int line_count, std::st
          std::string e_name = G_SCENE_INFO.active_scene->entities[i]->name;
          if (e_name == "player")
          {
-            G_SCENE_INFO.active_scene->entities[i]->position = glm::vec3(x,y,z);
+            G_SCENE_INFO.active_scene->entities[i]->position = glm::vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
          }
       }
+   }
+   else
+   {
+      std::cout << "UNRECOGNIZED ATTRIBUTE AT SCENE DESCRIPTION FILE ('" << path << "') LINE NUMBER " << line_count << "\n";
+      assert(false);
    }
 }
 
 
-void parse_and_load_entity(Parse p, ifstream* reader, int line_count)
+void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::string path)
 {
    std::string line;
+   bool is_collision_parsed = false;
 
    Entity* new_entity = new Entity();
    p = parse_name(p);
@@ -78,58 +76,29 @@ void parse_and_load_entity(Parse p, ifstream* reader, int line_count)
 
    while(parser_nextline(reader, &line, &p))
    {
+      line_count ++;
       p = parse_token(p);
       const std::string property = p.string_buffer;
       if(property == "position")
       {
-            float x, y, z;
-            p = parse_all_whitespace(p);
-            p = parse_float(p);
-            x = p.fToken;
-
-            p = parse_all_whitespace(p);
-            p = parse_float(p);
-            y = p.fToken;
-
-            p = parse_all_whitespace(p);
-            p = parse_float(p);
-            z = p.fToken;
-
-            new_entity->position = glm::vec3(x,y,z);
+            p = parse_float_vector(p);
+            new_entity->position = glm::vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
       }
       else if(property == "rotation")
       {
-            float theta, phi, omega;
-            p = parse_all_whitespace(p);
-            p = parse_float(p);
-            theta = p.fToken;
-
-            p = parse_all_whitespace(p);
-            p = parse_float(p);
-            phi = p.fToken;
-
-            p = parse_all_whitespace(p);
-            p = parse_float(p);
-            omega = p.fToken;
-
-            new_entity->rotation = glm::vec3(theta, phi, omega);
+            p = parse_float_vector(p);
+            new_entity->rotation = glm::vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
       }
       else if(property == "scale")
       {
-            float sx, sy, sz;
-            p = parse_all_whitespace(p);
-            p = parse_float(p);
-            sx = p.fToken;
-
-            p = parse_all_whitespace(p);
-            p = parse_float(p);
-            sy = p.fToken;
-
-            p = parse_all_whitespace(p);
-            p = parse_float(p);
-            sz = p.fToken;
-
-            new_entity->scale = glm::vec3(sx, sy, sz);
+            if(is_collision_parsed)
+            {
+               std::cout << "FATAL: COLLISION SHOULD BE DEFINED AFTER SCALE PROPERTY FOR ENTITY. AT '" << path 
+                        << "' LINE NUMBER " << line_count << "\n";
+               assert(false);
+            }
+            p = parse_float_vector(p);
+            new_entity->scale = glm::vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
       }
       else if(property == "shader")
       {
@@ -236,6 +205,35 @@ void parse_and_load_entity(Parse p, ifstream* reader, int line_count)
             Texture_Catalogue.insert({texture_name, new_texture});
             new_entity->textures.push_back(new_texture);
          }   
+      }
+      else if(property == "collision")
+      {
+         is_collision_parsed = true;       // check so we make sure scale is defined before collision (we use it to define the aabb lengths)
+
+         std::string collision_type;
+         p = parse_all_whitespace(p);
+         p = parse_token(p);
+         collision_type = p.string_buffer;
+
+         if(collision_type == "aabb")
+         {
+            // CREATES AXIS ALIGNED BOUNDING BOX
+            auto cgab = new CollisionGeometryAlignedBox;
+            cgab->length_x = new_entity->scale.x;
+            cgab->length_y = new_entity->scale.z;   //@!
+            cgab->length_z = new_entity->scale.y;   //@!
+            
+            // THIS is what I mean when our collision of AABBs is dependent on knowledge of entity's orientation... BADBADNOTGOOD
+
+            new_entity->collision_geometry_ptr = cgab;
+            new_entity->collision_geometry_type = COLLISION_ALIGNED_BOX;
+         }
+         else
+         {
+            std::cout << "UNRECOGNIZED COLLISION TYPE '" << collision_type << "' AT SCENE DESCRIPTION FILE ('" 
+                        << path << "') LINE NUMBER " << line_count << "\n";
+            assert(false);
+         }
       }
       else
       {

@@ -149,7 +149,7 @@ void setup_window(bool debug);
 void render_ray();
 void update_scene_objects();
 void initialize_shaders();
-void initialize_models();
+void create_boilerplate_geometry();
 void render_text_overlay(Camera& camera);
 GLenum glCheckError_(const char* file, int line);
 std::string format_float_tostr(float num, int precision);
@@ -182,7 +182,7 @@ int main() {
 	// SHADERS
 	load_text_textures("Consola.ttf", 12);
    initialize_shaders();
-   initialize_models();
+   create_boilerplate_geometry();
 
    // creates the scene (objects and player)
 	#include<scene_description.h>
@@ -229,7 +229,7 @@ int main() {
 	return 0;
 }
 
-void initialize_models()
+void create_boilerplate_geometry()
 {
    //TEXT
    GLData text_gl_data;
@@ -273,31 +273,6 @@ void initialize_models()
    quad_mesh->render_method = GL_TRIANGLES;
    quad_mesh->gl_data = setup_gl_data_for_mesh(quad_mesh);
    Geometry_Catalogue.insert({"quad", quad_mesh});
-
-   // // TEXTURES
-   // unsigned int brick_texture = load_texture_from_file("brickwall.jpg", "w:/assets/textures");
-   // unsigned int brick_normal_texture = load_texture_from_file("brickwall_normal.jpg", "w:/assets/textures");
-   // unsigned int green_tex = load_texture_from_file("green.jpg", "w:/assets/textures");
-
-   // Texture quad_wall_texture{
-   //    brick_texture,
-   //    "texture_diffuse",
-   //    "whatever"
-   // };
-   // Texture quad_wall_normal_texture{
-   //    brick_normal_texture,
-   //    "texture_normal",
-   //    "whatever"
-   // };
-   // Texture green_texture{
-   //    green_tex,
-   //    "texture_diffuse",
-   //    "whatever"
-   // };
-
-   // Texture_Catalogue.insert({ "brick_wall_diffuse", quad_wall_texture });
-   // Texture_Catalogue.insert({ "brick_wall_normal", quad_wall_normal_texture });
-   // Texture_Catalogue.insert({ "green_texture", green_texture });
 }
 
 void update_player_state(Player* player)

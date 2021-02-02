@@ -21,20 +21,27 @@ struct CollisionGeometryAlignedBox{
 };
 
 struct Entity {
+   // administrative data
 	unsigned int index;
 	unsigned int id;
+   std::string name = "NONAME";
+
+   // render data
 	Shader* shader;
+   GLData gl_data;
+   Mesh mesh;
+   std::vector<Texture> textures;
+	glm::mat4 matModel = mat4identity;
+
+   // simulation data
 	glm::vec3 position;
 	glm::vec3 rotation = glm::vec3(0.0f);
 	glm::vec3 scale = glm::vec3(1.0f);
-	glm::mat4 matModel = mat4identity;
    glm::vec3 velocity;
+
+   // collision simulation data
    void* collision_geometry_ptr;
    CollisionGeometryEnum collision_geometry_type;
-   std::string name = "NONAME";
-   std::vector<Texture> textures;
-   GLData gl_data;
-   Mesh mesh;
 };
 
 struct SpotLight {

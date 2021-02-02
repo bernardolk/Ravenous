@@ -17,6 +17,7 @@
 		float fToken;
 		char cToken;
 		unsigned int uiToken;
+      float vec3[3];
 	};
 };
 
@@ -269,4 +270,26 @@ inline Parse parse_float(Parse toparse)
 		outparse.hasToken = 1;
 	}
 	return outparse;
+}
+
+
+inline Parse parse_float_vector(Parse p)
+{
+   float x, y, z;
+   p = parse_all_whitespace(p);
+   p = parse_float(p);
+   x = p.fToken;
+
+   p = parse_all_whitespace(p);
+   p = parse_float(p);
+   y = p.fToken;
+
+   p = parse_all_whitespace(p);
+   p = parse_float(p);
+   z = p.fToken;
+
+   p.vec3[0] = x;
+   p.vec3[1] = y;
+   p.vec3[2] = z;
+   return p;
 }
