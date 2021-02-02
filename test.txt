@@ -13,4 +13,5 @@ rotation 90 0 90
 scale 3 3 1
 mesh quad
 shader model
-texture diffuse brick_wall_diffuse brickwall.jpg
+texture diffuse green green.jpg
+

@@ -274,30 +274,30 @@ void initialize_models()
    quad_mesh->gl_data = setup_gl_data_for_mesh(quad_mesh);
    Geometry_Catalogue.insert({"quad", quad_mesh});
 
-   // TEXTURES
-   unsigned int brick_texture = load_texture_from_file("brickwall.jpg", "w:/assets/textures");
-   unsigned int brick_normal_texture = load_texture_from_file("brickwall_normal.jpg", "w:/assets/textures");
-   unsigned int green_tex = load_texture_from_file("green.jpg", "w:/assets/textures");
+   // // TEXTURES
+   // unsigned int brick_texture = load_texture_from_file("brickwall.jpg", "w:/assets/textures");
+   // unsigned int brick_normal_texture = load_texture_from_file("brickwall_normal.jpg", "w:/assets/textures");
+   // unsigned int green_tex = load_texture_from_file("green.jpg", "w:/assets/textures");
 
-   Texture quad_wall_texture{
-      brick_texture,
-      "texture_diffuse",
-      "whatever"
-   };
-   Texture quad_wall_normal_texture{
-      brick_normal_texture,
-      "texture_normal",
-      "whatever"
-   };
-   Texture green_texture{
-      green_tex,
-      "texture_diffuse",
-      "whatever"
-   };
+   // Texture quad_wall_texture{
+   //    brick_texture,
+   //    "texture_diffuse",
+   //    "whatever"
+   // };
+   // Texture quad_wall_normal_texture{
+   //    brick_normal_texture,
+   //    "texture_normal",
+   //    "whatever"
+   // };
+   // Texture green_texture{
+   //    green_tex,
+   //    "texture_diffuse",
+   //    "whatever"
+   // };
 
-   Texture_Catalogue.insert({ "brick_wall_diffuse", quad_wall_texture });
-   Texture_Catalogue.insert({ "brick_wall_normal", quad_wall_normal_texture });
-   Texture_Catalogue.insert({ "green_texture", green_texture });
+   // Texture_Catalogue.insert({ "brick_wall_diffuse", quad_wall_texture });
+   // Texture_Catalogue.insert({ "brick_wall_normal", quad_wall_normal_texture });
+   // Texture_Catalogue.insert({ "green_texture", green_texture });
 }
 
 void update_player_state(Player* player)

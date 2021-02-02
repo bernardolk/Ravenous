@@ -130,7 +130,7 @@ inline Parse parse_name(Parse toparse)
 inline Parse parse_token_char(Parse toparse)
 {
  Parse outparse{ toparse.string, toparse.size, 0};
-	if (isalnum(toparse.string[0]) || toparse.string[0] == '_') {
+	if (isalnum(toparse.string[0]) || toparse.string[0] == '_' || toparse.string[0] == '.') {
 		outparse.cToken = toparse.string[0];
 		outparse.string = &(toparse.string[1]);
 		outparse.size = toparse.size - 1;
