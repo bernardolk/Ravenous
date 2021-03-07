@@ -1,11 +1,11 @@
 
-void load_scene_from_file(std::string path);
+void load_scene_from_file(std::string path, Player* player);
 void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::string path);
-void parse_and_load_attribute(Parse p, ifstream* reader, int& line_count, std::string path);
+void parse_and_load_attribute(Parse p, ifstream* reader, int& line_count, std::string path, Player* player);
 
 
 
-void load_scene_from_file(std::string path)
+void load_scene_from_file(std::string path, Player* player)
 {
    ifstream reader(path);
    std::string line;
@@ -23,12 +23,12 @@ void load_scene_from_file(std::string path)
       }
       else if(p.cToken == '@')
       {
-         parse_and_load_attribute(p, &reader, line_count, path);
+         parse_and_load_attribute(p, &reader, line_count, path, player);
       }
    }
 } 
 
-void parse_and_load_attribute(Parse p, ifstream* reader, int& line_count, std::string path)
+void parse_and_load_attribute(Parse p, ifstream* reader, int& line_count, std::string path, Player* player)
 {
    p = parse_token(p);
    std::string attribute = p.string_buffer;
@@ -54,6 +54,44 @@ void parse_and_load_attribute(Parse p, ifstream* reader, int& line_count, std::s
          if (e_name == "player")
          {
             G_SCENE_INFO.active_scene->entities[i]->position = glm::vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+         }
+      }
+   }
+   else if(attribute == "player_velocity")
+   {
+      p = parse_float_vector(p);
+
+      // find player in active scene's entity list
+      int entities_size = G_SCENE_INFO.active_scene->entities.size();
+      for (int i = 0; i < entities_size; i ++)
+      {
+         std::string e_name = G_SCENE_INFO.active_scene->entities[i]->name;
+         if (e_name == "player")
+         {
+            G_SCENE_INFO.active_scene->entities[i]->velocity = glm::vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+         }
+      }
+   }
+   else if(attribute == "player_state")
+   {
+      p = parse_all_whitespace(p);
+      p = parse_int(p);
+      switch(p.iToken)
+      {
+         case 0:
+         {
+            player->player_state = PLAYER_STATE_FALLING;
+            break;
+         }
+         case 1:
+         {
+            player->player_state = PLAYER_STATE_STANDING;
+            break;
+         }
+         default:
+         {
+            std::cout << "UNRECOGNIZED PLAYER STATE AT player_state ATTRIBUTE IN SCENE DESCRIPTION FILE ('" << path << "') LINE NUMBER " << line_count << "\n";
+            assert(false);
          }
       }
    }
@@ -219,11 +257,10 @@ void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::stri
          {
             // CREATES AXIS ALIGNED BOUNDING BOX
             auto cgab = new CollisionGeometryAlignedBox;
-            cgab->length_x = new_entity->scale.y;
-            cgab->length_y = new_entity->scale.x;   //@!
-            cgab->length_z = new_entity->scale.z;   //@!
+            cgab->length_x = new_entity->scale.x;
+            cgab->length_y = new_entity->scale.y; 
+            cgab->length_z = new_entity->scale.z; 
             
-            // THIS is what I mean when our collision of AABBs is dependent on knowledge of entity's orientation... BADBADNOTGOOD
             new_entity->collision_geometry_ptr = cgab;
             new_entity->collision_geometry_type = COLLISION_ALIGNED_BOX;
          }

@@ -162,6 +162,6 @@ G_SCENE_INFO.active_scene = &demo_scene;
 // create player
 Player player;
 player.entity_ptr = &cylinder;
-player.player_state = PLAYER_STATE_FALLING;
-player.entity_ptr->velocity.y = -1 * player.fall_speed;
 player.entity_ptr->name = "player";
+// player.player_state = PLAYER_STATE_FALLING;
+// player.entity_ptr->velocity.y = -1 * player.fall_speed;

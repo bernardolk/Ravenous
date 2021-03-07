@@ -187,7 +187,7 @@ int main() {
    // creates the scene (objects and player)
 	#include<scene_description.h>
 
-   load_scene_from_file("w:/test.txt");
+   load_scene_from_file("w:/test.txt", &player);
    
 	// MAIN LOOP
 	while (!glfwWindowShouldClose(G_DISPLAY_INFO.window))
@@ -260,12 +260,12 @@ void create_boilerplate_geometry()
 
 
    // LINE (position is updated directly into VBO)
-   vector<Vertex> line_vertex_vec = {
+   /*vector<Vertex> line_vertex_vec = {
          Vertex{glm::vec3(1, 1, 0)},
          Vertex{glm::vec3(1, 1, 1)},
          Vertex{glm::vec3(0, 1, 1)},
          Vertex{glm::vec3(0, 1, 0)}
-   };
+   };*/
 
    Mesh* quad_mesh = new Mesh();
    quad_mesh->vertices = quad_vertex_vec;
@@ -273,6 +273,21 @@ void create_boilerplate_geometry()
    quad_mesh->render_method = GL_TRIANGLES;
    quad_mesh->gl_data = setup_gl_data_for_mesh(quad_mesh);
    Geometry_Catalogue.insert({"quad", quad_mesh});
+
+ // QUAD HORIZONTAL
+   vector<Vertex> quad_horizontal_vertex_vec = {
+      Vertex{glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 0.0f)},
+      Vertex{glm::vec3(1.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 0.0f)},
+      Vertex{glm::vec3(1.0f, 0.0f, 1.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 1.0f)},
+      Vertex{glm::vec3(0.0f, 0.0f, 1.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 1.0f)}
+   };
+
+   Mesh* quad_horizontal_mesh = new Mesh();
+   quad_horizontal_mesh->vertices = quad_horizontal_vertex_vec;
+   quad_horizontal_mesh->indices = quad_vertex_indices;
+   quad_horizontal_mesh->render_method = GL_TRIANGLES;
+   quad_horizontal_mesh->gl_data = setup_gl_data_for_mesh(quad_horizontal_mesh);
+   Geometry_Catalogue.insert({"quad_horizontal", quad_horizontal_mesh});
 }
 
 void update_player_state(Player* player)
@@ -299,7 +314,7 @@ void update_player_state(Player* player)
          {
             // move player to collision point, stop player and set him to standing
             auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player_entity->collision_geometry_ptr;
-            player_entity->position.y += player_collision_geometry->half_length - cd.distance_from_position; 
+            player_entity->position.y += player_collision_geometry->half_length - cd.vertical_overlap; 
             player_entity->velocity = glm::vec3(0,0,0);
             player->player_state = PLAYER_STATE_STANDING;
             player->standing_entity_ptr = cd.collided_entity_ptr;
@@ -309,56 +324,42 @@ void update_player_state(Player* player)
       case PLAYER_STATE_STANDING:
       {
          // step 1: check if player is colliding with a wall
-         Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
-         size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
-         // check for collisions with scene BUT with floor
-         CollisionData cd = check_player_collision_with_scene(player_entity, entity_iterator, entity_list_size,
-                                                                        player->standing_entity_ptr->name);
-
-         // if collided with something else then the floor player is currently standing on
-         if(cd.collided_entity_ptr != NULL)
          {
-            // move player back to where he was last frame 
-            auto player_v = player_entity->velocity;
-            auto edge = get_nearest_edge(player_entity, cd.collided_entity_ptr);
-            // since we know the edges are axis-aligned...
-            if(edge.x == 0)
-            {
-               player_entity->velocity.x = 0;
-               int sign = player_entity->velocity.z > 0 ? 1 : -1;
-               player_entity->velocity.z = player->speed * sign;
-            }
-            else if(edge.z == 0)
-            {
-               player_entity->velocity.z = 0;
-               int sign = player_entity->velocity.x > 0 ? 1 : -1;
-               player_entity->velocity.x = player->speed * sign;
-            }
-            else{
-               assert(false);
-            }
-            //print_vec(edge, "Edge vector");
+            Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
+            size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
+            // check for collisions with scene BUT with floor
+            CollisionData cd = check_player_collision_with_scene(player_entity, entity_iterator, entity_list_size,
+                                                                           player->standing_entity_ptr->name);
 
-            //player_entity->velocity = glm::vec3(0,0,0);
-            player_entity->position = player_prior_position;
-            player_entity->position +=  player_entity->velocity * G_FRAME_INFO.delta_time;
-            break;
+            // if collided with something (else then the floor player is currently standing on)
+            // then push him back
+            if(cd.collided_entity_ptr != NULL)
+            {
+               // move player back to where he was last frame 
+               auto player_v = player_entity->velocity;
+               player_entity->position -= glm::normalize(player_entity->velocity) * cd.horizontal_overlap;
+               break;
+            }
          }
 
          // step 2: check if player is still standing
-         auto terrain_collision = sample_terrain_height_below_player(player_entity, player->standing_entity_ptr);
-         if(!terrain_collision.collision)
          {
-            std::cout << "PLAYER FELL" << "\n";
-            player_entity->velocity *= 1.3;
-            player_entity->velocity.y = - 1 * player->fall_speed;
-            player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
+            auto terrain_collision = sample_terrain_height_below_player(player_entity, player->standing_entity_ptr);
+            if(!terrain_collision.is_collided)
+            {
+               // make player "slide" towards edge and fall away from floor
+               std::cout << "PLAYER FELL" << "\n";
+               player_entity->velocity *= 1.3;
+               player_entity->velocity.y = - 1 * player->fall_speed;
+               player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
+            }
          }
          break;
       }
       case PLAYER_STATE_FALLING_FROM_EDGE:
       {
          assert(glm::length(player_entity->velocity) > 0);
+         // check if still colliding with floor, if so, let player keep sliding, if not, change to FALLING
          bool collision = check_2D_collision_circle_and_aligned_square(player_entity, player->standing_entity_ptr);
          if(!collision)
          {
@@ -373,7 +374,6 @@ void update_player_state(Player* player)
    print_vec_every_3rd_frame(player_entity->velocity, "player velocity");
    //print_vec(player_entity->position, "player position");
    //print_vec(player_entity->velocity, "player velocity");
-   
 } 
 
 void render_text_overlay(Camera& camera, Player* player) 
