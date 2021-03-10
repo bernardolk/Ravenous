@@ -307,14 +307,14 @@ void update_player_state(Player* player)
          // test collision with every object in scene entities vector
          Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
          size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
-         CollisionData cd = check_player_collision_with_scene(player_entity, entity_iterator, entity_list_size);
+         CollisionData cd = check_player_collision_with_scene_falling(player_entity, entity_iterator, entity_list_size);
 
          // if collided
          if(cd.collided_entity_ptr != NULL)
          {
             // move player to collision point, stop player and set him to standing
             auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player_entity->collision_geometry_ptr;
-            player_entity->position.y += player_collision_geometry->half_length - cd.vertical_overlap; 
+            player_entity->position.y += player_collision_geometry->half_length - cd.overlap; 
             player_entity->velocity = glm::vec3(0,0,0);
             player->player_state = PLAYER_STATE_STANDING;
             player->standing_entity_ptr = cd.collided_entity_ptr;
@@ -328,16 +328,20 @@ void update_player_state(Player* player)
             Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
             size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
             // check for collisions with scene BUT with floor
-            CollisionData cd = check_player_collision_with_scene(player_entity, entity_iterator, entity_list_size,
-                                                                           player->standing_entity_ptr->name);
+            CollisionData cd = check_player_collision_with_scene_standing(player, entity_iterator, entity_list_size);
 
             // if collided with something (else then the floor player is currently standing on)
             // then push him back
             if(cd.collided_entity_ptr != NULL)
             {
+               std::cout << "overlap: " << cd.overlap << "\n";
+               print_vec(player_prior_position, "before");
+               print_vec(player_entity->position, "while");
+
                // move player back to where he was last frame 
                auto player_v = player_entity->velocity;
-               player_entity->position -= glm::normalize(player_entity->velocity) * cd.horizontal_overlap;
+               player_entity->position -= glm::vec3(cd.normal_vec.x, 0, cd.normal_vec.y)  * cd.overlap;
+               print_vec(player_entity->position, "after");
                break;
             }
          }
@@ -371,7 +375,7 @@ void update_player_state(Player* player)
       }
    }
 
-   print_vec_every_3rd_frame(player_entity->velocity, "player velocity");
+   //print_vec_every_3rd_frame(player_entity->velocity, "player velocity");
    //print_vec(player_entity->position, "player position");
    //print_vec(player_entity->velocity, "player velocity");
 } 

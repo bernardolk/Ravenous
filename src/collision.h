@@ -1,20 +1,27 @@
 #include <algorithm>
+#include <math.h>
 
 struct CollisionData{
    bool is_collided = false;
    Entity* collided_entity_ptr;
-   float vertical_overlap;
-   float horizontal_overlap;
+   float overlap;
+   glm::vec2 normal_vec;
 };
 
 struct Collision {
    bool is_collided = false;
    float overlap;
+   glm::vec2 normal_vec;
 };
 
 
 Collision get_vertical_overlap_player_vs_aabb(Entity* entity, Entity* player);
-CollisionData check_player_collision_with_scene(Entity* player, Entity** entity_iterator, size_t entity_list_size, std::string unless_its_this_one); 
+CollisionData check_player_collision_with_scene_falling(
+      Entity* player, Entity** entity_iterator, size_t entity_list_size
+);
+CollisionData check_player_collision_with_scene_standing(
+      Player* player, Entity** entity_iterator, size_t entity_list_size
+); 
 CollisionData sample_terrain_height_below_player(Entity* player, Entity* entity); 
 bool check_2D_collision_circle_and_aligned_square(Entity* circle, Entity* square);
 float squared_distance_between_point_and_line(float x1, float y1, float x2, float y2, float x0, float y0);
@@ -23,49 +30,63 @@ glm::vec3 get_nearest_edge(Entity* point, Entity* square);
 Collision get_horizontal_overlap_player_aabb(Entity* entity, Entity* player);
 
 CollisionData 
-check_player_collision_with_scene(Entity* player, Entity** entity_iterator, size_t entity_list_size, 
-                                  std::string unless_its_this_one = "") 
+check_player_collision_with_scene_standing(Player* player, Entity** entity_iterator, size_t entity_list_size) 
 {
+   CollisionData return_cd; 
 
    Entity* collided_first_with_player = NULL;
-   float vertical = MAX_FLOAT;
-   float horizontal = MAX_FLOAT;
    for (int i = 0; i < entity_list_size; i++)
    {
 	   Entity* &entity = *entity_iterator;
 	   float distance_to_collision = MAX_FLOAT;
-      Collision c;
-	   if (entity->collision_geometry_type == COLLISION_ALIGNED_BOX && entity->name != unless_its_this_one)
-	   {
-         // test vertical collisions (player falling or standing, doesnt matter)
-         c = get_vertical_overlap_player_vs_aabb(entity, player);
-         if(c.is_collided && c.overlap < vertical)
+      Collision c;   
+	   if (entity->collision_geometry_type == COLLISION_ALIGNED_BOX && entity->name != player->standing_entity_ptr->name)
+	   {    
+         c = get_horizontal_overlap_player_aabb(entity, player->entity_ptr);
+         if(c.is_collided)
          {
-            vertical = c.overlap;
             collided_first_with_player = entity;
-
-            // this is not how its supposed to be, but since we test for vertical collision (meaning, test
-            // for clamping in y and also x-z overlap), we can use it as filter for the next check
-            // the next check will calculate x-z overlap and will only be used, for now, when player is standing
-            // to move him away from walls
-            c = get_horizontal_overlap_player_aabb(entity, player);
-            if(c.is_collided)
-            {
-               horizontal = c.overlap;
-            }
+            return_cd.overlap = c.overlap;
+            return_cd.normal_vec = glm::normalize(c.normal_vec);
          }
-
       }
 
       entity_iterator++;
    }
 
-   CollisionData cd;  
-   cd.collided_entity_ptr = collided_first_with_player;
-   cd.vertical_overlap = vertical;
-   cd.horizontal_overlap = horizontal;
-   return cd;
+   return_cd.collided_entity_ptr = collided_first_with_player;
+   return return_cd;
 }
+
+
+CollisionData 
+check_player_collision_with_scene_falling(Entity* player, Entity** entity_iterator, size_t entity_list_size) 
+{
+   CollisionData return_cd; 
+
+   Entity* collided_first_with_player = NULL;
+   for (int i = 0; i < entity_list_size; i++)
+   {
+	   Entity* &entity = *entity_iterator;
+	   float distance_to_collision = MAX_FLOAT;
+      Collision c;
+	   if (entity->collision_geometry_type == COLLISION_ALIGNED_BOX)
+	   {    
+         c = get_vertical_overlap_player_vs_aabb(entity, player);
+         if(c.is_collided)
+         {
+            collided_first_with_player = entity;
+            return_cd.overlap = c.overlap;
+         }
+      }
+
+      entity_iterator++;
+   }
+
+   return_cd.collided_entity_ptr = collided_first_with_player;
+   return return_cd;
+}
+
 
 Collision get_horizontal_overlap_player_aabb(Entity* entity, Entity* player)
 {
@@ -82,16 +103,20 @@ Collision get_horizontal_overlap_player_aabb(Entity* entity, Entity* player)
    auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player->collision_geometry_ptr;
    float p_radius2 = player_collision_geometry->radius * player_collision_geometry->radius;
 
-   float nx = std::min(box_x0, std::max(box_x1, player_x));
-   float nz = std::min(box_z0, std::max(box_z1, player_z));
-   float d2 = nx * nx + nz * nz;
-   
+   float nx = std::max(box_x0, std::min(box_x1, player_x));
+   float nz = std::max(box_z0, std::min(box_z1, player_z));
+   // vector from player to nearest point in rectangle surface
+   glm::vec2 n_vec = glm::vec2(nx, nz) - glm::vec2(player_x, player_z);
+   float distance = glm::length(n_vec);
+   float p_radius = player_collision_geometry->radius;
+
    Collision c;
-   if(p_radius2 > d2)
+   if(p_radius > distance)
    {   
       c.is_collided = true;
-      c.overlap = p_radius2 - d2;
-   }  // else returns false...
+      c.overlap = p_radius - distance;
+      c.normal_vec = glm::normalize(n_vec);
+   }
 
    return c;
 }
@@ -179,7 +204,7 @@ CollisionData sample_terrain_height_below_player(Entity* player, Entity* entity)
    // check if player is inside terrain box
    if(box_x0 <= player_x && box_x1 >= player_x && box_z0 <= player_z && box_z1 >= player_z)
    {
-      cd.vertical_overlap = box_top;
+      cd.overlap = box_top;
       cd.is_collided = true;
    }
    return cd;
