@@ -211,7 +211,7 @@ void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::stri
          }
          else
          {
-            unsigned int texture_id = load_texture_from_file(texture_filename, "w:/assets/textures");
+            unsigned int texture_id = load_texture_from_file(texture_filename, TEXTURES_PATH);
 
             if(texture_id == 0)
             {

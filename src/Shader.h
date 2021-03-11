@@ -10,9 +10,6 @@
 // holds all utilized shader names
 std::string shader_names[30];
 
-const std::string SHADERS_FOLDER_PATH = "w:/shaders/";
-const std::string SHADERS_FILE_EXTENSION = ".shd";
-
 struct Shader {
     unsigned int gl_programId;
     std::string name;

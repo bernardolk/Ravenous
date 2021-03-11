@@ -11,8 +11,8 @@ texture diffuse brick_wall_diffuse brickwall.jpg
 collision aabb
 
 #platform 1
-position -1.5 0 -1
-scale 3 0 3
+position -5 0 -5
+scale 10 0 10
 mesh quad_horizontal
 shader model
 texture diffuse green green.jpg

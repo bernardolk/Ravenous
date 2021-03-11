@@ -28,6 +28,8 @@ float squared_distance_between_point_and_line(float x1, float y1, float x2, floa
 float squared_minimum_distance(glm::vec2 v, glm::vec2 w, glm::vec2 p);
 glm::vec3 get_nearest_edge(Entity* point, Entity* square);
 Collision get_horizontal_overlap_player_aabb(Entity* entity, Entity* player);
+bool intersects_vertically(Entity* entity, Entity* player);
+
 
 CollisionData 
 check_player_collision_with_scene_standing(Player* player, Entity** entity_iterator, size_t entity_list_size) 
@@ -40,8 +42,10 @@ check_player_collision_with_scene_standing(Player* player, Entity** entity_itera
 	   Entity* &entity = *entity_iterator;
 	   float distance_to_collision = MAX_FLOAT;
       Collision c;   
-	   if (entity->collision_geometry_type == COLLISION_ALIGNED_BOX && entity->name != player->standing_entity_ptr->name)
-	   {    
+	   if (entity->collision_geometry_type == COLLISION_ALIGNED_BOX 
+         && entity->name != player->standing_entity_ptr->name
+         && intersects_vertically(entity, player->entity_ptr))
+      {    
          c = get_horizontal_overlap_player_aabb(entity, player->entity_ptr);
          if(c.is_collided)
          {
@@ -85,6 +89,19 @@ check_player_collision_with_scene_falling(Entity* player, Entity** entity_iterat
 
    return_cd.collided_entity_ptr = collided_first_with_player;
    return return_cd;
+}
+
+bool intersects_vertically(Entity* entity, Entity* player)
+{
+   auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player->collision_geometry_ptr;
+   float player_bottom = player->position.y - player_collision_geometry->half_length;
+   float player_top = player->position.y + player_collision_geometry->half_length;
+
+   auto box_collision_geometry = *((CollisionGeometryAlignedBox*) entity->collision_geometry_ptr);
+   float box_top = entity->position.y + box_collision_geometry.length_y;
+   float box_bottom = entity->position.y;
+
+   return player_bottom <= box_top && player_top >= box_bottom;
 }
 
 
@@ -132,28 +149,32 @@ Collision get_vertical_overlap_player_vs_aabb(Entity* entity, Entity* player)
    float box_top = entity->position.y + box_collision_geometry.length_y;
    float box_bottom = entity->position.y;
 
-   //box boundaries
-   float box_x0 = entity->position.x;
-   float box_x1 = entity->position.x + box_collision_geometry.length_x;
-   float box_z0 = entity->position.z;
-   float box_z1 = entity->position.z + box_collision_geometry.length_z;
-
    // check player height comparing to box
    if(player_bottom <= box_top && player_top >= box_bottom) 
    {
       float player_x = player->position.x;
       float player_z = player->position.z;
 
-      // compute nearest dist (2d) vector from player centroid to box
+      //box boundaries
+      float box_x0 = entity->position.x;
+      float box_x1 = entity->position.x + box_collision_geometry.length_x;
+      float box_z0 = entity->position.z;
+      float box_z1 = entity->position.z + box_collision_geometry.length_z;
+
       float nx = std::max(box_x0, std::min(box_x1, player_x));
       float nz = std::max(box_z0, std::min(box_z1, player_z));
-      float d2 = nx * nx + nz * nz;
-      float p_radius2 = player_collision_geometry->radius * player_collision_geometry->radius;
-
-      // check if player centroid lies inside the box      
-      if(
-         (box_x0 <= player_x && box_x1 >= player_x && box_z0 <= player_z && box_z1 >= player_z) )
-            //|| (p_radius2 > d2))
+      // vector from player to nearest point in rectangle surface
+      glm::vec2 n_vec = glm::vec2(nx, nz) - glm::vec2(player_x, player_z);
+      float distance = glm::length(n_vec);
+      float p_radius = player_collision_geometry->radius;
+      float horizontal_overlap = p_radius - distance;
+      
+    
+      // Checks if player has half the body inside the platform to stand on OR
+      // if his centroid lies inside the aabb rectangle (TODO: refactor this into small point_in_rect procedure)
+      Collision c;
+      if(horizontal_overlap > p_radius
+         || (box_x0 <= player_x && box_x1 >= player_x && box_z0 <= player_z && box_z1 >= player_z))     
       {
          float overlap = player->position.y - box_top;
          float overlap_norm = overlap < 0 ? overlap * -1: overlap;
@@ -166,7 +187,6 @@ Collision get_vertical_overlap_player_vs_aabb(Entity* entity, Entity* player)
 
    return Collision {false};
 }
-
 
 
 
@@ -244,14 +264,11 @@ bool check_2D_collision_circle_and_aligned_square(Entity* circle, Entity* square
    float d_3 = squared_minimum_distance(glm::vec2(square_x1, square_z1), glm::vec2(square_x0, square_z1), glm::vec2(player_x, player_z));
    float d_4 = squared_minimum_distance(glm::vec2(square_x0, square_z1), glm::vec2(square_x0, square_z0), glm::vec2(player_x, player_z));
 
-   //std::cout << "player: (" << player_x << "," << player_z << ") ; d1: " << d_1 << ", d2: " << d_2 << ", d3: " << d_3 << ", d4: " << d_4 << "\n";
-
    auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) circle->collision_geometry_ptr;
    float p_radius2 = player_collision_geometry->radius * player_collision_geometry->radius;
    std::cout << "radius2: " << p_radius2 << "\n";
    if(d_1 <= p_radius2 || d_2 <= p_radius2 || d_3 <= p_radius2 || d_4 <= p_radius2)
    {
-      //std::cout << "intersecting with square !" << "\n";
       return true;
    }
 

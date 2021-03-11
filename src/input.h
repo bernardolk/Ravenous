@@ -83,7 +83,6 @@ void process_keyboard_input(GLFWwindow* window, Player* player)
          player->entity_ptr->position.y = player->entity_ptr->position.y + 0.5f;  
       }
    }
-
 }
 
 void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
@@ -147,9 +146,7 @@ void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
    }
    else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) 
    {
-      cout << "left_btn_release" << endl;
       G_INPUT_INFO.is_mouse_left_btn_press = false;
-      cout << G_INPUT_INFO.is_mouse_drag << endl;
       G_INPUT_INFO.is_mouse_drag = false;
    }
 }

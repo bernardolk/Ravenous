@@ -28,10 +28,12 @@ typedef unsigned long int u64;
 const float PI = 3.141592;
 
 const float MAX_FLOAT = std::numeric_limits<float>::max();
-
-const std::string textures_path = "w:/assets/textures/";
-const std::string models_path = "w:/assets/models/";
-const std::string FONTS_PATH = "w:/assets/fonts/";
+const std::string PROJECT_PATH = "c:/repositories/ravenous";
+const std::string TEXTURES_PATH = PROJECT_PATH + "/assets/textures/";
+const std::string MODELS_PATH = PROJECT_PATH + "/assets/models/";
+const std::string FONTS_PATH = PROJECT_PATH + "/assets/fonts/";
+const std::string SHADERS_FOLDER_PATH = PROJECT_PATH + "/shaders/";
+const std::string SHADERS_FILE_EXTENSION = ".shd";
 
 const glm::mat4 mat4identity(
 	1.0f, 0.0f, 0.0f, 0.0f,
@@ -163,7 +165,7 @@ void adjust_player_position_and_velocity(Player* player, float distance, glm::ve
 int main() {
 
    // reads from camera position file
-   float* camera_pos = load_camera_settings("w:/camera.txt");
+   float* camera_pos = load_camera_settings(PROJECT_PATH + "/camera.txt");
    std::cout << "camera " << camera_pos[0] << "," << camera_pos[1] << "," << camera_pos[2] << "\n";
    std::cout << "camera dir " << camera_pos[3] << "," << camera_pos[4] << "," << camera_pos[5] << "\n";
 	u16 camera_id = 
@@ -187,21 +189,20 @@ int main() {
    // creates the scene (objects and player)
 	#include<scene_description.h>
 
-   load_scene_from_file("w:/test.txt", &player);
+   load_scene_from_file(PROJECT_PATH + "/test.txt", &player);
    
 	// MAIN LOOP
 	while (!glfwWindowShouldClose(G_DISPLAY_INFO.window))
 	{
       // START FRAME
-		float currentFrame = glfwGetTime();
-		G_FRAME_INFO.delta_time = currentFrame - G_FRAME_INFO.last_frame_time;
+		float current_frame_time = glfwGetTime();
+		G_FRAME_INFO.delta_time = current_frame_time - G_FRAME_INFO.last_frame_time;
+		G_FRAME_INFO.last_frame_time = current_frame_time;
       if(G_FRAME_INFO.delta_time > 0.02)
       {
-         // @BUG: Player will stutter if we set delta_time here below. Why?
-         // G_FRAME_INFO.delta_time = 0.2;
-         std::cout << "delta time exceeded.\n";
+         G_FRAME_INFO.delta_time = 0.02;
+         //std::cout << "delta time exceeded.\n";
       } 
-		G_FRAME_INFO.last_frame_time = currentFrame;
 		G_FRAME_INFO.current_fps = 1.0f / G_FRAME_INFO.delta_time;
       G_FRAME_INFO.frame_counter_3 = ++G_FRAME_INFO.frame_counter_3 % 3;
       G_FRAME_INFO.frame_counter_10 = ++G_FRAME_INFO.frame_counter_10 % 10;   
@@ -334,14 +335,9 @@ void update_player_state(Player* player)
             // then push him back
             if(cd.collided_entity_ptr != NULL)
             {
-               std::cout << "overlap: " << cd.overlap << "\n";
-               print_vec(player_prior_position, "before");
-               print_vec(player_entity->position, "while");
-
                // move player back to where he was last frame 
                auto player_v = player_entity->velocity;
                player_entity->position -= glm::vec3(cd.normal_vec.x, 0, cd.normal_vec.y)  * cd.overlap;
-               print_vec(player_entity->position, "after");
                break;
             }
          }
