@@ -1,11 +1,18 @@
 #include <algorithm>
 #include <math.h>
 
+enum CollisionType{
+   HORIZONTAL = 0,
+   VERTICAL = 1
+};
+
+
 struct CollisionData{
-   bool is_collided = false;
-   Entity* collided_entity_ptr;
-   float overlap;
-   glm::vec2 normal_vec;
+   bool is_collided            = false;
+   Entity* collided_entity_ptr = NULL;
+   float overlap               = 0;
+   glm::vec2 normal_vec        = glm::vec2(0,0);
+   CollisionType collision_type;
 };
 
 struct Collision {
@@ -35,30 +42,26 @@ CollisionData
 check_player_collision_with_scene_standing(Player* player, Entity** entity_iterator, size_t entity_list_size) 
 {
    CollisionData return_cd; 
-
-   Entity* collided_first_with_player = NULL;
    for (int i = 0; i < entity_list_size; i++)
    {
 	   Entity* &entity = *entity_iterator;
-	   float distance_to_collision = MAX_FLOAT;
+	   float smallest_overlap = MAX_FLOAT;
       Collision c;   
 	   if (entity->collision_geometry_type == COLLISION_ALIGNED_BOX 
          && entity->name != player->standing_entity_ptr->name
          && intersects_vertically(entity, player->entity_ptr))
       {    
          c = get_horizontal_overlap_player_aabb(entity, player->entity_ptr);
-         if(c.is_collided)
+         if(c.is_collided
+            && c.overlap < smallest_overlap)
          {
-            collided_first_with_player = entity;
+            return_cd.collided_entity_ptr = entity;
             return_cd.overlap = c.overlap;
             return_cd.normal_vec = glm::normalize(c.normal_vec);
          }
       }
-
       entity_iterator++;
    }
-
-   return_cd.collided_entity_ptr = collided_first_with_player;
    return return_cd;
 }
 
@@ -66,28 +69,41 @@ check_player_collision_with_scene_standing(Player* player, Entity** entity_itera
 CollisionData 
 check_player_collision_with_scene_falling(Entity* player, Entity** entity_iterator, size_t entity_list_size) 
 {
+   // here the player is falling, which means in frame 0 he is higher in y than in frame 1
+   // So, first, we check for vertical collisions: if the player is colliding enough with an
+   // object, we can consider him standing on it first.
+   // Secondly, we check for horizontal collision, so if the player cannot be considered standing,
+   // we will move him away from the object just like on player standing collision check routine.
    CollisionData return_cd; 
-
-   Entity* collided_first_with_player = NULL;
    for (int i = 0; i < entity_list_size; i++)
    {
 	   Entity* &entity = *entity_iterator;
-	   float distance_to_collision = MAX_FLOAT;
-      Collision c;
-	   if (entity->collision_geometry_type == COLLISION_ALIGNED_BOX)
-	   {    
-         c = get_vertical_overlap_player_vs_aabb(entity, player);
-         if(c.is_collided)
+	   float smallest_overlap = MAX_FLOAT;
+	   if (entity->collision_geometry_type == COLLISION_ALIGNED_BOX
+         && intersects_vertically(entity, player))
+	   {
+         Collision v_test = get_vertical_overlap_player_vs_aabb(entity, player);
+         if(v_test.is_collided
+            && v_test.overlap < smallest_overlap)
          {
-            collided_first_with_player = entity;
-            return_cd.overlap = c.overlap;
+            return_cd.collided_entity_ptr = entity;
+            return_cd.overlap = v_test.overlap;
+            return_cd.collision_type = VERTICAL;
+         }
+         else
+         {
+            Collision h_test = get_horizontal_overlap_player_aabb(entity, player);
+            if(h_test.is_collided)
+            {
+               return_cd.collided_entity_ptr = entity;
+               return_cd.overlap = h_test.overlap;
+               return_cd.collision_type = HORIZONTAL;
+               return_cd.normal_vec = glm::normalize(h_test.normal_vec);
+            }
          }
       }
-
       entity_iterator++;
    }
-
-   return_cd.collided_entity_ptr = collided_first_with_player;
    return return_cd;
 }
 

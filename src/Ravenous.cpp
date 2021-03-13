@@ -295,8 +295,6 @@ void update_player_state(Player* player)
 {
    Entity* &player_entity = player->entity_ptr;
 
-   // @bug: when moving towards an edge, player gets roundabouted (collision system gets crazy)
-
    // makes player move
    auto player_prior_position = player_entity->position;
    player_entity->position += player_entity->velocity * G_FRAME_INFO.delta_time;
@@ -313,12 +311,27 @@ void update_player_state(Player* player)
          // if collided
          if(cd.collided_entity_ptr != NULL)
          {
-            // move player to collision point, stop player and set him to standing
-            auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player_entity->collision_geometry_ptr;
-            player_entity->position.y += player_collision_geometry->half_length - cd.overlap; 
-            player_entity->velocity = glm::vec3(0,0,0);
-            player->player_state = PLAYER_STATE_STANDING;
-            player->standing_entity_ptr = cd.collided_entity_ptr;
+            if(cd.collision_type == HORIZONTAL)
+            {
+               // move player back to where he was last frame 
+               player_entity->position -= glm::vec3(cd.normal_vec.x, 0, cd.normal_vec.y)  * cd.overlap;
+               player_entity->velocity.x = 0;
+               player_entity->velocity.z = 0;
+            }
+            else if(cd.collision_type == VERTICAL)
+            {
+               // move player to collision point, stop player and set him to standing
+               auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player_entity->collision_geometry_ptr;
+               player_entity->position.y += player_collision_geometry->half_length - cd.overlap; 
+               player_entity->velocity = glm::vec3(0,0,0);
+               player->player_state = PLAYER_STATE_STANDING;
+               player->standing_entity_ptr = cd.collided_entity_ptr;
+            }
+            else
+            {
+               cout << "FAIL :: COLLISION TYPE ON PLAYER_STATE_FALLING IS INCONSISTENT \n";
+               assert(false);
+            }
          }
          break;
       }
@@ -336,7 +349,6 @@ void update_player_state(Player* player)
             if(cd.collided_entity_ptr != NULL)
             {
                // move player back to where he was last frame 
-               auto player_v = player_entity->velocity;
                player_entity->position -= glm::vec3(cd.normal_vec.x, 0, cd.normal_vec.y)  * cd.overlap;
                break;
             }
