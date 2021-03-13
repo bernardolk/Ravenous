@@ -360,8 +360,8 @@ void update_player_state(Player* player)
       {
          assert(glm::length(player_entity->velocity) > 0);
          // check if still colliding with floor, if so, let player keep sliding, if not, change to FALLING
-         bool collision = check_2D_collision_circle_and_aligned_square(player_entity, player->standing_entity_ptr);
-         if(!collision)
+         Collision c_test = get_horizontal_overlap_player_aabb(player->standing_entity_ptr, player_entity);
+         if(!c_test.is_collided)
          {
             player->player_state = PLAYER_STATE_FALLING;
             player->standing_entity_ptr = NULL;
