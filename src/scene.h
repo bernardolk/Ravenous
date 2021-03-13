@@ -132,10 +132,15 @@ void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::stri
             if(is_collision_parsed)
             {
                std::cout << "FATAL: COLLISION SHOULD BE DEFINED AFTER SCALE PROPERTY FOR ENTITY. AT '" << path 
-                        << "' LINE NUMBER " << line_count << "\n";
+                         << "' LINE NUMBER " << line_count << "\n";
                assert(false);
             }
             p = parse_float_vector(p);
+            if(p.vec3[0] < 0 || p.vec3[1] < 0 || p.vec3[2] < 0)
+            {
+               std::cout << "FATAL: ENTITY SCALE PROPERTY CANNOT BE NEGATIVE. AT '" << path
+                         << "' LINE NUMBER " << line_count << "\n";
+            }
             new_entity->scale = glm::vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
       }
       else if(property == "shader")

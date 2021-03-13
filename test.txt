@@ -4,7 +4,15 @@
 
 #platform 4
 position 0 0.2 0
-scale 1 0 1
+scale 1.3 0 1.3
+mesh quad_horizontal
+shader model
+texture diffuse brick_wall_diffuse brickwall.jpg
+collision aabb
+
+#platform 5
+position 0 0.4 0
+scale 0.5 0 0.5
 mesh quad_horizontal
 shader model
 texture diffuse brick_wall_diffuse brickwall.jpg
@@ -17,3 +25,12 @@ mesh quad_horizontal
 shader model
 texture diffuse green green.jpg
 collision aabb
+
+#platform 2 
+position 0 0 1.9
+scale 1 1 0
+mesh quad
+shader model
+texture diffuse blue blue.jpg
+collision aabb
+

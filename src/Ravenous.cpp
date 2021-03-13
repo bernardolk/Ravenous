@@ -320,14 +320,14 @@ void update_player_state(Player* player)
                player->standing_entity_ptr = cd.collided_entity_ptr;
                player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
             }
-            else if(cd.collision_outcome == PLAYER_STATE_FALLING)
-            {
-               // NOT IMPLEMENTED YET (PLAYER WENT FACE AGAINST WALL)
-               // move player back to where he was last frame 
-               player_entity->position -= glm::vec3(cd.normal_vec.x, 0, cd.normal_vec.y)  * cd.overlap;
-               player_entity->velocity.x = 0;
-               player_entity->velocity.z = 0;   
-            }
+            // else if(cd.collision_outcome == PLAYER_STATE_FALLING)
+            // {
+            //    // NOT IMPLEMENTED YET (PLAYER WENT FACE AGAINST WALL)
+            //    // move player back to where he was last frame 
+            //    player_entity->position -= glm::vec3(cd.normal_vec.x, 0, cd.normal_vec.y)  * cd.overlap;
+            //    player_entity->velocity.x = 0;
+            //    player_entity->velocity.z = 0;   
+            // }
             else if(cd.collision_outcome == PLAYER_STATE_STANDING)
             {
                // move player to collision point, stop player and set him to standing
