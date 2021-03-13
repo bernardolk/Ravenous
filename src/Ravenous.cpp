@@ -311,14 +311,24 @@ void update_player_state(Player* player)
          // if collided
          if(cd.collided_entity_ptr != NULL)
          {
-            if(cd.collision_type == HORIZONTAL)
+            if(cd.collision_outcome == PLAYER_STATE_FALLING_FROM_EDGE)
             {
+               // make player "slide" towards edge and fall away from floor
+               std::cout << "PLAYER FELL" << "\n";
+               player_entity->velocity *= -1.3;
+               player_entity->velocity.y = - 1 * player->fall_speed;
+               player->standing_entity_ptr = cd.collided_entity_ptr;
+               player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
+            }
+            else if(cd.collision_outcome == PLAYER_STATE_FALLING)
+            {
+               // NOT IMPLEMENTED YET (PLAYER WENT FACE AGAINST WALL)
                // move player back to where he was last frame 
                player_entity->position -= glm::vec3(cd.normal_vec.x, 0, cd.normal_vec.y)  * cd.overlap;
                player_entity->velocity.x = 0;
-               player_entity->velocity.z = 0;
+               player_entity->velocity.z = 0;   
             }
-            else if(cd.collision_type == VERTICAL)
+            else if(cd.collision_outcome == PLAYER_STATE_STANDING)
             {
                // move player to collision point, stop player and set him to standing
                auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player_entity->collision_geometry_ptr;
@@ -370,6 +380,7 @@ void update_player_state(Player* player)
       }
       case PLAYER_STATE_FALLING_FROM_EDGE:
       {
+         // Here it is assumed player ALREADY has a velocity vec pushing him away from the platform he is standing on
          assert(glm::length(player_entity->velocity) > 0);
          // check if still colliding with floor, if so, let player keep sliding, if not, change to FALLING
          Collision c_test = get_horizontal_overlap_player_aabb(player->standing_entity_ptr, player_entity);

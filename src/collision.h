@@ -12,7 +12,7 @@ struct CollisionData{
    Entity* collided_entity_ptr = NULL;
    float overlap               = 0;
    glm::vec2 normal_vec        = glm::vec2(0,0);
-   CollisionType collision_type;
+   PlayerStateEnum collision_outcome;
 };
 
 struct Collision {
@@ -88,16 +88,18 @@ check_player_collision_with_scene_falling(Entity* player, Entity** entity_iterat
          {
             return_cd.collided_entity_ptr = entity;
             return_cd.overlap = v_test.overlap;
-            return_cd.collision_type = VERTICAL;
+            return_cd.collision_outcome = PLAYER_STATE_STANDING;
          }
          else
          {
             Collision h_test = get_horizontal_overlap_player_aabb(entity, player);
             if(h_test.is_collided)
             {
+               // TODO: this wont work when we have aabb's with height != 0 (not platforms, but solid 3D boxes or walls)
+               //       because in that case, the player will in fact collide face-against it and not 'stand then fall from edge'
                return_cd.collided_entity_ptr = entity;
                return_cd.overlap = h_test.overlap;
-               return_cd.collision_type = HORIZONTAL;
+               return_cd.collision_outcome = PLAYER_STATE_FALLING_FROM_EDGE;
                return_cd.normal_vec = glm::normalize(h_test.normal_vec);
             }
          }
