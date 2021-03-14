@@ -176,6 +176,7 @@ void adjust_player_position_and_velocity(Player* player, float distance, glm::ve
 // void render_scene_lights();
 // unsigned int setup_object(MeshData objData);
 EntityBuffer* allocate_entity_buffer(size_t size);
+void update_buffers();
 
 
 int main() {
@@ -232,6 +233,7 @@ int main() {
 
 		//	UPDATE PHASE
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT);
+      update_buffers();
       update_player_state(&player);
 		update_scene_objects();
 
@@ -257,6 +259,24 @@ EntityBuffer* allocate_entity_buffer(size_t size)
    e_buffer->buffer = new EntityBufferElement[size];
    e_buffer->size = size;
    return e_buffer;
+}
+
+void update_buffers()
+{
+   // UPDATE COLLISION DETECTION ENTITY BUFFER
+   {
+      // copies from active_scene entity list, all entity pointers to a buffer with metadata about the collision check for the entity
+      Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
+      auto entity_buffer = (EntityBuffer*)G_BUFFERS.buffers[0];            
+      EntityBufferElement* entity_buf_iter = entity_buffer->buffer;       
+      for(int i = 0; i < entity_list_size; ++i) // ASSUMES that entity_list_size is ALWYAS smaller then the EntityBuffer->size    
+      {
+         entity_buf_iter->entity = *entity_iterator;
+         entity_buf_iter->collision_check = false;
+         entity_buf_iter++; 
+         entity_iterator++;
+      }
+   }
 }
 
 
