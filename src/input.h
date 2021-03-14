@@ -43,7 +43,7 @@ void process_keyboard_input(GLFWwindow* window, Player* player)
       G_INPUT_INFO.reset_mouse_coords = true;
    }
    if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
-      save_camera_settings_to_file("w:/camera.txt", G_SCENE_INFO.camera.Position, G_SCENE_INFO.camera.Front);
+      save_camera_settings_to_file(PROJECT_PATH + "/camera.txt", G_SCENE_INFO.camera.Position, G_SCENE_INFO.camera.Front);
    }
 
    // player movement
