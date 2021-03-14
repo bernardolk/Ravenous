@@ -27,7 +27,7 @@ CollisionData check_player_collision_with_scene_falling(
       Entity* player, Entity** entity_iterator, size_t entity_list_size
 );
 CollisionData check_player_collision_with_scene_standing(
-      Player* player, Entity** entity_iterator, size_t entity_list_size
+      Player* player, EntityBufferElement* entity_iterator, size_t entity_list_size
 ); 
 CollisionData sample_terrain_height_below_player(Entity* player, Entity* entity); 
 bool check_2D_collision_circle_and_aligned_square(Entity* circle, Entity* square);
@@ -38,22 +38,67 @@ Collision get_horizontal_overlap_player_aabb(Entity* entity, Entity* player);
 bool intersects_vertically(Entity* entity, Entity* player);
 
 
+void run_collision_checks_standing(Player* player, Entity** entity_iterator, size_t entity_list_size)
+{
+   // copies from active_scene entity list, all entity pointers to a buffer with metadata about the collision check for the entity
+   auto entity_buffer = (EntityBuffer*)G_BUFFERS.buffers[0];            // gets entity buffer from list of global buffers
+   EntityBufferElement* entity_buf_iter = entity_buffer->buffer;       
+   for(int i = 0; i < entity_list_size; ++i)    // ASSUMES that entity_list_size is ALWYAS smaller then the EntityBuffer->size
+   {
+    entity_buf_iter->entity = *entity_iterator;
+    entity_buf_iter->collision_check = false;
+    entity_buf_iter++; 
+    entity_iterator++;
+   }
+
+   bool end_collision_checks = false;
+   while(!end_collision_checks)
+   {
+      entity_buf_iter = entity_buffer->buffer;  // places pointer back to start
+      CollisionData c_check = check_player_collision_with_scene_standing(player, entity_buf_iter, entity_list_size);
+      if(c_check.collided_entity_ptr != NULL)
+      {
+         // marks entity ptr as nullptr in buffer so we dont check collisions for this entity twice (nor infinite loop)
+         {
+            entity_buf_iter = entity_buffer->buffer;
+            for(int i = 0; i < entity_buffer->size; ++i)
+            {
+               if(entity_buf_iter->entity == c_check.collided_entity_ptr)
+               {
+                  entity_buf_iter->collision_check = true;
+                  break;
+               }
+               entity_buf_iter++;
+            }
+         }
+         
+         // deals with collision
+         {
+            // move player back using aabb surface normal vec and computed player/entity overlap in horizontal plane
+             player->entity_ptr->position -= glm::vec3(c_check.normal_vec.x, 0, c_check.normal_vec.y)  * c_check.overlap;
+         }
+      }
+      else end_collision_checks = true;
+   }
+}
+
 CollisionData 
-check_player_collision_with_scene_standing(Player* player, Entity** entity_iterator, size_t entity_list_size) 
+check_player_collision_with_scene_standing(Player* player, EntityBufferElement* entity_iterator, size_t entity_list_size) 
 {
    CollisionData return_cd; 
    for (int i = 0; i < entity_list_size; i++)
    {
-	   Entity* &entity = *entity_iterator;
+	   Entity* &entity = entity_iterator->entity;
 	   float smallest_overlap = MAX_FLOAT;
       Collision c;   
-	   if (entity->collision_geometry_type == COLLISION_ALIGNED_BOX 
+	   if (entity_iterator->collision_check == false
+         // ^^^ entities in entity_buf_iter have metadata set to true once checked for collisions in outer loop
+         && entity->collision_geometry_type == COLLISION_ALIGNED_BOX 
          && entity->name != player->standing_entity_ptr->name
          && intersects_vertically(entity, player->entity_ptr))
       {    
          c = get_horizontal_overlap_player_aabb(entity, player->entity_ptr);
-         if(c.is_collided
-            && c.overlap < smallest_overlap)
+         if(c.is_collided && c.overlap < smallest_overlap)
          {
             return_cd.collided_entity_ptr = entity;
             return_cd.overlap = c.overlap;

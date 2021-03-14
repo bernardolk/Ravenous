@@ -128,6 +128,20 @@ struct GlobalSceneInfo {
    Camera camera;
 } G_SCENE_INFO;
 
+struct EntityBufferElement {
+   Entity* entity;
+   bool  collision_check = false;
+};
+
+struct EntityBuffer {
+   EntityBufferElement* buffer;
+   size_t size;
+};
+
+struct GlobalBuffers {
+   void* buffers[20];
+} G_BUFFERS;
+
 // catalogues 
 std::map<string, Mesh*> Geometry_Catalogue;
 std::map<string, Shader> Shader_Catalogue;
@@ -161,6 +175,8 @@ void adjust_player_position_and_velocity(Player* player, float distance, glm::ve
 // void render_model(Entity ent, glm::vec3 lightPos[], glm::vec3 lightRgb[]);
 // void render_scene_lights();
 // unsigned int setup_object(MeshData objData);
+EntityBuffer* allocate_entity_buffer(size_t size);
+
 
 int main() {
 
@@ -190,7 +206,11 @@ int main() {
 	#include<scene_description.h>
 
    load_scene_from_file(PROJECT_PATH + "/test.txt", &player);
-   
+
+   // Allocate buffers
+   EntityBuffer* entity_buffer = allocate_entity_buffer(50);
+   G_BUFFERS.buffers[0] = entity_buffer;
+
 	// MAIN LOOP
 	while (!glfwWindowShouldClose(G_DISPLAY_INFO.window))
 	{
@@ -229,6 +249,16 @@ int main() {
 	glfwTerminate();
 	return 0;
 }
+
+
+EntityBuffer* allocate_entity_buffer(size_t size)
+{
+   EntityBuffer* e_buffer = new EntityBuffer;
+   e_buffer->buffer = new EntityBufferElement[size];
+   e_buffer->size = size;
+   return e_buffer;
+}
+
 
 void create_boilerplate_geometry()
 {
@@ -352,16 +382,7 @@ void update_player_state(Player* player)
             Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
             size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
             // check for collisions with scene BUT with floor
-            CollisionData cd = check_player_collision_with_scene_standing(player, entity_iterator, entity_list_size);
-
-            // if collided with something (else then the floor player is currently standing on)
-            // then push him back
-            if(cd.collided_entity_ptr != NULL)
-            {
-               // move player back to where he was last frame 
-               player_entity->position -= glm::vec3(cd.normal_vec.x, 0, cd.normal_vec.y)  * cd.overlap;
-               break;
-            }
+            run_collision_checks_standing(player, entity_iterator, entity_list_size);
          }
 
          // step 2: check if player is still standing

@@ -1,4 +1,4 @@
-@player_position = 0 1.1 -0.5 
+@player_position = 1.2 1.1 -0.4 
 @player_velocity = 0 -0.8 0 
 @player_state = 0
 
@@ -34,3 +34,10 @@ shader model
 texture diffuse blue blue.jpg
 collision aabb
 
+#platform 6 
+position 0 0.2 -1.2
+scale 1 0 1
+mesh quad_horizontal
+shader model
+texture diffuse brick_wall_diffuse brick_wall_diffuse.jpg
+collision aabb
