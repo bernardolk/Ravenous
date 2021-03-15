@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <math.h>
 
+const float COLLISION_EPSILON = 0.001f;
+
 enum CollisionType{
    HORIZONTAL = 0,
    VERTICAL = 1
@@ -138,9 +140,13 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
                   std::cout << "JUMP SUCCESS" << "\n";
                   // move player to surface, stop player and set him to standing
                   auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player->entity_ptr->collision_geometry_ptr;
-                  player->entity_ptr->position.y += collision_data.overlap; 
-                  player->entity_ptr->velocity = glm::vec3(0,0,0);
+                  // TODO: having problems with floating point precision here when calculating player height after overlapping
+                  // vertically with some platform, so for now we are not CORRECTING the players height but SETTING it to the
+                  // sampled platform height. Not sure what will be the final form of this calculation.
                   player->standing_entity_ptr = collision_data.collided_entity_ptr;
+                  auto height_check = sample_terrain_height_below_player(player->entity_ptr, player->standing_entity_ptr);
+                  player->entity_ptr->position.y = height_check.overlap + player->half_height; 
+                  player->entity_ptr->velocity = glm::vec3(0,0,0);
                   player->player_state = PLAYER_STATE_STANDING;
                   break;
                }
@@ -213,6 +219,7 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
          {
             biggest_overlap = c.overlap;
 
+            return_cd.is_collided = true;
             return_cd.collided_entity_ptr = entity;
             return_cd.overlap = c.overlap;
             return_cd.normal_vec = glm::normalize(c.normal_vec);
@@ -349,7 +356,7 @@ bool intersects_vertically(Entity* entity, Entity* player)
    float box_top = entity->position.y + box_collision_geometry.length_y;
    float box_bottom = entity->position.y;
 
-   return player_bottom <= box_top && player_top >= box_bottom;
+   return player_bottom < box_top && player_top > box_bottom;
 }
 
 
@@ -384,7 +391,7 @@ CollisionData sample_terrain_height_below_player(Entity* player, Entity* entity)
    float player_z = player->position.z;
 
    CollisionData cd;
-   // check if player is inside terrain box
+   // check if player's center lies inside terrain box
    if(box_x0 <= player_x && box_x1 >= player_x && box_z0 <= player_z && box_z1 >= player_z)
    {
       cd.overlap = box_top;
