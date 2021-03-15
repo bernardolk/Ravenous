@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <math.h>
 
-const float COLLISION_EPSILON = 0.001f;
+const float COLLISION_EPSILON = 0.0001f;
 
 enum CollisionType{
    HORIZONTAL = 0,
@@ -257,7 +257,8 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
                return_cd.overlap = vertical_overlap;
                return_cd.collision_outcome = JUMP_SUCCESS;
             }
-            else if(vertical_overlap > 1) // TODO: Experiment with this cutoff value
+            else if(vertical_overlap > 1) // TODO: Experiment with this cutoff value, 
+            // here we determine how much "feet below aabb's top" the player has to be to be considered bashing face first against the wall
             {
                return_cd.overlap = horizontal_check.overlap;
                return_cd.normal_vec = glm::normalize(horizontal_check.normal_vec);
@@ -313,12 +314,13 @@ Collision get_horizontal_overlap_player_aabb(Entity* entity, Entity* player)
       glm::vec2 n_vec = glm::vec2(nx, nz) - glm::vec2(player_x, player_z);
       float distance = glm::length(n_vec);
       float p_radius = player_collision_geometry->radius;
+      float overlap = p_radius - distance;
 
       Collision c;
-      if(p_radius > distance)
+      if(overlap > COLLISION_EPSILON)
       {   
          c.is_collided = true;
-         c.overlap = p_radius - distance;
+         c.overlap = overlap;
          c.normal_vec = glm::normalize(n_vec);
       }
 
