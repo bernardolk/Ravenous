@@ -267,7 +267,9 @@ void update_buffers()
    {
       // copies from active_scene entity list, all entity pointers to a buffer with metadata about the collision check for the entity
       Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
-      auto entity_buffer = (EntityBuffer*)G_BUFFERS.buffers[0];            
+      size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();            
+
+      auto entity_buffer = (EntityBuffer*)G_BUFFERS.buffers[0];
       EntityBufferElement* entity_buf_iter = entity_buffer->buffer;       
       for(int i = 0; i < entity_list_size; ++i) // ASSUMES that entity_list_size is ALWYAS smaller then the EntityBuffer->size    
       {
@@ -356,43 +358,7 @@ void update_player_state(Player* player)
          // test collision with every object in scene entities vector
          Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
          size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
-         CollisionData cd = check_player_collision_with_scene_falling(player_entity, entity_iterator, entity_list_size);
-
-         // if collided
-         if(cd.collided_entity_ptr != NULL)
-         {
-            if(cd.collision_outcome == PLAYER_STATE_FALLING_FROM_EDGE)
-            {
-               // make player "slide" towards edge and fall away from floor
-               std::cout << "PLAYER FELL" << "\n";
-               player_entity->velocity *= -1.3;
-               player_entity->velocity.y = - 1 * player->fall_speed;
-               player->standing_entity_ptr = cd.collided_entity_ptr;
-               player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
-            }
-            // else if(cd.collision_outcome == PLAYER_STATE_FALLING)
-            // {
-            //    // NOT IMPLEMENTED YET (PLAYER WENT FACE AGAINST WALL)
-            //    // move player back to where he was last frame 
-            //    player_entity->position -= glm::vec3(cd.normal_vec.x, 0, cd.normal_vec.y)  * cd.overlap;
-            //    player_entity->velocity.x = 0;
-            //    player_entity->velocity.z = 0;   
-            // }
-            else if(cd.collision_outcome == PLAYER_STATE_STANDING)
-            {
-               // move player to collision point, stop player and set him to standing
-               auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player_entity->collision_geometry_ptr;
-               player_entity->position.y += player_collision_geometry->half_length - cd.overlap; 
-               player_entity->velocity = glm::vec3(0,0,0);
-               player->player_state = PLAYER_STATE_STANDING;
-               player->standing_entity_ptr = cd.collided_entity_ptr;
-            }
-            else
-            {
-               cout << "FAIL :: COLLISION TYPE ON PLAYER_STATE_FALLING IS INCONSISTENT \n";
-               assert(false);
-            }
-         }
+         run_collision_checks_falling(player, entity_iterator, entity_list_size);
          break;
       }
       case PLAYER_STATE_STANDING:

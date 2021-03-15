@@ -163,5 +163,7 @@ G_SCENE_INFO.active_scene = &demo_scene;
 Player player;
 player.entity_ptr = &cylinder;
 player.entity_ptr->name = "player";
+player.half_height = cylinder_half_length;
+player.radius = cylinder_radius;
 // player.player_state = PLAYER_STATE_FALLING;
 // player.entity_ptr->velocity.y = -1 * player.fall_speed;
