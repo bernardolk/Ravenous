@@ -399,6 +399,22 @@ void update_player_state(Player* player)
          }
          break;
       }
+      case PLAYER_STATE_JUMPING:
+      {
+         /* remarks about the jump system:
+            we set at input press time (input.h) a high velocity upward for the player
+            at each frame we decrement a little bit from the y velocity component using delta frame time
+            IDEALLY we would set our target jump height and let the math work itself out from there.
+            For our prototype this should be fine.
+         */
+         //dampen player speed (vf = v0 - g*t)
+         player->entity_ptr->velocity.y -= G_FRAME_INFO.delta_time * 5;
+         if (player->entity_ptr->velocity.y <= 0)
+         {
+            player->entity_ptr->velocity.y = -1 * player->fall_speed;
+            player->player_state = PLAYER_STATE_FALLING;
+         }
+      }
    }
 
    //print_vec_every_3rd_frame(player_entity->velocity, "player velocity");

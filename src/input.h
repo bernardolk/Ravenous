@@ -84,9 +84,9 @@ void process_keyboard_input(GLFWwindow* window, Player* player)
 
       if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) 
       {
-         player->player_state = PLAYER_STATE_FALLING;
-         player->entity_ptr->velocity.y = -1 * player->fall_speed;
-         player->entity_ptr->position.y = player->entity_ptr->position.y + 0.5f;  
+         player->player_state = PLAYER_STATE_JUMPING;
+         player->entity_ptr->velocity.y = player->fall_speed * 3;
+         // player->entity_ptr->position.y = player->entity_ptr->position.y + 0.5f;  
       }
    }
 }
