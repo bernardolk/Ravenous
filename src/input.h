@@ -73,13 +73,19 @@ void process_keyboard_input(GLFWwindow* window, Player* player)
 
       // because above we sum all combos of keys pressed, here we normalize the direction and give the movement intensity
       if(glm::length2(player->entity_ptr->velocity) > 0)
-         player->entity_ptr->velocity = player->speed * glm::normalize(player->entity_ptr->velocity);
-      
+      {
+         float player_frame_speed = player->speed;
+         if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)  // PLAYER DASH
+            player_frame_speed *= 2;
+         player->entity_ptr->velocity = player_frame_speed * glm::normalize(player->entity_ptr->velocity);
+      }
+
+         
 
       if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) 
       {
          player->player_state = PLAYER_STATE_FALLING;
-         player->entity_ptr->velocity.y = -0.5f;
+         player->entity_ptr->velocity.y = -1 * player->fall_speed;
          player->entity_ptr->position.y = player->entity_ptr->position.y + 0.5f;  
       }
    }
