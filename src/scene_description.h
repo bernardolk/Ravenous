@@ -116,7 +116,7 @@ CollisionGeometryAlignedBox cgab { 1, 0, 1 };
 
 // CYLINDER
 float cylinder_half_length = 0.35f;
-float cylinder_radius = 0.15f;
+float cylinder_radius = 0.10f;
 unsigned int pink_texture = load_texture_from_file("pink.jpg", TEXTURES_PATH);
 Texture cylinder_texture{
    pink_texture,
