@@ -452,20 +452,24 @@ void render_text_overlay(Camera& camera, Player* player)
    string fps_gui = "FPS: " + fps.substr(0, fps.find('.', 0) + 2);
 
    glm::vec3 player_state_text_color;
-   std::string player_state;
+   std::string player_state_text;
    switch(player->player_state)
    {
       case PLAYER_STATE_STANDING:
          player_state_text_color = glm::vec3(0, 0.8, 0.1);
-         player_state = "PLAYER STANDING";
+         player_state_text = "PLAYER STANDING";
          break;
       case PLAYER_STATE_FALLING:
          player_state_text_color = glm::vec3(0.8, 0.1, 0.1);
-         player_state = "PLAYER FALLING";
+         player_state_text = "PLAYER FALLING";
          break;
       case PLAYER_STATE_FALLING_FROM_EDGE:
          player_state_text_color = glm::vec3(0.8, 0.1, 0.3);
-         player_state = "PLAYER FALLING FROM EDGE";
+         player_state_text = "PLAYER FALLING FROM EDGE";
+         break;
+      case PLAYER_STATE_JUMPING:
+         player_state_text_color = glm::vec3(0.1, 0.3, 0.8);
+         player_state_text = "PLAYER JUMPING";
          break;
    }
 
@@ -474,7 +478,7 @@ void render_text_overlay(Camera& camera, Player* player)
    render_text(camera_front,     GUI_x, GUI_y - 25, scale);
    render_text(mouse_stats,      GUI_x, GUI_y - 50, scale);
    render_text(fps_gui,          G_DISPLAY_INFO.VIEWPORT_WIDTH - 100, 25, scale);
-   render_text(player_state,     GUI_x, 25, 1.4, player_state_text_color);
+   render_text(player_state_text,     GUI_x, 25, 1.4, player_state_text_color);
 }
 
 
