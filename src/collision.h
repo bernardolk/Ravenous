@@ -128,10 +128,13 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
                   // make player "slide" towards edge and fall away from floor
                   std::cout << "FELL FROM EDGE" << "\n";
                   auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player->entity_ptr->collision_geometry_ptr;
-                  player->entity_ptr->position.y += player_collision_geometry->half_length - collision_data.overlap; 
-                  player->entity_ptr->velocity *= -1.3;
-                  player->entity_ptr->velocity.y = - 1 * player->fall_speed;
                   player->standing_entity_ptr = collision_data.collided_entity_ptr;
+                  player->entity_ptr->position.y += collision_data.overlap; 
+                  // makes player fall (combined movement in 3D, player for a moment gets "inside" the platform while he slips)
+                  player->entity_ptr->velocity.y = - 1 * player->fall_speed;
+                  // makes player move towards OUT of the platform
+                  player->entity_ptr->velocity.x = -1 * collision_data.normal_vec.x * player->fall_from_edge_speed;
+                  player->entity_ptr->velocity.z = -1 *collision_data.normal_vec.y * player->fall_from_edge_speed;
                   player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
                   break;
                }
@@ -227,7 +230,7 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
             return_cd.is_collided = true;
             return_cd.collided_entity_ptr = entity;
             return_cd.overlap = c.overlap;
-            return_cd.normal_vec = glm::normalize(c.normal_vec);
+            return_cd.normal_vec = c.normal_vec;
          }
       }
       entity_iterator++;
@@ -266,12 +269,13 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
             // here we determine how much "feet below aabb's top" the player has to be to be considered bashing face first against the wall
             {
                return_cd.overlap = horizontal_check.overlap;
-               return_cd.normal_vec = glm::normalize(horizontal_check.normal_vec);
+               return_cd.normal_vec = horizontal_check.normal_vec;
                return_cd.collision_outcome = JUMP_FACE_FLAT;
             }
             else if(horizontal_check.overlap < player->radius)
             {
                return_cd.overlap = vertical_overlap;
+               return_cd.normal_vec = horizontal_check.normal_vec;
                return_cd.collision_outcome = JUMP_FAIL;
             }
             else

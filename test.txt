@@ -1,6 +1,7 @@
-@player_position = 1.2 1.1 -0.4 
-@player_velocity = 0 -0.8 0 
+@player_position = 1 1 0.5
+@player_velocity = 0 -1.6 0 
 @player_state = 0
+@player_fall_speed = 0.8
 
 #floor
 position -5 0 -5
@@ -11,7 +12,7 @@ texture diffuse green green.jpg
 collision aabb
 
 #platform zoey
-position 0 0.2 0
+position 0 0.25 0
 scale 1.3 0 1.3
 mesh quad_horizontal
 shader model
