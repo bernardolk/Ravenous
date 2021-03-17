@@ -126,7 +126,7 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
                case JUMP_FAIL:
                {
                   // make player "slide" towards edge and fall away from floor
-                  std::cout << "JUMP FAIL" << "\n";
+                  std::cout << "FELL FROM EDGE" << "\n";
                   auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player->entity_ptr->collision_geometry_ptr;
                   player->entity_ptr->position.y += player_collision_geometry->half_length - collision_data.overlap; 
                   player->entity_ptr->velocity *= -1.3;
@@ -137,7 +137,7 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
                }
                case JUMP_SUCCESS:
                {
-                  std::cout << "JUMP SUCCESS" << "\n";
+                  std::cout << "LANDED" << "\n";
                   // move player to surface, stop player and set him to standing
                   auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player->entity_ptr->collision_geometry_ptr;
                   // TODO: having problems with floating point precision here when calculating player height after overlapping
@@ -152,10 +152,15 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
                }
                case JUMP_FACE_FLAT:
                {
+                  std::cout << "JUMP FACE FLAT" << "\n";
                   // deals with collision
                   // move player back using aabb surface normal vec and computed player/entity overlap in horizontal plane
-                     player->entity_ptr->position -= 
-                           glm::vec3(collision_data.normal_vec.x, 0, collision_data.normal_vec.y)  * collision_data.overlap;
+                  player->entity_ptr->position -= 
+                        glm::vec3(collision_data.normal_vec.x, 0, collision_data.normal_vec.y)  * collision_data.overlap;
+
+                  // to be more accurate here, we need to consider player's momentum (make player slide off wall, not just plain stop)      
+                  player->entity_ptr->velocity.x = 0;
+                  player->entity_ptr->velocity.z = 0;
                   break;
                }
             }
@@ -257,7 +262,7 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
                return_cd.overlap = vertical_overlap;
                return_cd.collision_outcome = JUMP_SUCCESS;
             }
-            else if(vertical_overlap > 1) // TODO: Experiment with this cutoff value, 
+            else if(vertical_overlap > 0.001) // TODO: Experiment with this cutoff value, 
             // here we determine how much "feet below aabb's top" the player has to be to be considered bashing face first against the wall
             {
                return_cd.overlap = horizontal_check.overlap;
