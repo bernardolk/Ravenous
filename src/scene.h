@@ -95,6 +95,13 @@ void parse_and_load_attribute(Parse p, ifstream* reader, int& line_count, std::s
          }
       }
    }
+   else if(attribute == "player_fall_speed")
+   {
+      p = parse_all_whitespace(p);
+      p = parse_float(p);
+
+      player->fall_speed = p.fToken;
+   }
    else
    {
       std::cout << "UNRECOGNIZED ATTRIBUTE AT SCENE DESCRIPTION FILE ('" << path << "') LINE NUMBER " << line_count << "\n";
