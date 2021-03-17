@@ -414,6 +414,12 @@ void update_player_state(Player* player)
             player->entity_ptr->velocity.y = -1 * player->fall_speed;
             player->player_state = PLAYER_STATE_FALLING;
          }
+
+         // test collision with every object in scene entities vector
+         Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
+         size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
+         run_collision_checks_falling(player, entity_iterator, entity_list_size);
+         break;
       }
    }
 
