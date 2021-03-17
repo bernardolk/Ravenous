@@ -130,11 +130,21 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
                   auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player->entity_ptr->collision_geometry_ptr;
                   player->standing_entity_ptr = collision_data.collided_entity_ptr;
                   player->entity_ptr->position.y += collision_data.overlap; 
+                  
+                  // makes player move towards OUT of the platform
+                  if(player->entity_ptr->velocity.x == 0 && player->entity_ptr->velocity.z == 0)
+                  {
+                     player->entity_ptr->velocity.x = -1 * collision_data.normal_vec.x * player->fall_from_edge_speed;
+                     player->entity_ptr->velocity.z = -1 *collision_data.normal_vec.y * player->fall_from_edge_speed;
+                  }
+                  // else
+                  // {
+                  //    player->entity_ptr->velocity = player->entity_ptr->velocity * player->fall_from_edge_speed;
+                  // }
+
                   // makes player fall (combined movement in 3D, player for a moment gets "inside" the platform while he slips)
                   player->entity_ptr->velocity.y = - 1 * player->fall_speed;
-                  // makes player move towards OUT of the platform
-                  player->entity_ptr->velocity.x = -1 * collision_data.normal_vec.x * player->fall_from_edge_speed;
-                  player->entity_ptr->velocity.z = -1 *collision_data.normal_vec.y * player->fall_from_edge_speed;
+                  
                   player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
                   break;
                }
@@ -161,9 +171,20 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
                   player->entity_ptr->position -= 
                         glm::vec3(collision_data.normal_vec.x, 0, collision_data.normal_vec.y)  * collision_data.overlap;
 
-                  // to be more accurate here, we need to consider player's momentum (make player slide off wall, not just plain stop)      
-                  player->entity_ptr->velocity.x = 0;
-                  player->entity_ptr->velocity.z = 0;
+                  // make player slide through the tangent of platform
+                  auto tangent_vec = glm::vec2(collision_data.normal_vec.y, collision_data.normal_vec.x);      
+                  auto v_2d = glm::vec2(player->entity_ptr->velocity.x, player->entity_ptr->velocity.z);
+                  auto project = (glm::dot(v_2d, tangent_vec)/glm::length2(tangent_vec))*tangent_vec;
+
+                  player->entity_ptr->velocity.x = project.x;
+                  player->entity_ptr->velocity.z = project.y; 
+                  player->entity_ptr->velocity.y = -1 * player->fall_speed;
+
+                  if(player->player_state == PLAYER_STATE_JUMPING)
+                  {
+                     player->player_state = PLAYER_STATE_FALLING;
+                  }
+
                   break;
                }
             }
