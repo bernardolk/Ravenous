@@ -57,15 +57,15 @@ struct Shader {
     }
 };
 
-void checkCompileErrors(Shader shader, std::string type, unsigned int id);
+void checkCompileErrors(Shader* shader, std::string type, unsigned int id);
 
  
-Shader create_shader_program(std::string name, const std::string vertex_shader_filename, const std::string fragment_shader_filename)
+Shader* create_shader_program(std::string name, const std::string vertex_shader_filename, const std::string fragment_shader_filename)
 {
-   Shader shader;
-   shader.name = name;
-   shader.vertex_path = SHADERS_FOLDER_PATH + vertex_shader_filename + SHADERS_FILE_EXTENSION;
-   shader.fragment_path = SHADERS_FOLDER_PATH + fragment_shader_filename + SHADERS_FILE_EXTENSION;
+   auto shader = new Shader();
+   shader->name = name;
+   shader->vertex_path = SHADERS_FOLDER_PATH + vertex_shader_filename + SHADERS_FILE_EXTENSION;
+   shader->fragment_path = SHADERS_FOLDER_PATH + fragment_shader_filename + SHADERS_FILE_EXTENSION;
    
    std::string vertexCode;
    std::string fragmentCode;
@@ -73,7 +73,7 @@ Shader create_shader_program(std::string name, const std::string vertex_shader_f
    std::ifstream fShaderFile;
 
    // VERTEX SHADER
-   vShaderFile.open(shader.vertex_path);
+   vShaderFile.open(shader->vertex_path);
    std::stringstream vShaderStream;
    vShaderStream << vShaderFile.rdbuf();
    vShaderFile.close();
@@ -83,7 +83,7 @@ Shader create_shader_program(std::string name, const std::string vertex_shader_f
       std::cout << "ERROR::VERTEX SHADER::FILE_NOT_SUCCESFULLY_READ : " << vertex_shader_filename << std::endl;
 
    // FRAGMENT SHADER
-   fShaderFile.open(shader.fragment_path);
+   fShaderFile.open(shader->fragment_path);
    std::stringstream fShaderStream;
    fShaderStream << fShaderFile.rdbuf();
    fShaderFile.close();
@@ -106,18 +106,18 @@ Shader create_shader_program(std::string name, const std::string vertex_shader_f
     glCompileShader(fragment);
     checkCompileErrors(shader, "FRAGMENT", fragment);
     // shader Program
-    shader.gl_programId = glCreateProgram();
-    glAttachShader(shader.gl_programId, vertex);
-    glAttachShader(shader.gl_programId, fragment);
-    glLinkProgram(shader.gl_programId);
-    checkCompileErrors(shader, "PROGRAM", shader.gl_programId);
+    shader->gl_programId = glCreateProgram();
+    glAttachShader(shader->gl_programId, vertex);
+    glAttachShader(shader->gl_programId, fragment);
+    glLinkProgram(shader->gl_programId);
+    checkCompileErrors(shader, "PROGRAM", shader->gl_programId);
     // delete the shaders as they're linked into our program now and no longer necessary
     glDeleteShader(vertex);
     glDeleteShader(fragment);
     return shader;
 }
 
-void checkCompileErrors(Shader shader, std::string type, unsigned int id)
+void checkCompileErrors(Shader* shader, std::string type, unsigned int id)
 {
     int success;
     char infoLog[1024];
@@ -127,8 +127,8 @@ void checkCompileErrors(Shader shader, std::string type, unsigned int id)
         if (!success)
         {
             glGetShaderInfoLog(id, 1024, NULL, infoLog);
-            std::cout << "ERROR::SHADER_COMPILATION_ERROR: " << type << " SHADER AT PROGRAM "  << shader.name 
-                        << "' : vertex shader -> '" << shader.vertex_path << "' fragment shader -> " << shader.fragment_path
+            std::cout << "ERROR::SHADER_COMPILATION_ERROR: " << type << " SHADER AT PROGRAM "  << shader->name 
+                        << "' : vertex shader -> '" << shader->vertex_path << "' fragment shader -> " << shader->fragment_path
                         << "\n DETAILS: \n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
         }
     }
@@ -137,8 +137,8 @@ void checkCompileErrors(Shader shader, std::string type, unsigned int id)
         if (!success)
         {
             glGetProgramInfoLog(id, 1024, NULL, infoLog);
-            std::cout << "ERROR::PROGRAM_LINKING_ERROR: AT PROGRAM '" << shader.name 
-                        << "' : vertex shader -> '" << shader.vertex_path << "' fragment shader -> " << shader.fragment_path
+            std::cout << "ERROR::PROGRAM_LINKING_ERROR: AT PROGRAM '" << shader->name 
+                        << "' : vertex shader -> '" << shader->vertex_path << "' fragment shader -> " << shader->fragment_path
                         << "\n DETAILS: \n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
         }
     }

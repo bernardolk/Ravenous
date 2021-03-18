@@ -1,12 +1,20 @@
 
-void load_scene_from_file(std::string path, Player* player);
+void load_scene_from_file(std::string path);
 void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::string path);
 void parse_and_load_attribute(Parse p, ifstream* reader, int& line_count, std::string path, Player* player);
+void setup_scene_boilerplate_stuff();
 
-
-
-void load_scene_from_file(std::string path, Player* player)
+void load_scene_from_file(std::string path)
 {
+   // clears the current scene entity data
+   if(G_SCENE_INFO.active_scene != NULL)
+      G_SCENE_INFO.active_scene->entities.clear();
+      // CLEAR BUFFERS ?
+
+   // creates player and some other entities
+   setup_scene_boilerplate_stuff();
+
+   // starts reading
    ifstream reader(path);
    std::string line;
    Parse p;
@@ -23,7 +31,7 @@ void load_scene_from_file(std::string path, Player* player)
       }
       else if(p.cToken == '@')
       {
-         parse_and_load_attribute(p, &reader, line_count, path, player);
+         parse_and_load_attribute(p, &reader, line_count, path, G_SCENE_INFO.player);
       }
    }
 } 
@@ -45,32 +53,12 @@ void parse_and_load_attribute(Parse p, ifstream* reader, int& line_count, std::s
    if(attribute == "player_position")
    {
       p = parse_float_vector(p);
-
-      // find player in active scene's entity list
-      int entities_size = G_SCENE_INFO.active_scene->entities.size();
-      for (int i = 0; i < entities_size; i ++)
-      {
-         std::string e_name = G_SCENE_INFO.active_scene->entities[i]->name;
-         if (e_name == "player")
-         {
-            G_SCENE_INFO.active_scene->entities[i]->position = glm::vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
-         }
-      }
+      player->entity_ptr->position = glm::vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
    }
    else if(attribute == "player_velocity")
    {
       p = parse_float_vector(p);
-
-      // find player in active scene's entity list
-      int entities_size = G_SCENE_INFO.active_scene->entities.size();
-      for (int i = 0; i < entities_size; i ++)
-      {
-         std::string e_name = G_SCENE_INFO.active_scene->entities[i]->name;
-         if (e_name == "player")
-         {
-            G_SCENE_INFO.active_scene->entities[i]->velocity = glm::vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
-         }
-      }
+      player->entity_ptr->velocity = glm::vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
    }
    else if(attribute == "player_state")
    {
@@ -167,7 +155,7 @@ void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::stri
          auto find = Shader_Catalogue.find(shader_name);
          if(find != Shader_Catalogue.end())
          {
-            new_entity->shader = &find->second;
+            new_entity->shader = find->second;
          }
          else
          {
@@ -297,4 +285,64 @@ void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::stri
    }
 
    G_SCENE_INFO.active_scene->entities.push_back(new_entity);
+}
+
+void setup_scene_boilerplate_stuff()
+{
+   // CREATE SCENE 
+   auto demo_scene = new Scene();
+
+   // PLAYER ENTITY SETUP
+
+   // CYLINDER
+   unsigned int pink_texture = load_texture_from_file("pink.jpg", TEXTURES_PATH);
+    auto cylinder_texture = new Texture
+    {
+      pink_texture,
+      "texture_diffuse",
+      "whatever"
+   };
+   auto find1 = Shader_Catalogue.find("model");
+   auto model_shader = find1->second;
+
+   auto find2 = Geometry_Catalogue.find("quad");
+   auto quad_mesh = find2->second;
+
+   auto find_cylinder = Geometry_Catalogue.find("player_cylinder");
+   auto cylinder_mesh = find_cylinder->second;
+
+   auto cylinder = new Entity();
+   cylinder->name             = "Player";
+   cylinder->index            = G_ENTITY_INFO.entity_counter;
+   cylinder->id               = ++G_ENTITY_INFO.entity_counter;
+   cylinder->shader           = model_shader;
+   cylinder->position         = glm::vec3(0,1,1);
+   cylinder->textures         = std::vector<Texture>{*cylinder_texture};
+   cylinder->mesh             = *cylinder_mesh;
+   // player collision geometry
+   cylinder->collision_geometry_type = COLLISION_ALIGNED_CYLINDER;
+   auto cgac = new CollisionGeometryAlignedCylinder { CYLINDER_HALF_HEIGHT, CYLINDER_RADIUS };
+   cylinder->collision_geometry_ptr = cgac;
+
+   demo_scene->entities.push_back(cylinder);
+
+   // lightsource
+   auto l1 = new PointLight();
+   l1->id                     = 1;
+   l1->position               = glm::vec3(0.5, 2.5, 0.5);
+   l1->diffuse                = glm::vec3(1.0, 1.0, 1.0);
+   l1->ambient                = glm::vec3(1.0,1.0,1.0);
+   l1->intensity_linear       = 0.4f;
+   l1->intensity_quadratic    = 0.04f;
+   demo_scene->pointLights.push_back(*l1);
+
+   G_SCENE_INFO.active_scene = demo_scene;
+
+   // create player
+   auto player = new Player();
+   player->entity_ptr   = cylinder;
+   player->half_height  = CYLINDER_HALF_HEIGHT;
+   player->radius       = CYLINDER_RADIUS;
+
+   G_SCENE_INFO.player = player;
 }

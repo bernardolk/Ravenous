@@ -35,6 +35,11 @@ const std::string FONTS_PATH = PROJECT_PATH + "/assets/fonts/";
 const std::string SHADERS_FOLDER_PATH = PROJECT_PATH + "/shaders/";
 const std::string SHADERS_FILE_EXTENSION = ".shd";
 
+// PLAYER CYLINDER SETTINGS ... !!!
+float CYLINDER_HALF_HEIGHT = 0.35f;
+float CYLINDER_RADIUS = 0.10f;
+
+
 const glm::mat4 mat4identity(
 	1.0f, 0.0f, 0.0f, 0.0f,
 	0.0f, 1.0f, 0.0f, 0.0f,
@@ -124,8 +129,9 @@ void print_every_3rd_frame(std::string thing, std::string prefix)
 GlobalEntityInfo G_ENTITY_INFO;
 
 struct GlobalSceneInfo {
-   Scene* active_scene;
+   Scene* active_scene = NULL;
    Camera camera;
+   Player* player;
 } G_SCENE_INFO;
 
 struct EntityBufferElement {
@@ -144,7 +150,7 @@ struct GlobalBuffers {
 
 // catalogues 
 std::map<string, Mesh*> Geometry_Catalogue;
-std::map<string, Shader> Shader_Catalogue;
+std::map<string, Shader*> Shader_Catalogue;
 std::map<string, Texture> Texture_Catalogue;
 
 #include <input.h>
@@ -154,7 +160,7 @@ std::map<string, Texture> Texture_Catalogue;
 
 // OPENGL OBJECTS
 unsigned int texture, texture_specular;
-Shader quad_shader, model_shader, Text_shader, line_shader;
+// Shader quad_shader, model_shader, Text_shader, line_shader;
 
 
 using namespace glm;
@@ -177,6 +183,7 @@ void adjust_player_position_and_velocity(Player* player, float distance, glm::ve
 // unsigned int setup_object(MeshData objData);
 EntityBuffer* allocate_entity_buffer(size_t size);
 void update_buffers();
+void handle_input_flags(short int flags, Player* &player);
 
 
 int main() {
@@ -203,10 +210,9 @@ int main() {
    initialize_shaders();
    create_boilerplate_geometry();
 
-   // creates the scene (objects and player)
-	#include<scene_description.h>
+   load_scene_from_file(PROJECT_PATH + "/test.txt");
 
-   load_scene_from_file(PROJECT_PATH + "/test.txt", &player);
+   Player* player = G_SCENE_INFO.player;
 
    // Allocate buffers
    EntityBuffer* entity_buffer = allocate_entity_buffer(50);
@@ -229,12 +235,13 @@ int main() {
       G_FRAME_INFO.frame_counter_10 = ++G_FRAME_INFO.frame_counter_10 % 10;   
 
 		//	INPUT PHASE
-      input_phase(&player);
+      short int input_flags = input_phase(player);
+      handle_input_flags(input_flags, player);
 
 		//	UPDATE PHASE
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT);
       update_buffers();
-      update_player_state(&player);
+      update_player_state(player);
 		update_scene_objects();
 
 
@@ -242,7 +249,7 @@ int main() {
 		glClearColor(0.196, 0.298, 0.3607, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		render_scene(G_SCENE_INFO.active_scene, &G_SCENE_INFO.camera);
-      render_text_overlay(G_SCENE_INFO.camera, &player);
+      render_text_overlay(G_SCENE_INFO.camera, player);
 
       // FINISH FRAME
 		glfwSwapBuffers(G_DISPLAY_INFO.window);
@@ -250,6 +257,15 @@ int main() {
 
 	glfwTerminate();
 	return 0;
+}
+
+void handle_input_flags(short int flags, Player* &player)
+{
+   if(flags & INPUT_FLAG_RELOAD_SCENE)
+   {
+      load_scene_from_file(PROJECT_PATH + "/test.txt");
+      player = G_SCENE_INFO.player;
+   }
 }
 
 
@@ -341,6 +357,14 @@ void create_boilerplate_geometry()
    quad_horizontal_mesh->render_method = GL_TRIANGLES;
    quad_horizontal_mesh->gl_data = setup_gl_data_for_mesh(quad_horizontal_mesh);
    Geometry_Catalogue.insert({"quad_horizontal", quad_horizontal_mesh});
+
+
+   // PLAYER CYLINDER
+   Mesh* cylinder_mesh = new Mesh();
+   cylinder_mesh->vertices = construct_cylinder(CYLINDER_RADIUS, CYLINDER_HALF_HEIGHT, 24);
+   cylinder_mesh->render_method = GL_TRIANGLE_STRIP;
+   cylinder_mesh->gl_data = setup_gl_data_for_mesh(cylinder_mesh);
+   Geometry_Catalogue.insert({"player_cylinder", cylinder_mesh});
 }
 
 void update_player_state(Player* player)
@@ -437,21 +461,25 @@ void render_text_overlay(Camera& camera, Player* player)
    float GUI_y = G_DISPLAY_INFO.VIEWPORT_HEIGHT - 60;
 
    string GUI_atts[]{
-      format_float_tostr(camera.Position.x, 2),
-      format_float_tostr(camera.Position.y,2),
-      format_float_tostr(camera.Position.z,2),
-      format_float_tostr(camera.Pitch,2),
-      format_float_tostr(camera.Yaw,2),
-      format_float_tostr(camera.Front.x,2),
-      format_float_tostr(camera.Front.y,2),
-      format_float_tostr(camera.Front.z,2)
+      format_float_tostr(camera.Position.x, 2),                //0
+      format_float_tostr(camera.Position.y,2),                 //1
+      format_float_tostr(camera.Position.z,2),                 //2
+      format_float_tostr(camera.Pitch,2),                      //3
+      format_float_tostr(camera.Yaw,2),                        //4
+      format_float_tostr(camera.Front.x,2),                    //5
+      format_float_tostr(camera.Front.y,2),                    //6
+      format_float_tostr(camera.Front.z,2),                    //7
+      format_float_tostr(player->entity_ptr->position.x,1),    //8
+      format_float_tostr(player->entity_ptr->position.y,1),    //9 
+      format_float_tostr(player->entity_ptr->position.z,1)     //10
    };
-
-   string camera_position = "pos :: x: " + GUI_atts[0] + " y:" + GUI_atts[1] + " z:" + GUI_atts[2];
-   string camera_front = "dir :: x: " + GUI_atts[5] + " y:" + GUI_atts[6] + " z:" + GUI_atts[7];
-   string mouse_stats = "pitch: " + GUI_atts[3] + " yaw: " + GUI_atts[4];
-   string fps = to_string(G_FRAME_INFO.current_fps);
-   string fps_gui = "FPS: " + fps.substr(0, fps.find('.', 0) + 2);
+ 
+   string camera_position = "camera:   x: " + GUI_atts[0] + " y:" + GUI_atts[1] + " z:" + GUI_atts[2];
+   string camera_front    = "    dir:  x: " + GUI_atts[5] + " y:" + GUI_atts[6] + " z:" + GUI_atts[7];
+   string mouse_stats     = "    pitch: " + GUI_atts[3] + " yaw: " + GUI_atts[4];
+   string fps             = to_string(G_FRAME_INFO.current_fps);
+   string fps_gui         = "FPS: " + fps.substr(0, fps.find('.', 0) + 2);
+   string player_pos      = "player:   x: " +  GUI_atts[8] + " y: " +  GUI_atts[9] + " z: " +  GUI_atts[10];
 
    glm::vec3 player_state_text_color;
    std::string player_state_text;
@@ -479,6 +507,7 @@ void render_text_overlay(Camera& camera, Player* player)
    render_text(camera_position,  GUI_x, GUI_y, scale);
    render_text(camera_front,     GUI_x, GUI_y - 25, scale);
    render_text(mouse_stats,      GUI_x, GUI_y - 50, scale);
+   render_text(player_pos,       GUI_x, GUI_y - 75, scale);
    render_text(fps_gui,          G_DISPLAY_INFO.VIEWPORT_WIDTH - 100, 25, scale);
    render_text(player_state_text,     GUI_x, 25, 1.4, player_state_text_color);
 }
@@ -488,17 +517,17 @@ void render_text_overlay(Camera& camera, Player* player)
 void initialize_shaders() 
 {
    // text shader
-	Shader text_shader = create_shader_program("Text Shader", "vertex_text", "fragment_text");
-   text_shader.use();
-	text_shader.setMatrix4("projection", glm::ortho(0.0f, G_DISPLAY_INFO.VIEWPORT_WIDTH, 0.0f, G_DISPLAY_INFO.VIEWPORT_HEIGHT));
+	auto text_shader = create_shader_program("Text Shader", "vertex_text", "fragment_text");
+   text_shader->use();
+	text_shader->setMatrix4("projection", glm::ortho(0.0f, G_DISPLAY_INFO.VIEWPORT_WIDTH, 0.0f, G_DISPLAY_INFO.VIEWPORT_HEIGHT));
    Shader_Catalogue.insert({"text", text_shader});
 
    // general model shader
-   model_shader = create_shader_program("Model Shader", "vertex_model", "fragment_multiple_lights");
+   auto model_shader = create_shader_program("Model Shader", "vertex_model", "fragment_multiple_lights");
    Shader_Catalogue.insert({"model", model_shader});
 
    // draw line shader
-	line_shader = create_shader_program("Line Shader", "vertex_debug_line", "fragment_debug_line");
+	auto line_shader = create_shader_program("Line Shader", "vertex_debug_line", "fragment_debug_line");
    Shader_Catalogue.insert({"line", line_shader});
 }
 
@@ -513,9 +542,9 @@ std::string format_float_tostr(float num, int precision)
 void render_text(std::string text, float x, float y, float scale, glm::vec3 color) 
 {
    auto find1 = Shader_Catalogue.find("text");
-   Shader text_shader = find1->second;
-	text_shader.use();
-	text_shader.setFloat3("textColor", color.x, color.y, color.z);
+   auto text_shader = find1->second;
+	text_shader->use();
+	text_shader->setFloat3("textColor", color.x, color.y, color.z);
 
    auto find2 = Geometry_Catalogue.find("text");
    Mesh* text_geometry = find2->second;

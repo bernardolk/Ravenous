@@ -1,23 +1,27 @@
 
 void on_mouse_btn(GLFWwindow* window, int button, int action, int mods);
 void on_mouse_move(GLFWwindow* window, double xpos, double ypos);
-void process_keyboard_input(GLFWwindow* window, Player* player);
+short int process_keyboard_input(GLFWwindow* window, Player* player);
 void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset);
-void input_phase(Player* player);
+short int input_phase(Player* player);
 
-void input_phase(Player* player) {
+const short int INPUT_FLAG_RELOAD_SCENE = 1 << 0;
+
+short int input_phase(Player* player) {
 		glfwPollEvents();
-		process_keyboard_input(G_DISPLAY_INFO.window, player);
+		auto input_flags = process_keyboard_input(G_DISPLAY_INFO.window, player);
+      return input_flags;
 }
 
 
-void process_keyboard_input(GLFWwindow* window, Player* player)
+short int process_keyboard_input(GLFWwindow* window, Player* player)
 {
+   short int flags = 0;
 	//Todo: get a real input toggling system in place
 	// something that allows you to wait for release to get in the if again
 	float cameraSpeed = G_FRAME_INFO.delta_time * G_SCENE_INFO.camera.Acceleration;
 
-   // camera movement
+   // CAMERA MOVEMENT
    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
       cameraSpeed = cameraSpeed * 2;
    }
@@ -46,8 +50,7 @@ void process_keyboard_input(GLFWwindow* window, Player* player)
       save_camera_settings_to_file(PROJECT_PATH + "/camera.txt", G_SCENE_INFO.camera.Position, G_SCENE_INFO.camera.Front);
    }
 
-   // player movement
-
+   // PLAYER MOVEMENT
    // NOTE: should NOT change player position directly. Should change player's velocity. Update phase will use that.
    if(player->player_state == PLAYER_STATE_STANDING)
    {
@@ -87,6 +90,14 @@ void process_keyboard_input(GLFWwindow* window, Player* player)
          // player->entity_ptr->position.y = player->entity_ptr->position.y + 0.5f;  
       }
    }
+
+   // SCENE RELOADING
+   if(glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+   {
+      flags = flags | INPUT_FLAG_RELOAD_SCENE;
+   }
+
+   return flags;
 }
 
 void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
