@@ -14,7 +14,9 @@ struct Player {
    Entity* entity_ptr;
    Entity* standing_entity_ptr;
    float speed = 0.6f;
-   float fall_speed = 1.6f;
+   float fall_speed = 0.0f;
+   float fall_acceleration = 0.1f;
+   float jump_initial_speed = 4.0f;
    float fall_from_edge_speed = 2.0f;
    PlayerStateEnum player_state;
    float radius;

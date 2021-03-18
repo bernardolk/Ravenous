@@ -178,11 +178,11 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
 
                   player->entity_ptr->velocity.x = project.x;
                   player->entity_ptr->velocity.z = project.y; 
-                  player->entity_ptr->velocity.y = -1 * player->fall_speed;
-
+                       
                   if(player->player_state == PLAYER_STATE_JUMPING)
                   {
                      player->player_state = PLAYER_STATE_FALLING;
+                     player->entity_ptr->velocity.y = 0;
                   }
 
                   break;

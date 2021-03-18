@@ -355,6 +355,8 @@ void update_player_state(Player* player)
    {
       case PLAYER_STATE_FALLING:
       {
+         player->entity_ptr->velocity.y -= G_FRAME_INFO.delta_time * player->fall_acceleration;
+
          // test collision with every object in scene entities vector
          Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
          size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
@@ -395,7 +397,7 @@ void update_player_state(Player* player)
          {
             player->player_state = PLAYER_STATE_FALLING;
             player->standing_entity_ptr = NULL;
-            player_entity->velocity = glm::vec3(0, -1 * player->fall_speed, 0); 
+            player_entity->velocity = glm::vec3(0, 0, 0); 
          }
          break;
       }
@@ -408,10 +410,10 @@ void update_player_state(Player* player)
             For our prototype this should be fine.
          */
          //dampen player speed (vf = v0 - g*t)
-         player->entity_ptr->velocity.y -= G_FRAME_INFO.delta_time * 5;
+         player->entity_ptr->velocity.y -= G_FRAME_INFO.delta_time * player->fall_acceleration;
          if (player->entity_ptr->velocity.y <= 0)
          {
-            player->entity_ptr->velocity.y = -1 * player->fall_speed;
+            player->entity_ptr->velocity.y = 0;
             player->player_state = PLAYER_STATE_FALLING;
          }
 

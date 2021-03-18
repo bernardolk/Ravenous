@@ -80,12 +80,10 @@ void process_keyboard_input(GLFWwindow* window, Player* player)
          player->entity_ptr->velocity = player_frame_speed * glm::normalize(player->entity_ptr->velocity);
       }
 
-         
-
       if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) 
       {
          player->player_state = PLAYER_STATE_JUMPING;
-         player->entity_ptr->velocity.y = player->fall_speed * 3;
+         player->entity_ptr->velocity.y = player->jump_initial_speed;
          // player->entity_ptr->position.y = player->entity_ptr->position.y + 0.5f;  
       }
    }

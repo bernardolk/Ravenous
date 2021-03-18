@@ -1,7 +1,7 @@
 @player_position = 1 1 0.5
 @player_velocity = 0 -1.6 0 
 @player_state = 0
-@player_fall_speed = 0.8
+@player_fall_acceleration = 13
 
 #floor
 position -5 0 -5
