@@ -317,6 +317,38 @@ void create_boilerplate_geometry()
    Geometry_Catalogue.insert({"text", text_mesh});
 
    // GEOMETRY
+
+   // AABB
+   vector<Vertex> aabb_vertex_vec = {
+      // bottom
+      Vertex{glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(0.0f, 0.0f)},   //0
+      Vertex{glm::vec3(1.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(1.0f, 0.0f)},   //1
+      Vertex{glm::vec3(1.0f, 0.0f, 1.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(1.0f, 1.0f)},   //2
+      Vertex{glm::vec3(0.0f, 0.0f, 1.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(0.0f, 1.0f)},   //3
+      // top
+      Vertex{glm::vec3(0.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 0.0f)},    //4
+      Vertex{glm::vec3(1.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 0.0f)},    //5
+      Vertex{glm::vec3(1.0f, 1.0f, 1.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 1.0f)},    //6
+      Vertex{glm::vec3(0.0f, 1.0f, 1.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 1.0f)}     //7
+   };
+
+   vector<u32> aabb_vertex_indices = 
+   { 
+      0, 1, 2, 2, 3, 0,    // bottom face
+      0, 4, 1, 1, 5, 4,    // side face 1
+      1, 5, 2, 2, 6, 5,    // back face
+      2, 6, 3, 3, 7, 6,    // side face 2
+      3, 7, 0, 0, 4, 7,    // front face
+      4, 5, 6, 6, 7, 4     // top face
+   };
+
+   auto aabb_mesh = new Mesh();
+   aabb_mesh->vertices = aabb_vertex_vec;
+   aabb_mesh->indices = aabb_vertex_indices;
+   aabb_mesh->render_method = GL_TRIANGLES;
+   aabb_mesh->gl_data = setup_gl_data_for_mesh(aabb_mesh);
+   Geometry_Catalogue.insert({"aabb", aabb_mesh});
+
    // QUAD VBO
    vector<Vertex> quad_vertex_vec = {
       Vertex{glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 0.0f)},

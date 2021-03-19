@@ -1,5 +1,5 @@
-@player_position = 0.34 4 1.12
-@player_velocity = 0 -1.6 0 
+@player_position = 0.34 2 1.12
+@player_velocity = 0 0 0 
 @player_state = 0
 @player_fall_acceleration = 13
 
@@ -11,34 +11,19 @@ shader model
 texture diffuse green green.jpg
 collision aabb
 
-#platform zoey
-position 0 0.25 0
-scale 1.3 0 1.3
-mesh quad_horizontal
-shader model
-texture diffuse brick_wall_diffuse brickwall.jpg
-collision aabb
-
-#platform small
-position 0 0.7 0
-scale 0.5 0 0.9
-mesh quad_horizontal
-shader model
-texture diffuse brick_wall_diffuse brickwall.jpg
-collision aabb
-
-#blue wall
-position 0 0 1.9
-scale 1 1 0
-mesh quad
+#box danny
+position 0 0 0
+scale 0.5 0.5 0.5
+mesh aabb
 shader model
 texture diffuse blue blue.jpg
 collision aabb
 
-#platform jack
-position 0 0.4 -1.4
-scale 1 0 1
-mesh quad_horizontal
+#box collin
+position -1 0 0.5
+scale 1 1 1
+mesh aabb
 shader model
-texture diffuse brick_wall_diffuse brick_wall_diffuse.jpg
+texture diffuse blue blue.jpg
 collision aabb
+
