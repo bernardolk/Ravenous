@@ -128,10 +128,16 @@ void print_every_3rd_frame(std::string thing, std::string prefix)
 // GLOBAL STRUCT VARIABLES (WITH CUSTOM TYPES)
 GlobalEntityInfo G_ENTITY_INFO;
 
+enum ViewMode {
+   FREE_ROAM = 0,
+   FIRST_PERSON = 1
+};
+
 struct GlobalSceneInfo {
    Scene* active_scene = NULL;
-   Camera camera;
+   Camera* camera;
    Player* player;
+   ViewMode view_mode = FREE_ROAM;
 } G_SCENE_INFO;
 
 struct EntityBufferElement {
@@ -172,7 +178,7 @@ void render_ray();
 void update_scene_objects();
 void initialize_shaders();
 void create_boilerplate_geometry();
-void render_text_overlay(Camera& camera, Player* player);
+void render_text_overlay(Camera* camera, Player* player);
 GLenum glCheckError_(const char* file, int line);
 std::string format_float_tostr(float num, int precision);
 void render_text(std::string text, float x, float y, float scale, glm::vec3 color = glm::vec3(1,1,1));
@@ -183,7 +189,8 @@ void adjust_player_position_and_velocity(Player* player, float distance, glm::ve
 // unsigned int setup_object(MeshData objData);
 EntityBuffer* allocate_entity_buffer(size_t size);
 void update_buffers();
-void handle_input_flags(short int flags, Player* &player);
+void handle_input_flags(int flags, Player* &player);
+void check_view_mode();
 
 
 int main() {
@@ -192,9 +199,10 @@ int main() {
    float* camera_pos = load_camera_settings(PROJECT_PATH + "/camera.txt");
    std::cout << "camera " << camera_pos[0] << "," << camera_pos[1] << "," << camera_pos[2] << "\n";
    std::cout << "camera dir " << camera_pos[3] << "," << camera_pos[4] << "," << camera_pos[5] << "\n";
-	u16 camera_id = 
-            camera_create(vec3(camera_pos[0], camera_pos[1], camera_pos[2]), vec3(camera_pos[3], camera_pos[4], camera_pos[5]), false);
-	G_SCENE_INFO.camera = cameraList[camera_id];
+	Camera* new_camera = camera_create(
+      vec3(camera_pos[0], camera_pos[1], camera_pos[2]), vec3(camera_pos[3], camera_pos[4], camera_pos[5]), false
+   );
+	G_SCENE_INFO.camera = new_camera;
 
 
 	// INITIAL GLFW AND GLAD SETUPS
@@ -235,8 +243,10 @@ int main() {
       G_FRAME_INFO.frame_counter_10 = ++G_FRAME_INFO.frame_counter_10 % 10;   
 
 		//	INPUT PHASE
-      short int input_flags = input_phase(player);
+      int input_flags = input_phase(player);
       handle_input_flags(input_flags, player);
+
+      check_view_mode();
 
 		//	UPDATE PHASE
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT);
@@ -248,7 +258,7 @@ int main() {
 		//	RENDER PHASE
 		glClearColor(0.196, 0.298, 0.3607, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		render_scene(G_SCENE_INFO.active_scene, &G_SCENE_INFO.camera);
+		render_scene(G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
       render_text_overlay(G_SCENE_INFO.camera, player);
 
       // FINISH FRAME
@@ -259,12 +269,113 @@ int main() {
 	return 0;
 }
 
-void handle_input_flags(short int flags, Player* &player)
+void check_view_mode()
 {
-   if(flags & INPUT_FLAG_RELOAD_SCENE)
+   if(G_SCENE_INFO.view_mode == FREE_ROAM)
+   {
+      // do nothing
+   }
+   else if(G_SCENE_INFO.view_mode == FIRST_PERSON)
+   {
+
+   }
+}
+
+void handle_input_flags(int flags, Player* &player)
+{
+   if(flags & KEY_PRESS_K)
    {
       load_scene_from_file(PROJECT_PATH + "/test.txt");
       player = G_SCENE_INFO.player;
+   }
+   if(flags & KEY_PRESS_F)
+   {
+      //G_SCENE_INFO.dont_render_player = true;
+   }
+   if(flags & KEY_PRESS_ESC)
+   {
+       glfwSetWindowShouldClose(G_DISPLAY_INFO.window, true);
+   }
+
+   if(G_SCENE_INFO.view_mode == FREE_ROAM)
+   {
+      float camera_speed = G_FRAME_INFO.delta_time * G_SCENE_INFO.camera->Acceleration;
+      if(flags & KEY_PRESS_LEFT_SHIFT)
+      {
+         camera_speed = camera_speed * 2;
+      }
+      if(flags & KEY_PRESS_LEFT_CTRL)
+      {
+         camera_speed = camera_speed / 2;
+      }
+      if(flags & KEY_PRESS_W)
+      {
+         G_SCENE_INFO.camera->Position += camera_speed * G_SCENE_INFO.camera->Front;
+      }
+      if(flags & KEY_PRESS_A)
+      {
+         G_SCENE_INFO.camera->Position -= camera_speed * glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
+      }
+      if(flags & KEY_PRESS_S)
+      {
+         G_SCENE_INFO.camera->Position -= camera_speed * G_SCENE_INFO.camera->Front;
+      }
+      if(flags & KEY_PRESS_D)
+      {
+         G_SCENE_INFO.camera->Position += camera_speed * glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
+      }
+      if(flags & KEY_PRESS_Q)
+      {
+         G_SCENE_INFO.camera->Position -= camera_speed * G_SCENE_INFO.camera->Up;
+      }
+      if(flags & KEY_PRESS_O)
+      {
+         camera_look_at(G_SCENE_INFO.camera, glm::vec3(0.0f, 0.0f, 0.0f), true);
+      }
+
+      auto player = G_SCENE_INFO.player;
+      if(player->player_state == PLAYER_STATE_STANDING)
+      {
+         // resets velocity
+         player->entity_ptr->velocity = glm::vec3(0); 
+
+         if (flags & KEY_PRESS_UP)
+         {
+            player->entity_ptr->velocity += glm::vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
+         }
+         if (flags & KEY_PRESS_DOWN)
+         {
+            player->entity_ptr->velocity -= glm::vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
+         }
+         if (flags & KEY_PRESS_LEFT)
+         {
+            glm::vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
+            player->entity_ptr->velocity -= glm::vec3(onwards_vector.x, 0, onwards_vector.z);
+         }
+         if (flags & KEY_PRESS_RIGHT)
+         {
+            glm::vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
+            player->entity_ptr->velocity += glm::vec3(onwards_vector.x, 0, onwards_vector.z);
+         }
+         // because above we sum all combos of keys pressed, here we normalize the direction and give the movement intensity
+         if(glm::length2(player->entity_ptr->velocity) > 0)
+         {
+            float player_frame_speed = player->speed;
+            if(flags & KEY_PRESS_LEFT_SHIFT)  // PLAYER DASH
+               player_frame_speed *= 2;
+
+            player->entity_ptr->velocity = player_frame_speed * glm::normalize(player->entity_ptr->velocity);
+         }
+         if (flags & KEY_PRESS_SPACE) 
+         {
+            player->player_state = PLAYER_STATE_JUMPING;
+            player->entity_ptr->velocity.y = player->jump_initial_speed;
+         }
+      }
+   }
+   else if(G_SCENE_INFO.view_mode == FIRST_PERSON)
+   {
+
    }
 }
 
@@ -322,14 +433,14 @@ void create_boilerplate_geometry()
    vector<Vertex> aabb_vertex_vec = {
       // bottom
       Vertex{glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(0.0f, 0.0f)},   //0
-      Vertex{glm::vec3(1.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(1.0f, 0.0f)},   //1
-      Vertex{glm::vec3(1.0f, 0.0f, 1.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(1.0f, 1.0f)},   //2
-      Vertex{glm::vec3(0.0f, 0.0f, 1.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(0.0f, 1.0f)},   //3
+      Vertex{glm::vec3(1.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(0.5f, 0.0f)},   //1
+      Vertex{glm::vec3(1.0f, 0.0f, 1.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(0.5f, 0.5f)},   //2
+      Vertex{glm::vec3(0.0f, 0.0f, 1.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(0.0f, 0.5f)},   //3
       // top
       Vertex{glm::vec3(0.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 0.0f)},    //4
-      Vertex{glm::vec3(1.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 0.0f)},    //5
-      Vertex{glm::vec3(1.0f, 1.0f, 1.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 1.0f)},    //6
-      Vertex{glm::vec3(0.0f, 1.0f, 1.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 1.0f)}     //7
+      Vertex{glm::vec3(1.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.5f, 0.0f)},    //5
+      Vertex{glm::vec3(1.0f, 1.0f, 1.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.5f, 0.5f)},    //6
+      Vertex{glm::vec3(0.0f, 1.0f, 1.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 0.5f)}     //7
    };
 
    vector<u32> aabb_vertex_indices = 
@@ -486,21 +597,21 @@ void update_player_state(Player* player)
    //print_vec(player_entity->velocity, "player velocity");
 } 
 
-void render_text_overlay(Camera& camera, Player* player) 
+void render_text_overlay(Camera* camera, Player* player) 
 {
    // render info text
    float GUI_x = 25;
    float GUI_y = G_DISPLAY_INFO.VIEWPORT_HEIGHT - 60;
 
    string GUI_atts[]{
-      format_float_tostr(camera.Position.x, 2),                //0
-      format_float_tostr(camera.Position.y,2),                 //1
-      format_float_tostr(camera.Position.z,2),                 //2
-      format_float_tostr(camera.Pitch,2),                      //3
-      format_float_tostr(camera.Yaw,2),                        //4
-      format_float_tostr(camera.Front.x,2),                    //5
-      format_float_tostr(camera.Front.y,2),                    //6
-      format_float_tostr(camera.Front.z,2),                    //7
+      format_float_tostr(camera->Position.x, 2),                //0
+      format_float_tostr(camera->Position.y,2),                 //1
+      format_float_tostr(camera->Position.z,2),                 //2
+      format_float_tostr(camera->Pitch,2),                      //3
+      format_float_tostr(camera->Yaw,2),                        //4
+      format_float_tostr(camera->Front.x,2),                    //5
+      format_float_tostr(camera->Front.y,2),                    //6
+      format_float_tostr(camera->Front.z,2),                    //7
       format_float_tostr(player->entity_ptr->position.x,1),    //8
       format_float_tostr(player->entity_ptr->position.y,1),    //9 
       format_float_tostr(player->entity_ptr->position.z,1)     //10

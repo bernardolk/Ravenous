@@ -1,101 +1,99 @@
 
 void on_mouse_btn(GLFWwindow* window, int button, int action, int mods);
 void on_mouse_move(GLFWwindow* window, double xpos, double ypos);
-short int process_keyboard_input(GLFWwindow* window, Player* player);
+int process_keyboard_input(GLFWwindow* window, Player* player);
 void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset);
-short int input_phase(Player* player);
+int input_phase(Player* player);
 
-const short int INPUT_FLAG_RELOAD_SCENE = 1 << 0;
+// INPUT KEY PRESS FLAGS
+int KEY_PRESS_W               = 1 << 0;
+int KEY_PRESS_A               = 1 << 1;
+int KEY_PRESS_S               = 1 << 2;
+int KEY_PRESS_D               = 1 << 3;
+int KEY_PRESS_Q               = 1 << 4;
+int KEY_PRESS_E               = 1 << 5;
+int KEY_PRESS_O               = 1 << 6;
+int KEY_PRESS_LEFT            = 1 << 7;
+int KEY_PRESS_RIGHT           = 1 << 8;
+int KEY_PRESS_UP              = 1 << 9;
+int KEY_PRESS_DOWN            = 1 << 10;
+int KEY_PRESS_SPACE           = 1 << 11;
+int KEY_PRESS_K               = 1 << 12;
+int KEY_PRESS_F               = 1 << 13;
+int KEY_PRESS_G               = 1 << 14;
+int KEY_PRESS_ESC             = 1 << 15;
+int KEY_PRESS_LEFT_SHIFT      = 1 << 16;
+int KEY_PRESS_LEFT_CTRL       = 1 << 17;
+int KEY_PRESS_9               = 1 << 18;
 
-short int input_phase(Player* player) {
+
+int input_phase(Player* player) {
 		glfwPollEvents();
 		auto input_flags = process_keyboard_input(G_DISPLAY_INFO.window, player);
       return input_flags;
 }
 
 
-short int process_keyboard_input(GLFWwindow* window, Player* player)
+int process_keyboard_input(GLFWwindow* window, Player* player)
 {
-   short int flags = 0;
-	//Todo: get a real input toggling system in place
-	// something that allows you to wait for release to get in the if again
-	float cameraSpeed = G_FRAME_INFO.delta_time * G_SCENE_INFO.camera.Acceleration;
+   int flags = 0;
 
-   // CAMERA MOVEMENT
-   if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-      cameraSpeed = cameraSpeed * 2;
-   }
-   if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-      cameraSpeed = cameraSpeed / 2.0;
-   }
+   if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+      flags = flags | KEY_PRESS_LEFT_SHIFT;
+
+   if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+      flags = flags | KEY_PRESS_LEFT_CTRL;
+
    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-      glfwSetWindowShouldClose(window, true);
+      flags = flags | KEY_PRESS_ESC;
+
    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-      G_SCENE_INFO.camera.Position += cameraSpeed * G_SCENE_INFO.camera.Front;
-   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-      G_SCENE_INFO.camera.Position -= cameraSpeed * G_SCENE_INFO.camera.Front;
+      flags = flags | KEY_PRESS_W;
+
    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-      G_SCENE_INFO.camera.Position -= cameraSpeed * glm::normalize(glm::cross(G_SCENE_INFO.camera.Front, G_SCENE_INFO.camera.Up));
+      flags = flags | KEY_PRESS_A;
+
+   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+      flags = flags | KEY_PRESS_S;
+
    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-      G_SCENE_INFO.camera.Position += cameraSpeed * glm::normalize(glm::cross(G_SCENE_INFO.camera.Front, G_SCENE_INFO.camera.Up));
+      flags = flags | KEY_PRESS_D;
+
    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-      G_SCENE_INFO.camera.Position -= cameraSpeed * G_SCENE_INFO.camera.Up;
+      flags = flags | KEY_PRESS_Q;
+
    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-      G_SCENE_INFO.camera.Position += cameraSpeed * G_SCENE_INFO.camera.Up;
-   if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
-      camera_look_at(G_SCENE_INFO.camera, glm::vec3(0.0f, 0.0f, 0.0f), true);
-      G_INPUT_INFO.reset_mouse_coords = true;
-   }
-   if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
-      save_camera_settings_to_file(PROJECT_PATH + "/camera.txt", G_SCENE_INFO.camera.Position, G_SCENE_INFO.camera.Front);
-   }
+      flags = flags | KEY_PRESS_E;
 
-   // PLAYER MOVEMENT
-   // NOTE: should NOT change player position directly. Should change player's velocity. Update phase will use that.
-   if(player->player_state == PLAYER_STATE_STANDING)
-   {
-      player->entity_ptr->velocity = glm::vec3(0); // resets velocity
+   if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+         flags = flags | KEY_PRESS_O;
 
-      if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-         player->entity_ptr->velocity += glm::vec3(G_SCENE_INFO.camera.Front.x, 0, G_SCENE_INFO.camera.Front.z);
+   if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) 
+      flags = flags | KEY_PRESS_9;
 
-      if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-         player->entity_ptr->velocity -= glm::vec3(G_SCENE_INFO.camera.Front.x, 0, G_SCENE_INFO.camera.Front.z);
+   if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+      flags = flags | KEY_PRESS_UP;
 
-      if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-      {
-         glm::vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera.Front, G_SCENE_INFO.camera.Up));
-         player->entity_ptr->velocity -= glm::vec3(onwards_vector.x, 0, onwards_vector.z);
-      }
+   if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+      flags = flags | KEY_PRESS_DOWN;
+      
+   if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+      flags = flags | KEY_PRESS_LEFT;
 
-      if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-      {
-         glm::vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera.Front, G_SCENE_INFO.camera.Up));
-         player->entity_ptr->velocity += glm::vec3(onwards_vector.x, 0, onwards_vector.z);
-      }
+   if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+      flags = flags | KEY_PRESS_RIGHT;
 
-      // because above we sum all combos of keys pressed, here we normalize the direction and give the movement intensity
-      if(glm::length2(player->entity_ptr->velocity) > 0)
-      {
-         float player_frame_speed = player->speed;
-         if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)  // PLAYER DASH
-            player_frame_speed *= 2;
-         player->entity_ptr->velocity = player_frame_speed * glm::normalize(player->entity_ptr->velocity);
-      }
+   if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) 
+      flags = flags | KEY_PRESS_SPACE;
 
-      if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) 
-      {
-         player->player_state = PLAYER_STATE_JUMPING;
-         player->entity_ptr->velocity.y = player->jump_initial_speed;
-         // player->entity_ptr->position.y = player->entity_ptr->position.y + 0.5f;  
-      }
-   }
-
-   // SCENE RELOADING
    if(glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
-   {
-      flags = flags | INPUT_FLAG_RELOAD_SCENE;
-   }
+      flags = flags | KEY_PRESS_K;
+
+   if(glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+      flags = flags | KEY_PRESS_F;
+
+   else if(glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS)
+      flags = flags | KEY_PRESS_G;
 
    return flags;
 }
@@ -116,22 +114,22 @@ void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
       G_INPUT_INFO.last_registered_mouse_coord_x = xpos;
       G_INPUT_INFO.last_registered_mouse_coord_y = ypos;
 
-      xoffset *= G_SCENE_INFO.camera.Sensitivity;
-      yoffset *= G_SCENE_INFO.camera.Sensitivity;
+      xoffset *= G_SCENE_INFO.camera->Sensitivity;
+      yoffset *= G_SCENE_INFO.camera->Sensitivity;
 
       camera_change_direction(G_SCENE_INFO.camera, xoffset, yoffset);
 
       // Unallows camera to perform a flip
-      if (G_SCENE_INFO.camera.Pitch > 89.0f)
-         G_SCENE_INFO.camera.Pitch = 89.0f;
-      if (G_SCENE_INFO.camera.Pitch < -89.0f)
-         G_SCENE_INFO.camera.Pitch = -89.0f;
+      if (G_SCENE_INFO.camera->Pitch > 89.0f)
+         G_SCENE_INFO.camera->Pitch = 89.0f;
+      if (G_SCENE_INFO.camera->Pitch < -89.0f)
+         G_SCENE_INFO.camera->Pitch = -89.0f;
 
       // Make sure we don't overflow floats when camera is spinning indefinetely
-      if (G_SCENE_INFO.camera.Yaw > 360.0f)
-         G_SCENE_INFO.camera.Yaw = G_SCENE_INFO.camera.Yaw - 360.0f;
-      if (G_SCENE_INFO.camera.Yaw < -360.0f)
-         G_SCENE_INFO.camera.Yaw = G_SCENE_INFO.camera.Yaw + 360.0f;
+      if (G_SCENE_INFO.camera->Yaw > 360.0f)
+         G_SCENE_INFO.camera->Yaw = G_SCENE_INFO.camera->Yaw - 360.0f;
+      if (G_SCENE_INFO.camera->Yaw < -360.0f)
+         G_SCENE_INFO.camera->Yaw = G_SCENE_INFO.camera->Yaw + 360.0f;
    }
 
    G_INPUT_INFO.currentMouseX = xpos;
@@ -147,7 +145,7 @@ void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 
 void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset) 
 {
-		G_SCENE_INFO.camera.Position += (float)(3 * yoffset) * G_SCENE_INFO.camera.Front;
+		G_SCENE_INFO.camera->Position += (float)(3 * yoffset) * G_SCENE_INFO.camera->Front;
 }
 
 void on_mouse_btn(GLFWwindow* window, int button, int action, int mods) 

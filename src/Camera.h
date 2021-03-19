@@ -23,60 +23,57 @@ struct Camera {
 };
 
 
-vector<Camera> cameraList;
-
 
 // Prototypes
-void camera_update(Camera& camera, float viewportWidth, float viewportHeight);
-void camera_change_direction(Camera& camera, float yawOffset, float pitchOffset);
+void camera_update(Camera* camera, float viewportWidth, float viewportHeight);
+void camera_change_direction(Camera* camera, float yawOffset, float pitchOffset);
 // Make camera look at a place in world coordinates to look at. If isPosition is set to true, then
 // a position is expected, if else, then a direction is expected.
-void camera_look_at(Camera& camera, glm::vec3 position, bool isPosition);
-int camera_create(glm::vec3 initialPosition, glm::vec3 direction);
+void camera_look_at(Camera* camera, glm::vec3 position, bool isPosition);
+Camera* camera_create(glm::vec3 initialPosition, glm::vec3 direction);
 void save_camera_settings_to_file(string path, glm::vec3 position, glm::vec3 direction);
 float* load_camera_settings(string path);
 
 
 // Functions
-void camera_update(Camera& camera, float viewportWidth, float viewportHeight) {
-	camera.View4x4 = glm::lookAt(camera.Position, camera.Position + camera.Front, camera.Up);
-	camera.Projection4x4 = glm::perspective(glm::radians(camera.FOVy), viewportWidth / viewportHeight, camera.NearPlane, camera.FarPlane);
+void camera_update(Camera* camera, float viewportWidth, float viewportHeight) {
+	camera->View4x4 = glm::lookAt(camera->Position, camera->Position + camera->Front, camera->Up);
+	camera->Projection4x4 = glm::perspective(glm::radians(camera->FOVy), viewportWidth / viewportHeight, camera->NearPlane, camera->FarPlane);
 }
 
 
-void camera_change_direction(Camera& camera, float yawOffset, float pitchOffset) {
-	float newPitch = camera.Pitch += pitchOffset;
-	float newYaw = camera.Yaw += yawOffset;
-	camera.Front.x = cos(glm::radians(newPitch)) * cos(glm::radians(newYaw));
-	camera.Front.y = sin(glm::radians(newPitch));
-	camera.Front.z = cos(glm::radians(newPitch)) * sin(glm::radians(newYaw));
-	camera.Front = glm::normalize(camera.Front);
+void camera_change_direction(Camera* camera, float yawOffset, float pitchOffset) {
+	float newPitch = camera->Pitch += pitchOffset;
+	float newYaw = camera->Yaw += yawOffset;
+	camera->Front.x = cos(glm::radians(newPitch)) * cos(glm::radians(newYaw));
+	camera->Front.y = sin(glm::radians(newPitch));
+	camera->Front.z = cos(glm::radians(newPitch)) * sin(glm::radians(newYaw));
+	camera->Front = glm::normalize(camera->Front);
 }
 
 
-void camera_look_at(Camera& camera, glm::vec3 position, bool isPosition) {
+void camera_look_at(Camera* camera, glm::vec3 position, bool isPosition) {
 	glm::vec3 look_vec;
 	if (isPosition)
-		look_vec = glm::normalize(position - glm::vec3(camera.Position.x, camera.Position.y, camera.Position.z));
+		look_vec = glm::normalize(position - glm::vec3(camera->Position.x, camera->Position.y, camera->Position.z));
 	else
 		look_vec = glm::normalize(position);
 
 	float pitchRdns = glm::asin(look_vec.y);
-	camera.Pitch = glm::degrees(pitchRdns);
-	camera.Yaw = glm::degrees(atan2(look_vec.x, -1 * look_vec.z) - 3.141592 / 2);
+	camera->Pitch = glm::degrees(pitchRdns);
+	camera->Yaw = glm::degrees(atan2(look_vec.x, -1 * look_vec.z) - 3.141592 / 2);
 
-	camera.Front.x = cos(glm::radians(camera.Pitch)) * cos(glm::radians(camera.Yaw));
-	camera.Front.y = sin(glm::radians(camera.Pitch));
-	camera.Front.z = cos(glm::radians(camera.Pitch)) * sin(glm::radians(camera.Yaw));
-	camera.Front = glm::normalize(camera.Front);
+	camera->Front.x = cos(glm::radians(camera->Pitch)) * cos(glm::radians(camera->Yaw));
+	camera->Front.y = sin(glm::radians(camera->Pitch));
+	camera->Front.z = cos(glm::radians(camera->Pitch)) * sin(glm::radians(camera->Yaw));
+	camera->Front = glm::normalize(camera->Front);
 }
 
-int camera_create(glm::vec3 initialPosition, glm::vec3 direction, bool isPosition = true) {
-	Camera new_camera;
-	new_camera.Position = initialPosition;
-	camera_look_at(new_camera, direction, isPosition);
-	cameraList.push_back(new_camera);
-	return cameraList.size() - 1;
+Camera* camera_create(glm::vec3 initialPosition, glm::vec3 direction, bool isPosition = true) {
+	auto camera = new Camera();
+	camera->Position = initialPosition;
+	camera_look_at(camera, direction, isPosition);
+	return camera;
 }
 
 float* load_camera_settings(string path){

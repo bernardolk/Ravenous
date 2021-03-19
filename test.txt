@@ -16,7 +16,7 @@ position 0 0 0
 scale 0.5 0.5 0.5
 mesh aabb
 shader model
-texture diffuse blue blue.jpg
+texture diffuse sandstone sandstone.jpg
 collision aabb
 
 #box collin
@@ -24,6 +24,6 @@ position -1 0 0.5
 scale 1 1 1
 mesh aabb
 shader model
-texture diffuse blue blue.jpg
+texture diffuse sandstone sandstone.jpg
 collision aabb
 
