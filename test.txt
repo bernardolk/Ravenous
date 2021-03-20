@@ -12,8 +12,8 @@ texture diffuse green green.jpg
 collision aabb
 
 #box danny
-position 0 0 0
-scale 0.5 0.5 0.5
+position -0.3 0 0
+scale 0.8 0.2 1.3
 mesh aabb
 shader model
 texture diffuse sandstone sandstone.jpg
@@ -21,9 +21,16 @@ collision aabb
 
 #box collin
 position -1 0 0.5
-scale 1 1 1
+scale 1 0.5 1
 mesh aabb
 shader model
 texture diffuse sandstone sandstone.jpg
 collision aabb
 
+#box johnny
+position -1.3 0 0
+scale 1 0.8 1
+mesh aabb
+shader model
+texture diffuse sandstone sandstone.jpg
+collision aabb

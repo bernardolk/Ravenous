@@ -293,6 +293,7 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
    {
       load_scene_from_file(PROJECT_PATH + "/test.txt");
       player = G_SCENE_INFO.player; // not irrelevant! do not delete
+      player->entity_ptr->render_me = G_SCENE_INFO.view_mode == FREE_ROAM ? true : false;
    }
    if(flags.press & KEY_F && !(G_INPUT_INFO.key_input_state & KEY_F))
    {
@@ -346,6 +347,10 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
       if(flags.press & KEY_Q)
       {
          G_SCENE_INFO.camera->Position -= camera_speed * G_SCENE_INFO.camera->Up;
+      }
+       if(flags.press & KEY_E)
+      {
+         G_SCENE_INFO.camera->Position += camera_speed * G_SCENE_INFO.camera->Up;
       }
       if(flags.press & KEY_O)
       {
