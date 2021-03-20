@@ -262,17 +262,16 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
          {
             auto vertical_overlap = get_vertical_overlap_player_vs_slope(entity, player->entity_ptr);
             c = get_horizontal_overlap_player_slope(entity, player->entity_ptr);
- 
-            if(c.is_collided && player->player_state == PLAYER_STATE_STANDING)
+            
+            // check if player state is standing and he is stepping inside slope from the slope side
+            // not from the sides of it (there you have walls)
+            if(c.is_collided && 
+               player->player_state == PLAYER_STATE_STANDING &&
+               c.normal_vec == glm::vec2(0,0))
             {
-               auto slope_normal = glm::vec2(1.0, 0);
-               // cout << "x: " << c.normal_vec.x << " z: " << c.normal_vec.y << "\n";
-               if(vertical_overlap > 0 && vertical_overlap < 0.05 && c.normal_vec == slope_normal)
-               {
                   cout << "PLAYER STEPPED INTO SLOPE \n";
                   player->standing_entity_ptr = entity;
                   player->entity_ptr->position.y += vertical_overlap;
-               }
             }
             else if(c.is_collided && c.overlap >= 0 && c.overlap > biggest_overlap && vertical_overlap > 0)
             {
