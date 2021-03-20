@@ -32,6 +32,7 @@ struct Entity {
    Mesh mesh;
    std::vector<Texture> textures;
 	glm::mat4 matModel = mat4identity;
+   bool render_me = true;
 
    // simulation data
 	glm::vec3 position;

@@ -290,24 +290,21 @@ void handle_input_flags(int flags, Player* &player)
    if(flags & KEY_PRESS_K)
    {
       load_scene_from_file(PROJECT_PATH + "/test.txt");
-      player = G_SCENE_INFO.player;
+      player = G_SCENE_INFO.player; // not irrelevant! do not delete
    }
    if(flags & KEY_PRESS_F)
    {
       if(G_SCENE_INFO.view_mode == FREE_ROAM)
       {
          G_SCENE_INFO.view_mode = FIRST_PERSON;
-         auto new_camera = G_SCENE_INFO.views[1];
-         // new_camera->Front    = G_SCENE_INFO.camera->Front;
-         // new_camera->Up       = G_SCENE_INFO.camera->Up;
-         // new_camera->Yaw      = G_SCENE_INFO.camera->Yaw;
-         // new_camera->Pitch    = G_SCENE_INFO.camera->Pitch;
-         G_SCENE_INFO.camera = new_camera;
+         G_SCENE_INFO.camera = G_SCENE_INFO.views[1];
+         player->entity_ptr->render_me = false;
       }
       else if(G_SCENE_INFO.view_mode == FIRST_PERSON)
       {
          G_SCENE_INFO.camera = G_SCENE_INFO.views[0];
          G_SCENE_INFO.view_mode = FREE_ROAM;
+         player->entity_ptr->render_me = true;
       }
    }
    if(flags & KEY_PRESS_ESC)

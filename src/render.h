@@ -57,34 +57,36 @@ void render_scene(Scene* scene, Camera* camera)
    int entities_vec_size =  scene->entities.size();
 	for(int it = 0; it < entities_vec_size; it++) 
    {
-	   Entity *entity_ptr = *entity_iterator;
-		entity_ptr->shader->use();
-		auto point_light_ptr = scene->pointLights.begin();
-		int point_light_count = 0;
-		for (point_light_ptr; point_light_ptr != scene->pointLights.end(); point_light_ptr++)
+	   auto entity = *entity_iterator;
+      if(entity->render_me)
       {
-			PointLight point_light = *point_light_ptr;
-			string uniform_name = "pointLights[" + to_string(point_light_count) + "]";
-			entity_ptr->shader->setFloat3(uniform_name + ".position", point_light.position);
-			entity_ptr->shader->setFloat3(uniform_name + ".diffuse", point_light.diffuse);
-			entity_ptr->shader->setFloat3(uniform_name + ".specular", point_light.specular);
-			entity_ptr->shader->setFloat3(uniform_name + ".ambient", point_light.ambient);
-			entity_ptr->shader->setFloat(uniform_name + ".constant", point_light.intensity_constant);
-			entity_ptr->shader->setFloat(uniform_name + ".linear", point_light.intensity_linear);
-			entity_ptr->shader->setFloat(uniform_name + ".quadratic", point_light.intensity_quadratic);
-			point_light_count++;
-		}
-		entity_ptr->shader->setInt    ("num_point_lights", point_light_count);
-		entity_ptr->shader->setInt    ("num_directional_light", 0);
-		entity_ptr->shader->setInt    ("num_spot_lights", 0);
-		entity_ptr->shader->setMatrix4("view", camera->View4x4);
-		entity_ptr->shader->setMatrix4("projection", camera->Projection4x4);
-		entity_ptr->shader->setFloat  ("shininess", scene->global_shininess);
-		entity_ptr->shader->setFloat3 ("viewPos", camera->Position);
-		//mat4 model_matrix = scale   (mat4identity, vec3(0.01,0.01,0.01));
-		entity_ptr->shader->setMatrix4("model", entity_ptr->matModel);
-		render_entity(entity_ptr);
+         entity->shader->use();
+         auto point_light_ptr = scene->pointLights.begin();
+         int point_light_count = 0;
+         for (point_light_ptr; point_light_ptr != scene->pointLights.end(); point_light_ptr++)
+         {
+            PointLight point_light = *point_light_ptr;
+            string uniform_name = "pointLights[" + to_string(point_light_count) + "]";
+            entity->shader->setFloat3(uniform_name + ".position",  point_light.position);
+            entity->shader->setFloat3(uniform_name + ".diffuse",   point_light.diffuse);
+            entity->shader->setFloat3(uniform_name + ".specular",  point_light.specular);
+            entity->shader->setFloat3(uniform_name + ".ambient",   point_light.ambient);
+            entity->shader->setFloat(uniform_name  + ".constant",  point_light.intensity_constant);
+            entity->shader->setFloat(uniform_name  + ".linear",    point_light.intensity_linear);
+            entity->shader->setFloat(uniform_name  + ".quadratic", point_light.intensity_quadratic);
+            point_light_count++;
+         }
+         entity->shader->    setInt ("num_directional_light", 0);
+         entity->shader->    setInt ("num_spot_lights",       0);
+         entity->shader->    setInt ("num_point_lights",    point_light_count);
+         entity->shader-> setMatrix4("view",                camera->View4x4);
+         entity->shader-> setMatrix4("projection",          camera->Projection4x4);
+         entity->shader->   setFloat("shininess",           scene->global_shininess);
+         entity->shader->  setFloat3("viewPos",             camera->Position);
+         entity->shader-> setMatrix4("model",               entity->matModel);
 
+         render_entity(entity);
+      }
       entity_iterator++;
 	}
 }
