@@ -1,4 +1,6 @@
 @echo off
+call c:\repositories\ravenous\tools\killsymbolserver.bat
+
 IF NOT EXIST "c:\repositories\ravenous\build" mkdir c:\repositories\ravenous\build
 pushd c:\repositories\ravenous\build
 @set /A _tic=%time:~0,2%*3600^
