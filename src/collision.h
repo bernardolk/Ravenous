@@ -518,6 +518,7 @@ glm::vec3 get_nearest_edge(Entity* point, Entity* square)
    }
 
    assert(false);
+   return glm::vec3();
 }
 
 
