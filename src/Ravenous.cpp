@@ -136,6 +136,7 @@ enum ViewMode {
 struct GlobalSceneInfo {
    Scene* active_scene = NULL;
    Camera* camera;
+   Camera* views[2];
    Player* player;
    ViewMode view_mode = FREE_ROAM;
 } G_SCENE_INFO;
@@ -190,19 +191,22 @@ void adjust_player_position_and_velocity(Player* player, float distance, glm::ve
 EntityBuffer* allocate_entity_buffer(size_t size);
 void update_buffers();
 void handle_input_flags(int flags, Player* &player);
-void check_view_mode();
+void check_view_mode(Player* player);
 
 
-int main() {
-
+int main() 
+{
    // reads from camera position file
    float* camera_pos = load_camera_settings(PROJECT_PATH + "/camera.txt");
-   std::cout << "camera " << camera_pos[0] << "," << camera_pos[1] << "," << camera_pos[2] << "\n";
-   std::cout << "camera dir " << camera_pos[3] << "," << camera_pos[4] << "," << camera_pos[5] << "\n";
-	Camera* new_camera = camera_create(
-      vec3(camera_pos[0], camera_pos[1], camera_pos[2]), vec3(camera_pos[3], camera_pos[4], camera_pos[5]), false
+
+	Camera* free_roam_camera = camera_create(
+      glm::vec3(camera_pos[0], camera_pos[1], camera_pos[2]), glm::vec3(camera_pos[3], camera_pos[4], camera_pos[5]), false
    );
-	G_SCENE_INFO.camera = new_camera;
+   Camera* first_person_camera = new Camera();
+
+	G_SCENE_INFO.camera = free_roam_camera;
+   G_SCENE_INFO.views[0] = free_roam_camera;
+   G_SCENE_INFO.views[1] = first_person_camera;
 
 
 	// INITIAL GLFW AND GLAD SETUPS
@@ -246,9 +250,8 @@ int main() {
       int input_flags = input_phase(player);
       handle_input_flags(input_flags, player);
 
-      check_view_mode();
-
 		//	UPDATE PHASE
+      check_view_mode(player);
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT);
       update_buffers();
       update_player_state(player);
@@ -269,7 +272,7 @@ int main() {
 	return 0;
 }
 
-void check_view_mode()
+void check_view_mode(Player* player)
 {
    if(G_SCENE_INFO.view_mode == FREE_ROAM)
    {
@@ -277,7 +280,8 @@ void check_view_mode()
    }
    else if(G_SCENE_INFO.view_mode == FIRST_PERSON)
    {
-
+      G_SCENE_INFO.camera->Position = player->entity_ptr->position;
+      G_SCENE_INFO.camera->Position.y += player->half_height * 2.0 / 3.0; 
    }
 }
 
@@ -290,7 +294,21 @@ void handle_input_flags(int flags, Player* &player)
    }
    if(flags & KEY_PRESS_F)
    {
-      //G_SCENE_INFO.dont_render_player = true;
+      if(G_SCENE_INFO.view_mode == FREE_ROAM)
+      {
+         G_SCENE_INFO.view_mode = FIRST_PERSON;
+         auto new_camera = G_SCENE_INFO.views[1];
+         // new_camera->Front    = G_SCENE_INFO.camera->Front;
+         // new_camera->Up       = G_SCENE_INFO.camera->Up;
+         // new_camera->Yaw      = G_SCENE_INFO.camera->Yaw;
+         // new_camera->Pitch    = G_SCENE_INFO.camera->Pitch;
+         G_SCENE_INFO.camera = new_camera;
+      }
+      else if(G_SCENE_INFO.view_mode == FIRST_PERSON)
+      {
+         G_SCENE_INFO.camera = G_SCENE_INFO.views[0];
+         G_SCENE_INFO.view_mode = FREE_ROAM;
+      }
    }
    if(flags & KEY_PRESS_ESC)
    {
@@ -333,7 +351,6 @@ void handle_input_flags(int flags, Player* &player)
          camera_look_at(G_SCENE_INFO.camera, glm::vec3(0.0f, 0.0f, 0.0f), true);
       }
 
-      auto player = G_SCENE_INFO.player;
       if(player->player_state == PLAYER_STATE_STANDING)
       {
          // resets velocity
@@ -375,7 +392,48 @@ void handle_input_flags(int flags, Player* &player)
    }
    else if(G_SCENE_INFO.view_mode == FIRST_PERSON)
    {
+      if(player->player_state == PLAYER_STATE_STANDING)
+      {
+         // resets velocity
+         player->entity_ptr->velocity = glm::vec3(0); 
 
+         if(flags & KEY_PRESS_W)
+         {
+            player->entity_ptr->velocity += glm::vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
+         }
+         if(flags & KEY_PRESS_A)
+         {
+            glm::vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
+            player->entity_ptr->velocity -= glm::vec3(onwards_vector.x, 0, onwards_vector.z);
+         }
+         if(flags & KEY_PRESS_S)
+         {
+            player->entity_ptr->velocity -= glm::vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
+         }
+         if(flags & KEY_PRESS_D)
+         {
+            glm::vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
+            player->entity_ptr->velocity += glm::vec3(onwards_vector.x, 0, onwards_vector.z);
+         }
+         // because above we sum all combos of keys pressed, here we normalize the direction and give the movement intensity
+         if(glm::length2(player->entity_ptr->velocity) > 0)
+         {
+            float player_frame_speed = player->speed;
+            if(flags & KEY_PRESS_LEFT_SHIFT)  // PLAYER DASH
+               player_frame_speed *= 2;
+
+            player->entity_ptr->velocity = player_frame_speed * glm::normalize(player->entity_ptr->velocity);
+         }
+         if (flags & KEY_PRESS_SPACE) 
+         {
+            player->player_state = PLAYER_STATE_JUMPING;
+            player->entity_ptr->velocity.y = player->jump_initial_speed;
+         }
+
+         // update camera with player position
+         G_SCENE_INFO.camera->Position = player->entity_ptr->position;
+         G_SCENE_INFO.camera->Position.y +=  player->half_height * 2.0 / 3.0;
+      }
    }
 }
 
@@ -604,14 +662,14 @@ void render_text_overlay(Camera* camera, Player* player)
    float GUI_y = G_DISPLAY_INFO.VIEWPORT_HEIGHT - 60;
 
    string GUI_atts[]{
-      format_float_tostr(camera->Position.x, 2),                //0
-      format_float_tostr(camera->Position.y,2),                 //1
-      format_float_tostr(camera->Position.z,2),                 //2
-      format_float_tostr(camera->Pitch,2),                      //3
-      format_float_tostr(camera->Yaw,2),                        //4
-      format_float_tostr(camera->Front.x,2),                    //5
-      format_float_tostr(camera->Front.y,2),                    //6
-      format_float_tostr(camera->Front.z,2),                    //7
+      format_float_tostr(camera->Position.x, 2),               //0
+      format_float_tostr(camera->Position.y,2),                //1
+      format_float_tostr(camera->Position.z,2),                //2
+      format_float_tostr(camera->Pitch,2),                     //3
+      format_float_tostr(camera->Yaw,2),                       //4
+      format_float_tostr(camera->Front.x,2),                   //5
+      format_float_tostr(camera->Front.y,2),                   //6
+      format_float_tostr(camera->Front.z,2),                   //7
       format_float_tostr(player->entity_ptr->position.x,1),    //8
       format_float_tostr(player->entity_ptr->position.y,1),    //9 
       format_float_tostr(player->entity_ptr->position.z,1)     //10
@@ -646,6 +704,17 @@ void render_text_overlay(Camera* camera, Player* player)
          break;
    }
 
+   std::string view_mode_text;
+   switch(G_SCENE_INFO.view_mode)
+   {
+      case FREE_ROAM:
+         view_mode_text = "FREE ROAM";
+         break;
+      case FIRST_PERSON:
+         view_mode_text = "FIRST PERSON";
+         break;
+   }
+
    float scale = 1;
    render_text(camera_position,  GUI_x, GUI_y, scale);
    render_text(camera_front,     GUI_x, GUI_y - 25, scale);
@@ -653,6 +722,7 @@ void render_text_overlay(Camera* camera, Player* player)
    render_text(player_pos,       GUI_x, GUI_y - 75, scale);
    render_text(fps_gui,          G_DISPLAY_INFO.VIEWPORT_WIDTH - 100, 25, scale);
    render_text(player_state_text,     GUI_x, 25, 1.4, player_state_text_color);
+   render_text(view_mode_text,        GUI_x, 50, 1.4);
 }
 
 

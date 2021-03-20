@@ -9,15 +9,15 @@
 
 struct Camera {
 	glm::vec3 Position;
-	glm::vec3 Front;
+	glm::vec3 Front = glm::vec3(1.0f, 0.0f, 0.0f);
 	glm::vec3 Up = glm::vec3(0.0f, 1.0f, 0.0f);
 	float Acceleration = 3.5f;
 	float FOVy = 45.0f;
 	float FarPlane = 300.0f;
 	float NearPlane = 0.1f;
 	float Sensitivity = 0.1f;
-	float Yaw;
-	float Pitch;
+	float Yaw = 0.0f;
+	float Pitch = 0.0f;
 	glm::mat4 View4x4;
 	glm::mat4 Projection4x4;
 };
