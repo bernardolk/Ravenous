@@ -100,9 +100,11 @@ int process_keyboard_input(GLFWwindow* window, Player* player)
 
 void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 {
-   if (G_INPUT_INFO.is_mouse_drag) {
+   if (G_INPUT_INFO.is_mouse_drag) 
+   {
       // 'teleports' stored coordinates to current mouse coordinates
-      if (G_INPUT_INFO.reset_mouse_coords) {
+      if (G_INPUT_INFO.reset_mouse_coords) 
+      {
          G_INPUT_INFO.last_registered_mouse_coord_x = xpos;
          G_INPUT_INFO.last_registered_mouse_coord_y = ypos;
          G_INPUT_INFO.reset_mouse_coords = false;
@@ -135,12 +137,16 @@ void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
    G_INPUT_INFO.currentMouseX = xpos;
 	G_INPUT_INFO.currentMouseY = ypos;
 
-	// mouse dragging controls
-	if (G_INPUT_INFO.is_mouse_left_btn_press
-		&& (abs(G_INPUT_INFO.mouse_btn_down_x - G_INPUT_INFO.currentMouseX) > 2
-			|| abs(G_INPUT_INFO.mouse_btn_down_y - G_INPUT_INFO.currentMouseY) > 2)) {
-		G_INPUT_INFO.is_mouse_drag = true;
-	}
+	// activates mouse dragging if clicking and current mouse position has changed a certain ammount
+	if (G_INPUT_INFO.is_mouse_left_btn_press)
+   { 
+      auto offset_from_click_x = abs(G_INPUT_INFO.mouse_btn_down_x - G_INPUT_INFO.currentMouseX);
+      auto offset_from_click_y = abs(G_INPUT_INFO.mouse_btn_down_y - G_INPUT_INFO.currentMouseY); 
+      if(offset_from_click_x > 2 || offset_from_click_y > 2)
+      {
+         G_INPUT_INFO.is_mouse_drag = true;
+      }
+   }
 }
 
 void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset) 
