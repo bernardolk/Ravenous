@@ -72,6 +72,8 @@ struct GlobalInputInfo {
    double mouse_btn_down_y;
    double currentMouseX;
    double currentMouseY;
+   float toggle_key_cooldown = 0;
+   int key_input_state = 0;
 } G_INPUT_INFO;
 
 struct GlobalFrameInfo {
@@ -190,7 +192,7 @@ void adjust_player_position_and_velocity(Player* player, float distance, glm::ve
 // unsigned int setup_object(MeshData objData);
 EntityBuffer* allocate_entity_buffer(size_t size);
 void update_buffers();
-void handle_input_flags(int flags, Player* &player);
+void handle_input_flags(KeyInputFlags flags, Player* &player);
 void check_view_mode(Player* player);
 
 
@@ -247,7 +249,7 @@ int main()
       G_FRAME_INFO.frame_counter_10 = ++G_FRAME_INFO.frame_counter_10 % 10;   
 
 		//	INPUT PHASE
-      int input_flags = input_phase(player);
+      auto input_flags = input_phase();
       handle_input_flags(input_flags, player);
 
 		//	UPDATE PHASE
@@ -285,14 +287,14 @@ void check_view_mode(Player* player)
    }
 }
 
-void handle_input_flags(int flags, Player* &player)
+void handle_input_flags(KeyInputFlags flags, Player* &player)
 {
-   if(flags & KEY_PRESS_K)
+   if(flags.press & KEY_K)
    {
       load_scene_from_file(PROJECT_PATH + "/test.txt");
       player = G_SCENE_INFO.player; // not irrelevant! do not delete
    }
-   if(flags & KEY_PRESS_F)
+   if(flags.press & KEY_F && !(G_INPUT_INFO.key_input_state & KEY_F))
    {
       if(G_SCENE_INFO.view_mode == FREE_ROAM)
       {
@@ -309,7 +311,7 @@ void handle_input_flags(int flags, Player* &player)
          glfwSetInputMode(G_DISPLAY_INFO.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
       }
    }
-   if(flags & KEY_PRESS_ESC)
+   if(flags.press & KEY_ESC)
    {
        glfwSetWindowShouldClose(G_DISPLAY_INFO.window, true);
    }
@@ -317,35 +319,35 @@ void handle_input_flags(int flags, Player* &player)
    if(G_SCENE_INFO.view_mode == FREE_ROAM)
    {
       float camera_speed = G_FRAME_INFO.delta_time * G_SCENE_INFO.camera->Acceleration;
-      if(flags & KEY_PRESS_LEFT_SHIFT)
+      if(flags.press & KEY_LEFT_SHIFT)
       {
          camera_speed = camera_speed * 2;
       }
-      if(flags & KEY_PRESS_LEFT_CTRL)
+      if(flags.press & KEY_LEFT_CTRL)
       {
          camera_speed = camera_speed / 2;
       }
-      if(flags & KEY_PRESS_W)
+      if(flags.press & KEY_W)
       {
          G_SCENE_INFO.camera->Position += camera_speed * G_SCENE_INFO.camera->Front;
       }
-      if(flags & KEY_PRESS_A)
+      if(flags.press & KEY_A)
       {
          G_SCENE_INFO.camera->Position -= camera_speed * glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
       }
-      if(flags & KEY_PRESS_S)
+      if(flags.press & KEY_S)
       {
          G_SCENE_INFO.camera->Position -= camera_speed * G_SCENE_INFO.camera->Front;
       }
-      if(flags & KEY_PRESS_D)
+      if(flags.press & KEY_D)
       {
          G_SCENE_INFO.camera->Position += camera_speed * glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
       }
-      if(flags & KEY_PRESS_Q)
+      if(flags.press & KEY_Q)
       {
          G_SCENE_INFO.camera->Position -= camera_speed * G_SCENE_INFO.camera->Up;
       }
-      if(flags & KEY_PRESS_O)
+      if(flags.press & KEY_O)
       {
          camera_look_at(G_SCENE_INFO.camera, glm::vec3(0.0f, 0.0f, 0.0f), true);
       }
@@ -355,20 +357,20 @@ void handle_input_flags(int flags, Player* &player)
          // resets velocity
          player->entity_ptr->velocity = glm::vec3(0); 
 
-         if (flags & KEY_PRESS_UP)
+         if (flags.press & KEY_UP)
          {
             player->entity_ptr->velocity += glm::vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
          }
-         if (flags & KEY_PRESS_DOWN)
+         if (flags.press & KEY_DOWN)
          {
             player->entity_ptr->velocity -= glm::vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
          }
-         if (flags & KEY_PRESS_LEFT)
+         if (flags.press & KEY_LEFT)
          {
             glm::vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
             player->entity_ptr->velocity -= glm::vec3(onwards_vector.x, 0, onwards_vector.z);
          }
-         if (flags & KEY_PRESS_RIGHT)
+         if (flags.press & KEY_RIGHT)
          {
             glm::vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
             player->entity_ptr->velocity += glm::vec3(onwards_vector.x, 0, onwards_vector.z);
@@ -377,12 +379,12 @@ void handle_input_flags(int flags, Player* &player)
          if(glm::length2(player->entity_ptr->velocity) > 0)
          {
             float player_frame_speed = player->speed;
-            if(flags & KEY_PRESS_LEFT_SHIFT)  // PLAYER DASH
+            if(flags.press & KEY_LEFT_SHIFT)  // PLAYER DASH
                player_frame_speed *= 2;
 
             player->entity_ptr->velocity = player_frame_speed * glm::normalize(player->entity_ptr->velocity);
          }
-         if (flags & KEY_PRESS_SPACE) 
+         if (flags.press & KEY_SPACE) 
          {
             player->player_state = PLAYER_STATE_JUMPING;
             player->entity_ptr->velocity.y = player->jump_initial_speed;
@@ -396,20 +398,20 @@ void handle_input_flags(int flags, Player* &player)
          // resets velocity
          player->entity_ptr->velocity = glm::vec3(0); 
 
-         if(flags & KEY_PRESS_W)
+         if(flags.press & KEY_W)
          {
             player->entity_ptr->velocity += glm::vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
          }
-         if(flags & KEY_PRESS_A)
+         if(flags.press & KEY_A)
          {
             glm::vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
             player->entity_ptr->velocity -= glm::vec3(onwards_vector.x, 0, onwards_vector.z);
          }
-         if(flags & KEY_PRESS_S)
+         if(flags.press & KEY_S)
          {
             player->entity_ptr->velocity -= glm::vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
          }
-         if(flags & KEY_PRESS_D)
+         if(flags.press & KEY_D)
          {
             glm::vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
             player->entity_ptr->velocity += glm::vec3(onwards_vector.x, 0, onwards_vector.z);
@@ -418,12 +420,12 @@ void handle_input_flags(int flags, Player* &player)
          if(glm::length2(player->entity_ptr->velocity) > 0)
          {
             float player_frame_speed = player->speed;
-            if(flags & KEY_PRESS_LEFT_SHIFT)  // PLAYER DASH
+            if(flags.press & KEY_LEFT_SHIFT)  // PLAYER DASH
                player_frame_speed *= 2;
 
             player->entity_ptr->velocity = player_frame_speed * glm::normalize(player->entity_ptr->velocity);
          }
-         if (flags & KEY_PRESS_SPACE) 
+         if (flags.press & KEY_SPACE) 
          {
             player->player_state = PLAYER_STATE_JUMPING;
             player->entity_ptr->velocity.y = player->jump_initial_speed;
@@ -434,6 +436,10 @@ void handle_input_flags(int flags, Player* &player)
          G_SCENE_INFO.camera->Position.y +=  player->half_height * 2.0 / 3.0;
       }
    }
+
+   // here we record a history for if keys were last pressed or released, so to enable smooth toggle
+   G_INPUT_INFO.key_input_state |= flags.press;
+   G_INPUT_INFO.key_input_state &= ~(flags.release); 
 }
 
 

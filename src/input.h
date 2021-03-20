@@ -1,99 +1,119 @@
 
+struct KeyInputFlags {
+   int press;
+   int release;
+};
+
 void on_mouse_btn(GLFWwindow* window, int button, int action, int mods);
 void on_mouse_move(GLFWwindow* window, double xpos, double ypos);
-int process_keyboard_input(GLFWwindow* window, Player* player);
+int process_keyboard_input_key_press(GLFWwindow* window);
+int process_keyboard_input_key_release(GLFWwindow* window);
 void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset);
-int input_phase(Player* player);
+KeyInputFlags input_phase();
+
 
 // INPUT KEY PRESS FLAGS
-int KEY_PRESS_W               = 1 << 0;
-int KEY_PRESS_A               = 1 << 1;
-int KEY_PRESS_S               = 1 << 2;
-int KEY_PRESS_D               = 1 << 3;
-int KEY_PRESS_Q               = 1 << 4;
-int KEY_PRESS_E               = 1 << 5;
-int KEY_PRESS_O               = 1 << 6;
-int KEY_PRESS_LEFT            = 1 << 7;
-int KEY_PRESS_RIGHT           = 1 << 8;
-int KEY_PRESS_UP              = 1 << 9;
-int KEY_PRESS_DOWN            = 1 << 10;
-int KEY_PRESS_SPACE           = 1 << 11;
-int KEY_PRESS_K               = 1 << 12;
-int KEY_PRESS_F               = 1 << 13;
-int KEY_PRESS_G               = 1 << 14;
-int KEY_PRESS_ESC             = 1 << 15;
-int KEY_PRESS_LEFT_SHIFT      = 1 << 16;
-int KEY_PRESS_LEFT_CTRL       = 1 << 17;
-int KEY_PRESS_9               = 1 << 18;
+int KEY_W               = 1 << 0;
+int KEY_A               = 1 << 1;
+int KEY_S               = 1 << 2;
+int KEY_D               = 1 << 3;
+int KEY_Q               = 1 << 4;
+int KEY_E               = 1 << 5;
+int KEY_O               = 1 << 6;
+int KEY_LEFT            = 1 << 7;
+int KEY_RIGHT           = 1 << 8;
+int KEY_UP              = 1 << 9;
+int KEY_DOWN            = 1 << 10;
+int KEY_SPACE           = 1 << 11;
+int KEY_K               = 1 << 12;
+int KEY_F               = 1 << 13;
+int KEY_G               = 1 << 14;
+int KEY_ESC             = 1 << 15;
+int KEY_LEFT_SHIFT      = 1 << 16;
+int KEY_LEFT_CTRL       = 1 << 17;
+int KEY_9               = 1 << 18;
+
+// INPUT KEY RELEASE FLAGS
 
 
-int input_phase(Player* player) {
+KeyInputFlags input_phase() {
 		glfwPollEvents();
-		auto input_flags = process_keyboard_input(G_DISPLAY_INFO.window, player);
-      return input_flags;
+		auto key_press_flags = process_keyboard_input_key_press(G_DISPLAY_INFO.window);
+      auto key_release_flags = process_keyboard_input_key_release(G_DISPLAY_INFO.window);
+      return KeyInputFlags{key_press_flags, key_release_flags};
 }
 
 
-int process_keyboard_input(GLFWwindow* window, Player* player)
+int process_keyboard_input_key_press(GLFWwindow* window)
 {
    int flags = 0;
 
    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-      flags = flags | KEY_PRESS_LEFT_SHIFT;
+      flags = flags | KEY_LEFT_SHIFT;
 
    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-      flags = flags | KEY_PRESS_LEFT_CTRL;
+      flags = flags | KEY_LEFT_CTRL;
 
    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-      flags = flags | KEY_PRESS_ESC;
+      flags = flags | KEY_ESC;
 
    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-      flags = flags | KEY_PRESS_W;
+      flags = flags | KEY_W;
 
    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-      flags = flags | KEY_PRESS_A;
+      flags = flags | KEY_A;
 
    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-      flags = flags | KEY_PRESS_S;
+      flags = flags | KEY_S;
 
    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-      flags = flags | KEY_PRESS_D;
+      flags = flags | KEY_D;
 
    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-      flags = flags | KEY_PRESS_Q;
+      flags = flags | KEY_Q;
 
    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-      flags = flags | KEY_PRESS_E;
+      flags = flags | KEY_E;
 
    if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
-         flags = flags | KEY_PRESS_O;
+         flags = flags | KEY_O;
 
    if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) 
-      flags = flags | KEY_PRESS_9;
+      flags = flags | KEY_9;
 
    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-      flags = flags | KEY_PRESS_UP;
+      flags = flags | KEY_UP;
 
    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-      flags = flags | KEY_PRESS_DOWN;
+      flags = flags | KEY_DOWN;
       
    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-      flags = flags | KEY_PRESS_LEFT;
+      flags = flags | KEY_LEFT;
 
    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-      flags = flags | KEY_PRESS_RIGHT;
+      flags = flags | KEY_RIGHT;
 
    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) 
-      flags = flags | KEY_PRESS_SPACE;
+      flags = flags | KEY_SPACE;
 
    if(glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
-      flags = flags | KEY_PRESS_K;
+      flags = flags | KEY_K;
 
    if(glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
-      flags = flags | KEY_PRESS_F;
+      flags = flags | KEY_F;
 
    else if(glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS)
-      flags = flags | KEY_PRESS_G;
+      flags = flags | KEY_G;
+
+   return flags;
+}
+
+int process_keyboard_input_key_release(GLFWwindow* window)
+{
+   int flags = 0;
+
+   if(glfwGetKey(window, GLFW_KEY_F) == GLFW_RELEASE)
+      flags = flags | KEY_F;
 
    return flags;
 }
