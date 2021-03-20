@@ -271,6 +271,21 @@ void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::stri
             new_entity->collision_geometry_ptr = cgab;
             new_entity->collision_geometry_type = COLLISION_ALIGNED_BOX;
          }
+         else if(collision_type == "slope")
+         {
+            auto slope_collision = new CollisionGeometrySlope;
+            // assuming always that slope is along x for now ('length' == direction of the inclination)
+            slope_collision->slope_width =  new_entity->scale.z;
+            slope_collision->slope_height = new_entity->scale.y;
+            slope_collision->slope_length = new_entity->scale.x;
+
+            assert(new_entity->scale.x > 0);
+            assert(new_entity->scale.y > 0); 
+            assert(new_entity->scale.z > 0);
+
+            new_entity->collision_geometry_ptr = slope_collision;
+            new_entity->collision_geometry_type = COLLISION_ALIGNED_SLOPE;
+         }
          else
          {
             std::cout << "UNRECOGNIZED COLLISION TYPE '" << collision_type << "' AT SCENE DESCRIPTION FILE ('" 

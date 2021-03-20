@@ -36,7 +36,8 @@ int KEY_9               = 1 << 18;
 // INPUT KEY RELEASE FLAGS
 
 
-KeyInputFlags input_phase() {
+KeyInputFlags input_phase() 
+{
 		glfwPollEvents();
 		auto key_press_flags = process_keyboard_input_key_press(G_DISPLAY_INFO.window);
       auto key_release_flags = process_keyboard_input_key_release(G_DISPLAY_INFO.window);

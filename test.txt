@@ -34,3 +34,12 @@ mesh aabb
 shader model
 texture diffuse sandstone sandstone.jpg
 collision aabb
+
+
+#slope
+position 0 0 2
+scale 1 1 1
+mesh slope
+shader model
+texture diffuse sandstone sandstone.jpg
+collision slope

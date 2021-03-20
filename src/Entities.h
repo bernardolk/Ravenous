@@ -6,7 +6,8 @@ struct GlobalEntityInfo {
 
 enum CollisionGeometryEnum {
    COLLISION_ALIGNED_CYLINDER,
-   COLLISION_ALIGNED_BOX
+   COLLISION_ALIGNED_BOX,
+   COLLISION_ALIGNED_SLOPE,
 };
 
 struct CollisionGeometryAlignedCylinder{
@@ -18,6 +19,12 @@ struct CollisionGeometryAlignedBox{
    float length_x;
    float length_y;
    float length_z;
+};
+
+struct CollisionGeometrySlope{
+   float slope_length;
+   float slope_height;
+   float slope_width;
 };
 
 struct Entity {

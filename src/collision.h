@@ -30,6 +30,7 @@ struct Collision {
 
 
 float get_vertical_overlap_player_vs_aabb(Entity* entity, Entity* player);
+float get_vertical_overlap_player_vs_slope(Entity* entity, Entity* player);
 CollisionData check_player_collision_with_scene_falling(
       Entity* player, Entity** entity_iterator, size_t entity_list_size
 );
@@ -46,6 +47,7 @@ void run_collision_checks_standing(Player* player, Entity** entity_iterator, siz
 void run_collision_checks_falling(Player* player, Entity** entity_iterator, size_t entity_list_size);
 CollisionData check_collision_vertical(Player* player, EntityBufferElement* entity_iterator, size_t entity_list_size);
 Collision get_horizontal_overlap_player_aabb(Entity* entity, Entity* player);
+Collision get_horizontal_overlap_player_slope(Entity* entity, Entity* player);
 
 
 
@@ -214,7 +216,7 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
             
             // deals with collision
             // move player back using aabb surface normal vec and computed player/entity overlap in horizontal plane
-            player->entity_ptr->position -= glm::vec3(collision_data.normal_vec.x, 0, collision_data.normal_vec.y)  * collision_data.overlap;
+            player->entity_ptr->position -= glm::vec3(collision_data.normal_vec.x, 0, collision_data.normal_vec.y) * collision_data.overlap;
          }
       }
       if(!any_collision)
@@ -237,21 +239,50 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
    {
 	   Entity* &entity = entity_iterator->entity;
 	   float biggest_overlap = -1;
-      Collision c;   
-	   if (entity_iterator->collision_check == false
-         // ^^^ entities in entity_buf_iter have metadata set to true once checked for collisions in outer loop
-         && entity->collision_geometry_type == COLLISION_ALIGNED_BOX 
-         && intersects_vertically(entity, player->entity_ptr))
+      Collision c;
+	   if (entity_iterator->collision_check == false)
       {    
-         c = get_horizontal_overlap_player_aabb(entity, player->entity_ptr);
-         if(c.is_collided && c.overlap > biggest_overlap)
+         if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX && intersects_vertically(entity, player->entity_ptr))
          {
-            biggest_overlap = c.overlap;
+            c = get_horizontal_overlap_player_aabb(entity, player->entity_ptr);
 
-            return_cd.is_collided = true;
-            return_cd.collided_entity_ptr = entity;
-            return_cd.overlap = c.overlap;
-            return_cd.normal_vec = c.normal_vec;
+            if(c.is_collided && c.overlap >= 0 && c.overlap > biggest_overlap)
+            {
+               biggest_overlap = c.overlap;
+
+               return_cd.is_collided = true;
+               return_cd.collided_entity_ptr = entity;
+               return_cd.overlap = c.overlap;
+               return_cd.normal_vec = c.normal_vec;
+            }
+         }
+         // here we check for entity different then players current floor and above no because above intersects_vertically
+         // suffice to discard it
+         else if (entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE && entity != player->standing_entity_ptr)
+         {
+            auto vertical_overlap = get_vertical_overlap_player_vs_slope(entity, player->entity_ptr);
+            c = get_horizontal_overlap_player_slope(entity, player->entity_ptr);
+ 
+            if(c.is_collided && player->player_state == PLAYER_STATE_STANDING)
+            {
+               auto slope_normal = glm::vec2(1.0, 0);
+               // cout << "x: " << c.normal_vec.x << " z: " << c.normal_vec.y << "\n";
+               if(vertical_overlap > 0 && vertical_overlap < 0.05 && c.normal_vec == slope_normal)
+               {
+                  cout << "PLAYER STEPPED INTO SLOPE \n";
+                  player->standing_entity_ptr = entity;
+                  player->entity_ptr->position.y += vertical_overlap;
+               }
+            }
+            else if(c.is_collided && c.overlap >= 0 && c.overlap > biggest_overlap && vertical_overlap > 0)
+            {
+               biggest_overlap = c.overlap;
+
+               return_cd.is_collided = true;
+               return_cd.collided_entity_ptr = entity;
+               return_cd.overlap = c.overlap;
+               return_cd.normal_vec = c.normal_vec;
+            }
          }
       }
       entity_iterator++;
@@ -267,15 +298,25 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
    {
 	   Entity* &entity = entity_iterator->entity;
 	   float biggest_overlap = -1;
-	   if (entity_iterator->collision_check == false
-         // ^^^ entities in entity_buf_iter have metadata set to true once checked for collisions in outer loop
-         && entity->collision_geometry_type == COLLISION_ALIGNED_BOX 
-         && intersects_vertically(entity, player->entity_ptr))
-      {    
-         float vertical_overlap = get_vertical_overlap_player_vs_aabb(entity, player->entity_ptr);
-         Collision horizontal_check = get_horizontal_overlap_player_aabb(entity, player->entity_ptr);   
-
-         if(horizontal_check.is_collided && vertical_overlap > biggest_overlap)
+	   if (entity_iterator->collision_check == false)
+      {   
+         // PERFORMS OVERLAP TESTING
+         float vertical_overlap = -1;
+         Collision horizontal_check;
+         {
+            if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX && intersects_vertically(entity, player->entity_ptr))
+            {
+               vertical_overlap = get_vertical_overlap_player_vs_aabb(entity, player->entity_ptr);
+               horizontal_check = get_horizontal_overlap_player_aabb(entity, player->entity_ptr);   
+            }
+            else if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
+            {
+               vertical_overlap = get_vertical_overlap_player_vs_slope(entity, player->entity_ptr);
+               horizontal_check = get_horizontal_overlap_player_slope(entity, player->entity_ptr);   
+            }
+         }
+         // CHECKS IF ANYTHING WORHTWHILE HAPPENED
+         if(horizontal_check.is_collided && vertical_overlap >= 0 && vertical_overlap > biggest_overlap)
          {
             biggest_overlap = vertical_overlap;
             return_cd.collided_entity_ptr = entity;
@@ -327,6 +368,47 @@ Collision get_horizontal_overlap_player_aabb(Entity* entity, Entity* player)
    float box_z1 = entity->position.z + box_collision_geometry.length_z;
 
    float player_x = player->position.x;
+   float player_z = player->position.z; 
+
+   auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player->collision_geometry_ptr;
+   float p_radius2 = player_collision_geometry->radius * player_collision_geometry->radius;
+
+   if (box_x0 <= player_x && box_x1 >= player_x && box_z0 <= player_z && box_z1 >= player_z)
+   {
+      return Collision{true}; // overlap = 0
+   }
+   else
+   {
+      float nx = std::max(box_x0, std::min(box_x1, player_x));
+      float nz = std::max(box_z0, std::min(box_z1, player_z));
+      // vector from player to nearest point in rectangle surface
+      glm::vec2 n_vec = glm::vec2(nx, nz) - glm::vec2(player_x, player_z);
+      float distance = glm::length(n_vec);
+      float p_radius = player_collision_geometry->radius;
+      float overlap = p_radius - distance;
+
+      Collision c;
+      if(overlap > COLLISION_EPSILON)
+      {   
+         c.is_collided = true;
+         c.overlap = overlap;
+         c.normal_vec = glm::normalize(n_vec);
+      }
+
+      return c;
+   }     
+}
+
+Collision get_horizontal_overlap_player_slope(Entity* entity, Entity* player)
+{
+   //box boundaries
+   auto box_collision_geometry = *((CollisionGeometrySlope*) entity->collision_geometry_ptr);
+   float box_x0 = entity->position.x;
+   float box_x1 = entity->position.x + box_collision_geometry.slope_length;
+   float box_z0 = entity->position.z;
+   float box_z1 = entity->position.z + box_collision_geometry.slope_width;
+
+   float player_x = player->position.x;
    float player_z = player->position.z;
 
    auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player->collision_geometry_ptr;
@@ -372,6 +454,21 @@ float get_vertical_overlap_player_vs_aabb(Entity* entity, Entity* player)
    return box_top - player_bottom;
 }
 
+float get_vertical_overlap_player_vs_slope(Entity* entity, Entity* player)
+{
+   auto col_geometry = *((CollisionGeometrySlope*) entity->collision_geometry_ptr);
+   float slope_top = entity->position.y + col_geometry.slope_height;
+
+   auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player->collision_geometry_ptr;
+   float player_bottom = player->position.y - player_collision_geometry->half_length;
+
+   float a = col_geometry.slope_height / col_geometry.slope_length;
+   float x = player->position.x - entity->position.x;
+   float y = slope_top - a * x;
+
+   return y - player_bottom;
+}
+
 
 // _____________________________________
 //
@@ -409,15 +506,39 @@ CollisionData sample_terrain_height_below_player(Entity* player, Entity* entity)
    // in the SIMPLIFIED VERSION, we know we have a flat axis-aligned platform. Just check the
    // boundaries to see if player crossed or not.
 
-   auto box_collision_geometry = *((CollisionGeometryAlignedBox*) entity->collision_geometry_ptr);
-   float box_top = entity->position.y + box_collision_geometry.length_y;
-   float box_bottom = entity->position.y;
+   float height, len_x, len_z;
+   if (entity->collision_geometry_type == COLLISION_ALIGNED_BOX)
+   {
+      auto collision_geometry = *((CollisionGeometryAlignedBox*) entity->collision_geometry_ptr);
+      len_x = collision_geometry.length_x;
+      len_z = collision_geometry.length_z;
+
+      float box_top = entity->position.y + collision_geometry.length_y;
+      height = box_top;
+   }
+   else if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
+   {
+      auto collision_geometry = *((CollisionGeometrySlope*) entity->collision_geometry_ptr);
+      len_x = collision_geometry.slope_length;
+      len_z = collision_geometry.slope_width;
+
+      float slope_top = entity->position.y + collision_geometry.slope_height;
+      float a = collision_geometry.slope_height / collision_geometry.slope_length;
+      float x = player->position.x - entity->position.x;
+      float y = slope_top - a * x;
+      height = y;
+   }
+   else
+   {
+      assert(false);
+   }
+
 
    //platform boundaries
    float box_x0 = entity->position.x;
-   float box_x1 = entity->position.x + box_collision_geometry.length_x;
+   float box_x1 = entity->position.x + len_x;
    float box_z0 = entity->position.z;
-   float box_z1 = entity->position.z + box_collision_geometry.length_z;
+   float box_z1 = entity->position.z + len_z;
 
    float player_x = player->position.x;
    float player_z = player->position.z;
@@ -426,7 +547,7 @@ CollisionData sample_terrain_height_below_player(Entity* player, Entity* entity)
    // check if player's center lies inside terrain box
    if(box_x0 <= player_x && box_x1 >= player_x && box_z0 <= player_z && box_z1 >= player_z)
    {
-      cd.overlap = box_top;
+      cd.overlap = height;
       cd.is_collided = true;
    }
    return cd;

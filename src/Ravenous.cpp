@@ -246,7 +246,7 @@ int main()
       } 
 		G_FRAME_INFO.current_fps = 1.0f / G_FRAME_INFO.delta_time;
       G_FRAME_INFO.frame_counter_3 = ++G_FRAME_INFO.frame_counter_3 % 3;
-      G_FRAME_INFO.frame_counter_10 = ++G_FRAME_INFO.frame_counter_10 % 10;   
+      G_FRAME_INFO.frame_counter_10 = ++G_FRAME_INFO.frame_counter_10 % 10;
 
 		//	INPUT PHASE
       auto input_flags = input_phase();
@@ -528,6 +528,35 @@ void create_boilerplate_geometry()
    aabb_mesh->gl_data = setup_gl_data_for_mesh(aabb_mesh);
    Geometry_Catalogue.insert({"aabb", aabb_mesh});
 
+   // SLOPE
+   vector<Vertex> slope_vertex_vec = {
+      // bottom
+      Vertex{glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(0.0f, 0.0f)},   //0
+      Vertex{glm::vec3(1.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(0.5f, 0.0f)},   //1
+      Vertex{glm::vec3(1.0f, 0.0f, 1.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(0.5f, 0.5f)},   //2
+      Vertex{glm::vec3(0.0f, 0.0f, 1.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(0.0f, 0.5f)},   //3
+      // top
+      Vertex{glm::vec3(0.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(0.0f, 0.0f)},   //4
+      Vertex{glm::vec3(0.0f, 1.0f, 1.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(0.5f, 0.0f)},   //5
+   };
+
+   vector<u32> slope_vertex_indices = 
+   { 
+      0, 1, 2, 2, 3, 0,    // bottom face
+      0, 4, 1,             // side face 1
+      3, 5, 2,             // side face 2
+      0, 4, 3, 3, 5, 4,    // back face
+      4, 1, 5, 5, 2, 1,    // slope face
+   };
+
+   auto slope_mesh = new Mesh();
+   slope_mesh->vertices = slope_vertex_vec;
+   slope_mesh->indices = slope_vertex_indices;
+   slope_mesh->render_method = GL_TRIANGLES;
+   slope_mesh->gl_data = setup_gl_data_for_mesh(slope_mesh);
+   Geometry_Catalogue.insert({"slope", slope_mesh});
+
+
    // QUAD VBO
    vector<Vertex> quad_vertex_vec = {
       Vertex{glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 0.0f)},
@@ -618,6 +647,10 @@ void update_player_state(Player* player)
                player_entity->velocity *= 1.3;
                player_entity->velocity.y = - 1 * player->fall_speed;
                player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
+            }
+            else
+            {
+               player->entity_ptr->position.y = terrain_collision.overlap + player->half_height;
             }
          }
          break;
