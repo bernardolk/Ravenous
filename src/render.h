@@ -76,9 +76,9 @@ void render_scene(Scene* scene, Camera* camera)
             entity->shader->setFloat(uniform_name  + ".quadratic", point_light.intensity_quadratic);
             point_light_count++;
          }
-         entity->shader->    setInt ("num_directional_light", 0);
-         entity->shader->    setInt ("num_spot_lights",       0);
-         entity->shader->    setInt ("num_point_lights",    point_light_count);
+         entity->shader->     setInt("num_directional_light", 0);
+         entity->shader->     setInt("num_spot_lights",       0);
+         entity->shader->     setInt("num_point_lights",    point_light_count);
          entity->shader-> setMatrix4("view",                camera->View4x4);
          entity->shader-> setMatrix4("projection",          camera->Projection4x4);
          entity->shader->   setFloat("shininess",           scene->global_shininess);
