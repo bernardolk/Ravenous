@@ -100,7 +100,7 @@ int process_keyboard_input(GLFWwindow* window, Player* player)
 
 void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 {
-   if (G_INPUT_INFO.is_mouse_drag) 
+   if (G_INPUT_INFO.is_mouse_drag || G_SCENE_INFO.view_mode == FIRST_PERSON) 
    {
       // 'teleports' stored coordinates to current mouse coordinates
       if (G_INPUT_INFO.reset_mouse_coords) 
@@ -132,6 +132,7 @@ void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
          G_SCENE_INFO.camera->Yaw = G_SCENE_INFO.camera->Yaw - 360.0f;
       if (G_SCENE_INFO.camera->Yaw < -360.0f)
          G_SCENE_INFO.camera->Yaw = G_SCENE_INFO.camera->Yaw + 360.0f;
+
    }
 
    G_INPUT_INFO.currentMouseX = xpos;

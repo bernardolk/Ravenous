@@ -299,12 +299,14 @@ void handle_input_flags(int flags, Player* &player)
          G_SCENE_INFO.view_mode = FIRST_PERSON;
          G_SCENE_INFO.camera = G_SCENE_INFO.views[1];
          player->entity_ptr->render_me = false;
+         glfwSetInputMode(G_DISPLAY_INFO.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
       }
       else if(G_SCENE_INFO.view_mode == FIRST_PERSON)
       {
          G_SCENE_INFO.camera = G_SCENE_INFO.views[0];
          G_SCENE_INFO.view_mode = FREE_ROAM;
          player->entity_ptr->render_me = true;
+         glfwSetInputMode(G_DISPLAY_INFO.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
       }
    }
    if(flags & KEY_PRESS_ESC)
