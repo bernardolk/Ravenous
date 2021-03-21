@@ -253,7 +253,8 @@ void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::stri
       }
       else if(property == "collision")
       {
-         is_collision_parsed = true;       // check so we make sure scale is defined before collision (we use it to define the aabb lengths)
+         // check so we make sure scale is defined before collision (we use it to define the aabb lengths)
+         is_collision_parsed = true;
 
          std::string collision_type;
          p = parse_all_whitespace(p);
@@ -274,10 +275,45 @@ void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::stri
          else if(collision_type == "slope")
          {
             auto slope_collision = new CollisionGeometrySlope;
-            // assuming always that slope is along x for now ('length' == direction of the inclination)
             slope_collision->slope_width =  new_entity->scale.z;
             slope_collision->slope_height = new_entity->scale.y;
             slope_collision->slope_length = new_entity->scale.x;
+
+            float inclination = slope_collision->slope_height / slope_collision->slope_length;
+            float slope_angle = atan(inclination);
+
+
+            // slope geometry is defined as default (rotation = 0) being going down along +x
+            // here we set the tangent vector to the slope, so the player falls along it when sliding
+            auto slope_direction = glm::vec3(0, -1 * sin(slope_angle), 0);
+            switch((int) new_entity->rotation.y)
+            {
+               case 0:
+               {
+                  slope_direction.x = cos(slope_angle);
+                  break;
+               }
+               case 90:
+               {
+                  slope_direction.z = -1 * cos(slope_angle);
+                  break;
+               }
+               case 180:
+               {
+                  slope_direction.x = -1 * cos(slope_angle);
+                  break;
+               }
+               case 270:
+               {
+                  slope_direction.z = cos(slope_angle);
+                  break;
+               }
+            }
+            slope_collision->tangent = slope_direction;
+
+            assert((int)new_entity->rotation.x % 90 == 0);
+            assert((int)new_entity->rotation.y % 90 == 0);
+            assert((int)new_entity->rotation.z % 90 == 0);
 
             assert(new_entity->scale.x > 0);
             assert(new_entity->scale.y > 0); 

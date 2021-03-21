@@ -25,6 +25,7 @@ struct CollisionGeometrySlope{
    float slope_length;
    float slope_height;
    float slope_width;
+   glm::vec3 tangent;
 };
 
 struct Entity {
