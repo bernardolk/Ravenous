@@ -12,6 +12,7 @@ enum CollisionOutcomeEnum {
    JUMP_SUCCESS   = 0,  // player fell succesfully into another platform
    JUMP_FAIL      = 1,  // player fell into the edge of another platform
    JUMP_FACE_FLAT = 2,  // player fell with face flat on wall
+   JUMP_SLIDE     = 3
 };
 
 struct CollisionData {
@@ -190,6 +191,21 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
 
                   break;
                }
+               case JUMP_SLIDE:
+               {
+                  std::cout << "SLIDING" << "\n";
+                  player->standing_entity_ptr = collision_data.collided_entity_ptr;
+                  auto height_check = sample_terrain_height_below_player(player->entity_ptr, player->standing_entity_ptr);
+                  float inclination = get_slope_inclination(collision_data.collided_entity_ptr);
+                  float slope_angle = atan(inclination);
+                  player->entity_ptr->position.y = height_check.overlap + player->half_height; 
+                  player->entity_ptr->velocity = glm::vec3(
+                     player->slide_speed * cos(slope_angle),
+                     -1 * player->slide_speed * sin(slope_angle),
+                     0
+                  );
+                  player->player_state = PLAYER_STATE_SLIDING;
+               }
             }
          }
       }
@@ -316,17 +332,19 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
       {   
          // PERFORMS OVERLAP TESTING
          float vertical_overlap = -1;
+         float inclination = -1; // for slopes only
          Collision horizontal_check;
          {
             if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX && intersects_vertically(entity, player->entity_ptr))
             {
                vertical_overlap = get_vertical_overlap_player_vs_aabb(entity, player->entity_ptr);
-               horizontal_check = get_horizontal_overlap_player_aabb(entity, player->entity_ptr);   
+               horizontal_check = get_horizontal_overlap_player_aabb(entity, player->entity_ptr);
             }
             else if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
             {
                vertical_overlap = get_vertical_overlap_player_vs_slope(entity, player->entity_ptr);
                horizontal_check = get_horizontal_overlap_player_slope(entity, player->entity_ptr);   
+               inclination = get_slope_inclination(entity);   
             }
          }
          // CHECKS IF ANYTHING WORHTWHILE HAPPENED
@@ -334,12 +352,19 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
          {
             biggest_overlap = vertical_overlap;
             return_cd.collided_entity_ptr = entity;
-
             // Compute player fall collision outcome to inform scene collision controller
             if(horizontal_check.overlap == 0)
             {
-               return_cd.overlap = vertical_overlap;
-               return_cd.collision_outcome = JUMP_SUCCESS;
+               if(inclination > 0.6)
+               {
+                  return_cd.overlap = vertical_overlap;
+                  return_cd.collision_outcome = JUMP_SLIDE;
+               }
+               else
+               {
+                  return_cd.overlap = vertical_overlap;
+                  return_cd.collision_outcome = JUMP_SUCCESS;
+               }
             }
             else if(vertical_overlap > 0.001) // TODO: Experiment with this cutoff value, 
             // here we determine how much "feet below aabb's top" the player has to be to be considered bashing face first against the wall

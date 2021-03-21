@@ -691,6 +691,19 @@ void update_player_state(Player* player)
          run_collision_checks_falling(player, entity_iterator, entity_list_size);
          break;
       }
+      case PLAYER_STATE_SLIDING:
+      {
+         assert(glm::length(player_entity->velocity) > 0);
+         // check if still colliding with floor, if so, let player keep sliding, if not, change to FALLING
+         Collision c_test = get_horizontal_overlap_player_aabb(player->standing_entity_ptr, player_entity);
+         if(!c_test.is_collided)
+         {
+            player->player_state = PLAYER_STATE_FALLING;
+            player->standing_entity_ptr = NULL;
+            player_entity->velocity = glm::vec3(0, 0, 0); 
+         }
+         break;
+      }
    }
 
    //print_vec_every_3rd_frame(player_entity->velocity, "player velocity");

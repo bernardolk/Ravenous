@@ -17,6 +17,7 @@ struct Player {
    float fall_speed = 0.0f;
    float fall_acceleration = 0.1f;
    float jump_initial_speed = 4.0f;
+   float slide_speed = 1.0f;
    float fall_from_edge_speed = 2.0f;
    PlayerStateEnum player_state;
    float radius;
