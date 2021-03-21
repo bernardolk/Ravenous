@@ -521,7 +521,7 @@ bool intersects_vertically(Entity* entity, Entity* player)
    float box_top = entity->position.y + box_collision_geometry.length_y;
    float box_bottom = entity->position.y;
 
-   return player_bottom < box_top && player_top > box_bottom;
+   return player_bottom + COLLISION_EPSILON < box_top && player_top > box_bottom + COLLISION_EPSILON;
 }
 
 

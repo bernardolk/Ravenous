@@ -55,7 +55,7 @@ void parse_and_load_attribute(Parse p, ifstream* reader, int& line_count, std::s
       p = parse_float_vector(p);
       player->entity_ptr->position = glm::vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
    }
-   else if(attribute == "player_velocity")
+   else if(attribute == "player_initial_velocity")
    {
       p = parse_float_vector(p);
       player->entity_ptr->velocity = glm::vec3(p.vec3[0],p.vec3[1],p.vec3[2]);

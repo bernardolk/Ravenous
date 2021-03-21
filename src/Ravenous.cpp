@@ -33,6 +33,7 @@ const std::string TEXTURES_PATH = PROJECT_PATH + "/assets/textures/";
 const std::string MODELS_PATH = PROJECT_PATH + "/assets/models/";
 const std::string FONTS_PATH = PROJECT_PATH + "/assets/fonts/";
 const std::string SHADERS_FOLDER_PATH = PROJECT_PATH + "/shaders/";
+const std::string CAMERA_FILE_PATH = PROJECT_PATH + "/camera.txt";
 const std::string SHADERS_FILE_EXTENSION = ".shd";
 
 // PLAYER CYLINDER SETTINGS ... !!!
@@ -199,7 +200,7 @@ void check_view_mode(Player* player);
 int main() 
 {
    // reads from camera position file
-   float* camera_pos = load_camera_settings(PROJECT_PATH + "/camera.txt");
+   float* camera_pos = load_camera_settings(CAMERA_FILE_PATH);
 
 	Camera* free_roam_camera = camera_create(
       glm::vec3(camera_pos[0], camera_pos[1], camera_pos[2]), glm::vec3(camera_pos[3], camera_pos[4], camera_pos[5]), false
@@ -289,6 +290,14 @@ void check_view_mode(Player* player)
 
 void handle_input_flags(KeyInputFlags flags, Player* &player)
 {
+   if(flags.press & KEY_9)
+   {
+      save_camera_settings_to_file(
+         CAMERA_FILE_PATH,
+         G_SCENE_INFO.camera->Position,
+         G_SCENE_INFO.camera->Front
+      );
+   }
    if(flags.press & KEY_K)
    {
       load_scene_from_file(PROJECT_PATH + "/test.txt");
@@ -644,9 +653,16 @@ void update_player_state(Player* player)
             {
                // make player "slide" towards edge and fall away from floor
                std::cout << "PLAYER FELL" << "\n";
-               player_entity->velocity *= 1.3;
-               player_entity->velocity.y = - 1 * player->fall_speed;
-               player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
+               // if(glm::len(player_entity->velocity) > 1)
+               // {
+
+               // }
+               // else
+               // {
+                  // player_entity->velocity *= 1.3;
+                  player_entity->velocity.y = - 1 * player->fall_speed;
+                  player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
+               // }
             }
             else
             {

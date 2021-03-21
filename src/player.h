@@ -13,7 +13,7 @@ enum PlayerStateEnum {
 struct Player {
    Entity* entity_ptr;
    Entity* standing_entity_ptr;
-   float speed = 0.6f;
+   float speed = 1.0f;
    float fall_speed = 0.0f;
    float fall_acceleration = 0.1f;
    float jump_initial_speed = 4.0f;
