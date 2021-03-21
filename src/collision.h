@@ -202,12 +202,26 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
                case JUMP_SLIDE:
                {
                   std::cout << "SLIDING" << "\n";
+                  
                   player->standing_entity_ptr = collision_data.collided_entity_ptr;
                   auto height_check = sample_terrain_height_below_player(player->entity_ptr, player->standing_entity_ptr);
                   player->entity_ptr->position.y = height_check.overlap + player->half_height;
-
+                  // make player 'snap' to slope
                   auto collision_geom = *((CollisionGeometrySlope*) collision_data.collided_entity_ptr->collision_geometry_ptr);
-                  player->entity_ptr->velocity = player->slide_speed * collision_geom.tangent;
+                  auto &pv = player->entity_ptr->velocity;
+                  auto pv_2d = glm::vec2(pv.x, pv.z);
+                  // make camera (player) turn to face either up or down the slope
+                  if(G_SCENE_INFO.view_mode == FIRST_PERSON)
+                  {
+                     auto t_2d = glm::vec2(collision_geom.tangent.x, collision_geom.tangent.z);
+                     auto dot = glm::dot(pv_2d, t_2d);
+                     if(dot == 0) dot = 1;   // compensates for orthogonal v and tangent
+                     auto projected = (dot/glm::length2(t_2d))*t_2d;
+                     auto camera_dir = glm::vec3(projected.x, G_SCENE_INFO.camera->Front.y, projected.y);
+                     camera_look_at(G_SCENE_INFO.camera, camera_dir, false);
+                  }
+
+                  pv = player->slide_speed * collision_geom.tangent;
                   player->player_state = PLAYER_STATE_SLIDING;
                }
             }

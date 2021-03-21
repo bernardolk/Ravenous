@@ -380,12 +380,21 @@ void setup_scene_boilerplate_stuff()
    // lightsource
    auto l1 = new PointLight();
    l1->id                     = 1;
-   l1->position               = glm::vec3(0.5, 2.5, 0.5);
+   l1->position               = glm::vec3(0.5, 3.5, 0.5);
    l1->diffuse                = glm::vec3(1.0, 1.0, 1.0);
    l1->ambient                = glm::vec3(1.0,1.0,1.0);
    l1->intensity_linear       = 0.4f;
    l1->intensity_quadratic    = 0.04f;
    demo_scene->pointLights.push_back(*l1);
+
+   auto l2 = new PointLight();
+   l2->id                     = 2;
+   l2->position               = glm::vec3(-8, 10, 1);
+   l2->diffuse                = glm::vec3(1.0, 1.0, 1.0);
+   l2->ambient                = glm::vec3(1.0,1.0,1.0);
+   l2->intensity_linear       = 0.4f;
+   l2->intensity_quadratic    = 0.04f;
+   demo_scene->pointLights.push_back(*l2);
 
    G_SCENE_INFO.active_scene = demo_scene;
 
