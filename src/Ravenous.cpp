@@ -653,16 +653,8 @@ void update_player_state(Player* player)
             {
                // make player "slide" towards edge and fall away from floor
                std::cout << "PLAYER FELL" << "\n";
-               // if(glm::len(player_entity->velocity) > 1)
-               // {
-
-               // }
-               // else
-               // {
-                  // player_entity->velocity *= 1.3;
-                  player_entity->velocity.y = - 1 * player->fall_speed;
-                  player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
-               // }
+               player_entity->velocity.y = - 1 * player->fall_speed;
+               player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
             }
             else
             {
