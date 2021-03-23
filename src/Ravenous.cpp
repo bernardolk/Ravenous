@@ -669,7 +669,7 @@ void update_player_state(Player* player)
           assert(glm::length(player_entity->velocity) > 0);
          // check if still colliding with floor, if so, let player keep sliding, if not, change to FALLING
          Collision c_test;
-         switch(player->entity_ptr->collision_geometry_type)
+         switch(player->standing_entity_ptr->collision_geometry_type)
          {
             case COLLISION_ALIGNED_BOX:
             {
@@ -686,7 +686,7 @@ void update_player_state(Player* player)
          {
             player->player_state = PLAYER_STATE_FALLING;
             player->standing_entity_ptr = NULL;
-            player_entity->velocity = glm::vec3(0, 0, 0); 
+            // player_entity->velocity = glm::vec3(0, 0, 0); 
          }
          break;
       }
