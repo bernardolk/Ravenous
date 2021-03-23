@@ -236,15 +236,16 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
                   auto &pv = player->entity_ptr->velocity;
                   auto pv_2d = glm::vec2(pv.x, pv.z);
                   // make camera (player) turn to face either up or down the slope
-                  if(G_SCENE_INFO.view_mode == FIRST_PERSON)
-                  {
-                     auto t_2d = glm::vec2(collision_geom.tangent.x, collision_geom.tangent.z);
-                     auto dot = glm::dot(pv_2d, t_2d);
-                     if(dot == 0) dot = 1;   // compensates for orthogonal v and tangent
-                     auto projected = (dot/glm::length2(t_2d))*t_2d;
-                     auto camera_dir = glm::vec3(projected.x, G_SCENE_INFO.camera->Front.y, projected.y);
-                     camera_look_at(G_SCENE_INFO.camera, camera_dir, false);
-                  }
+
+                  // if(G_SCENE_INFO.view_mode == FIRST_PERSON)
+                  // {
+                  //    auto t_2d = glm::vec2(collision_geom.tangent.x, collision_geom.tangent.z);
+                  //    auto dot = glm::dot(pv_2d, t_2d);
+                  //    if(dot == 0) dot = 1;   // compensates for orthogonal v and tangent
+                  //    auto projected = (dot/glm::length2(t_2d))*t_2d;
+                  //    auto camera_dir = glm::vec3(projected.x, G_SCENE_INFO.camera->Front.y, projected.y);
+                  //    camera_look_at(G_SCENE_INFO.camera, camera_dir, false);
+                  // }
 
                   pv = player->slide_speed * collision_geom.tangent;
                   player->player_state = PLAYER_STATE_SLIDING;
@@ -343,7 +344,7 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
             if(c.is_collided && c.overlap > biggest_overlap)
             {
                auto col_geometry = *((CollisionGeometrySlope*) entity->collision_geometry_ptr);
-               auto slope_2d_tangent = glm::vec2(col_geometry.tangent.x, col_geometry.tangent.z);
+               auto slope_2d_tangent = glm::normalize(glm::vec2(col_geometry.tangent.x, col_geometry.tangent.z));
 
                // @DEBUG
                if(G_INPUT_INFO.key_input_state & KEY_P)
@@ -365,7 +366,7 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
 
                else if(player->player_state == PLAYER_STATE_STANDING &&
                   c.overlap > 0 &&  // this means player is not INSIDE entity (player centroid)
-                  c.normal_vec == slope_2d_tangent)
+                  compare_vec2(c.normal_vec, -1.0f * slope_2d_tangent))
                {
                   float inclination = get_slope_inclination(entity);
                   if(inclination > 0.6)

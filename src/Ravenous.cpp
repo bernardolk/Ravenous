@@ -40,6 +40,9 @@ const std::string SHADERS_FILE_EXTENSION = ".shd";
 float CYLINDER_HALF_HEIGHT = 0.35f;
 float CYLINDER_RADIUS = 0.10f;
 
+float VEC_COMPARE_PRECISION = 0.00001f;
+
+
 
 const glm::mat4 mat4identity(
 	1.0f, 0.0f, 0.0f, 0.0f,
@@ -163,6 +166,8 @@ std::map<string, Mesh*> Geometry_Catalogue;
 std::map<string, Shader*> Shader_Catalogue;
 std::map<string, Texture> Texture_Catalogue;
 
+bool compare_vec2(glm::vec2 vec1, glm::vec2 vec2);
+
 #include <input.h>
 #include <collision.h>
 #include <scene.h>
@@ -195,7 +200,6 @@ EntityBuffer* allocate_entity_buffer(size_t size);
 void update_buffers();
 void handle_input_flags(KeyInputFlags flags, Player* &player);
 void check_view_mode(Player* player);
-
 
 int main() 
 {
@@ -896,6 +900,13 @@ inline void update_scene_objects()
 
       entity_iterator++;
 	}
+}
+
+bool compare_vec2(glm::vec2 vec1, glm::vec2 vec2)
+{
+   float x_diff = abs(vec1.x - vec2.x);
+   float y_diff = abs(vec1.y - vec2.y);
+   return x_diff < VEC_COMPARE_PRECISION && y_diff < VEC_COMPARE_PRECISION;
 }
 
 void setup_window(bool debug) {
