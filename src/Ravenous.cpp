@@ -666,9 +666,22 @@ void update_player_state(Player* player)
       case PLAYER_STATE_FALLING_FROM_EDGE:
       {
          // Here it is assumed player ALREADY has a velocity vec pushing him away from the platform he is standing on
-         assert(glm::length(player_entity->velocity) > 0);
+          assert(glm::length(player_entity->velocity) > 0);
          // check if still colliding with floor, if so, let player keep sliding, if not, change to FALLING
-         Collision c_test = get_horizontal_overlap_player_aabb(player->standing_entity_ptr, player_entity);
+         Collision c_test;
+         switch(player->entity_ptr->collision_geometry_type)
+         {
+            case COLLISION_ALIGNED_BOX:
+            {
+               c_test = get_horizontal_overlap_player_aabb(player->standing_entity_ptr, player_entity);
+               break;
+            }
+            case COLLISION_ALIGNED_SLOPE:
+            {
+               c_test = get_horizontal_overlap_player_slope(player->standing_entity_ptr, player_entity);
+               break;
+            }
+         }
          if(!c_test.is_collided)
          {
             player->player_state = PLAYER_STATE_FALLING;
@@ -724,6 +737,12 @@ void render_text_overlay(Camera* camera, Player* player)
    // render info text
    float GUI_x = 25;
    float GUI_y = G_DISPLAY_INFO.VIEWPORT_HEIGHT - 60;
+
+   string player_floor = "player floor: ";
+   if(player->standing_entity_ptr != NULL)
+   {
+      player_floor += player->standing_entity_ptr->name;
+   }
 
    string GUI_atts[]{
       format_float_tostr(camera->Position.x, 2),               //0
@@ -787,6 +806,7 @@ void render_text_overlay(Camera* camera, Player* player)
    render_text(fps_gui,          G_DISPLAY_INFO.VIEWPORT_WIDTH - 100, 25, scale);
    render_text(player_state_text,     GUI_x, 25, 1.4, player_state_text_color);
    render_text(view_mode_text,        GUI_x, 50, 1.4);
+   render_text(player_floor, GUI_x, 75, 1.4);
 }
 
 
