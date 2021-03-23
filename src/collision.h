@@ -613,7 +613,7 @@ bool intersects_vertically_slope(Entity* entity, Entity* player)
    // first we clip horizontally, checking if the y_values calculated based on player horizontal position are
    // inside the [slope_bottom, slope_top] range
    // then we check that the player is intersecting vertically with the slope using his current y positions
-   if(min_y <= slope_top && max_y >= slope_bottom && player_bottom < min_y && player_top > slope_bottom)
+   if(min_y <= slope_top && max_y >= slope_bottom && player_bottom < max_y && player_top > slope_bottom)
       return true;
 
    return false;
