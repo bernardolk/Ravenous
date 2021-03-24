@@ -71,6 +71,8 @@ float get_slope_inclination(Entity* entity);
 float get_slope_height_at_player_position(Entity* player, Entity* entity);
 Boundaries get_slope_boundaries(Entity* entity);
 SlopeHeightsPlayer get_slope_heights_at_player(Entity* player, Entity* entity);
+CollisionData check_for_floor_below_player(Player* player);
+
 
 
 // ________________________________________________________________________________
@@ -129,6 +131,8 @@ void run_collision_checks_standing(Player* player, Entity** entity_iterator, siz
    }
 }
 
+// @NOTE! : Because we are marking entities in buffer when checked, we should never use multiple CONTROLLER LEVEL calls unless
+//          we reset the buffers to the active scene entity list
 void run_collision_checks_falling(Player* player, Entity** entity_iterator, size_t entity_list_size)
 {
    // Here, we will check first for vertical intersections to see if player needs to be teleported to the top of the entity
@@ -766,6 +770,7 @@ CollisionData sample_terrain_height_below_player(Entity* player, Entity* entity)
    // in the SIMPLIFIED VERSION, we know we have a flat axis-aligned platform. Just check the
    // boundaries to see if player crossed or not.
 
+   CollisionData cd;
    float height;
    float x0;
    float x1;
@@ -797,20 +802,50 @@ CollisionData sample_terrain_height_below_player(Entity* player, Entity* entity)
    }
    else
    {
-      assert(false);
+      return cd;
+      // assert(false);
    }
 
    float player_x = player->position.x;
    float player_z = player->position.z;
 
-   CollisionData cd;
+   float min_x = min(x0, x1);
+   float max_x = max(x0, x1);
+   float min_z = min(z0, z1);
+   float max_z = max(z0, z1);
+
+
    // check if player's center lies inside terrain box
-   if(x0 <= player_x && x1 >= player_x && z0 <= player_z && z1 >= player_z)
+   if(min_x <= player_x && max_x >= player_x && min_z <= player_z && max_z >= player_z)
    {
       cd.overlap = height;
       cd.is_collided = true;
    }
    return cd;
+}
+
+CollisionData check_for_floor_below_player(Player* player)
+{
+   Entity **entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
+   int entities_vec_size =  G_SCENE_INFO.active_scene->entities.size();
+   float min_distance = 0.2;  // CONTROLS MAX HEIGHT FOR PLAYER TO NOT FALL STRAIGHT WHEN QUITTING PLATFORM
+   CollisionData response;
+	for(int it = 0; it < entities_vec_size; it++) 
+   {
+	   auto entity = *entity_iterator;
+
+      auto check = sample_terrain_height_below_player(player->entity_ptr, entity);
+      float y_diff = (player->entity_ptr->position.y - player->half_height) - check.overlap; //here overlap is height...
+      if(check.is_collided && y_diff >= 0 && y_diff < min_distance)
+      {
+         min_distance = y_diff;
+         response.is_collided = true;
+         response.overlap = y_diff;
+         response.collided_entity_ptr = entity;
+      }
+      entity_iterator++;
+   }
+   return response;
 }
 
 

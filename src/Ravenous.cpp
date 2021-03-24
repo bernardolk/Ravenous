@@ -294,6 +294,14 @@ void check_view_mode(Player* player)
 
 void handle_input_flags(KeyInputFlags flags, Player* &player)
 {
+   if(flags.press & KEY_B && !(G_INPUT_INFO.key_input_state & KEY_B))
+   {
+      // moves player to camera position
+      player->entity_ptr->position = G_SCENE_INFO.camera->Position;
+      camera_look_at(G_SCENE_INFO.views[1], G_SCENE_INFO.camera->Front, false);
+      player->player_state = PLAYER_STATE_FALLING;
+      player->entity_ptr->velocity = glm::vec3(0, 0, 0);
+   }
    if(flags.press & KEY_9)
    {
       save_camera_settings_to_file(
@@ -653,16 +661,24 @@ void update_player_state(Player* player)
          // step 2: check if player is still standing
          {
             auto terrain_collision = sample_terrain_height_below_player(player_entity, player->standing_entity_ptr);
-            if(!terrain_collision.is_collided)
+            if(terrain_collision.is_collided)
             {
-               // make player "slide" towards edge and fall away from floor
-               std::cout << "PLAYER FELL" << "\n";
-               player_entity->velocity.y = - 1 * player->fall_speed;
-               player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
+               player->entity_ptr->position.y = terrain_collision.overlap + player->half_height;
             }
             else
             {
-               player->entity_ptr->position.y = terrain_collision.overlap + player->half_height;
+               auto check = check_for_floor_below_player(player);
+               if(check.is_collided)
+               {
+                  player->standing_entity_ptr = check.collided_entity_ptr;
+               }
+               else
+               {
+                  // make player "slide" towards edge and fall away from floor
+                  std::cout << "PLAYER FELL" << "\n";
+                  player_entity->velocity.y = - 1 * player->fall_speed;
+                  player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
+               }
             }
          }
          break;
