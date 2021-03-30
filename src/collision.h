@@ -43,6 +43,8 @@ struct SlopeHeightsPlayer
    float at_coord_0;
    float at_coord_c;
    float at_coord_1;
+   float min;
+   float max;
 };
 
 
@@ -60,8 +62,9 @@ bool check_2D_collision_circle_and_aligned_square(Entity* circle, Entity* square
 float squared_distance_between_point_and_line(float x1, float y1, float x2, float y2, float x0, float y0);
 float squared_minimum_distance(glm::vec2 v, glm::vec2 w, glm::vec2 p);
 glm::vec3 get_nearest_edge(Entity* point, Entity* square);
-bool intersects_vertically(Entity* entity, Entity* player);
+bool intersects_vertically(Entity* entity, Player* player);
 bool intersects_vertically_slope(Entity* entity, Entity* player);
+bool intersects_vertically_standing_slope(Entity* entity, Player* player);
 void run_collision_checks_standing(Player* player, Entity** entity_iterator, size_t entity_list_size);
 void run_collision_checks_falling(Player* player, Entity** entity_iterator, size_t entity_list_size);
 CollisionData check_collision_vertical(Player* player, EntityBufferElement* entity_iterator, size_t entity_list_size);
@@ -109,7 +112,7 @@ void run_collision_checks_standing(Player* player, Entity** entity_iterator, siz
          {
             case STEPPED_SLOPE:
             {
-               cout << "PLAYER STEPPED INTO SLOPE \n";
+               // cout << "PLAYER STEPPED INTO SLOPE \n";
                player->standing_entity_ptr = collision_data.collided_entity_ptr;
                player->entity_ptr->position.y += collision_data.overlap;
                // @TODO: this is weird, here we are kinda assuming the player is already standing,
@@ -329,7 +332,7 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
       {    
          // AABB
          if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX &&
-            intersects_vertically(entity, player->entity_ptr))
+            intersects_vertically(entity, player))
          {
             c = get_horizontal_overlap_player_aabb(entity, player->entity_ptr);
 
@@ -349,13 +352,6 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
             {
                auto col_geometry = *((CollisionGeometrySlope*) entity->collision_geometry_ptr);
                auto slope_2d_tangent = glm::normalize(glm::vec2(col_geometry.tangent.x, col_geometry.tangent.z));
-
-               // @DEBUG
-               if(G_INPUT_INFO.key_input_state & KEY_P)
-               {
-                  cout << "tangent: " << std::to_string(slope_2d_tangent.x) << ", " << std::to_string(slope_2d_tangent.y) << " "
-                       << "collision normal:" << std::to_string(c.normal_vec.x) << ", " << std::to_string(c.normal_vec.y) << "\n";
-               }
 
                set_collided_entity = true;
 
@@ -416,7 +412,7 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
          float inclination = -1; // for slopes only BADBADNOTGOOD
          Collision horizontal_check;
          {
-            if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX && intersects_vertically(entity, player->entity_ptr))
+            if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX && intersects_vertically(entity, player))
             {
                vertical_overlap = get_vertical_overlap_player_centroid_vs_aabb(entity, player->entity_ptr);
                horizontal_check = get_horizontal_overlap_player_aabb(entity, player->entity_ptr);
@@ -584,25 +580,121 @@ float get_vertical_overlap_player_vs_slope(Entity* entity, Entity* player)
 // CULLING / UTILITY COLLISION FUNCTIONS
 // _____________________________________
 
-bool intersects_vertically(Entity* entity, Entity* player)
+bool intersects_vertically(Entity* entity, Player* player)
 {
-   auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player->collision_geometry_ptr;
-   float player_bottom = player->position.y - player_collision_geometry->half_length;
-   float player_top = player->position.y + player_collision_geometry->half_length;
+  
+
+   // if we are standing in a slope, then we need to check which player height we want to check against,
+   // because at each point that the player touches the slope he has a different height
+   if(player->player_state == PLAYER_STATE_STANDING &&
+      player->standing_entity_ptr->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
+   {
+      return intersects_vertically_standing_slope(entity, player);
+   }
+   else
+   {
+      auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player->entity_ptr->collision_geometry_ptr;
+      float player_bottom = player->entity_ptr->position.y - player_collision_geometry->half_length;
+      float player_top = player->entity_ptr->position.y + player_collision_geometry->half_length;
+
+      auto box_collision_geometry = *((CollisionGeometryAlignedBox*) entity->collision_geometry_ptr);
+      float box_top = entity->position.y + box_collision_geometry.length_y;
+      float box_bottom = entity->position.y;
+      
+      return player_bottom + COLLISION_EPSILON < box_top && player_top > box_bottom + COLLISION_EPSILON;
+   }
+}
+
+bool intersects_vertically_standing_slope(Entity* entity, Player* player)
+{
+   // this function is for boxes only
+   auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player->entity_ptr->collision_geometry_ptr;
+   float player_bottom = player->entity_ptr->position.y - player_collision_geometry->half_length;
+   float player_top = player->entity_ptr->position.y + player_collision_geometry->half_length;
 
    auto box_collision_geometry = *((CollisionGeometryAlignedBox*) entity->collision_geometry_ptr);
    float box_top = entity->position.y + box_collision_geometry.length_y;
    float box_bottom = entity->position.y;
 
-   return player_bottom + COLLISION_EPSILON < box_top && player_top > box_bottom + COLLISION_EPSILON;
+   float box_x0 = entity->position.x;
+   float box_x1 = entity->position.x + box_collision_geometry.length_x;
+   float box_z0 = entity->position.z;
+   float box_z1 = entity->position.z + box_collision_geometry.length_z;
+      
+
+   auto ramp = player->standing_entity_ptr;
+   auto y_values = get_slope_heights_at_player(player->entity_ptr, ramp);
+
+  
+   float player_bottom_pos;
+
+   // to facillitate understanding this, imagine the slope
+   // now imagine the cylinder in the slope, what is the player bottom to be considered for
+   // collision? the player bottom or the point of contact with the slope (always higher) ?
+   // (to check the ifs accurately, draw x axis and slope at 0 and 180 degrees with player on it and objects behind and after it)
+   
+   if(G_INPUT_INFO.key_input_state & KEY_P && entity->name == "ramp corner box")
+   {
+      cout << "max_y = " << to_string(y_values.max) << "\n";  
+   }
+   
+   if(ramp->rotation.y == 0)
+   {  // along x axis
+      if(entity->position.x >= box_x0)
+      {
+         player_bottom_pos = y_values.max;
+      }
+      else
+      {
+         player_bottom_pos = player_bottom;
+      }
+   }
+   else if(ramp->rotation.y == 90)
+   {  // along negative z
+      if(entity->position.z <= box_z1)
+      {
+         player_bottom_pos = y_values.max;
+      }
+      else
+      {
+         player_bottom_pos = player_bottom;
+      }
+      
+   }
+   else if(ramp->rotation.y == 180)
+   {  // along negative x
+      if(entity->position.x <= box_x1)
+      {
+         player_bottom_pos = y_values.max;
+      }
+      else
+      {
+         player_bottom_pos = player_bottom;
+      }
+   }
+   else if(ramp->rotation.y == 270)
+   {  // along positive z
+      if(entity->position.z >= box_z0)
+      {
+         player_bottom_pos = y_values.max;
+      }
+      else
+      {
+         player_bottom_pos = player_bottom;
+      }
+   }
+   else
+   {
+      assert(false);
+   }
+
+   return player_bottom_pos + COLLISION_EPSILON < box_top && player_top > box_bottom + COLLISION_EPSILON;
 }
 
 bool intersects_vertically_slope(Entity* entity, Entity* player)
 {
-   // this function checks if player is intersecting with the slope's cross-section
-   // meaning we check for player intersection CONSIDERING horizontal limits and
-   // return only the vertical overlap if player is actually intersecting the slope
-   // in a vertical manner
+   // since a slope has a diagonal profile in its cross section, we need to sample the points
+   // that the player 
    auto col_geometry = *((CollisionGeometrySlope*) entity->collision_geometry_ptr);
    float slope_top = entity->position.y + col_geometry.slope_height;
    float slope_bottom = entity->position.y;
@@ -612,13 +704,14 @@ bool intersects_vertically_slope(Entity* entity, Entity* player)
    float player_top = player->position.y + player_collision_geometry->half_length;
 
    auto y_values = get_slope_heights_at_player(player, entity);
-   float min_y = min(y_values.at_coord_0, y_values.at_coord_1);
-   float max_y = max(y_values.at_coord_0, y_values.at_coord_1);
 
    // first we clip horizontally, checking if the y_values calculated based on player horizontal position are
    // inside the [slope_bottom, slope_top] range
    // then we check that the player is intersecting vertically with the slope using his current y positions
-   if(min_y <= slope_top && max_y >= slope_bottom && player_bottom < max_y && player_top > slope_bottom)
+   if(player_bottom >= slope_top || player_top <= slope_bottom)
+      return false;
+
+   if(y_values.min < slope_top && y_values.max > slope_bottom && player_bottom < y_values.max && player_top > slope_bottom)
       return true;
 
    return false;
@@ -657,7 +750,10 @@ SlopeHeightsPlayer get_slope_heights_at_player(Entity* player, Entity* entity)
 
    player->position = player_position;
 
-   return SlopeHeightsPlayer{at_coord_0, at_coord_c, at_coord_1};
+   float min_y = min(at_coord_0, at_coord_1);
+   float max_y = max(at_coord_0, at_coord_1);
+
+   return SlopeHeightsPlayer{at_coord_0, at_coord_c, at_coord_1, min_y, max_y};
 }
 
 float get_slope_inclination(Entity* entity)

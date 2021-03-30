@@ -1,4 +1,4 @@
-@player_position = -3.4 4 -8.5
+@player_position = -8 2 -4.7
 @player_initial_velocity = 0 0 0 
 @player_state = 0
 @player_fall_acceleration = 13
@@ -148,7 +148,7 @@ shader model
 texture diffuse sandstone sandstone.jpg
 collision slope
 
-#ramp 90 base box
+#ramp 270 base box
 position -5.8 0 -8
 scale 0.8 1.5 3
 mesh aabb
@@ -198,3 +198,38 @@ shader model
 texture diffuse sandstone sandstone.jpg
 collision aabb
 
+
+#corner box 2
+position -7 0 -5
+scale 0.8 1.5 0.8
+mesh aabb
+shader model
+texture diffuse sandstone sandstone.jpg
+collision aabb
+
+#ramp 180
+position -7 0 -4.2
+rotation 0 180 0
+scale 5 1.5 0.8
+mesh slope
+shader model
+texture diffuse sandstone sandstone.jpg
+collision slope
+
+#ramp 90
+position -7 0 -5
+rotation 0 90 0
+scale 5 1.5 0.8
+mesh slope
+shader model
+texture diffuse sandstone sandstone.jpg
+collision slope
+
+
+#hovering pillar
+position -9 1.8 -5
+scale 0.8 1.5 0.8
+mesh aabb
+shader model
+texture diffuse sandstone sandstone.jpg
+collision aabb
