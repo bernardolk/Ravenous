@@ -650,6 +650,12 @@ void update_player_state(Player* player)
       }
       case PLAYER_STATE_STANDING:
       {
+         auto debug = sample_terrain_height_below_player(player_entity, player->standing_entity_ptr);
+         if(!debug.is_collided)
+         {
+            auto a = 2;
+         }
+
          // step 1: check if player is colliding with a wall
          {
             Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
@@ -661,11 +667,9 @@ void update_player_state(Player* player)
          // step 2: check if player is still standing
          {
             auto terrain_collision = sample_terrain_height_below_player(player_entity, player->standing_entity_ptr);
-            if(terrain_collision.is_collided)
-            {
-               player->entity_ptr->position.y = terrain_collision.overlap + player->half_height;
-            }
-            else
+            player->entity_ptr->position.y = terrain_collision.overlap + player->half_height;
+            
+            if(!terrain_collision.is_collided)
             {
                auto check = check_for_floor_below_player(player);
                if(check.is_collided)

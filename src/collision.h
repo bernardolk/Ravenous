@@ -328,7 +328,8 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
 	   float biggest_overlap = -1;
       Collision c;
       bool set_collided_entity = false;     
-	   if (entity_iterator->collision_check == false)
+	   if (entity_iterator->collision_check == false && 
+         !(player->player_state == PLAYER_STATE_STANDING && player->standing_entity_ptr == entity))
       {    
          // AABB
          if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX &&
@@ -384,6 +385,7 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
          // set current entity as collided one
          if(set_collided_entity)
          {
+            cout << "horizontal collision with '" << entity->name << "'\n";
             biggest_overlap = c.overlap;
 
             return_cd.is_collided = true;
@@ -633,10 +635,6 @@ bool intersects_vertically_standing_slope(Entity* entity, Player* player)
    // collision? the player bottom or the point of contact with the slope (always higher) ?
    // (to check the ifs accurately, draw x axis and slope at 0 and 180 degrees with player on it and objects behind and after it)
    
-   if(G_INPUT_INFO.key_input_state & KEY_P && entity->name == "ramp corner box")
-   {
-      cout << "max_y = " << to_string(y_values.max) << "\n";  
-   }
    
    if(ramp->rotation.y == 0)
    {  // along x axis
@@ -910,13 +908,19 @@ CollisionData sample_terrain_height_below_player(Entity* player, Entity* entity)
    float min_z = min(z0, z1);
    float max_z = max(z0, z1);
 
+   if(entity->name == "corner box 2")
+   {
+     auto a = 0;  
+   }
+
+   cd.overlap = height;
 
    // check if player's center lies inside terrain box
    if(min_x <= player_x && max_x >= player_x && min_z <= player_z && max_z >= player_z)
    {
-      cd.overlap = height;
       cd.is_collided = true;
    }
+
    return cd;
 }
 
