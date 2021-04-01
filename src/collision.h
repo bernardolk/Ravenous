@@ -181,8 +181,23 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
                   player->standing_entity_ptr = collision_data.collided_entity_ptr;
                   player->entity_ptr->position.y += collision_data.overlap; 
                   
+                  // checks if we need to set player's velocity to the opposite direction from where he is coming
+                  bool revert_player_movement = false;
+                  if(collision_data.normal_vec.x != 0)
+                  {
+                     float player_movement_sign = player->entity_ptr->velocity.x > 0 ? 1 : -1;
+                     revert_player_movement = player_movement_sign == collision_data.normal_vec.x;
+                  }
+                  else if(collision_data.normal_vec.y != 0)
+                  {
+                     float player_movement_sign = player->entity_ptr->velocity.z > 0 ? 1 : -1;
+                     revert_player_movement = player_movement_sign == collision_data.normal_vec.y;
+                  }
+
                   // makes player move towards OUT of the platform
-                  if(player->entity_ptr->velocity.x == 0 && player->entity_ptr->velocity.z == 0)
+                  if(revert_player_movement ||
+                     (player->entity_ptr->velocity.x == 0 &&
+                      player->entity_ptr->velocity.z == 0))
                   {
                      player->entity_ptr->velocity.x = -1 * collision_data.normal_vec.x * player->fall_from_edge_speed;
                      player->entity_ptr->velocity.z = -1 *collision_data.normal_vec.y * player->fall_from_edge_speed;
