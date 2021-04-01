@@ -253,9 +253,9 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
                   // make player 'snap' to slope
                   auto collision_geom = *((CollisionGeometrySlope*) collision_data.collided_entity_ptr->collision_geometry_ptr);
                   auto &pv = player->entity_ptr->velocity;
-                  auto pv_2d = glm::vec2(pv.x, pv.z);
                   // make camera (player) turn to face either up or down the slope
 
+                  //auto pv_2d = glm::vec2(pv.x, pv.z);
                   // if(G_SCENE_INFO.view_mode == FIRST_PERSON)
                   // {
                   //    auto t_2d = glm::vec2(collision_geom.tangent.x, collision_geom.tangent.z);
@@ -268,6 +268,8 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
 
                   pv = player->slide_speed * collision_geom.tangent;
                   player->player_state = PLAYER_STATE_SLIDING;
+
+                  break;
                }
                case JUMP_CEILING:
                {

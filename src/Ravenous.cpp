@@ -8,6 +8,7 @@
 #include <glm/ext/matrix_transform.hpp> // translate, rotate, scale, identity
 #include <glm/gtx/compatibility.hpp>
 #include <glm/gtx/norm.hpp>
+#include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <fstream>
@@ -416,6 +417,28 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
             player->entity_ptr->velocity.y = player->jump_initial_speed;
          }
       }
+      else if(player->player_state == PLAYER_STATE_SLIDING)
+      {
+         auto collision_geom = *((CollisionGeometrySlope*) player->standing_entity_ptr->collision_geometry_ptr);
+         player->entity_ptr->velocity = player->slide_speed * collision_geom.tangent;
+
+         if (flags.press & KEY_LEFT)
+         {
+            auto bitangent = glm::cross(collision_geom.tangent, G_SCENE_INFO.camera->Up);
+            auto normal = glm::cross(bitangent, collision_geom.tangent);
+            auto temp_vec = glm::rotate(player->entity_ptr->velocity, -12.0f, normal);
+            player->entity_ptr->velocity.x = temp_vec.x;
+            player->entity_ptr->velocity.z = temp_vec.z;
+         }
+         if (flags.press & KEY_RIGHT)
+         {
+            auto bitangent = glm::cross(collision_geom.tangent, G_SCENE_INFO.camera->Up);
+            auto normal = glm::cross(bitangent, collision_geom.tangent);
+            auto temp_vec = glm::rotate(player->entity_ptr->velocity, 12.0f, normal);
+            player->entity_ptr->velocity.x = temp_vec.x;
+            player->entity_ptr->velocity.z = temp_vec.z;
+         }
+      }
    }
    else if(G_SCENE_INFO.view_mode == FIRST_PERSON)
    {
@@ -460,6 +483,45 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
          // update camera with player position
          G_SCENE_INFO.camera->Position = player->entity_ptr->position;
          G_SCENE_INFO.camera->Position.y +=  player->half_height * 2.0 / 3.0;
+      }
+      else if(player->player_state == PLAYER_STATE_SLIDING)
+      {
+         auto collision_geom = *((CollisionGeometrySlope*) player->standing_entity_ptr->collision_geometry_ptr);
+         player->entity_ptr->velocity = player->slide_speed * collision_geom.tangent;
+
+         if (flags.press & KEY_A)
+         {
+            float dot_product = glm::dot(collision_geom.tangent, G_SCENE_INFO.camera->Front);
+            //   float dot_product = glm::dot(
+            //    glm::vec2(collision_geom.tangent.x, collision_geom.tangent.z),
+            //    glm::vec2(G_SCENE_INFO.camera->Front.x, G_SCENE_INFO.camera->Front.z),
+            // );
+            if (dot_product >= 0)
+            {
+               auto bitangent = glm::cross(collision_geom.tangent, G_SCENE_INFO.camera->Up);
+               auto normal = glm::cross(bitangent, collision_geom.tangent);
+               auto temp_vec = glm::rotate(player->entity_ptr->velocity, -12.0f, normal);
+               player->entity_ptr->velocity.x = temp_vec.x;
+               player->entity_ptr->velocity.z = temp_vec.z;
+            }
+            
+         }
+         if (flags.press & KEY_D)
+         {
+            float dot_product = glm::dot(collision_geom.tangent, G_SCENE_INFO.camera->Front);
+            //   float dot_product = glm::dot(
+            //    glm::vec2(collision_geom.tangent.x, collision_geom.tangent.z),
+            //    glm::vec2(G_SCENE_INFO.camera->Front.x, G_SCENE_INFO.camera->Front.z),
+            // );
+            if (dot_product >= 0)
+            {
+               auto bitangent = glm::cross(collision_geom.tangent, G_SCENE_INFO.camera->Up);
+               auto normal = glm::cross(bitangent, collision_geom.tangent);
+               auto temp_vec = glm::rotate(player->entity_ptr->velocity, 12.0f, normal);
+               player->entity_ptr->velocity.x = temp_vec.x;
+               player->entity_ptr->velocity.z = temp_vec.z;
+            }
+         }
       }
    }
 

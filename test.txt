@@ -1,4 +1,4 @@
-@player_position = -5.3 2.87 -7.25
+@player_position = -9 7 4
 @player_initial_velocity = 0 0 0 
 @player_state = 0
 @player_fall_acceleration = 13
