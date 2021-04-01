@@ -424,17 +424,13 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
 
          if (flags.press & KEY_LEFT)
          {
-            auto bitangent = glm::cross(collision_geom.tangent, G_SCENE_INFO.camera->Up);
-            auto normal = glm::cross(bitangent, collision_geom.tangent);
-            auto temp_vec = glm::rotate(player->entity_ptr->velocity, -12.0f, normal);
+            auto temp_vec = glm::rotate(player->entity_ptr->velocity, -12.0f, collision_geom.normal);
             player->entity_ptr->velocity.x = temp_vec.x;
             player->entity_ptr->velocity.z = temp_vec.z;
          }
          if (flags.press & KEY_RIGHT)
          {
-            auto bitangent = glm::cross(collision_geom.tangent, G_SCENE_INFO.camera->Up);
-            auto normal = glm::cross(bitangent, collision_geom.tangent);
-            auto temp_vec = glm::rotate(player->entity_ptr->velocity, 12.0f, normal);
+            auto temp_vec = glm::rotate(player->entity_ptr->velocity, 12.0f, collision_geom.normal);
             player->entity_ptr->velocity.x = temp_vec.x;
             player->entity_ptr->velocity.z = temp_vec.z;
          }
@@ -712,12 +708,6 @@ void update_player_state(Player* player)
       }
       case PLAYER_STATE_STANDING:
       {
-         auto debug = sample_terrain_height_below_player(player_entity, player->standing_entity_ptr);
-         if(!debug.is_collided)
-         {
-            auto a = 2;
-         }
-
          // step 1: check if player is colliding with a wall
          {
             Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
@@ -801,14 +791,26 @@ void update_player_state(Player* player)
       case PLAYER_STATE_SLIDING:
       {
          assert(glm::length(player_entity->velocity) > 0);
-         // check if still colliding with floor, if so, let player keep sliding, if not, change to FALLING
-         Collision c_test = get_horizontal_overlap_player_slope(player->standing_entity_ptr, player_entity);
-         if(!c_test.is_collided)
+
+         auto terrain_collision = sample_terrain_height_below_player(player_entity, player->standing_entity_ptr);
+         player->entity_ptr->position.y = terrain_collision.overlap + player->half_height;
+         
+         if(!terrain_collision.is_collided)
          {
-            player->player_state = PLAYER_STATE_FALLING;
-            player->standing_entity_ptr = NULL;
-            player_entity->velocity = glm::vec3(0, 0, 0); 
+            auto check = check_for_floor_below_player(player);
+            if(check.is_collided)
+            {
+               player->standing_entity_ptr = check.collided_entity_ptr;
+            }
+            else
+            {
+               // make player "slide" towards edge and fall away from floor
+               std::cout << "PLAYER FELL" << "\n";
+               player_entity->velocity.y = - 1 * player->fall_speed;
+               player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
+            }
          }
+      
          break;
       }
    }
