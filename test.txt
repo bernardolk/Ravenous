@@ -1,4 +1,4 @@
-@player_position = -8 2 -4.7
+@player_position = -5.3 2.87 -7.25
 @player_initial_velocity = 0 0 0 
 @player_state = 0
 @player_fall_acceleration = 13
@@ -227,7 +227,7 @@ collision slope
 
 
 #hovering pillar
-position -9 1.8 -5
+position -9 2.1 -5
 scale 0.8 1.5 0.8
 mesh aabb
 shader model
