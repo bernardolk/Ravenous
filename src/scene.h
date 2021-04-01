@@ -3,6 +3,8 @@ void load_scene_from_file(std::string path);
 void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::string path);
 void parse_and_load_attribute(Parse p, ifstream* reader, int& line_count, std::string path, Player* player);
 void setup_scene_boilerplate_stuff();
+void save_player_position_to_file(const string path);
+
 
 void load_scene_from_file(std::string path)
 {
@@ -411,4 +413,9 @@ void setup_scene_boilerplate_stuff()
    player->radius       = CYLINDER_RADIUS;
 
    G_SCENE_INFO.player = player;
+}
+
+void save_player_position_to_file(const string path)
+{
+   // NOT IMPLEMENTED
 }

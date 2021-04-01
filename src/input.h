@@ -34,6 +34,9 @@ int KEY_LEFT_CTRL       = 1 << 17;
 int KEY_9               = 1 << 18;
 int KEY_P               = 1 << 19;
 int KEY_B               = 1 << 20;
+int KEY_0               = 1 << 21;
+int KEY_C               = 1 << 22;
+
 
 
 // INPUT KEY RELEASE FLAGS
@@ -115,6 +118,12 @@ int process_keyboard_input_key_press(GLFWwindow* window)
    if(glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
       flags = flags | KEY_B;
 
+   if(glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
+      flags = flags | KEY_C;
+
+   if(glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)
+      flags = flags | KEY_0;
+
    return flags;
 }
 
@@ -130,6 +139,9 @@ int process_keyboard_input_key_release(GLFWwindow* window)
 
    if(glfwGetKey(window, GLFW_KEY_B) == GLFW_RELEASE)
       flags = flags | KEY_B;
+   
+   if(glfwGetKey(window, GLFW_KEY_C) == GLFW_RELEASE)
+      flags = flags | KEY_C;
 
    return flags;
 }

@@ -35,6 +35,7 @@ const std::string MODELS_PATH = PROJECT_PATH + "/assets/models/";
 const std::string FONTS_PATH = PROJECT_PATH + "/assets/fonts/";
 const std::string SHADERS_FOLDER_PATH = PROJECT_PATH + "/shaders/";
 const std::string CAMERA_FILE_PATH = PROJECT_PATH + "/camera.txt";
+const std::string SCENE_FILE_PATH = PROJECT_PATH + "/test.txt";
 const std::string SHADERS_FILE_EXTENSION = ".shd";
 
 // PLAYER CYLINDER SETTINGS ... !!!
@@ -230,7 +231,7 @@ int main()
    initialize_shaders();
    create_boilerplate_geometry();
 
-   load_scene_from_file(PROJECT_PATH + "/test.txt");
+   load_scene_from_file(SCENE_FILE_PATH);
 
    Player* player = G_SCENE_INFO.player;
 
@@ -295,13 +296,17 @@ void check_view_mode(Player* player)
 
 void handle_input_flags(KeyInputFlags flags, Player* &player)
 {
-   if(flags.press & KEY_B && !(G_INPUT_INFO.key_input_state & KEY_B))
+   if(flags.press & KEY_C && !(G_INPUT_INFO.key_input_state & KEY_C))
    {
       // moves player to camera position
       player->entity_ptr->position = G_SCENE_INFO.camera->Position;
       camera_look_at(G_SCENE_INFO.views[1], G_SCENE_INFO.camera->Front, false);
       player->player_state = PLAYER_STATE_FALLING;
       player->entity_ptr->velocity = glm::vec3(0, 0, 0);
+   }
+   if(flags.press & KEY_0 && !(G_INPUT_INFO.key_input_state & KEY_0))
+   {
+     save_player_position_to_file(SCENE_FILE_PATH);
    }
    if(flags.press & KEY_9)
    {
@@ -313,7 +318,7 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
    }
    if(flags.press & KEY_K)
    {
-      load_scene_from_file(PROJECT_PATH + "/test.txt");
+      load_scene_from_file(SCENE_FILE_PATH);
       player = G_SCENE_INFO.player; // not irrelevant! do not delete
       player->entity_ptr->render_me = G_SCENE_INFO.view_mode == FREE_ROAM ? true : false;
    }
@@ -488,35 +493,32 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
          if (flags.press & KEY_A)
          {
             float dot_product = glm::dot(collision_geom.tangent, G_SCENE_INFO.camera->Front);
-            //   float dot_product = glm::dot(
-            //    glm::vec2(collision_geom.tangent.x, collision_geom.tangent.z),
-            //    glm::vec2(G_SCENE_INFO.camera->Front.x, G_SCENE_INFO.camera->Front.z),
-            // );
-            if (dot_product >= 0)
+           float angle = -12.0f;
+            if (dot_product < 0)
             {
-               auto bitangent = glm::cross(collision_geom.tangent, G_SCENE_INFO.camera->Up);
-               auto normal = glm::cross(bitangent, collision_geom.tangent);
-               auto temp_vec = glm::rotate(player->entity_ptr->velocity, -12.0f, normal);
-               player->entity_ptr->velocity.x = temp_vec.x;
-               player->entity_ptr->velocity.z = temp_vec.z;
+               angle *= -1;
             }
-            
+
+            auto bitangent = glm::cross(collision_geom.tangent, G_SCENE_INFO.camera->Up);
+            auto normal = glm::cross(bitangent, collision_geom.tangent);
+            auto temp_vec = glm::rotate(player->entity_ptr->velocity, angle, normal);
+            player->entity_ptr->velocity.x = temp_vec.x;
+            player->entity_ptr->velocity.z = temp_vec.z;
          }
          if (flags.press & KEY_D)
          {
             float dot_product = glm::dot(collision_geom.tangent, G_SCENE_INFO.camera->Front);
-            //   float dot_product = glm::dot(
-            //    glm::vec2(collision_geom.tangent.x, collision_geom.tangent.z),
-            //    glm::vec2(G_SCENE_INFO.camera->Front.x, G_SCENE_INFO.camera->Front.z),
-            // );
-            if (dot_product >= 0)
+            float angle = 12.0f;
+            if (dot_product < 0)
             {
-               auto bitangent = glm::cross(collision_geom.tangent, G_SCENE_INFO.camera->Up);
-               auto normal = glm::cross(bitangent, collision_geom.tangent);
-               auto temp_vec = glm::rotate(player->entity_ptr->velocity, 12.0f, normal);
-               player->entity_ptr->velocity.x = temp_vec.x;
-               player->entity_ptr->velocity.z = temp_vec.z;
+               angle *= -1;
             }
+
+            auto bitangent = glm::cross(collision_geom.tangent, G_SCENE_INFO.camera->Up);
+            auto normal = glm::cross(bitangent, collision_geom.tangent);
+            auto temp_vec = glm::rotate(player->entity_ptr->velocity, angle, normal);
+            player->entity_ptr->velocity.x = temp_vec.x;
+            player->entity_ptr->velocity.z = temp_vec.z;
          }
       }
    }
@@ -792,22 +794,33 @@ void update_player_state(Player* player)
       {
          assert(glm::length(player_entity->velocity) > 0);
 
-         auto terrain_collision = sample_terrain_height_below_player(player_entity, player->standing_entity_ptr);
-         player->entity_ptr->position.y = terrain_collision.overlap + player->half_height;
-         
-         if(!terrain_collision.is_collided)
+         // step 1: check if player is colliding with a wall
          {
-            auto check = check_for_floor_below_player(player);
-            if(check.is_collided)
+            Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
+            size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
+            // check for collisions with scene BUT with floor
+            run_collision_checks_standing(player, entity_iterator, entity_list_size);
+         }
+
+         // step 2: check if player is still standing
+         {
+            auto terrain_collision = sample_terrain_height_below_player(player_entity, player->standing_entity_ptr);
+            player->entity_ptr->position.y = terrain_collision.overlap + player->half_height;
+            
+            if(!terrain_collision.is_collided)
             {
-               player->standing_entity_ptr = check.collided_entity_ptr;
-            }
-            else
-            {
-               // make player "slide" towards edge and fall away from floor
-               std::cout << "PLAYER FELL" << "\n";
-               player_entity->velocity.y = - 1 * player->fall_speed;
-               player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
+               auto check = check_for_floor_below_player(player);
+               if(check.is_collided)
+               {
+                  player->standing_entity_ptr = check.collided_entity_ptr;
+               }
+               else
+               {
+                  // make player "slide" towards edge and fall away from floor
+                  std::cout << "PLAYER FELL" << "\n";
+                  player_entity->velocity.y = - 1 * player->fall_speed;
+                  player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
+               }
             }
          }
       
@@ -872,6 +885,10 @@ void render_text_overlay(Camera* camera, Player* player)
       case PLAYER_STATE_JUMPING:
          player_state_text_color = glm::vec3(0.1, 0.3, 0.8);
          player_state_text = "PLAYER JUMPING";
+         break;
+      case PLAYER_STATE_SLIDING:
+         player_state_text_color = glm::vec3(0.1, 0.3, 0.8);
+         player_state_text = "PLAYER SLIDING";
          break;
    }
 
