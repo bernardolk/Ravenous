@@ -1,4 +1,4 @@
-@player_position = -9 5 3.5	
+@player_position = -5.5 3 -5.5	
 @player_initial_velocity = 0 0 0 
 @player_state = 0
 @player_fall_acceleration = 13
@@ -117,9 +117,6 @@ mesh slope
 shader model
 texture diffuse sandstone sandstone.jpg
 collision slope
-
-
-
 
 
 #ramp

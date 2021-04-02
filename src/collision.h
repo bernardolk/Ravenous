@@ -76,6 +76,7 @@ float get_slope_height_at_player_position(Entity* player, Entity* entity);
 Boundaries get_slope_boundaries(Entity* entity);
 SlopeHeightsPlayer get_slope_heights_at_player(Entity* player, Entity* entity);
 CollisionData check_for_floor_below_player(Player* player);
+CollisionData check_for_floor_below_player_when_slope(Player* player, bool only_check_player_tunnelling);
 
 
 
@@ -404,11 +405,10 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
                auto col_geometry = (CollisionGeometrySlope*) entity->collision_geometry_ptr;
                auto slope_2d_tangent = glm::normalize(glm::vec2(col_geometry->tangent.x, col_geometry->tangent.z));
 
-               set_collided_entity = true;
-
                if(player->player_state == PLAYER_STATE_STANDING &&
                   c.overlap == 0)
                {
+                  set_collided_entity = true;
                   return_cd.collision_outcome = STEPPED_SLOPE;
                   // @WORKAROUND
                   float v_overlap = get_vertical_overlap_player_vs_slope(entity, player->entity_ptr);
@@ -421,11 +421,13 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
                {
                   if(col_geometry->inclination > 0.6)
                   {
+                     set_collided_entity = true;
                      return_cd.collision_outcome = BLOCKED_BY_WALL;
                   }
                }
                else if(c.overlap > 0)
                {
+                  set_collided_entity = true;
                   return_cd.collision_outcome = BLOCKED_BY_WALL;
                }
             }
@@ -986,11 +988,6 @@ CollisionData sample_terrain_height_at_player(Entity* player, Entity* entity)
    float min_z = min(z0, z1);
    float max_z = max(z0, z1);
 
-   if(entity->name == "corner box 2")
-   {
-     auto a = 0;  
-   }
-
    cd.overlap = height;
 
    // check if player's center lies inside terrain box
@@ -1006,7 +1003,7 @@ CollisionData check_for_floor_below_player(Player* player)
 {
    Entity **entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
    int entities_vec_size =  G_SCENE_INFO.active_scene->entities.size();
-   float min_distance = 0.2;  // CONTROLS MAX HEIGHT FOR PLAYER TO NOT FALL STRAIGHT WHEN QUITTING PLATFORM
+   float min_distance = 0.08;  // CONTROLS MAX HEIGHT FOR PLAYER TO NOT FALL STRAIGHT WHEN QUITTING PLATFORM
    CollisionData response;
 	for(int it = 0; it < entities_vec_size; it++) 
    {
@@ -1017,16 +1014,41 @@ CollisionData check_for_floor_below_player(Player* player)
 
       // if player is standing this will check for any platform just below him
       // if player is sliding from super inclined slope this will check if player punched through
-      if((check.is_collided && entity->collision_geometry_type == COLLISION_ALIGNED_BOX) &&
-         ((player->player_state == PLAYER_STATE_STANDING &&
-            y_diff >= 0 && y_diff < min_distance) ||
-         (player->player_state == PLAYER_STATE_SLIDE_FALLING &&
-            y_diff < 0 && y_diff < min_distance))) 
+      if(check.is_collided && y_diff >= 0 && y_diff < min_distance) 
       {
          min_distance = y_diff;
          response.is_collided = true;
          response.overlap = y_diff;
          response.collided_entity_ptr = entity;
+      }
+      entity_iterator++;
+   }
+   return response;
+}
+
+CollisionData check_for_floor_below_player_when_slope(Player* player, bool only_check_player_tunnelling = false)
+{
+   Entity **entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
+   int entities_vec_size =  G_SCENE_INFO.active_scene->entities.size();
+   float min_distance = only_check_player_tunnelling ? 0 : 0.08;
+   CollisionData response;
+	for(int it = 0; it < entities_vec_size; it++) 
+   {
+	   auto entity = *entity_iterator;
+      if(entity != player->standing_entity_ptr)
+      {
+         auto check = sample_terrain_height_at_player(player->entity_ptr, entity);
+         float y_diff = (player->entity_ptr->position.y - player->half_height) - check.overlap; //here overlap is height...
+         float y_diff_check = only_check_player_tunnelling ? y_diff : abs(y_diff);
+         if(check.is_collided && y_diff_check < min_distance) 
+         {
+            min_distance = y_diff;
+            response.is_collided = true;
+            response.overlap = y_diff;
+            response.collided_entity_ptr = entity;
+            int sign = y_diff < 0 ? -1 : 1;   // say if player is above or below detected floor
+            response.normal_vec = glm::vec2(0, sign);
+         }
       }
       entity_iterator++;
    }

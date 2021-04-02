@@ -8,12 +8,14 @@ enum PlayerStateEnum {
    PLAYER_STATE_SLIDING,
    PLAYER_STATE_SLIDE_FALLING,
    PLAYER_STATE_GRABBING,
-   PLAYER_STATE_FALLING_FROM_EDGE
+   PLAYER_STATE_FALLING_FROM_EDGE,
+   PLAYER_STATE_EVICTED_FROM_SLOPE
 };
 
 struct Player {
    Entity* entity_ptr;
    Entity* standing_entity_ptr;
+   Entity* slope_player_was_ptr;
    float speed = 1.0f;
    float fall_speed = 1.0f;
    float fall_acceleration = 0.1f;
