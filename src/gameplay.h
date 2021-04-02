@@ -470,7 +470,9 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
          {
              player->player_state = PLAYER_STATE_JUMPING;
              auto col_geometry = (CollisionGeometrySlope*) player->standing_entity_ptr->collision_geometry_ptr;
-             auto jump_vec = glm::normalize(glm::vec3(col_geometry->normal.x, 1, col_geometry->normal.z));
+             float x = col_geometry->normal.x > 0 ? 1 : col_geometry->normal.x == 0 ? 0 : -1;
+             float z = col_geometry->normal.z > 0 ? 1 : col_geometry->normal.z == 0 ? 0 : -1;
+             auto jump_vec = glm::normalize(glm::vec3(x, 1, z));
              player->entity_ptr->velocity = player->jump_initial_speed * jump_vec;
          }
       }
