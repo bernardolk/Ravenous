@@ -376,6 +376,15 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
             player->entity_ptr->velocity.x = temp_vec.x;
             player->entity_ptr->velocity.z = temp_vec.z;
          }
+         if (flags.press & KEY_SPACE)
+         {
+             player->player_state = PLAYER_STATE_JUMPING;
+             auto col_geometry = (CollisionGeometrySlope*) player->standing_entity_ptr->collision_geometry_ptr;
+             float x = col_geometry->normal.x > 0 ? 1 : col_geometry->normal.x == 0 ? 0 : -1;
+             float z = col_geometry->normal.z > 0 ? 1 : col_geometry->normal.z == 0 ? 0 : -1;
+             auto jump_vec = glm::normalize(glm::vec3(x, 1, z));
+             player->entity_ptr->velocity = player->jump_initial_speed * jump_vec;
+         }
       }
    }
    else if(G_SCENE_INFO.view_mode == FIRST_PERSON)
@@ -456,6 +465,13 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
             auto temp_vec = glm::rotate(player->entity_ptr->velocity, angle, normal);
             player->entity_ptr->velocity.x = temp_vec.x;
             player->entity_ptr->velocity.z = temp_vec.z;
+         }
+         if (flags.press & KEY_SPACE)
+         {
+             player->player_state = PLAYER_STATE_JUMPING;
+             auto col_geometry = (CollisionGeometrySlope*) player->standing_entity_ptr->collision_geometry_ptr;
+             auto jump_vec = glm::normalize(glm::vec3(col_geometry->normal.x, 1, col_geometry->normal.z));
+             player->entity_ptr->velocity = player->jump_initial_speed * jump_vec;
          }
       }
    }
