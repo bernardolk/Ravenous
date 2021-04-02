@@ -9,13 +9,14 @@ enum CollisionType{
 };
 
 enum CollisionOutcomeEnum {
-   JUMP_SUCCESS      = 0,  // player fell succesfully into another platform
-   JUMP_FAIL         = 1,  // player fell into the edge of another platform
-   JUMP_FACE_FLAT    = 2,  // player fell with face flat on wall
-   JUMP_SLIDE        = 3,
-   JUMP_CEILING      = 4,
-   STEPPED_SLOPE     = 5,
-   BLOCKED_BY_WALL   = 6
+   JUMP_SUCCESS                = 0,  // player fell succesfully into another platform
+   JUMP_FAIL                   = 1,  // player fell into the edge of another platform
+   JUMP_FACE_FLAT              = 2,  // player fell with face flat on wall
+   JUMP_SLIDE                  = 3,  // player is sliding
+   JUMP_SLIDE_HIGH_INCLINATION = 4,  // player is sliding but cant move
+   JUMP_CEILING                = 5,  // player hit the ceiling with his head
+   STEPPED_SLOPE               = 6,  // player entered a low inclination slope
+   BLOCKED_BY_WALL             = 7   // player hit a wall
 };
 
 struct CollisionData {
@@ -58,7 +59,7 @@ CollisionData check_player_collision_with_scene_falling(
 CollisionData check_collision_horizontal(
       Player* player, EntityBufferElement* entity_iterator, size_t entity_list_size
 ); 
-CollisionData sample_terrain_height_below_player(Entity* player, Entity* entity); 
+CollisionData sample_terrain_height_at_player(Entity* player, Entity* entity); 
 bool check_2D_collision_circle_and_aligned_square(Entity* circle, Entity* square);
 float squared_distance_between_point_and_line(float x1, float y1, float x2, float y2, float x0, float y0);
 float squared_minimum_distance(glm::vec2 v, glm::vec2 w, glm::vec2 p);
@@ -71,7 +72,6 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
 CollisionData check_collision_vertical(Player* player, EntityBufferElement* entity_iterator, size_t entity_list_size);
 Collision get_horizontal_overlap_player_aabb(Entity* entity, Entity* player);
 Collision get_horizontal_overlap_player_slope(Entity* entity, Entity* player);
-float get_slope_inclination(Entity* entity);
 float get_slope_height_at_player_position(Entity* player, Entity* entity);
 Boundaries get_slope_boundaries(Entity* entity);
 SlopeHeightsPlayer get_slope_heights_at_player(Entity* player, Entity* entity);
@@ -213,7 +213,7 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
                   std::cout << "LANDED" << "\n";
                   // move player to surface, stop player and set him to standing
                   player->standing_entity_ptr = collision_data.collided_entity_ptr;
-                  auto height_check = sample_terrain_height_below_player(player->entity_ptr, player->standing_entity_ptr);
+                  auto height_check = sample_terrain_height_at_player(player->entity_ptr, player->standing_entity_ptr);
                   player->entity_ptr->position.y = height_check.overlap + player->half_height; 
                   player->entity_ptr->velocity = glm::vec3(0,0,0);
                   player->player_state = PLAYER_STATE_STANDING;
@@ -248,7 +248,7 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
                   std::cout << "SLIDING" << "\n";
                   
                   player->standing_entity_ptr = collision_data.collided_entity_ptr;
-                  auto height_check = sample_terrain_height_below_player(player->entity_ptr, player->standing_entity_ptr);
+                  auto height_check = sample_terrain_height_at_player(player->entity_ptr, player->standing_entity_ptr);
                   player->entity_ptr->position.y = height_check.overlap + player->half_height;
                   // make player 'snap' to slope
                   auto collision_geom = *((CollisionGeometrySlope*) collision_data.collided_entity_ptr->collision_geometry_ptr);
@@ -268,6 +268,34 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
 
                   pv = player->slide_speed * collision_geom.tangent;
                   player->player_state = PLAYER_STATE_SLIDING;
+
+                  break;
+               }
+               case JUMP_SLIDE_HIGH_INCLINATION:
+               {
+                   std::cout << "SLIDING" << "\n";
+                  
+                  player->standing_entity_ptr = collision_data.collided_entity_ptr;
+                  auto height_check = sample_terrain_height_at_player(player->entity_ptr, player->standing_entity_ptr);
+                  player->entity_ptr->position.y = height_check.overlap + player->half_height;
+                  // make player 'snap' to slope
+                  auto collision_geom = *((CollisionGeometrySlope*) collision_data.collided_entity_ptr->collision_geometry_ptr);
+                  auto &pv = player->entity_ptr->velocity;
+                  // make camera (player) turn to face either up or down the slope
+
+                  //auto pv_2d = glm::vec2(pv.x, pv.z);
+                  // if(G_SCENE_INFO.view_mode == FIRST_PERSON)
+                  // {
+                  //    auto t_2d = glm::vec2(collision_geom.tangent.x, collision_geom.tangent.z);
+                  //    auto dot = glm::dot(pv_2d, t_2d);
+                  //    if(dot == 0) dot = 1;   // compensates for orthogonal v and tangent
+                  //    auto projected = (dot/glm::length2(t_2d))*t_2d;
+                  //    auto camera_dir = glm::vec3(projected.x, G_SCENE_INFO.camera->Front.y, projected.y);
+                  //    camera_look_at(G_SCENE_INFO.camera, camera_dir, false);
+                  // }
+
+                  pv = player->slide_speed * collision_geom.tangent;
+                  player->player_state = PLAYER_STATE_SLIDE_FALLING;
 
                   break;
                }
@@ -373,8 +401,8 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
             c = get_horizontal_overlap_player_slope(entity, player->entity_ptr);
             if(c.is_collided && c.overlap > biggest_overlap)
             {
-               auto col_geometry = *((CollisionGeometrySlope*) entity->collision_geometry_ptr);
-               auto slope_2d_tangent = glm::normalize(glm::vec2(col_geometry.tangent.x, col_geometry.tangent.z));
+               auto col_geometry = (CollisionGeometrySlope*) entity->collision_geometry_ptr;
+               auto slope_2d_tangent = glm::normalize(glm::vec2(col_geometry->tangent.x, col_geometry->tangent.z));
 
                set_collided_entity = true;
 
@@ -391,8 +419,7 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
                   c.overlap > 0 &&  // this means player is not INSIDE entity (player centroid)
                   compare_vec2(c.normal_vec, -1.0f * slope_2d_tangent))
                {
-                  float inclination = get_slope_inclination(entity);
-                  if(inclination > 0.6)
+                  if(col_geometry->inclination > 0.6)
                   {
                      return_cd.collision_outcome = BLOCKED_BY_WALL;
                   }
@@ -433,7 +460,6 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
       {   
          // PERFORMS OVERLAP TESTING
          float vertical_overlap = -1;
-         float inclination = -1; // for slopes only BADBADNOTGOOD
          Collision v_overlap_collision; // for ceilling hit detection
          Collision horizontal_check;
          {
@@ -447,7 +473,6 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
             {
                vertical_overlap = get_vertical_overlap_player_vs_slope(entity, player->entity_ptr);
                horizontal_check = get_horizontal_overlap_player_slope(entity, player->entity_ptr);   
-               inclination = get_slope_inclination(entity);   
             }
          }
          // CHECKS IF ANYTHING WORHTWHILE HAPPENED
@@ -456,10 +481,18 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
             biggest_overlap = vertical_overlap;
             return_cd.collided_entity_ptr = entity;
 
-            if(horizontal_check.overlap == 0 && v_overlap_collision.normal_vec.y != -1)
+            // PARTICULAR CHECKS FOR SLOPES (PLAYER LIES INSIDE IT)
+            if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE &&
+               horizontal_check.overlap == 0 && 
+               v_overlap_collision.normal_vec.y != -1)
             {
-               // means player have "entered" other entity (only possible with slopes)
-               if(inclination > 0.6)
+               auto col_geometry = (CollisionGeometrySlope*)entity->collision_geometry_ptr;
+               if(col_geometry->inclination > 1)
+               {
+                  return_cd.overlap = vertical_overlap;
+                  return_cd.collision_outcome = JUMP_SLIDE_HIGH_INCLINATION;
+               }
+               else if(col_geometry->inclination > 0.6)
                {
                   return_cd.overlap = vertical_overlap;
                   return_cd.collision_outcome = JUMP_SLIDE;
@@ -471,31 +504,41 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
                }
             }
 
+            // player fell right inside geometry
+            else if(horizontal_check.overlap == 0 && 
+               v_overlap_collision.normal_vec.y != -1)
+            {
+               return_cd.overlap = vertical_overlap;
+               return_cd.collision_outcome = JUMP_SUCCESS;
+            }
+
+            // player jumped and hit the ceiling
             else if(v_overlap_collision.normal_vec.y == -1)
             {
-               // means player hit the ceiling
                return_cd.overlap = vertical_overlap;
                return_cd.normal_vec = v_overlap_collision.normal_vec;
                return_cd.collision_outcome = JUMP_CEILING;
             }
 
+            // player intersected with wall too much below standing area (hit wall)
             else if(vertical_overlap > 0.001) 
             {
-               // if here, means player did not make the jump (feet is too low)
                return_cd.overlap = horizontal_check.overlap;
                return_cd.normal_vec = horizontal_check.normal_vec;
                return_cd.collision_outcome = JUMP_FACE_FLAT;
             }
+
+            // player did not get half body inside platform (didnt make the jump)
             else if(horizontal_check.overlap < player->radius)
             {
-               // did not get half body inside platform (didnt make the jump)
                return_cd.overlap = vertical_overlap;
                return_cd.normal_vec = horizontal_check.normal_vec;
                return_cd.collision_outcome = JUMP_FAIL;
             }
+
+            // got at least half body inside platform (made the jump)
             else
             {
-               // got half body inside platform (made the jump)
                return_cd.overlap = vertical_overlap;
                return_cd.collision_outcome = JUMP_SUCCESS;
             }
@@ -628,8 +671,6 @@ float get_vertical_overlap_player_vs_slope(Entity* entity, Entity* player)
 
 bool intersects_vertically(Entity* entity, Player* player)
 {
-  
-
    // if we are standing in a slope, then we need to check which player height we want to check against,
    // because at each point that the player touches the slope he has a different height
    if(player->player_state == PLAYER_STATE_STANDING &&
@@ -798,13 +839,6 @@ SlopeHeightsPlayer get_slope_heights_at_player(Entity* player, Entity* entity)
    return SlopeHeightsPlayer{at_coord_0, at_coord_c, at_coord_1, min_y, max_y};
 }
 
-float get_slope_inclination(Entity* entity)
-{
-   auto col_geometry = *((CollisionGeometrySlope*) entity->collision_geometry_ptr);
-   float a = col_geometry.slope_height / col_geometry.slope_length;
-   return a;
-}
-
 float get_slope_height_at_player_position(Entity* player, Entity* entity)
 {
    auto col_geometry = *((CollisionGeometrySlope*) entity->collision_geometry_ptr);
@@ -891,7 +925,7 @@ Boundaries get_slope_boundaries(Entity* entity)
 }
 
 
-CollisionData sample_terrain_height_below_player(Entity* player, Entity* entity)
+CollisionData sample_terrain_height_at_player(Entity* player, Entity* entity)
 {
    // simplified version of full algorithm
 
@@ -978,9 +1012,16 @@ CollisionData check_for_floor_below_player(Player* player)
    {
 	   auto entity = *entity_iterator;
 
-      auto check = sample_terrain_height_below_player(player->entity_ptr, entity);
+      auto check = sample_terrain_height_at_player(player->entity_ptr, entity);
       float y_diff = (player->entity_ptr->position.y - player->half_height) - check.overlap; //here overlap is height...
-      if(check.is_collided && y_diff >= 0 && y_diff < min_distance)
+
+      // if player is standing this will check for any platform just below him
+      // if player is sliding from super inclined slope this will check if player punched through
+      if((check.is_collided && entity->collision_geometry_type == COLLISION_ALIGNED_BOX) &&
+         ((player->player_state == PLAYER_STATE_STANDING &&
+            y_diff >= 0 && y_diff < min_distance) ||
+         (player->player_state == PLAYER_STATE_SLIDE_FALLING &&
+            y_diff < 0 && y_diff < min_distance))) 
       {
          min_distance = y_diff;
          response.is_collided = true;

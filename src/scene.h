@@ -318,6 +318,7 @@ void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::stri
             }
             slope_collision->tangent = slope_direction;
             slope_collision->normal = slope_normal;
+            slope_collision->inclination = slope_collision->slope_height / slope_collision->slope_length;
 
             assert((int)new_entity->rotation.x % 90 == 0);
             assert((int)new_entity->rotation.y % 90 == 0);

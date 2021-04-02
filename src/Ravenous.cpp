@@ -720,7 +720,7 @@ void update_player_state(Player* player)
 
          // step 2: check if player is still standing
          {
-            auto terrain_collision = sample_terrain_height_below_player(player_entity, player->standing_entity_ptr);
+            auto terrain_collision = sample_terrain_height_at_player(player_entity, player->standing_entity_ptr);
             player->entity_ptr->position.y = terrain_collision.overlap + player->half_height;
             
             if(!terrain_collision.is_collided)
@@ -804,7 +804,7 @@ void update_player_state(Player* player)
 
          // step 2: check if player is still standing
          {
-            auto terrain_collision = sample_terrain_height_below_player(player_entity, player->standing_entity_ptr);
+            auto terrain_collision = sample_terrain_height_at_player(player_entity, player->standing_entity_ptr);
             player->entity_ptr->position.y = terrain_collision.overlap + player->half_height;
             
             if(!terrain_collision.is_collided)
@@ -813,6 +813,44 @@ void update_player_state(Player* player)
                if(check.is_collided)
                {
                   player->standing_entity_ptr = check.collided_entity_ptr;
+                  player->player_state = PLAYER_STATE_STANDING;
+               }
+               else
+               {
+                  // make player "slide" towards edge and fall away from floor
+                  std::cout << "PLAYER FELL" << "\n";
+                  player_entity->velocity.y = - 1 * player->fall_speed;
+                  player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
+               }
+            }
+         }
+      
+         break;
+      }
+      case PLAYER_STATE_SLIDE_FALLING:
+      {
+         assert(glm::length(player_entity->velocity) > 0);
+
+         // step 1: check if player is colliding with a wall
+         {
+            Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
+            size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
+            // check for collisions with scene BUT with floor
+            run_collision_checks_standing(player, entity_iterator, entity_list_size);
+         }
+
+         // step 2: check if player is still standing
+         {
+            auto terrain_collision = sample_terrain_height_at_player(player_entity, player->standing_entity_ptr);
+            player->entity_ptr->position.y = terrain_collision.overlap + player->half_height;
+            
+            if(!terrain_collision.is_collided)
+            {
+               auto check = check_for_floor_below_player(player);
+               if(check.is_collided)
+               {
+                  player->standing_entity_ptr = check.collided_entity_ptr;
+                  player->player_state = PLAYER_STATE_STANDING;
                }
                else
                {
@@ -827,10 +865,6 @@ void update_player_state(Player* player)
          break;
       }
    }
-
-   //print_vec_every_3rd_frame(player_entity->velocity, "player velocity");
-   //print_vec(player_entity->position, "player position");
-   //print_vec(player_entity->velocity, "player velocity");
 } 
 
 void render_text_overlay(Camera* camera, Player* player) 
