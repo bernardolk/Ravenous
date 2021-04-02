@@ -89,6 +89,7 @@ struct GlobalFrameInfo {
    float current_fps;
    u16 frame_counter_3 = 0;
    u16 frame_counter_10 = 0;
+   float time_step = 1;
 } G_FRAME_INFO;
 
 #include <mesh.h>
@@ -475,15 +476,18 @@ void render_text_overlay(Camera* camera, Player* player)
       format_float_tostr(camera->Front.z,2),                   //7
       format_float_tostr(player->entity_ptr->position.x,1),    //8
       format_float_tostr(player->entity_ptr->position.y,1),    //9 
-      format_float_tostr(player->entity_ptr->position.z,1)     //10
+      format_float_tostr(player->entity_ptr->position.z,1),    //10
+      format_float_tostr(G_FRAME_INFO.time_step,1)             //11
    };
  
-   string camera_position = "camera:   x: " + GUI_atts[0] + " y:" + GUI_atts[1] + " z:" + GUI_atts[2];
-   string camera_front    = "    dir:  x: " + GUI_atts[5] + " y:" + GUI_atts[6] + " z:" + GUI_atts[7];
-   string mouse_stats     = "    pitch: " + GUI_atts[3] + " yaw: " + GUI_atts[4];
-   string fps             = to_string(G_FRAME_INFO.current_fps);
-   string fps_gui         = "FPS: " + fps.substr(0, fps.find('.', 0) + 2);
-   string player_pos      = "player:   x: " +  GUI_atts[8] + " y: " +  GUI_atts[9] + " z: " +  GUI_atts[10];
+   string camera_position  = "camera:   x: " + GUI_atts[0] + " y:" + GUI_atts[1] + " z:" + GUI_atts[2];
+   string camera_front     = "    dir:  x: " + GUI_atts[5] + " y:" + GUI_atts[6] + " z:" + GUI_atts[7];
+   string mouse_stats      = "    pitch: " + GUI_atts[3] + " yaw: " + GUI_atts[4];
+   string fps              = to_string(G_FRAME_INFO.current_fps);
+   string fps_gui          = "FPS: " + fps.substr(0, fps.find('.', 0) + 2);
+   string player_pos       = "player:   x: " +  GUI_atts[8] + " y: " +  GUI_atts[9] + " z: " +  GUI_atts[10];
+   string time_step_string = "time step: " + GUI_atts[11];
+
 
    glm::vec3 player_state_text_color;
    std::string player_state_text;
@@ -535,10 +539,13 @@ void render_text_overlay(Camera* camera, Player* player)
    render_text(camera_front,     GUI_x, GUI_y - 25, scale);
    render_text(mouse_stats,      GUI_x, GUI_y - 50, scale);
    render_text(player_pos,       GUI_x, GUI_y - 75, scale);
-   render_text(fps_gui,          G_DISPLAY_INFO.VIEWPORT_WIDTH - 100, 25, scale);
+
    render_text(player_state_text,     GUI_x, 25, 1.4, player_state_text_color);
    render_text(view_mode_text,        GUI_x, 50, 1.4);
-   render_text(player_floor, GUI_x, 75, 1.4);
+   render_text(player_floor,          GUI_x, 75, 1.4);
+
+   render_text(time_step_string, G_DISPLAY_INFO.VIEWPORT_WIDTH - 130, 50, 1, glm::vec3(0.8, 0.8, 0.2));
+   render_text(fps_gui,          G_DISPLAY_INFO.VIEWPORT_WIDTH - 100, 25, scale);
 }
 
 

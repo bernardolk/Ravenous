@@ -12,20 +12,19 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
 float SLIDE_MAX_ANGLE = 1.4;
 float SLIDE_MIN_ANGLE = 0.6;
 
-
 void update_player_state(Player* player)
 {
    Entity* &player_entity = player->entity_ptr;
 
    // makes player move
    auto player_prior_position = player_entity->position;
-   player_entity->position += player_entity->velocity * G_FRAME_INFO.delta_time;
+   player_entity->position += player_entity->velocity * G_FRAME_INFO.delta_time * G_FRAME_INFO.time_step;
 
    switch(player->player_state)
    {
       case PLAYER_STATE_FALLING:
       {
-         player->entity_ptr->velocity.y -= G_FRAME_INFO.delta_time * player->fall_acceleration;
+         player->entity_ptr->velocity.y -= G_FRAME_INFO.delta_time * player->fall_acceleration * G_FRAME_INFO.time_step;
 
          // test collision with every object in scene entities vector
          Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
@@ -108,7 +107,7 @@ void update_player_state(Player* player)
             For our prototype this should be fine.
          */
          //dampen player speed (vf = v0 - g*t)
-         player->entity_ptr->velocity.y -= G_FRAME_INFO.delta_time * player->fall_acceleration;
+         player->entity_ptr->velocity.y -= G_FRAME_INFO.delta_time * player->fall_acceleration * G_FRAME_INFO.time_step;
          if (player->entity_ptr->velocity.y <= 0)
          {
             player->entity_ptr->velocity.y = 0;
@@ -233,6 +232,20 @@ void update_player_state(Player* player)
 
 void handle_input_flags(KeyInputFlags flags, Player* &player)
 {
+   if(flags.press & KEY_1 && !(G_INPUT_INFO.key_input_state & KEY_1))
+   {
+      if(G_FRAME_INFO.time_step > 0)
+      {
+         G_FRAME_INFO.time_step -= 0.1; 
+      }
+   }
+   if(flags.press & KEY_2 && !(G_INPUT_INFO.key_input_state & KEY_2))
+   {
+      if(G_FRAME_INFO.time_step < 3)
+      {
+         G_FRAME_INFO.time_step += 0.1;
+      }
+   }
    if(flags.press & KEY_C && !(G_INPUT_INFO.key_input_state & KEY_C))
    {
       // moves player to camera position
