@@ -74,10 +74,18 @@ void update_player_state(Player* player)
                   }
                   else if(check.collided_entity_ptr->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
                   {
-                     // make player "slide" towards edge and fall away from floor
-                     std::cout << "PLAYER FELL" << "\n";
-                     player_entity->velocity.y = - 1 * player->fall_speed;
-                     player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
+                     auto collision_geometry = (CollisionGeometrySlope*)check.collided_entity_ptr->collision_geometry_ptr;
+                     if(collision_geometry->inclination < SLIDE_MIN_ANGLE)
+                     {
+                        player->standing_entity_ptr = check.collided_entity_ptr;
+                     }
+                     else
+                     {
+                        // make player "slide" towards edge and fall away from floor
+                        std::cout << "PLAYER FELL" << "\n";
+                        player_entity->velocity.y = - 1 * player->fall_speed;
+                        player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
+                     }
                   }
                }
                else
