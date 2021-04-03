@@ -16,8 +16,8 @@ void update_player_state(Player* player)
 {
    Entity* &player_entity = player->entity_ptr;
 
-   // makes player move
-   auto player_prior_position = player_entity->position;
+   // makes player move and register player last position
+   player->prior_position = player_entity->position;
    player_entity->position += player_entity->velocity * G_FRAME_INFO.delta_time * G_FRAME_INFO.time_step;
 
    switch(player->player_state)
@@ -249,7 +249,7 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
    if(flags.press & KEY_C && !(G_INPUT_INFO.key_input_state & KEY_C))
    {
       // moves player to camera position
-      player->entity_ptr->position = G_SCENE_INFO.camera->Position;
+      player->entity_ptr->position = G_SCENE_INFO.camera->Position + G_SCENE_INFO.camera->Front * 3.0f;
       camera_look_at(G_SCENE_INFO.views[1], G_SCENE_INFO.camera->Front, false);
       player->player_state = PLAYER_STATE_FALLING;
       player->entity_ptr->velocity = glm::vec3(0, 0, 0);
@@ -937,7 +937,9 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
             }
 
             // player jumped and hit the ceiling
-            else if(v_overlap_collision.normal_vec.y == -1)
+            else if(v_overlap_collision.normal_vec.y == -1 &&
+               player->prior_position.y < player->entity_ptr->position.y &&
+               vertical_overlap < 0.03)
             {
                return_cd.overlap = vertical_overlap;
                return_cd.normal_vec = v_overlap_collision.normal_vec;
