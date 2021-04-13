@@ -38,7 +38,8 @@ int KEY_0               = 1 << 21;
 int KEY_C               = 1 << 22;
 int KEY_1               = 1 << 23;
 int KEY_2               = 1 << 24;
-
+int KEY_GRAVE_TICK      = 1 << 25;
+int KEY_ENTER           = 1 << 26;
 
 
 
@@ -133,6 +134,12 @@ int process_keyboard_input_key_press(GLFWwindow* window)
    if(glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
       flags = flags | KEY_2;
 
+   if(glfwGetKey(window, GLFW_KEY_GRAVE_ACCENT) == GLFW_PRESS)
+      flags = flags | KEY_GRAVE_TICK;
+
+   if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
+      flags = flags | KEY_ENTER;
+
    return flags;
 }
 
@@ -157,6 +164,15 @@ int process_keyboard_input_key_release(GLFWwindow* window)
 
    if(glfwGetKey(window, GLFW_KEY_2) == GLFW_RELEASE)
       flags = flags | KEY_2;
+
+   if(glfwGetKey(window, GLFW_KEY_GRAVE_ACCENT) == GLFW_RELEASE)
+      flags = flags | KEY_GRAVE_TICK;
+
+   if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE)
+      flags = flags | KEY_Q;
+
+   if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE)
+      flags = flags | KEY_ENTER;
 
    return flags;
 }

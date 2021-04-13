@@ -35,7 +35,8 @@ const std::string MODELS_PATH = PROJECT_PATH + "/assets/models/";
 const std::string FONTS_PATH = PROJECT_PATH + "/assets/fonts/";
 const std::string SHADERS_FOLDER_PATH = PROJECT_PATH + "/shaders/";
 const std::string CAMERA_FILE_PATH = PROJECT_PATH + "/camera.txt";
-const std::string SCENE_FILE_PATH = PROJECT_PATH + "/test.txt";
+const std::string SCENE_FILE_PATH = PROJECT_PATH + "/scene.txt";
+const std::string SCENES_FOLDER_PATH = PROJECT_PATH + "/scenes/";
 const std::string SHADERS_FILE_EXTENSION = ".shd";
 
 // PLAYER CYLINDER SETTINGS ... !!!
@@ -148,6 +149,10 @@ struct GlobalSceneInfo {
    Camera* views[2];
    Player* player;
    ViewMode view_mode = FREE_ROAM;
+   bool input_mode = false;
+   char input_string_buffer[50];
+   int input_string_buffer_index = 0;
+   char scene_name[50];
 } G_SCENE_INFO;
 
 struct EntityBufferElement {
@@ -201,6 +206,9 @@ void render_text(std::string text, float x, float y, float scale, glm::vec3 colo
 EntityBuffer* allocate_entity_buffer(size_t size);
 void update_buffers();
 void check_view_mode(Player* player);
+void handle_input_mode(KeyInputFlags flags, Player* &player);
+void reset_global_scene_string_buffer();
+
 
 int main() 
 {
@@ -230,7 +238,7 @@ int main()
    initialize_shaders();
    create_boilerplate_geometry();
 
-   load_scene_from_file(SCENE_FILE_PATH);
+   load_initial_scene_from_file(SCENE_FILE_PATH, SCENES_FOLDER_PATH);
 
    Player* player = G_SCENE_INFO.player;
 
@@ -256,7 +264,14 @@ int main()
 
 		//	INPUT PHASE
       auto input_flags = input_phase();
-      handle_input_flags(input_flags, player);
+      if(G_SCENE_INFO.input_mode)
+      {
+         handle_input_mode(input_flags, player);
+      }
+      else
+      {
+         handle_input_flags(input_flags, player);
+      }
 
 		//	UPDATE PHASE
       check_view_mode(player);
@@ -278,6 +293,59 @@ int main()
 
 	glfwTerminate();
 	return 0;
+}
+
+void handle_input_mode(KeyInputFlags flags, Player* &player)
+{
+   if(flags.press & KEY_ENTER && !(G_INPUT_INFO.key_input_state & KEY_ENTER))
+   {
+      G_SCENE_INFO.input_mode = !G_SCENE_INFO.input_mode;
+
+      // copy from buffer the scene name
+      int ind = 0;
+      while(G_SCENE_INFO.input_string_buffer[ind] != '\0')
+      {
+         G_SCENE_INFO.scene_name[ind] = G_SCENE_INFO.input_string_buffer[ind];
+         G_SCENE_INFO.input_string_buffer[ind++] = '\0';
+      }
+
+      reset_global_scene_string_buffer();
+
+      // updates scene with new one
+      load_scene_from_file(SCENES_FOLDER_PATH + G_SCENE_INFO.scene_name + ".txt");
+      player = G_SCENE_INFO.player; // not irrelevant! do not delete
+      player->entity_ptr->render_me = G_SCENE_INFO.view_mode == FREE_ROAM ? true : false;
+   }
+   if(flags.press & KEY_GRAVE_TICK && !(G_INPUT_INFO.key_input_state & KEY_GRAVE_TICK))
+   {
+      G_SCENE_INFO.input_mode = !G_SCENE_INFO.input_mode;
+      reset_global_scene_string_buffer();
+   }
+   if(flags.press & KEY_Q && !(G_INPUT_INFO.key_input_state & KEY_Q))
+   {  
+      G_SCENE_INFO.input_string_buffer[G_SCENE_INFO.input_string_buffer_index++] = 'q';
+   }
+
+   int i = 0;
+   while(G_SCENE_INFO.input_string_buffer[i] != '\0')
+   {
+      cout << G_SCENE_INFO.input_string_buffer[i++];
+   }
+   cout << "\n";
+
+   // here we record a history for if keys were last pressed or released, so to enable smooth toggle
+   G_INPUT_INFO.key_input_state |= flags.press;
+   G_INPUT_INFO.key_input_state &= ~(flags.release); 
+}
+
+void reset_global_scene_string_buffer()
+{
+   int ind = 0;
+   while(G_SCENE_INFO.input_string_buffer[ind] != '\0')
+   {
+      G_SCENE_INFO.input_string_buffer[ind++] = '\0';
+   }
+   G_SCENE_INFO.input_string_buffer_index = 0;
 }
 
 void check_view_mode(Player* player)
