@@ -1,5 +1,6 @@
 void render_scene(Scene* scene, Camera* camera);
 void render_entity(Entity* entity);
+void render_text(std::string text, float x, float y, float scale, glm::vec3 color = glm::vec3(1,1,1));
 
 
 void render_entity(Entity* entity)
@@ -91,7 +92,47 @@ void render_scene(Scene* scene, Camera* camera)
 	}
 }
 
+void render_text(std::string text, float x, float y, float scale, glm::vec3 color) 
+{
+   auto find1 = Shader_Catalogue.find("text");
+   auto text_shader = find1->second;
+	text_shader->use();
+	text_shader->setFloat3("textColor", color.x, color.y, color.z);
 
+   auto find2 = Geometry_Catalogue.find("text");
+   Mesh* text_geometry = find2->second;
+	glActiveTexture(GL_TEXTURE0);
+	glBindVertexArray(text_geometry->gl_data.VAO);
+
+	std::string::iterator c;
+	for (c = text.begin(); c != text.end(); c++) 
+   {
+		Character ch = Characters[*c];
+
+		GLfloat xpos = x + ch.Bearing.x * scale;
+		GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+		GLfloat w = ch.Size.x * scale;
+		GLfloat h = ch.Size.y * scale;
+		// Update VBO for each character
+		GLfloat vertices[6][4] = {
+         { xpos, ypos + h, 0.0, 0.0 },
+         { xpos, ypos, 0.0, 1.0 },
+         { xpos + w, ypos, 1.0, 1.0 },
+         { xpos, ypos + h, 0.0, 0.0 },
+         { xpos + w, ypos, 1.0, 1.0 },
+         { xpos + w, ypos + h, 1.0, 0.0 }
+		};
+
+		// Render glyph texture over quad
+		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+		// Update content of VBO memory
+		glBindBuffer(GL_ARRAY_BUFFER, text_geometry->gl_data.VBO);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+		// Render quad
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
+	}
+}
 
 
 

@@ -133,6 +133,8 @@ void print_every_3rd_frame(std::string thing, std::string prefix)
 }
 
 
+
+
 // SOURCE INCLUDES
 #include <text.h>
 #include <shader.h>
@@ -142,8 +144,13 @@ void print_every_3rd_frame(std::string thing, std::string prefix)
 #include <player.h>
 #include <parser.h>
 #include <loaders.h>
+
+// catalogues 
+std::map<string, Mesh*> Geometry_Catalogue;
+std::map<string, Shader*> Shader_Catalogue;
+std::map<string, Texture> Texture_Catalogue;
+
 #include <render.h>
-//#include <Renderer.h>
 
 // GLOBAL STRUCT VARIABLES (WITH CUSTOM TYPES)
 GlobalEntityInfo G_ENTITY_INFO;
@@ -177,11 +184,6 @@ struct GlobalBuffers {
    void* buffers[20];
 } G_BUFFERS;
 
-// catalogues 
-std::map<string, Mesh*> Geometry_Catalogue;
-std::map<string, Shader*> Shader_Catalogue;
-std::map<string, Texture> Texture_Catalogue;
-
 bool compare_vec2(glm::vec2 vec1, glm::vec2 vec2);
 
 #include <input.h>
@@ -208,7 +210,6 @@ void create_boilerplate_geometry();
 void render_text_overlay(Camera* camera, Player* player);
 GLenum glCheckError_(const char* file, int line);
 std::string format_float_tostr(float num, int precision);
-void render_text(std::string text, float x, float y, float scale, glm::vec3 color = glm::vec3(1,1,1));
 // void render_model(Entity ent, glm::vec3 lightPos[], glm::vec3 lightRgb[]);
 // void render_scene_lights();
 // unsigned int setup_object(MeshData objData);
@@ -295,7 +296,19 @@ int main()
 		glClearColor(0.196, 0.298, 0.3607, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		render_scene(G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
-      render_text_overlay(G_SCENE_INFO.camera, player);
+      switch(PROGRAM_MODE.current)
+      {
+         case GAME:
+         {
+            render_text_overlay(G_SCENE_INFO.camera, player);
+            break;
+         }
+         case CONSOLE:
+         {
+            render_console();
+            break;
+         }
+      }
 
       // FINISH FRAME
 		glfwSwapBuffers(G_DISPLAY_INFO.window);
@@ -598,49 +611,6 @@ std::string format_float_tostr(float num, int precision)
 {
 	string temp = std::to_string(num);
 	return temp.substr(0, temp.find(".") + 3);
-}
-
-
-void render_text(std::string text, float x, float y, float scale, glm::vec3 color) 
-{
-   auto find1 = Shader_Catalogue.find("text");
-   auto text_shader = find1->second;
-	text_shader->use();
-	text_shader->setFloat3("textColor", color.x, color.y, color.z);
-
-   auto find2 = Geometry_Catalogue.find("text");
-   Mesh* text_geometry = find2->second;
-	glActiveTexture(GL_TEXTURE0);
-	glBindVertexArray(text_geometry->gl_data.VAO);
-
-	std::string::iterator c;
-	for (c = text.begin(); c != text.end(); c++) 
-   {
-		Character ch = Characters[*c];
-
-		GLfloat xpos = x + ch.Bearing.x * scale;
-		GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
-		GLfloat w = ch.Size.x * scale;
-		GLfloat h = ch.Size.y * scale;
-		// Update VBO for each character
-		GLfloat vertices[6][4] = {
-         { xpos, ypos + h, 0.0, 0.0 },
-         { xpos, ypos, 0.0, 1.0 },
-         { xpos + w, ypos, 1.0, 1.0 },
-         { xpos, ypos + h, 0.0, 0.0 },
-         { xpos + w, ypos, 1.0, 1.0 },
-         { xpos + w, ypos + h, 1.0, 0.0 }
-		};
-
-		// Render glyph texture over quad
-		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
-		// Update content of VBO memory
-		glBindBuffer(GL_ARRAY_BUFFER, text_geometry->gl_data.VBO);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-		// Render quad
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
-	}
 }
 
 

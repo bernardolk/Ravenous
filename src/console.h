@@ -2,12 +2,20 @@
 void handle_console_input(KeyInputFlags flags, Player* &player);
 void check_letter_key_presses(KeyInputFlags flags);
 void clear_console_string_buffer();
+void render_console();
+
 
 struct GlobalConsoleState {
    char buffer[50];
    int buffer_ind = 0;
 } CONSOLE_STATE;
 
+
+void render_console()
+{
+   // NOT IMPLEMENTED YET DUE TO OPENGL SUCKING AS AN API
+   render_text(CONSOLE_STATE.buffer, 15, G_DISPLAY_INFO.VIEWPORT_HEIGHT - 20, 1.0);
+}
 
 void handle_console_input(KeyInputFlags flags, Player* &player)
 {
@@ -44,13 +52,6 @@ void handle_console_input(KeyInputFlags flags, Player* &player)
 
    // run through all letters to see if they were hit
    check_letter_key_presses(flags);
-
-   int i = 0;
-   while(CONSOLE_STATE.buffer[i] != '\0')
-   {
-      cout << CONSOLE_STATE.buffer[i++];
-   }
-   cout << "\n";
 
    // here we record a history for if keys were last pressed or released, so to enable smooth toggle
    G_INPUT_INFO.key_input_state |= flags.press;
