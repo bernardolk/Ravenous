@@ -711,25 +711,26 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
 
 void handle_input_flags(KeyInputFlags flags, Player* &player)
 {
-   if(flags.press & KEY_GRAVE_TICK && !(G_INPUT_INFO.key_input_state & KEY_GRAVE_TICK))
+   if(press_once(flags, KEY_GRAVE_TICK))
    {
-      G_SCENE_INFO.input_mode = !G_SCENE_INFO.input_mode;
+      PROGRAM_MODE.last = PROGRAM_MODE.current;
+      PROGRAM_MODE.current = CONSOLE; 
    }
-   if(flags.press & KEY_1 && !(G_INPUT_INFO.key_input_state & KEY_1))
+   if(press_once(flags, KEY_1))
    {
       if(G_FRAME_INFO.time_step > 0)
       {
          G_FRAME_INFO.time_step -= 0.1; 
       }
    }
-   if(flags.press & KEY_2 && !(G_INPUT_INFO.key_input_state & KEY_2))
+   if(press_once(flags, KEY_2))
    {
       if(G_FRAME_INFO.time_step < 3)
       {
          G_FRAME_INFO.time_step += 0.1;
       }
    }
-   if(flags.press & KEY_C && !(G_INPUT_INFO.key_input_state & KEY_C))
+   if(press_once(flags, KEY_C))
    {
       // moves player to camera position
       player->entity_ptr->position = G_SCENE_INFO.camera->Position + G_SCENE_INFO.camera->Front * 3.0f;
@@ -737,7 +738,7 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
       player->player_state = PLAYER_STATE_FALLING;
       player->entity_ptr->velocity = glm::vec3(0, 0, 0);
    }
-   if(flags.press & KEY_0 && !(G_INPUT_INFO.key_input_state & KEY_0))
+   if(press_once(flags, KEY_0))
    {
      save_player_position_to_file(SCENE_FILE_PATH);
    }
@@ -755,7 +756,7 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
       player = G_SCENE_INFO.player; // not irrelevant! do not delete
       player->entity_ptr->render_me = G_SCENE_INFO.view_mode == FREE_ROAM ? true : false;
    }
-   if(flags.press & KEY_F && !(G_INPUT_INFO.key_input_state & KEY_F))
+   if(press_once(flags, KEY_F))
    {
       if(G_SCENE_INFO.view_mode == FREE_ROAM)
       {

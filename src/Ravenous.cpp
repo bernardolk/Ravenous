@@ -20,12 +20,13 @@
 #include <limits>
 #include <assert.h>
 #include <algorithm>
+#include <stdint.h>
 
 // DEFINES
 typedef unsigned char u8;
 typedef unsigned short int u16;
 typedef unsigned int u32;
-typedef unsigned long int u64;
+typedef unsigned long long u64;
 const float PI = 3.141592;
 
 const float MAX_FLOAT = std::numeric_limits<float>::max();
@@ -45,8 +46,6 @@ float CYLINDER_RADIUS = 0.10f;
 
 float VEC_COMPARE_PRECISION = 0.00001f;
 
-
-
 const glm::mat4 mat4identity(
 	1.0f, 0.0f, 0.0f, 0.0f,
 	0.0f, 1.0f, 0.0f, 0.0f,
@@ -56,6 +55,17 @@ const glm::mat4 mat4identity(
 
 
 // GLOBAL STRUCT VARIABLES OR TYPES 
+enum ProgramModeEnum {
+   GAME = 0,
+   EDITOR = 1,
+   CONSOLE = 2,
+};
+
+struct ProgramMode {
+   ProgramModeEnum current = GAME;
+   ProgramModeEnum last = GAME;
+} PROGRAM_MODE;
+
 struct GLData {
    GLuint VAO = 0;
    GLuint VBO = 0;
@@ -80,7 +90,7 @@ struct GlobalInputInfo {
    double currentMouseX;
    double currentMouseY;
    float toggle_key_cooldown = 0;
-   int key_input_state = 0;
+   u64 key_input_state = 0;
 } G_INPUT_INFO;
 
 struct GlobalFrameInfo {
@@ -150,8 +160,6 @@ struct GlobalSceneInfo {
    Player* player;
    ViewMode view_mode = FREE_ROAM;
    bool input_mode = false;
-   char input_string_buffer[50];
-   int input_string_buffer_index = 0;
    char scene_name[50];
 } G_SCENE_INFO;
 
@@ -180,6 +188,7 @@ bool compare_vec2(glm::vec2 vec1, glm::vec2 vec2);
 #include <collision.h>
 #include <scene.h>
 #include <gameplay.h>
+#include <console.h>
 #define glCheckError() glCheckError_(__FILE__, __LINE__) 
 
 // OPENGL OBJECTS
@@ -206,9 +215,6 @@ void render_text(std::string text, float x, float y, float scale, glm::vec3 colo
 EntityBuffer* allocate_entity_buffer(size_t size);
 void update_buffers();
 void check_view_mode(Player* player);
-void handle_input_mode(KeyInputFlags flags, Player* &player);
-void reset_global_scene_string_buffer();
-
 
 int main() 
 {
@@ -264,13 +270,18 @@ int main()
 
 		//	INPUT PHASE
       auto input_flags = input_phase();
-      if(G_SCENE_INFO.input_mode)
+      switch(PROGRAM_MODE.current)
       {
-         handle_input_mode(input_flags, player);
-      }
-      else
-      {
-         handle_input_flags(input_flags, player);
+         case GAME:
+         {
+            handle_input_flags(input_flags, player);
+            break;
+         }
+         case CONSOLE:
+         {
+            handle_console_input(input_flags, player);
+            break;
+         }
       }
 
 		//	UPDATE PHASE
@@ -279,7 +290,6 @@ int main()
       update_buffers();
       update_player_state(player);
 		update_scene_objects();
-
 
 		//	RENDER PHASE
 		glClearColor(0.196, 0.298, 0.3607, 1.0f);
@@ -295,58 +305,6 @@ int main()
 	return 0;
 }
 
-void handle_input_mode(KeyInputFlags flags, Player* &player)
-{
-   if(flags.press & KEY_ENTER && !(G_INPUT_INFO.key_input_state & KEY_ENTER))
-   {
-      G_SCENE_INFO.input_mode = !G_SCENE_INFO.input_mode;
-
-      // copy from buffer the scene name
-      int ind = 0;
-      while(G_SCENE_INFO.input_string_buffer[ind] != '\0')
-      {
-         G_SCENE_INFO.scene_name[ind] = G_SCENE_INFO.input_string_buffer[ind];
-         G_SCENE_INFO.input_string_buffer[ind++] = '\0';
-      }
-
-      reset_global_scene_string_buffer();
-
-      // updates scene with new one
-      load_scene_from_file(SCENES_FOLDER_PATH + G_SCENE_INFO.scene_name + ".txt");
-      player = G_SCENE_INFO.player; // not irrelevant! do not delete
-      player->entity_ptr->render_me = G_SCENE_INFO.view_mode == FREE_ROAM ? true : false;
-   }
-   if(flags.press & KEY_GRAVE_TICK && !(G_INPUT_INFO.key_input_state & KEY_GRAVE_TICK))
-   {
-      G_SCENE_INFO.input_mode = !G_SCENE_INFO.input_mode;
-      reset_global_scene_string_buffer();
-   }
-   if(flags.press & KEY_Q && !(G_INPUT_INFO.key_input_state & KEY_Q))
-   {  
-      G_SCENE_INFO.input_string_buffer[G_SCENE_INFO.input_string_buffer_index++] = 'q';
-   }
-
-   int i = 0;
-   while(G_SCENE_INFO.input_string_buffer[i] != '\0')
-   {
-      cout << G_SCENE_INFO.input_string_buffer[i++];
-   }
-   cout << "\n";
-
-   // here we record a history for if keys were last pressed or released, so to enable smooth toggle
-   G_INPUT_INFO.key_input_state |= flags.press;
-   G_INPUT_INFO.key_input_state &= ~(flags.release); 
-}
-
-void reset_global_scene_string_buffer()
-{
-   int ind = 0;
-   while(G_SCENE_INFO.input_string_buffer[ind] != '\0')
-   {
-      G_SCENE_INFO.input_string_buffer[ind++] = '\0';
-   }
-   G_SCENE_INFO.input_string_buffer_index = 0;
-}
 
 void check_view_mode(Player* player)
 {
