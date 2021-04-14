@@ -1,5 +1,5 @@
 
-void load_scene_from_file(std::string path);
+bool load_scene_from_file(std::string path);
 void load_initial_scene_from_file(std::string path, string scene_folder_path);
 void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::string path);
 void parse_and_load_attribute(Parse p, ifstream* reader, int& line_count, std::string path, Player* player);
@@ -21,8 +21,16 @@ void load_initial_scene_from_file(std::string path, string scene_folder_path)
 }
 
 
-void load_scene_from_file(std::string path)
+bool load_scene_from_file(std::string path)
 {
+   ifstream reader(path);
+
+   if(!reader.is_open())
+   {
+      cout << "Cant load scene from file '" + path + "', path NOT FOUND \n";  
+      return false;
+   }
+
    // clears the current scene entity data
    if(G_SCENE_INFO.active_scene != NULL)
       G_SCENE_INFO.active_scene->entities.clear();
@@ -32,7 +40,6 @@ void load_scene_from_file(std::string path)
    setup_scene_boilerplate_stuff();
 
    // starts reading
-   ifstream reader(path);
    std::string line;
    Parse p;
    int line_count = 0;
@@ -51,6 +58,8 @@ void load_scene_from_file(std::string path)
          parse_and_load_attribute(p, &reader, line_count, path, G_SCENE_INFO.player);
       }
    }
+   
+   return true;
 } 
 
 void parse_and_load_attribute(Parse p, ifstream* reader, int& line_count, std::string path, Player* player)

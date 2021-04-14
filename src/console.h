@@ -13,22 +13,28 @@ void handle_console_input(KeyInputFlags flags, Player* &player)
 {
    if(press_once(flags, KEY_ENTER))
    {
-      G_SCENE_INFO.input_mode = !G_SCENE_INFO.input_mode;
+      PROGRAM_MODE.current = PROGRAM_MODE.last; 
+      PROGRAM_MODE.last = CONSOLE;
 
       // copy from buffer the scene name
       int ind = 0;
+      char scene_name[50] = {'\0'};
       while(CONSOLE_STATE.buffer[ind] != '\0')
       {
-         G_SCENE_INFO.scene_name[ind] = CONSOLE_STATE.buffer[ind];
+         scene_name[ind] = CONSOLE_STATE.buffer[ind];
          CONSOLE_STATE.buffer[ind++] = '\0';
       }
 
       clear_console_string_buffer();
 
       // updates scene with new one
-      load_scene_from_file(SCENES_FOLDER_PATH + G_SCENE_INFO.scene_name + ".txt");
-      player = G_SCENE_INFO.player; // not irrelevant! do not delete
-      player->entity_ptr->render_me = G_SCENE_INFO.view_mode == FREE_ROAM ? true : false;
+      bool loaded = load_scene_from_file(SCENES_FOLDER_PATH + scene_name + ".txt");
+      if(loaded)
+      {
+         G_SCENE_INFO.scene_name = scene_name;
+         player = G_SCENE_INFO.player; // not irrelevant! do not delete
+         player->entity_ptr->render_me = G_SCENE_INFO.view_mode == FREE_ROAM ? true : false;
+      }
    }
    if(press_once(flags, KEY_GRAVE_TICK))
    {
@@ -38,8 +44,6 @@ void handle_console_input(KeyInputFlags flags, Player* &player)
 
    // run through all letters to see if they were hit
    check_letter_key_presses(flags);
-
-
 
    int i = 0;
    while(CONSOLE_STATE.buffer[i] != '\0')

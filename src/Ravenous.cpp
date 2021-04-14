@@ -160,7 +160,7 @@ struct GlobalSceneInfo {
    Player* player;
    ViewMode view_mode = FREE_ROAM;
    bool input_mode = false;
-   char scene_name[50];
+   string scene_name;
 } G_SCENE_INFO;
 
 struct EntityBufferElement {

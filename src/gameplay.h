@@ -752,9 +752,12 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
    }
    if(flags.press & KEY_K)
    {
-      load_scene_from_file(SCENE_FILE_PATH);
-      player = G_SCENE_INFO.player; // not irrelevant! do not delete
-      player->entity_ptr->render_me = G_SCENE_INFO.view_mode == FREE_ROAM ? true : false;
+      bool loaded = load_scene_from_file(SCENE_FILE_PATH);
+      if(loaded)
+      {
+         player = G_SCENE_INFO.player; // not irrelevant! do not delete
+         player->entity_ptr->render_me = G_SCENE_INFO.view_mode == FREE_ROAM ? true : false;
+      }
    }
    if(press_once(flags, KEY_F))
    {
