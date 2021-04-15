@@ -330,6 +330,21 @@ u64 process_keyboard_input_key_release(GLFWwindow* window)
    if (glfwGetKey(window, GLFW_KEY_9) == GLFW_RELEASE) 
       flags = flags | KEY_9;
 
+   if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_RELEASE)
+      flags = flags | KEY_UP;
+
+   if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_RELEASE)
+      flags = flags | KEY_DOWN;
+      
+   if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_RELEASE)
+      flags = flags | KEY_LEFT;
+
+   if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_RELEASE)
+      flags = flags | KEY_RIGHT;
+
+   if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) 
+      flags = flags | KEY_SPACE;
+
    if(glfwGetKey(window, GLFW_KEY_GRAVE_ACCENT) == GLFW_RELEASE)
       flags = flags | KEY_GRAVE_TICK;
 

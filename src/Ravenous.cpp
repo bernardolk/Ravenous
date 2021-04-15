@@ -53,17 +53,16 @@ const glm::mat4 mat4identity(
 	0.0f, 0.0f, 0.0f, 1.0f
 );
 
-
 // GLOBAL STRUCT VARIABLES OR TYPES 
 enum ProgramModeEnum {
-   GAME = 0,
-   EDITOR = 1,
-   CONSOLE = 2,
+   GAME_MODE = 0,
+   EDITOR_MODE = 1,
+   CONSOLE_MODE = 2,
 };
 
 struct ProgramMode {
-   ProgramModeEnum current = GAME;
-   ProgramModeEnum last = GAME;
+   ProgramModeEnum current = GAME_MODE;
+   ProgramModeEnum last = GAME_MODE;
 } PROGRAM_MODE;
 
 struct GLData {
@@ -189,8 +188,8 @@ bool compare_vec2(glm::vec2 vec1, glm::vec2 vec2);
 #include <input.h>
 #include <collision.h>
 #include <scene.h>
-#include <gameplay.h>
 #include <console.h>
+#include <gameplay.h>
 #define glCheckError() glCheckError_(__FILE__, __LINE__) 
 
 // OPENGL OBJECTS
@@ -252,6 +251,7 @@ int main()
    // Allocate buffers
    EntityBuffer* entity_buffer = allocate_entity_buffer(50);
    G_BUFFERS.buffers[0] = entity_buffer;
+   initialize_console_buffers();
 
 	// MAIN LOOP
 	while (!glfwWindowShouldClose(G_DISPLAY_INFO.window))
@@ -273,12 +273,12 @@ int main()
       auto input_flags = input_phase();
       switch(PROGRAM_MODE.current)
       {
-         case GAME:
+         case GAME_MODE:
          {
             handle_input_flags(input_flags, player);
             break;
          }
-         case CONSOLE:
+         case CONSOLE_MODE:
          {
             handle_console_input(input_flags, player);
             break;
@@ -298,12 +298,12 @@ int main()
 		render_scene(G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
       switch(PROGRAM_MODE.current)
       {
-         case GAME:
+         case GAME_MODE:
          {
             render_text_overlay(G_SCENE_INFO.camera, player);
             break;
          }
-         case CONSOLE:
+         case CONSOLE_MODE:
          {
             render_console();
             break;

@@ -712,9 +712,8 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
 void handle_input_flags(KeyInputFlags flags, Player* &player)
 {
    if(press_once(flags, KEY_GRAVE_TICK))
-   {
-      PROGRAM_MODE.last = PROGRAM_MODE.current;
-      PROGRAM_MODE.current = CONSOLE; 
+   { 
+       start_console_mode();
    }
    if(press_once(flags, KEY_1))
    {

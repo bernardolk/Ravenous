@@ -3,37 +3,101 @@ void handle_console_input(KeyInputFlags flags, Player* &player);
 void check_letter_key_presses(KeyInputFlags flags);
 void clear_console_string_buffer();
 void render_console();
+void start_console_mode();
+void quit_console_mode();
+void move_to_previous_buffer();
+void move_to_next_buffer();
+void commit_buffer(Player* &player);
+void initialize_console_buffers();
+void copy_buffer_to_scratch_buffer();
+void clear_scratch_buffer();
 
 
 struct GlobalConsoleState {
-   char buffer[50];
-   int buffer_ind = 0;
-} CONSOLE_STATE;
+   const static u16 buffer_size_mult = 5;
+   const static u16 max_chars = 50;
+   char** buffers;
+   u16 b_ind = 0;
+   u16 current_buffer_size = 0;
+   u16 buffer_size_incr = 1;
+   char scratch_buffer[max_chars];
+   u16 c_ind = 0;
+} CONSOLE;
 
+void initialize_console_buffers()
+{
+   auto buffers = (char**) malloc(sizeof(char*) * CONSOLE.buffer_size_mult);
+   for(size_t i = 0; i < CONSOLE.buffer_size_mult; i++)
+   {
+      buffers[i] = (char*) calloc(CONSOLE.max_chars, sizeof(char));
+   }
+
+   CONSOLE.buffers = buffers;
+}
 
 void render_console()
 {
-   // NOT IMPLEMENTED YET DUE TO OPENGL SUCKING AS AN API
-   render_text(CONSOLE_STATE.buffer, 15, G_DISPLAY_INFO.VIEWPORT_HEIGHT - 20, 1.0);
+   render_text(CONSOLE.scratch_buffer, 15, G_DISPLAY_INFO.VIEWPORT_HEIGHT - 20, 1.0);
+   render_text(to_string(CONSOLE.b_ind), 15, G_DISPLAY_INFO.VIEWPORT_HEIGHT - 35, 1.0);
 }
 
-void handle_console_input(KeyInputFlags flags, Player* &player)
+void move_to_next_buffer()
 {
-   if(press_once(flags, KEY_ENTER))
+   if(CONSOLE.b_ind < CONSOLE.current_buffer_size)
+      CONSOLE.b_ind++;
+   if(CONSOLE.b_ind < CONSOLE.current_buffer_size)
+      copy_buffer_to_scratch_buffer();
+   else
+      clear_scratch_buffer();
+}
+
+void move_to_previous_buffer()
+{
+   if(CONSOLE.b_ind > 0)
+      CONSOLE.b_ind--;
+   if(CONSOLE.b_ind < CONSOLE.current_buffer_size)
+      copy_buffer_to_scratch_buffer();
+    else
+      clear_scratch_buffer();
+}
+
+void copy_buffer_to_scratch_buffer()
+{
+   clear_scratch_buffer();
+   
+   int char_ind = 0;
+   char scene_name[50] = {'\0'};
+   while(CONSOLE.buffers[CONSOLE.b_ind][char_ind] != '\0')
    {
-      PROGRAM_MODE.current = PROGRAM_MODE.last; 
-      PROGRAM_MODE.last = CONSOLE;
+      CONSOLE.scratch_buffer[char_ind] = CONSOLE.buffers[CONSOLE.b_ind][char_ind];
+      char_ind++;
+   }
 
-      // copy from buffer the scene name
-      int ind = 0;
+   CONSOLE.c_ind = char_ind;
+}
+
+void start_console_mode()
+{
+   PROGRAM_MODE.last = PROGRAM_MODE.current;
+   PROGRAM_MODE.current = CONSOLE_MODE;
+}
+
+void quit_console_mode()
+{
+   PROGRAM_MODE.current = PROGRAM_MODE.last; 
+   PROGRAM_MODE.last = CONSOLE_MODE;
+}
+
+void commit_buffer(Player* &player)
+{
+      // copy from scratch buffer to variable
+      int char_ind = 0;
       char scene_name[50] = {'\0'};
-      while(CONSOLE_STATE.buffer[ind] != '\0')
+      while(CONSOLE.scratch_buffer[char_ind] != '\0')
       {
-         scene_name[ind] = CONSOLE_STATE.buffer[ind];
-         CONSOLE_STATE.buffer[ind++] = '\0';
+         scene_name[char_ind] = CONSOLE.scratch_buffer[char_ind];
+         char_ind++;
       }
-
-      clear_console_string_buffer();
 
       // updates scene with new one
       bool loaded = load_scene_from_file(SCENES_FOLDER_PATH + scene_name + ".txt");
@@ -43,11 +107,67 @@ void handle_console_input(KeyInputFlags flags, Player* &player)
          player = G_SCENE_INFO.player; // not irrelevant! do not delete
          player->entity_ptr->render_me = G_SCENE_INFO.view_mode == FREE_ROAM ? true : false;
       }
+
+      // realloc if necessary
+      if(CONSOLE.current_buffer_size == CONSOLE.buffer_size_mult * CONSOLE.buffer_size_incr)
+      {
+         CONSOLE.buffer_size_incr++;
+         CONSOLE.buffers = (char**) realloc(
+            CONSOLE.buffers,
+            sizeof(char) * CONSOLE.max_chars * CONSOLE.buffer_size_mult * CONSOLE.buffer_size_incr
+         );
+      }
+
+      // commit to buffers (log)
+      char_ind = 0;
+      while(CONSOLE.scratch_buffer[char_ind] != '\0')
+      {
+         CONSOLE.buffers[CONSOLE.current_buffer_size][char_ind] = CONSOLE.scratch_buffer[char_ind];
+         char_ind++;
+      }
+      
+      // clear scratch buffer
+      clear_scratch_buffer();
+            
+      // updates number of items in buffers
+      CONSOLE.current_buffer_size++;
+      // move buffers pointer up the stack
+      CONSOLE.b_ind = CONSOLE.current_buffer_size;
+      // quit
+      quit_console_mode();
+}
+
+void clear_scratch_buffer()
+{
+   int char_ind = 0;
+   while(CONSOLE.scratch_buffer[char_ind] != '\0')
+   {
+      CONSOLE.scratch_buffer[char_ind] = '\0';
+      char_ind++;
    }
+   CONSOLE.c_ind = 0;
+}
+
+void handle_console_input(KeyInputFlags flags, Player* &player)
+{
+   if(press_once(flags, KEY_ENTER))
+   {
+      commit_buffer(player);
+   }
+
    if(press_once(flags, KEY_GRAVE_TICK))
    {
-      PROGRAM_MODE.current = PROGRAM_MODE.last; 
-      PROGRAM_MODE.last = CONSOLE;
+      quit_console_mode();
+   }
+
+   if(press_once(flags, KEY_UP))
+   {
+      move_to_previous_buffer();
+   }
+
+   if(press_once(flags, KEY_DOWN))
+   {
+      move_to_next_buffer();
    }
 
    // run through all letters to see if they were hit
@@ -62,120 +182,110 @@ void check_letter_key_presses(KeyInputFlags flags)
 {
    if(press_once(flags, KEY_BACKSPACE))
    {
-      CONSOLE_STATE.buffer[--CONSOLE_STATE.buffer_ind] = '\0';
+      CONSOLE.scratch_buffer[--CONSOLE.c_ind] = '\0';
    }
    if(press_once(flags, KEY_Q))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'q';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'q';
    }
    if(press_once(flags, KEY_W))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'w';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'w';
    }
    if(press_once(flags, KEY_E))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'e';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'e';
    }
    if(press_once(flags, KEY_R))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'r';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'r';
    }
    if(press_once(flags, KEY_T))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 't';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 't';
    }
    if(press_once(flags, KEY_Y))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'y';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'y';
    }
    if(press_once(flags, KEY_U))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'u';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'u';
    }
    if(press_once(flags, KEY_I))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'i';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'i';
    }
    if(press_once(flags, KEY_O))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'o';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'o';
    }
    if(press_once(flags, KEY_P))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'p';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'p';
    }
    if(press_once(flags, KEY_A))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'a';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'a';
    }
    if(press_once(flags, KEY_S))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 's';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 's';
    }
    if(press_once(flags, KEY_D))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'd';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'd';
    }
    if(press_once(flags, KEY_F))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'f';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'f';
    }
    if(press_once(flags, KEY_G))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'g';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'g';
    }
    if(press_once(flags, KEY_H))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'h';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'h';
    }
    if(press_once(flags, KEY_J))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'j';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'j';
    }
    if(press_once(flags, KEY_K))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'k';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'k';
    }
    if(press_once(flags, KEY_L))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'l';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'l';
    }
    if(press_once(flags, KEY_Z))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'z';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'z';
    }
    if(press_once(flags, KEY_X))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'x';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'x';
    }
    if(press_once(flags, KEY_C))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'c';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'c';
    }
    if(press_once(flags, KEY_V))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'v';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'v';
    }
    if(press_once(flags, KEY_B))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'b';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'b';
    }
    if(press_once(flags, KEY_N))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'n';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'n';
    }
    if(press_once(flags, KEY_M))
    {  
-      CONSOLE_STATE.buffer[CONSOLE_STATE.buffer_ind++] = 'm';
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'm';
    }
-}
-
-void clear_console_string_buffer()
-{
-   int ind = 0;
-   while(CONSOLE_STATE.buffer[ind] != '\0')
-   {
-      CONSOLE_STATE.buffer[ind++] = '\0';
-   }
-   CONSOLE_STATE.buffer_ind = 0;
 }
