@@ -1,4 +1,3 @@
-
 void handle_console_input(KeyInputFlags flags, Player* &player);
 void check_letter_key_presses(KeyInputFlags flags);
 void clear_console_string_buffer();
@@ -14,7 +13,7 @@ void clear_scratch_buffer();
 
 
 struct GlobalConsoleState {
-   const static u16 buffer_size_mult = 5;
+   u16 buffer_capacity = 5;
    const static u16 max_chars = 50;
    char** buffers;
    u16 b_ind = 0;
@@ -26,8 +25,8 @@ struct GlobalConsoleState {
 
 void initialize_console_buffers()
 {
-   auto buffers = (char**) malloc(sizeof(char*) * CONSOLE.buffer_size_mult);
-   for(size_t i = 0; i < CONSOLE.buffer_size_mult; i++)
+   auto buffers = (char**) malloc(sizeof(char*) * CONSOLE.buffer_capacity);
+   for(size_t i = 0; i < CONSOLE.buffer_capacity; i++)
    {
       buffers[i] = (char*) calloc(CONSOLE.max_chars, sizeof(char));
    }
@@ -64,7 +63,7 @@ void move_to_previous_buffer()
 void copy_buffer_to_scratch_buffer()
 {
    clear_scratch_buffer();
-   
+
    int char_ind = 0;
    char scene_name[50] = {'\0'};
    while(CONSOLE.buffers[CONSOLE.b_ind][char_ind] != '\0')
@@ -109,13 +108,15 @@ void commit_buffer(Player* &player)
       }
 
       // realloc if necessary
-      if(CONSOLE.current_buffer_size == CONSOLE.buffer_size_mult * CONSOLE.buffer_size_incr)
+      if(CONSOLE.current_buffer_size == CONSOLE.buffer_capacity)
       {
-         CONSOLE.buffer_size_incr++;
-         CONSOLE.buffers = (char**) realloc(
-            CONSOLE.buffers,
-            sizeof(char) * CONSOLE.max_chars * CONSOLE.buffer_size_mult * CONSOLE.buffer_size_incr
-         );
+         auto prior_capacity = CONSOLE.buffer_capacity;
+         CONSOLE.buffer_capacity *= 2;
+         CONSOLE.buffers = (char**) realloc(CONSOLE.buffers, sizeof(char*) * CONSOLE.buffer_capacity);
+         for(size_t i = prior_capacity; i < CONSOLE.buffer_capacity; i++)
+         {
+            CONSOLE.buffers[i] = (char*) calloc(CONSOLE.max_chars, sizeof(char));
+         }
       }
 
       // commit to buffers (log)
