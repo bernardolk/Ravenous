@@ -711,10 +711,6 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
 
 void handle_input_flags(KeyInputFlags flags, Player* &player)
 {
-   if(press_once(flags, KEY_GRAVE_TICK))
-   { 
-       start_console_mode();
-   }
    if(press_once(flags, KEY_1))
    {
       if(G_FRAME_INFO.time_step > 0)
@@ -728,14 +724,6 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
       {
          G_FRAME_INFO.time_step += 0.1;
       }
-   }
-   if(press_once(flags, KEY_C))
-   {
-      // moves player to camera position
-      player->entity_ptr->position = G_SCENE_INFO.camera->Position + G_SCENE_INFO.camera->Front * 3.0f;
-      camera_look_at(G_SCENE_INFO.views[1], G_SCENE_INFO.camera->Front, false);
-      player->player_state = PLAYER_STATE_FALLING;
-      player->entity_ptr->velocity = glm::vec3(0, 0, 0);
    }
    if(press_once(flags, KEY_0))
    {
@@ -755,22 +743,24 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
       if(loaded)
       {
          player = G_SCENE_INFO.player; // not irrelevant! do not delete
-         player->entity_ptr->render_me = G_SCENE_INFO.view_mode == FREE_ROAM ? true : false;
+         player->entity_ptr->render_me = PROGRAM_MODE.current == EDITOR_MODE ? true : false;
       }
    }
    if(press_once(flags, KEY_F))
    {
-      if(G_SCENE_INFO.view_mode == FREE_ROAM)
+      if(PROGRAM_MODE.current == EDITOR_MODE)
       {
-         G_SCENE_INFO.view_mode = FIRST_PERSON;
+         PROGRAM_MODE.last = PROGRAM_MODE.current;
+         PROGRAM_MODE.current = GAME_MODE;
          G_SCENE_INFO.camera = G_SCENE_INFO.views[1];
          player->entity_ptr->render_me = false;
          glfwSetInputMode(G_DISPLAY_INFO.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
       }
-      else if(G_SCENE_INFO.view_mode == FIRST_PERSON)
+      else if(PROGRAM_MODE.current == GAME_MODE)
       {
+         PROGRAM_MODE.last = PROGRAM_MODE.current;
+         PROGRAM_MODE.current = EDITOR_MODE;
          G_SCENE_INFO.camera = G_SCENE_INFO.views[0];
-         G_SCENE_INFO.view_mode = FREE_ROAM;
          player->entity_ptr->render_me = true;
          glfwSetInputMode(G_DISPLAY_INFO.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
       }
@@ -780,8 +770,21 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
        glfwSetWindowShouldClose(G_DISPLAY_INFO.window, true);
    }
 
-   if(G_SCENE_INFO.view_mode == FREE_ROAM)
+   if(PROGRAM_MODE.current == EDITOR_MODE)
    {
+      if(press_once(flags, KEY_GRAVE_TICK))
+      { 
+         start_console_mode();
+      }
+      if(press_once(flags, KEY_C))
+      {
+         // moves player to camera position
+         player->entity_ptr->position = G_SCENE_INFO.camera->Position + G_SCENE_INFO.camera->Front * 3.0f;
+         camera_look_at(G_SCENE_INFO.views[1], G_SCENE_INFO.camera->Front, false);
+         player->player_state = PLAYER_STATE_FALLING;
+         player->entity_ptr->velocity = glm::vec3(0, 0, 0);
+      }
+      
       float camera_speed = G_FRAME_INFO.delta_time * G_SCENE_INFO.camera->Acceleration;
       if(flags.press & KEY_LEFT_SHIFT)
       {
@@ -886,7 +889,7 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
          }
       }
    }
-   else if(G_SCENE_INFO.view_mode == FIRST_PERSON)
+   else if(PROGRAM_MODE.current == GAME_MODE)
    {
       if(player->player_state == PLAYER_STATE_STANDING)
       {

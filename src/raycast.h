@@ -1,6 +1,7 @@
 struct RaycastTest{
    bool hit = false;
    float distance;
+   Entity* entity = NULL;
 };
 
 struct Triangle{
@@ -18,21 +19,19 @@ Ray cast_pickray();
 RaycastTest test_ray_against_scene(Ray ray);
 RaycastTest test_ray_against_entity(Ray ray, Entity* entity);
 RaycastTest test_ray_against_triangle(Ray ray, Triangle triangle);
-Triangle get_triangle_for_indexed_mesh(Entity* entity, int stride);
+Triangle get_triangle_for_indexed_mesh(Entity* entity, int triangle_index);
 
 
 RaycastTest test_ray_against_scene(Ray ray)
 {
-   float min_distance = MAX_FLOAT;
+   float min_distance = -1;
    Entity* entity_hit = NULL;
 
-   G_SCENE_INFO.active_scene->entities
-   Entity** entity_iterator = &(scene->entities[0]);
-   int entities_vec_size =  scene->entities.size();
+   Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
+   int entities_vec_size =  G_SCENE_INFO.active_scene->entities.size();
 	for(int it = 0; it < entities_vec_size; it++) 
    {
 	   auto entity = *entity_iterator++;
-      
       auto test = test_ray_against_entity(ray, entity);
 
       if(test.hit && test.distance > min_distance)
@@ -41,14 +40,16 @@ RaycastTest test_ray_against_scene(Ray ray)
          entity_hit = entity;
       }
 	}
+
+   return RaycastTest{min_distance > -1, min_distance, entity_hit};
 }
 
 
-Triangle get_triangle_for_indexed_mesh(Entity* entity, int stride)
+Triangle get_triangle_for_indexed_mesh(Entity* entity, int triangle_index)
 {
-   auto a_ind = entity->mesh.indices[3 * stride + 0];
-   auto b_ind = entity->mesh.indices[3 * stride + 1];
-   auto c_ind = entity->mesh.indices[3 * stride + 2];
+   auto a_ind = entity->mesh.indices[3 * triangle_index + 0];
+   auto b_ind = entity->mesh.indices[3 * triangle_index + 1];
+   auto c_ind = entity->mesh.indices[3 * triangle_index + 2];
 
    auto a_mesh = entity->mesh.vertices[a_ind].position;
    auto b_mesh = entity->mesh.vertices[b_ind].position;
@@ -64,11 +65,11 @@ Triangle get_triangle_for_indexed_mesh(Entity* entity, int stride)
 
 RaycastTest test_ray_against_entity(Ray ray, Entity* entity)
 {
-   int triangles = entity->mesh.indices.size / 3;
+   int triangles = entity->mesh.indices.size() / 3;
    
    for(int i = 0; i < triangles; i++)
    {
-      Triangle t = get_triangle_for_indexed_mesh(i);
+      Triangle t = get_triangle_for_indexed_mesh(entity, i);
       auto test = test_ray_against_triangle(ray, t);
       if(test.hit)
          return test;
@@ -124,12 +125,12 @@ Ray cast_pickray() {
                                    (G_DISPLAY_INFO.VIEWPORT_HEIGHT / 2);
 
 	glm::vec4 ray_clip(screenX_normalized, screenY_normalized, -1.0, 1.0);
-	glm::mat4 inv_view = glm::inverse(activeCamera.View4x4);
-	glm::mat4 inv_proj = glm::inverse(activeCamera.Projection4x4);
+	glm::mat4 inv_view = glm::inverse(G_SCENE_INFO.camera->View4x4);
+	glm::mat4 inv_proj = glm::inverse(G_SCENE_INFO.camera->Projection4x4);
 	glm::vec3 ray_eye_3 = (inv_proj * ray_clip);
 	glm::vec4 ray_eye(ray_eye_3.x, ray_eye_3.y, -1.0, 0.0);
    auto direction = glm::normalize(inv_view * ray_eye);
-   auto origin = G_SCENE_INFO.active_camera->Position;
+   auto origin = G_SCENE_INFO.camera->Position;
 
 	return Ray{origin, direction};
 }

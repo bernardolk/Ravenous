@@ -359,7 +359,7 @@ u64 process_keyboard_input_key_release(GLFWwindow* window)
 
 void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 {
-   if (G_INPUT_INFO.is_mouse_drag || G_SCENE_INFO.view_mode == FIRST_PERSON) 
+   if (G_INPUT_INFO.is_mouse_drag || PROGRAM_MODE.current == GAME_MODE) 
    {
       // 'teleports' stored coordinates to current mouse coordinates
       if (G_INPUT_INFO.reset_mouse_coords) 

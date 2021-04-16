@@ -60,8 +60,8 @@ enum ProgramModeEnum {
 };
 
 struct ProgramMode {
-   ProgramModeEnum current = GAME_MODE;
-   ProgramModeEnum last = GAME_MODE;
+   ProgramModeEnum current = EDITOR_MODE;
+   ProgramModeEnum last = EDITOR_MODE;
 } PROGRAM_MODE;
 
 struct GLData {
@@ -153,17 +153,11 @@ std::map<string, Texture> Texture_Catalogue;
 // GLOBAL STRUCT VARIABLES (WITH CUSTOM TYPES)
 GlobalEntityInfo G_ENTITY_INFO;
 
-enum ViewMode {
-   FREE_ROAM = 0,
-   FIRST_PERSON = 1
-};
-
 struct GlobalSceneInfo {
    Scene* active_scene = NULL;
    Camera* camera;
    Camera* views[2];
    Player* player;
-   ViewMode view_mode = FREE_ROAM;
    bool input_mode = false;
    string scene_name;
 } G_SCENE_INFO;
@@ -188,13 +182,13 @@ bool compare_vec2(glm::vec2 vec1, glm::vec2 vec2);
 #include <collision.h>
 #include <scene.h>
 #include <console.h>
+#include <raycast.h>
 #include <gameplay.h>
 #define glCheckError() glCheckError_(__FILE__, __LINE__) 
 
 // OPENGL OBJECTS
 unsigned int texture, texture_specular;
 // Shader quad_shader, model_shader, Text_shader, line_shader;
-
 
 using namespace glm;
 
@@ -220,13 +214,13 @@ int main()
    // reads from camera position file
    float* camera_pos = load_camera_settings(CAMERA_FILE_PATH);
 
-	Camera* free_roam_camera = camera_create(
+	Camera* editor_camera = camera_create(
       glm::vec3(camera_pos[0], camera_pos[1], camera_pos[2]), glm::vec3(camera_pos[3], camera_pos[4], camera_pos[5]), false
    );
    Camera* first_person_camera = new Camera();
 
-	G_SCENE_INFO.camera = free_roam_camera;
-   G_SCENE_INFO.views[0] = free_roam_camera;
+	G_SCENE_INFO.camera = editor_camera;
+   G_SCENE_INFO.views[0] = editor_camera;
    G_SCENE_INFO.views[1] = first_person_camera;
 
 
@@ -272,15 +266,14 @@ int main()
       auto input_flags = input_phase();
       switch(PROGRAM_MODE.current)
       {
-         case GAME_MODE:
-         {
-            handle_input_flags(input_flags, player);
-            break;
-         }
          case CONSOLE_MODE:
          {
             handle_console_input(input_flags, player);
             break;
+         }
+         default:
+         {
+            handle_input_flags(input_flags, player);
          }
       }
 
@@ -297,15 +290,14 @@ int main()
 		render_scene(G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
       switch(PROGRAM_MODE.current)
       {
-         case GAME_MODE:
-         {
-            render_text_overlay(G_SCENE_INFO.camera, player);
-            break;
-         }
          case CONSOLE_MODE:
          {
             render_console();
             break;
+         }
+         default:
+         {
+            render_text_overlay(G_SCENE_INFO.camera, player);
          }
       }
 
@@ -320,12 +312,13 @@ int main()
 
 void check_view_mode(Player* player)
 {
-   if(G_SCENE_INFO.view_mode == FREE_ROAM)
+   if(PROGRAM_MODE.current == EDITOR_MODE)
    {
       // do nothing
    }
-   else if(G_SCENE_INFO.view_mode == FIRST_PERSON)
+   else if(PROGRAM_MODE.current == GAME_MODE)
    {
+      // sets camera to player's eye position
       G_SCENE_INFO.camera->Position = player->entity_ptr->position;
       G_SCENE_INFO.camera->Position.y += player->half_height * 2.0 / 3.0; 
    }
@@ -562,13 +555,13 @@ void render_text_overlay(Camera* camera, Player* player)
    }
 
    std::string view_mode_text;
-   switch(G_SCENE_INFO.view_mode)
+   switch(PROGRAM_MODE.current)
    {
-      case FREE_ROAM:
-         view_mode_text = "FREE ROAM";
+      case EDITOR_MODE:
+         view_mode_text = "EDITOR MODE";
          break;
-      case FIRST_PERSON:
-         view_mode_text = "FIRST PERSON";
+      case GAME_MODE:
+         view_mode_text = "GAME MODE";
          break;
    }
 
