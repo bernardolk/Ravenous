@@ -739,7 +739,7 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
    }
    if(press_once(flags, KEY_0))
    {
-     save_player_position_to_file(SCENE_FILE_PATH);
+     save_player_position_to_file(G_SCENE_INFO.scene_name);
    }
    if(flags.press & KEY_9)
    {
@@ -751,7 +751,7 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
    }
    if(flags.press & KEY_K)
    {
-      bool loaded = load_scene_from_file(SCENE_FILE_PATH);
+      bool loaded = load_scene_from_file(G_SCENE_INFO.scene_name);
       if(loaded)
       {
          player = G_SCENE_INFO.player; // not irrelevant! do not delete

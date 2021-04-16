@@ -1,28 +1,15 @@
 
-bool load_scene_from_file(std::string path);
-void load_initial_scene_from_file(std::string path, string scene_folder_path);
+bool load_scene_from_file(std::string scene_name);
 void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::string path);
 void parse_and_load_attribute(Parse p, ifstream* reader, int& line_count, std::string path, Player* player);
 void setup_scene_boilerplate_stuff();
-void save_player_position_to_file(const string path);
+void save_player_position_to_file(string scene_name);
 
-void load_initial_scene_from_file(std::string path, string scene_folder_path)
+
+
+bool load_scene_from_file(std::string scene_name)
 {
-   ifstream reader(path);
-   std::string line;
-   Parse p;
-   int line_count = 0;
-
-   parser_nextline(&reader, &line, &p);
-   
-   p = parse_token(p);
-   string scene_file = p.string_buffer;
-   load_scene_from_file(scene_folder_path + scene_file);
-}
-
-
-bool load_scene_from_file(std::string path)
-{
+   string path = SCENES_FOLDER_PATH + scene_name + ".txt";
    ifstream reader(path);
 
    if(!reader.is_open())
@@ -59,6 +46,7 @@ bool load_scene_from_file(std::string path)
       }
    }
    
+   G_SCENE_INFO.scene_name = scene_name;
    return true;
 } 
 
@@ -440,7 +428,7 @@ void setup_scene_boilerplate_stuff()
    G_SCENE_INFO.player = player;
 }
 
-void save_player_position_to_file(const string path)
+void save_player_position_to_file(string scene_name)
 {
    // NOT IMPLEMENTED
 }

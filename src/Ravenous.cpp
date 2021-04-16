@@ -36,7 +36,6 @@ const std::string MODELS_PATH = PROJECT_PATH + "/assets/models/";
 const std::string FONTS_PATH = PROJECT_PATH + "/assets/fonts/";
 const std::string SHADERS_FOLDER_PATH = PROJECT_PATH + "/shaders/";
 const std::string CAMERA_FILE_PATH = PROJECT_PATH + "/camera.txt";
-const std::string SCENE_FILE_PATH = PROJECT_PATH + "/scene.txt";
 const std::string SCENES_FOLDER_PATH = PROJECT_PATH + "/scenes/";
 const std::string SHADERS_FILE_EXTENSION = ".shd";
 
@@ -244,7 +243,7 @@ int main()
    initialize_shaders();
    create_boilerplate_geometry();
 
-   load_initial_scene_from_file(SCENE_FILE_PATH, SCENES_FOLDER_PATH);
+   load_scene_from_file("test");
 
    Player* player = G_SCENE_INFO.player;
 

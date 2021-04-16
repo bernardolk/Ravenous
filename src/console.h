@@ -106,10 +106,9 @@ void commit_buffer(Player* &player)
       }
 
       // updates scene with new one
-      bool loaded = load_scene_from_file(SCENES_FOLDER_PATH + scene_name + ".txt");
+      bool loaded = load_scene_from_file(scene_name);
       if(loaded)
       {
-         G_SCENE_INFO.scene_name = scene_name;
          player = G_SCENE_INFO.player; // not irrelevant! do not delete
          player->entity_ptr->render_me = G_SCENE_INFO.view_mode == FREE_ROAM ? true : false;
       }
