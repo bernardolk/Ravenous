@@ -13,7 +13,7 @@ void clear_scratch_buffer();
 
 
 struct GlobalConsoleState {
-   u16 buffer_capacity = 5;
+   u16 buffer_capacity = 20;
    const static u16 max_chars = 50;
    char** buffers;
    u16 b_ind = 0;
@@ -89,6 +89,13 @@ void quit_console_mode()
 
 void commit_buffer(Player* &player)
 {
+      // if empty, just quit
+      if(CONSOLE.scratch_buffer[0] == '\0')
+      {
+         quit_console_mode();
+         return;
+      }
+
       // copy from scratch buffer to variable
       int char_ind = 0;
       char scene_name[50] = {'\0'};
