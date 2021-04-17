@@ -1,4 +1,4 @@
-void handle_input_flags(KeyInputFlags flags, Player* &player);
+void handle_input_flags(InputFlags flags, Player* &player);
 void update_player_state(Player* player);
 void make_player_slide(Player* player, CollisionData collision_data);
 void make_player_slide_fall(Player* player, CollisionData collision_data);
@@ -101,7 +101,7 @@ void update_player_state(Player* player)
       case PLAYER_STATE_JUMPING:
       {
          /* remarks about the jump system:
-            we set at input press time (input.h) a high velocity upward for the player
+            we set at input key_press time (input.h) a high velocity upward for the player
             at each frame we decrement a little bit from the y velocity component using delta frame time
             IDEALLY we would set our target jump height and let the math work itself out from there.
             For our prototype this should be fine.
@@ -709,7 +709,8 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
 }
 
 
-void handle_input_flags(KeyInputFlags flags, Player* &player)
+//@todo: refactor this into game mode input handle and editor mode input handle
+void handle_input_flags(InputFlags flags, Player* &player)
 {
    if(press_once(flags, KEY_1))
    {
@@ -729,7 +730,7 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
    {
      save_player_position_to_file(G_SCENE_INFO.scene_name);
    }
-   if(flags.press & KEY_9)
+   if(flags.key_press & KEY_9)
    {
       save_camera_settings_to_file(
          CAMERA_FILE_PATH,
@@ -737,7 +738,7 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
          G_SCENE_INFO.camera->Front
       );
    }
-   if(flags.press & KEY_K)
+   if(flags.key_press & KEY_K)
    {
       bool loaded = load_scene_from_file(G_SCENE_INFO.scene_name);
       if(loaded)
@@ -765,7 +766,7 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
          glfwSetInputMode(G_DISPLAY_INFO.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
       }
    }
-   if(flags.press & KEY_ESC)
+   if(flags.key_press & KEY_ESC)
    {
        glfwSetWindowShouldClose(G_DISPLAY_INFO.window, true);
    }
@@ -786,39 +787,39 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
       }
       
       float camera_speed = G_FRAME_INFO.delta_time * G_SCENE_INFO.camera->Acceleration;
-      if(flags.press & KEY_LEFT_SHIFT)
+      if(flags.key_press & KEY_LEFT_SHIFT)
       {
          camera_speed = camera_speed * 2;
       }
-      if(flags.press & KEY_LEFT_CTRL)
+      if(flags.key_press & KEY_LEFT_CTRL)
       {
          camera_speed = camera_speed / 2;
       }
-      if(flags.press & KEY_W)
+      if(flags.key_press & KEY_W)
       {
          G_SCENE_INFO.camera->Position += camera_speed * G_SCENE_INFO.camera->Front;
       }
-      if(flags.press & KEY_A)
+      if(flags.key_press & KEY_A)
       {
          G_SCENE_INFO.camera->Position -= camera_speed * glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
       }
-      if(flags.press & KEY_S)
+      if(flags.key_press & KEY_S)
       {
          G_SCENE_INFO.camera->Position -= camera_speed * G_SCENE_INFO.camera->Front;
       }
-      if(flags.press & KEY_D)
+      if(flags.key_press & KEY_D)
       {
          G_SCENE_INFO.camera->Position += camera_speed * glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
       }
-      if(flags.press & KEY_Q)
+      if(flags.key_press & KEY_Q)
       {
          G_SCENE_INFO.camera->Position -= camera_speed * G_SCENE_INFO.camera->Up;
       }
-       if(flags.press & KEY_E)
+       if(flags.key_press & KEY_E)
       {
          G_SCENE_INFO.camera->Position += camera_speed * G_SCENE_INFO.camera->Up;
       }
-      if(flags.press & KEY_O)
+      if(flags.key_press & KEY_O)
       {
          camera_look_at(G_SCENE_INFO.camera, glm::vec3(0.0f, 0.0f, 0.0f), true);
       }
@@ -828,20 +829,20 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
          // resets velocity
          player->entity_ptr->velocity = glm::vec3(0); 
 
-         if (flags.press & KEY_UP)
+         if (flags.key_press & KEY_UP)
          {
             player->entity_ptr->velocity += glm::vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
          }
-         if (flags.press & KEY_DOWN)
+         if (flags.key_press & KEY_DOWN)
          {
             player->entity_ptr->velocity -= glm::vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
          }
-         if (flags.press & KEY_LEFT)
+         if (flags.key_press & KEY_LEFT)
          {
             glm::vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
             player->entity_ptr->velocity -= glm::vec3(onwards_vector.x, 0, onwards_vector.z);
          }
-         if (flags.press & KEY_RIGHT)
+         if (flags.key_press & KEY_RIGHT)
          {
             glm::vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
             player->entity_ptr->velocity += glm::vec3(onwards_vector.x, 0, onwards_vector.z);
@@ -850,12 +851,12 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
          if(glm::length2(player->entity_ptr->velocity) > 0)
          {
             float player_frame_speed = player->speed;
-            if(flags.press & KEY_LEFT_SHIFT)  // PLAYER DASH
+            if(flags.key_press & KEY_LEFT_SHIFT)  // PLAYER DASH
                player_frame_speed *= 2;
 
             player->entity_ptr->velocity = player_frame_speed * glm::normalize(player->entity_ptr->velocity);
          }
-         if (flags.press & KEY_SPACE) 
+         if (flags.key_press & KEY_SPACE) 
          {
             player->player_state = PLAYER_STATE_JUMPING;
             player->entity_ptr->velocity.y = player->jump_initial_speed;
@@ -866,19 +867,19 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
          auto collision_geom = *((CollisionGeometrySlope*) player->standing_entity_ptr->collision_geometry_ptr);
          player->entity_ptr->velocity = player->slide_speed * collision_geom.tangent;
 
-         if (flags.press & KEY_LEFT)
+         if (flags.key_press & KEY_LEFT)
          {
             auto temp_vec = glm::rotate(player->entity_ptr->velocity, -12.0f, collision_geom.normal);
             player->entity_ptr->velocity.x = temp_vec.x;
             player->entity_ptr->velocity.z = temp_vec.z;
          }
-         if (flags.press & KEY_RIGHT)
+         if (flags.key_press & KEY_RIGHT)
          {
             auto temp_vec = glm::rotate(player->entity_ptr->velocity, 12.0f, collision_geom.normal);
             player->entity_ptr->velocity.x = temp_vec.x;
             player->entity_ptr->velocity.z = temp_vec.z;
          }
-         if (flags.press & KEY_SPACE)
+         if (flags.key_press & KEY_SPACE)
          {
              player->player_state = PLAYER_STATE_JUMPING;
              auto col_geometry = (CollisionGeometrySlope*) player->standing_entity_ptr->collision_geometry_ptr;
@@ -896,20 +897,20 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
          // resets velocity
          player->entity_ptr->velocity = glm::vec3(0); 
 
-         if(flags.press & KEY_W)
+         if(flags.key_press & KEY_W)
          {
             player->entity_ptr->velocity += glm::vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
          }
-         if(flags.press & KEY_A)
+         if(flags.key_press & KEY_A)
          {
             glm::vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
             player->entity_ptr->velocity -= glm::vec3(onwards_vector.x, 0, onwards_vector.z);
          }
-         if(flags.press & KEY_S)
+         if(flags.key_press & KEY_S)
          {
             player->entity_ptr->velocity -= glm::vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
          }
-         if(flags.press & KEY_D)
+         if(flags.key_press & KEY_D)
          {
             glm::vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
             player->entity_ptr->velocity += glm::vec3(onwards_vector.x, 0, onwards_vector.z);
@@ -918,12 +919,12 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
          if(glm::length2(player->entity_ptr->velocity) > 0)
          {
             float player_frame_speed = player->speed;
-            if(flags.press & KEY_LEFT_SHIFT)  // PLAYER DASH
+            if(flags.key_press & KEY_LEFT_SHIFT)  // PLAYER DASH
                player_frame_speed *= 2;
 
             player->entity_ptr->velocity = player_frame_speed * glm::normalize(player->entity_ptr->velocity);
          }
-         if (flags.press & KEY_SPACE) 
+         if (flags.key_press & KEY_SPACE) 
          {
             player->player_state = PLAYER_STATE_JUMPING;
             player->entity_ptr->velocity.y = player->jump_initial_speed;
@@ -938,7 +939,7 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
          auto collision_geom = *((CollisionGeometrySlope*) player->standing_entity_ptr->collision_geometry_ptr);
          player->entity_ptr->velocity = player->slide_speed * collision_geom.tangent;
 
-         if (flags.press & KEY_A)
+         if (flags.key_press & KEY_A)
          {
             float dot_product = glm::dot(collision_geom.tangent, G_SCENE_INFO.camera->Front);
            float angle = -12.0f;
@@ -953,7 +954,7 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
             player->entity_ptr->velocity.x = temp_vec.x;
             player->entity_ptr->velocity.z = temp_vec.z;
          }
-         if (flags.press & KEY_D)
+         if (flags.key_press & KEY_D)
          {
             float dot_product = glm::dot(collision_geom.tangent, G_SCENE_INFO.camera->Front);
             float angle = 12.0f;
@@ -968,7 +969,7 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
             player->entity_ptr->velocity.x = temp_vec.x;
             player->entity_ptr->velocity.z = temp_vec.z;
          }
-         if (flags.press & KEY_SPACE)
+         if (flags.key_press & KEY_SPACE)
          {
              player->player_state = PLAYER_STATE_JUMPING;
              auto col_geometry = (CollisionGeometrySlope*) player->standing_entity_ptr->collision_geometry_ptr;
@@ -981,7 +982,7 @@ void handle_input_flags(KeyInputFlags flags, Player* &player)
    }
 
    // here we record a history for if keys were last pressed or released, so to enable smooth toggle
-   G_INPUT_INFO.key_input_state |= flags.press;
-   G_INPUT_INFO.key_input_state &= ~(flags.release); 
+   G_INPUT_INFO.key_input_state |= flags.key_press;
+   G_INPUT_INFO.key_input_state &= ~(flags.key_release); 
 }
 

@@ -1,5 +1,5 @@
-void handle_console_input(KeyInputFlags flags, Player* &player);
-void check_letter_key_presses(KeyInputFlags flags);
+void handle_console_input(InputFlags flags, Player* &player);
+void check_letter_key_presses(InputFlags flags);
 void clear_console_string_buffer();
 void render_console();
 void start_console_mode();
@@ -155,7 +155,7 @@ void clear_scratch_buffer()
    CONSOLE.c_ind = 0;
 }
 
-void handle_console_input(KeyInputFlags flags, Player* &player)
+void handle_console_input(InputFlags flags, Player* &player)
 {
    if(press_once(flags, KEY_ENTER))
    {
@@ -181,11 +181,11 @@ void handle_console_input(KeyInputFlags flags, Player* &player)
    check_letter_key_presses(flags);
 
    // here we record a history for if keys were last pressed or released, so to enable smooth toggle
-   G_INPUT_INFO.key_input_state |= flags.press;
-   G_INPUT_INFO.key_input_state &= ~(flags.release); 
+   G_INPUT_INFO.key_input_state |= flags.key_press;
+   G_INPUT_INFO.key_input_state &= ~(flags.key_release); 
 }
 
-void check_letter_key_presses(KeyInputFlags flags)
+void check_letter_key_presses(InputFlags flags)
 {
    if(press_once(flags, KEY_BACKSPACE))
    {

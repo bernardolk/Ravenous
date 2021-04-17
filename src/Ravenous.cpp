@@ -184,6 +184,7 @@ bool compare_vec2(glm::vec2 vec1, glm::vec2 vec2);
 #include <console.h>
 #include <raycast.h>
 #include <gameplay.h>
+#include <editor.h>
 #define glCheckError() glCheckError_(__FILE__, __LINE__) 
 
 // OPENGL OBJECTS
@@ -283,6 +284,14 @@ int main()
       update_buffers();
       update_player_state(player);
 		update_scene_objects();
+      switch(PROGRAM_MODE.current)
+      {
+         case EDITOR_MODE:
+         {
+            editor_check_clicking();
+            break;
+         }
+      }
 
 		//	RENDER PHASE
 		glClearColor(0.196, 0.298, 0.3607, 1.0f);

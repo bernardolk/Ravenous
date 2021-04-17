@@ -24,8 +24,8 @@ Triangle get_triangle_for_indexed_mesh(Entity* entity, int triangle_index);
 
 RaycastTest test_ray_against_scene(Ray ray)
 {
-   float min_distance = -1;
-   Entity* entity_hit = NULL;
+   float min_distance = MAX_FLOAT;
+   RaycastTest closest_hit{false, -1};
 
    Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
    int entities_vec_size =  G_SCENE_INFO.active_scene->entities.size();
@@ -34,14 +34,14 @@ RaycastTest test_ray_against_scene(Ray ray)
 	   auto entity = *entity_iterator++;
       auto test = test_ray_against_entity(ray, entity);
 
-      if(test.hit && test.distance > min_distance)
+      if(test.hit && test.distance < min_distance)
       {
+         closest_hit = {true, test.distance, entity};
          min_distance = test.distance;
-         entity_hit = entity;
       }
 	}
 
-   return RaycastTest{min_distance > -1, min_distance, entity_hit};
+   return closest_hit;
 }
 
 
@@ -66,16 +66,20 @@ Triangle get_triangle_for_indexed_mesh(Entity* entity, int triangle_index)
 RaycastTest test_ray_against_entity(Ray ray, Entity* entity)
 {
    int triangles = entity->mesh.indices.size() / 3;
-   
+   float min_distance = MAX_FLOAT;
+   RaycastTest min_hit_test{false, -1};
    for(int i = 0; i < triangles; i++)
    {
       Triangle t = get_triangle_for_indexed_mesh(entity, i);
       auto test = test_ray_against_triangle(ray, t);
-      if(test.hit)
-         return test;
+      if(test.hit && test.distance < min_distance)
+      {
+         min_hit_test = test;
+         min_distance = test.distance;
+      }
    }
 
-   return RaycastTest{false, -1};
+   return min_hit_test;
 }
 
 
@@ -118,7 +122,8 @@ RaycastTest test_ray_against_triangle(Ray ray, Triangle triangle)
 }
 
 
-Ray cast_pickray() {
+Ray cast_pickray() 
+{
 	float screenX_normalized = (G_INPUT_INFO.currentMouseX - G_DISPLAY_INFO.VIEWPORT_WIDTH / 2) /
                               (G_DISPLAY_INFO.VIEWPORT_WIDTH / 2);
 	float screenY_normalized = -1 * (G_INPUT_INFO.currentMouseY - G_DISPLAY_INFO.VIEWPORT_HEIGHT / 2) / 

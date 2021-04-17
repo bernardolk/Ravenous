@@ -1,7 +1,7 @@
 
-struct KeyInputFlags {
-   u64 press;
-   u64 release;
+struct InputFlags {
+   u64 key_press;
+   u64 key_release;
 };
 
 void on_mouse_btn(GLFWwindow* window, int button, int action, int mods);
@@ -9,8 +9,8 @@ void on_mouse_move(GLFWwindow* window, double xpos, double ypos);
 u64 process_keyboard_input_key_press(GLFWwindow* window);
 u64 process_keyboard_input_key_release(GLFWwindow* window);
 void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset);
-KeyInputFlags input_phase();
-bool press_once(KeyInputFlags flags, u64 key);
+InputFlags input_phase();
+bool press_once(InputFlags flags, u64 key);
 
 u64 KEY_Q               = 1LL << 0;
 u64 KEY_W               = 1LL << 1;
@@ -61,12 +61,12 @@ u64 KEY_ENTER           = 1LL << 45;
 u64 KEY_BACKSPACE       = 1LL << 46;
 
 
-KeyInputFlags input_phase() 
+InputFlags input_phase() 
 {
 		glfwPollEvents();
 		auto key_press_flags = process_keyboard_input_key_press(G_DISPLAY_INFO.window);
       auto key_release_flags = process_keyboard_input_key_release(G_DISPLAY_INFO.window);
-      return KeyInputFlags{key_press_flags, key_release_flags};
+      return InputFlags{key_press_flags, key_release_flags};
 }
 
 
@@ -416,6 +416,8 @@ void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset)
 
 void on_mouse_btn(GLFWwindow* window, int button, int action, int mods) 
 {
+   // @todo: need to refactor registering mouse click into the KeyInput struct and having it
+   // acknowledge whether you are clicking or dragging or what
    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) 
    {
       G_INPUT_INFO.is_mouse_left_btn_press = true;
@@ -430,7 +432,7 @@ void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
    }
 }
 
-bool press_once(KeyInputFlags flags, u64 key)
+bool press_once(InputFlags flags, u64 key)
 {
-   return flags.press & key && !(G_INPUT_INFO.key_input_state & key);
+   return flags.key_press & key && !(G_INPUT_INFO.key_input_state & key);
 }
