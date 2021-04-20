@@ -5,6 +5,7 @@ namespace Editor
 struct EntityPanelContext {
    Entity* entity = NULL;
    vec3 original_position = vec3(0);
+   vec3 original_scale = vec3(0);
    bool active = false;
 };
 
@@ -53,6 +54,9 @@ void select_entity(Entity* entity)
    Context.entity_panel.original_position = vec3{
       entity->position
    };
+   Context.entity_panel.original_scale = vec3{
+      entity->scale
+   };
 }
 
 void render_entity_panel(EntityPanelContext* context)
@@ -81,6 +85,30 @@ void render_entity_panel(EntityPanelContext* context)
    ImGui::InputFloat("rot x", &context->entity->rotation.x, 90);
    ImGui::InputFloat("rot y", &context->entity->rotation.y, 90);
    ImGui::InputFloat("rot z", &context->entity->rotation.z, 90);
+
+   auto scale = vec3{context->entity->scale};
+
+   ImGui::SliderFloat(
+      "scale x",
+      &scale.x,
+      context->original_scale.x - 5,
+      context->original_scale.x + 5
+   );
+   ImGui::SliderFloat(
+      "scale y",
+      &scale.y,
+      context->original_scale.y - 5,
+      context->original_scale.y + 5
+   );
+   ImGui::SliderFloat(
+      "scale z", 
+      &scale.z,
+      context->original_scale.z - 5,
+      context->original_scale.z + 5
+   );
+
+   Context.entity_panel.entity->set_scale(scale);
+
    ImGui::End();
 }
 

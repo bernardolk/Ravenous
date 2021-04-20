@@ -58,8 +58,9 @@ struct Entity {
       CollisionGeometryAlignedBox aabb;
    } collision_geometry;
 
-   void set_scale(vec3 scale)
+   void set_scale(vec3 new_scale)
    {
+      scale = new_scale;
       switch(collision_geometry_type)
       {
          case COLLISION_ALIGNED_CYLINDER:
@@ -68,17 +69,17 @@ struct Entity {
          }
          case COLLISION_ALIGNED_BOX:
          {
-            collision_geometry.aabb.length_x = scale.x;
-            collision_geometry.aabb.length_y = scale.y;
-            collision_geometry.aabb.length_z = scale.z;
+            collision_geometry.aabb.length_x = new_scale.x;
+            collision_geometry.aabb.length_y = new_scale.y;
+            collision_geometry.aabb.length_z = new_scale.z;
             break;
             
          }
          case COLLISION_ALIGNED_SLOPE:
          {
-            collision_geometry.slope.width = scale.z;
-            collision_geometry.slope.height = scale.y;
-            collision_geometry.slope.length = scale.x;
+            collision_geometry.slope.width =  new_scale.z;
+            collision_geometry.slope.height = new_scale.y;
+            collision_geometry.slope.length = new_scale.x;
             break;
          }
       }
