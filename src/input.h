@@ -13,6 +13,7 @@ u64 process_keyboard_input_key_release(GLFWwindow* window);
 void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset);
 InputFlags input_phase();
 bool pressed_once(InputFlags flags, u64 key);
+void check_mouse_click_hold();
 
 u64 KEY_Q               = 1LL << 0;
 u64 KEY_W               = 1LL << 1;
@@ -62,14 +63,23 @@ u64 KEY_GRAVE_TICK      = 1LL << 44;
 u64 KEY_ENTER           = 1LL << 45;
 u64 KEY_BACKSPACE       = 1LL << 46;
 
-u8 MOUSE_LEFT_BTN       = 1 << 0;
-u8 MOUSE_RIGHT_BTN      = 2 << 0;
-u8 MOUSE_DRAGGING       = 3 << 0;
+u16 MOUSE_LB_CLICK       = 1 << 0;
+u16 MOUSE_RB_CLICK       = 1 << 1;
+u16 MOUSE_DRAGGING       = 1 << 2;
+u16 MOUSE_LB_HOLD        = 1 << 3;
 
 
 InputFlags input_phase() 
 {
+      // first, check if last frame we had a click, if so, 
+      // se it as btn hold (so we dont register clicks more than one time)
+      // @TODO: maybe the best approach here is to pool it like we do with the keys
+      // instead of using a callback. If so, need to check whether we would need
+      // sticky mouse click input config set to true or not
+      check_mouse_click_hold();
+      // then respond to all glfw callbacks
 		glfwPollEvents();
+      // set the flags and return
 		auto key_press_flags = process_keyboard_input_key_press(G_DISPLAY_INFO.window);
       auto key_release_flags = process_keyboard_input_key_release(G_DISPLAY_INFO.window);
       return InputFlags{key_press_flags, key_release_flags};
@@ -365,6 +375,17 @@ u64 process_keyboard_input_key_release(GLFWwindow* window)
 
 void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 {
+   // activates mouse dragging if clicking and current mouse position has changed a certain ammount
+	if (!(G_INPUT_INFO.mouse_state & MOUSE_DRAGGING) && G_INPUT_INFO.mouse_state & MOUSE_LB_HOLD)
+   { 
+      auto offset_from_click_x = abs(G_INPUT_INFO.mouse_coords.left_click_x - G_INPUT_INFO.mouse_coords.x);
+      auto offset_from_click_y = abs(G_INPUT_INFO.mouse_coords.left_click_y - G_INPUT_INFO.mouse_coords.y); 
+      if(offset_from_click_x > 2 || offset_from_click_y > 2)
+      {
+         G_INPUT_INFO.mouse_state |= MOUSE_DRAGGING;
+      }
+   }
+
    // MOVE CAMERA WITH MOUSE IF APPROPRIATE
    if (PROGRAM_MODE.current == GAME_MODE || (G_INPUT_INFO.mouse_state & MOUSE_DRAGGING) ) 
    {
@@ -403,17 +424,6 @@ void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
    // updates mouse position
    G_INPUT_INFO.mouse_coords.x = xpos;
 	G_INPUT_INFO.mouse_coords.y = ypos;
-
-	// activates mouse dragging if clicking and current mouse position has changed a certain ammount
-	if (G_INPUT_INFO.mouse_state & MOUSE_LEFT_BTN)
-   { 
-      auto offset_from_click_x = abs(G_INPUT_INFO.mouse_coords.left_click_x - G_INPUT_INFO.mouse_coords.x);
-      auto offset_from_click_y = abs(G_INPUT_INFO.mouse_coords.left_click_y - G_INPUT_INFO.mouse_coords.y); 
-      if(offset_from_click_x > 2 || offset_from_click_y > 2)
-      {
-         G_INPUT_INFO.mouse_state |= MOUSE_DRAGGING;
-      }
-   }
 }
 
 void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset) 
@@ -431,14 +441,15 @@ void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
       {
          if(action == GLFW_PRESS)
          {
-            G_INPUT_INFO.mouse_state |= MOUSE_LEFT_BTN;
+            G_INPUT_INFO.mouse_state |= MOUSE_LB_CLICK;
             G_INPUT_INFO.forget_last_mouse_coords = true;
             G_INPUT_INFO.mouse_coords.left_click_x = G_INPUT_INFO.mouse_coords.x;
             G_INPUT_INFO.mouse_coords.left_click_y = G_INPUT_INFO.mouse_coords.y;
          }
          else if(action == GLFW_RELEASE)
          {
-            G_INPUT_INFO.mouse_state &= ~(MOUSE_LEFT_BTN);
+            G_INPUT_INFO.mouse_state &= ~(MOUSE_LB_CLICK);
+            G_INPUT_INFO.mouse_state &= ~(MOUSE_LB_HOLD);
             G_INPUT_INFO.mouse_state &= ~(MOUSE_DRAGGING);
          }
          break;
@@ -454,4 +465,13 @@ bool pressed_once(InputFlags flags, u64 key)
 bool pressed(u64 flags, u64 key)
 {
    return flags & key;
+}
+
+void check_mouse_click_hold()
+{
+   if((G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK))
+   {
+      G_INPUT_INFO.mouse_state &= ~(MOUSE_LB_CLICK);
+      G_INPUT_INFO.mouse_state |= MOUSE_LB_HOLD;
+   }
 }
