@@ -27,20 +27,3 @@ struct Player {
    float half_height;
    vec3 prior_position = vec3(0);
 };
-
-
-// hmmm ....
-void player_change_state(Player* player, PlayerStateEnum new_state)
-{
-   switch(new_state)
-   {
-      case PLAYER_STATE_FALLING:
-
-      break;
-      case PLAYER_STATE_STANDING:
-
-      break;
-   }
-
-}
-
