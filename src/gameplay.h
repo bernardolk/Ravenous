@@ -73,8 +73,8 @@ void update_player_state(Player* player)
                   }
                   else if(check.collided_entity_ptr->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
                   {
-                     auto collision_geometry = (CollisionGeometrySlope*)check.collided_entity_ptr->collision_geometry_ptr;
-                     if(collision_geometry->inclination < SLIDE_MIN_ANGLE)
+                     auto collision_geometry = check.collided_entity_ptr->collision_geometry.slope;
+                     if(collision_geometry.inclination < SLIDE_MIN_ANGLE)
                      {
                         player->standing_entity_ptr = check.collided_entity_ptr;
                      }
@@ -327,7 +327,6 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
                {
                   // make player "slide" towards edge and fall away from floor
                   std::cout << "FELL FROM EDGE" << "\n";
-                  auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player->entity_ptr->collision_geometry_ptr;
                   player->standing_entity_ptr = collision_data.collided_entity_ptr;
                   player->entity_ptr->position.y += collision_data.overlap; 
                   
@@ -475,7 +474,7 @@ void make_player_slide(Player* player, CollisionData collision_data)
    auto height_check = sample_terrain_height_at_player(player->entity_ptr, player->standing_entity_ptr);
    player->entity_ptr->position.y = height_check.overlap + player->half_height;
    // make player 'snap' to slope
-   auto collision_geom = (CollisionGeometrySlope*) collision_data.collided_entity_ptr->collision_geometry_ptr;
+   auto collision_geom = collision_data.collided_entity_ptr->collision_geometry.slope;
    auto &pv = player->entity_ptr->velocity;
    // make camera (player) turn to face either up or down the slope
 
@@ -490,7 +489,7 @@ void make_player_slide(Player* player, CollisionData collision_data)
    //    camera_look_at(G_SCENE_INFO.camera, camera_dir, false);
    // }
 
-   pv = player->slide_speed * collision_geom->inclination * collision_geom->tangent;
+   pv = player->slide_speed * collision_geom.inclination * collision_geom.tangent;
    player->player_state = PLAYER_STATE_SLIDING;
 }
 
@@ -501,7 +500,7 @@ void make_player_slide_fall(Player* player, CollisionData collision_data)
    auto height_check = sample_terrain_height_at_player(player->entity_ptr, player->standing_entity_ptr);
    player->entity_ptr->position.y = height_check.overlap + player->half_height;
    // make player 'snap' to slope
-   auto collision_geom = (CollisionGeometrySlope*) collision_data.collided_entity_ptr->collision_geometry_ptr;
+   auto collision_geom = collision_data.collided_entity_ptr->collision_geometry.slope;
    auto &pv = player->entity_ptr->velocity;
    // make camera (player) turn to face either up or down the slope
 
@@ -516,7 +515,7 @@ void make_player_slide_fall(Player* player, CollisionData collision_data)
    //    camera_look_at(G_SCENE_INFO.camera, camera_dir, false);
    // }
 
-   pv = player->slide_speed * collision_geom->tangent;
+   pv = player->slide_speed * collision_geom.tangent;
    player->player_state = PLAYER_STATE_SLIDE_FALLING;
 }
 
@@ -557,8 +556,8 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
             c = get_horizontal_overlap_player_slope(entity, player->entity_ptr);
             if(c.is_collided && c.overlap > biggest_overlap)
             {
-               auto col_geometry = (CollisionGeometrySlope*) entity->collision_geometry_ptr;
-               auto slope_2d_tangent = glm::normalize(vec2(col_geometry->tangent.x, col_geometry->tangent.z));
+               auto col_geometry = entity->collision_geometry.slope;
+               auto slope_2d_tangent = glm::normalize(vec2(col_geometry.tangent.x, col_geometry.tangent.z));
 
                if(player->player_state == PLAYER_STATE_STANDING &&
                   c.overlap == 0)
@@ -574,7 +573,7 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
                   c.overlap > 0 &&  // this means player is not INSIDE entity (player centroid)
                   compare_vec2(c.normal_vec, -1.0f * slope_2d_tangent))
                {
-                  if(col_geometry->inclination > SLIDE_MIN_ANGLE)
+                  if(col_geometry.inclination > SLIDE_MIN_ANGLE)
                   {
                      set_collided_entity = true;
                      return_cd.collision_outcome = BLOCKED_BY_WALL;
@@ -643,13 +642,13 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
                horizontal_check.overlap == 0 && 
                v_overlap_collision.normal_vec.y != -1)
             {
-               auto col_geometry = (CollisionGeometrySlope*)entity->collision_geometry_ptr;
-               if(col_geometry->inclination > SLIDE_MAX_ANGLE)
+               auto col_geometry = entity->collision_geometry.slope;
+               if(col_geometry.inclination > SLIDE_MAX_ANGLE)
                {
                   return_cd.overlap = vertical_overlap;
                   return_cd.collision_outcome = JUMP_SLIDE_HIGH_INCLINATION;
                }
-               else if(col_geometry->inclination > SLIDE_MIN_ANGLE)
+               else if(col_geometry.inclination > SLIDE_MIN_ANGLE)
                {
                   return_cd.overlap = vertical_overlap;
                   return_cd.collision_outcome = JUMP_SLIDE;
@@ -864,7 +863,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
       }
       else if(player->player_state == PLAYER_STATE_SLIDING)
       {
-         auto collision_geom = *((CollisionGeometrySlope*) player->standing_entity_ptr->collision_geometry_ptr);
+         auto collision_geom = player->standing_entity_ptr->collision_geometry.slope;
          player->entity_ptr->velocity = player->slide_speed * collision_geom.tangent;
 
          if (flags.key_press & KEY_LEFT)
@@ -882,9 +881,9 @@ void handle_input_flags(InputFlags flags, Player* &player)
          if (flags.key_press & KEY_SPACE)
          {
              player->player_state = PLAYER_STATE_JUMPING;
-             auto col_geometry = (CollisionGeometrySlope*) player->standing_entity_ptr->collision_geometry_ptr;
-             float x = col_geometry->normal.x > 0 ? 1 : col_geometry->normal.x == 0 ? 0 : -1;
-             float z = col_geometry->normal.z > 0 ? 1 : col_geometry->normal.z == 0 ? 0 : -1;
+             auto col_geometry = player->standing_entity_ptr->collision_geometry.slope;
+             float x = col_geometry.normal.x > 0 ? 1 : col_geometry.normal.x == 0 ? 0 : -1;
+             float z = col_geometry.normal.z > 0 ? 1 : col_geometry.normal.z == 0 ? 0 : -1;
              auto jump_vec = glm::normalize(vec3(x, 1, z));
              player->entity_ptr->velocity = player->jump_initial_speed * jump_vec;
          }
@@ -936,7 +935,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
       }
       else if(player->player_state == PLAYER_STATE_SLIDING)
       {
-         auto collision_geom = *((CollisionGeometrySlope*) player->standing_entity_ptr->collision_geometry_ptr);
+         auto collision_geom = player->standing_entity_ptr->collision_geometry.slope;
          player->entity_ptr->velocity = player->slide_speed * collision_geom.tangent;
 
          if (flags.key_press & KEY_A)
@@ -972,9 +971,9 @@ void handle_input_flags(InputFlags flags, Player* &player)
          if (flags.key_press & KEY_SPACE)
          {
              player->player_state = PLAYER_STATE_JUMPING;
-             auto col_geometry = (CollisionGeometrySlope*) player->standing_entity_ptr->collision_geometry_ptr;
-             float x = col_geometry->normal.x > 0 ? 1 : col_geometry->normal.x == 0 ? 0 : -1;
-             float z = col_geometry->normal.z > 0 ? 1 : col_geometry->normal.z == 0 ? 0 : -1;
+             auto collision_geom = player->standing_entity_ptr->collision_geometry.slope;
+             float x = collision_geom.normal.x > 0 ? 1 : collision_geom.normal.x == 0 ? 0 : -1;
+             float z = collision_geom.normal.z > 0 ? 1 : collision_geom.normal.z == 0 ? 0 : -1;
              auto jump_vec = glm::normalize(vec3(x, 1, z));
              player->entity_ptr->velocity = player->jump_initial_speed * jump_vec;
          }

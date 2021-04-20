@@ -283,7 +283,7 @@ void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::stri
             cgab->length_y = new_entity->scale.y; 
             cgab->length_z = new_entity->scale.z; 
             
-            new_entity->collision_geometry_ptr = cgab;
+            new_entity->collision_geometry.aabb = *cgab;
             new_entity->collision_geometry_type = COLLISION_ALIGNED_BOX;
          }
          else if(collision_type == "slope")
@@ -340,7 +340,7 @@ void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::stri
             assert(new_entity->scale.y > 0); 
             assert(new_entity->scale.z > 0);
 
-            new_entity->collision_geometry_ptr = slope_collision;
+            new_entity->collision_geometry.slope = *slope_collision;
             new_entity->collision_geometry_type = COLLISION_ALIGNED_SLOPE;
          }
          else
@@ -394,7 +394,7 @@ void setup_scene_boilerplate_stuff()
    // player collision geometry
    cylinder->collision_geometry_type = COLLISION_ALIGNED_CYLINDER;
    auto cgac = new CollisionGeometryAlignedCylinder { CYLINDER_HALF_HEIGHT, CYLINDER_RADIUS };
-   cylinder->collision_geometry_ptr = cgac;
+   cylinder->collision_geometry.cylinder = *cgac;
 
    demo_scene->entities.push_back(cylinder);
 

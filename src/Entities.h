@@ -51,8 +51,12 @@ struct Entity {
    vec3 velocity;
 
    // collision simulation data
-   void* collision_geometry_ptr;
    CollisionGeometryEnum collision_geometry_type;
+   union CollisionGeometry{
+      CollisionGeometrySlope slope;
+      CollisionGeometryAlignedCylinder cylinder;
+      CollisionGeometryAlignedBox aabb;
+   } collision_geometry;
 };
 
 struct SpotLight {
