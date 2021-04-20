@@ -24,7 +24,6 @@ void initialize();
 void terminate();
 
 
-
 void editor_check_clicking()
 {
    if(G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK)
@@ -33,7 +32,7 @@ void editor_check_clicking()
       auto test = test_ray_against_scene(pickray);
       if(test.hit)
       {
-         cout << "HIT ENTITY '" + test.entity->name + "' :D \n";
+         select_entity(test.entity);
       }
    }
 }
@@ -42,6 +41,9 @@ void render()
 {
    if(Context.entity_panel.active)
       render_entity_panel(&Context.entity_panel);
+
+   ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 
@@ -92,8 +94,6 @@ void start_frame()
 
 void end_frame()
 {
-   ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	ImGui::EndFrame();
 }
 
