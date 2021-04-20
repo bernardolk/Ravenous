@@ -301,7 +301,7 @@ bool intersects_vertically_slope(Entity* entity, Entity* player)
    // since a slope has a diagonal profile in its cross section, we need to sample the points
    // that the player 
    auto col_geometry = entity->collision_geometry.slope;
-   float slope_top = entity->position.y + col_geometry.slope_height;
+   float slope_top = entity->position.y + col_geometry.height;
    float slope_bottom = entity->position.y;
 
    auto player_collision_geometry = player->collision_geometry.cylinder;
@@ -364,8 +364,8 @@ SlopeHeightsPlayer get_slope_heights_at_player(Entity* player, Entity* entity)
 float get_slope_height_at_player_position(Entity* player, Entity* entity)
 {
    auto col_geometry = entity->collision_geometry.slope;
-   float slope_top = entity->position.y + col_geometry.slope_height;
-   float a = col_geometry.slope_height / col_geometry.slope_length;
+   float slope_top = entity->position.y + col_geometry.height;
+   float a = col_geometry.height / col_geometry.length;
 
    float y;
    switch((int) entity->rotation.y)
@@ -413,31 +413,31 @@ Boundaries get_slope_boundaries(Entity* entity)
       {
          x0 = entity->position.x;
          z0 = entity->position.z;
-         x1 = entity->position.x + slope.slope_length;
-         z1 = entity->position.z + slope.slope_width;
+         x1 = entity->position.x + slope.length;
+         z1 = entity->position.z + slope.width;
          break;
       }
       case 90:
       {
          x0 = entity->position.x;
-         z0 = entity->position.z - slope.slope_length;
-         x1 = entity->position.x + slope.slope_width;
+         z0 = entity->position.z - slope.length;
+         x1 = entity->position.x + slope.width;
          z1 = entity->position.z;
          break;
       }
       case 180:
       {
-         x0 = entity->position.x - slope.slope_length;
-         z0 = entity->position.z - slope.slope_width;
+         x0 = entity->position.x - slope.length;
+         z0 = entity->position.z - slope.width;
          x1 = entity->position.x;
          z1 = entity->position.z;
          break;
       }
       case 270:
       {
-         x0 = entity->position.x - slope.slope_width;
+         x0 = entity->position.x - slope.width;
          x1 = entity->position.x;
-         z1 = entity->position.z + slope.slope_length;
+         z1 = entity->position.z + slope.length;
          z0 = entity->position.z;
          break;
       }

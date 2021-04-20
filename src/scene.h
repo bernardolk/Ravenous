@@ -277,23 +277,22 @@ void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::stri
 
          if(collision_type == "aabb")
          {
-            // CREATES AXIS ALIGNED BOUNDING BOX
-            auto cgab = new CollisionGeometryAlignedBox;
-            cgab->length_x = new_entity->scale.x;
-            cgab->length_y = new_entity->scale.y; 
-            cgab->length_z = new_entity->scale.z; 
-            
-            new_entity->collision_geometry.aabb = *cgab;
+            new_entity->collision_geometry.aabb = CollisionGeometryAlignedBox {
+               new_entity->scale.x,
+               new_entity->scale.y,
+               new_entity->scale.z
+            };
+
             new_entity->collision_geometry_type = COLLISION_ALIGNED_BOX;
          }
          else if(collision_type == "slope")
          {
-            auto slope_collision = new CollisionGeometrySlope;
-            slope_collision->slope_width =  new_entity->scale.z;
-            slope_collision->slope_height = new_entity->scale.y;
-            slope_collision->slope_length = new_entity->scale.x;
+            auto& slope    = new_entity->collision_geometry.slope;
+            slope.length   = new_entity->scale.x;
+            slope.width    = new_entity->scale.z;
+            slope.height   = new_entity->scale.y;
 
-            float inclination = slope_collision->slope_height / slope_collision->slope_length;
+            float inclination = slope.height / slope.length;
             float slope_angle = atan(inclination);
             float complementary = 180.0f - (slope_angle + 90.0f); 
 
@@ -328,9 +327,9 @@ void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::stri
                   break;
                }
             }
-            slope_collision->tangent = slope_direction;
-            slope_collision->normal = slope_normal;
-            slope_collision->inclination = inclination;
+            slope.tangent = slope_direction;
+            slope.normal = slope_normal;
+            slope.inclination = inclination;
 
             assert((int)new_entity->rotation.x % 90 == 0);
             assert((int)new_entity->rotation.y % 90 == 0);
@@ -340,7 +339,6 @@ void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::stri
             assert(new_entity->scale.y > 0); 
             assert(new_entity->scale.z > 0);
 
-            new_entity->collision_geometry.slope = *slope_collision;
             new_entity->collision_geometry_type = COLLISION_ALIGNED_SLOPE;
          }
          else

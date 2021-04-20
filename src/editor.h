@@ -1,5 +1,4 @@
 
-
 namespace Editor
 {
 
@@ -61,27 +60,27 @@ void render_entity_panel(EntityPanelContext* context)
    auto entity = context->entity;
    ImGui::Begin(entity->name.c_str(), nullptr, ImGuiWindowFlags_AlwaysAutoResize);
    ImGui::SliderFloat(
-      "x", 
-      &context->entity->position.x, 
-      context->original_position.x - 50, 
-      context->entity->position.x + 50
+      "x",
+      &context->entity->position.x,
+      context->original_position.x - 10,
+      context->original_position.x + 10
    );
    ImGui::SliderFloat(
       "y",
       &context->entity->position.y,
-      context->original_position.y - 50,
-      context->entity->position.x + 50
+      context->original_position.y - 10,
+      context->original_position.y + 10
    );
    ImGui::SliderFloat(
       "z", 
       &context->entity->position.z, 
-      context->original_position.z - 50, 
-      context->entity->position.x + 50
+      context->original_position.z - 10, 
+      context->original_position.z + 10
    );
 
-   ImGui::SliderFloat("rot x", &context->entity->rotation.x, -360, 360);
-   ImGui::SliderFloat("rot y", &context->entity->rotation.y, -360, 360);
-   ImGui::SliderFloat("rot z", &context->entity->rotation.z, -360, 360);
+   ImGui::InputFloat("rot x", &context->entity->rotation.x, 90);
+   ImGui::InputFloat("rot y", &context->entity->rotation.y, 90);
+   ImGui::InputFloat("rot z", &context->entity->rotation.z, 90);
    ImGui::End();
 }
 

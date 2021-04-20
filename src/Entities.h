@@ -22,9 +22,9 @@ struct CollisionGeometryAlignedBox{
 };
 
 struct CollisionGeometrySlope{
-   float slope_length;
-   float slope_height;
-   float slope_width;
+   float length;
+   float height;
+   float width;
    vec3 tangent;
    vec3 normal;
    float inclination;
@@ -57,6 +57,32 @@ struct Entity {
       CollisionGeometryAlignedCylinder cylinder;
       CollisionGeometryAlignedBox aabb;
    } collision_geometry;
+
+   void set_scale(vec3 scale)
+   {
+      switch(collision_geometry_type)
+      {
+         case COLLISION_ALIGNED_CYLINDER:
+         {
+            break;
+         }
+         case COLLISION_ALIGNED_BOX:
+         {
+            collision_geometry.aabb.length_x = scale.x;
+            collision_geometry.aabb.length_y = scale.y;
+            collision_geometry.aabb.length_z = scale.z;
+            break;
+            
+         }
+         case COLLISION_ALIGNED_SLOPE:
+         {
+            collision_geometry.slope.width = scale.z;
+            collision_geometry.slope.height = scale.y;
+            collision_geometry.slope.length = scale.x;
+            break;
+         }
+      }
+   };
 };
 
 struct SpotLight {
