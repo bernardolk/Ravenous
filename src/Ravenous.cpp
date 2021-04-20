@@ -184,6 +184,10 @@ struct GlobalBuffers {
 
 bool compare_vec2(vec2 vec1, vec2 vec2);
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
 #include <input.h>
 #include <collision.h>
 #include <scene.h>
@@ -195,7 +199,6 @@ bool compare_vec2(vec2 vec1, vec2 vec2);
 
 // OPENGL OBJECTS
 unsigned int texture, texture_specular;
-// Shader quad_shader, model_shader, Text_shader, line_shader;
 
 using namespace glm;
 
@@ -209,12 +212,11 @@ void create_boilerplate_geometry();
 void render_text_overlay(Camera* camera, Player* player);
 GLenum glCheckError_(const char* file, int line);
 std::string format_float_tostr(float num, int precision);
-// void render_model(Entity ent, vec3 lightPos[], vec3 lightRgb[]);
-// void render_scene_lights();
-// unsigned int setup_object(MeshData objData);
 EntityBuffer* allocate_entity_buffer(size_t size);
 void update_buffers();
 void check_view_mode(Player* player);
+void start_frame();
+
 
 int main() 
 {
@@ -253,30 +255,28 @@ int main()
    G_BUFFERS.buffers[0] = entity_buffer;
    initialize_console_buffers();
 
+   Editor::initialize();
+
 	// MAIN LOOP
 	while (!glfwWindowShouldClose(G_DISPLAY_INFO.window))
 	{
       // START FRAME
-		float current_frame_time = glfwGetTime();
-		G_FRAME_INFO.delta_time = current_frame_time - G_FRAME_INFO.last_frame_time;
-		G_FRAME_INFO.last_frame_time = current_frame_time;
-      if(G_FRAME_INFO.delta_time > 0.02)
-      {
-         G_FRAME_INFO.delta_time = 0.02;
-         //std::cout << "delta time exceeded.\n";
-      } 
-		G_FRAME_INFO.current_fps = 1.0f / G_FRAME_INFO.delta_time;
-      G_FRAME_INFO.frame_counter_3 = ++G_FRAME_INFO.frame_counter_3 % 3;
-      G_FRAME_INFO.frame_counter_10 = ++G_FRAME_INFO.frame_counter_10 % 10;
+		start_frame();
 
 		//	INPUT PHASE
       auto input_flags = input_phase();
+
       switch(PROGRAM_MODE.current)
       {
          case CONSOLE_MODE:
          {
             handle_console_input(input_flags, player);
             break;
+         }
+         case EDITOR_MODE:
+         {
+            handle_input_flags(input_flags, player);
+            Editor::start_frame();
          }
          default:
          {
@@ -290,14 +290,7 @@ int main()
       update_buffers();
       update_player_state(player);
 		update_scene_objects();
-      switch(PROGRAM_MODE.current)
-      {
-         case EDITOR_MODE:
-         {
-            editor_check_clicking();
-            break;
-         }
-      }
+      if(PROGRAM_MODE.current == EDITOR_MODE) Editor::editor_check_clicking();
 
 		//	RENDER PHASE
 		glClearColor(0.196, 0.298, 0.3607, 1.0f);
@@ -310,18 +303,36 @@ int main()
             render_console();
             break;
          }
-         default:
+         case EDITOR_MODE:
          {
+            Editor::render();
             render_text_overlay(G_SCENE_INFO.camera, player);
+            break;
          }
       }
 
       // FINISH FRAME
 		glfwSwapBuffers(G_DISPLAY_INFO.window);
+      if(PROGRAM_MODE.current == EDITOR_MODE) Editor::end_frame();
 	}
 
 	glfwTerminate();
 	return 0;
+}
+
+void start_frame()
+{
+   float current_frame_time = glfwGetTime();
+   G_FRAME_INFO.delta_time = current_frame_time - G_FRAME_INFO.last_frame_time;
+   G_FRAME_INFO.last_frame_time = current_frame_time;
+   if(G_FRAME_INFO.delta_time > 0.02)
+   {
+      G_FRAME_INFO.delta_time = 0.02;
+      //std::cout << "delta time exceeded.\n";
+   } 
+   G_FRAME_INFO.current_fps = 1.0f / G_FRAME_INFO.delta_time;
+   G_FRAME_INFO.frame_counter_3 = ++G_FRAME_INFO.frame_counter_3 % 3;
+   G_FRAME_INFO.frame_counter_10 = ++G_FRAME_INFO.frame_counter_10 % 10;
 }
 
 

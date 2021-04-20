@@ -375,6 +375,9 @@ u64 process_keyboard_input_key_release(GLFWwindow* window)
 
 void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 {
+   if (ImGui::GetIO().WantCaptureMouse)
+      return;
+
    // activates mouse dragging if clicking and current mouse position has changed a certain ammount
 	if (!(G_INPUT_INFO.mouse_state & MOUSE_DRAGGING) && G_INPUT_INFO.mouse_state & MOUSE_LB_HOLD)
    { 
@@ -428,13 +431,19 @@ void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 
 void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset) 
 {
-		G_SCENE_INFO.camera->Position += (float)(3 * yoffset) * G_SCENE_INFO.camera->Front;
+   if (ImGui::GetIO().WantCaptureMouse)
+      return;
+      
+   G_SCENE_INFO.camera->Position += (float)(3 * yoffset) * G_SCENE_INFO.camera->Front;
 }
 
 void on_mouse_btn(GLFWwindow* window, int button, int action, int mods) 
 {
    // @todo: need to refactor registering mouse click into the KeyInput struct and having it
    // acknowledge whether you are clicking or dragging or what
+   if (ImGui::GetIO().WantCaptureMouse)
+      return;
+
    switch(button)
    {
       case GLFW_MOUSE_BUTTON_LEFT:
