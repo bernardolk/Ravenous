@@ -13,4 +13,3 @@ void editor_check_clicking()
       }
    }
 }
-

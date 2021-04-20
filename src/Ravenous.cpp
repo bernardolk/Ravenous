@@ -22,22 +22,25 @@
 #include <algorithm>
 #include <stdint.h>
 
-// DEFINES
+// TYPE DEFINITIONS
 typedef unsigned char u8;
 typedef unsigned short int u16;
 typedef unsigned int u32;
 typedef unsigned long long u64;
 const float PI = 3.141592;
+typedef glm::vec3 vec3;
+typedef glm::vec2 vec2;
+typedef std::string string;
 
 const float MAX_FLOAT = std::numeric_limits<float>::max();
-const std::string PROJECT_PATH = "c:/repositories/ravenous";
-const std::string TEXTURES_PATH = PROJECT_PATH + "/assets/textures/";
-const std::string MODELS_PATH = PROJECT_PATH + "/assets/models/";
-const std::string FONTS_PATH = PROJECT_PATH + "/assets/fonts/";
-const std::string SHADERS_FOLDER_PATH = PROJECT_PATH + "/shaders/";
-const std::string CAMERA_FILE_PATH = PROJECT_PATH + "/camera.txt";
-const std::string SCENES_FOLDER_PATH = PROJECT_PATH + "/scenes/";
-const std::string SHADERS_FILE_EXTENSION = ".shd";
+const string PROJECT_PATH = "c:/repositories/ravenous";
+const string TEXTURES_PATH = PROJECT_PATH + "/assets/textures/";
+const string MODELS_PATH = PROJECT_PATH + "/assets/models/";
+const string FONTS_PATH = PROJECT_PATH + "/assets/fonts/";
+const string SHADERS_FOLDER_PATH = PROJECT_PATH + "/shaders/";
+const string CAMERA_FILE_PATH = PROJECT_PATH + "/camera.txt";
+const string SCENES_FOLDER_PATH = PROJECT_PATH + "/scenes/";
+const string SHADERS_FILE_EXTENSION = ".shd";
 
 // PLAYER CYLINDER SETTINGS ... !!!
 float CYLINDER_HALF_HEIGHT = 0.35f;
@@ -103,7 +106,7 @@ struct GlobalFrameInfo {
 
 #include <mesh.h>
 
-void print_vec(glm::vec3 vec, std::string prefix)
+void print_vec(vec3 vec, std::string prefix)
 {
    std::cout << prefix << ": (" << vec.x << ", " << vec.y << ", " << vec.z << ") \n";
 }
@@ -113,12 +116,12 @@ void print_vertex_array_position(Vertex* vertex, size_t length, std::string titl
    std::cout << title << "\n";
    for(int i = 0; i < length; i++)
    {
-      glm::vec3 pos = vertex[i].position;
+      vec3 pos = vertex[i].position;
       std::cout << "[" << i << "] : (" << pos.x << ", " << pos.y << ", " << pos.z << ") \n";
    }
 }
 
-void print_vec_every_3rd_frame(glm::vec3 vec, std::string prefix)
+void print_vec_every_3rd_frame(vec3 vec, std::string prefix)
 {
    if(G_FRAME_INFO.frame_counter_3 == 0)
       print_vec(vec, prefix);
@@ -176,7 +179,7 @@ struct GlobalBuffers {
    void* buffers[20];
 } G_BUFFERS;
 
-bool compare_vec2(glm::vec2 vec1, glm::vec2 vec2);
+bool compare_vec2(vec2 vec1, vec2 vec2);
 
 #include <input.h>
 #include <collision.h>
@@ -203,7 +206,7 @@ void create_boilerplate_geometry();
 void render_text_overlay(Camera* camera, Player* player);
 GLenum glCheckError_(const char* file, int line);
 std::string format_float_tostr(float num, int precision);
-// void render_model(Entity ent, glm::vec3 lightPos[], glm::vec3 lightRgb[]);
+// void render_model(Entity ent, vec3 lightPos[], vec3 lightRgb[]);
 // void render_scene_lights();
 // unsigned int setup_object(MeshData objData);
 EntityBuffer* allocate_entity_buffer(size_t size);
@@ -216,7 +219,7 @@ int main()
    float* camera_pos = load_camera_settings(CAMERA_FILE_PATH);
 
 	Camera* editor_camera = camera_create(
-      glm::vec3(camera_pos[0], camera_pos[1], camera_pos[2]), glm::vec3(camera_pos[3], camera_pos[4], camera_pos[5]), false
+      vec3(camera_pos[0], camera_pos[1], camera_pos[2]), vec3(camera_pos[3], camera_pos[4], camera_pos[5]), false
    );
    Camera* first_person_camera = new Camera();
 
@@ -386,15 +389,15 @@ void create_boilerplate_geometry()
    // AABB
    vector<Vertex> aabb_vertex_vec = {
       // bottom
-      Vertex{glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(0.0f, 0.0f)},   //0
-      Vertex{glm::vec3(1.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(0.5f, 0.0f)},   //1
-      Vertex{glm::vec3(1.0f, 0.0f, 1.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(0.5f, 0.5f)},   //2
-      Vertex{glm::vec3(0.0f, 0.0f, 1.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(0.0f, 0.5f)},   //3
+      Vertex{vec3(0.0f, 0.0f, 0.0f),vec3(0.0f, 0.0f, -1.0f),vec2(0.0f, 0.0f)},   //0
+      Vertex{vec3(1.0f, 0.0f, 0.0f),vec3(0.0f, 0.0f, -1.0f),vec2(0.5f, 0.0f)},   //1
+      Vertex{vec3(1.0f, 0.0f, 1.0f),vec3(0.0f, 0.0f, -1.0f),vec2(0.5f, 0.5f)},   //2
+      Vertex{vec3(0.0f, 0.0f, 1.0f),vec3(0.0f, 0.0f, -1.0f),vec2(0.0f, 0.5f)},   //3
       // top
-      Vertex{glm::vec3(0.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 0.0f)},    //4
-      Vertex{glm::vec3(1.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.5f, 0.0f)},    //5
-      Vertex{glm::vec3(1.0f, 1.0f, 1.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.5f, 0.5f)},    //6
-      Vertex{glm::vec3(0.0f, 1.0f, 1.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 0.5f)}     //7
+      Vertex{vec3(0.0f, 1.0f, 0.0f),vec3(0.0f, 0.0f, 1.0f),vec2(0.0f, 0.0f)},    //4
+      Vertex{vec3(1.0f, 1.0f, 0.0f),vec3(0.0f, 0.0f, 1.0f),vec2(0.5f, 0.0f)},    //5
+      Vertex{vec3(1.0f, 1.0f, 1.0f),vec3(0.0f, 0.0f, 1.0f),vec2(0.5f, 0.5f)},    //6
+      Vertex{vec3(0.0f, 1.0f, 1.0f),vec3(0.0f, 0.0f, 1.0f),vec2(0.0f, 0.5f)}     //7
    };
 
    vector<u32> aabb_vertex_indices = 
@@ -417,13 +420,13 @@ void create_boilerplate_geometry()
    // SLOPE
    vector<Vertex> slope_vertex_vec = {
       // bottom
-      Vertex{glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(0.0f, 0.0f)},   //0
-      Vertex{glm::vec3(1.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(0.5f, 0.0f)},   //1
-      Vertex{glm::vec3(1.0f, 0.0f, 1.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(0.5f, 0.5f)},   //2
-      Vertex{glm::vec3(0.0f, 0.0f, 1.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(0.0f, 0.5f)},   //3
+      Vertex{vec3(0.0f, 0.0f, 0.0f),vec3(0.0f, 0.0f, -1.0f),vec2(0.0f, 0.0f)},   //0
+      Vertex{vec3(1.0f, 0.0f, 0.0f),vec3(0.0f, 0.0f, -1.0f),vec2(0.5f, 0.0f)},   //1
+      Vertex{vec3(1.0f, 0.0f, 1.0f),vec3(0.0f, 0.0f, -1.0f),vec2(0.5f, 0.5f)},   //2
+      Vertex{vec3(0.0f, 0.0f, 1.0f),vec3(0.0f, 0.0f, -1.0f),vec2(0.0f, 0.5f)},   //3
       // top
-      Vertex{glm::vec3(0.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(0.0f, 0.0f)},   //4
-      Vertex{glm::vec3(0.0f, 1.0f, 1.0f),glm::vec3(0.0f, 0.0f, -1.0f),glm::vec2(0.5f, 0.0f)},   //5
+      Vertex{vec3(0.0f, 1.0f, 0.0f),vec3(0.0f, 0.0f, -1.0f),vec2(0.0f, 0.0f)},   //4
+      Vertex{vec3(0.0f, 1.0f, 1.0f),vec3(0.0f, 0.0f, -1.0f),vec2(0.5f, 0.0f)},   //5
    };
 
    vector<u32> slope_vertex_indices = 
@@ -445,10 +448,10 @@ void create_boilerplate_geometry()
 
    // QUAD VBO
    vector<Vertex> quad_vertex_vec = {
-      Vertex{glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 0.0f)},
-      Vertex{glm::vec3(1.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 0.0f)},
-      Vertex{glm::vec3(1.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 1.0f)},
-      Vertex{glm::vec3(0.0f, 1.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 1.0f)}
+      Vertex{vec3(0.0f, 0.0f, 0.0f),vec3(0.0f, 0.0f, 1.0f),vec2(0.0f, 0.0f)},
+      Vertex{vec3(1.0f, 0.0f, 0.0f),vec3(0.0f, 0.0f, 1.0f),vec2(1.0f, 0.0f)},
+      Vertex{vec3(1.0f, 1.0f, 0.0f),vec3(0.0f, 0.0f, 1.0f),vec2(1.0f, 1.0f)},
+      Vertex{vec3(0.0f, 1.0f, 0.0f),vec3(0.0f, 0.0f, 1.0f),vec2(0.0f, 1.0f)}
    };
    // QUAD EBO
    vector<u32> quad_vertex_indices = { 0, 1, 2, 2, 3, 0 };
@@ -456,10 +459,10 @@ void create_boilerplate_geometry()
 
    // LINE (position is updated directly into VBO)
    /*vector<Vertex> line_vertex_vec = {
-         Vertex{glm::vec3(1, 1, 0)},
-         Vertex{glm::vec3(1, 1, 1)},
-         Vertex{glm::vec3(0, 1, 1)},
-         Vertex{glm::vec3(0, 1, 0)}
+         Vertex{vec3(1, 1, 0)},
+         Vertex{vec3(1, 1, 1)},
+         Vertex{vec3(0, 1, 1)},
+         Vertex{vec3(0, 1, 0)}
    };*/
 
    Mesh* quad_mesh = new Mesh();
@@ -471,10 +474,10 @@ void create_boilerplate_geometry()
 
  // QUAD HORIZONTAL
    vector<Vertex> quad_horizontal_vertex_vec = {
-      Vertex{glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 0.0f)},
-      Vertex{glm::vec3(1.0f, 0.0f, 0.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 0.0f)},
-      Vertex{glm::vec3(1.0f, 0.0f, 1.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(1.0f, 1.0f)},
-      Vertex{glm::vec3(0.0f, 0.0f, 1.0f),glm::vec3(0.0f, 0.0f, 1.0f),glm::vec2(0.0f, 1.0f)}
+      Vertex{vec3(0.0f, 0.0f, 0.0f),vec3(0.0f, 0.0f, 1.0f),vec2(0.0f, 0.0f)},
+      Vertex{vec3(1.0f, 0.0f, 0.0f),vec3(0.0f, 0.0f, 1.0f),vec2(1.0f, 0.0f)},
+      Vertex{vec3(1.0f, 0.0f, 1.0f),vec3(0.0f, 0.0f, 1.0f),vec2(1.0f, 1.0f)},
+      Vertex{vec3(0.0f, 0.0f, 1.0f),vec3(0.0f, 0.0f, 1.0f),vec2(0.0f, 1.0f)}
    };
 
    Mesh* quad_horizontal_mesh = new Mesh();
@@ -529,36 +532,36 @@ void render_text_overlay(Camera* camera, Player* player)
    string time_step_string = "time step: " + GUI_atts[11];
 
 
-   glm::vec3 player_state_text_color;
+   vec3 player_state_text_color;
    std::string player_state_text;
    switch(player->player_state)
    {
       case PLAYER_STATE_STANDING:
-         player_state_text_color = glm::vec3(0, 0.8, 0.1);
+         player_state_text_color = vec3(0, 0.8, 0.1);
          player_state_text = "PLAYER STANDING";
          break;
       case PLAYER_STATE_FALLING:
-         player_state_text_color = glm::vec3(0.8, 0.1, 0.1);
+         player_state_text_color = vec3(0.8, 0.1, 0.1);
          player_state_text = "PLAYER FALLING";
          break;
       case PLAYER_STATE_FALLING_FROM_EDGE:
-         player_state_text_color = glm::vec3(0.8, 0.1, 0.3);
+         player_state_text_color = vec3(0.8, 0.1, 0.3);
          player_state_text = "PLAYER FALLING FROM EDGE";
          break;
       case PLAYER_STATE_JUMPING:
-         player_state_text_color = glm::vec3(0.1, 0.3, 0.8);
+         player_state_text_color = vec3(0.1, 0.3, 0.8);
          player_state_text = "PLAYER JUMPING";
          break;
       case PLAYER_STATE_SLIDING:
-         player_state_text_color = glm::vec3(0.1, 0.3, 0.8);
+         player_state_text_color = vec3(0.1, 0.3, 0.8);
          player_state_text = "PLAYER SLIDING";
          break;
       case PLAYER_STATE_SLIDE_FALLING:
-         player_state_text_color = glm::vec3(0.1, 0.3, 0.8);
+         player_state_text_color = vec3(0.1, 0.3, 0.8);
          player_state_text = "PLAYER SLIDE FALLING";
          break;
       case PLAYER_STATE_EVICTED_FROM_SLOPE:
-         player_state_text_color = glm::vec3(0.1, 0.3, 0.8);
+         player_state_text_color = vec3(0.1, 0.3, 0.8);
          player_state_text = "PLAYER EVICTED FROM SLOPE";
          break;
    }
@@ -584,7 +587,7 @@ void render_text_overlay(Camera* camera, Player* player)
    render_text(view_mode_text,        GUI_x, 50, 1.4);
    render_text(player_floor,          GUI_x, 75, 1.4);
 
-   render_text(time_step_string, G_DISPLAY_INFO.VIEWPORT_WIDTH - 130, 50, 1, glm::vec3(0.8, 0.8, 0.2));
+   render_text(time_step_string, G_DISPLAY_INFO.VIEWPORT_WIDTH - 130, 50, 1, vec3(0.8, 0.8, 0.2));
    render_text(fps_gui,          G_DISPLAY_INFO.VIEWPORT_WIDTH - 100, 25, scale);
 }
 
@@ -634,7 +637,7 @@ inline void update_scene_objects()
 	}
 }
 
-bool compare_vec2(glm::vec2 vec1, glm::vec2 vec2)
+bool compare_vec2(vec2 vec1, vec2 vec2)
 {
    float x_diff = abs(vec1.x - vec2.x);
    float y_diff = abs(vec1.y - vec2.y);

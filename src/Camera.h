@@ -8,9 +8,9 @@
 #include <parser.h>
 
 struct Camera {
-	glm::vec3 Position;
-	glm::vec3 Front = glm::vec3(1.0f, 0.0f, 0.0f);
-	glm::vec3 Up = glm::vec3(0.0f, 1.0f, 0.0f);
+	vec3 Position;
+	vec3 Front = vec3(1.0f, 0.0f, 0.0f);
+	vec3 Up = vec3(0.0f, 1.0f, 0.0f);
 	float Acceleration = 3.5f;
 	float FOVy = 45.0f;
 	float FarPlane = 300.0f;
@@ -29,9 +29,9 @@ void camera_update(Camera* camera, float viewportWidth, float viewportHeight);
 void camera_change_direction(Camera* camera, float yawOffset, float pitchOffset);
 // Make camera look at a place in world coordinates to look at. If isPosition is set to true, then
 // a position is expected, if else, then a direction is expected.
-void camera_look_at(Camera* camera, glm::vec3 position, bool isPosition);
-Camera* camera_create(glm::vec3 initialPosition, glm::vec3 direction);
-void save_camera_settings_to_file(string path, glm::vec3 position, glm::vec3 direction);
+void camera_look_at(Camera* camera, vec3 position, bool isPosition);
+Camera* camera_create(vec3 initialPosition, vec3 direction);
+void save_camera_settings_to_file(string path, vec3 position, vec3 direction);
 float* load_camera_settings(string path);
 
 
@@ -52,10 +52,10 @@ void camera_change_direction(Camera* camera, float yawOffset, float pitchOffset)
 }
 
 
-void camera_look_at(Camera* camera, glm::vec3 position, bool isPosition) {
-	glm::vec3 look_vec;
+void camera_look_at(Camera* camera, vec3 position, bool isPosition) {
+	vec3 look_vec;
 	if (isPosition)
-		look_vec = glm::normalize(position - glm::vec3(camera->Position.x, camera->Position.y, camera->Position.z));
+		look_vec = glm::normalize(position - vec3(camera->Position.x, camera->Position.y, camera->Position.z));
 	else
 		look_vec = glm::normalize(position);
 
@@ -69,7 +69,7 @@ void camera_look_at(Camera* camera, glm::vec3 position, bool isPosition) {
 	camera->Front = glm::normalize(camera->Front);
 }
 
-Camera* camera_create(glm::vec3 initialPosition, glm::vec3 direction, bool isPosition = true) {
+Camera* camera_create(vec3 initialPosition, vec3 direction, bool isPosition = true) {
 	auto camera = new Camera();
 	camera->Position = initialPosition;
 	camera_look_at(camera, direction, isPosition);
@@ -132,7 +132,7 @@ float* load_camera_settings(string path){
    return &camera_settings[0];
 }
 
-void save_camera_settings_to_file(string path, glm::vec3 position, glm::vec3 direction) {
+void save_camera_settings_to_file(string path, vec3 position, vec3 direction) {
    std::ofstream ofs;
    ofs.open(path);
    ofs << position.x << " ";

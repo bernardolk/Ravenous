@@ -40,7 +40,7 @@ struct Shader {
     {
         glUniform3f(glGetUniformLocation(gl_programId, name.c_str()), value0, value1, value2);
     }
-    void setFloat3(const std::string& name, glm::vec3 vec) const
+    void setFloat3(const std::string& name, vec3 vec) const
     {
         glUniform3f(glGetUniformLocation(gl_programId, name.c_str()), vec.x, vec.y, vec.z);
     }

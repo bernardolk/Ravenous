@@ -23,14 +23,14 @@ struct CollisionData {
    bool is_collided            = false;
    Entity* collided_entity_ptr = NULL;
    float overlap               = 0;
-   glm::vec2 normal_vec        = glm::vec2(0,0);
+   vec2 normal_vec        = vec2(0,0);
    CollisionOutcomeEnum collision_outcome;
 };
 
 struct Collision {
    bool is_collided  = false;
    float overlap     = 0;
-   glm::vec2 normal_vec;
+   vec2 normal_vec;
 };
 
 struct Boundaries {
@@ -57,8 +57,8 @@ float get_vertical_overlap_player_vs_slope(Entity* entity, Entity* player);
 CollisionData sample_terrain_height_at_player(Entity* player, Entity* entity); 
 bool check_2D_collision_circle_and_aligned_square(Entity* circle, Entity* square);
 float squared_distance_between_point_and_line(float x1, float y1, float x2, float y2, float x0, float y0);
-float squared_minimum_distance(glm::vec2 v, glm::vec2 w, glm::vec2 p);
-glm::vec3 get_nearest_edge(Entity* point, Entity* square);
+float squared_minimum_distance(vec2 v, vec2 w, vec2 p);
+vec3 get_nearest_edge(Entity* point, Entity* square);
 bool intersects_vertically(Entity* entity, Player* player);
 bool intersects_vertically_slope(Entity* entity, Entity* player);
 bool intersects_vertically_standing_slope(Entity* entity, Player* player);
@@ -101,7 +101,7 @@ Collision get_horizontal_overlap_player_aabb(Entity* entity, Entity* player)
       float nx = std::max(box_x0, std::min(box_x1, player_x));
       float nz = std::max(box_z0, std::min(box_z1, player_z));
       // vector from player to nearest point in rectangle surface
-      glm::vec2 n_vec = glm::vec2(nx, nz) - glm::vec2(player_x, player_z);
+      vec2 n_vec = vec2(nx, nz) - vec2(player_x, player_z);
       float distance = glm::length(n_vec);
       float p_radius = player_collision_geometry->radius;
       float overlap = p_radius - distance;
@@ -136,7 +136,7 @@ Collision get_horizontal_overlap_player_slope(Entity* entity, Entity* player)
    else
    {
       // vector from player to nearest point in rectangle surface
-      glm::vec2 n_vec = glm::vec2(nx, nz) - glm::vec2(player_x, player_z);
+      vec2 n_vec = vec2(nx, nz) - vec2(player_x, player_z);
       float distance = glm::length(n_vec);
       auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) player->collision_geometry_ptr;
       float p_radius = player_collision_geometry->radius;
@@ -165,13 +165,13 @@ Collision get_vertical_overlap_player_vs_aabb(Entity* entity, Entity* player)
    {
       float box_top = entity->position.y + box_collision_geometry.length_y;
       float player_bottom = player->position.y - player_collision_geometry->half_length;
-      return Collision{true, box_top - player_bottom, glm::vec2(0, 1)};
+      return Collision{true, box_top - player_bottom, vec2(0, 1)};
    }
    else
    {
       float box_bottom = entity->position.y;
       float player_top = player->position.y + player_collision_geometry->half_length;
-      return Collision{true, player_top - box_bottom, glm::vec2(0, -1)};
+      return Collision{true, player_top - box_bottom, vec2(0, -1)};
    }
 }
 
@@ -567,7 +567,7 @@ CollisionData check_for_floor_below_player_when_slope(Player* player, bool only_
             response.overlap = y_diff;
             response.collided_entity_ptr = entity;
             int sign = y_diff < 0 ? -1 : 1;   // say if player is above or below detected floor
-            response.normal_vec = glm::vec2(0, sign);
+            response.normal_vec = vec2(0, sign);
          }
       }
       entity_iterator++;
@@ -609,10 +609,10 @@ bool check_2D_collision_circle_and_aligned_square(Entity* circle, Entity* square
    float player_x = circle->position.x;
    float player_z = circle->position.z;
 
-   float d_1 = squared_minimum_distance(glm::vec2(square_x0, square_z0), glm::vec2(square_x1, square_z0), glm::vec2(player_x, player_z));
-   float d_2 = squared_minimum_distance(glm::vec2(square_x1, square_z0), glm::vec2(square_x1, square_z1), glm::vec2(player_x, player_z));
-   float d_3 = squared_minimum_distance(glm::vec2(square_x1, square_z1), glm::vec2(square_x0, square_z1), glm::vec2(player_x, player_z));
-   float d_4 = squared_minimum_distance(glm::vec2(square_x0, square_z1), glm::vec2(square_x0, square_z0), glm::vec2(player_x, player_z));
+   float d_1 = squared_minimum_distance(vec2(square_x0, square_z0), vec2(square_x1, square_z0), vec2(player_x, player_z));
+   float d_2 = squared_minimum_distance(vec2(square_x1, square_z0), vec2(square_x1, square_z1), vec2(player_x, player_z));
+   float d_3 = squared_minimum_distance(vec2(square_x1, square_z1), vec2(square_x0, square_z1), vec2(player_x, player_z));
+   float d_4 = squared_minimum_distance(vec2(square_x0, square_z1), vec2(square_x0, square_z0), vec2(player_x, player_z));
 
    auto player_collision_geometry = (CollisionGeometryAlignedCylinder*) circle->collision_geometry_ptr;
    float p_radius2 = player_collision_geometry->radius * player_collision_geometry->radius;
@@ -625,7 +625,7 @@ bool check_2D_collision_circle_and_aligned_square(Entity* circle, Entity* square
    return false;
 }
 
-glm::vec3 get_nearest_edge(Entity* point, Entity* square)
+vec3 get_nearest_edge(Entity* point, Entity* square)
 {
     auto box_collision_geometry = *((CollisionGeometryAlignedBox*) square->collision_geometry_ptr);
 
@@ -638,34 +638,34 @@ glm::vec3 get_nearest_edge(Entity* point, Entity* square)
    float player_x = point->position.x;
    float player_z = point->position.z;
 
-   float d_1 = squared_minimum_distance(glm::vec2(square_x0, square_z0), glm::vec2(square_x1, square_z0), glm::vec2(player_x, player_z));
-   float d_2 = squared_minimum_distance(glm::vec2(square_x1, square_z0), glm::vec2(square_x1, square_z1), glm::vec2(player_x, player_z));
-   float d_3 = squared_minimum_distance(glm::vec2(square_x1, square_z1), glm::vec2(square_x0, square_z1), glm::vec2(player_x, player_z));
-   float d_4 = squared_minimum_distance(glm::vec2(square_x0, square_z1), glm::vec2(square_x0, square_z0), glm::vec2(player_x, player_z));
+   float d_1 = squared_minimum_distance(vec2(square_x0, square_z0), vec2(square_x1, square_z0), vec2(player_x, player_z));
+   float d_2 = squared_minimum_distance(vec2(square_x1, square_z0), vec2(square_x1, square_z1), vec2(player_x, player_z));
+   float d_3 = squared_minimum_distance(vec2(square_x1, square_z1), vec2(square_x0, square_z1), vec2(player_x, player_z));
+   float d_4 = squared_minimum_distance(vec2(square_x0, square_z1), vec2(square_x0, square_z0), vec2(player_x, player_z));
 
    if(d_1 <= d_2 && d_1 <= d_3 && d_1 <= d_4)
    {
-      return glm::vec3(square_x0, 0, square_z0) - glm::vec3(square_x1, 0, square_z0);
+      return vec3(square_x0, 0, square_z0) - vec3(square_x1, 0, square_z0);
    }
    else if(d_2 <= d_1 && d_2 <= d_3 && d_2 <= d_4)
    {
-      return glm::vec3(square_x1, 0, square_z0) - glm::vec3(square_x1, 0, square_z1);
+      return vec3(square_x1, 0, square_z0) - vec3(square_x1, 0, square_z1);
    }
    else if(d_3 <= d_1 && d_3 <= d_2 && d_3 <= d_4)
    {
-      return glm::vec3(square_x1, 0, square_z1) - glm::vec3(square_x0, 0, square_z1);
+      return vec3(square_x1, 0, square_z1) - vec3(square_x0, 0, square_z1);
    }
     else if(d_4 <= d_1 && d_4 <= d_2 && d_4 <= d_3)
    {
-      return glm::vec3(square_x0, 0, square_z1) - glm::vec3(square_x0, 0, square_z0);
+      return vec3(square_x0, 0, square_z1) - vec3(square_x0, 0, square_z0);
    }
 
    assert(false);
-   return glm::vec3();
+   return vec3();
 }
 
 
-float squared_minimum_distance(glm::vec2 v, glm::vec2 w, glm::vec2 p) 
+float squared_minimum_distance(vec2 v, vec2 w, vec2 p) 
 {
   // Return minimum distance between line segment vw and point p
   float l2 = glm::length2(v - w);  // i.e. |w-v|^2 -  avoid a sqrt
@@ -673,7 +673,7 @@ float squared_minimum_distance(glm::vec2 v, glm::vec2 w, glm::vec2 p)
   float dot = glm::dot(p - v, w - v) / l2;
   float min = 1 > dot ? dot : 1;
   float t = 0 > min ? 0 : min;
-  glm::vec2 projection = v + t * (w - v);  // Projection falls on the segment
+  vec2 projection = v + t * (w - v);  // Projection falls on the segment
   float d = glm::distance(p, projection);
   return d * d;
 }

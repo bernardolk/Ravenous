@@ -25,8 +25,8 @@ struct CollisionGeometrySlope{
    float slope_length;
    float slope_height;
    float slope_width;
-   glm::vec3 tangent;
-   glm::vec3 normal;
+   vec3 tangent;
+   vec3 normal;
    float inclination;
 };
 
@@ -45,10 +45,10 @@ struct Entity {
    bool render_me = true;
 
    // simulation data
-	glm::vec3 position;
-	glm::vec3 rotation = glm::vec3(0.0f);
-	glm::vec3 scale = glm::vec3(1.0f);
-   glm::vec3 velocity;
+	vec3 position;
+	vec3 rotation = vec3(0.0f);
+	vec3 scale = vec3(1.0f);
+   vec3 velocity;
 
    // collision simulation data
    void* collision_geometry_ptr;
@@ -57,11 +57,11 @@ struct Entity {
 
 struct SpotLight {
 	unsigned int id;
-	glm::vec3 position;
-	glm::vec3 direction;
-	glm::vec3 diffuse;
-	glm::vec3 specular;
-	glm::vec3 ambient;
+	vec3 position;
+	vec3 direction;
+	vec3 diffuse;
+	vec3 specular;
+	vec3 ambient;
 	float innercone;
 	float outercone;
 	float intensity_constant = 0.02f;
@@ -71,11 +71,11 @@ struct SpotLight {
 
 struct PointLight {
 	unsigned int id;
-	glm::vec3 position = glm::vec3(0.0f, 2.0f, 0.0f);
-	glm::vec3 direction = glm::vec3(0.0f, -1.0f, 0.0f);
-	glm::vec3 diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-	glm::vec3 specular = glm::vec3(1.0f, 1.0f, 1.0f);
-	glm::vec3 ambient = glm::vec3(0.01f, 0.01f, 0.01f);
+	vec3 position = vec3(0.0f, 2.0f, 0.0f);
+	vec3 direction = vec3(0.0f, -1.0f, 0.0f);
+	vec3 diffuse = vec3(0.5f, 0.5f, 0.5f);
+	vec3 specular = vec3(1.0f, 1.0f, 1.0f);
+	vec3 ambient = vec3(0.01f, 0.01f, 0.01f);
 	float intensity_constant = 1.0f;
 	float intensity_linear = 0.5f;
 	float intensity_quadratic = 0.1f;
@@ -83,11 +83,11 @@ struct PointLight {
 
 struct DirectionalLight {
 	unsigned int id;
-	glm::vec3 position;
-	glm::vec3 direction;
-	glm::vec3 diffuse;
-	glm::vec3 specular;
-	glm::vec3 ambient;
+	vec3 position;
+	vec3 direction;
+	vec3 diffuse;
+	vec3 specular;
+	vec3 ambient;
 };
 
 struct Scene {

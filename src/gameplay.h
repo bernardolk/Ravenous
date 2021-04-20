@@ -209,7 +209,7 @@ void update_player_state(Player* player)
          {
             player->player_state = PLAYER_STATE_FALLING;
             player->standing_entity_ptr = NULL;
-            // player_entity->velocity = glm::vec3(0, 0, 0); 
+            // player_entity->velocity = vec3(0, 0, 0); 
          }
          break;
       }
@@ -274,7 +274,7 @@ void run_collision_checks_standing(Player* player, Entity** entity_iterator, siz
             case BLOCKED_BY_WALL:
             {
                // move player back using aabb surface normal vec and computed player/entity overlap in horizontal plane
-               player->entity_ptr->position -= glm::vec3(
+               player->entity_ptr->position -= vec3(
                   collision_data.normal_vec.x, 0, collision_data.normal_vec.y
                ) * collision_data.overlap;
                break;
@@ -365,7 +365,7 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
                   player->standing_entity_ptr = collision_data.collided_entity_ptr;
                   auto height_check = sample_terrain_height_at_player(player->entity_ptr, player->standing_entity_ptr);
                   player->entity_ptr->position.y = height_check.overlap + player->half_height; 
-                  player->entity_ptr->velocity = glm::vec3(0,0,0);
+                  player->entity_ptr->velocity = vec3(0,0,0);
                   player->player_state = PLAYER_STATE_STANDING;
                   break;
                }
@@ -375,11 +375,11 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
                   // deals with collision
                   // move player back using aabb surface normal vec and computed player/entity overlap in horizontal plane
                   player->entity_ptr->position -= 
-                        glm::vec3(collision_data.normal_vec.x, 0, collision_data.normal_vec.y)  * collision_data.overlap;
+                        vec3(collision_data.normal_vec.x, 0, collision_data.normal_vec.y)  * collision_data.overlap;
 
                   // make player slide through the tangent of platform
-                  auto tangent_vec = glm::vec2(collision_data.normal_vec.y, collision_data.normal_vec.x);      
-                  auto v_2d = glm::vec2(player->entity_ptr->velocity.x, player->entity_ptr->velocity.z);
+                  auto tangent_vec = vec2(collision_data.normal_vec.y, collision_data.normal_vec.x);      
+                  auto v_2d = vec2(player->entity_ptr->velocity.x, player->entity_ptr->velocity.z);
                   auto project = (glm::dot(v_2d, tangent_vec)/glm::length2(tangent_vec))*tangent_vec;
 
                   player->entity_ptr->velocity.x = project.x;
@@ -452,7 +452,7 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
                case BLOCKED_BY_WALL:
                {
                   // move player back using aabb surface normal vec and computed player/entity overlap in horizontal plane
-                   player->entity_ptr->position -= glm::vec3(
+                   player->entity_ptr->position -= vec3(
                      collision_data.normal_vec.x, 0, collision_data.normal_vec.y
                   ) * collision_data.overlap;
                   break;
@@ -479,14 +479,14 @@ void make_player_slide(Player* player, CollisionData collision_data)
    auto &pv = player->entity_ptr->velocity;
    // make camera (player) turn to face either up or down the slope
 
-   //auto pv_2d = glm::vec2(pv.x, pv.z);
+   //auto pv_2d = vec2(pv.x, pv.z);
    // if(G_SCENE_INFO.view_mode == FIRST_PERSON)
    // {
-   //    auto t_2d = glm::vec2(collision_geom.tangent.x, collision_geom.tangent.z);
+   //    auto t_2d = vec2(collision_geom.tangent.x, collision_geom.tangent.z);
    //    auto dot = glm::dot(pv_2d, t_2d);
    //    if(dot == 0) dot = 1;   // compensates for orthogonal v and tangent
    //    auto projected = (dot/glm::length2(t_2d))*t_2d;
-   //    auto camera_dir = glm::vec3(projected.x, G_SCENE_INFO.camera->Front.y, projected.y);
+   //    auto camera_dir = vec3(projected.x, G_SCENE_INFO.camera->Front.y, projected.y);
    //    camera_look_at(G_SCENE_INFO.camera, camera_dir, false);
    // }
 
@@ -505,14 +505,14 @@ void make_player_slide_fall(Player* player, CollisionData collision_data)
    auto &pv = player->entity_ptr->velocity;
    // make camera (player) turn to face either up or down the slope
 
-   //auto pv_2d = glm::vec2(pv.x, pv.z);
+   //auto pv_2d = vec2(pv.x, pv.z);
    // if(G_SCENE_INFO.view_mode == FIRST_PERSON)
    // {
-   //    auto t_2d = glm::vec2(collision_geom.tangent.x, collision_geom.tangent.z);
+   //    auto t_2d = vec2(collision_geom.tangent.x, collision_geom.tangent.z);
    //    auto dot = glm::dot(pv_2d, t_2d);
    //    if(dot == 0) dot = 1;   // compensates for orthogonal v and tangent
    //    auto projected = (dot/glm::length2(t_2d))*t_2d;
-   //    auto camera_dir = glm::vec3(projected.x, G_SCENE_INFO.camera->Front.y, projected.y);
+   //    auto camera_dir = vec3(projected.x, G_SCENE_INFO.camera->Front.y, projected.y);
    //    camera_look_at(G_SCENE_INFO.camera, camera_dir, false);
    // }
 
@@ -558,7 +558,7 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
             if(c.is_collided && c.overlap > biggest_overlap)
             {
                auto col_geometry = (CollisionGeometrySlope*) entity->collision_geometry_ptr;
-               auto slope_2d_tangent = glm::normalize(glm::vec2(col_geometry->tangent.x, col_geometry->tangent.z));
+               auto slope_2d_tangent = glm::normalize(vec2(col_geometry->tangent.x, col_geometry->tangent.z));
 
                if(player->player_state == PLAYER_STATE_STANDING &&
                   c.overlap == 0)
@@ -783,7 +783,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
          player->entity_ptr->position = G_SCENE_INFO.camera->Position + G_SCENE_INFO.camera->Front * 3.0f;
          camera_look_at(G_SCENE_INFO.views[1], G_SCENE_INFO.camera->Front, false);
          player->player_state = PLAYER_STATE_FALLING;
-         player->entity_ptr->velocity = glm::vec3(0, 0, 0);
+         player->entity_ptr->velocity = vec3(0, 0, 0);
       }
       
       float camera_speed = G_FRAME_INFO.delta_time * G_SCENE_INFO.camera->Acceleration;
@@ -821,31 +821,31 @@ void handle_input_flags(InputFlags flags, Player* &player)
       }
       if(flags.key_press & KEY_O)
       {
-         camera_look_at(G_SCENE_INFO.camera, glm::vec3(0.0f, 0.0f, 0.0f), true);
+         camera_look_at(G_SCENE_INFO.camera, vec3(0.0f, 0.0f, 0.0f), true);
       }
 
       if(player->player_state == PLAYER_STATE_STANDING)
       {
          // resets velocity
-         player->entity_ptr->velocity = glm::vec3(0); 
+         player->entity_ptr->velocity = vec3(0); 
 
          if (flags.key_press & KEY_UP)
          {
-            player->entity_ptr->velocity += glm::vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
+            player->entity_ptr->velocity += vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
          }
          if (flags.key_press & KEY_DOWN)
          {
-            player->entity_ptr->velocity -= glm::vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
+            player->entity_ptr->velocity -= vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
          }
          if (flags.key_press & KEY_LEFT)
          {
-            glm::vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
-            player->entity_ptr->velocity -= glm::vec3(onwards_vector.x, 0, onwards_vector.z);
+            vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
+            player->entity_ptr->velocity -= vec3(onwards_vector.x, 0, onwards_vector.z);
          }
          if (flags.key_press & KEY_RIGHT)
          {
-            glm::vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
-            player->entity_ptr->velocity += glm::vec3(onwards_vector.x, 0, onwards_vector.z);
+            vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
+            player->entity_ptr->velocity += vec3(onwards_vector.x, 0, onwards_vector.z);
          }
          // because above we sum all combos of keys pressed, here we normalize the direction and give the movement intensity
          if(glm::length2(player->entity_ptr->velocity) > 0)
@@ -885,7 +885,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
              auto col_geometry = (CollisionGeometrySlope*) player->standing_entity_ptr->collision_geometry_ptr;
              float x = col_geometry->normal.x > 0 ? 1 : col_geometry->normal.x == 0 ? 0 : -1;
              float z = col_geometry->normal.z > 0 ? 1 : col_geometry->normal.z == 0 ? 0 : -1;
-             auto jump_vec = glm::normalize(glm::vec3(x, 1, z));
+             auto jump_vec = glm::normalize(vec3(x, 1, z));
              player->entity_ptr->velocity = player->jump_initial_speed * jump_vec;
          }
       }
@@ -895,25 +895,25 @@ void handle_input_flags(InputFlags flags, Player* &player)
       if(player->player_state == PLAYER_STATE_STANDING)
       {
          // resets velocity
-         player->entity_ptr->velocity = glm::vec3(0); 
+         player->entity_ptr->velocity = vec3(0); 
 
          if(flags.key_press & KEY_W)
          {
-            player->entity_ptr->velocity += glm::vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
+            player->entity_ptr->velocity += vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
          }
          if(flags.key_press & KEY_A)
          {
-            glm::vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
-            player->entity_ptr->velocity -= glm::vec3(onwards_vector.x, 0, onwards_vector.z);
+            vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
+            player->entity_ptr->velocity -= vec3(onwards_vector.x, 0, onwards_vector.z);
          }
          if(flags.key_press & KEY_S)
          {
-            player->entity_ptr->velocity -= glm::vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
+            player->entity_ptr->velocity -= vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
          }
          if(flags.key_press & KEY_D)
          {
-            glm::vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
-            player->entity_ptr->velocity += glm::vec3(onwards_vector.x, 0, onwards_vector.z);
+            vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
+            player->entity_ptr->velocity += vec3(onwards_vector.x, 0, onwards_vector.z);
          }
          // because above we sum all combos of keys pressed, here we normalize the direction and give the movement intensity
          if(glm::length2(player->entity_ptr->velocity) > 0)
@@ -975,7 +975,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
              auto col_geometry = (CollisionGeometrySlope*) player->standing_entity_ptr->collision_geometry_ptr;
              float x = col_geometry->normal.x > 0 ? 1 : col_geometry->normal.x == 0 ? 0 : -1;
              float z = col_geometry->normal.z > 0 ? 1 : col_geometry->normal.z == 0 ? 0 : -1;
-             auto jump_vec = glm::normalize(glm::vec3(x, 1, z));
+             auto jump_vec = glm::normalize(vec3(x, 1, z));
              player->entity_ptr->velocity = player->jump_initial_speed * jump_vec;
          }
       }

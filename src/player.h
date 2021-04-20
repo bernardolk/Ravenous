@@ -25,7 +25,7 @@ struct Player {
    PlayerStateEnum player_state;
    float radius;
    float half_height;
-   glm::vec3 prior_position = glm::vec3(0);
+   vec3 prior_position = vec3(0);
 };
 
 

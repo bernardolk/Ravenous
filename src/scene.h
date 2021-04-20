@@ -67,12 +67,12 @@ void parse_and_load_attribute(Parse p, ifstream* reader, int& line_count, std::s
    if(attribute == "player_position")
    {
       p = parse_float_vector(p);
-      player->entity_ptr->position = glm::vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+      player->entity_ptr->position = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
    }
    else if(attribute == "player_initial_velocity")
    {
       p = parse_float_vector(p);
-      player->entity_ptr->velocity = glm::vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+      player->entity_ptr->velocity = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
    }
    else if(attribute == "player_state")
    {
@@ -136,12 +136,12 @@ void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::stri
       if(property == "position")
       {
             p = parse_float_vector(p);
-            new_entity->position = glm::vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+            new_entity->position = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
       }
       else if(property == "rotation")
       {
             p = parse_float_vector(p);
-            new_entity->rotation = glm::vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+            new_entity->rotation = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
       }
       else if(property == "scale")
       {
@@ -157,7 +157,7 @@ void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::stri
                std::cout << "FATAL: ENTITY SCALE PROPERTY CANNOT BE NEGATIVE. AT '" << path
                          << "' LINE NUMBER " << line_count << "\n";
             }
-            new_entity->scale = glm::vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+            new_entity->scale = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
       }
       else if(property == "shader")
       {
@@ -299,8 +299,8 @@ void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::stri
 
             // slope geometry is defined as default (rotation = 0) being going down along +x
             // here we set the tangent vector to the slope, so the player falls along it when sliding
-            auto slope_direction = glm::vec3(0, -1 * sin(slope_angle), 0);
-            auto slope_normal = glm::vec3(0, sin(complementary), 0);
+            auto slope_direction = vec3(0, -1 * sin(slope_angle), 0);
+            auto slope_normal = vec3(0, sin(complementary), 0);
             switch((int) new_entity->rotation.y)
             {
                case 0:
@@ -388,7 +388,7 @@ void setup_scene_boilerplate_stuff()
    cylinder->index            = G_ENTITY_INFO.entity_counter;
    cylinder->id               = ++G_ENTITY_INFO.entity_counter;
    cylinder->shader           = model_shader;
-   cylinder->position         = glm::vec3(0,1,1);
+   cylinder->position         = vec3(0,1,1);
    cylinder->textures         = std::vector<Texture>{*cylinder_texture};
    cylinder->mesh             = *cylinder_mesh;
    // player collision geometry
@@ -401,18 +401,18 @@ void setup_scene_boilerplate_stuff()
    // lightsource
    auto l1 = new PointLight();
    l1->id                     = 1;
-   l1->position               = glm::vec3(0.5, 3.5, 0.5);
-   l1->diffuse                = glm::vec3(1.0, 1.0, 1.0);
-   l1->ambient                = glm::vec3(1.0,1.0,1.0);
+   l1->position               = vec3(0.5, 3.5, 0.5);
+   l1->diffuse                = vec3(1.0, 1.0, 1.0);
+   l1->ambient                = vec3(1.0,1.0,1.0);
    l1->intensity_linear       = 0.4f;
    l1->intensity_quadratic    = 0.04f;
    demo_scene->pointLights.push_back(*l1);
 
    auto l2 = new PointLight();
    l2->id                     = 2;
-   l2->position               = glm::vec3(-8, 10, 1);
-   l2->diffuse                = glm::vec3(1.0, 1.0, 1.0);
-   l2->ambient                = glm::vec3(1.0,1.0,1.0);
+   l2->position               = vec3(-8, 10, 1);
+   l2->diffuse                = vec3(1.0, 1.0, 1.0);
+   l2->ambient                = vec3(1.0,1.0,1.0);
    l2->intensity_linear       = 0.4f;
    l2->intensity_quadratic    = 0.04f;
    demo_scene->pointLights.push_back(*l2);

@@ -1,6 +1,6 @@
 void render_scene(Scene* scene, Camera* camera);
 void render_entity(Entity* entity);
-void render_text(std::string text, float x, float y, float scale, glm::vec3 color = glm::vec3(1,1,1));
+void render_text(std::string text, float x, float y, float scale, vec3 color = vec3(1,1,1));
 
 
 void render_entity(Entity* entity)
@@ -92,7 +92,7 @@ void render_scene(Scene* scene, Camera* camera)
 	}
 }
 
-void render_text(std::string text, float x, float y, float scale, glm::vec3 color) 
+void render_text(std::string text, float x, float y, float scale, vec3 color) 
 {
    auto find1 = Shader_Catalogue.find("text");
    auto text_shader = find1->second;

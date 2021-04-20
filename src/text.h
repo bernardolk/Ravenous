@@ -2,7 +2,7 @@
 #include FT_FREETYPE_H
 
 
-void load_text_textures(std::string font, int size);
+void load_text_textures(string font, int size);
 
 
 struct Character {
@@ -15,7 +15,7 @@ struct Character {
 std::map<GLchar, Character> Characters; // GUI character set
 
 
-void load_text_textures(std::string font, int size) 
+void load_text_textures(string font, int size) 
 {
 	// Load font
 	FT_Library ft;
@@ -23,7 +23,7 @@ void load_text_textures(std::string font, int size)
 		std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
 	FT_Face face;
 
-	std::string filepath = FONTS_PATH + font;
+	string filepath = FONTS_PATH + font;
 	if (FT_New_Face(ft, filepath.c_str(), 0, &face))
 		std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
    else

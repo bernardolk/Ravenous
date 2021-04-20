@@ -5,14 +5,14 @@ struct RaycastTest{
 };
 
 struct Triangle{
-   glm::vec3 a;
-   glm::vec3 b;
-   glm::vec3 c;
+   vec3 a;
+   vec3 b;
+   vec3 c;
 };
 
 struct Ray{
-   glm::vec3 origin;
-   glm::vec3 direction;
+   vec3 origin;
+   vec3 direction;
 };
 
 Ray cast_pickray();
@@ -89,13 +89,13 @@ RaycastTest test_ray_against_triangle(Ray ray, Triangle triangle)
    auto &B = triangle.b;
    auto &C = triangle.c;
 
-	glm::vec3 E1 = B - A;
-	glm::vec3 E2 = C - A;
-	glm::vec3 N = glm::cross(E1, E2);
+	vec3 E1 = B - A;
+	vec3 E2 = C - A;
+	vec3 N = glm::cross(E1, E2);
 	float det = -glm::dot(ray.direction, N);
 	float invdet = 1.0 / det;
-	glm::vec3 AO = ray.origin - A;
-	glm::vec3 DAO = glm::cross(AO, ray.direction);
+	vec3 AO = ray.origin - A;
+	vec3 DAO = glm::cross(AO, ray.direction);
 	float u = glm::dot(E2, DAO) * invdet;
 	float v = -glm::dot(E1, DAO) * invdet;
 	float t = glm::dot(AO, N) * invdet;
@@ -132,7 +132,7 @@ Ray cast_pickray()
 	glm::vec4 ray_clip(screenX_normalized, screenY_normalized, -1.0, 1.0);
 	glm::mat4 inv_view = glm::inverse(G_SCENE_INFO.camera->View4x4);
 	glm::mat4 inv_proj = glm::inverse(G_SCENE_INFO.camera->Projection4x4);
-	glm::vec3 ray_eye_3 = (inv_proj * ray_clip);
+	vec3 ray_eye_3 = (inv_proj * ray_clip);
 	glm::vec4 ray_eye(ray_eye_3.x, ray_eye_3.y, -1.0, 0.0);
    auto direction = glm::normalize(inv_view * ray_eye);
    auto origin = G_SCENE_INFO.camera->Position;
