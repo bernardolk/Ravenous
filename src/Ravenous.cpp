@@ -79,19 +79,22 @@ struct GlobalDisplayInfo {
    const float VIEWPORT_HEIGHT = 900;
 } G_DISPLAY_INFO;
 
+struct MouseCoordinates {
+   double last_x = 0;
+   double last_y = 0; 
+   double left_click_x;
+   double left_click_y;
+   double x;
+   double y;
+};
+
 struct GlobalInputInfo {
-   bool reset_mouse_coords = true;
-   bool key_combo_pressed = false;
-   bool is_mouse_left_btn_press = false;
-   bool is_mouse_drag = false;
-   double last_registered_mouse_coord_x = 0;
-   double last_registered_mouse_coord_y = 0; 
-   double mouse_btn_down_x;
-   double mouse_btn_down_y;
-   double currentMouseX;
-   double currentMouseY;
-   float toggle_key_cooldown = 0;
-   u64 key_input_state = 0;
+   bool forget_last_mouse_coords = true;
+   //bool mouse_left_btn = false;
+   //bool mouse_dragging = false;
+   MouseCoordinates mouse_coords;
+   u64 key_state = 0;
+   u8 mouse_state = 0;
 } G_INPUT_INFO;
 
 struct GlobalFrameInfo {

@@ -157,22 +157,22 @@ void clear_scratch_buffer()
 
 void handle_console_input(InputFlags flags, Player* &player)
 {
-   if(press_once(flags, KEY_ENTER))
+   if(pressed_once(flags, KEY_ENTER))
    {
       commit_buffer(player);
    }
 
-   if(press_once(flags, KEY_GRAVE_TICK))
+   if(pressed_once(flags, KEY_GRAVE_TICK))
    {
       quit_console_mode();
    }
 
-   if(press_once(flags, KEY_UP))
+   if(pressed_once(flags, KEY_UP))
    {
       move_to_previous_buffer();
    }
 
-   if(press_once(flags, KEY_DOWN))
+   if(pressed_once(flags, KEY_DOWN))
    {
       move_to_next_buffer();
    }
@@ -181,117 +181,117 @@ void handle_console_input(InputFlags flags, Player* &player)
    check_letter_key_presses(flags);
 
    // here we record a history for if keys were last pressed or released, so to enable smooth toggle
-   G_INPUT_INFO.key_input_state |= flags.key_press;
-   G_INPUT_INFO.key_input_state &= ~(flags.key_release); 
+   G_INPUT_INFO.key_state |= flags.key_press;
+   G_INPUT_INFO.key_state &= ~(flags.key_release); 
 }
 
 void check_letter_key_presses(InputFlags flags)
 {
-   if(press_once(flags, KEY_BACKSPACE))
+   if(pressed_once(flags, KEY_BACKSPACE))
    {
       CONSOLE.scratch_buffer[--CONSOLE.c_ind] = '\0';
    }
-   if(press_once(flags, KEY_Q))
+   if(pressed_once(flags, KEY_Q))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'q';
    }
-   if(press_once(flags, KEY_W))
+   if(pressed_once(flags, KEY_W))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'w';
    }
-   if(press_once(flags, KEY_E))
+   if(pressed_once(flags, KEY_E))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'e';
    }
-   if(press_once(flags, KEY_R))
+   if(pressed_once(flags, KEY_R))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'r';
    }
-   if(press_once(flags, KEY_T))
+   if(pressed_once(flags, KEY_T))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 't';
    }
-   if(press_once(flags, KEY_Y))
+   if(pressed_once(flags, KEY_Y))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'y';
    }
-   if(press_once(flags, KEY_U))
+   if(pressed_once(flags, KEY_U))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'u';
    }
-   if(press_once(flags, KEY_I))
+   if(pressed_once(flags, KEY_I))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'i';
    }
-   if(press_once(flags, KEY_O))
+   if(pressed_once(flags, KEY_O))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'o';
    }
-   if(press_once(flags, KEY_P))
+   if(pressed_once(flags, KEY_P))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'p';
    }
-   if(press_once(flags, KEY_A))
+   if(pressed_once(flags, KEY_A))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'a';
    }
-   if(press_once(flags, KEY_S))
+   if(pressed_once(flags, KEY_S))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 's';
    }
-   if(press_once(flags, KEY_D))
+   if(pressed_once(flags, KEY_D))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'd';
    }
-   if(press_once(flags, KEY_F))
+   if(pressed_once(flags, KEY_F))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'f';
    }
-   if(press_once(flags, KEY_G))
+   if(pressed_once(flags, KEY_G))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'g';
    }
-   if(press_once(flags, KEY_H))
+   if(pressed_once(flags, KEY_H))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'h';
    }
-   if(press_once(flags, KEY_J))
+   if(pressed_once(flags, KEY_J))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'j';
    }
-   if(press_once(flags, KEY_K))
+   if(pressed_once(flags, KEY_K))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'k';
    }
-   if(press_once(flags, KEY_L))
+   if(pressed_once(flags, KEY_L))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'l';
    }
-   if(press_once(flags, KEY_Z))
+   if(pressed_once(flags, KEY_Z))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'z';
    }
-   if(press_once(flags, KEY_X))
+   if(pressed_once(flags, KEY_X))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'x';
    }
-   if(press_once(flags, KEY_C))
+   if(pressed_once(flags, KEY_C))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'c';
    }
-   if(press_once(flags, KEY_V))
+   if(pressed_once(flags, KEY_V))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'v';
    }
-   if(press_once(flags, KEY_B))
+   if(pressed_once(flags, KEY_B))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'b';
    }
-   if(press_once(flags, KEY_N))
+   if(pressed_once(flags, KEY_N))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'n';
    }
-   if(press_once(flags, KEY_M))
+   if(pressed_once(flags, KEY_M))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'm';
    }

@@ -2,6 +2,8 @@
 struct InputFlags {
    u64 key_press;
    u64 key_release;
+   u8 mouse_press;
+   u8 mouse_release;
 };
 
 void on_mouse_btn(GLFWwindow* window, int button, int action, int mods);
@@ -10,7 +12,7 @@ u64 process_keyboard_input_key_press(GLFWwindow* window);
 u64 process_keyboard_input_key_release(GLFWwindow* window);
 void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset);
 InputFlags input_phase();
-bool press_once(InputFlags flags, u64 key);
+bool pressed_once(InputFlags flags, u64 key);
 
 u64 KEY_Q               = 1LL << 0;
 u64 KEY_W               = 1LL << 1;
@@ -59,6 +61,10 @@ u64 KEY_LEFT_CTRL       = 1LL << 43;
 u64 KEY_GRAVE_TICK      = 1LL << 44;
 u64 KEY_ENTER           = 1LL << 45;
 u64 KEY_BACKSPACE       = 1LL << 46;
+
+u8 MOUSE_LEFT_BTN       = 1 << 0;
+u8 MOUSE_RIGHT_BTN      = 2 << 0;
+u8 MOUSE_DRAGGING       = 3 << 0;
 
 
 InputFlags input_phase() 
@@ -359,21 +365,22 @@ u64 process_keyboard_input_key_release(GLFWwindow* window)
 
 void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 {
-   if (G_INPUT_INFO.is_mouse_drag || PROGRAM_MODE.current == GAME_MODE) 
+   // MOVE CAMERA WITH MOUSE IF APPROPRIATE
+   if (PROGRAM_MODE.current == GAME_MODE || (G_INPUT_INFO.mouse_state & MOUSE_DRAGGING) ) 
    {
       // 'teleports' stored coordinates to current mouse coordinates
-      if (G_INPUT_INFO.reset_mouse_coords) 
+      if (G_INPUT_INFO.forget_last_mouse_coords) 
       {
-         G_INPUT_INFO.last_registered_mouse_coord_x = xpos;
-         G_INPUT_INFO.last_registered_mouse_coord_y = ypos;
-         G_INPUT_INFO.reset_mouse_coords = false;
+         G_INPUT_INFO.mouse_coords.last_x = xpos;
+         G_INPUT_INFO.mouse_coords.last_y = ypos;
+         G_INPUT_INFO.forget_last_mouse_coords = false;
       }
 
-      // calculates offsets
-      float xoffset = xpos - G_INPUT_INFO.last_registered_mouse_coord_x;
-      float yoffset = G_INPUT_INFO.last_registered_mouse_coord_y - ypos;
-      G_INPUT_INFO.last_registered_mouse_coord_x = xpos;
-      G_INPUT_INFO.last_registered_mouse_coord_y = ypos;
+      // calculates offsets and updates last x and y pos
+      float xoffset = xpos - G_INPUT_INFO.mouse_coords.last_x;
+      float yoffset = G_INPUT_INFO.mouse_coords.last_y - ypos;
+      G_INPUT_INFO.mouse_coords.last_x = xpos;
+      G_INPUT_INFO.mouse_coords.last_y = ypos;
 
       xoffset *= G_SCENE_INFO.camera->Sensitivity;
       yoffset *= G_SCENE_INFO.camera->Sensitivity;
@@ -391,20 +398,20 @@ void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
          G_SCENE_INFO.camera->Yaw = G_SCENE_INFO.camera->Yaw - 360.0f;
       if (G_SCENE_INFO.camera->Yaw < -360.0f)
          G_SCENE_INFO.camera->Yaw = G_SCENE_INFO.camera->Yaw + 360.0f;
-
    }
 
-   G_INPUT_INFO.currentMouseX = xpos;
-	G_INPUT_INFO.currentMouseY = ypos;
+   // updates mouse position
+   G_INPUT_INFO.mouse_coords.x = xpos;
+	G_INPUT_INFO.mouse_coords.y = ypos;
 
 	// activates mouse dragging if clicking and current mouse position has changed a certain ammount
-	if (G_INPUT_INFO.is_mouse_left_btn_press)
+	if (G_INPUT_INFO.mouse_state & MOUSE_LEFT_BTN)
    { 
-      auto offset_from_click_x = abs(G_INPUT_INFO.mouse_btn_down_x - G_INPUT_INFO.currentMouseX);
-      auto offset_from_click_y = abs(G_INPUT_INFO.mouse_btn_down_y - G_INPUT_INFO.currentMouseY); 
+      auto offset_from_click_x = abs(G_INPUT_INFO.mouse_coords.left_click_x - G_INPUT_INFO.mouse_coords.x);
+      auto offset_from_click_y = abs(G_INPUT_INFO.mouse_coords.left_click_y - G_INPUT_INFO.mouse_coords.y); 
       if(offset_from_click_x > 2 || offset_from_click_y > 2)
       {
-         G_INPUT_INFO.is_mouse_drag = true;
+         G_INPUT_INFO.mouse_state |= MOUSE_DRAGGING;
       }
    }
 }
@@ -418,21 +425,33 @@ void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
 {
    // @todo: need to refactor registering mouse click into the KeyInput struct and having it
    // acknowledge whether you are clicking or dragging or what
-   if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) 
+   switch(button)
    {
-      G_INPUT_INFO.is_mouse_left_btn_press = true;
-      G_INPUT_INFO.reset_mouse_coords = true;
-      G_INPUT_INFO.mouse_btn_down_x = G_INPUT_INFO.currentMouseX;
-      G_INPUT_INFO.mouse_btn_down_y = G_INPUT_INFO.currentMouseY;
-   }
-   else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) 
-   {
-      G_INPUT_INFO.is_mouse_left_btn_press = false;
-      G_INPUT_INFO.is_mouse_drag = false;
+      case GLFW_MOUSE_BUTTON_LEFT:
+      {
+         if(action == GLFW_PRESS)
+         {
+            G_INPUT_INFO.mouse_state |= MOUSE_LEFT_BTN;
+            G_INPUT_INFO.forget_last_mouse_coords = true;
+            G_INPUT_INFO.mouse_coords.left_click_x = G_INPUT_INFO.mouse_coords.x;
+            G_INPUT_INFO.mouse_coords.left_click_y = G_INPUT_INFO.mouse_coords.y;
+         }
+         else if(action == GLFW_RELEASE)
+         {
+            G_INPUT_INFO.mouse_state &= ~(MOUSE_LEFT_BTN);
+            G_INPUT_INFO.mouse_state &= ~(MOUSE_DRAGGING);
+         }
+         break;
+      }
    }
 }
 
-bool press_once(InputFlags flags, u64 key)
+bool pressed_once(InputFlags flags, u64 key)
 {
-   return flags.key_press & key && !(G_INPUT_INFO.key_input_state & key);
+   return flags.key_press & key && !(G_INPUT_INFO.key_state & key);
+}
+
+bool pressed(u64 flags, u64 key)
+{
+   return flags & key;
 }

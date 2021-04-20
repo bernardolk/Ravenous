@@ -712,21 +712,21 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
 //@todo: refactor this into game mode input handle and editor mode input handle
 void handle_input_flags(InputFlags flags, Player* &player)
 {
-   if(press_once(flags, KEY_1))
+   if(pressed_once(flags, KEY_1))
    {
       if(G_FRAME_INFO.time_step > 0)
       {
          G_FRAME_INFO.time_step -= 0.1; 
       }
    }
-   if(press_once(flags, KEY_2))
+   if(pressed_once(flags, KEY_2))
    {
       if(G_FRAME_INFO.time_step < 3)
       {
          G_FRAME_INFO.time_step += 0.1;
       }
    }
-   if(press_once(flags, KEY_0))
+   if(pressed_once(flags, KEY_0))
    {
      save_player_position_to_file(G_SCENE_INFO.scene_name);
    }
@@ -747,7 +747,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
          player->entity_ptr->render_me = PROGRAM_MODE.current == EDITOR_MODE ? true : false;
       }
    }
-   if(press_once(flags, KEY_F))
+   if(pressed_once(flags, KEY_F))
    {
       if(PROGRAM_MODE.current == EDITOR_MODE)
       {
@@ -773,11 +773,11 @@ void handle_input_flags(InputFlags flags, Player* &player)
 
    if(PROGRAM_MODE.current == EDITOR_MODE)
    {
-      if(press_once(flags, KEY_GRAVE_TICK))
+      if(pressed_once(flags, KEY_GRAVE_TICK))
       { 
          start_console_mode();
       }
-      if(press_once(flags, KEY_C))
+      if(pressed_once(flags, KEY_C))
       {
          // moves player to camera position
          player->entity_ptr->position = G_SCENE_INFO.camera->Position + G_SCENE_INFO.camera->Front * 3.0f;
@@ -982,7 +982,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
    }
 
    // here we record a history for if keys were last pressed or released, so to enable smooth toggle
-   G_INPUT_INFO.key_input_state |= flags.key_press;
-   G_INPUT_INFO.key_input_state &= ~(flags.key_release); 
+   G_INPUT_INFO.key_state |= flags.key_press;
+   G_INPUT_INFO.key_state &= ~(flags.key_release); 
 }
 
