@@ -14,7 +14,7 @@ struct EditorContext {
    EntityPanelContext entity_panel;
 } Context;
 
-void editor_check_clicking();
+void check_selection_click();
 void render();
 void select_entity(Entity* entity);
 void render_entity_panel(EntityPanelContext* context);
@@ -24,16 +24,13 @@ void initialize();
 void terminate();
 
 
-void editor_check_clicking()
+void check_selection_click()
 {
-   if(G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK)
+   auto pickray = cast_pickray();
+   auto test = test_ray_against_scene(pickray);
+   if(test.hit)
    {
-      auto pickray = cast_pickray();
-      auto test = test_ray_against_scene(pickray);
-      if(test.hit)
-      {
-         select_entity(test.entity);
-      }
+      select_entity(test.entity);
    }
 }
 
@@ -62,7 +59,8 @@ void select_entity(Entity* entity)
 void render_entity_panel(EntityPanelContext* context)
 {
    auto entity = context->entity;
-   ImGui::Begin(entity->name.c_str(), nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+   ImGui::SetNextWindowPos(ImVec2(100, 300), ImGuiCond_Appearing);
+   ImGui::Begin(entity->name.c_str(), &context->active, ImGuiWindowFlags_AlwaysAutoResize);
 
    // position
    ImGui::SliderFloat(

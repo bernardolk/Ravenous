@@ -90,8 +90,6 @@ struct MouseCoordinates {
 
 struct GlobalInputInfo {
    bool forget_last_mouse_coords = true;
-   //bool mouse_left_btn = false;
-   //bool mouse_dragging = false;
    MouseCoordinates mouse_coords;
    u64 key_state = 0;
    u8 mouse_state = 0;
@@ -292,7 +290,6 @@ int main()
       update_buffers();
       update_player_state(player);
 		update_scene_objects();
-      if(PROGRAM_MODE.current == EDITOR_MODE) Editor::editor_check_clicking();
 
 		//	RENDER PHASE
 		glClearColor(0.196, 0.298, 0.3607, 1.0f);

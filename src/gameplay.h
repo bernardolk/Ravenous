@@ -773,6 +773,10 @@ void handle_input_flags(InputFlags flags, Player* &player)
 
    if(PROGRAM_MODE.current == EDITOR_MODE)
    {
+      if(G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK && flags.key_press & KEY_LEFT_CTRL)
+      {
+         Editor::check_selection_click();
+      }
       if(pressed_once(flags, KEY_GRAVE_TICK))
       { 
          start_console_mode();
