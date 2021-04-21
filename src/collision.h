@@ -53,12 +53,7 @@ struct SlopeHeightsPlayer
 
 Collision get_vertical_overlap_player_vs_aabb(Entity* entity, Entity* player);
 float get_vertical_overlap_player_vs_slope(Entity* entity, Entity* player);
-
 CollisionData sample_terrain_height_at_player(Entity* player, Entity* entity); 
-bool check_2D_collision_circle_and_aligned_square(Entity* circle, Entity* square);
-float squared_distance_between_point_and_line(float x1, float y1, float x2, float y2, float x0, float y0);
-float squared_minimum_distance(vec2 v, vec2 w, vec2 p);
-vec3 get_nearest_edge(Entity* point, Entity* square);
 bool intersects_vertically(Entity* entity, Player* player);
 bool intersects_vertically_slope(Entity* entity, Entity* player);
 bool intersects_vertically_standing_slope(Entity* entity, Player* player);
@@ -81,10 +76,11 @@ Collision get_horizontal_overlap_player_aabb(Entity* entity, Entity* player)
 {
    //box boundaries
    auto box_collision_geometry = entity->collision_geometry.aabb;
-   float box_x0 = entity->position.x;
-   float box_x1 = entity->position.x + box_collision_geometry.length_x;
-   float box_z0 = entity->position.z;
-   float box_z1 = entity->position.z + box_collision_geometry.length_z;
+   float box_x0 = min(entity->position.x, entity->position.x + box_collision_geometry.length_x);
+   float box_x1 = max(entity->position.x, entity->position.x + box_collision_geometry.length_x);
+   float box_z0 = min(entity->position.z, entity->position.z + box_collision_geometry.length_z);
+   float box_z1 = max(entity->position.z, entity->position.z + box_collision_geometry.length_z);
+
 
    float player_x = player->position.x;
    float player_z = player->position.z; 
@@ -225,10 +221,10 @@ bool intersects_vertically_standing_slope(Entity* entity, Player* player)
    float box_top = entity->position.y + box_collision_geometry.length_y;
    float box_bottom = entity->position.y;
 
-   float box_x0 = entity->position.x;
-   float box_x1 = entity->position.x + box_collision_geometry.length_x;
-   float box_z0 = entity->position.z;
-   float box_z1 = entity->position.z + box_collision_geometry.length_z;
+   float box_x0 = min(entity->position.x, entity->position.x + box_collision_geometry.length_x);
+   float box_x1 = max(entity->position.x, entity->position.x + box_collision_geometry.length_x);
+   float box_z0 = min(entity->position.z, entity->position.z + box_collision_geometry.length_z);
+   float box_z1 = max(entity->position.z, entity->position.z + box_collision_geometry.length_z);
       
 
    auto ramp = player->standing_entity_ptr;
@@ -572,108 +568,3 @@ CollisionData check_for_floor_below_player_when_slope(Player* player, bool only_
    }
    return response;
 }
-
-
-//_________
-//
-// LEGACY ?
-//_________
-
-float squared_distance_between_point_and_line(float x1, float y1, float x2, float y2, float x0, float y0)
-{
-   // 0 is point, 1 and 2 define a line
-
-   float numerator = (x2 - x1) * (y1 - y0) - (x1 - x0) * (y2 - y1);
-   numerator = numerator * numerator;
-   float denominator = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
-   assert(denominator > 0);
-   return numerator / denominator;
-}
-
-
-bool check_2D_collision_circle_and_aligned_square(Entity* circle, Entity* square)
-{
-   // Note: this will only check if there are edges of the quare inside the circle.
-   // If the circle is completely inside the square, this will not work!
-
-   auto box_collision_geometry = square->collision_geometry.aabb;
-
-   //square vertices
-   float square_x0 = square->position.x - box_collision_geometry.length_x;
-   float square_z0 = square->position.z;
-   float square_x1 = square->position.x;
-   float square_z1 = square->position.z + box_collision_geometry.length_z;
-
-   float player_x = circle->position.x;
-   float player_z = circle->position.z;
-
-   float d_1 = squared_minimum_distance(vec2(square_x0, square_z0), vec2(square_x1, square_z0), vec2(player_x, player_z));
-   float d_2 = squared_minimum_distance(vec2(square_x1, square_z0), vec2(square_x1, square_z1), vec2(player_x, player_z));
-   float d_3 = squared_minimum_distance(vec2(square_x1, square_z1), vec2(square_x0, square_z1), vec2(player_x, player_z));
-   float d_4 = squared_minimum_distance(vec2(square_x0, square_z1), vec2(square_x0, square_z0), vec2(player_x, player_z));
-
-   auto player_collision_geometry = circle->collision_geometry.cylinder;
-   float p_radius2 = player_collision_geometry.radius * player_collision_geometry.radius;
-   std::cout << "radius2: " << p_radius2 << "\n";
-   if(d_1 <= p_radius2 || d_2 <= p_radius2 || d_3 <= p_radius2 || d_4 <= p_radius2)
-   {
-      return true;
-   }
-
-   return false;
-}
-
-vec3 get_nearest_edge(Entity* point, Entity* square)
-{
-    auto box_collision_geometry = square->collision_geometry.aabb;
-
-   //square vertices
-   float square_x0 = square->position.x - box_collision_geometry.length_x;
-   float square_z0 = square->position.z;
-   float square_x1 = square->position.x;
-   float square_z1 = square->position.z + box_collision_geometry.length_z;
-
-   float player_x = point->position.x;
-   float player_z = point->position.z;
-
-   float d_1 = squared_minimum_distance(vec2(square_x0, square_z0), vec2(square_x1, square_z0), vec2(player_x, player_z));
-   float d_2 = squared_minimum_distance(vec2(square_x1, square_z0), vec2(square_x1, square_z1), vec2(player_x, player_z));
-   float d_3 = squared_minimum_distance(vec2(square_x1, square_z1), vec2(square_x0, square_z1), vec2(player_x, player_z));
-   float d_4 = squared_minimum_distance(vec2(square_x0, square_z1), vec2(square_x0, square_z0), vec2(player_x, player_z));
-
-   if(d_1 <= d_2 && d_1 <= d_3 && d_1 <= d_4)
-   {
-      return vec3(square_x0, 0, square_z0) - vec3(square_x1, 0, square_z0);
-   }
-   else if(d_2 <= d_1 && d_2 <= d_3 && d_2 <= d_4)
-   {
-      return vec3(square_x1, 0, square_z0) - vec3(square_x1, 0, square_z1);
-   }
-   else if(d_3 <= d_1 && d_3 <= d_2 && d_3 <= d_4)
-   {
-      return vec3(square_x1, 0, square_z1) - vec3(square_x0, 0, square_z1);
-   }
-    else if(d_4 <= d_1 && d_4 <= d_2 && d_4 <= d_3)
-   {
-      return vec3(square_x0, 0, square_z1) - vec3(square_x0, 0, square_z0);
-   }
-
-   assert(false);
-   return vec3();
-}
-
-
-float squared_minimum_distance(vec2 v, vec2 w, vec2 p) 
-{
-  // Return minimum distance between line segment vw and point p
-  float l2 = glm::length2(v - w);  // i.e. |w-v|^2 -  avoid a sqrt
-  if (l2 == 0.0) return glm::distance(p,v);   // v == w case
-  float dot = glm::dot(p - v, w - v) / l2;
-  float min = 1 > dot ? dot : 1;
-  float t = 0 > min ? 0 : min;
-  vec2 projection = v + t * (w - v);  // Projection falls on the segment
-  float d = glm::distance(p, projection);
-  return d * d;
-}
-
-

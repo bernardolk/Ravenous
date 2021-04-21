@@ -755,6 +755,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
          G_SCENE_INFO.camera = G_SCENE_INFO.views[1];
          player->entity_ptr->render_me = false;
          glfwSetInputMode(G_DISPLAY_INFO.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+         Editor::end_frame();
       }
       else if(PROGRAM_MODE.current == GAME_MODE)
       {

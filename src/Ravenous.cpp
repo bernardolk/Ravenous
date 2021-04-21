@@ -193,8 +193,9 @@ bool compare_vec2(vec2 vec1, vec2 vec2);
 #include <scene.h>
 #include <console.h>
 #include <raycast.h>
-#include <gameplay.h>
 #include <editor.h>
+#include <gameplay.h>
+
 #define glCheckError() glCheckError_(__FILE__, __LINE__) 
 
 // OPENGL OBJECTS
@@ -216,6 +217,7 @@ EntityBuffer* allocate_entity_buffer(size_t size);
 void update_buffers();
 void check_view_mode(Player* player);
 void start_frame();
+
 
 
 int main() 

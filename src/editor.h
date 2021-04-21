@@ -63,6 +63,8 @@ void render_entity_panel(EntityPanelContext* context)
 {
    auto entity = context->entity;
    ImGui::Begin(entity->name.c_str(), nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+
+   // position
    ImGui::SliderFloat(
       "x",
       &context->entity->position.x,
@@ -82,32 +84,34 @@ void render_entity_panel(EntityPanelContext* context)
       context->original_position.z + 10
    );
 
-   ImGui::InputFloat("rot x", &context->entity->rotation.x, 90);
-   ImGui::InputFloat("rot y", &context->entity->rotation.y, 90);
-   ImGui::InputFloat("rot z", &context->entity->rotation.z, 90);
+   // rotation
+   float rotation = context->entity->rotation.y;
+   if(ImGui::InputFloat("rot y", &rotation, 90))
+      Context.entity_panel.entity->rotate_y(rotation - context->entity->rotation.y);
 
+   // scale
    auto scale = vec3{context->entity->scale};
-
-   ImGui::SliderFloat(
+   if(ImGui::SliderFloat(
       "scale x",
       &scale.x,
       context->original_scale.x - 5,
       context->original_scale.x + 5
-   );
+   ) ||
    ImGui::SliderFloat(
       "scale y",
       &scale.y,
       context->original_scale.y - 5,
       context->original_scale.y + 5
-   );
+   ) ||
    ImGui::SliderFloat(
       "scale z", 
       &scale.z,
       context->original_scale.z - 5,
       context->original_scale.z + 5
-   );
-
-   Context.entity_panel.entity->set_scale(scale);
+   ))
+   {
+      Context.entity_panel.entity->set_scale(scale);
+   }
 
    ImGui::End();
 }

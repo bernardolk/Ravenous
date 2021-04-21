@@ -69,9 +69,20 @@ struct Entity {
          }
          case COLLISION_ALIGNED_BOX:
          {
-            collision_geometry.aabb.length_x = new_scale.x;
             collision_geometry.aabb.length_y = new_scale.y;
+
+            if(rotation.y == 0)
+               return;
+            
+            // first just set it
+            collision_geometry.aabb.length_x = new_scale.x;
             collision_geometry.aabb.length_z = new_scale.z;
+            // then correct it base on rotation
+            auto sign = sin(rotation.y * PI / 180.0f);
+            auto z_temp = collision_geometry.aabb.length_z;
+            collision_geometry.aabb.length_z = collision_geometry.aabb.length_x * (-1 * sign);
+            collision_geometry.aabb.length_x = z_temp * sign;
+
             break;
             
          }
@@ -84,6 +95,20 @@ struct Entity {
          }
       }
    };
+
+   void rotate_y(float angle)
+   {
+      rotation.y += angle;
+      // right now we just need to implement for AABBs because
+      // for slopes the collision code takes care of rotation
+      if(collision_geometry_type == COLLISION_ALIGNED_BOX)
+      {
+         auto sign = sin(angle * PI / 180.0f);
+         auto z_temp = collision_geometry.aabb.length_z;
+         collision_geometry.aabb.length_z = collision_geometry.aabb.length_x * (-1 * sign);
+         collision_geometry.aabb.length_x = z_temp * sign;
+      }
+   }
 };
 
 struct SpotLight {
