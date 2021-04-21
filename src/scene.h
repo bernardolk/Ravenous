@@ -292,44 +292,7 @@ void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::stri
             slope.width    = new_entity->scale.z;
             slope.height   = new_entity->scale.y;
 
-            float inclination = slope.height / slope.length;
-            float slope_angle = atan(inclination);
-            float complementary = 180.0f - (slope_angle + 90.0f); 
-
-            // slope geometry is defined as default (rotation = 0) being going down along +x
-            // here we set the tangent vector to the slope, so the player falls along it when sliding
-            auto slope_direction = vec3(0, -1 * sin(slope_angle), 0);
-            auto slope_normal = vec3(0, sin(complementary), 0);
-            switch((int) new_entity->rotation.y)
-            {
-               case 0:
-               {
-                  slope_direction.x = cos(slope_angle);
-                  slope_normal.x = cos(complementary);
-                  break;
-               }
-               case 90:
-               {
-                  slope_direction.z = -1 * cos(slope_angle);
-                  slope_normal.z = -1 * cos(complementary);
-                  break;
-               }
-               case 180:
-               {
-                  slope_direction.x = -1 * cos(slope_angle);
-                  slope_normal.x = -1 * cos(complementary);
-                  break;
-               }
-               case 270:
-               {
-                  slope_direction.z = cos(slope_angle);
-                  slope_normal.z = cos(complementary);
-                  break;
-               }
-            }
-            slope.tangent = slope_direction;
-            slope.normal = slope_normal;
-            slope.inclination = inclination;
+            new_entity->set_slope_properties();
 
             assert((int)new_entity->rotation.x % 90 == 0);
             assert((int)new_entity->rotation.y % 90 == 0);

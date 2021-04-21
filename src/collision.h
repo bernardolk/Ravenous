@@ -330,6 +330,13 @@ SlopeHeightsPlayer get_slope_heights_at_player(Entity* player, Entity* entity)
    at_coord_c = at_coord_0 = get_slope_height_at_player_position(player, entity);
 
    auto slope_rot = (int) entity->rotation.y;
+   slope_rot = slope_rot % 360;
+
+   if (slope_rot < 0)
+   {
+      slope_rot = 360 + slope_rot;
+   }
+
    if(slope_rot == 0 || slope_rot == 180)
    {
       player->position.x -= pcg.radius;
