@@ -26,4 +26,5 @@ struct Player {
    float radius;
    float half_height;
    vec3 prior_position = vec3(0);
+   vec3 initial_velocity = vec3(0);
 };

@@ -151,6 +151,7 @@ void execute_command(string buffer_line, Player* &player)
       p = parse_whitespace(p);
       p = parse_token(p);
       const string scene_name = p.string_buffer;
+      save_scene_to_file(scene_name, player);
    }
    else if(command == "load")
    {
@@ -158,8 +159,7 @@ void execute_command(string buffer_line, Player* &player)
       p = parse_token(p);
       const string scene_name = p.string_buffer;
       // updates scene with new one
-      bool loaded = load_scene_from_file(scene_name);
-      if(loaded)
+      if(load_scene_from_file(scene_name))
       {
          player = G_SCENE_INFO.player; // not irrelevant! do not delete
          player->entity_ptr->render_me = PROGRAM_MODE.last == EDITOR_MODE ? true : false;

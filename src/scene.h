@@ -4,8 +4,36 @@ void parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, s
 void parse_and_load_attribute(Parser::Parse p, ifstream* reader, int& line_count, std::string path, Player* player);
 void setup_scene_boilerplate_stuff();
 void save_player_position_to_file(string scene_name);
+bool save_scene_to_file(string scene_name, Player* player);
 
+bool save_scene_to_file(string scene_name, Player* player)
+{
+   string path = SCENES_FOLDER_PATH + scene_name + ".txt";
 
+   ofstream writer(path);
+   if(!writer.is_open())
+   {
+      cout << "Saving scene failed.\n";
+      return false;
+   }
+
+   // write player attributes to file
+   {
+      writer << "@player_position = " 
+                  << player->entity_ptr->position.x << " " 
+                  << player->entity_ptr->position.y << " "
+                  << player->entity_ptr->position.z << "\n";
+      writer << "@player_initial_velocity = "
+                  << player->entity_ptr->position.x << " " 
+                  << player->entity_ptr->position.y << " "
+                  << player->entity_ptr->position.z << "\n";
+      writer << "@player_state = " << player->player_state << "\n"; 
+      writer << "@player_fall_acceleration = " << player->fall_acceleration << "\n";  
+   }
+
+   cout << "Scene saved succesfully as '" << scene_name << "'. \n";
+   return true;
+}
 
 bool load_scene_from_file(std::string scene_name)
 {
@@ -72,7 +100,8 @@ void parse_and_load_attribute(Parser::Parse p, ifstream* reader, int& line_count
    else if(attribute == "player_initial_velocity")
    {
       p = parse_float_vector(p);
-      player->entity_ptr->velocity = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+      player->initial_velocity = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+      player->entity_ptr->velocity = player->initial_velocity;
    }
    else if(attribute == "player_state")
    {

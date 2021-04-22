@@ -138,12 +138,7 @@ void update_player_state(Player* player)
 
          Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
          size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
-         float tttt = player->entity_ptr->position.y - 1.7 - player->half_height;
-         cout << tttt << "\n";
-         if(player->entity_ptr->position.y >= (1.7 - player->half_height) && ((player->entity_ptr->position.y - player->half_height - 1.7) < 0.001))
-         {
-            auto a = 0;
-         }
+         
          // check for collisions with scene BUT with floor
          run_collision_checks_standing(player, entity_iterator, entity_list_size);
 
