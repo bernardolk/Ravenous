@@ -110,7 +110,7 @@ void commit_buffer(Player* &player)
       if(loaded)
       {
          player = G_SCENE_INFO.player; // not irrelevant! do not delete
-         player->entity_ptr->render_me = PROGRAM_MODE.current == EDITOR_MODE ? true : false;
+         player->entity_ptr->render_me = PROGRAM_MODE.last == EDITOR_MODE ? true : false;
       }
 
       // realloc if necessary
