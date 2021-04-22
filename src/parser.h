@@ -7,6 +7,10 @@
 #include <Mesh.h>
 #include <glm/vec3.hpp>
 
+
+namespace Parser
+{
+
  struct Parse {
 	const char* string;
 	size_t size;
@@ -20,20 +24,6 @@
       float vec3[3];
 	};
 };
-
-// Parse parser_start(ifstream* reader, std::string* line)
-// {
-//    getline(*reader, *line);
-//    const char* cline = line->c_str();
-//    size_t size = line->size();
-
-//    Parse p { 
-//       cline, 
-//       size 
-//    };
-
-//    return p;
-// }
 
 
 bool parser_nextline(ifstream* reader, std::string* line, Parse* toparse)
@@ -292,4 +282,5 @@ inline Parse parse_float_vector(Parse p)
    p.vec3[1] = y;
    p.vec3[2] = z;
    return p;
+}
 }

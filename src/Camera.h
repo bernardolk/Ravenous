@@ -88,7 +88,7 @@ float* load_camera_settings(string path){
       const char* cline = line.c_str();
       size_t size = line.size();
 
-      Parse p { 
+      Parser::Parse p { 
          cline, 
          size 
       };
@@ -111,7 +111,7 @@ float* load_camera_settings(string path){
       const char* cline = line.c_str();
       size_t size = line.size();
 
-      Parse p { 
+      Parser::Parse p { 
          cline, 
          size 
       };

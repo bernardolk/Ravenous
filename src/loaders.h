@@ -26,7 +26,7 @@ MeshData import_wavefront_obj(std::string path) {
 		const char* cline = line.c_str();
 		size_t size = line.size();
 
-		Parse p{ cline, size };
+		Parser::Parse p{ cline, size };
 		p = parse_letter(p);
 		if (p.hasToken && p.cToken == 'm') {
 

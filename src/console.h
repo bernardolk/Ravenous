@@ -6,10 +6,11 @@ void start_console_mode();
 void quit_console_mode();
 void move_to_previous_buffer();
 void move_to_next_buffer();
-void commit_buffer(Player* &player);
+string commit_buffer();
 void initialize_console_buffers();
 void copy_buffer_to_scratch_buffer();
 void clear_scratch_buffer();
+void execute_command(string buffer_line, Player* &player);
 
 
 struct GlobalConsoleState {
@@ -87,61 +88,46 @@ void quit_console_mode()
    PROGRAM_MODE.last = CONSOLE_MODE;
 }
 
-void commit_buffer(Player* &player)
+string commit_buffer()
 {
-      // if empty, just quit
-      if(CONSOLE.scratch_buffer[0] == '\0')
-      {
-         quit_console_mode();
-         return;
-      }
+   // copy from scratch buffer to variable
+   int char_ind = 0;
+   char input[50] = {'\0'};
+   while(CONSOLE.scratch_buffer[char_ind] != '\0')
+   {
+      input[char_ind] = CONSOLE.scratch_buffer[char_ind];
+      char_ind++;
+   }
 
-      // copy from scratch buffer to variable
-      int char_ind = 0;
-      char scene_name[50] = {'\0'};
-      while(CONSOLE.scratch_buffer[char_ind] != '\0')
+   // realloc if necessary
+   if(CONSOLE.current_buffer_size == CONSOLE.buffer_capacity)
+   {
+      auto prior_capacity = CONSOLE.buffer_capacity;
+      CONSOLE.buffer_capacity *= 2;
+      CONSOLE.buffers = (char**) realloc(CONSOLE.buffers, sizeof(char*) * CONSOLE.buffer_capacity);
+      for(size_t i = prior_capacity; i < CONSOLE.buffer_capacity; i++)
       {
-         scene_name[char_ind] = CONSOLE.scratch_buffer[char_ind];
-         char_ind++;
+         CONSOLE.buffers[i] = (char*) calloc(CONSOLE.max_chars, sizeof(char));
       }
+   }
 
-      // updates scene with new one
-      bool loaded = load_scene_from_file(scene_name);
-      if(loaded)
-      {
-         player = G_SCENE_INFO.player; // not irrelevant! do not delete
-         player->entity_ptr->render_me = PROGRAM_MODE.last == EDITOR_MODE ? true : false;
-      }
+   // commit to buffers (log)
+   char_ind = 0;
+   while(CONSOLE.scratch_buffer[char_ind] != '\0')
+   {
+      CONSOLE.buffers[CONSOLE.current_buffer_size][char_ind] = CONSOLE.scratch_buffer[char_ind];
+      char_ind++;
+   }
+   
+   // clear scratch buffer
+   clear_scratch_buffer();
+         
+   // updates number of items in buffers
+   CONSOLE.current_buffer_size++;
+   // move buffers pointer up the stack
+   CONSOLE.b_ind = CONSOLE.current_buffer_size;
 
-      // realloc if necessary
-      if(CONSOLE.current_buffer_size == CONSOLE.buffer_capacity)
-      {
-         auto prior_capacity = CONSOLE.buffer_capacity;
-         CONSOLE.buffer_capacity *= 2;
-         CONSOLE.buffers = (char**) realloc(CONSOLE.buffers, sizeof(char*) * CONSOLE.buffer_capacity);
-         for(size_t i = prior_capacity; i < CONSOLE.buffer_capacity; i++)
-         {
-            CONSOLE.buffers[i] = (char*) calloc(CONSOLE.max_chars, sizeof(char));
-         }
-      }
-
-      // commit to buffers (log)
-      char_ind = 0;
-      while(CONSOLE.scratch_buffer[char_ind] != '\0')
-      {
-         CONSOLE.buffers[CONSOLE.current_buffer_size][char_ind] = CONSOLE.scratch_buffer[char_ind];
-         char_ind++;
-      }
-      
-      // clear scratch buffer
-      clear_scratch_buffer();
-            
-      // updates number of items in buffers
-      CONSOLE.current_buffer_size++;
-      // move buffers pointer up the stack
-      CONSOLE.b_ind = CONSOLE.current_buffer_size;
-      // quit
-      quit_console_mode();
+   return input;
 }
 
 void clear_scratch_buffer()
@@ -155,11 +141,49 @@ void clear_scratch_buffer()
    CONSOLE.c_ind = 0;
 }
 
+void execute_command(string buffer_line, Player* &player)
+{
+   Parser::Parse p {buffer_line.c_str(), 50};
+   p = parse_token(p);
+   const string command = p.string_buffer;
+   if(command == "save")
+   {
+      p = parse_whitespace(p);
+      p = parse_token(p);
+      const string scene_name = p.string_buffer;
+   }
+   else if(command == "load")
+   {
+      p = parse_whitespace(p);
+      p = parse_token(p);
+      const string scene_name = p.string_buffer;
+      // updates scene with new one
+      bool loaded = load_scene_from_file(scene_name);
+      if(loaded)
+      {
+         player = G_SCENE_INFO.player; // not irrelevant! do not delete
+         player->entity_ptr->render_me = PROGRAM_MODE.last == EDITOR_MODE ? true : false;
+      }
+   }
+   else
+   {
+      cout << "what do you mean with " << command << " man?\n";
+   }
+}
+
 void handle_console_input(InputFlags flags, Player* &player)
 {
    if(pressed_once(flags, KEY_ENTER))
    {
-      commit_buffer(player);
+      // if empty, just quit
+      if(CONSOLE.scratch_buffer[0] == '\0')
+      {
+         quit_console_mode();
+         return;
+      }
+      auto buffer_line = commit_buffer();
+      execute_command(buffer_line, player);
+      quit_console_mode();
    }
 
    if(pressed_once(flags, KEY_GRAVE_TICK))
@@ -294,5 +318,9 @@ void check_letter_key_presses(InputFlags flags)
    if(pressed_once(flags, KEY_M))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'm';
+   }
+   if(pressed_once(flags, KEY_SPACE))
+   {  
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = ' ';
    }
 }

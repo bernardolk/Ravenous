@@ -1,7 +1,7 @@
 
 bool load_scene_from_file(std::string scene_name);
-void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::string path);
-void parse_and_load_attribute(Parse p, ifstream* reader, int& line_count, std::string path, Player* player);
+void parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, std::string path);
+void parse_and_load_attribute(Parser::Parse p, ifstream* reader, int& line_count, std::string path, Player* player);
 void setup_scene_boilerplate_stuff();
 void save_player_position_to_file(string scene_name);
 
@@ -28,7 +28,7 @@ bool load_scene_from_file(std::string scene_name)
 
    // starts reading
    std::string line;
-   Parse p;
+   Parser::Parse p;
    int line_count = 0;
 
    // parses entity
@@ -50,7 +50,7 @@ bool load_scene_from_file(std::string scene_name)
    return true;
 } 
 
-void parse_and_load_attribute(Parse p, ifstream* reader, int& line_count, std::string path, Player* player)
+void parse_and_load_attribute(Parser::Parse p, ifstream* reader, int& line_count, std::string path, Player* player)
 {
    p = parse_token(p);
    std::string attribute = p.string_buffer;
@@ -119,7 +119,7 @@ void parse_and_load_attribute(Parse p, ifstream* reader, int& line_count, std::s
 }
 
 
-void parse_and_load_entity(Parse p, ifstream* reader, int& line_count, std::string path)
+void parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, std::string path)
 {
    std::string line;
    bool is_collision_parsed = false;
