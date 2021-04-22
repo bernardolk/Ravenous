@@ -542,7 +542,7 @@ void render_text_overlay(Camera* camera, Player* player)
    string fps              = to_string(G_FRAME_INFO.current_fps);
    string fps_gui          = "FPS: " + fps.substr(0, fps.find('.', 0) + 2);
    string player_pos       = "player:   x: " +  GUI_atts[8] + " y: " +  GUI_atts[9] + " z: " +  GUI_atts[10];
-   string time_step_string = "time step: " + GUI_atts[11];
+   string time_step_string = "time step: " + GUI_atts[11] + "x";
 
 
    vec3 player_state_text_color;

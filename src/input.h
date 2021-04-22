@@ -62,6 +62,9 @@ u64 KEY_LEFT_CTRL       = 1LL << 43;
 u64 KEY_GRAVE_TICK      = 1LL << 44;
 u64 KEY_ENTER           = 1LL << 45;
 u64 KEY_BACKSPACE       = 1LL << 46;
+u64 KEY_COMMA           = 1LL << 47;
+u64 KEY_PERIOD          = 1LL << 48;
+
 
 u16 MOUSE_LB_CLICK       = 1 << 0;
 u16 MOUSE_RB_CLICK       = 1 << 1;
@@ -231,6 +234,12 @@ u64 process_keyboard_input_key_press(GLFWwindow* window)
    if(glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_PRESS)
       flags = flags | KEY_BACKSPACE;
 
+   if(glfwGetKey(window, GLFW_KEY_COMMA) == GLFW_PRESS)
+      flags = flags | KEY_COMMA;
+
+   if(glfwGetKey(window, GLFW_KEY_PERIOD) == GLFW_PRESS)
+      flags = flags | KEY_PERIOD;
+
    return flags;
 }
 
@@ -369,6 +378,12 @@ u64 process_keyboard_input_key_release(GLFWwindow* window)
 
    if(glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_RELEASE)
       flags = flags | KEY_BACKSPACE;
+
+   if(glfwGetKey(window, GLFW_KEY_COMMA) == GLFW_RELEASE)
+      flags = flags | KEY_COMMA;
+
+   if(glfwGetKey(window, GLFW_KEY_PERIOD) == GLFW_RELEASE)
+      flags = flags | KEY_PERIOD;
 
    return flags;
 }
