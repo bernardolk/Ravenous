@@ -66,20 +66,20 @@ void render_entity_panel(EntityPanelContext* context)
    ImGui::SliderFloat(
       "x",
       &context->entity->position.x,
-      context->original_position.x - 10,
-      context->original_position.x + 10
+      context->original_position.x - 4,
+      context->original_position.x + 4
    );
    ImGui::SliderFloat(
       "y",
       &context->entity->position.y,
-      context->original_position.y - 10,
-      context->original_position.y + 10
+      context->original_position.y - 4,
+      context->original_position.y + 4
    );
    ImGui::SliderFloat(
       "z", 
       &context->entity->position.z, 
-      context->original_position.z - 10, 
-      context->original_position.z + 10
+      context->original_position.z - 4, 
+      context->original_position.z + 4
    );
 
    // rotation
@@ -92,20 +92,20 @@ void render_entity_panel(EntityPanelContext* context)
    if(ImGui::SliderFloat(
       "scale x",
       &scale.x,
-      context->original_scale.x - 5,
-      context->original_scale.x + 5
+      context->original_scale.x - 4,
+      context->original_scale.x + 4
    ) ||
    ImGui::SliderFloat(
       "scale y",
       &scale.y,
-      context->original_scale.y - 5,
-      context->original_scale.y + 5
+      context->original_scale.y - 4,
+      context->original_scale.y + 4
    ) ||
    ImGui::SliderFloat(
       "scale z", 
       &scale.z,
-      context->original_scale.z - 5,
-      context->original_scale.z + 5
+      context->original_scale.z - 4,
+      context->original_scale.z + 4
    ))
    {
       Context.entity_panel.entity->set_scale(scale);

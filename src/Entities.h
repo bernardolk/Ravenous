@@ -69,14 +69,14 @@ struct Entity {
          }
          case COLLISION_ALIGNED_BOX:
          {
+            // first just set it
             collision_geometry.aabb.length_y = new_scale.y;
+            collision_geometry.aabb.length_x = new_scale.x;
+            collision_geometry.aabb.length_z = new_scale.z;
 
             if(rotation.y == 0)
                return;
             
-            // first just set it
-            collision_geometry.aabb.length_x = new_scale.x;
-            collision_geometry.aabb.length_z = new_scale.z;
             // then correct it base on rotation
             auto sign = sin(rotation.y * PI / 180.0f);
             auto z_temp = collision_geometry.aabb.length_z;
@@ -88,7 +88,7 @@ struct Entity {
          }
          case COLLISION_ALIGNED_SLOPE:
          {
-            collision_geometry.slope.width =  new_scale.z;
+            collision_geometry.slope.width = new_scale.z;
             collision_geometry.slope.height = new_scale.y;
             collision_geometry.slope.length = new_scale.x;
             break;
