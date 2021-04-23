@@ -14,3 +14,5 @@ Debug/*
 ravenous.sln
 assets/*
 imgui.ini
+scenes/*
+!scenes/test.txt
