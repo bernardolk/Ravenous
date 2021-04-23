@@ -151,7 +151,14 @@ void execute_command(string buffer_line, Player* &player)
       p = parse_whitespace(p);
       p = parse_token(p);
       const string scene_name = p.string_buffer;
-      save_scene_to_file(scene_name, player);
+      save_scene_to_file(scene_name, player, false);
+   }
+   else if(command == "copy")
+   {
+      p = parse_whitespace(p);
+      p = parse_token(p);
+      const string scene_name = p.string_buffer;
+      save_scene_to_file(scene_name, player, true);
    }
    else if(command == "load")
    {
@@ -213,7 +220,8 @@ void check_letter_key_presses(InputFlags flags)
 {
    if(pressed_once(flags, KEY_BACKSPACE))
    {
-      CONSOLE.scratch_buffer[--CONSOLE.c_ind] = '\0';
+      if(CONSOLE.c_ind > 0)
+         CONSOLE.scratch_buffer[--CONSOLE.c_ind] = '\0';
    }
    if(pressed_once(flags, KEY_Q))
    {  

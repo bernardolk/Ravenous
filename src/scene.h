@@ -4,10 +4,21 @@ void parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, s
 void parse_and_load_attribute(Parser::Parse p, ifstream* reader, int& line_count, std::string path, Player* player);
 void setup_scene_boilerplate_stuff();
 void save_player_position_to_file(string scene_name);
-bool save_scene_to_file(string scene_name, Player* player);
+bool save_scene_to_file(string scene_name, Player* player, bool do_copy);
 
-bool save_scene_to_file(string scene_name, Player* player)
+bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
 {
+   bool was_renamed = scene_name.length() > 0;
+   if(!was_renamed)
+      scene_name = G_SCENE_INFO.scene_name;
+
+   if(do_copy && !was_renamed)
+   {
+      cout << "please provide a name for the copy.\n";
+      return false;
+   }
+
+
    string path = SCENES_FOLDER_PATH + scene_name + ".txt";
 
    ofstream writer(path);
@@ -18,20 +29,74 @@ bool save_scene_to_file(string scene_name, Player* player)
    }
 
    // write player attributes to file
+   writer << "@player_position = " 
+               << player->entity_ptr->position.x << " " 
+               << player->entity_ptr->position.y << " "
+               << player->entity_ptr->position.z << "\n";
+   writer << "@player_initial_velocity = "
+               << player->initial_velocity.x << " " 
+               << player->initial_velocity.y << " "
+               << player->initial_velocity.z << "\n";
+   writer << "@player_state = " << player->initial_player_state << "\n"; 
+   writer << "@player_fall_acceleration = " << player->fall_acceleration << "\n";  
+
+   // write scene data (for each entity)
+   Entity **entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
+   int entities_vec_size =  G_SCENE_INFO.active_scene->entities.size();
+	for(int it = 0; it < entities_vec_size; it++) 
    {
-      writer << "@player_position = " 
-                  << player->entity_ptr->position.x << " " 
-                  << player->entity_ptr->position.y << " "
-                  << player->entity_ptr->position.z << "\n";
-      writer << "@player_initial_velocity = "
-                  << player->entity_ptr->position.x << " " 
-                  << player->entity_ptr->position.y << " "
-                  << player->entity_ptr->position.z << "\n";
-      writer << "@player_state = " << player->player_state << "\n"; 
-      writer << "@player_fall_acceleration = " << player->fall_acceleration << "\n";  
+	   auto entity = *entity_iterator++;
+      if(entity->name == "Player")
+         continue;
+
+      writer << "\n#" << entity->name << "\n";
+      writer << "position " 
+               << entity->position.x << " "
+               << entity->position.y << " "
+               << entity->position.z << "\n";
+      writer << "rotation " 
+               << entity->rotation.x << " "
+               << entity->rotation.y << " "
+               << entity->rotation.z << "\n";
+      writer << "scale " 
+               << entity->scale.x << " "
+               << entity->scale.y << " "
+               << entity->scale.z << "\n";
+      writer << "mesh " << entity->mesh.name << "\n";
+      writer << "shader " << entity->shader->name << "\n";
+
+      int textures =  entity->textures.size();
+      for(int t = 0; t < textures; t++)
+      {
+         Texture texture = entity->textures[t];
+         writer << "texture " 
+                  << texture.type << " "
+                  << texture.name << " "
+                  << texture.path << "\n";
+      }
+
+      string collision_type;
+      if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX)
+         collision_type = "aabb";
+      else if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
+         collision_type = "slope";
+      else
+         assert(false);
+
+      writer << "collision " << collision_type << "\n";
    }
 
-   cout << "Scene saved succesfully as '" << scene_name << "'. \n";
+   if(do_copy)
+      cout << "Scene copy saved succesfully as '" << scene_name << ".txt'. \n";
+   else if(was_renamed)
+   {
+      cout << "Scene saved succesfully as '" << scene_name << ".txt' (now editing it). \n";
+      G_SCENE_INFO.scene_name = scene_name;
+   }
+   else
+      cout << "Scene saved succesfully.\n";
+
+
    return true;
 }
 
@@ -107,24 +172,8 @@ void parse_and_load_attribute(Parser::Parse p, ifstream* reader, int& line_count
    {
       p = parse_all_whitespace(p);
       p = parse_int(p);
-      switch(p.iToken)
-      {
-         case 0:
-         {
-            player->player_state = PLAYER_STATE_FALLING;
-            break;
-         }
-         case 1:
-         {
-            player->player_state = PLAYER_STATE_STANDING;
-            break;
-         }
-         default:
-         {
-            std::cout << "UNRECOGNIZED PLAYER STATE AT player_state ATTRIBUTE IN SCENE DESCRIPTION FILE ('" << path << "') LINE NUMBER " << line_count << "\n";
-            assert(false);
-         }
-      }
+      player->initial_player_state = (PlayerStateEnum) p.iToken;
+      player->player_state = player->initial_player_state;
    }
    else if(attribute == "player_fall_speed")
    {
@@ -268,26 +317,18 @@ void parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, s
                std::cout << "TEXTURE '" <<texture_name<< "' COULD NOT BE LOADED WHILE LOADING SCENE DESCRIPTION FILE :: FATAL \n"; 
                assert(false);
             }
-
-            std::string texture_type_def;
-            if(texture_type == "diffuse")
+            if(!(texture_type == "texture_diffuse" || texture_type == "texture_normal"))
             {
-               texture_type_def = "texture_diffuse";
-            } 
-            else if(texture_type == "normal")
-            {
-               texture_type_def = "texture_normal";
-            }
-            else
-            {
-               std::cout<<"TEXTURE '"<<texture_name<<"' HAS UNKNOWN TEXTURE TYPE. ERROR WHILE LOADING SCENE DESCRIPTION FILE :: FATAL \n"; 
+               std::cout<<"TEXTURE '"<<texture_name<<"' HAS UNKNOWN TEXTURE TYPE " <<texture_type <<
+                  ". ERROR WHILE LOADING SCENE DESCRIPTION FILE :: FATAL \n"; 
                assert(false);
             }
 
             Texture new_texture{
                texture_id,
-               texture_type_def,
-               texture_filename
+               texture_type,
+               texture_filename,
+               texture_name
             };
 
             Texture_Catalogue.insert({texture_name, new_texture});

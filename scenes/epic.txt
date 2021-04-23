@@ -1,4 +1,4 @@
-@player_position = -4.70266 0.35 -8.54759
+@player_position = -4 3.35 -8
 @player_initial_velocity = 0 0 0
 @player_state = 0
 @player_fall_acceleration = 13
@@ -42,7 +42,7 @@ collision aabb
 #epic box
 position -10 0 0
 rotation 0 0 0
-scale 2 4.3 5
+scale 2 5.382 5
 mesh aabb
 shader model
 texture texture_diffuse sandstone sandstone.jpg
@@ -69,7 +69,7 @@ collision slope
 #epic slope
 position -8 0 0.8
 rotation 0 0 0
-scale 5 3.9 3.4
+scale 5 4.931 3.4
 mesh slope
 shader model
 texture texture_diffuse sandstone sandstone.jpg
@@ -139,27 +139,27 @@ texture texture_diffuse sandstone sandstone.jpg
 collision aabb
 
 #ramp 270
-position -5 1.5 -8.619
+position -5 1.5 -8
 rotation 0 270 0
-scale 4.443 1.603 0.8
+scale 3 1.5 0.8
 mesh slope
 shader model
 texture texture_diffuse sandstone sandstone.jpg
 collision slope
 
 #ramp 270 base box
-position -6.006 0 -8.619
+position -5.8 0 -8
 rotation 0 0 0
-scale 0.852 1.552 3.825
+scale 0.8 1.5 3
 mesh aabb
 shader model
 texture texture_diffuse sandstone sandstone.jpg
 collision aabb
 
 #ramp top platform
-position -5.903 0 -10.037
+position -5.8 0 -8.8
 rotation 0 0 0
-scale 3 3.103 1.573
+scale 3 3 0.8
 mesh aabb
 shader model
 texture texture_diffuse sandstone sandstone.jpg
@@ -168,7 +168,7 @@ collision aabb
 #smal upper platform
 position -4.8 2.8 -8
 rotation 0 0 0
-scale 2 0.355 0.8
+scale 2 0.2 0.8
 mesh aabb
 shader model
 texture texture_diffuse sandstone sandstone.jpg
@@ -177,16 +177,16 @@ collision aabb
 #big pillar
 position -4.4 0 -5.5
 rotation 0 0 0
-scale 4.699 4.124 0.303
+scale 4.699 5 0.303
 mesh aabb
 shader model
 texture texture_diffuse sandstone sandstone.jpg
 collision aabb
 
 #big pillar ramp 1
-position -4.4 0.978 -5.5
+position -4.4 1.7 -5.5
 rotation 0 90 0
-scale 1.619 2.743 4.132
+scale 1 1.3 1.4
 mesh slope
 shader model
 texture texture_diffuse sandstone sandstone.jpg
@@ -195,7 +195,7 @@ collision slope
 #pillar rock box
 position -3.8 2.3 -5.8
 rotation 0 0 0
-scale 0.79 1.7 0.455
+scale 0.79 1.7 0.3
 mesh aabb
 shader model
 texture texture_diffuse sandstone sandstone.jpg

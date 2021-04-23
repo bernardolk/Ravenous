@@ -394,8 +394,9 @@ void create_boilerplate_geometry()
 	glBindVertexArray(0);
 
    Mesh* text_mesh = new Mesh();
+   text_mesh->name = "text";
    text_mesh->gl_data = text_gl_data;
-   Geometry_Catalogue.insert({"text", text_mesh});
+   Geometry_Catalogue.insert({text_mesh->name, text_mesh});
 
    // GEOMETRY
 
@@ -424,11 +425,12 @@ void create_boilerplate_geometry()
    };
 
    auto aabb_mesh = new Mesh();
+   aabb_mesh->name = "aabb";
    aabb_mesh->vertices = aabb_vertex_vec;
    aabb_mesh->indices = aabb_vertex_indices;
    aabb_mesh->render_method = GL_TRIANGLES;
    aabb_mesh->gl_data = setup_gl_data_for_mesh(aabb_mesh);
-   Geometry_Catalogue.insert({"aabb", aabb_mesh});
+   Geometry_Catalogue.insert({aabb_mesh->name, aabb_mesh});
 
    // SLOPE
    vector<Vertex> slope_vertex_vec = {
@@ -452,11 +454,12 @@ void create_boilerplate_geometry()
    };
 
    auto slope_mesh = new Mesh();
+   slope_mesh->name = "slope";
    slope_mesh->vertices = slope_vertex_vec;
    slope_mesh->indices = slope_vertex_indices;
    slope_mesh->render_method = GL_TRIANGLES;
    slope_mesh->gl_data = setup_gl_data_for_mesh(slope_mesh);
-   Geometry_Catalogue.insert({"slope", slope_mesh});
+   Geometry_Catalogue.insert({slope_mesh->name, slope_mesh});
 
 
    // QUAD VBO
@@ -479,11 +482,12 @@ void create_boilerplate_geometry()
    };*/
 
    Mesh* quad_mesh = new Mesh();
+   quad_mesh->name = "quad";
    quad_mesh->vertices = quad_vertex_vec;
    quad_mesh->indices = quad_vertex_indices;
    quad_mesh->render_method = GL_TRIANGLES;
    quad_mesh->gl_data = setup_gl_data_for_mesh(quad_mesh);
-   Geometry_Catalogue.insert({"quad", quad_mesh});
+   Geometry_Catalogue.insert({quad_mesh->name, quad_mesh});
 
  // QUAD HORIZONTAL
    vector<Vertex> quad_horizontal_vertex_vec = {
@@ -494,19 +498,21 @@ void create_boilerplate_geometry()
    };
 
    Mesh* quad_horizontal_mesh = new Mesh();
+   quad_horizontal_mesh->name = "quad_horizontal";
    quad_horizontal_mesh->vertices = quad_horizontal_vertex_vec;
    quad_horizontal_mesh->indices = quad_vertex_indices;
    quad_horizontal_mesh->render_method = GL_TRIANGLES;
    quad_horizontal_mesh->gl_data = setup_gl_data_for_mesh(quad_horizontal_mesh);
-   Geometry_Catalogue.insert({"quad_horizontal", quad_horizontal_mesh});
+   Geometry_Catalogue.insert({quad_horizontal_mesh->name, quad_horizontal_mesh});
 
 
    // PLAYER CYLINDER
    Mesh* cylinder_mesh = new Mesh();
+   cylinder_mesh->name = "player_cylinder";
    cylinder_mesh->vertices = construct_cylinder(CYLINDER_RADIUS, CYLINDER_HALF_HEIGHT, 24);
    cylinder_mesh->render_method = GL_TRIANGLE_STRIP;
    cylinder_mesh->gl_data = setup_gl_data_for_mesh(cylinder_mesh);
-   Geometry_Catalogue.insert({"player_cylinder", cylinder_mesh});
+   Geometry_Catalogue.insert({cylinder_mesh->name, cylinder_mesh});
 }
 
 void render_text_overlay(Camera* camera, Player* player) 
@@ -600,8 +606,9 @@ void render_text_overlay(Camera* camera, Player* player)
    render_text(view_mode_text,        GUI_x, 50, 1.4);
    render_text(player_floor,          GUI_x, 75, 1.4);
 
-   render_text(time_step_string, G_DISPLAY_INFO.VIEWPORT_WIDTH - 130, 50, 1, vec3(0.8, 0.8, 0.2));
-   render_text(fps_gui,          G_DISPLAY_INFO.VIEWPORT_WIDTH - 100, 25, scale);
+   render_text(G_SCENE_INFO.scene_name,   G_DISPLAY_INFO.VIEWPORT_WIDTH - 100, 75, scale);
+   render_text(time_step_string,          G_DISPLAY_INFO.VIEWPORT_WIDTH - 130, 50, 1, vec3(0.8, 0.8, 0.2));
+   render_text(fps_gui,                   G_DISPLAY_INFO.VIEWPORT_WIDTH - 100, 25, scale);
 }
 
 
@@ -609,18 +616,18 @@ void render_text_overlay(Camera* camera, Player* player)
 void initialize_shaders() 
 {
    // text shader
-	auto text_shader = create_shader_program("Text Shader", "vertex_text", "fragment_text");
+	auto text_shader = create_shader_program("text", "vertex_text", "fragment_text");
    text_shader->use();
 	text_shader->setMatrix4("projection", glm::ortho(0.0f, G_DISPLAY_INFO.VIEWPORT_WIDTH, 0.0f, G_DISPLAY_INFO.VIEWPORT_HEIGHT));
-   Shader_Catalogue.insert({"text", text_shader});
+   Shader_Catalogue.insert({text_shader->name, text_shader});
 
    // general model shader
-   auto model_shader = create_shader_program("Model Shader", "vertex_model", "fragment_multiple_lights");
-   Shader_Catalogue.insert({"model", model_shader});
+   auto model_shader = create_shader_program("model", "vertex_model", "fragment_multiple_lights");
+   Shader_Catalogue.insert({model_shader->name, model_shader});
 
    // draw line shader
-	auto line_shader = create_shader_program("Line Shader", "vertex_debug_line", "fragment_debug_line");
-   Shader_Catalogue.insert({"line", line_shader});
+	auto line_shader = create_shader_program("line", "vertex_debug_line", "fragment_debug_line");
+   Shader_Catalogue.insert({line_shader->name, line_shader});
 }
 
 

@@ -19,6 +19,7 @@ struct Texture {
     unsigned int id;
     string type;
     string path;
+    string name;
 };
 
 struct Mesh {
@@ -26,6 +27,7 @@ struct Mesh {
     vector<unsigned int> indices;
     GLenum render_method;
     GLData gl_data;
+    string name;
 };
 
 

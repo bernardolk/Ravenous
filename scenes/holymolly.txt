@@ -1,0 +1,22 @@
+@player_position = -4 0.35 -8
+@player_initial_velocity = 0 0 0
+@player_state = 0
+@player_fall_acceleration = 13
+
+#floor
+position -15 0 -15
+rotation 0 0 0
+scale 30 0 30
+mesh quad_horizontal
+shader model
+texture texture_diffuse green green.jpg
+collision aabb
+
+#box danny
+position -6.382 0.206 -3
+rotation 0 90 0
+scale 4.254 1.849 1.3
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision aabb

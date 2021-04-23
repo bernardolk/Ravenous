@@ -27,4 +27,5 @@ struct Player {
    float half_height;
    vec3 prior_position = vec3(0);
    vec3 initial_velocity = vec3(0);
+   PlayerStateEnum initial_player_state;
 };
