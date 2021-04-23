@@ -524,7 +524,7 @@ CollisionData check_for_floor_below_player(Player* player)
 {
    Entity **entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
    int entities_vec_size =  G_SCENE_INFO.active_scene->entities.size();
-   float min_distance = 0.08;  // CONTROLS MAX HEIGHT FOR PLAYER TO NOT FALL STRAIGHT WHEN QUITTING PLATFORM
+   float min_distance = 0.02;  // CONTROLS MAX HEIGHT FOR PLAYER TO NOT FALL STRAIGHT WHEN QUITTING PLATFORM
    CollisionData response;
 	for(int it = 0; it < entities_vec_size; it++) 
    {
