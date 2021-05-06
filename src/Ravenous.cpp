@@ -152,6 +152,38 @@ std::map<string, Mesh*> Geometry_Catalogue;
 std::map<string, Shader*> Shader_Catalogue;
 std::map<string, Texture> Texture_Catalogue;
 
+struct GlobalImmediateDraw {
+   Mesh* meshes[10];
+   string labels[10];
+   int ind = 0;
+   void add(string label, vec3* triangles, int n = 1)
+   {
+      // build vertex vector
+      vector<Vertex> vertex_vec;
+      for (int i = 0; i < n; i++)
+         vertex_vec.push_back(Vertex{triangles[i]});
+
+      // if present, update positions only
+      for(int i = 0; i < ind; i ++)
+         if (labels[i] == label)
+         {
+            meshes[i]->vertices = vertex_vec;
+            return;
+         }
+
+      // if new, create new mesh      
+      auto mesh = new Mesh();
+      mesh->name = label;
+      mesh->vertices = vertex_vec;
+      if (n == 1)
+         mesh->render_method = GL_POINT;
+      else
+         mesh->render_method = GL_TRIANGLE_STRIP;
+      mesh->gl_data = setup_gl_data_for_mesh(mesh);
+      meshes[ind++] = mesh;
+   }
+} G_IMMEDIATE_DRAW;
+
 #include <render.h>
 
 // GLOBAL STRUCT VARIABLES (WITH CUSTOM TYPES)
@@ -181,6 +213,8 @@ struct GlobalBuffers {
 } G_BUFFERS;
 
 bool compare_vec2(vec2 vec1, vec2 vec2);
+
+
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -277,6 +311,7 @@ int main()
          {
             handle_input_flags(input_flags, player);
             Editor::start_frame();
+            break;
          }
          default:
          {
@@ -309,6 +344,8 @@ int main()
             break;
          }
       }
+      Editor::debug_entities();
+      render_immediate(&G_IMMEDIATE_DRAW);
 
       // FINISH FRAME
 		glfwSwapBuffers(G_DISPLAY_INFO.window);

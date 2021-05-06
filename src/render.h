@@ -32,20 +32,7 @@ void render_entity(Entity* entity)
    }
 
    // draw mesh
-   glBindVertexArray(entity->mesh.gl_data.VAO);
-   if(entity->mesh.render_method == GL_TRIANGLE_STRIP) 
-   {
-      glDrawArrays(GL_TRIANGLE_STRIP, 0, entity->mesh.vertices.size());
-   }
-   else if(entity->mesh.render_method == GL_LINE_LOOP)
-   {
-      glDrawArrays(GL_LINE_LOOP, 0, entity->mesh.vertices.size());
-   }
-   else
-   {
-      glDrawElements(GL_TRIANGLES,  entity->mesh.indices.size(), GL_UNSIGNED_INT, 0);
-   }  
-   glBindVertexArray(0);
+   entity->mesh.draw();
 
    // always good practice to set everything back to defaults once configured.
    glActiveTexture(GL_TEXTURE0);
@@ -90,6 +77,12 @@ void render_scene(Scene* scene, Camera* camera)
 
       render_entity(entity);
 	}
+}
+
+void render_immediate(GlobalImmediateDraw* im)
+{
+   for(int i = 0; i < im->ind; i++)
+      im->meshes[i]->draw();
 }
 
 void render_text(std::string text, float x, float y, float scale, vec3 color) 

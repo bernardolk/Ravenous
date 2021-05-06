@@ -23,6 +23,24 @@ void end_frame();
 void initialize();
 void terminate();
 
+void debug_entities()
+{
+   Entity **entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
+   int entities_vec_size =  G_SCENE_INFO.active_scene->entities.size();
+	for(int it = 0; it < entities_vec_size; it++) 
+   {
+	   auto entity = *entity_iterator++;
+
+      if(entity->name == "small upper platform")
+      {
+         auto temp_col = entity->collision_geometry.aabb;
+         G_IMMEDIATE_DRAW.add("s1", &entity->position);
+         //G_IMMEDIATE_DRAW.add(entity.position + vec3(temp_col.length_x, 0, 0));
+         //G_IMMEDIATE_DRAW.add(entity.position);
+      }
+   }
+}
+
 
 void check_selection_click()
 {
