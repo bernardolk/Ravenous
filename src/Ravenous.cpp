@@ -135,8 +135,6 @@ void print_every_3rd_frame(std::string thing, std::string prefix)
 }
 
 
-
-
 // SOURCE INCLUDES
 #include <text.h>
 #include <shader.h>
@@ -154,9 +152,9 @@ std::map<string, Texture> Texture_Catalogue;
 
 struct GlobalImmediateDraw {
    Mesh* meshes[10];
-   string labels[10];
+   int  ids[10];
    int ind = 0;
-   void add(string label, vec3* triangles, int n = 1)
+   void add(int id, vec3* triangles, int n = 1)
    {
       // build vertex vector
       vector<Vertex> vertex_vec;
@@ -165,7 +163,7 @@ struct GlobalImmediateDraw {
 
       // if present, update positions only
       for(int i = 0; i < ind; i ++)
-         if (labels[i] == label)
+         if (ids[i] == id)
          {
             meshes[i]->vertices = vertex_vec;
             return;
@@ -173,15 +171,15 @@ struct GlobalImmediateDraw {
 
       // if new, create new mesh      
       auto mesh = new Mesh();
-      mesh->name = label;
       mesh->vertices = vertex_vec;
       if (n == 1)
-         mesh->render_method = GL_POINT;
+         mesh->render_method = GL_POINTS;
       else
          mesh->render_method = GL_TRIANGLE_STRIP;
       mesh->gl_data = setup_gl_data_for_mesh(mesh);
+      ids[ind] = id;
       meshes[ind++] = mesh;
-   }
+   };
 } G_IMMEDIATE_DRAW;
 
 #include <render.h>
@@ -251,7 +249,6 @@ void check_view_mode(Player* player);
 void start_frame();
 
 
-
 int main() 
 {
    // reads from camera position file
@@ -273,6 +270,7 @@ int main()
 	// gl enables
 	glEnable(GL_DEPTH_TEST);
    glEnable(GL_BLEND);
+   glEnable(GL_PROGRAM_POINT_SIZE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// SHADERS
@@ -345,7 +343,7 @@ int main()
          }
       }
       Editor::debug_entities();
-      render_immediate(&G_IMMEDIATE_DRAW);
+      render_immediate(&G_IMMEDIATE_DRAW, G_SCENE_INFO.camera);
 
       // FINISH FRAME
 		glfwSwapBuffers(G_DISPLAY_INFO.window);
@@ -665,6 +663,10 @@ void initialize_shaders()
    // draw line shader
 	auto line_shader = create_shader_program("line", "vertex_debug_line", "fragment_debug_line");
    Shader_Catalogue.insert({line_shader->name, line_shader});
+
+   // immediate draw shaders
+   auto im_point_shader = create_shader_program("immediate_point", "vertex_point", "fragment_point");
+   Shader_Catalogue.insert({im_point_shader->name, im_point_shader});
 }
 
 

@@ -79,10 +79,24 @@ void render_scene(Scene* scene, Camera* camera)
 	}
 }
 
-void render_immediate(GlobalImmediateDraw* im)
+void render_immediate(GlobalImmediateDraw* im, Camera* camera)
 {
    for(int i = 0; i < im->ind; i++)
-      im->meshes[i]->draw();
+   {
+      auto mesh = im->meshes[i];
+      switch(mesh->render_method)
+      {
+         case GL_POINTS:
+         {
+            auto find = Shader_Catalogue.find("immediate_point");
+            auto shader = find->second;
+            shader-> use();
+            shader-> setMatrix4("view",        camera->View4x4);
+            shader-> setMatrix4("projection",  camera->Projection4x4);
+         }
+      }
+      mesh->draw();
+   }
 }
 
 void render_text(std::string text, float x, float y, float scale, vec3 color) 

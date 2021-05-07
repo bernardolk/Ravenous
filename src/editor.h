@@ -33,8 +33,8 @@ void debug_entities()
 
       if(entity->name == "small upper platform")
       {
-         auto temp_col = entity->collision_geometry.aabb;
-         G_IMMEDIATE_DRAW.add("s1", &entity->position);
+         //auto temp_col = entity->collision_geometry.aabb;
+         G_IMMEDIATE_DRAW.add(1, &entity->position);
          //G_IMMEDIATE_DRAW.add(entity.position + vec3(temp_col.length_x, 0, 0));
          //G_IMMEDIATE_DRAW.add(entity.position);
       }
