@@ -151,8 +151,9 @@ std::map<string, Shader*> Shader_Catalogue;
 std::map<string, Texture> Texture_Catalogue;
 
 struct GlobalImmediateDraw {
-   Mesh* meshes[10];
-   int  ids[10];
+   const static int IM_BUFFER_SIZE = 20;
+   Mesh* meshes[IM_BUFFER_SIZE];
+   int  ids[IM_BUFFER_SIZE];
    int ind = 0;
    void add(int id, vec3* triangles, int n = 1)
    {

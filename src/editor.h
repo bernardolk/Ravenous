@@ -22,6 +22,9 @@ void start_frame();
 void end_frame();
 void initialize();
 void terminate();
+void debug_entities();
+void immediate_draw_aabb_boundaries(Entity* entity, int first_id);
+
 
 void debug_entities()
 {
@@ -33,12 +36,25 @@ void debug_entities()
 
       if(entity->name == "small upper platform")
       {
-         //auto temp_col = entity->collision_geometry.aabb;
-         G_IMMEDIATE_DRAW.add(1, &entity->position);
-         //G_IMMEDIATE_DRAW.add(entity.position + vec3(temp_col.length_x, 0, 0));
-         //G_IMMEDIATE_DRAW.add(entity.position);
+         immediate_draw_aabb_boundaries(entity, 1);
       }
    }
+}
+
+void immediate_draw_aabb_boundaries(Entity* entity, int first_id)
+{
+   auto temp_col = entity->collision_geometry.aabb;
+   G_IMMEDIATE_DRAW.add(first_id + 1, &entity->position);
+   G_IMMEDIATE_DRAW.add(first_id + 2, &(entity->position + vec3(0, temp_col.length_y, 0)));
+
+   G_IMMEDIATE_DRAW.add(first_id + 3, &(entity->position + vec3(temp_col.length_x, 0, 0)));
+   G_IMMEDIATE_DRAW.add(first_id + 4, &(entity->position + vec3(temp_col.length_x, temp_col.length_y, 0)));
+
+   G_IMMEDIATE_DRAW.add(first_id + 5, &(entity->position + vec3(0, 0, temp_col.length_z)));
+   G_IMMEDIATE_DRAW.add(first_id + 6, &(entity->position + vec3(0, temp_col.length_y, temp_col.length_z)));
+
+   G_IMMEDIATE_DRAW.add(first_id + 7, &(entity->position + vec3(temp_col.length_x, 0, temp_col.length_z)));
+   G_IMMEDIATE_DRAW.add(first_id + 8, &(entity->position + vec3(temp_col.length_x, temp_col.length_y, temp_col.length_z)));
 }
 
 
