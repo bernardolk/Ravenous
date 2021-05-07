@@ -28,24 +28,25 @@ void immediate_draw_aabb_boundaries(Entity* entity, int first_id);
 
 void debug_entities()
 {
-   Entity **entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
-   int entities_vec_size =  G_SCENE_INFO.active_scene->entities.size();
-	for(int it = 0; it < entities_vec_size; it++) 
-   {
-	   auto entity = *entity_iterator++;
+   // Entity **entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
+   // int entities_vec_size =  G_SCENE_INFO.active_scene->entities.size();
+	// for(int it = 0; it < entities_vec_size; it++) 
+   // {
+	//    auto entity = *entity_iterator++;
 
-      if(entity->name == "small upper platform")
-      {
-         immediate_draw_aabb_boundaries(entity, 1);
-      }
-   }
+   //    if(entity->name == "small upper platform")
+   //    {
+   //       immediate_draw_aabb_boundaries(entity, 1);
+   //    }
+   // }
+
+   G_IMMEDIATE_DRAW.reset();
 }
 
-void immediate_draw_aabb_boundaries(Entity* entity, int id)
+void immediate_draw_aabb_boundaries(Entity* entity)
 {
    auto temp_col = entity->collision_geometry.aabb;
    G_IMMEDIATE_DRAW.add(
-      id,
       vector<Vertex>{
          Vertex{entity->position},
          Vertex{entity->position + vec3(0, temp_col.length_y, 0)},
@@ -150,6 +151,12 @@ void render_entity_panel(EntityPanelContext* context)
    {
       Context.entity_panel.entity->set_scale(scale);
    }
+   
+   // show boundaries
+   bool show_boundaries = false;
+   ImGui::Checkbox("Show collision geometry boundaries", &show_boundaries);
+   if(show_boundaries)
+      immediate_draw_aabb_boundaries(entity);
 
    ImGui::End();
 }

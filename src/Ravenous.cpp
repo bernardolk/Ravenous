@@ -153,26 +153,21 @@ std::map<string, Texture> Texture_Catalogue;
 struct GlobalImmediateDraw {
    const static int IM_BUFFER_SIZE = 20;
    Mesh* meshes[IM_BUFFER_SIZE];
-   int  ids[IM_BUFFER_SIZE];
    int ind = 0;
-   void add(int id, vector<Vertex> vertex_vec, GLenum draw_method)
+   void add(vector<Vertex> vertex_vec, GLenum draw_method)
    {
-      // if present, update positions only
-      for(int i = 0; i < ind; i ++)
-         if (ids[i] == id)
-         {
-            meshes[i]->vertices = vertex_vec;
-            return;
-         }
-
-      // if new, create new mesh      
       auto mesh = new Mesh();
       mesh->vertices = vertex_vec;
       mesh->render_method = draw_method;
       mesh->gl_data = setup_gl_data_for_mesh(mesh);
-      ids[ind] = id;
       meshes[ind++] = mesh;
    };
+   void reset()
+   {
+      for (int i = 0; i < ind; i++)
+         meshes[i] = NULL;
+      ind = 0;
+   }
 } G_IMMEDIATE_DRAW;
 
 #include <render.h>
