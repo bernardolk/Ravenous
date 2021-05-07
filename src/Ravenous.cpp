@@ -155,13 +155,8 @@ struct GlobalImmediateDraw {
    Mesh* meshes[IM_BUFFER_SIZE];
    int  ids[IM_BUFFER_SIZE];
    int ind = 0;
-   void add(int id, vec3* triangles, int n = 1)
+   void add(int id, vector<Vertex> vertex_vec, GLenum draw_method)
    {
-      // build vertex vector
-      vector<Vertex> vertex_vec;
-      for (int i = 0; i < n; i++)
-         vertex_vec.push_back(Vertex{triangles[i]});
-
       // if present, update positions only
       for(int i = 0; i < ind; i ++)
          if (ids[i] == id)
@@ -173,10 +168,7 @@ struct GlobalImmediateDraw {
       // if new, create new mesh      
       auto mesh = new Mesh();
       mesh->vertices = vertex_vec;
-      if (n == 1)
-         mesh->render_method = GL_POINTS;
-      else
-         mesh->render_method = GL_TRIANGLE_STRIP;
+      mesh->render_method = draw_method;
       mesh->gl_data = setup_gl_data_for_mesh(mesh);
       ids[ind] = id;
       meshes[ind++] = mesh;
