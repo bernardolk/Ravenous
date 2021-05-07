@@ -23,24 +23,21 @@ void end_frame();
 void initialize();
 void terminate();
 void debug_entities();
-void immediate_draw_aabb_boundaries(Entity* entity, int first_id);
+void immediate_draw_aabb_boundaries(Entity* entity);
 
 
 void debug_entities()
 {
-   // Entity **entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
-   // int entities_vec_size =  G_SCENE_INFO.active_scene->entities.size();
-	// for(int it = 0; it < entities_vec_size; it++) 
-   // {
-	//    auto entity = *entity_iterator++;
+   Entity **entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
+   int entities_vec_size =  G_SCENE_INFO.active_scene->entities.size();
+	for(int it = 0; it < entities_vec_size; it++) 
+   {
+	   auto entity = *entity_iterator++;
 
-   //    if(entity->name == "small upper platform")
-   //    {
-   //       immediate_draw_aabb_boundaries(entity, 1);
-   //    }
-   // }
-
-   G_IMMEDIATE_DRAW.reset();
+      if(entity->name == "small upper platform")
+         immediate_draw_aabb_boundaries(entity);
+      
+   }
 }
 
 void immediate_draw_aabb_boundaries(Entity* entity)

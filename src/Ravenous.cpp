@@ -326,11 +326,11 @@ int main()
          case EDITOR_MODE:
          {
             Editor::render();
+            Editor::debug_entities();
             render_text_overlay(G_SCENE_INFO.camera, player);
             break;
          }
       }
-      Editor::debug_entities();
       render_immediate(&G_IMMEDIATE_DRAW, G_SCENE_INFO.camera);
 
       // FINISH FRAME

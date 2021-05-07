@@ -560,6 +560,11 @@ CollisionData check_for_floor_below_player_when_slope(Player* player, bool only_
       {
          auto check = sample_terrain_height_at_player(player->entity_ptr, entity);
          float y_diff = (player->entity_ptr->position.y - player->half_height) - check.overlap; //here overlap is height...
+         if(abs(y_diff) > 0.08)
+         {
+            entity_iterator++;
+            continue;
+         }
          float y_diff_check = only_check_player_tunnelling ? y_diff : abs(y_diff);
          if(check.is_collided && y_diff_check < min_distance) 
          {

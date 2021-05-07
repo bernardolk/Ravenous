@@ -97,6 +97,8 @@ void render_immediate(GlobalImmediateDraw* im, Camera* camera)
       }
       mesh->draw();
    }
+   
+   G_IMMEDIATE_DRAW.reset();
 }
 
 void render_text(std::string text, float x, float y, float scale, vec3 color) 
