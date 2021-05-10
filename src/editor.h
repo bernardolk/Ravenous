@@ -127,22 +127,27 @@ void render_entity_panel(EntityPanelContext* context)
 
    // scale
    auto scale = vec3{context->entity->scale};
+   vec3 min_scales {
+      context->original_scale.x - 4,
+      context->original_scale.y - 4,
+      context->original_scale.z - 4
+   };
    if(ImGui::SliderFloat(
       "scale x",
       &scale.x,
-      context->original_scale.x - 4,
+      min_scales.x < 0 ? 0: min_scales.x,
       context->original_scale.x + 4
    ) ||
    ImGui::SliderFloat(
       "scale y",
       &scale.y,
-      context->original_scale.y - 4,
+      min_scales.y < 0 ? 0: min_scales.y,
       context->original_scale.y + 4
    ) ||
    ImGui::SliderFloat(
       "scale z", 
       &scale.z,
-      context->original_scale.z - 4,
+      min_scales.z < 0 ? 0: min_scales.z,
       context->original_scale.z + 4
    ))
    {

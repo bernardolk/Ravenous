@@ -343,6 +343,46 @@ void check_letter_key_presses(InputFlags flags)
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = 'm';
    }
+   if(pressed_once(flags, KEY_1))
+   {  
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = '1';
+   }
+   if(pressed_once(flags, KEY_2))
+   {  
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = '2';
+   }
+   if(pressed_once(flags, KEY_3))
+   {  
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = '3';
+   }
+   if(pressed_once(flags, KEY_4))
+   {  
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = '4';
+   }
+   if(pressed_once(flags, KEY_5))
+   {  
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = '5';
+   }
+   if(pressed_once(flags, KEY_6))
+   {  
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = '6';
+   }
+   if(pressed_once(flags, KEY_7))
+   {  
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = '7';
+   }
+   if(pressed_once(flags, KEY_8))
+   {  
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = '8';
+   }
+   if(pressed_once(flags, KEY_9))
+   {  
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = '9';
+   }
+   if(pressed_once(flags, KEY_0))
+   {  
+      CONSOLE.scratch_buffer[CONSOLE.c_ind++] = '0';
+   }
    if(pressed_once(flags, KEY_SPACE))
    {  
       CONSOLE.scratch_buffer[CONSOLE.c_ind++] = ' ';
