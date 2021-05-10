@@ -304,7 +304,7 @@ bool intersects_vertically_slope(Entity* entity, Entity* player)
    float player_bottom = player->position.y - player_collision_geometry.half_length;
    float player_top = player->position.y + player_collision_geometry.half_length;
 
-   auto y_values = get_slope_heights_at_player(player, entity);
+   auto player_slope_y = get_slope_heights_at_player(player, entity);
 
    // first we clip horizontally, checking if the y_values calculated based on player horizontal position are
    // inside the [slope_bottom, slope_top] range
@@ -312,7 +312,10 @@ bool intersects_vertically_slope(Entity* entity, Entity* player)
    if(player_bottom >= slope_top || player_top <= slope_bottom)
       return false;
 
-   if(y_values.min < slope_top && y_values.max > slope_bottom && player_bottom < y_values.max && player_top > slope_bottom)
+   float diff_top = slope_top - player_slope_y.min; // positive
+   float diff_bottom = player_slope_y.max - slope_bottom; // positive
+
+   if(diff_top > 0.08 && diff_bottom > 0.08)
       return true;
 
    return false;
