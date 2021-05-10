@@ -541,6 +541,7 @@ void make_player_slide_fall(Player* player, CollisionData collision_data)
 CollisionData check_collision_horizontal(Player* player, EntityBufferElement* entity_iterator, size_t entity_list_size) 
 {
    CollisionData return_cd; 
+   // this serves only to enable us to check for standing_entity_ptr, otherwise its NULL and we get an exception
    bool player_qualifies_as_standing = 
       player->player_state == PLAYER_STATE_STANDING || 
       player->player_state == PLAYER_STATE_SLIDING ||
