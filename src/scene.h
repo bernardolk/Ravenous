@@ -3,7 +3,7 @@ bool load_scene_from_file(std::string scene_name);
 void parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, std::string path);
 void parse_and_load_attribute(Parser::Parse p, ifstream* reader, int& line_count, std::string path, Player* player);
 void setup_scene_boilerplate_stuff();
-void save_player_position_to_file(string scene_name);
+bool save_player_position_to_file(string scene_name, Player* player);
 bool save_scene_to_file(string scene_name, Player* player, bool do_copy);
 
 bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
@@ -459,7 +459,60 @@ void setup_scene_boilerplate_stuff()
    G_SCENE_INFO.player = player;
 }
 
-void save_player_position_to_file(string scene_name)
+bool save_player_position_to_file(string scene_name, Player* player)
 {
-   // NOT IMPLEMENTED
+   // string path = SCENES_FOLDER_PATH + scene_name + ".txt";
+
+   // ifstream reader(path);
+   // if(!reader.is_open())
+   // {
+   //    cout << "Saving player's position failed. Couldn't open file for reading.\n";
+   //    return false;
+   // }
+
+   // // starts reading
+   // std::string line;
+   // Parser::Parse p;
+   // int line_count = 0;
+
+   // // parses entity
+   // while(parser_nextline(&reader, &line, &p))
+   // {
+   //    line_count++;
+   //    p = parse_symbol(p);
+   //    if(p.cToken == '@')
+   //    {
+   //       p = parse_token(p);
+   //       std::string attribute = p.string_buffer;
+
+   //       p = parse_all_whitespace(p);
+   //       p = parse_symbol(p);
+   //       // ignore '=' symbol
+
+   //       if(attribute == "player_position")
+   //       {
+   //          reader.close();
+   //          ofstream writer(path);
+   //          if(!writer.is_open())
+   //          {
+   //             cout << "Saving player's position failed. Couldn't open file for writing.\n";
+   //             return false;
+   //          }
+
+   //          for(int i = 0; i < line_count; i++)
+   //             getline(writer, line);
+
+   //          writer << "@player_position = " 
+   //             << player->entity_ptr->position.x << " " 
+   //             << player->entity_ptr->position.y << " "
+   //             << player->entity_ptr->position.z << "\n";
+            
+   //          writer.close();
+   //          return true;
+   //       }
+   //    }
+   // }
+
+   // cout << "No lines have been changed while trying to save player's position.\n";
+   return false;
 }

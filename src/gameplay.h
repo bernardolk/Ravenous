@@ -765,18 +765,6 @@ void handle_input_flags(InputFlags flags, Player* &player)
    {
       G_FRAME_INFO.time_step = 2.0;
    }
-   if(pressed_once(flags, KEY_0))
-   {
-     save_player_position_to_file(G_SCENE_INFO.scene_name);
-   }
-   if(flags.key_press & KEY_9)
-   {
-      save_camera_settings_to_file(
-         CAMERA_FILE_PATH,
-         G_SCENE_INFO.camera->Position,
-         G_SCENE_INFO.camera->Front
-      );
-   }
    if(flags.key_press & KEY_K)
    {
       bool loaded = load_scene_from_file(G_SCENE_INFO.scene_name);

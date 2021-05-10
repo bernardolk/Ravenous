@@ -38,6 +38,18 @@ bool parser_nextline(ifstream* reader, std::string* line, Parse* toparse)
    return false;
 }
 
+bool parser_nextline(fstream* reader, std::string* line, Parse* toparse)
+{
+   if(getline(*reader, *line))
+   {
+      toparse->string = line->c_str();
+      toparse->size = line->size();
+
+      return true;
+   }
+   return false;
+}
+
 
 inline Parse parse_whitespace(Parse toparse) 
 {

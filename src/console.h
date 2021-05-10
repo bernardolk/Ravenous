@@ -150,9 +150,25 @@ void execute_command(string buffer_line, Player* &player)
    {
       p = parse_whitespace(p);
       p = parse_token(p);
-      const string scene_name = p.string_buffer;
-      save_scene_to_file(scene_name, player, false);
+      const string argument = p.string_buffer;
+      // if(argument == "p")
+      // {
+      //    save_player_position_to_file(G_SCENE_INFO.scene_name, player);
+      // }
+      if(argument == "c")
+      {
+         save_camera_settings_to_file(
+            CAMERA_FILE_PATH,
+            G_SCENE_INFO.camera->Position,
+            G_SCENE_INFO.camera->Front
+         );
+      }
+      else
+      {
+         save_scene_to_file(argument, player, false);
+      }
    }
+
    else if(command == "copy")
    {
       p = parse_whitespace(p);
