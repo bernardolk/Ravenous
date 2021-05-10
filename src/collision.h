@@ -304,18 +304,23 @@ bool intersects_vertically_slope(Entity* entity, Entity* player)
    float player_bottom = player->position.y - player_collision_geometry.half_length;
    float player_top = player->position.y + player_collision_geometry.half_length;
 
-   // check for player as a point
-   if(player_bottom >= slope_top || player_top <= slope_bottom)
+   // check for player as a point, with tolerances
+   if(player_bottom + 0.08 >= slope_top || player_top - 0.08 <= slope_bottom)
       return false;
 
-   // cosnider player as a cylinder, with 2 touching points in the slope (c - r, c + r)
+   // considers player as a cylinder, with 2 touching points in the slope (c - r, c + r)
    auto player_slope_y = get_slope_heights_at_player(player, entity);
 
    float diff_top = slope_top - player_slope_y.min;
    float diff_bottom = player_slope_y.max - slope_bottom;
 
-   if(diff_top > 0.08 && diff_bottom > 0.08 && player_bottom < player_slope_y.max)
-      return true;
+   // second line will be useful when player is 'outside' slope and touches it front-on
+   if(diff_top > 0 && diff_bottom > 0 &&
+      (diff_top > 0.08 || diff_bottom > 0.08) && 
+      player_bottom < player_slope_y.max)
+      {
+         return true;
+      }
 
    return false;
 }
