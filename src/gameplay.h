@@ -17,8 +17,7 @@ void update_player_state(Player* &player)
 {
    Entity* &player_entity = player->entity_ptr;
 
-   auto player_speed =  glm::length(player_entity->velocity);
-
+   cout << "->" << player_entity->velocity.y << "\n";
    if(player->lives <= 0)
    {
       player_death_handler(player);
@@ -332,7 +331,10 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
 
             // hurts player if necessary
             {
-               if(glm::length(player->entity_ptr->velocity) > 8)
+               auto player_speed_y = -1 * player->entity_ptr->velocity.y;
+               if(player_speed_y > 8)
+                  player->lives -= 2;
+               else if(player_speed_y > 6.5)
                   player->lives -= 1;
             }
 

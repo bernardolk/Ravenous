@@ -166,9 +166,9 @@ texture texture_diffuse sandstone sandstone.jpg
 collision aabb
 
 #small upper platform
-position -4.8 4.903 -8
+position -5.707 4.532 -8
 rotation 0 0 0
-scale 2 0.231 0.8
+scale 2 0.654 0.8
 mesh aabb
 shader model
 texture texture_diffuse sandstone sandstone.jpg

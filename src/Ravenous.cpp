@@ -41,6 +41,7 @@ const string SHADERS_FOLDER_PATH = PROJECT_PATH + "/shaders/";
 const string CAMERA_FILE_PATH = PROJECT_PATH + "/camera.txt";
 const string SCENES_FOLDER_PATH = PROJECT_PATH + "/scenes/";
 const string SHADERS_FILE_EXTENSION = ".shd";
+const string CONFIG_FILE_PATH = PROJECT_PATH + "/config.txt";
 
 // PLAYER CYLINDER SETTINGS ... !!!
 float CYLINDER_HALF_HEIGHT = 0.35f;
@@ -104,6 +105,10 @@ struct GlobalFrameInfo {
    u16 frame_counter_10 = 0;
    float time_step = 1;
 } G_FRAME_INFO;
+
+struct ProgramConfig {
+   string initial_scene;
+} G_CONFIG;
 
 #include <mesh.h>
 
@@ -233,6 +238,8 @@ EntityBuffer* allocate_entity_buffer(size_t size);
 void update_buffers();
 void check_view_mode(Player* player);
 void start_frame();
+ProgramConfig load_configs();
+bool save_configs();
 
 
 int main() 
@@ -249,6 +256,7 @@ int main()
    G_SCENE_INFO.views[0] = editor_camera;
    G_SCENE_INFO.views[1] = first_person_camera;
 
+   G_CONFIG = load_configs();
 
 	// INITIAL GLFW AND GLAD SETUPS
 	setup_window(true);
@@ -264,7 +272,7 @@ int main()
    initialize_shaders();
    create_boilerplate_geometry();
 
-   load_scene_from_file("test");
+   load_scene_from_file(G_CONFIG.initial_scene);
 
    Player* player = G_SCENE_INFO.player;
 
@@ -402,6 +410,70 @@ void update_buffers()
          entity_iterator++;
       }
    }
+}
+
+ProgramConfig load_configs()
+{
+   ifstream reader(CONFIG_FILE_PATH);
+
+   if(!reader.is_open())
+   {
+      cout << "FATAL: Cant load config file '" + CONFIG_FILE_PATH + "', path NOT FOUND \n";  
+      assert(false);
+   }
+
+   auto config = ProgramConfig();
+
+   // starts reading
+   std::string line;
+   Parser::Parse p;
+   int line_count = 0;
+
+   // parses entity
+   while(parser_nextline(&reader, &line, &p))
+   {
+      line_count++;
+      p = parse_token(p);
+      string attribute = p.string_buffer;
+
+      p = parse_all_whitespace(p);
+      p = parse_symbol(p);
+      if(p.cToken != '=')
+      {
+         std::cout << 
+            "SYNTAX ERROR, MISSING '=' CHARACTER AT SCENE DESCRIPTION FILE ('" << 
+            CONFIG_FILE_PATH  << 
+            "') LINE NUMBER " << 
+            line_count << "\n";
+            
+         assert(false);
+      }
+      
+      p = parse_all_whitespace(p);
+      p = parse_token(p);
+      string value = p.string_buffer;
+
+      if(attribute == "scene")
+      {
+         config.initial_scene = value;
+      }
+
+   }
+
+   return config;
+}
+
+bool save_configs()
+{
+   // string path = CONFIG_FILE + ".txt";
+
+   // ofstream writer(path);
+   // if(!writer.is_open())
+   // {
+   //    cout << "Saving scene failed.\n";
+   //    return false;
+   // }
+   return false;
 }
 
 
