@@ -1,5 +1,5 @@
 void handle_input_flags(InputFlags flags, Player* &player);
-void update_player_state(Player* player);
+void update_player_state(Player* &player);
 void make_player_slide(Player* player, CollisionData collision_data);
 void make_player_slide_fall(Player* player, CollisionData collision_data);
 void run_collision_checks_standing(Player* player, Entity** entity_iterator, size_t entity_list_size);
@@ -8,13 +8,22 @@ CollisionData check_collision_horizontal(
       Player* player, EntityBufferElement* entity_iterator, size_t entity_list_size
 ); 
 CollisionData check_collision_vertical(Player* player, EntityBufferElement* entity_iterator, size_t entity_list_size);
+void player_death_handler(Player* &player);
 
 float SLIDE_MAX_ANGLE = 1.4;
 float SLIDE_MIN_ANGLE = 0.6;
 
-void update_player_state(Player* player)
+void update_player_state(Player* &player)
 {
    Entity* &player_entity = player->entity_ptr;
+
+   auto player_speed =  glm::length(player_entity->velocity);
+
+   if(player->lives <= 0)
+   {
+      player_death_handler(player);
+      return;
+   }
 
    // makes player move and register player last position
    player->prior_position = player_entity->position;
@@ -320,6 +329,13 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
          if(collision_data.collided_entity_ptr != NULL)
          {
             any_collision = true;
+
+            // hurts player if necessary
+            {
+               if(glm::length(player->entity_ptr->velocity) > 8)
+                  player->lives -= 1;
+            }
+
             // marks entity in entity buffer as checked so we dont check collisions for this entity twice (nor infinite loop)
             {
                entity_iter = entity_buffer->buffer;
@@ -610,7 +626,7 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
          // set current entity as collided one
          if(set_collided_entity)
          {
-            cout << "horizontal collision with '" << entity->name << "'\n";
+            // cout << "horizontal collision with '" << entity->name << "'\n";
             biggest_overlap = c.overlap;
 
             return_cd.is_collided = true;
@@ -1039,3 +1055,12 @@ void handle_input_flags(InputFlags flags, Player* &player)
    G_INPUT_INFO.key_state &= ~(flags.key_release); 
 }
 
+void player_death_handler(Player* &player)
+{
+   bool loaded = load_scene_from_file(G_SCENE_INFO.scene_name);
+   if(loaded)
+   {
+      player = G_SCENE_INFO.player; // not irrelevant! do not delete
+      player->entity_ptr->render_me = PROGRAM_MODE.current == EDITOR_MODE ? true : false;
+   }
+}

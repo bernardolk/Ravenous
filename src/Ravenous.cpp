@@ -200,8 +200,6 @@ struct GlobalBuffers {
 
 bool compare_vec2(vec2 vec1, vec2 vec2);
 
-
-
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -328,6 +326,11 @@ int main()
             Editor::render();
             Editor::debug_entities();
             render_text_overlay(G_SCENE_INFO.camera, player);
+            break;
+         }
+         case GAME_MODE:
+         {
+            render_game_gui(player);
             break;
          }
       }
@@ -671,7 +674,7 @@ void initialize_shaders()
 }
 
 
-std::string format_float_tostr(float num, int precision) 
+string format_float_tostr(float num, int precision) 
 {
 	string temp = std::to_string(num);
 	return temp.substr(0, temp.find(".") + 3);

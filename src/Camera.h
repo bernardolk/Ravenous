@@ -29,8 +29,6 @@ struct Camera {
    float orbital_angle = 0;
 };
 
-
-
 // Prototypes
 void camera_update(Camera* camera, float viewportWidth, float viewportHeight, Player* player);
 void camera_change_direction(Camera* camera, float yawOffset, float pitchOffset);
@@ -42,7 +40,6 @@ void save_camera_settings_to_file(string path, vec3 position, vec3 direction);
 float* load_camera_settings(string path);
 void set_camera_to_free_roam(Camera* camera);
 void set_camera_to_third_person(Camera* camera, Player* player);
-
 
 // Functions
 void set_camera_to_free_roam(Camera* camera)

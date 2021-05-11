@@ -1,4 +1,4 @@
-@player_position = -5.14274 3.453 -9.02139
+@player_position = -3.5512 3.453 -9.88344
 @player_initial_velocity = 0 0 0
 @player_state = 0
 @player_fall_acceleration = 13
@@ -166,7 +166,7 @@ texture texture_diffuse sandstone sandstone.jpg
 collision aabb
 
 #small upper platform
-position -4.8 4.326 -8
+position -4.8 4.903 -8
 rotation 0 0 0
 scale 2 0.231 0.8
 mesh aabb

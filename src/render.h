@@ -79,6 +79,13 @@ void render_scene(Scene* scene, Camera* camera)
 	}
 }
 
+void render_game_gui(Player* player)
+{
+   auto color = player->lives == 2? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1};
+   string lives_text = to_string(player->lives);
+   render_text(lives_text, 25, 75, 3, color);
+}
+
 void render_immediate(GlobalImmediateDraw* im, Camera* camera)
 {
    for(int i = 0; i < im->ind; i++)
