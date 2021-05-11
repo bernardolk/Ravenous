@@ -138,10 +138,10 @@ void print_every_3rd_frame(std::string thing, std::string prefix)
 // SOURCE INCLUDES
 #include <text.h>
 #include <shader.h>
-#include <model.h>
-#include <camera.h>
 #include <entities.h>
+#include <model.h>
 #include <player.h>
+#include <camera.h>
 #include <parser.h>
 #include <loaders.h>
 
@@ -565,6 +565,18 @@ void render_text_overlay(Camera* camera, Player* player)
       format_float_tostr(G_FRAME_INFO.time_step,1)             //11
    };
  
+   string camera_type;
+   switch(camera->type)
+   {
+      case FREE_ROAM:
+         camera_type = "FREE ROAM";
+         break;
+      case THIRD_PERSON:
+         camera_type = "THIRD PERSON";
+         break;
+   }
+
+   string camera_type_string  = "camera type: " + camera_type;
    string camera_position  = "camera:   x: " + GUI_atts[0] + " y:" + GUI_atts[1] + " z:" + GUI_atts[2];
    string camera_front     = "    dir:  x: " + GUI_atts[5] + " y:" + GUI_atts[6] + " z:" + GUI_atts[7];
    string mouse_stats      = "    pitch: " + GUI_atts[3] + " yaw: " + GUI_atts[4];
@@ -620,10 +632,11 @@ void render_text_overlay(Camera* camera, Player* player)
    }
 
    float scale = 1;
-   render_text(camera_position,  GUI_x, GUI_y, scale);
-   render_text(camera_front,     GUI_x, GUI_y - 25, scale);
-   render_text(mouse_stats,      GUI_x, GUI_y - 50, scale);
-   render_text(player_pos,       GUI_x, GUI_y - 75, scale);
+   render_text(camera_type_string,  GUI_x, GUI_y, scale);
+   render_text(camera_position,     GUI_x, GUI_y - 25, scale);
+   render_text(camera_front,        GUI_x, GUI_y - 50, scale);
+   render_text(mouse_stats,         GUI_x, GUI_y - 75, scale);
+   render_text(player_pos,          GUI_x, GUI_y - 100, scale);
 
    render_text(player_state_text,     GUI_x, 25, 1.4, player_state_text_color);
    render_text(view_mode_text,        GUI_x, 50, 1.4);

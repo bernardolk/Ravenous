@@ -7,6 +7,11 @@
 #include <vector>
 #include <parser.h>
 
+enum CameraType {
+   FREE_ROAM = 0,
+   THIRD_PERSON = 1
+};
+
 struct Camera {
 	vec3 Position;
 	vec3 Front = vec3(1.0f, 0.0f, 0.0f);
@@ -20,6 +25,7 @@ struct Camera {
 	float Pitch = 0.0f;
 	glm::mat4 View4x4;
 	glm::mat4 Projection4x4;
+   CameraType type = FREE_ROAM;
 };
 
 
@@ -33,9 +39,26 @@ void camera_look_at(Camera* camera, vec3 position, bool isPosition);
 Camera* camera_create(vec3 initialPosition, vec3 direction);
 void save_camera_settings_to_file(string path, vec3 position, vec3 direction);
 float* load_camera_settings(string path);
+void set_camera_to_free_roam(Camera* camera);
+void set_camera_to_third_person(Camera* camera, Player* player);
 
 
 // Functions
+void set_camera_to_free_roam(Camera* camera)
+{
+   camera->type = FREE_ROAM;
+}
+
+void set_camera_to_third_person(Camera* camera, Player* player)
+{
+   camera->type = THIRD_PERSON;
+
+   camera->Position = player->entity_ptr->position;
+   camera->Position.x -= 1.5;
+   camera->Position.y += 1.5;
+   camera_look_at(camera, player->entity_ptr->position, true);
+}
+
 void camera_update(Camera* camera, float viewportWidth, float viewportHeight) {
 	camera->View4x4 = glm::lookAt(camera->Position, camera->Position + camera->Front, camera->Up);
 	camera->Projection4x4 = glm::perspective(glm::radians(camera->FOVy), viewportWidth / viewportHeight, camera->NearPlane, camera->FarPlane);
@@ -49,6 +72,18 @@ void camera_change_direction(Camera* camera, float yawOffset, float pitchOffset)
 	camera->Front.y = sin(glm::radians(newPitch));
 	camera->Front.z = cos(glm::radians(newPitch)) * sin(glm::radians(newYaw));
 	camera->Front = glm::normalize(camera->Front);
+
+    // Unallows camera to perform a flip
+   if (camera->Pitch > 89.0f)
+     camera->Pitch = 89.0f;
+   if (camera->Pitch < -89.0f)
+      camera->Pitch = -89.0f;
+
+   // Make sure we don't overflow floats when camera is spinning indefinetely
+   if (camera->Yaw > 360.0f)
+      camera->Yaw = camera->Yaw - 360.0f;
+   if (camera->Yaw < -360.0f)
+      camera->Yaw = camera->Yaw + 360.0f;
 }
 
 

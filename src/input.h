@@ -425,18 +425,6 @@ void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
       yoffset *= G_SCENE_INFO.camera->Sensitivity;
 
       camera_change_direction(G_SCENE_INFO.camera, xoffset, yoffset);
-
-      // Unallows camera to perform a flip
-      if (G_SCENE_INFO.camera->Pitch > 89.0f)
-         G_SCENE_INFO.camera->Pitch = 89.0f;
-      if (G_SCENE_INFO.camera->Pitch < -89.0f)
-         G_SCENE_INFO.camera->Pitch = -89.0f;
-
-      // Make sure we don't overflow floats when camera is spinning indefinetely
-      if (G_SCENE_INFO.camera->Yaw > 360.0f)
-         G_SCENE_INFO.camera->Yaw = G_SCENE_INFO.camera->Yaw - 360.0f;
-      if (G_SCENE_INFO.camera->Yaw < -360.0f)
-         G_SCENE_INFO.camera->Yaw = G_SCENE_INFO.camera->Yaw + 360.0f;
    }
 
    // updates mouse position

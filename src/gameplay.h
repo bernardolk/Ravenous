@@ -798,9 +798,15 @@ void handle_input_flags(InputFlags flags, Player* &player)
    {
        glfwSetWindowShouldClose(G_DISPLAY_INFO.window, true);
    }
-
    if(PROGRAM_MODE.current == EDITOR_MODE)
    {
+      if(pressed_once(flags, KEY_T))
+      {  // toggle camera type
+         if (G_SCENE_INFO.camera->type == FREE_ROAM)
+            set_camera_to_third_person(G_SCENE_INFO.camera, player);
+         else if (G_SCENE_INFO.camera->type == THIRD_PERSON)
+            set_camera_to_free_roam(G_SCENE_INFO.camera);
+      }
       if(G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK && flags.key_press & KEY_LEFT_CTRL)
       {
          Editor::check_selection_click();
@@ -818,7 +824,12 @@ void handle_input_flags(InputFlags flags, Player* &player)
          player->entity_ptr->velocity = vec3(0, 0, 0);
       }
       
-      float camera_speed = G_FRAME_INFO.delta_time * G_SCENE_INFO.camera->Acceleration;
+      // @TODO: this sucks
+      float camera_speed = 
+         G_SCENE_INFO.camera->type == THIRD_PERSON ?
+         player->speed * G_FRAME_INFO.delta_time * G_FRAME_INFO.time_step:
+         G_FRAME_INFO.delta_time * G_SCENE_INFO.camera->Acceleration;
+
       if(flags.key_press & KEY_LEFT_SHIFT)
       {
          camera_speed = camera_speed * 2;
@@ -827,13 +838,18 @@ void handle_input_flags(InputFlags flags, Player* &player)
       {
          camera_speed = camera_speed / 2;
       }
+
       if(flags.key_press & KEY_W)
       {
          G_SCENE_INFO.camera->Position += camera_speed * G_SCENE_INFO.camera->Front;
       }
       if(flags.key_press & KEY_A)
       {
-         G_SCENE_INFO.camera->Position -= camera_speed * glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
+         // @TODO: this sucks too
+         if(G_SCENE_INFO.camera->type == FREE_ROAM)
+            G_SCENE_INFO.camera->Position -= camera_speed * glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
+         else if(G_SCENE_INFO.camera->type == THIRD_PERSON)
+            camera_change_direction(G_SCENE_INFO.camera, -2, 0);
       }
       if(flags.key_press & KEY_S)
       {
@@ -841,7 +857,10 @@ void handle_input_flags(InputFlags flags, Player* &player)
       }
       if(flags.key_press & KEY_D)
       {
-         G_SCENE_INFO.camera->Position += camera_speed * glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
+         if(G_SCENE_INFO.camera->type == FREE_ROAM)
+            G_SCENE_INFO.camera->Position += camera_speed * glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
+         else if(G_SCENE_INFO.camera->type == THIRD_PERSON)
+            camera_change_direction(G_SCENE_INFO.camera, 2, 0);
       }
       if(flags.key_press & KEY_Q)
       {
@@ -861,11 +880,13 @@ void handle_input_flags(InputFlags flags, Player* &player)
          // resets velocity
          player->entity_ptr->velocity = vec3(0); 
 
-         if (flags.key_press & KEY_UP)
+         if ((flags.key_press & KEY_UP && G_SCENE_INFO.camera->type == FREE_ROAM) || 
+               (flags.key_press & KEY_W && G_SCENE_INFO.camera->type == THIRD_PERSON))
          {
             player->entity_ptr->velocity += vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
          }
-         if (flags.key_press & KEY_DOWN)
+         if ((flags.key_press & KEY_DOWN && G_SCENE_INFO.camera->type == FREE_ROAM) ||
+               (flags.key_press & KEY_S && G_SCENE_INFO.camera->type == THIRD_PERSON))
          {
             player->entity_ptr->velocity -= vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
          }
