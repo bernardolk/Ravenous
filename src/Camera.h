@@ -26,12 +26,13 @@ struct Camera {
 	glm::mat4 View4x4;
 	glm::mat4 Projection4x4;
    CameraType type = FREE_ROAM;
+   float orbital_angle = 0;
 };
 
 
 
 // Prototypes
-void camera_update(Camera* camera, float viewportWidth, float viewportHeight);
+void camera_update(Camera* camera, float viewportWidth, float viewportHeight, Player* player);
 void camera_change_direction(Camera* camera, float yawOffset, float pitchOffset);
 // Make camera look at a place in world coordinates to look at. If isPosition is set to true, then
 // a position is expected, if else, then a direction is expected.
@@ -52,16 +53,30 @@ void set_camera_to_free_roam(Camera* camera)
 void set_camera_to_third_person(Camera* camera, Player* player)
 {
    camera->type = THIRD_PERSON;
-
-   camera->Position = player->entity_ptr->position;
-   camera->Position.x -= 1.5;
-   camera->Position.y += 1.5;
-   camera_look_at(camera, player->entity_ptr->position, true);
 }
 
-void camera_update(Camera* camera, float viewportWidth, float viewportHeight) {
+void camera_update(Camera* camera, float viewportWidth, float viewportHeight, Player* player) {
 	camera->View4x4 = glm::lookAt(camera->Position, camera->Position + camera->Front, camera->Up);
-	camera->Projection4x4 = glm::perspective(glm::radians(camera->FOVy), viewportWidth / viewportHeight, camera->NearPlane, camera->FarPlane);
+	camera->Projection4x4 = glm::perspective(
+      glm::radians(camera->FOVy), 
+      viewportWidth / viewportHeight, 
+      camera->NearPlane, camera->FarPlane
+   );
+
+   if(camera->type == THIRD_PERSON)
+   {
+      camera->Position = player->entity_ptr->position;
+      camera->Position.y += 0.75;
+
+      if (camera->orbital_angle > 360.0f)
+         camera->orbital_angle -= 360.0;
+      if (camera->orbital_angle < -360.0f)
+         camera->orbital_angle += 360.0;
+
+      camera->Position.x += 2 * cos(camera->orbital_angle);
+      camera->Position.z += 2 * sin(camera->orbital_angle); 
+      camera_look_at(camera, player->entity_ptr->position, true);
+   }
 }
 
 
@@ -81,9 +96,9 @@ void camera_change_direction(Camera* camera, float yawOffset, float pitchOffset)
 
    // Make sure we don't overflow floats when camera is spinning indefinetely
    if (camera->Yaw > 360.0f)
-      camera->Yaw = camera->Yaw - 360.0f;
+      camera->Yaw -= 360.0f;
    if (camera->Yaw < -360.0f)
-      camera->Yaw = camera->Yaw + 360.0f;
+      camera->Yaw += 360.0f;
 }
 
 

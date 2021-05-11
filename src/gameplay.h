@@ -849,7 +849,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
          if(G_SCENE_INFO.camera->type == FREE_ROAM)
             G_SCENE_INFO.camera->Position -= camera_speed * glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
          else if(G_SCENE_INFO.camera->type == THIRD_PERSON)
-            camera_change_direction(G_SCENE_INFO.camera, -2, 0);
+            G_SCENE_INFO.camera->orbital_angle -= 0.025;
       }
       if(flags.key_press & KEY_S)
       {
@@ -860,7 +860,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
          if(G_SCENE_INFO.camera->type == FREE_ROAM)
             G_SCENE_INFO.camera->Position += camera_speed * glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
          else if(G_SCENE_INFO.camera->type == THIRD_PERSON)
-            camera_change_direction(G_SCENE_INFO.camera, 2, 0);
+            G_SCENE_INFO.camera->orbital_angle += 0.025;
       }
       if(flags.key_press & KEY_Q)
       {

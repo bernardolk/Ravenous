@@ -307,7 +307,7 @@ int main()
 
 		//	UPDATE PHASE
       check_view_mode(player);
-		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT);
+		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player);
       update_buffers();
       update_player_state(player);
 		update_scene_objects();
