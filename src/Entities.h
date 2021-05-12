@@ -171,7 +171,6 @@ struct SpotLight {
 };
 
 struct PointLight {
-	unsigned int id;
 	vec3 position = vec3(0.0f, 2.0f, 0.0f);
 	vec3 direction = vec3(0.0f, -1.0f, 0.0f);
 	vec3 diffuse = vec3(0.5f, 0.5f, 0.5f);
