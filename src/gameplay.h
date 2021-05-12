@@ -91,6 +91,7 @@ void update_player_state(Player* &player)
                         std::cout << "PLAYER FELL" << "\n";
                         player_entity->velocity.y = - 1 * player->fall_speed;
                         player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
+                        player->height_before_fall = player_entity->position.y;
                      }
                   }
                }
@@ -100,6 +101,7 @@ void update_player_state(Player* &player)
                   std::cout << "PLAYER FELL" << "\n";
                   player_entity->velocity.y = - 1 * player->fall_speed;
                   player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
+                  player->height_before_fall = player_entity->position.y;
                }
             }
          }
@@ -162,6 +164,7 @@ void update_player_state(Player* &player)
             player->slope_player_was_ptr = player->standing_entity_ptr;
             player->standing_entity_ptr = NULL;
             player->player_state = PLAYER_STATE_EVICTED_FROM_SLOPE;
+            player->height_before_fall = player_entity->position.y;
          }
          break;
       }
@@ -194,6 +197,7 @@ void update_player_state(Player* &player)
                player->slope_player_was_ptr = player->standing_entity_ptr;
                player->standing_entity_ptr = NULL;
                player->player_state = PLAYER_STATE_EVICTED_FROM_SLOPE;
+               player->height_before_fall = player_entity->position.y;
             }
          }
       
@@ -306,14 +310,15 @@ void run_collision_checks_standing(Player* player, Entity** entity_iterator, siz
    }
 }
 
-// @NOTE! : Because we are marking entities in buffer when checked, we should never use multiple CONTROLLER LEVEL calls unless
-//          we reset the buffers to the active scene entity list
+// @NOTE! : Because we are marking entities in buffer when checked, we should never use 
+// multiple CONTROLLER LEVEL calls unless we reset the buffers to the active scene entity list
 void run_collision_checks_falling(Player* player, Entity** entity_iterator, size_t entity_list_size)
 {
-   // Here, we will check first for vertical intersections to see if player needs to be teleported to the top of the entity
-   // it has collided with. If so, we deal with it on the spot (teleports player) and then keep checking for other collisions
-   // to be resolved once thats done. Horizontal checks come after vertical collisions because players shouldnt loose the chance
-   // to make their jump because we are preventing them from getting stuck first.
+   // Here, we will check first for vertical intersections to see if player needs to be teleported 
+   // to the top of the entity it has collided with. 
+   // If so, we deal with it on the spot (teleports player) and then keep checking for other collisions
+   // to be resolved once thats done. Horizontal checks come after vertical collisions because players 
+   // shouldnt loose the chance to make their jump because we are preventing them from getting stuck first.
 
    auto entity_buffer = (EntityBuffer*)G_BUFFERS.buffers[0];  
    bool end_collision_checks = false;
@@ -326,18 +331,11 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
          auto collision_data = check_collision_vertical(player, entity_iter, entity_list_size);
          if(collision_data.collided_entity_ptr != NULL)
          {
+            // we have collided ladies and gents
             any_collision = true;
 
-            // hurts player if necessary
-            {
-               auto player_speed_y = -1 * player->entity_ptr->velocity.y;
-               if(player_speed_y > 8)
-                  player->lives -= 2;
-               else if(player_speed_y > 6.5)
-                  player->lives -= 1;
-            }
-
-            // marks entity in entity buffer as checked so we dont check collisions for this entity twice (nor infinite loop)
+            // marks entity in entity buffer as checked so we dont check collisions 
+            // for this entity twice (nor infinite loop)
             {
                entity_iter = entity_buffer->buffer;
                for(int i = 0; i < entity_buffer->size; ++i)
@@ -350,12 +348,17 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
                   entity_iter++;
                }
             }
+
+            // the point of this is to not trigger health check when player
+            // hits a wall while falling
+            bool trigger_check_was_player_hurt = false;
             
             // deals with collision
             switch(collision_data.collision_outcome)
             {
                case JUMP_FAIL:
                {
+                  trigger_check_was_player_hurt = true;
                   // make player "slide" towards edge and fall away from floor
                   std::cout << "FELL FROM EDGE" << "\n";
                   player->standing_entity_ptr = collision_data.collided_entity_ptr;
@@ -390,6 +393,7 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
                }
                case JUMP_SUCCESS:
                {
+                  trigger_check_was_player_hurt = true;
                   std::cout << "LANDED" << "\n";
                   // move player to surface, stop player and set him to standing
                   player->standing_entity_ptr = collision_data.collided_entity_ptr;
@@ -425,11 +429,13 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
                }
                case JUMP_SLIDE:
                {
+                  trigger_check_was_player_hurt = true;
                   make_player_slide(player, collision_data);
                   break;
                }
                case JUMP_SLIDE_HIGH_INCLINATION:
                {
+                  trigger_check_was_player_hurt = true;
                   make_player_slide_fall(player, collision_data);
                   break;
                }
@@ -442,6 +448,17 @@ void run_collision_checks_falling(Player* player, Entity** entity_iterator, size
                   break; 
                }
             }
+
+            // hurts player if necessary
+            if(trigger_check_was_player_hurt)
+            {
+               float fall_height = player->height_before_fall - player->entity_ptr->position.y;
+               cout << "->" << fall_height << "\n";
+               if(fall_height >= 3.2)
+                  player->lives -= 2;
+               else if(fall_height >= 1.8)
+                  player->lives -= 1;
+            }  
          }
       }
 
@@ -929,6 +946,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
          if (flags.key_press & KEY_SPACE) 
          {
             player->player_state = PLAYER_STATE_JUMPING;
+            player->height_before_fall = player->entity_ptr->position.y;
             player->entity_ptr->velocity.y = player->jump_initial_speed;
          }
       }
@@ -997,6 +1015,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
          if (flags.key_press & KEY_SPACE) 
          {
             player->player_state = PLAYER_STATE_JUMPING;
+            player->height_before_fall = player->entity_ptr->position.y;
             player->entity_ptr->velocity.y = player->jump_initial_speed;
          }
 

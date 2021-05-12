@@ -631,6 +631,8 @@ void render_text_overlay(Camera* camera, Player* player)
       player_floor += player->standing_entity_ptr->name;
    }
 
+   string lives = to_string(player->lives);
+
    string GUI_atts[]{
       format_float_tostr(camera->Position.x, 2),               //0
       format_float_tostr(camera->Position.y,2),                //1
@@ -712,20 +714,19 @@ void render_text_overlay(Camera* camera, Player* player)
          break;
    }
 
-   float scale = 1;
-   render_text(camera_type_string,  GUI_x, GUI_y, scale);
-   render_text(camera_position,     GUI_x, GUI_y - 25, scale);
-   render_text(camera_front,        GUI_x, GUI_y - 50, scale);
-   render_text(mouse_stats,         GUI_x, GUI_y - 75, scale);
-   render_text(player_pos,          GUI_x, GUI_y - 100, scale);
+   render_text(camera_type_string,  GUI_x, GUI_y);
+   render_text(camera_position,     GUI_x, GUI_y - 25);
+   render_text(player_pos,          GUI_x, GUI_y - 50);
+   auto lives_color = player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1};
+   render_text(lives,               GUI_x, GUI_y - 75, 1.0, lives_color);
 
-   render_text(player_state_text,     GUI_x, 25, 1.4, player_state_text_color);
-   render_text(view_mode_text,        GUI_x, 50, 1.4);
-   render_text(player_floor,          GUI_x, 75, 1.4);
+   render_text(player_state_text,   GUI_x, 25, 1.5, player_state_text_color);
+   render_text(view_mode_text,      GUI_x, 50, 1.5);
+   render_text(player_floor,        GUI_x, 75, 1.5);
 
-   render_text(G_SCENE_INFO.scene_name,   G_DISPLAY_INFO.VIEWPORT_WIDTH - 100, 75, scale);
-   render_text(time_step_string,          G_DISPLAY_INFO.VIEWPORT_WIDTH - 130, 50, 1, vec3(0.8, 0.8, 0.2));
-   render_text(fps_gui,                   G_DISPLAY_INFO.VIEWPORT_WIDTH - 100, 25, scale);
+   render_text(G_SCENE_INFO.scene_name,   G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, 75, 1.3, vec3(0.8, 0.8, 0.2));
+   render_text(time_step_string,          G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, 50, 1.3, vec3(0.8, 0.8, 0.2));
+   render_text(fps_gui,                   G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, 25, 1.3);
 }
 
 

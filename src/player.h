@@ -33,4 +33,5 @@ struct Player {
    vec3 initial_velocity = vec3(0);
 
    int lives = 2;
+   float height_before_fall;
 };
