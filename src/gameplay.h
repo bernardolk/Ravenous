@@ -801,12 +801,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
    }
    if(flags.key_press & KEY_K)
    {
-      bool loaded = load_scene_from_file(G_SCENE_INFO.scene_name);
-      if(loaded)
-      {
-         player = G_SCENE_INFO.player; // not irrelevant! do not delete
-         player->entity_ptr->render_me = PROGRAM_MODE.current == EDITOR_MODE ? true : false;
-      }
+      load_player_attributes_from_file(G_SCENE_INFO.scene_name, player);
    }
    if(pressed_once(flags, KEY_F))
    {

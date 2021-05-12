@@ -1,13 +1,45 @@
-
 bool load_scene_from_file(std::string scene_name);
 void parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, std::string path);
-void parse_and_load_attribute(Parser::Parse p, ifstream* reader, int& line_count, std::string path, Player* player);
+void parse_and_load_player_attribute(Parser::Parse p, ifstream* reader, int& line_count, std::string path, Player* player);
 void setup_scene_boilerplate_stuff();
 bool save_player_position_to_file(string scene_name, Player* player);
 bool save_scene_to_file(string scene_name, Player* player, bool do_copy);
 void parse_and_load_light_source(Parser::Parse p, ifstream* reader, int& line_count, string path);
+bool load_player_attributes_from_file();
 Entity* create_player_entity();
 Player* create_player(Entity* player_entity);
+
+
+bool load_player_attributes_from_file(string scene_name, Player* player)
+{
+   string path = SCENES_FOLDER_PATH + scene_name + ".txt";
+   ifstream reader(path);
+
+   if(!reader.is_open())
+   {
+      cout << "WARNING: Loading player attributes from file failed.\n";
+      return false;
+   }
+
+   // starts reading
+   std::string line;
+   Parser::Parse p;
+   int line_count = 0;
+
+   while(parser_nextline(&reader, &line, &p))
+   {
+      line_count++;
+      p = parse_symbol(p);
+      if(p.cToken == '@')
+      {
+         parse_and_load_player_attribute(p, &reader, line_count, path, G_SCENE_INFO.player);
+      }
+   }
+
+   reader.close();
+   return true;
+}
+
 
 bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
 {
@@ -20,7 +52,6 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
       cout << "please provide a name for the copy.\n";
       return false;
    }
-
 
    string path = SCENES_FOLDER_PATH + scene_name + ".txt";
 
@@ -42,6 +73,30 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
                << player->initial_velocity.z << "\n";
    writer << "@player_state = " << player->initial_player_state << "\n"; 
    writer << "@player_fall_acceleration = " << player->fall_acceleration << "\n";  
+
+   // write light sources
+   for(int it = 0; it < G_SCENE_INFO.active_scene->pointLights.size(); it++)
+   {
+      auto light = G_SCENE_INFO.active_scene->pointLights[it];
+
+      writer << "\n$point\n"
+            << "position "
+            << light.position.x << " "
+            << light.position.y << " "
+            << light.position.z << "\n"
+            << "diffuse "
+            << light.diffuse.x << " "
+            << light.diffuse.y << " "
+            << light.diffuse.z << "\n"
+            << "ambient "
+            << light.ambient.x << " "
+            << light.ambient.y << " "
+            << light.ambient.z << "\n"
+            << "linear "
+            << light.intensity_linear << "\n"
+            << "quadratic "
+            << light.intensity_quadratic << "\n";
+   }
 
    // write scene data (for each entity)
    Entity **entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
@@ -147,7 +202,7 @@ bool load_scene_from_file(std::string scene_name)
       }
       else if(p.cToken == '@')
       {
-         parse_and_load_attribute(p, &reader, line_count, path, G_SCENE_INFO.player);
+         parse_and_load_player_attribute(p, &reader, line_count, path, G_SCENE_INFO.player);
       }
       else if(p.cToken == '$')
       {
@@ -155,11 +210,13 @@ bool load_scene_from_file(std::string scene_name)
       }
    }
    
+   //reader.close();
+
    G_SCENE_INFO.scene_name = scene_name;
    return true;
 } 
 
-void parse_and_load_attribute(Parser::Parse p, ifstream* reader, int& line_count, std::string path, Player* player)
+void parse_and_load_player_attribute(Parser::Parse p, ifstream* reader, int& line_count, std::string path, Player* player)
 {
    p = parse_token(p);
    std::string attribute = p.string_buffer;
