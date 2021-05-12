@@ -31,10 +31,7 @@ struct CollisionGeometrySlope{
 };
 
 struct Entity {
-   // administrative data
-	unsigned int index;
-	unsigned int id;
-   std::string name = "NONAME";
+   string name = "NONAME";
 
    // render data
 	Shader* shader;
@@ -45,7 +42,7 @@ struct Entity {
    bool render_me = true;
 
    // simulation data
-	vec3 position;
+	vec3 position = vec3(0.0f);
 	vec3 rotation = vec3(0.0f);
 	vec3 scale = vec3(1.0f);
    vec3 velocity;

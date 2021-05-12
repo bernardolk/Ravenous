@@ -6,7 +6,8 @@ void setup_scene_boilerplate_stuff();
 bool save_player_position_to_file(string scene_name, Player* player);
 bool save_scene_to_file(string scene_name, Player* player, bool do_copy);
 void parse_and_load_light_source(Parser::Parse p, ifstream* reader, int& line_count, string path);
-
+Entity* create_player_entity();
+Player* create_player(Entity* player_entity);
 
 bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
 {
@@ -120,8 +121,15 @@ bool load_scene_from_file(std::string scene_name)
       G_SCENE_INFO.active_scene->entities.clear();
       // CLEAR BUFFERS ?
 
-   // creates player and some other entities
-   setup_scene_boilerplate_stuff();
+   // creates new scene
+   auto scene = new Scene();
+   G_SCENE_INFO.active_scene = scene;
+
+   // creates player
+   auto player_entity = create_player_entity();
+   auto player = create_player(player_entity);
+   scene->entities.push_back(player_entity);
+   G_SCENE_INFO.player = player;
 
    // starts reading
    std::string line;
@@ -456,75 +464,6 @@ void parse_and_load_light_source(Parser::Parse p, ifstream* reader, int& line_co
    G_SCENE_INFO.active_scene->pointLights.push_back(*point_light);
 }
 
-void setup_scene_boilerplate_stuff()
-{
-   // CREATE SCENE 
-   auto demo_scene = new Scene();
-
-   // PLAYER ENTITY SETUP
-
-   // CYLINDER
-   unsigned int pink_texture = load_texture_from_file("pink.jpg", TEXTURES_PATH);
-    auto cylinder_texture = new Texture
-    {
-      pink_texture,
-      "texture_diffuse",
-      "whatever"
-   };
-   auto find1 = Shader_Catalogue.find("model");
-   auto model_shader = find1->second;
-
-   auto find2 = Geometry_Catalogue.find("quad");
-   auto quad_mesh = find2->second;
-
-   auto find_cylinder = Geometry_Catalogue.find("player_cylinder");
-   auto cylinder_mesh = find_cylinder->second;
-
-   auto cylinder = new Entity();
-   cylinder->name             = "Player";
-   cylinder->index            = G_ENTITY_INFO.entity_counter;
-   cylinder->id               = ++G_ENTITY_INFO.entity_counter;
-   cylinder->shader           = model_shader;
-   cylinder->position         = vec3(0,1,1);
-   cylinder->textures         = std::vector<Texture>{*cylinder_texture};
-   cylinder->mesh             = *cylinder_mesh;
-   // player collision geometry
-   cylinder->collision_geometry_type = COLLISION_ALIGNED_CYLINDER;
-   auto cgac = new CollisionGeometryAlignedCylinder { CYLINDER_HALF_HEIGHT, CYLINDER_RADIUS };
-   cylinder->collision_geometry.cylinder = *cgac;
-
-   demo_scene->entities.push_back(cylinder);
-
-   // // lightsource
-   // auto l1 = new PointLight();
-   // l1->id                     = 1;
-   // l1->position               = vec3(0.5, 3.5, 0.5);
-   // l1->diffuse                = vec3(1.0, 1.0, 1.0);
-   // l1->ambient                = vec3(1.0,1.0,1.0);
-   // l1->intensity_linear       = 0.4f;
-   // l1->intensity_quadratic    = 0.04f;
-   // demo_scene->pointLights.push_back(*l1);
-
-   // auto l2 = new PointLight();
-   // l2->id                     = 2;
-   // l2->position               = vec3(-8, 10, 1);
-   // l2->diffuse                = vec3(1.0, 1.0, 1.0);
-   // l2->ambient                = vec3(1.0,1.0,1.0);
-   // l2->intensity_linear       = 0.4f;
-   // l2->intensity_quadratic    = 0.04f;
-   // demo_scene->pointLights.push_back(*l2);
-
-   G_SCENE_INFO.active_scene = demo_scene;
-
-   // create player
-   auto player = new Player();
-   player->entity_ptr   = cylinder;
-   player->half_height  = CYLINDER_HALF_HEIGHT;
-   player->radius       = CYLINDER_RADIUS;
-
-   G_SCENE_INFO.player = player;
-}
-
 bool save_player_position_to_file(string scene_name, Player* player)
 {
    // string path = SCENES_FOLDER_PATH + scene_name + ".txt";
@@ -581,4 +520,47 @@ bool save_player_position_to_file(string scene_name, Player* player)
 
    // cout << "No lines have been changed while trying to save player's position.\n";
    return false;
+}
+
+
+Entity* create_player_entity()
+{
+   // cylinder
+   unsigned int pink_texture = load_texture_from_file("pink.jpg", TEXTURES_PATH);
+    auto cylinder_texture = new Texture
+    {
+      pink_texture,
+      "texture_diffuse",
+      "whatever"
+   };
+   auto find1 = Shader_Catalogue.find("model");
+   auto model_shader = find1->second;
+
+   auto find2 = Geometry_Catalogue.find("quad");
+   auto quad_mesh = find2->second;
+
+   auto find_cylinder = Geometry_Catalogue.find("player_cylinder");
+   auto cylinder_mesh = find_cylinder->second;
+
+   auto cylinder = new Entity();
+   cylinder->name             = "Player";
+   cylinder->shader           = model_shader;
+   cylinder->textures         = std::vector<Texture>{*cylinder_texture};
+   cylinder->mesh             = *cylinder_mesh;
+
+   // player collision geometry
+   auto cgac = new CollisionGeometryAlignedCylinder { CYLINDER_HALF_HEIGHT, CYLINDER_RADIUS };
+   cylinder->collision_geometry_type = COLLISION_ALIGNED_CYLINDER;
+   cylinder->collision_geometry.cylinder = *cgac;
+
+   return cylinder;
+}
+
+Player* create_player(Entity* player_entity)
+{
+   auto player = new Player();
+   player->entity_ptr   = player_entity;
+   player->half_height  = CYLINDER_HALF_HEIGHT;
+   player->radius       = CYLINDER_RADIUS;
+   return player;
 }
