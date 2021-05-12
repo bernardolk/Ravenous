@@ -86,6 +86,8 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
       writer << "collision " << collision_type << "\n";
    }
 
+   writer.close();
+
    if(do_copy)
       cout << "Scene copy saved succesfully as '" << scene_name << ".txt'. \n";
    else if(was_renamed)

@@ -209,6 +209,8 @@ bool compare_vec2(vec2 vec1, vec2 vec2);
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
+bool save_configs_to_file();
+
 #include <input.h>
 #include <collision.h>
 #include <scene.h>
@@ -239,7 +241,6 @@ void update_buffers();
 void check_view_mode(Player* player);
 void start_frame();
 ProgramConfig load_configs();
-bool save_configs();
 
 
 int main() 
@@ -463,17 +464,22 @@ ProgramConfig load_configs()
    return config;
 }
 
-bool save_configs()
+bool save_configs_to_file()
 {
-   // string path = CONFIG_FILE + ".txt";
 
-   // ofstream writer(path);
-   // if(!writer.is_open())
-   // {
-   //    cout << "Saving scene failed.\n";
-   //    return false;
-   // }
-   return false;
+   ofstream writer(CONFIG_FILE_PATH);
+   if(!writer.is_open())
+   {
+      cout << "Saving config file failed.\n";
+      return false;
+   }
+
+   writer << "scene = " << G_CONFIG.initial_scene << "\n";
+
+   writer.close();
+   cout << "Config file saved succesfully.\n";
+
+   return true;
 }
 
 

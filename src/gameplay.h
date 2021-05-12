@@ -17,7 +17,6 @@ void update_player_state(Player* &player)
 {
    Entity* &player_entity = player->entity_ptr;
 
-   cout << "->" << player_entity->velocity.y << "\n";
    if(player->lives <= 0)
    {
       player_death_handler(player);

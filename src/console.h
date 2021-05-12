@@ -155,7 +155,7 @@ void execute_command(string buffer_line, Player* &player)
       // {
       //    save_player_position_to_file(G_SCENE_INFO.scene_name, player);
       // }
-      if(argument == "c")
+      if(argument == "cam")
       {
          save_camera_settings_to_file(
             CAMERA_FILE_PATH,
@@ -171,6 +171,7 @@ void execute_command(string buffer_line, Player* &player)
 
    else if(command == "copy")
    {
+      // if you dont want to switch to the new file when saving scene with a new name
       p = parse_whitespace(p);
       p = parse_token(p);
       const string scene_name = p.string_buffer;
@@ -186,6 +187,17 @@ void execute_command(string buffer_line, Player* &player)
       {
          player = G_SCENE_INFO.player; // not irrelevant! do not delete
          player->entity_ptr->render_me = PROGRAM_MODE.last == EDITOR_MODE ? true : false;
+      }
+   }
+   else if(command == "set")
+   {
+      p = parse_whitespace(p);
+      p = parse_token(p);
+      const string argument = p.string_buffer;
+      if(argument == "scene")
+      {
+         G_CONFIG.initial_scene = G_SCENE_INFO.scene_name;
+         save_configs_to_file();
       }
    }
    else
