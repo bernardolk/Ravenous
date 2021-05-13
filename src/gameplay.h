@@ -9,6 +9,9 @@ CollisionData check_collision_horizontal(
 ); 
 CollisionData check_collision_vertical(Player* player, EntityBufferElement* entity_iterator, size_t entity_list_size);
 void player_death_handler(Player* &player);
+void game_handle_input_flags(InputFlags flags, Player* &player);
+void reset_input_flags(InputFlags flags);
+
 
 float SLIDE_MAX_ANGLE = 1.4;
 float SLIDE_MIN_ANGLE = 0.6;
@@ -827,244 +830,103 @@ void handle_input_flags(InputFlags flags, Player* &player)
    {
        glfwSetWindowShouldClose(G_DISPLAY_INFO.window, true);
    }
-   if(PROGRAM_MODE.current == EDITOR_MODE)
-   {
-      if(pressed_once(flags, KEY_T))
-      {  // toggle camera type
-         if (G_SCENE_INFO.camera->type == FREE_ROAM)
-            set_camera_to_third_person(G_SCENE_INFO.camera, player);
-         else if (G_SCENE_INFO.camera->type == THIRD_PERSON)
-            set_camera_to_free_roam(G_SCENE_INFO.camera);
-      }
-      if(G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK && flags.key_press & KEY_LEFT_CTRL)
-      {
-         Editor::check_selection_click();
-      }
-      if(pressed_once(flags, KEY_GRAVE_TICK))
-      { 
-         start_console_mode();
-      }
-      if(pressed_once(flags, KEY_C))
-      {
-         // moves player to camera position
-         player->entity_ptr->position = G_SCENE_INFO.camera->Position + G_SCENE_INFO.camera->Front * 3.0f;
-         camera_look_at(G_SCENE_INFO.views[1], G_SCENE_INFO.camera->Front, false);
-         player->player_state = PLAYER_STATE_FALLING;
-         player->entity_ptr->velocity = vec3(0, 0, 0);
-      }
-      
-      // @TODO: this sucks
-      float camera_speed = 
-         G_SCENE_INFO.camera->type == THIRD_PERSON ?
-         player->speed * G_FRAME_INFO.delta_time * G_FRAME_INFO.time_step:
-         G_FRAME_INFO.delta_time * G_SCENE_INFO.camera->Acceleration;
+}
 
-      if(flags.key_press & KEY_LEFT_SHIFT)
-      {
-         camera_speed = camera_speed * 2;
-      }
-      if(flags.key_press & KEY_LEFT_CTRL)
-      {
-         camera_speed = camera_speed / 2;
-      }
+void game_handle_input_flags(InputFlags flags, Player* &player)
+{
+
+   if(player->player_state == PLAYER_STATE_STANDING)
+   {
+      // resets velocity
+      player->entity_ptr->velocity = vec3(0); 
 
       if(flags.key_press & KEY_W)
       {
-         G_SCENE_INFO.camera->Position += camera_speed * G_SCENE_INFO.camera->Front;
+         player->entity_ptr->velocity += vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
       }
       if(flags.key_press & KEY_A)
       {
-         // @TODO: this sucks too
-         if(G_SCENE_INFO.camera->type == FREE_ROAM)
-            G_SCENE_INFO.camera->Position -= camera_speed * glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
-         else if(G_SCENE_INFO.camera->type == THIRD_PERSON)
-            G_SCENE_INFO.camera->orbital_angle -= 0.025;
+         vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
+         player->entity_ptr->velocity -= vec3(onwards_vector.x, 0, onwards_vector.z);
       }
       if(flags.key_press & KEY_S)
       {
-         G_SCENE_INFO.camera->Position -= camera_speed * G_SCENE_INFO.camera->Front;
+         player->entity_ptr->velocity -= vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
       }
       if(flags.key_press & KEY_D)
       {
-         if(G_SCENE_INFO.camera->type == FREE_ROAM)
-            G_SCENE_INFO.camera->Position += camera_speed * glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
-         else if(G_SCENE_INFO.camera->type == THIRD_PERSON)
-            G_SCENE_INFO.camera->orbital_angle += 0.025;
+         vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
+         player->entity_ptr->velocity += vec3(onwards_vector.x, 0, onwards_vector.z);
       }
-      if(flags.key_press & KEY_Q)
+      // because above we sum all combos of keys pressed, here we normalize the direction and give the movement intensity
+      if(glm::length2(player->entity_ptr->velocity) > 0)
       {
-         G_SCENE_INFO.camera->Position -= camera_speed * G_SCENE_INFO.camera->Up;
+         float player_frame_speed = player->speed;
+         if(flags.key_press & KEY_LEFT_SHIFT)  // PLAYER DASH
+            player_frame_speed *= 2;
+
+         player->entity_ptr->velocity = player_frame_speed * glm::normalize(player->entity_ptr->velocity);
       }
-       if(flags.key_press & KEY_E)
+      if (flags.key_press & KEY_SPACE) 
       {
-         G_SCENE_INFO.camera->Position += camera_speed * G_SCENE_INFO.camera->Up;
-      }
-      if(flags.key_press & KEY_O)
-      {
-         camera_look_at(G_SCENE_INFO.camera, vec3(0.0f, 0.0f, 0.0f), true);
+         player->player_state = PLAYER_STATE_JUMPING;
+         player->height_before_fall = player->entity_ptr->position.y;
+         player->entity_ptr->velocity.y = player->jump_initial_speed;
       }
 
-      if(player->player_state == PLAYER_STATE_STANDING)
-      {
-         // resets velocity
-         player->entity_ptr->velocity = vec3(0); 
-
-         if ((flags.key_press & KEY_UP && G_SCENE_INFO.camera->type == FREE_ROAM) || 
-               (flags.key_press & KEY_W && G_SCENE_INFO.camera->type == THIRD_PERSON))
-         {
-            player->entity_ptr->velocity += vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
-         }
-         if ((flags.key_press & KEY_DOWN && G_SCENE_INFO.camera->type == FREE_ROAM) ||
-               (flags.key_press & KEY_S && G_SCENE_INFO.camera->type == THIRD_PERSON))
-         {
-            player->entity_ptr->velocity -= vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
-         }
-         if (flags.key_press & KEY_LEFT)
-         {
-            vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
-            player->entity_ptr->velocity -= vec3(onwards_vector.x, 0, onwards_vector.z);
-         }
-         if (flags.key_press & KEY_RIGHT)
-         {
-            vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
-            player->entity_ptr->velocity += vec3(onwards_vector.x, 0, onwards_vector.z);
-         }
-         // because above we sum all combos of keys pressed, here we normalize the direction and give the movement intensity
-         if(glm::length2(player->entity_ptr->velocity) > 0)
-         {
-            float player_frame_speed = player->speed;
-            if(flags.key_press & KEY_LEFT_SHIFT)  // PLAYER DASH
-               player_frame_speed *= 2;
-
-            player->entity_ptr->velocity = player_frame_speed * glm::normalize(player->entity_ptr->velocity);
-         }
-         if (flags.key_press & KEY_SPACE) 
-         {
-            player->player_state = PLAYER_STATE_JUMPING;
-            player->height_before_fall = player->entity_ptr->position.y;
-            player->entity_ptr->velocity.y = player->jump_initial_speed;
-         }
-      }
-      else if(player->player_state == PLAYER_STATE_SLIDING)
-      {
-         auto collision_geom = player->standing_entity_ptr->collision_geometry.slope;
-         player->entity_ptr->velocity = player->slide_speed * collision_geom.tangent;
-
-         if (flags.key_press & KEY_LEFT)
-         {
-            auto temp_vec = glm::rotate(player->entity_ptr->velocity, -12.0f, collision_geom.normal);
-            player->entity_ptr->velocity.x = temp_vec.x;
-            player->entity_ptr->velocity.z = temp_vec.z;
-         }
-         if (flags.key_press & KEY_RIGHT)
-         {
-            auto temp_vec = glm::rotate(player->entity_ptr->velocity, 12.0f, collision_geom.normal);
-            player->entity_ptr->velocity.x = temp_vec.x;
-            player->entity_ptr->velocity.z = temp_vec.z;
-         }
-         if (flags.key_press & KEY_SPACE)
-         {
-             player->player_state = PLAYER_STATE_JUMPING;
-             auto col_geometry = player->standing_entity_ptr->collision_geometry.slope;
-             float x = col_geometry.normal.x > 0 ? 1 : col_geometry.normal.x == 0 ? 0 : -1;
-             float z = col_geometry.normal.z > 0 ? 1 : col_geometry.normal.z == 0 ? 0 : -1;
-             auto jump_vec = glm::normalize(vec3(x, 1, z));
-             player->entity_ptr->velocity = player->jump_initial_speed * jump_vec;
-         }
-      }
+      // update camera with player position
+      G_SCENE_INFO.camera->Position = player->entity_ptr->position;
+      G_SCENE_INFO.camera->Position.y +=  player->half_height * 2.0 / 3.0;
    }
-   else if(PROGRAM_MODE.current == GAME_MODE)
+   else if(player->player_state == PLAYER_STATE_SLIDING)
    {
-      if(player->player_state == PLAYER_STATE_STANDING)
+      auto collision_geom = player->standing_entity_ptr->collision_geometry.slope;
+      player->entity_ptr->velocity = player->slide_speed * collision_geom.tangent;
+
+      if (flags.key_press & KEY_A)
       {
-         // resets velocity
-         player->entity_ptr->velocity = vec3(0); 
-
-         if(flags.key_press & KEY_W)
+         float dot_product = glm::dot(collision_geom.tangent, G_SCENE_INFO.camera->Front);
+         float angle = -12.0f;
+         if (dot_product < 0)
          {
-            player->entity_ptr->velocity += vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
-         }
-         if(flags.key_press & KEY_A)
-         {
-            vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
-            player->entity_ptr->velocity -= vec3(onwards_vector.x, 0, onwards_vector.z);
-         }
-         if(flags.key_press & KEY_S)
-         {
-            player->entity_ptr->velocity -= vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
-         }
-         if(flags.key_press & KEY_D)
-         {
-            vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
-            player->entity_ptr->velocity += vec3(onwards_vector.x, 0, onwards_vector.z);
-         }
-         // because above we sum all combos of keys pressed, here we normalize the direction and give the movement intensity
-         if(glm::length2(player->entity_ptr->velocity) > 0)
-         {
-            float player_frame_speed = player->speed;
-            if(flags.key_press & KEY_LEFT_SHIFT)  // PLAYER DASH
-               player_frame_speed *= 2;
-
-            player->entity_ptr->velocity = player_frame_speed * glm::normalize(player->entity_ptr->velocity);
-         }
-         if (flags.key_press & KEY_SPACE) 
-         {
-            player->player_state = PLAYER_STATE_JUMPING;
-            player->height_before_fall = player->entity_ptr->position.y;
-            player->entity_ptr->velocity.y = player->jump_initial_speed;
+            angle *= -1;
          }
 
-         // update camera with player position
-         G_SCENE_INFO.camera->Position = player->entity_ptr->position;
-         G_SCENE_INFO.camera->Position.y +=  player->half_height * 2.0 / 3.0;
+         auto bitangent = glm::cross(collision_geom.tangent, G_SCENE_INFO.camera->Up);
+         auto normal = glm::cross(bitangent, collision_geom.tangent);
+         auto temp_vec = glm::rotate(player->entity_ptr->velocity, angle, normal);
+         player->entity_ptr->velocity.x = temp_vec.x;
+         player->entity_ptr->velocity.z = temp_vec.z;
       }
-      else if(player->player_state == PLAYER_STATE_SLIDING)
+      if (flags.key_press & KEY_D)
       {
-         auto collision_geom = player->standing_entity_ptr->collision_geometry.slope;
-         player->entity_ptr->velocity = player->slide_speed * collision_geom.tangent;
-
-         if (flags.key_press & KEY_A)
+         float dot_product = glm::dot(collision_geom.tangent, G_SCENE_INFO.camera->Front);
+         float angle = 12.0f;
+         if (dot_product < 0)
          {
-            float dot_product = glm::dot(collision_geom.tangent, G_SCENE_INFO.camera->Front);
-           float angle = -12.0f;
-            if (dot_product < 0)
-            {
-               angle *= -1;
-            }
+            angle *= -1;
+         }
 
-            auto bitangent = glm::cross(collision_geom.tangent, G_SCENE_INFO.camera->Up);
-            auto normal = glm::cross(bitangent, collision_geom.tangent);
-            auto temp_vec = glm::rotate(player->entity_ptr->velocity, angle, normal);
-            player->entity_ptr->velocity.x = temp_vec.x;
-            player->entity_ptr->velocity.z = temp_vec.z;
-         }
-         if (flags.key_press & KEY_D)
-         {
-            float dot_product = glm::dot(collision_geom.tangent, G_SCENE_INFO.camera->Front);
-            float angle = 12.0f;
-            if (dot_product < 0)
-            {
-               angle *= -1;
-            }
-
-            auto bitangent = glm::cross(collision_geom.tangent, G_SCENE_INFO.camera->Up);
-            auto normal = glm::cross(bitangent, collision_geom.tangent);
-            auto temp_vec = glm::rotate(player->entity_ptr->velocity, angle, normal);
-            player->entity_ptr->velocity.x = temp_vec.x;
-            player->entity_ptr->velocity.z = temp_vec.z;
-         }
-         if (flags.key_press & KEY_SPACE)
-         {
-             player->player_state = PLAYER_STATE_JUMPING;
-             auto collision_geom = player->standing_entity_ptr->collision_geometry.slope;
-             float x = collision_geom.normal.x > 0 ? 1 : collision_geom.normal.x == 0 ? 0 : -1;
-             float z = collision_geom.normal.z > 0 ? 1 : collision_geom.normal.z == 0 ? 0 : -1;
-             auto jump_vec = glm::normalize(vec3(x, 1, z));
-             player->entity_ptr->velocity = player->jump_initial_speed * jump_vec;
-         }
+         auto bitangent = glm::cross(collision_geom.tangent, G_SCENE_INFO.camera->Up);
+         auto normal = glm::cross(bitangent, collision_geom.tangent);
+         auto temp_vec = glm::rotate(player->entity_ptr->velocity, angle, normal);
+         player->entity_ptr->velocity.x = temp_vec.x;
+         player->entity_ptr->velocity.z = temp_vec.z;
+      }
+      if (flags.key_press & KEY_SPACE)
+      {
+            player->player_state = PLAYER_STATE_JUMPING;
+            auto collision_geom = player->standing_entity_ptr->collision_geometry.slope;
+            float x = collision_geom.normal.x > 0 ? 1 : collision_geom.normal.x == 0 ? 0 : -1;
+            float z = collision_geom.normal.z > 0 ? 1 : collision_geom.normal.z == 0 ? 0 : -1;
+            auto jump_vec = glm::normalize(vec3(x, 1, z));
+            player->entity_ptr->velocity = player->jump_initial_speed * jump_vec;
       }
    }
+}
 
+void reset_input_flags(InputFlags flags)
+{
    // here we record a history for if keys were last pressed or released, so to enable smooth toggle
    G_INPUT_INFO.key_state |= flags.key_press;
    G_INPUT_INFO.key_state &= ~(flags.key_release); 

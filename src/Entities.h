@@ -211,4 +211,10 @@ Entity* find_entity_in_scene(Scene* scene, std::string name)
    return NULL;
 }
 
+Entity* copy_entity(Entity* entity)
+{
+   auto entity_2 = new Entity();
+   *entity_2 = *entity;
+   return entity_2;
+}
 

@@ -238,10 +238,6 @@ void handle_console_input(InputFlags flags, Player* &player)
 
    // run through all letters to see if they were hit
    check_letter_key_presses(flags);
-
-   // here we record a history for if keys were last pressed or released, so to enable smooth toggle
-   G_INPUT_INFO.key_state |= flags.key_press;
-   G_INPUT_INFO.key_state &= ~(flags.key_release); 
 }
 
 void check_letter_key_presses(InputFlags flags)

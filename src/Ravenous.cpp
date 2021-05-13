@@ -296,21 +296,17 @@ int main()
       switch(PROGRAM_MODE.current)
       {
          case CONSOLE_MODE:
-         {
             handle_console_input(input_flags, player);
             break;
-         }
          case EDITOR_MODE:
-         {
             handle_input_flags(input_flags, player);
+            Editor::handle_input_flags(input_flags, player);
             Editor::start_frame();
             break;
-         }
          default:
-         {
             handle_input_flags(input_flags, player);
-         }
       }
+      reset_input_flags(input_flags);
 
 		//	UPDATE PHASE
       check_view_mode(player);
@@ -326,22 +322,16 @@ int main()
       switch(PROGRAM_MODE.current)
       {
          case CONSOLE_MODE:
-         {
             render_console();
             break;
-         }
          case EDITOR_MODE:
-         {
+            Editor::update();
             Editor::render();
-            Editor::debug_entities();
             render_text_overlay(G_SCENE_INFO.camera, player);
             break;
-         }
          case GAME_MODE:
-         {
             render_game_gui(player);
             break;
-         }
       }
       render_immediate(&G_IMMEDIATE_DRAW, G_SCENE_INFO.camera);
 
