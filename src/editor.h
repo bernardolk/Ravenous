@@ -6,6 +6,7 @@ struct EntityPanelContext {
    Entity* entity = NULL;
    vec3 original_position = vec3(0);
    vec3 original_scale = vec3(0);
+   float original_rotation = 0;
    bool active = false;
 };
 
@@ -31,6 +32,7 @@ void debug_entities();
 void immediate_draw_aabb_boundaries(Entity* entity);
 void move_entity_with_mouse(Entity* entity);
 void handle_input_flags(InputFlags flags, Player* &player);
+void undo_entity_panel_changes();
 
 
 void update()
@@ -141,8 +143,11 @@ void check_selection_to_open_panel()
       Context.entity_panel.original_scale = vec3{
          test.entity->scale
       };
+      Context.entity_panel.original_rotation =
+         test.entity->rotation.y;
    }
 }
+
 
 void check_selection_to_move_entity()
 {
@@ -153,6 +158,7 @@ void check_selection_to_move_entity()
       select_entity(test.entity);
    }
 }
+
 
 void render()
 {
@@ -169,6 +175,16 @@ void select_entity(Entity* entity)
    Context.move_entity_with_mouse = true;
    Context.selected_entity = entity;
 }
+
+
+void undo_entity_panel_changes()
+{
+   auto entity = Context.entity_panel.entity;
+   entity->position = Context.entity_panel.original_position;
+   entity->scale = Context.entity_panel.original_scale;
+   entity->rotation.y = Context.entity_panel.original_rotation;
+}
+
 
 void render_entity_panel(EntityPanelContext* context)
 {
@@ -284,6 +300,13 @@ void initialize()
 
 void handle_input_flags(InputFlags flags, Player* &player)
 {
+   if(Context.entity_panel.entity != NULL)
+   {
+      if(flags.key_press & KEY_LEFT_CTRL && pressed_once(flags, KEY_Z))
+      {
+         undo_entity_panel_changes();
+      }
+   }
    if(pressed_once(flags, KEY_T))
    {  // toggle camera type
       if (G_SCENE_INFO.camera->type == FREE_ROAM)
