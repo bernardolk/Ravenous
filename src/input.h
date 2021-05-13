@@ -466,6 +466,18 @@ void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
          }
          break;
       }
+      case GLFW_MOUSE_BUTTON_RIGHT:
+      {
+         if(action == GLFW_PRESS)
+         {
+            G_INPUT_INFO.mouse_state |= MOUSE_RB_CLICK;
+         }
+         else if(action == GLFW_RELEASE)
+         {
+            G_INPUT_INFO.mouse_state &= ~(MOUSE_RB_CLICK);
+         }
+         break;
+      }
    }
 }
 

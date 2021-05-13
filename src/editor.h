@@ -14,10 +14,11 @@ struct EditorContext {
    EntityPanelContext entity_panel;
 
    bool move_entity_with_mouse = false;
+   bool mouse_click = false;
    Entity* selected_entity;
 } Context;
 
-void check_selection_click();
+void check_selection_to_open_panel();
 void render();
 void select_entity(Entity* entity);
 void render_entity_panel(EntityPanelContext* context);
@@ -41,8 +42,18 @@ void update()
    // respond to mouse if necessary
    if(Context.move_entity_with_mouse)
    {
-      move_entity_with_mouse(Context.selected_entity);
+      if(Context.mouse_click)
+      {
+         Context.selected_entity = nullptr;
+         Context.move_entity_with_mouse = false;
+      }
+      else
+      {
+         move_entity_with_mouse(Context.selected_entity);
+      }
    }
+
+   Context.mouse_click = false;
 }
 
 void move_entity_with_mouse(Entity* entity)
@@ -116,7 +127,24 @@ void immediate_draw_aabb_boundaries(Entity* entity)
 }
 
 
-void check_selection_click()
+void check_selection_to_open_panel()
+{
+   auto pickray = cast_pickray();
+   auto test = test_ray_against_scene(pickray);
+   if(test.hit)
+   {
+      Context.entity_panel.entity = test.entity;
+      Context.entity_panel.active = true;
+      Context.entity_panel.original_position = vec3{
+         test.entity->position
+      };
+      Context.entity_panel.original_scale = vec3{
+         test.entity->scale
+      };
+   }
+}
+
+void check_selection_to_move_entity()
 {
    auto pickray = cast_pickray();
    auto test = test_ray_against_scene(pickray);
@@ -138,14 +166,8 @@ void render()
 
 void select_entity(Entity* entity)
 {
-   Context.entity_panel.entity = entity;
-   Context.entity_panel.active = true;
-   Context.entity_panel.original_position = vec3{
-      entity->position
-   };
-   Context.entity_panel.original_scale = vec3{
-      entity->scale
-   };
+   Context.move_entity_with_mouse = true;
+   Context.selected_entity = entity;
 }
 
 void render_entity_panel(EntityPanelContext* context)
@@ -221,8 +243,7 @@ void render_entity_panel(EntityPanelContext* context)
       auto new_entity = copy_entity(entity);
       new_entity->name += " copy";
       G_SCENE_INFO.active_scene->entities.push_back(new_entity);
-      Context.move_entity_with_mouse = true;
-      Context.selected_entity = new_entity;
+      select_entity(entity);
    }
 
    ImGui::End();
@@ -270,10 +291,21 @@ void handle_input_flags(InputFlags flags, Player* &player)
       else if (G_SCENE_INFO.camera->type == THIRD_PERSON)
          set_camera_to_free_roam(G_SCENE_INFO.camera);
    }
+   // click selection
    if(G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK && flags.key_press & KEY_LEFT_CTRL)
    {
-      Editor::check_selection_click();
+      Editor::check_selection_to_open_panel();
    }
+   else if(G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK && flags.key_press & KEY_G)
+   {
+      Editor::check_selection_to_move_entity();
+   }
+   else if(G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK)
+   {
+      // deselection
+      Context.mouse_click = true;
+   }
+
    if(pressed_once(flags, KEY_GRAVE_TICK))
    { 
       start_console_mode();
@@ -301,7 +333,6 @@ void handle_input_flags(InputFlags flags, Player* &player)
    {
       camera_speed = camera_speed / 2;
    }
-
    if(flags.key_press & KEY_W)
    {
       G_SCENE_INFO.camera->Position += camera_speed * G_SCENE_INFO.camera->Front;
@@ -337,7 +368,6 @@ void handle_input_flags(InputFlags flags, Player* &player)
    {
       camera_look_at(G_SCENE_INFO.camera, vec3(0.0f, 0.0f, 0.0f), true);
    }
-
    if(player->player_state == PLAYER_STATE_STANDING)
    {
       // resets velocity
