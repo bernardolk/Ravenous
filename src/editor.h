@@ -3,7 +3,7 @@ namespace Editor
 {
 
 struct EntityPanelContext {
-   Entity* entity = NULL;
+   Entity* entity = nullptr;
    vec3 original_position = vec3(0);
    vec3 original_scale = vec3(0);
    float original_rotation = 0;
@@ -16,13 +16,14 @@ struct EditorContext {
 
    bool move_entity_with_mouse = false;
    bool mouse_click = false;
-   Entity* selected_entity;
+   Entity* last_selected_entity = nullptr;
+   vec3 last_selected_entity_original_position;
 } Context;
 
 void check_selection_to_open_panel();
 void render();
 void select_entity(Entity* entity);
-void render_entity_panel(EntityPanelContext* context);
+void render_entity_panel(EntityPanelContext* panel_context);
 void start_frame();
 void end_frame();
 void initialize();
@@ -33,6 +34,8 @@ void immediate_draw_aabb_boundaries(Entity* entity);
 void move_entity_with_mouse(Entity* entity);
 void handle_input_flags(InputFlags flags, Player* &player);
 void undo_entity_panel_changes();
+void undo_selected_entity_move_changes();
+void deselect_entity();
 
 
 void update()
@@ -46,12 +49,11 @@ void update()
    {
       if(Context.mouse_click)
       {
-         Context.selected_entity = nullptr;
-         Context.move_entity_with_mouse = false;
+         deselect_entity();
       }
       else
       {
-         move_entity_with_mouse(Context.selected_entity);
+         move_entity_with_mouse(Context.last_selected_entity);
       }
    }
 
@@ -173,7 +175,13 @@ void render()
 void select_entity(Entity* entity)
 {
    Context.move_entity_with_mouse = true;
-   Context.selected_entity = entity;
+   Context.last_selected_entity = entity;
+   Context.last_selected_entity_original_position = entity->position;
+}
+
+void deselect_entity()
+{
+   Context.move_entity_with_mouse = false;
 }
 
 
@@ -185,62 +193,69 @@ void undo_entity_panel_changes()
    entity->rotation.y = Context.entity_panel.original_rotation;
 }
 
-
-void render_entity_panel(EntityPanelContext* context)
+void undo_selected_entity_move_changes()
 {
-   auto entity = context->entity;
+   auto entity = Context.last_selected_entity;
+   entity->position = Context.last_selected_entity_original_position;
+   deselect_entity();
+}
+
+
+void render_entity_panel(EntityPanelContext* panel_context)
+{
+   auto entity = panel_context->entity;
    ImGui::SetNextWindowPos(ImVec2(100, 300), ImGuiCond_Appearing);
-   ImGui::Begin(entity->name.c_str(), &context->active, ImGuiWindowFlags_AlwaysAutoResize);
+   ImGui::Begin(entity->name.c_str(), &panel_context->active, ImGuiWindowFlags_AlwaysAutoResize);
 
    // position
    ImGui::SliderFloat(
       "x",
-      &context->entity->position.x,
-      context->original_position.x - 4,
-      context->original_position.x + 4
+      &panel_context->entity->position.x,
+      panel_context->original_position.x - 4,
+      panel_context->original_position.x + 4
    );
    ImGui::SliderFloat(
       "y",
-      &context->entity->position.y,
-      context->original_position.y - 4,
-      context->original_position.y + 4
+      &panel_context->entity->position.y,
+      panel_context->original_position.y - 4,
+      panel_context->original_position.y + 4
    );
    ImGui::SliderFloat(
       "z", 
-      &context->entity->position.z, 
-      context->original_position.z - 4, 
-      context->original_position.z + 4
+      &panel_context->entity->position.z, 
+      panel_context->original_position.z - 4, 
+      panel_context->original_position.z + 4
    );
 
    // rotation
-   float rotation = context->entity->rotation.y;
+   float rotation = panel_context->entity->rotation.y;
    if(ImGui::InputFloat("rot y", &rotation, 90))
-      Context.entity_panel.entity->rotate_y(rotation - context->entity->rotation.y);
+      Context.entity_panel.entity->rotate_y(rotation - panel_context->entity->rotation.y);
 
    // scale
-   auto scale = vec3{context->entity->scale};
+   auto scale = vec3{panel_context->entity->scale};
    vec3 min_scales {
-      context->original_scale.x - 4,
-      context->original_scale.y - 4,
-      context->original_scale.z - 4
+      panel_context->original_scale.x - 4,
+      panel_context->original_scale.y - 4,
+      panel_context->original_scale.z - 4
    };
    if(ImGui::SliderFloat(
       "scale x",
       &scale.x,
       min_scales.x < 0 ? 0: min_scales.x,
-      context->original_scale.x + 4
+      panel_context->original_scale.x + 4
    ) ||
    ImGui::SliderFloat(
       "scale y",
       &scale.y,
       min_scales.y < 0 ? 0: min_scales.y,
-      context->original_scale.y + 4
+      panel_context->original_scale.y + 4
    ) ||
    ImGui::SliderFloat(
       "scale z", 
       &scale.z,
       min_scales.z < 0 ? 0: min_scales.z,
-      context->original_scale.z + 4
+      panel_context->original_scale.z + 4
    ))
    {
       Context.entity_panel.entity->set_scale(scale);
@@ -300,13 +315,14 @@ void initialize()
 
 void handle_input_flags(InputFlags flags, Player* &player)
 {
-   if(Context.entity_panel.entity != NULL)
+   if(flags.key_press & KEY_LEFT_CTRL && pressed_once(flags, KEY_Z))
    {
-      if(flags.key_press & KEY_LEFT_CTRL && pressed_once(flags, KEY_Z))
-      {
+      if(Context.entity_panel.active)
          undo_entity_panel_changes();
-      }
+      else if(Context.last_selected_entity != nullptr)
+         undo_selected_entity_move_changes();
    }
+
    if(pressed_once(flags, KEY_T))
    {  // toggle camera type
       if (G_SCENE_INFO.camera->type == FREE_ROAM)
