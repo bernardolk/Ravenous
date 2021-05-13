@@ -303,8 +303,10 @@ int main()
             Editor::handle_input_flags(input_flags, player);
             Editor::start_frame();
             break;
-         default:
+         case GAME_MODE:
             handle_input_flags(input_flags, player);
+            game_handle_input_flags(input_flags, player);
+            break;
       }
       reset_input_flags(input_flags);
 
