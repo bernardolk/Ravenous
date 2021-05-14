@@ -427,6 +427,9 @@ void parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, s
             };
 
             new_entity->collision_geometry_type = COLLISION_ALIGNED_BOX;
+
+            // FOR BOXES WE NEED TO CORRECT COLLISION FOR ROTATION!
+            new_entity->set_scale(new_entity->scale);
          }
          else if(collision_type == "slope")
          {

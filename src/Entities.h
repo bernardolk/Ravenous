@@ -71,17 +71,36 @@ struct Entity {
             collision_geometry.aabb.length_x = new_scale.x;
             collision_geometry.aabb.length_z = new_scale.z;
 
-            if(rotation.y == 0)
+            int angle = (int)rotation.y % 360;
+
+            if(angle == 0)
                return;
             
             // then correct it base on rotation
-            auto sign = sin(rotation.y * PI / 180.0f);
-            auto z_temp = collision_geometry.aabb.length_z;
-            collision_geometry.aabb.length_z = collision_geometry.aabb.length_x * (-1 * sign);
-            collision_geometry.aabb.length_x = z_temp * sign;
-
+            switch(angle)
+            {
+               case 90:
+               {
+                  auto z_temp = collision_geometry.aabb.length_z;
+                  collision_geometry.aabb.length_z = -1 * collision_geometry.aabb.length_x;
+                  collision_geometry.aabb.length_x = z_temp;
+                  break;
+               }
+               case 180:
+               {
+                  collision_geometry.aabb.length_z *= -1;
+                  collision_geometry.aabb.length_x *= -1;
+                  break;
+               }
+               case 270:
+               {
+                  auto z_temp = collision_geometry.aabb.length_z;
+                  collision_geometry.aabb.length_z = collision_geometry.aabb.length_x;
+                  collision_geometry.aabb.length_x = z_temp;
+                  break;
+               }
+            }
             break;
-            
          }
          case COLLISION_ALIGNED_SLOPE:
          {
@@ -201,13 +220,8 @@ struct Scene {
 Entity* find_entity_in_scene(Scene* scene, std::string name) 
 {
    for(int i = 0; i < scene->entities.size() ; i++)
-   {
       if(scene->entities[i]->name == name)
-      {
          return scene->entities[i];
-      }
-   }
-
    return NULL;
 }
 
@@ -216,5 +230,13 @@ Entity* copy_entity(Entity* entity)
    auto entity_2 = new Entity();
    *entity_2 = *entity;
    return entity_2;
+}
+
+int get_entity_position(Scene* scene, Entity* entity)
+{
+   for(int i = 0; i < scene->entities.size() ; i++)
+      if(scene->entities[i]->name == entity->name)
+         return i;
+   return -1;
 }
 
