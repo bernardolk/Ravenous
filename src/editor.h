@@ -8,6 +8,7 @@ struct EntityPanelContext {
    vec3 original_scale = vec3(0);
    float original_rotation = 0;
    bool active = false;
+   char rename_buffer[100];
 };
 
 struct EditorContext {
@@ -172,6 +173,8 @@ void render()
 {
    if(Context.entity_panel.active)
       render_entity_panel(&Context.entity_panel);
+   else
+      Context.entity_panel.rename_buffer[0] = 0;
 
    ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -211,7 +214,13 @@ void render_entity_panel(EntityPanelContext* panel_context)
 {
    auto entity = panel_context->entity;
    ImGui::SetNextWindowPos(ImVec2(100, 300), ImGuiCond_Appearing);
-   ImGui::Begin(entity->name.c_str(), &panel_context->active, ImGuiWindowFlags_AlwaysAutoResize);
+   ImGui::Begin("Entity Panel", &panel_context->active, ImGuiWindowFlags_AlwaysAutoResize);
+
+   ImGui::Text(entity->name.c_str());
+   
+   //rename
+   if(ImGui::InputText("rename", &panel_context->rename_buffer[0], 100))
+      entity->name = panel_context->rename_buffer;
 
    // position
    ImGui::SliderFloat(
@@ -279,6 +288,8 @@ void render_entity_panel(EntityPanelContext* panel_context)
    {
       auto new_entity = copy_entity(entity);
       new_entity->name += " copy";
+      bool already_exists = get_entity_position(G_SCENE_INFO.active_scene, new_entity) > -1;
+      if(already_exists) new_entity->name += "(1)";
       G_SCENE_INFO.active_scene->entities.push_back(new_entity);
       select_entity(new_entity);
       set_entity_panel(new_entity);
@@ -332,6 +343,9 @@ void initialize()
 
 void handle_input_flags(InputFlags flags, Player* &player)
 {
+   if(ImGui::GetIO().WantCaptureKeyboard || ImGui::GetIO().WantCaptureMouse)
+      return;
+
    if(flags.key_press & KEY_LEFT_CTRL && pressed_once(flags, KEY_Z))
    {
       if(Context.entity_panel.active)
