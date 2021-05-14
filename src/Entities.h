@@ -60,55 +60,14 @@ struct Entity {
       scale = new_scale;
       switch(collision_geometry_type)
       {
-         case COLLISION_ALIGNED_CYLINDER:
-         {
-            break;
-         }
          case COLLISION_ALIGNED_BOX:
-         {
-            // first just set it
-            collision_geometry.aabb.length_y = new_scale.y;
-            collision_geometry.aabb.length_x = new_scale.x;
-            collision_geometry.aabb.length_z = new_scale.z;
-
-            int angle = (int)rotation.y % 360;
-
-            if(angle == 0)
-               return;
-            
-            // then correct it base on rotation
-            switch(angle)
-            {
-               case 90:
-               {
-                  auto z_temp = collision_geometry.aabb.length_z;
-                  collision_geometry.aabb.length_z = -1 * collision_geometry.aabb.length_x;
-                  collision_geometry.aabb.length_x = z_temp;
-                  break;
-               }
-               case 180:
-               {
-                  collision_geometry.aabb.length_z *= -1;
-                  collision_geometry.aabb.length_x *= -1;
-                  break;
-               }
-               case 270:
-               {
-                  auto z_temp = collision_geometry.aabb.length_z;
-                  collision_geometry.aabb.length_z = collision_geometry.aabb.length_x;
-                  collision_geometry.aabb.length_x = z_temp;
-                  break;
-               }
-            }
+            recalculate_collision_aabb(new_scale);
             break;
-         }
          case COLLISION_ALIGNED_SLOPE:
-         {
-            collision_geometry.slope.width = new_scale.z;
-            collision_geometry.slope.height = new_scale.y;
-            collision_geometry.slope.length = new_scale.x;
+            collision_geometry.slope.width   = new_scale.z;
+            collision_geometry.slope.height  = new_scale.y;
+            collision_geometry.slope.length  = new_scale.x;
             break;
-         }
       }
    };
 
@@ -126,29 +85,21 @@ struct Entity {
       switch((int) rotation.y)
       {
          case 0:
-         {
             slope_direction.x = cos(slope_angle);
             slope_normal.x = cos(complementary);
             break;
-         }
          case 90:
-         {
             slope_direction.z = -1 * cos(slope_angle);
             slope_normal.z = -1 * cos(complementary);
             break;
-         }
          case 180:
-         {
             slope_direction.x = -1 * cos(slope_angle);
             slope_normal.x = -1 * cos(complementary);
             break;
-         }
          case 270:
-         {
             slope_direction.z = cos(slope_angle);
             slope_normal.z = cos(complementary);
             break;
-         }
       }
       slope.tangent = slope_direction;
       slope.normal = slope_normal;
@@ -158,16 +109,54 @@ struct Entity {
    void rotate_y(float angle)
    {
       rotation.y += angle;
-      if(collision_geometry_type == COLLISION_ALIGNED_BOX)
+      switch(collision_geometry_type)
       {
-         auto sign = sin(angle * PI / 180.0f);
-         auto z_temp = collision_geometry.aabb.length_z;
-         collision_geometry.aabb.length_z = collision_geometry.aabb.length_x * (-1 * sign);
-         collision_geometry.aabb.length_x = z_temp * sign;
+         case COLLISION_ALIGNED_BOX:
+            recalculate_collision_aabb(scale);
+            break;
+         case COLLISION_ALIGNED_SLOPE:
+            set_slope_properties();
+            break;
       }
-      else if(collision_geometry_type == COLLISION_ALIGNED_SLOPE)
+   }
+
+   void recalculate_collision_aabb(vec3 new_scale)
+   {
+      // first just set the values normally
+      collision_geometry.aabb.length_y = new_scale.y;
+      collision_geometry.aabb.length_x = new_scale.x;
+      collision_geometry.aabb.length_z = new_scale.z;
+
+      int angle = (int)rotation.y % 360;
+
+      if(angle == 0)
+         return;
+      if(angle < 0)
+         angle = 360 + angle;
+      
+      // then correct it base on rotation
+      switch(angle)
       {
-         set_slope_properties();
+         case 90:
+         {
+            auto z_temp = collision_geometry.aabb.length_z;
+            collision_geometry.aabb.length_z = -1 * collision_geometry.aabb.length_x;
+            collision_geometry.aabb.length_x = z_temp;
+            break;
+         }
+         case 180:
+         {
+            collision_geometry.aabb.length_z *= -1;
+            collision_geometry.aabb.length_x *= -1;
+            break;
+         }
+         case 270:
+         {
+            auto z_temp = collision_geometry.aabb.length_z;
+            collision_geometry.aabb.length_z = collision_geometry.aabb.length_x;
+            collision_geometry.aabb.length_x = -1 * z_temp;
+            break;
+         }
       }
    }
 };
