@@ -36,6 +36,7 @@ void handle_input_flags(InputFlags flags, Player* &player);
 void undo_entity_panel_changes();
 void undo_selected_entity_move_changes();
 void deselect_entity();
+void set_entity_panel(Entity* entity);
 
 
 void update()
@@ -137,17 +138,22 @@ void check_selection_to_open_panel()
    auto test = test_ray_against_scene(pickray);
    if(test.hit)
    {
-      Context.entity_panel.entity = test.entity;
-      Context.entity_panel.active = true;
-      Context.entity_panel.original_position = vec3{
-         test.entity->position
-      };
-      Context.entity_panel.original_scale = vec3{
-         test.entity->scale
-      };
-      Context.entity_panel.original_rotation =
-         test.entity->rotation.y;
+      set_entity_panel(test.entity);
    }
+}
+
+void set_entity_panel(Entity* entity)
+{
+   Context.entity_panel.entity = entity;
+   Context.entity_panel.active = true;
+   Context.entity_panel.original_position = vec3{
+      entity->position
+   };
+   Context.entity_panel.original_scale = vec3{
+      entity->scale
+   };
+   Context.entity_panel.original_rotation =
+      entity->rotation.y;
 }
 
 
@@ -190,7 +196,7 @@ void undo_entity_panel_changes()
    auto entity = Context.entity_panel.entity;
    entity->position = Context.entity_panel.original_position;
    entity->scale = Context.entity_panel.original_scale;
-   entity->rotation.y = Context.entity_panel.original_rotation;
+   entity->rotate_y(Context.entity_panel.original_rotation - entity->rotation.y);
 }
 
 void undo_selected_entity_move_changes()
@@ -274,7 +280,18 @@ void render_entity_panel(EntityPanelContext* panel_context)
       auto new_entity = copy_entity(entity);
       new_entity->name += " copy";
       G_SCENE_INFO.active_scene->entities.push_back(new_entity);
-      select_entity(entity);
+      select_entity(new_entity);
+      set_entity_panel(new_entity);
+   }
+
+   bool erase = false;
+   ImGui::Checkbox("Erase", &erase);
+   if(erase)
+   {
+      auto& list = G_SCENE_INFO.active_scene->entities;
+      int index = get_entity_position(G_SCENE_INFO.active_scene, entity);
+      list.erase(list.begin() + index);
+      Context.entity_panel.active = false;
    }
 
    ImGui::End();
