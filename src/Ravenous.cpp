@@ -613,15 +613,9 @@ void create_boilerplate_geometry()
 
 void render_text_overlay(Camera* camera, Player* player) 
 {
-   // render info text
-   float GUI_x = 25;
-   float GUI_y = G_DISPLAY_INFO.VIEWPORT_HEIGHT - 60;
-
    string player_floor = "player floor: ";
    if(player->standing_entity_ptr != NULL)
-   {
       player_floor += player->standing_entity_ptr->name;
-   }
 
    string lives = to_string(player->lives);
 
@@ -639,19 +633,9 @@ void render_text_overlay(Camera* camera, Player* player)
       format_float_tostr(player->entity_ptr->position.z,1),    //10
       format_float_tostr(G_FRAME_INFO.time_step,1)             //11
    };
- 
-   string camera_type;
-   switch(camera->type)
-   {
-      case FREE_ROAM:
-         camera_type = "FREE ROAM";
-         break;
-      case THIRD_PERSON:
-         camera_type = "THIRD PERSON";
-         break;
-   }
 
-   string camera_type_string  = "camera type: " + camera_type;
+   string cam_type = camera->type == FREE_ROAM ? "FREE ROAM" : "THIRD PERSON";
+   string camera_type_string  = "camera type: " + cam_type;
    string camera_position  = "camera:   x: " + GUI_atts[0] + " y:" + GUI_atts[1] + " z:" + GUI_atts[2];
    string camera_front     = "    dir:  x: " + GUI_atts[5] + " y:" + GUI_atts[6] + " z:" + GUI_atts[7];
    string mouse_stats      = "    pitch: " + GUI_atts[3] + " yaw: " + GUI_atts[4];
@@ -706,19 +690,23 @@ void render_text_overlay(Camera* camera, Player* player)
          break;
    }
 
-   render_text(camera_type_string,  GUI_x, GUI_y);
-   render_text(camera_position,     GUI_x, GUI_y - 25);
-   render_text(player_pos,          GUI_x, GUI_y - 50);
-   auto lives_color = player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1};
-   render_text(lives,               GUI_x, GUI_y - 75, 1.0, lives_color);
+   float GUI_x = 25;
+   float GUI_y = G_DISPLAY_INFO.VIEWPORT_HEIGHT - 60;
 
-   render_text(player_state_text,   GUI_x, 25, 1.5, player_state_text_color);
-   render_text(view_mode_text,      GUI_x, 50, 1.5);
-   render_text(player_floor,        GUI_x, 75, 1.5);
+   render_text(camera_type_string,  GUI_x, GUI_y,        1.3);
+   render_text(camera_position,     GUI_x, GUI_y - 30,   1.3);
+   render_text(player_pos,          GUI_x, GUI_y - 60,   1.3);
 
-   render_text(G_SCENE_INFO.scene_name,   G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, 75, 1.3, vec3(0.8, 0.8, 0.2));
-   render_text(time_step_string,          G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, 50, 1.3, vec3(0.8, 0.8, 0.2));
-   render_text(fps_gui,                   G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, 25, 1.3);
+   render_text(lives,               G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, 90, 1.3,  
+      player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1}
+   );
+   render_text(player_floor,        G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, 60, 1.3);
+   render_text(player_state_text,   G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, 30, 1.3, player_state_text_color);
+
+   render_text(view_mode_text,            G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y,        1.3);
+   render_text(G_SCENE_INFO.scene_name,   G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 30,   1.3, vec3(0.8, 0.8, 0.2));
+   render_text(time_step_string,          G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 60,   1.3, vec3(0.8, 0.8, 0.2));
+   render_text(fps_gui,                   G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 90,   1.3);
 }
 
 
