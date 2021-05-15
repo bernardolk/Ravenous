@@ -200,6 +200,14 @@ void execute_command(string buffer_line, Player* &player)
          save_configs_to_file();
       }
    }
+   else if(command == "reload")
+   {
+      if(load_scene_from_file(G_SCENE_INFO.scene_name))
+      {
+         player = G_SCENE_INFO.player; // not irrelevant! do not delete
+         player->entity_ptr->render_me = PROGRAM_MODE.last == EDITOR_MODE ? true : false;
+      }
+   }
    else
    {
       cout << "what do you mean with " << command << " man?\n";
