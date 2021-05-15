@@ -133,15 +133,16 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
                   << texture.path << "\n";
       }
 
-      string collision_type;
+      writer << "collision ";
       if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX)
-         collision_type = "aabb";
+         writer << "aabb\n";
       else if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
-         collision_type = "slope";
+         writer << "slope\n";
       else
          assert(false);
-
-      writer << "collision " << collision_type << "\n";
+      
+      if(entity->mesh.wireframe)
+         writer << "hidden\n";
    }
 
    writer.close();
@@ -456,6 +457,10 @@ void parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, s
                         << path << "') LINE NUMBER " << line_count << "\n";
             assert(false);
          }
+      }
+      else if(property == "hidden")
+      {
+         new_entity->mesh.wireframe = true;
       }
       else
       {

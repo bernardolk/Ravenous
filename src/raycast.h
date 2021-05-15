@@ -16,13 +16,13 @@ struct Ray{
 };
 
 Ray cast_pickray();
-RaycastTest test_ray_against_scene(Ray ray);
+RaycastTest test_ray_against_scene(Ray ray,  bool only_test_visible_entities);
 RaycastTest test_ray_against_entity(Ray ray, Entity* entity);
 RaycastTest test_ray_against_triangle(Ray ray, Triangle triangle);
 Triangle get_triangle_for_indexed_mesh(Entity* entity, int triangle_index);
 
 
-RaycastTest test_ray_against_scene(Ray ray)
+RaycastTest test_ray_against_scene(Ray ray, bool only_test_visible_entities = false)
 {
    float min_distance = MAX_FLOAT;
    RaycastTest closest_hit{false, -1};
@@ -32,6 +32,9 @@ RaycastTest test_ray_against_scene(Ray ray)
 	for(int it = 0; it < entities_vec_size; it++) 
    {
 	   auto entity = *entity_iterator++;
+      if(only_test_visible_entities && !entity->render_me)
+         continue;
+         
       auto test = test_ray_against_entity(ray, entity);
 
       if(test.hit && test.distance < min_distance)

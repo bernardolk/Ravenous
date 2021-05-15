@@ -162,7 +162,7 @@ void set_entity_panel(Entity* entity)
 void check_selection_to_move_entity()
 {
    auto pickray = cast_pickray();
-   auto test = test_ray_against_scene(pickray);
+   auto test = test_ray_against_scene(pickray, true);
    if(test.hit)
    {
       select_entity(test.entity);
@@ -225,9 +225,11 @@ void render_entity_panel(EntityPanelContext* panel_context)
    ImGui::Text(entity->name.c_str());
    
    //rename
+   ImGui::NewLine();
    if(ImGui::InputText("rename", &panel_context->rename_buffer[0], 100))
       entity->name = panel_context->rename_buffer;
 
+   ImGui::NewLine();
    // position
    {
       ImGui::SliderFloat(
@@ -256,6 +258,8 @@ void render_entity_panel(EntityPanelContext* panel_context)
       if(ImGui::InputFloat("rot y", &rotation, 90))
          Context.entity_panel.entity->rotate_y(rotation - panel_context->entity->rotation.y);
    }
+
+   ImGui::NewLine();
 
    // scale
    {
@@ -288,11 +292,11 @@ void render_entity_panel(EntityPanelContext* panel_context)
          Context.entity_panel.entity->set_scale(scale);
    }
    
+   ImGui::NewLine();
+
    // Controls
    {
-      bool duplicate = false;
-      ImGui::Checkbox("Duplicate", &duplicate);
-      if(duplicate)
+      if(ImGui::Button("Duplicate", ImVec2(18,18)))
       {
          auto new_entity = copy_entity(entity);
          new_entity->name += " copy";
@@ -303,15 +307,15 @@ void render_entity_panel(EntityPanelContext* panel_context)
          set_entity_panel(new_entity);
       }
 
-      bool erase = false;
-      ImGui::Checkbox("Erase", &erase);
-      if(erase)
+      if(ImGui::Button("Erase", ImVec2(18,18)))
       {
          auto& list = G_SCENE_INFO.active_scene->entities;
          int index = get_entity_position(G_SCENE_INFO.active_scene, entity);
          list.erase(list.begin() + index);
          Context.entity_panel.active = false;
       }
+
+      ImGui::Checkbox("Hide", &entity->mesh.wireframe);
    }
 
    ImGui::End();

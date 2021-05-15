@@ -40,6 +40,7 @@ struct Entity {
    std::vector<Texture> textures;
 	glm::mat4 matModel = mat4identity;
    bool render_me = true;
+   bool wireframe = false;
 
    // simulation data
 	vec3 position = vec3(0.0f);
