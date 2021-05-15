@@ -422,6 +422,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
       camera_look_at(G_SCENE_INFO.views[1], G_SCENE_INFO.camera->Front, false);
       player->player_state = PLAYER_STATE_FALLING;
       player->entity_ptr->velocity = vec3(0, 0, 0);
+      player->height_before_fall = player->entity_ptr->position.y;
    }
    
    // @TODO: this sucks
