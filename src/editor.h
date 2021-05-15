@@ -147,6 +147,8 @@ void check_selection_to_open_panel()
 
 void set_entity_panel(Entity* entity)
 {
+   Context.last_selected_entity = entity;
+   
    auto &undo     = Context.original_entity_state;
    undo.position  = entity->position;
    undo.rotation  = entity->rotation;
