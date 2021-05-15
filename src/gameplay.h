@@ -696,8 +696,7 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
 
             // PARTICULAR CHECKS FOR SLOPES (PLAYER LIES INSIDE IT)
             if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE &&
-               horizontal_check.overlap == 0 && 
-               v_overlap_collision.normal_vec.y != -1)
+               horizontal_check.overlap == 0)
             {
                auto col_geometry = entity->collision_geometry.slope;
                if(col_geometry.inclination > SLIDE_MAX_ANGLE)
