@@ -3,12 +3,15 @@ namespace Editor
 {
 
 struct EntityPanelContext {
+   bool active = false;
    Entity* entity = nullptr;
    vec3 original_position = vec3(0);
    vec3 original_scale = vec3(0);
    float original_rotation = 0;
-   bool active = false;
    char rename_buffer[100];
+   bool reverse_scale_x = false;
+   bool reverse_scale_y = false;
+   bool reverse_scale_z = false;
 };
 
 struct EntityState {
@@ -218,7 +221,7 @@ void undo_selected_entity_move_changes()
 
 void render_entity_panel(EntityPanelContext* panel_context)
 {
-   auto entity = panel_context->entity;
+   auto& entity = panel_context->entity;
    ImGui::SetNextWindowPos(ImVec2(100, 300), ImGuiCond_Appearing);
    ImGui::Begin("Entity Panel", &panel_context->active, ImGuiWindowFlags_AlwaysAutoResize);
 
@@ -234,19 +237,19 @@ void render_entity_panel(EntityPanelContext* panel_context)
    {
       ImGui::SliderFloat(
          "x",
-         &panel_context->entity->position.x,
+         &entity->position.x,
          panel_context->original_position.x - 4,
          panel_context->original_position.x + 4
       );
       ImGui::SliderFloat(
          "y",
-         &panel_context->entity->position.y,
+         &entity->position.y,
          panel_context->original_position.y - 4,
          panel_context->original_position.y + 4
       );
       ImGui::SliderFloat(
          "z", 
-         &panel_context->entity->position.z, 
+         &entity->position.z, 
          panel_context->original_position.z - 4, 
          panel_context->original_position.z + 4
       );
@@ -254,49 +257,63 @@ void render_entity_panel(EntityPanelContext* panel_context)
 
    // rotation
    {
-      float rotation = panel_context->entity->rotation.y;
+      float rotation = entity->rotation.y;
       if(ImGui::InputFloat("rot y", &rotation, 90))
-         Context.entity_panel.entity->rotate_y(rotation - panel_context->entity->rotation.y);
+         Context.entity_panel.entity->rotate_y(rotation - entity->rotation.y);
    }
 
    ImGui::NewLine();
 
    // scale
    {
-      auto scale = vec3{panel_context->entity->scale};
+      auto scale = entity->scale;
       vec3 min_scales {
          panel_context->original_scale.x - 4,
          panel_context->original_scale.y - 4,
          panel_context->original_scale.z - 4
       };
+
       bool scaled_x = ImGui::SliderFloat(
          "scale x",
          &scale.x,
          min_scales.x < 0 ? 0: min_scales.x,
          panel_context->original_scale.x + 4
       );
+      ImGui::Checkbox("rev x", &panel_context->reverse_scale_x);
+
       bool scaled_y = ImGui::SliderFloat(
          "scale y",
          &scale.y,
          min_scales.y < 0 ? 0: min_scales.y,
          panel_context->original_scale.y + 4
       );
+      ImGui::Checkbox("rev y", &panel_context->reverse_scale_y);
+
       bool scaled_z = ImGui::SliderFloat(
          "scale z", 
          &scale.z,
          min_scales.z < 0 ? 0: min_scales.z,
          panel_context->original_scale.z + 4
       );
+      ImGui::Checkbox("rev z", &panel_context->reverse_scale_z);
 
       if(scaled_x || scaled_y || scaled_z)
-         Context.entity_panel.entity->set_scale(scale);
+      {
+         if(panel_context->reverse_scale_x)
+            entity->position.x -= scale.x - entity->scale.x;
+         if(panel_context->reverse_scale_y)
+            entity->position.y -= scale.y - entity->scale.y;
+         if(panel_context->reverse_scale_z)
+            entity->position.z -= scale.z - entity->scale.z;
+         entity->set_scale(scale);
+      }
    }
    
    ImGui::NewLine();
 
    // Controls
    {
-      if(ImGui::Button("Duplicate", ImVec2(18,18)))
+      if(ImGui::Button("Duplicate", ImVec2(42,18)))
       {
          auto new_entity = copy_entity(entity);
          new_entity->name += " copy";
@@ -307,7 +324,7 @@ void render_entity_panel(EntityPanelContext* panel_context)
          set_entity_panel(new_entity);
       }
 
-      if(ImGui::Button("Erase", ImVec2(18,18)))
+      if(ImGui::Button("Erase", ImVec2(42,18)))
       {
          auto& list = G_SCENE_INFO.active_scene->entities;
          int index = get_entity_position(G_SCENE_INFO.active_scene, entity);
