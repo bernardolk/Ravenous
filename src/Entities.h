@@ -110,6 +110,10 @@ struct Entity {
    void rotate_y(float angle)
    {
       rotation.y += angle;
+      rotation.y = (int) rotation.y % 360;
+      if(rotation.y < 0)
+         rotation.y = 360 + rotation.y;
+
       switch(collision_geometry_type)
       {
          case COLLISION_ALIGNED_BOX:

@@ -76,8 +76,8 @@ struct GLData {
 
 struct GlobalDisplayInfo {
    GLFWwindow* window;
-   const float VIEWPORT_WIDTH = 1200;
-   const float VIEWPORT_HEIGHT = 900;
+   const float VIEWPORT_WIDTH = 1980;
+   const float VIEWPORT_HEIGHT = 1080;
 } G_DISPLAY_INFO;
 
 struct MouseCoordinates {

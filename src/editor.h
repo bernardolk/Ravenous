@@ -148,7 +148,7 @@ void check_selection_to_open_panel()
 void set_entity_panel(Entity* entity)
 {
    Context.last_selected_entity = entity;
-   
+
    auto &undo     = Context.original_entity_state;
    undo.position  = entity->position;
    undo.rotation  = entity->rotation;
@@ -161,6 +161,9 @@ void set_entity_panel(Entity* entity)
    panel.original_position = entity->position;
    panel.original_scale    = entity->scale;
    panel.original_rotation = entity->rotation.y;
+   panel.reverse_scale_x = false;
+   panel.reverse_scale_y = false;
+   panel.reverse_scale_z = false;
 }
 
 
@@ -315,7 +318,7 @@ void render_entity_panel(EntityPanelContext* panel_context)
 
    // Controls
    {
-      if(ImGui::Button("Duplicate", ImVec2(42,18)))
+      if(ImGui::Button("Duplicate", ImVec2(82,18)))
       {
          auto new_entity = copy_entity(entity);
          new_entity->name += " copy";
@@ -326,7 +329,7 @@ void render_entity_panel(EntityPanelContext* panel_context)
          set_entity_panel(new_entity);
       }
 
-      if(ImGui::Button("Erase", ImVec2(42,18)))
+      if(ImGui::Button("Erase", ImVec2(82,18)))
       {
          auto& list = G_SCENE_INFO.active_scene->entities;
          int index = get_entity_position(G_SCENE_INFO.active_scene, entity);
