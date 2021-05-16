@@ -69,21 +69,6 @@ void update()
    Context.mouse_click = false;
 }
 
-void update_editor_entities()
-{
-	Entity **entity_iterator = &(Context.entities[0]);
-   for(int it=0; it < Context.entities.size(); it++)
-   {
-	   auto &entity = *entity_iterator++;
-      glm::mat4 model = translate(mat4identity, entity->position);
-		model = glm::rotate(model, glm::radians(entity->rotation.x), vec3(1.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(entity->rotation.z), vec3(0.0f, 0.0f, 1.0f));
-		model = glm::scale(model, entity->scale);
-		entity->matModel = model;
-   }
-}
-
 void move_entity_with_mouse(Entity* entity)
 {
    Ray ray = cast_pickray();
@@ -197,6 +182,34 @@ void check_selection_to_move_entity()
    }
 }
 
+void update_editor_entities()
+{
+	Entity **entity_iterator = &(Context.entities[0]);
+   for(int it=0; it < Context.entities.size(); it++)
+   {
+	   auto &entity = *entity_iterator++;
+
+      // auto x_rads = acos(G_SCENE_INFO.camera->Front.x);
+      // auto x_rads_s = asin(G_SCENE_INFO.camera->Front.x);
+      // auto x_angle_c = glm::degrees(x_rads);
+      // auto x_angle_s = glm::degrees(x_rads_s);
+      // entity->rotation.x = x_angle_c;
+      // entity->rotation.z = x_angle_s;
+
+      // its something like that
+      auto angle_xy = glm::degrees(atan(G_SCENE_INFO.camera->Front.y / G_SCENE_INFO.camera->Front.x));
+      entity->rotation.z = G_SCENE_INFO.camera->Yaw;
+      entity->rotation.x = G_SCENE_INFO.camera->Pitch;
+      
+
+      glm::mat4 model = translate(mat4identity, entity->position);
+		model = glm::rotate(model, glm::radians(entity->rotation.x), vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(entity->rotation.z), vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, entity->scale);
+		entity->matModel = model;
+   }
+}
 
 void render()
 {
@@ -208,6 +221,7 @@ void render()
 	   auto entity = *entity_iterator++;
       entity->shader->use();
       entity->shader->setMatrix4("model", entity->matModel);
+      entity->shader-> setMatrix4("view", G_SCENE_INFO.camera->View4x4);
       render_entity(entity);
    }
    glDepthFunc(GL_LESS); 
@@ -436,6 +450,7 @@ void initialize()
    x_axis->shader = shader;
    x_axis->position = vec3{-0.9, -0.9, 1};
    x_axis->scale = vec3{0.1, 0.1, 0.1};
+   x_axis->rotation = vec3{90, 0, 90};
 
    Context.entities.push_back(x_axis);
 }
