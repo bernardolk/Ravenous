@@ -28,6 +28,8 @@ struct EditorContext {
    bool mouse_click = false;
    Entity* last_selected_entity = nullptr;
    EntityState original_entity_state;
+
+   vector<Entity*> entities;
 } Context;
 
 void check_selection_to_open_panel();
@@ -47,11 +49,14 @@ void undo_entity_panel_changes();
 void undo_selected_entity_move_changes();
 void deselect_entity();
 void set_entity_panel(Entity* entity);
+void update_editor_entities();
 
 
 void update()
 {
    //debug_entities(); // ACTIVATE this for editor mode entity debugging code
+
+   update_editor_entities();
 
    // respond to mouse if necessary
    if(Context.move_entity_with_mouse)
@@ -62,6 +67,21 @@ void update()
          move_entity_with_mouse(Context.last_selected_entity);
    }
    Context.mouse_click = false;
+}
+
+void update_editor_entities()
+{
+	Entity **entity_iterator = &(Context.entities[0]);
+   for(int it=0; it < Context.entities.size(); it++)
+   {
+	   auto &entity = *entity_iterator++;
+      glm::mat4 model = translate(mat4identity, entity->position);
+		model = glm::rotate(model, glm::radians(entity->rotation.x), vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(entity->rotation.z), vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, entity->scale);
+		entity->matModel = model;
+   }
 }
 
 void move_entity_with_mouse(Entity* entity)
@@ -180,6 +200,19 @@ void check_selection_to_move_entity()
 
 void render()
 {
+   // render editor entities
+   glDepthFunc(GL_ALWAYS); 
+	Entity **entity_iterator = &(Context.entities[0]);
+   for(int it=0; it < Context.entities.size(); it++)
+   {
+	   auto entity = *entity_iterator++;
+      entity->shader->use();
+      entity->shader->setMatrix4("model", entity->matModel);
+      render_entity(entity);
+   }
+   glDepthFunc(GL_LESS); 
+
+
    if(Context.entity_panel.active)
       render_entity_panel(&Context.entity_panel);
    else
@@ -373,8 +406,39 @@ void initialize()
 	ImGui::StyleColorsDark();
 	Context.imStyle = &ImGui::GetStyle();
 	Context.imStyle->WindowRounding = 1.0f;
-}
 
+   // load tri axis gizmo
+   MeshData axis = import_wavefront_obj(GEOMETRY_PATH + "axis.obj");
+   auto axis_mesh = new Mesh();
+   axis_mesh->vertices = axis.vertexes;
+   axis_mesh->indices = axis.indices;
+   axis_mesh->render_method = GL_TRIANGLES;
+   axis_mesh->gl_data = setup_gl_data_for_mesh(axis_mesh);
+   Geometry_Catalogue.insert({"axis", axis_mesh});
+
+   auto x_axis = new Entity();
+   auto y_axis = new Entity();
+   auto z_axis = new Entity();
+
+   x_axis->mesh = *axis_mesh;
+   y_axis->mesh = *axis_mesh;
+   z_axis->mesh = *axis_mesh;
+
+   auto blue_tex  = load_texture_from_file("blue.jpg",   TEXTURES_PATH);
+   auto green_tex = load_texture_from_file("green.jpg",  TEXTURES_PATH);
+   auto pink_tex  = load_texture_from_file("pink.jpg",   TEXTURES_PATH);
+
+   x_axis->textures.push_back(Texture{blue_tex,  "texture_diffuse", "blue.jpg",  "blue axis"});
+   y_axis->textures.push_back(Texture{green_tex, "texture_diffuse", "green.jpg", "green axis"});
+   z_axis->textures.push_back(Texture{pink_tex,  "texture_diffuse", "pink.jpg",  "pink axis"});
+
+   auto shader = Shader_Catalogue.find("static")->second;
+   x_axis->shader = shader;
+   x_axis->position = vec3{-0.9, -0.9, 1};
+   x_axis->scale = vec3{0.1, 0.1, 0.1};
+
+   Context.entities.push_back(x_axis);
+}
 
 void handle_input_flags(InputFlags flags, Player* &player)
 {

@@ -1,0 +1,17 @@
+#version 330 core
+
+in vec3 FragPos;
+in vec3 Normal;
+in vec2 TexCoords;
+
+out vec4 FragColor;
+
+uniform sampler2D texture_diffuse1;
+
+vec3 norm;
+vec3 difTex;
+
+void main() {
+	difTex = vec3(texture(texture_diffuse1, TexCoords));
+	FragColor = vec4(difTex,1.0);
+}

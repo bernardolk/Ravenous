@@ -12,8 +12,9 @@ struct MeshData {
 	unsigned int faceCount = 0;
 };
 
-unsigned int load_texture_from_file(std::string path, const string& directory, bool gamma = false);
 MeshData import_wavefront_obj(std::string path);
+unsigned int load_texture_from_file(std::string path, const string& directory, bool gamma = false);
+
 
 MeshData import_wavefront_obj(std::string path) {
 	ifstream reader(path);
@@ -88,8 +89,6 @@ unsigned int load_texture_from_file(std::string filename, const std::string& dir
         path = directory + filename;
     else
         path = directory + "/" + filename;
-
-    
 
     int width, height, nrComponents;
     unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);

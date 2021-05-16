@@ -37,6 +37,7 @@ const string PROJECT_PATH = "c:/repositories/ravenous";
 const string TEXTURES_PATH = PROJECT_PATH + "/assets/textures/";
 const string MODELS_PATH = PROJECT_PATH + "/assets/models/";
 const string FONTS_PATH = PROJECT_PATH + "/assets/fonts/";
+const string GEOMETRY_PATH = PROJECT_PATH + "/assets/geometry/";
 const string SHADERS_FOLDER_PATH = PROJECT_PATH + "/shaders/";
 const string CAMERA_FILE_PATH = PROJECT_PATH + "/camera.txt";
 const string SCENES_FOLDER_PATH = PROJECT_PATH + "/scenes/";
@@ -241,6 +242,7 @@ void update_buffers();
 void check_view_mode(Player* player);
 void start_frame();
 ProgramConfig load_configs();
+void check_all_entities_have_shaders();
 
 
 int main() 
@@ -283,6 +285,9 @@ int main()
    initialize_console_buffers();
 
    Editor::initialize();
+
+   // Pre-loop checks
+   check_all_entities_have_shaders();
 
 	// MAIN LOOP
 	while (!glfwWindowShouldClose(G_DISPLAY_INFO.window))
@@ -359,6 +364,22 @@ void start_frame()
    G_FRAME_INFO.current_fps = 1.0f / G_FRAME_INFO.delta_time;
    G_FRAME_INFO.frame_counter_3 = ++G_FRAME_INFO.frame_counter_3 % 3;
    G_FRAME_INFO.frame_counter_10 = ++G_FRAME_INFO.frame_counter_10 % 10;
+}
+
+void check_all_entities_have_shaders()
+{
+   Entity **entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
+   int entities_vec_size =  G_SCENE_INFO.active_scene->entities.size();
+	for(int it = 0; it < entities_vec_size; it++) 
+   {
+	   auto entity = *entity_iterator++;
+
+      if(entity->shader == nullptr)
+      {
+         cout << "FATAL: shader not set for entity '" << entity->name << "'.\n";
+         assert(false); 
+      }
+   }
 }
 
 
@@ -707,6 +728,8 @@ void render_text_overlay(Camera* camera, Player* player)
    render_text(G_SCENE_INFO.scene_name,   G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 30,   1.3, vec3(0.8, 0.8, 0.2));
    render_text(time_step_string,          G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 60,   1.3, vec3(0.8, 0.8, 0.2));
    render_text(fps_gui,                   G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 90,   1.3);
+
+   // render triaxis gizmo
 }
 
 
@@ -730,6 +753,10 @@ void initialize_shaders()
    // immediate draw shaders
    auto im_point_shader = create_shader_program("immediate_point", "vertex_point", "fragment_point");
    Shader_Catalogue.insert({im_point_shader->name, im_point_shader});
+
+   // editor entity shaders
+   auto static_shader = create_shader_program("static", "vertex_static", "fragment_static");
+   Shader_Catalogue.insert({static_shader->name, static_shader});
 }
 
 

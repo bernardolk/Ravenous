@@ -48,6 +48,9 @@ struct Entity {
 	vec3 scale = vec3(1.0f);
    vec3 velocity;
 
+   // editor gizmo stuff (should be out of here in the future)
+   vec3 gizmo_position = vec3(0.0f);
+
    // collision simulation data
    CollisionGeometryEnum collision_geometry_type;
    union CollisionGeometry{
