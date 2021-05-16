@@ -1,4 +1,8 @@
 
+#include <glm/gtx/matrix_decompose.hpp>
+#include <glm/gtx/quaternion.hpp>
+
+
 namespace Editor
 {
 
@@ -197,9 +201,9 @@ void update_editor_entities()
       // entity->rotation.z = x_angle_s;
 
       // its something like that
-      auto angle_xy = glm::degrees(atan(G_SCENE_INFO.camera->Front.y / G_SCENE_INFO.camera->Front.x));
-      entity->rotation.z = G_SCENE_INFO.camera->Yaw;
-      entity->rotation.x = G_SCENE_INFO.camera->Pitch;
+      // auto angle_xy = glm::degrees(atan(G_SCENE_INFO.camera->Front.y / G_SCENE_INFO.camera->Front.x));
+      // entity->rotation.z = G_SCENE_INFO.camera->Yaw;
+      // entity->rotation.x = G_SCENE_INFO.camera->Pitch;
       
 
       glm::mat4 model = translate(mat4identity, entity->position);
@@ -214,17 +218,35 @@ void update_editor_entities()
 void render()
 {
    // render editor entities
-   glDepthFunc(GL_ALWAYS); 
+   //glDepthFunc(GL_ALWAYS); 
 	Entity **entity_iterator = &(Context.entities[0]);
    for(int it=0; it < Context.entities.size(); it++)
    {
 	   auto entity = *entity_iterator++;
       entity->shader->use();
+      // important that the gizmo dont have a position set.
       entity->shader->setMatrix4("model", entity->matModel);
-      entity->shader-> setMatrix4("view", G_SCENE_INFO.camera->View4x4);
+      // extract rotation out of the camera view mat4 and set into gizmo
+      vec3 scale, trans, skew;
+      glm::vec4 perspective;
+      glm::quat orientation;
+      auto dd = glm::decompose(G_SCENE_INFO.camera->View4x4, scale, orientation, trans, skew, perspective);
+      glm::mat4 rotation = glm::toMat4(orientation);
+      auto inv_rotation = glm::inverse(rotation);
+      //auto test = glm::rotate(inv_rotation, glm::radians(180.0f), vec3(1.0f, 1.0f, 1.0f));
+
+      // NOT GOOD ENOUGH -> WORKS FOR X AND Y BUT ON Z IT ROTATES THE WRONG WAY... !!!
+      entity->shader-> setMatrix4("view", inv_rotation);
+
+      //entity->shader-> setFloat2("coords", vec2{-, -2});
+
+
+      // auto proj = glm::ortho(0.0f, 1980.0f, 1080.0f, 0.0f);
+      // entity->shader-> setMatrix4("projection", rotation);
+
       render_entity(entity);
    }
-   glDepthFunc(GL_LESS); 
+   //glDepthFunc(GL_LESS); 
 
 
    if(Context.entity_panel.active)
@@ -448,11 +470,21 @@ void initialize()
 
    auto shader = Shader_Catalogue.find("static")->second;
    x_axis->shader = shader;
-   x_axis->position = vec3{-0.9, -0.9, 1};
    x_axis->scale = vec3{0.1, 0.1, 0.1};
-   x_axis->rotation = vec3{90, 0, 90};
+   x_axis->rotation = vec3{90, 0, -90};
+
+   y_axis->shader = shader;
+   y_axis->scale = vec3{0.1, 0.1, 0.1};
+   y_axis->rotation = vec3{90, 0, 180};
+
+   z_axis->shader = shader;
+   z_axis->scale = vec3{0.1, 0.1, 0.1};
+   z_axis->rotation = vec3{0, 0, 0};
 
    Context.entities.push_back(x_axis);
+   Context.entities.push_back(y_axis);
+   Context.entities.push_back(z_axis);
+
 }
 
 void handle_input_flags(InputFlags flags, Player* &player)

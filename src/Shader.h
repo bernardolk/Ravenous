@@ -36,6 +36,14 @@ struct Shader {
     {
         glUniform1f(glGetUniformLocation(gl_programId, name.c_str()), value);
     }
+    void setFloat2(const std::string& name, float value0, float value1) const
+    {
+        glUniform2f(glGetUniformLocation(gl_programId, name.c_str()), value0, value1);
+    }
+    void setFloat2(const std::string& name, vec2 vec) const
+    {
+        glUniform2f(glGetUniformLocation(gl_programId, name.c_str()), vec.x, vec.y);
+    }
     void setFloat3(const std::string& name, float value0, float value1, float value2) const
     {
         glUniform3f(glGetUniformLocation(gl_programId, name.c_str()), value0, value1, value2);
