@@ -230,19 +230,10 @@ void render()
       vec3 scale, trans, skew;
       glm::vec4 perspective;
       glm::quat orientation;
-      auto dd = glm::decompose(G_SCENE_INFO.camera->View4x4, scale, orientation, trans, skew, perspective);
-      glm::mat4 rotation = glm::toMat4(orientation);
-      auto inv_rotation = glm::inverse(rotation);
-      //auto test = glm::rotate(inv_rotation, glm::radians(180.0f), vec3(1.0f, 1.0f, 1.0f));
+	   auto test = glm::lookAt(vec3(0.0f), G_SCENE_INFO.camera->Front, -1.0f * G_SCENE_INFO.camera->Up);
+      entity->shader-> setMatrix4("view", test);
 
-      // NOT GOOD ENOUGH -> WORKS FOR X AND Y BUT ON Z IT ROTATES THE WRONG WAY... !!!
-      entity->shader-> setMatrix4("view", inv_rotation);
-
-      //entity->shader-> setFloat2("coords", vec2{-, -2});
-
-
-      // auto proj = glm::ortho(0.0f, 1980.0f, 1080.0f, 0.0f);
-      // entity->shader-> setMatrix4("projection", rotation);
+      //entity->shader-> setFloat2("coords", vec2{-2, -2});
 
       render_entity(entity);
    }
@@ -471,15 +462,15 @@ void initialize()
    auto shader = Shader_Catalogue.find("static")->second;
    x_axis->shader = shader;
    x_axis->scale = vec3{0.1, 0.1, 0.1};
-   x_axis->rotation = vec3{90, 0, -90};
+   x_axis->rotation = vec3{90, 0, 90};
 
    y_axis->shader = shader;
    y_axis->scale = vec3{0.1, 0.1, 0.1};
-   y_axis->rotation = vec3{90, 0, 180};
+   y_axis->rotation = vec3{180, 0, 0};
 
    z_axis->shader = shader;
    z_axis->scale = vec3{0.1, 0.1, 0.1};
-   z_axis->rotation = vec3{0, 0, 0};
+   z_axis->rotation = vec3{90, 0, 180};
 
    Context.entities.push_back(x_axis);
    Context.entities.push_back(y_axis);
