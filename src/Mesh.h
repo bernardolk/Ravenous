@@ -28,14 +28,13 @@ struct Mesh {
     GLenum render_method;
     GLData gl_data;
     string name;
-    bool wireframe;
 
-    void draw()
+    void draw(bool wireframe_mode)
     {
       glBindVertexArray(gl_data.VAO);
 
       // set wireframe mode
-      if(wireframe)
+      if(wireframe_mode)
          glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
       switch (render_method)
@@ -54,58 +53,58 @@ struct Mesh {
       }
 
       // unset wireframe mode
-      if(wireframe)
+      if(wireframe_mode)
          glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
       glBindVertexArray(0);
     }
+
+   void setup_gl_data()
+   {
+      GLData new_gl_data;
+
+      // create buffers/arrays
+      glGenVertexArrays(1, &new_gl_data.VAO);
+      glGenBuffers     (1, &new_gl_data.VBO);
+      glGenBuffers     (1, &new_gl_data.EBO);
+
+      // load data into vertex buffers
+      glBindVertexArray(new_gl_data.VAO);
+      glBindBuffer(GL_ARRAY_BUFFER, new_gl_data.VBO);
+      glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &(vertices[0]), GL_STATIC_DRAW);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, new_gl_data.EBO);
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &(indices[0]), GL_STATIC_DRAW);
+
+      // set the vertex attribute pointers
+      // vertex positions
+      glEnableVertexAttribArray(0);
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) 0);
+      // vertex normals
+      glEnableVertexAttribArray(1);
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+      // vertex texture coords
+      glEnableVertexAttribArray(2);
+      glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tex_coords));
+      // vertex tangent
+      glEnableVertexAttribArray(3);
+      glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
+      // vertex bitangent
+      glEnableVertexAttribArray(4);
+      glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bitangent));
+
+      glBindVertexArray(0);
+
+      gl_data = new_gl_data;
+      return;
+   }
 };
 
 
 // prototypes
-GLData setup_gl_data_for_mesh(Mesh* mesh);
 GLData setup_gl_data_for_lines(Vertex* vertices, size_t size);
 std::vector<Vertex> construct_cylinder(float radius, float half_lenght, int slices); 
 
 
-
-GLData setup_gl_data_for_mesh(Mesh* mesh)
-{
-   GLData gl_data;
-
-   // create buffers/arrays
-   glGenVertexArrays(1, &gl_data.VAO);
-   glGenBuffers     (1, &gl_data.VBO);
-   glGenBuffers     (1, &gl_data.EBO);
-
-   // load data into vertex buffers
-   glBindVertexArray(gl_data.VAO);
-   glBindBuffer(GL_ARRAY_BUFFER, gl_data.VBO);
-   glBufferData(GL_ARRAY_BUFFER, mesh->vertices.size() * sizeof(Vertex), &(mesh->vertices[0]), GL_STATIC_DRAW);
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_data.EBO);
-   glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->indices.size() * sizeof(unsigned int), &(mesh->indices[0]), GL_STATIC_DRAW);
-
-   // set the vertex attribute pointers
-   // vertex positions
-   glEnableVertexAttribArray(0);
-   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) 0);
-   // vertex normals
-   glEnableVertexAttribArray(1);
-   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
-   // vertex texture coords
-   glEnableVertexAttribArray(2);
-   glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tex_coords));
-   // vertex tangent
-   glEnableVertexAttribArray(3);
-   glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
-   // vertex bitangent
-   glEnableVertexAttribArray(4);
-   glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bitangent));
-
-   glBindVertexArray(0);
-
-   return gl_data;
-}
 
 GLData setup_gl_data_for_lines(Vertex* vertices, size_t size) 
 {

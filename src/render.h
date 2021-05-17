@@ -32,7 +32,7 @@ void render_entity(Entity* entity)
    }
 
    // draw mesh
-   entity->mesh.draw();
+   entity->mesh->draw(entity->wireframe);
 
    // always good practice to set everything back to defaults once configured.
    glActiveTexture(GL_TEXTURE0);
@@ -102,7 +102,7 @@ void render_immediate(GlobalImmediateDraw* im, Camera* camera)
             shader-> setMatrix4("projection",  camera->Projection4x4);
          }
       }
-      mesh->draw();
+      mesh->draw(false);
    }
    
    G_IMMEDIATE_DRAW.reset();

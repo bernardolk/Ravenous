@@ -36,7 +36,7 @@ struct Entity {
    // render data
 	Shader* shader;
    GLData gl_data;
-   Mesh mesh;
+   Mesh* mesh;
    std::vector<Texture> textures;
 	glm::mat4 matModel = mat4identity;
    bool render_me = true;

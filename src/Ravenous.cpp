@@ -37,7 +37,6 @@ const string PROJECT_PATH = "c:/repositories/ravenous";
 const string TEXTURES_PATH = PROJECT_PATH + "/assets/textures/";
 const string MODELS_PATH = PROJECT_PATH + "/assets/models/";
 const string FONTS_PATH = PROJECT_PATH + "/assets/fonts/";
-const string GEOMETRY_PATH = PROJECT_PATH + "/assets/geometry/";
 const string SHADERS_FOLDER_PATH = PROJECT_PATH + "/shaders/";
 const string CAMERA_FILE_PATH = PROJECT_PATH + "/camera.txt";
 const string SCENES_FOLDER_PATH = PROJECT_PATH + "/scenes/";
@@ -149,12 +148,14 @@ void print_every_3rd_frame(std::string thing, std::string prefix)
 #include <player.h>
 #include <camera.h>
 #include <parser.h>
-#include <loaders.h>
 
 // catalogues 
 std::map<string, Mesh*> Geometry_Catalogue;
 std::map<string, Shader*> Shader_Catalogue;
 std::map<string, Texture> Texture_Catalogue;
+
+#include <loaders.h>
+
 
 struct GlobalImmediateDraw {
    const static int IM_BUFFER_SIZE = 20;
@@ -165,7 +166,7 @@ struct GlobalImmediateDraw {
       auto mesh = new Mesh();
       mesh->vertices = vertex_vec;
       mesh->render_method = draw_method;
-      mesh->gl_data = setup_gl_data_for_mesh(mesh);
+      mesh->setup_gl_data();
       meshes[ind++] = mesh;
    };
    void reset()
@@ -379,6 +380,11 @@ void check_all_entities_have_shaders()
          cout << "FATAL: shader not set for entity '" << entity->name << "'.\n";
          assert(false); 
       }
+      if(entity->mesh->gl_data.VAO == 0)
+      {
+         cout << "FATAL: GL DATA not set for entity '" << entity->name << "'.\n";
+         assert(false); 
+      }
    }
 }
 
@@ -546,7 +552,7 @@ void create_boilerplate_geometry()
    aabb_mesh->vertices = aabb_vertex_vec;
    aabb_mesh->indices = aabb_vertex_indices;
    aabb_mesh->render_method = GL_TRIANGLES;
-   aabb_mesh->gl_data = setup_gl_data_for_mesh(aabb_mesh);
+   aabb_mesh->setup_gl_data();
    Geometry_Catalogue.insert({aabb_mesh->name, aabb_mesh});
 
    // SLOPE
@@ -575,7 +581,7 @@ void create_boilerplate_geometry()
    slope_mesh->vertices = slope_vertex_vec;
    slope_mesh->indices = slope_vertex_indices;
    slope_mesh->render_method = GL_TRIANGLES;
-   slope_mesh->gl_data = setup_gl_data_for_mesh(slope_mesh);
+   slope_mesh->setup_gl_data();
    Geometry_Catalogue.insert({slope_mesh->name, slope_mesh});
 
 
@@ -603,7 +609,7 @@ void create_boilerplate_geometry()
    quad_mesh->vertices = quad_vertex_vec;
    quad_mesh->indices = quad_vertex_indices;
    quad_mesh->render_method = GL_TRIANGLES;
-   quad_mesh->gl_data = setup_gl_data_for_mesh(quad_mesh);
+   quad_mesh->setup_gl_data();
    Geometry_Catalogue.insert({quad_mesh->name, quad_mesh});
 
  // QUAD HORIZONTAL
@@ -619,7 +625,7 @@ void create_boilerplate_geometry()
    quad_horizontal_mesh->vertices = quad_horizontal_vertex_vec;
    quad_horizontal_mesh->indices = quad_vertex_indices;
    quad_horizontal_mesh->render_method = GL_TRIANGLES;
-   quad_horizontal_mesh->gl_data = setup_gl_data_for_mesh(quad_horizontal_mesh);
+   quad_horizontal_mesh->setup_gl_data();
    Geometry_Catalogue.insert({quad_horizontal_mesh->name, quad_horizontal_mesh});
 
 
@@ -628,7 +634,7 @@ void create_boilerplate_geometry()
    cylinder_mesh->name = "player_cylinder";
    cylinder_mesh->vertices = construct_cylinder(CYLINDER_RADIUS, CYLINDER_HALF_HEIGHT, 24);
    cylinder_mesh->render_method = GL_TRIANGLE_STRIP;
-   cylinder_mesh->gl_data = setup_gl_data_for_mesh(cylinder_mesh);
+   cylinder_mesh->setup_gl_data();
    Geometry_Catalogue.insert({cylinder_mesh->name, cylinder_mesh});
 }
 
@@ -728,8 +734,6 @@ void render_text_overlay(Camera* camera, Player* player)
    render_text(G_SCENE_INFO.scene_name,   G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 30,   1.3, vec3(0.8, 0.8, 0.2));
    render_text(time_step_string,          G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 60,   1.3, vec3(0.8, 0.8, 0.2));
    render_text(fps_gui,                   G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 90,   1.3);
-
-   // render triaxis gizmo
 }
 
 

@@ -50,13 +50,13 @@ RaycastTest test_ray_against_scene(Ray ray, bool only_test_visible_entities = fa
 
 Triangle get_triangle_for_indexed_mesh(Entity* entity, int triangle_index)
 {
-   auto a_ind = entity->mesh.indices[3 * triangle_index + 0];
-   auto b_ind = entity->mesh.indices[3 * triangle_index + 1];
-   auto c_ind = entity->mesh.indices[3 * triangle_index + 2];
+   auto a_ind = entity->mesh->indices[3 * triangle_index + 0];
+   auto b_ind = entity->mesh->indices[3 * triangle_index + 1];
+   auto c_ind = entity->mesh->indices[3 * triangle_index + 2];
 
-   auto a_mesh = entity->mesh.vertices[a_ind].position;
-   auto b_mesh = entity->mesh.vertices[b_ind].position;
-   auto c_mesh = entity->mesh.vertices[c_ind].position;
+   auto a_mesh = entity->mesh->vertices[a_ind].position;
+   auto b_mesh = entity->mesh->vertices[b_ind].position;
+   auto c_mesh = entity->mesh->vertices[c_ind].position;
 
    auto a = entity->matModel * glm::vec4(a_mesh, 1.0);
    auto b = entity->matModel * glm::vec4(b_mesh, 1.0);
@@ -68,7 +68,7 @@ Triangle get_triangle_for_indexed_mesh(Entity* entity, int triangle_index)
 
 RaycastTest test_ray_against_entity(Ray ray, Entity* entity)
 {
-   int triangles = entity->mesh.indices.size() / 3;
+   int triangles = entity->mesh->indices.size() / 3;
    float min_distance = MAX_FLOAT;
    RaycastTest min_hit_test{false, -1};
    for(int i = 0; i < triangles; i++)

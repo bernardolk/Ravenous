@@ -6,24 +6,26 @@
 #include <iostream>
 #include <map>
 
-struct MeshData {
-	std::vector<Vertex> vertexes;
-	std::vector<unsigned int> indices;
-	unsigned int faceCount = 0;
-};
-
-MeshData import_wavefront_obj(std::string path);
-unsigned int load_texture_from_file(std::string path, const string& directory, bool gamma = false);
+Mesh* load_wavefront_obj_as_mesh(string path, string name, bool setup_gl_data, GLenum render_method);
+unsigned int load_texture_from_file(string path, const string& directory, bool gamma = false);
 
 
-MeshData import_wavefront_obj(std::string path) {
+Mesh* load_wavefront_obj_as_mesh(string path, string name, bool setup_gl_data = true, GLenum render_method = GL_TRIANGLES) {
+   // this will insert to catalogue!
+
 	ifstream reader(path);
+
+   if(!reader.is_open())
+   {
+      cout << "Fatal: Could not open .obj file at '" << path << "'.\n";
+      assert(false);
+   }
+
 	std::string line;
+	auto mesh = new Mesh();
 
-	MeshData mdata;
-
+   // Parses file
 	while (getline(reader, line)) {
-		//istringstream iss(line);
 		const char* cline = line.c_str();
 		size_t size = line.size();
 
@@ -52,7 +54,7 @@ MeshData import_wavefront_obj(std::string path) {
 		  p = parse_float(p);
 		  vert.position.z = p.fToken;
 		
-		  mdata.vertexes.push_back(vert);
+		  mesh->vertices.push_back(vert);
 		}
 
 		if (p.hasToken && p.cToken == 'f') {
@@ -60,24 +62,32 @@ MeshData import_wavefront_obj(std::string path) {
 		    p = parse_whitespace(p);
 		  } while (p.hasToken);
 		  p = parse_uint(p);
-		  mdata.indices.push_back(p.uiToken - 1);
+		  mesh->indices.push_back(p.uiToken - 1);
 		  
 		  do {
 		    p = parse_whitespace(p);
 		  } while (p.hasToken);
 		  p = parse_uint(p);
-		  mdata.indices.push_back(p.uiToken - 1);
+		  mesh->indices.push_back(p.uiToken - 1);
 		  
 		  do {
 		    p = parse_whitespace(p);
 		  } while (p.hasToken);
 		  p = parse_uint(p);
-		  mdata.indices.push_back(p.uiToken - 1);
+		  mesh->indices.push_back(p.uiToken - 1);
 		}
-		mdata.faceCount ++;
 	}
 
-	return mdata;
+   // setup other data
+   mesh->name = name;
+   if(setup_gl_data)
+      mesh->setup_gl_data();
+   mesh->render_method = render_method;
+
+   // adds to catalogue
+   Geometry_Catalogue.insert({name, mesh});
+
+	return mesh;
 }
 
 

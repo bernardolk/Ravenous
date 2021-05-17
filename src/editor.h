@@ -397,7 +397,7 @@ void render_entity_panel(EntityPanelContext* panel_context)
          Context.entity_panel.active = false;
       }
 
-      ImGui::Checkbox("Hide", &entity->mesh.wireframe);
+      ImGui::Checkbox("Hide", &entity->wireframe);
    }
 
    ImGui::End();
@@ -435,21 +435,15 @@ void initialize()
 	Context.imStyle->WindowRounding = 1.0f;
 
    // load tri axis gizmo
-   MeshData axis = import_wavefront_obj(GEOMETRY_PATH + "axis.obj");
-   auto axis_mesh = new Mesh();
-   axis_mesh->vertices = axis.vertexes;
-   axis_mesh->indices = axis.indices;
-   axis_mesh->render_method = GL_TRIANGLES;
-   axis_mesh->gl_data = setup_gl_data_for_mesh(axis_mesh);
-   Geometry_Catalogue.insert({"axis", axis_mesh});
+   auto axis_mesh = load_wavefront_obj_as_mesh(MODELS_PATH + "axis.obj", "axis");
 
    auto x_axis = new Entity();
    auto y_axis = new Entity();
    auto z_axis = new Entity();
 
-   x_axis->mesh = *axis_mesh;
-   y_axis->mesh = *axis_mesh;
-   z_axis->mesh = *axis_mesh;
+   x_axis->mesh = axis_mesh;
+   y_axis->mesh = axis_mesh;
+   z_axis->mesh = axis_mesh;
 
    auto blue_tex  = load_texture_from_file("blue.jpg",   TEXTURES_PATH);
    auto green_tex = load_texture_from_file("green.jpg",  TEXTURES_PATH);

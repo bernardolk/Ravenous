@@ -120,7 +120,7 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
                << entity->scale.x << " "
                << entity->scale.y << " "
                << entity->scale.z << "\n";
-      writer << "mesh " << entity->mesh.name << "\n";
+      writer << "mesh " << entity->mesh->name << "\n";
       writer << "shader " << entity->shader->name << "\n";
 
       int textures =  entity->textures.size();
@@ -141,7 +141,7 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
       else
          assert(false);
       
-      if(entity->mesh.wireframe)
+      if(entity->wireframe)
          writer << "hidden\n";
    }
 
@@ -338,14 +338,9 @@ void parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, s
 
          auto find = Geometry_Catalogue.find(model_name);
          if(find != Geometry_Catalogue.end())
-         {
-            new_entity->mesh = *find->second;
-         }
+            new_entity->mesh = find->second;
          else
-         {
-            std::cout << "MESH DATA FOR MESH '" << model_name << "' NOT FOUND WHILE LOADING SCENE DESCRIPTION FILE \n"; 
-            assert(false);
-         }   
+            new_entity->mesh = load_wavefront_obj_as_mesh(MODELS_PATH + model_name, model_name);
       }
       else if(property == "texture")
       {
@@ -460,7 +455,7 @@ void parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, s
       }
       else if(property == "hidden")
       {
-         new_entity->mesh.wireframe = true;
+         new_entity->wireframe = true;
       }
       else
       {
@@ -531,59 +526,7 @@ void parse_and_load_light_source(Parser::Parse p, ifstream* reader, int& line_co
 
 bool save_player_position_to_file(string scene_name, Player* player)
 {
-   // string path = SCENES_FOLDER_PATH + scene_name + ".txt";
-
-   // ifstream reader(path);
-   // if(!reader.is_open())
-   // {
-   //    cout << "Saving player's position failed. Couldn't open file for reading.\n";
-   //    return false;
-   // }
-
-   // // starts reading
-   // std::string line;
-   // Parser::Parse p;
-   // int line_count = 0;
-
-   // // parses entity
-   // while(parser_nextline(&reader, &line, &p))
-   // {
-   //    line_count++;
-   //    p = parse_symbol(p);
-   //    if(p.cToken == '@')
-   //    {
-   //       p = parse_token(p);
-   //       std::string attribute = p.string_buffer;
-
-   //       p = parse_all_whitespace(p);
-   //       p = parse_symbol(p);
-   //       // ignore '=' symbol
-
-   //       if(attribute == "player_position")
-   //       {
-   //          reader.close();
-   //          ofstream writer(path);
-   //          if(!writer.is_open())
-   //          {
-   //             cout << "Saving player's position failed. Couldn't open file for writing.\n";
-   //             return false;
-   //          }
-
-   //          for(int i = 0; i < line_count; i++)
-   //             getline(writer, line);
-
-   //          writer << "@player_position = " 
-   //             << player->entity_ptr->position.x << " " 
-   //             << player->entity_ptr->position.y << " "
-   //             << player->entity_ptr->position.z << "\n";
-            
-   //          writer.close();
-   //          return true;
-   //       }
-   //    }
-   // }
-
-   // cout << "No lines have been changed while trying to save player's position.\n";
+   // NOT IMPLEMENTED
    return false;
 }
 
@@ -611,7 +554,7 @@ Entity* create_player_entity()
    cylinder->name             = "Player";
    cylinder->shader           = model_shader;
    cylinder->textures         = std::vector<Texture>{*cylinder_texture};
-   cylinder->mesh             = *cylinder_mesh;
+   cylinder->mesh             = cylinder_mesh;
 
    // player collision geometry
    auto cgac = new CollisionGeometryAlignedCylinder { CYLINDER_HALF_HEIGHT, CYLINDER_RADIUS };
