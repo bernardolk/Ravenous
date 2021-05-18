@@ -28,6 +28,7 @@ struct Mesh {
     GLenum render_method;
     GLData gl_data;
     string name;
+    FILETIME last_written;
 
     void draw(bool wireframe_mode)
     {

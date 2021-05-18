@@ -54,10 +54,14 @@ void undo_selected_entity_move_changes();
 void deselect_entity();
 void set_entity_panel(Entity* entity);
 void update_editor_entities();
+void check_for_asset_changes();
 
 
 void update()
 {
+   // check for asset changes
+   check_for_asset_changes();
+
    //debug_entities(); // ACTIVATE this for editor mode entity debugging code
 
    update_editor_entities();
@@ -106,6 +110,31 @@ void move_entity_with_mouse(Entity* entity)
    else
    {
       cout << "warning: can't find plane to place entity!\n";
+   }
+}
+
+void check_for_asset_changes()
+{
+   auto it = Geometry_Catalogue.begin();
+   while (it != Geometry_Catalogue.end())
+   {
+      auto model_name = it->first;
+      string path = MODELS_PATH + model_name + ".obj";
+
+      WIN32_FIND_DATA find_data;
+      HANDLE find_handle = FindFirstFileA(path.c_str(), &find_data);
+      if(find_handle != INVALID_HANDLE_VALUE)
+      {
+        auto mesh = it->second;
+         if(CompareFileTime(&mesh->last_written, &find_data.ftLastWriteTime) != 0)
+         {
+            cout << "ASSET '" << model_name << "' changed!\n";
+            mesh->last_written = find_data.ftLastWriteTime;
+         }
+      }
+
+      FindClose(find_handle);
+      it++;
    }
 }
 
