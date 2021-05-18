@@ -130,6 +130,10 @@ void check_for_asset_changes()
          {
             cout << "ASSET '" << model_name << "' changed!\n";
             mesh->last_written = find_data.ftLastWriteTime;
+            auto dummy_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, model_name);
+            mesh->vertices = dummy_mesh->vertices;
+            mesh->indices = dummy_mesh->indices;
+            mesh->gl_data = dummy_mesh->gl_data;
          }
       }
 

@@ -16,7 +16,7 @@
 # http://creativecommons.org/licenses/by-sa/3.0/                #
 # Edited by Bernardo Knackfuss (2021)
 
-import bpy       
+import bpy
         
 class ObjectButtonsPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_realtime_export"
@@ -43,7 +43,7 @@ class OBJECT_PT_realtime_export(ObjectButtonsPanel):
 
 
 def simple_export(obj, rec_path):    
-
+    
     if obj.apply_modifiers: mesh = obj.to_mesh(bpy.context.scene, apply_modifiers=True, settings = 'RENDER')
     else: mesh = obj.data
     
@@ -66,26 +66,15 @@ def simple_export(obj, rec_path):
         co = 'v ' + co_1 + ' ' + co_2 + ' ' + co_3 + '\n'
         lines.append(co)
 
-    # TODO: This is bad right here, we need faces to be triangulated
-    # but no method seems GUD enough
     lines.append('#num of faces ' + str(len(mesh.polygons)) + '\n')    
     for f in mesh.polygons:
-        fcount = len(f.vertices)
-        if fcount == 4:
-            f0 = str(f.vertices[0])
-            f1 = str(f.vertices[1])
-            f2 = str(f.vertices[2])
-            f3 = str(f.vertices[3])     
-            lines.append('f ' + f0 + ' ' + f1 + ' ' + f2 + '\n')
-            lines.append('f ' + f0 + ' ' + f2 + ' ' + f3 + '\n')
-        else:
-            lines.append('f ')
-            for i in range(0, fcount):
-                a = str(f.vertices[i])
-                if i != len(f.vertices) - 1:
-                    a += ' '
-                lines.append(a)
-            lines.append('\n')
+        a = 'f '
+        for i in range(0,len(f.vertices)):
+            a += str(f.vertices[i])
+            if i != len(f.vertices) - 1:
+                a += ' '
+            lines.append(a)
+        lines.append('\n')
     
     obj_text.writelines(lines)
     obj_text.close()
