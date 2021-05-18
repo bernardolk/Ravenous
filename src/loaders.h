@@ -13,11 +13,12 @@ unsigned int load_texture_from_file(string path, const string& directory, bool g
 Mesh* load_wavefront_obj_as_mesh(string path, string name, bool setup_gl_data = true, GLenum render_method = GL_TRIANGLES) {
    // this will insert to catalogue!
 
-	ifstream reader(path);
+   string full_path = path + name + ".obj";
+	ifstream reader(full_path);
 
    if(!reader.is_open())
    {
-      cout << "Fatal: Could not open .obj file at '" << path << "'.\n";
+      cout << "Fatal: Could not find/open wavefront file at '" << full_path << "'.\n";
       assert(false);
    }
 

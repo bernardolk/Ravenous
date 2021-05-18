@@ -340,7 +340,7 @@ void parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, s
          if(find != Geometry_Catalogue.end())
             new_entity->mesh = find->second;
          else
-            new_entity->mesh = load_wavefront_obj_as_mesh(MODELS_PATH + model_name, model_name);
+            new_entity->mesh = load_wavefront_obj_as_mesh(MODELS_PATH, model_name);
       }
       else if(property == "texture")
       {

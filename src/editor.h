@@ -435,7 +435,7 @@ void initialize()
 	Context.imStyle->WindowRounding = 1.0f;
 
    // load tri axis gizmo
-   auto axis_mesh = load_wavefront_obj_as_mesh(MODELS_PATH + "axis.obj", "axis");
+   auto axis_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, "axis");
 
    auto x_axis = new Entity();
    auto y_axis = new Entity();
