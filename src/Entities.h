@@ -35,7 +35,6 @@ struct Entity {
 
    // render data
 	Shader* shader;
-   GLData gl_data;
    Mesh* mesh;
    std::vector<Texture> textures;
 	glm::mat4 matModel = mat4identity;
@@ -58,6 +57,16 @@ struct Entity {
       CollisionGeometryAlignedCylinder cylinder;
       CollisionGeometryAlignedBox aabb;
    } collision_geometry;
+
+   void update_model_matrix()
+   {
+      glm::mat4 model = translate(mat4identity, position);
+		model = rotate(model, glm::radians(rotation.x), vec3(1.0f, 0.0f, 0.0f));
+		model = rotate(model, glm::radians(rotation.y), vec3(0.0f, 1.0f, 0.0f));
+		model = rotate(model, glm::radians(rotation.z), vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, scale);
+		matModel = model;
+   }
 
    void set_scale(vec3 new_scale)
    {

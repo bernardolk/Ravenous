@@ -1,6 +1,7 @@
 void render_scene(Scene* scene, Camera* camera);
 void render_entity(Entity* entity);
 void render_text(std::string text, float x, float y, float scale, vec3 color = vec3(1,1,1));
+void render_editor_entity(Entity* entity, Scene* scene, Camera* camera);
 
 
 void render_entity(Entity* entity)
@@ -38,6 +39,20 @@ void render_entity(Entity* entity)
    glActiveTexture(GL_TEXTURE0);
 }
 
+void render_editor_entity(Entity* entity, Scene* scene, Camera* camera)
+{
+   entity->shader->use();
+   // important that the gizmo dont have a position set.
+   entity->shader->setMatrix4("model",       entity->matModel);
+   entity->shader-> setMatrix4("view",       camera->View4x4);
+   entity->shader-> setMatrix4("projection", camera->Projection4x4);
+   entity->shader->  setFloat3("viewPos",    camera->Position);
+   entity->shader->   setFloat("shininess",  scene->global_shininess);
+   entity->shader-> setMatrix4("model",      entity->matModel);
+
+   render_entity(entity);
+}
+
 
 void render_scene(Scene* scene, Camera* camera) 
 {
@@ -50,6 +65,7 @@ void render_scene(Scene* scene, Camera* camera)
       if(!entity->render_me)
          continue;
 
+      // @todo: Everybody uses the same shader, do we need to set this every time?
       entity->shader->use();
       auto point_light_ptr = scene->pointLights.begin();
       int point_light_count = 0;

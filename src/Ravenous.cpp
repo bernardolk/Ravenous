@@ -780,12 +780,7 @@ inline void update_scene_objects()
    {
       Entity* &entity = *entity_iterator;
 		// Updates model matrix;	
-		mat4 model = translate(mat4identity, entity->position);
-		model = rotate(model, radians(entity->rotation.x), vec3(1.0f, 0.0f, 0.0f));
-		model = rotate(model, radians(entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
-		model = rotate(model, radians(entity->rotation.z), vec3(0.0f, 0.0f, 1.0f));
-		model = scale(model, entity->scale);
-		entity->matModel = model;
+		entity->update_model_matrix();
 
       entity_iterator++;
 	}
