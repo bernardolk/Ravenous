@@ -183,16 +183,13 @@ bool intersects_vertically_with_aabb(Entity* entity, Player* player)
       float player_top = player->entity_ptr->position.y + player_collision_geometry.half_length;
 
       auto bounds = entity->collision_geometry.aabb;
-      float box_top = entity->position.y + bounds.height;
-      float box_bottom = entity->position.y;
 
       auto ramp = player->standing_entity_ptr;
       auto y_values = get_slope_heights_at_player(player->entity_ptr, ramp);
 
-      float player_bottom_pos;
-
       // computes what should be considered the player's bottom considering he is a cylinder
       // standing on a slope that at angle = 0 descends towards the positive x axis.
+      float player_bottom_pos;
       if(ramp->rotation.y == 0)
       {  // along x axis
          if(entity->position.x >= bounds.x0) player_bottom_pos = y_values.max;
@@ -214,6 +211,9 @@ bool intersects_vertically_with_aabb(Entity* entity, Player* player)
          else                                player_bottom_pos = player_bottom;
       }
       else assert(false);
+
+      float box_top = entity->position.y + bounds.height;
+      float box_bottom = entity->position.y;
 
       return player_bottom_pos + COLLISION_EPSILON < box_top && player_top > box_bottom + COLLISION_EPSILON;
    }

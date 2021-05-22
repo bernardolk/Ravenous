@@ -16,6 +16,9 @@ struct EntityPanelContext {
    bool reverse_scale_x = false;
    bool reverse_scale_y = false;
    bool reverse_scale_z = false;
+   Entity* x_arrow;
+   Entity* y_arrow;
+   Entity* z_arrow;
 };
 
 struct EntityState {
@@ -34,7 +37,6 @@ struct EditorContext {
    EntityState original_entity_state;
 
    vector<Entity*> entities;
-   Entity* control_scale_arrows[3];
 } Context;
 
 void check_selection_to_open_panel();
@@ -57,7 +59,7 @@ void set_entity_panel(Entity* entity);
 void update_editor_entities();
 void check_for_asset_changes();
 void update_entity_control_arrows(EntityPanelContext* panel);
-void render_entity_control_arrows(Entity* entity);
+void render_entity_control_arrows(EntityPanelContext* panel);
 
 
 void update()
@@ -210,6 +212,9 @@ void set_entity_panel(Entity* entity)
    panel.reverse_scale_x = false;
    panel.reverse_scale_y = false;
    panel.reverse_scale_z = false;
+   panel.x_arrow->rotation = vec3{0,0,270};
+   panel.y_arrow->rotation = vec3{0,0,0};
+   panel.z_arrow->rotation = vec3{90,0,0};
 }
 
 
@@ -255,7 +260,6 @@ void update_editor_entities()
 void render()
 {
    // render editor entities
-   //glDepthFunc(GL_ALWAYS); 
 	Entity **entity_iterator = &(Context.entities[0]);
    for(int it=0; it < Context.entities.size(); it++)
    {
@@ -270,21 +274,20 @@ void render()
 	   auto test = glm::lookAt(vec3(0.0f), G_SCENE_INFO.camera->Front, -1.0f * G_SCENE_INFO.camera->Up);
       entity->shader-> setMatrix4("view", test);
 
-      //entity->shader-> setFloat2("coords", vec2{-2, -2});
-
       render_entity(entity);
    }
-   //glDepthFunc(GL_LESS); 
-
 
    if(Context.entity_panel.active)
    {
       render_entity_panel(&Context.entity_panel);
-      update_entity_control_arrows(&Context.entity_panel);
-      render_entity_control_arrows(Context.entity_panel.entity);
+      if(Context.entity_panel.entity->collision_geometry_type == COLLISION_ALIGNED_BOX)
+      {
+         auto panel = &Context.entity_panel;
+         update_entity_control_arrows(panel);
+         render_entity_control_arrows(panel);
+      }
    }
-   else
-      Context.entity_panel.rename_buffer[0] = 0;
+   else Context.entity_panel.rename_buffer[0] = 0;
 
    ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -383,8 +386,8 @@ void render_entity_panel(EntityPanelContext* panel_context)
       if(scale.z < 0) { scale.z *= -1; flipped_z = true;}
       
       vec3 min_scales {0.0f};
-      //min_scales = rot * vec4(min_scales, 1.0f);
 
+      // scale in x
       bool scaled_x = ImGui::SliderFloat(
          "scale x",
          &scale.x,
@@ -392,11 +395,9 @@ void render_entity_panel(EntityPanelContext* panel_context)
          panel_context->original_scale.x + 4
       );
       if(ImGui::Checkbox("rev x", &panel_context->reverse_scale_x))
-      {
-         Context.control_scale_arrows[0]->rotation.z = 
-            (int)(Context.control_scale_arrows[0]->rotation.z + 180) % 360;
-      }
+         panel_context->x_arrow->rotation.z = (int)(panel_context->x_arrow->rotation.z + 180) % 360;
 
+      // scale in y
       bool scaled_y = ImGui::SliderFloat(
          "scale y",
          &scale.y,
@@ -404,11 +405,9 @@ void render_entity_panel(EntityPanelContext* panel_context)
          panel_context->original_scale.y + 4
       );
       if(ImGui::Checkbox("rev y", &panel_context->reverse_scale_y))
-      {
-         Context.control_scale_arrows[1]->rotation.z = 
-            (int)(Context.control_scale_arrows[1]->rotation.z + 180) % 360;
-      }
+         panel_context->y_arrow->rotation.z = (int)(panel_context->y_arrow->rotation.z + 180) % 360;
 
+      // scale in z
       bool scaled_z = ImGui::SliderFloat(
          "scale z", 
          &scale.z,
@@ -416,11 +415,9 @@ void render_entity_panel(EntityPanelContext* panel_context)
          panel_context->original_scale.z + 4
       );
       if(ImGui::Checkbox("rev z", &panel_context->reverse_scale_z))
-      {
-         Context.control_scale_arrows[2]->rotation.x = 
-            (int)(Context.control_scale_arrows[2]->rotation.x + 180) % 360;
-      }
+         panel_context->z_arrow->rotation.x = (int)(panel_context->z_arrow->rotation.x + 180) % 360;
 
+      // apply scalling
       if(scaled_x || scaled_y || scaled_z)
       {
          if(flipped_x) scale.x *= -1; 
@@ -477,9 +474,9 @@ void update_entity_control_arrows(EntityPanelContext* panel)
    if(entity->collision_geometry_type != COLLISION_ALIGNED_BOX)
       return;
 
-   auto &x = Context.control_scale_arrows[0];
-   auto &y = Context.control_scale_arrows[1];
-   auto &z = Context.control_scale_arrows[2];
+   auto &x = panel->x_arrow;
+   auto &y = panel->y_arrow;
+   auto &z = panel->z_arrow;
 
    auto collision = entity->collision_geometry;
 
@@ -512,20 +509,12 @@ void update_entity_control_arrows(EntityPanelContext* panel)
 }
 
 //@todo: needs refactoring
-void render_entity_control_arrows(Entity* entity)
+void render_entity_control_arrows(EntityPanelContext* panel)
 {
-   if(entity->collision_geometry_type != COLLISION_ALIGNED_BOX)
-      return;
-
-   auto &x = Context.control_scale_arrows[0];
-   auto &y = Context.control_scale_arrows[1];
-   auto &z = Context.control_scale_arrows[2];
-
-   //render
    glDepthFunc(GL_ALWAYS); 
-   render_editor_entity(x, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
-   render_editor_entity(y, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
-   render_editor_entity(z, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
+   render_editor_entity(panel->x_arrow, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
+   render_editor_entity(panel->y_arrow, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
+   render_editor_entity(panel->z_arrow, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
    glDepthFunc(GL_LESS); 
 }
 
@@ -596,30 +585,35 @@ void initialize()
    Context.entities.push_back(y_axis);
    Context.entities.push_back(z_axis);
 
-   // load entity control arrows
-   auto x_control = new Entity();
-   auto y_control = new Entity();
-   auto z_control = new Entity();
+   // load entity panel axis arrows
+   auto x_arrow = new Entity();
+   auto y_arrow = new Entity();
+   auto z_arrow = new Entity();
 
-   x_control->mesh = axis_mesh;
-   y_control->mesh = axis_mesh;
-   z_control->mesh = axis_mesh;
+   x_arrow->mesh = axis_mesh;
+   y_arrow->mesh = axis_mesh;
+   z_arrow->mesh = axis_mesh;
 
    auto model_shader = Shader_Catalogue.find("model")->second;
-   x_control->shader = model_shader;
-   x_control->rotation = vec3{0,0,270};
-   y_control->shader = model_shader;
-   y_control->rotation = vec3{0,0,0};
-   z_control->shader = model_shader;
-   z_control->rotation = vec3{90,0,0};
+   x_arrow->shader = model_shader;
+   x_arrow->scale = vec3{0.5,0.5,0.5};
+   x_arrow->rotation = vec3{0,0,270};
 
-   x_control->textures.push_back(Texture{blue_tex,  "texture_diffuse", "blue.jpg",  "blue axis"});
-   y_control->textures.push_back(Texture{green_tex, "texture_diffuse", "green.jpg", "green axis"});
-   z_control->textures.push_back(Texture{pink_tex,  "texture_diffuse", "pink.jpg",  "pink axis"});
+   y_arrow->shader = model_shader;
+   y_arrow->scale = vec3{0.5,0.5,0.5};
+   y_arrow->rotation = vec3{0,0,0};
 
-   Context.control_scale_arrows[0] = x_control;
-   Context.control_scale_arrows[1] = y_control;
-   Context.control_scale_arrows[2] = z_control;
+   z_arrow->shader = model_shader;
+   z_arrow->scale = vec3{0.5,0.5,0.5};
+   z_arrow->rotation = vec3{90,0,0};
+
+   x_arrow->textures.push_back(Texture{blue_tex,  "texture_diffuse", "blue.jpg",  "blue axis"});
+   y_arrow->textures.push_back(Texture{green_tex, "texture_diffuse", "green.jpg", "green axis"});
+   z_arrow->textures.push_back(Texture{pink_tex,  "texture_diffuse", "pink.jpg",  "pink axis"});
+
+   Context.entity_panel.x_arrow = x_arrow;
+   Context.entity_panel.y_arrow = y_arrow;
+   Context.entity_panel.z_arrow = z_arrow;
 }
 
 void handle_input_flags(InputFlags flags, Player* &player)

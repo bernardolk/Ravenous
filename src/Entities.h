@@ -212,6 +212,7 @@ Entity* copy_entity(Entity* entity)
 {
    auto entity_2 = new Entity();
    *entity_2 = *entity;
+   entity_2->set_scale(entity_2->scale);
    return entity_2;
 }
 
