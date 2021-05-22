@@ -373,11 +373,17 @@ void render_entity_panel(EntityPanelContext* panel_context)
    // scale
    {
       auto scale = entity->scale;
+      //auto rot = glm::rotate(mat4identity, glm::radians(entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
+      //auto inv_rot = glm::rotate(mat4identity, glm::radians(-1.0f * entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
+
+      //vec3 scale = rot * vec4(entity->scale, 1.0f);
+
       vec3 min_scales {
          panel_context->original_scale.x - 4,
          panel_context->original_scale.y - 4,
          panel_context->original_scale.z - 4
       };
+      //min_scales = rot * vec4(min_scales, 1.0f);
 
       bool scaled_x = ImGui::SliderFloat(
          "scale x",
@@ -424,6 +430,8 @@ void render_entity_panel(EntityPanelContext* panel_context)
             entity->position.y -= scale.y - entity->scale.y;
          if(panel_context->reverse_scale_z)
             entity->position.z -= scale.z - entity->scale.z;
+
+         //scale = inv_rot * vec4(scale, 1.0f);
          entity->set_scale(scale);
       }
    }
