@@ -783,6 +783,7 @@ inline void update_scene_objects()
       Entity* &entity = *entity_iterator;
 		// Updates model matrix;	
 		entity->update_model_matrix();
+      entity->update_collision_geometry();
 
       entity_iterator++;
 	}

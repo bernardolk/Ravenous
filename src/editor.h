@@ -321,7 +321,7 @@ void undo_selected_entity_move_changes()
 {
    auto entity = Context.last_selected_entity;
    entity->position = Context.original_entity_state.position;
-   entity->set_scale(Context.original_entity_state.scale);
+   entity->scale = Context.original_entity_state.scale;
    entity->rotate_y(Context.original_entity_state.rotation.y - entity->rotation.y);
 
    deselect_entity();
@@ -434,7 +434,7 @@ void render_entity_panel(EntityPanelContext* panel_context)
          auto inv_rot = glm::rotate(mat4identity, glm::radians(-1.0f * entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
          scale = inv_rot * vec4(scale, 1.0f);
 
-         entity->set_scale(scale);
+         entity->scale = scale;
       }
    }
    

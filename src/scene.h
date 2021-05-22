@@ -417,7 +417,7 @@ void parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, s
          if(collision_type == "aabb")
          {
             new_entity->collision_geometry_type = COLLISION_ALIGNED_BOX;
-            new_entity->recalculate_collision_aabb(new_entity->scale);
+            new_entity->update_collision_geometry();
          }
          else if(collision_type == "slope")
          {

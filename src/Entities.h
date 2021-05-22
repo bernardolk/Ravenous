@@ -70,21 +70,32 @@ struct Entity {
 		matModel = model;
    }
 
-   void set_scale(vec3 new_scale)
+   void update_collision_geometry()
    {
-      scale = new_scale;
       switch(collision_geometry_type)
       {
          case COLLISION_ALIGNED_BOX:
-            recalculate_collision_aabb(new_scale);
+         {
+             // Essentially, we change the lengths from local to world coordinates
+            // and calculate the bounds in world coordinates in order, axis-aligned
+            mat4 rot = glm::rotate(mat4identity, glm::radians(rotation.y), vec3(0.0f, 1.0f, 0.0f));
+            vec3 s_world = rot * vec4(scale, 1.0);
+
+            auto &bounds = collision_geometry.aabb;
+            bounds.x0 = min(position.x, position.x + s_world.x);
+            bounds.x1 = max(position.x, position.x + s_world.x);
+            bounds.z0 = min(position.z, position.z + s_world.z);
+            bounds.z1 = max(position.z, position.z + s_world.z);
+            bounds.height = scale.y;
             break;
+         }
          case COLLISION_ALIGNED_SLOPE:
-            collision_geometry.slope.width   = new_scale.z;
-            collision_geometry.slope.height  = new_scale.y;
-            collision_geometry.slope.length  = new_scale.x;
+            collision_geometry.slope.width   = scale.z;
+            collision_geometry.slope.height  = scale.y;
+            collision_geometry.slope.length  = scale.x;
             break;
       }
-   };
+   }
 
    void set_slope_properties()
    {
@@ -128,30 +139,8 @@ struct Entity {
       if(rotation.y < 0)
          rotation.y = 360 + rotation.y;
 
-      switch(collision_geometry_type)
-      {
-         case COLLISION_ALIGNED_BOX:
-            recalculate_collision_aabb(scale);
-            break;
-         case COLLISION_ALIGNED_SLOPE:
-            set_slope_properties();
-            break;
-      }
-   }
-
-   void recalculate_collision_aabb(vec3 new_scale)
-   {
-      // Essentially, we change the lengths from local to world coordinates
-      // and calculate the bounds in world coordinates in order, axis-aligned
-      mat4 rot = glm::rotate(mat4identity, glm::radians(rotation.y), vec3(0.0f, 1.0f, 0.0f));
-      vec3 s_world = rot * vec4(new_scale, 1.0);
-
-      auto &bounds = collision_geometry.aabb;
-      bounds.x0 = min(position.x, position.x + s_world.x);
-      bounds.x1 = max(position.x, position.x + s_world.x);
-      bounds.z0 = min(position.z, position.z + s_world.z);
-      bounds.z1 = max(position.z, position.z + s_world.z);
-      bounds.height = new_scale.y;
+      if(collision_geometry_type == COLLISION_ALIGNED_SLOPE)
+         set_slope_properties();
    }
 };
 
@@ -212,7 +201,6 @@ Entity* copy_entity(Entity* entity)
 {
    auto entity_2 = new Entity();
    *entity_2 = *entity;
-   entity_2->set_scale(entity_2->scale);
    return entity_2;
 }
 
