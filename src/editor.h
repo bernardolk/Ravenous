@@ -373,22 +373,22 @@ void render_entity_panel(EntityPanelContext* panel_context)
    // scale
    {
       auto scale = entity->scale;
-      //auto rot = glm::rotate(mat4identity, glm::radians(entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
-      //auto inv_rot = glm::rotate(mat4identity, glm::radians(-1.0f * entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
 
-      //vec3 scale = rot * vec4(entity->scale, 1.0f);
+      auto rot = glm::rotate(mat4identity, glm::radians(entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
+      scale = rot * vec4(entity->scale, 1.0f);
+      auto ref_scale = scale;
 
-      vec3 min_scales {
-         panel_context->original_scale.x - 4,
-         panel_context->original_scale.y - 4,
-         panel_context->original_scale.z - 4
-      };
+      bool flipped_x = false, flipped_z = false;
+      if(scale.x < 0) { scale.x *= -1; flipped_x = true;}
+      if(scale.z < 0) { scale.z *= -1; flipped_z = true;}
+      
+      vec3 min_scales {0.0f};
       //min_scales = rot * vec4(min_scales, 1.0f);
 
       bool scaled_x = ImGui::SliderFloat(
          "scale x",
          &scale.x,
-         min_scales.x < 0 ? 0: min_scales.x,
+         min_scales.x,
          panel_context->original_scale.x + 4
       );
       if(ImGui::Checkbox("rev x", &panel_context->reverse_scale_x))
@@ -400,7 +400,7 @@ void render_entity_panel(EntityPanelContext* panel_context)
       bool scaled_y = ImGui::SliderFloat(
          "scale y",
          &scale.y,
-         min_scales.y < 0 ? 0: min_scales.y,
+         min_scales.y,
          panel_context->original_scale.y + 4
       );
       if(ImGui::Checkbox("rev y", &panel_context->reverse_scale_y))
@@ -412,7 +412,7 @@ void render_entity_panel(EntityPanelContext* panel_context)
       bool scaled_z = ImGui::SliderFloat(
          "scale z", 
          &scale.z,
-         min_scales.z < 0 ? 0: min_scales.z,
+         min_scales.z,
          panel_context->original_scale.z + 4
       );
       if(ImGui::Checkbox("rev z", &panel_context->reverse_scale_z))
@@ -423,15 +423,20 @@ void render_entity_panel(EntityPanelContext* panel_context)
 
       if(scaled_x || scaled_y || scaled_z)
       {
-         // if rev scaled, move entity in oposite direction to compensate scaling and fake rev scaling
-         if(panel_context->reverse_scale_x)
-            entity->position.x -= scale.x - entity->scale.x;
+         if(flipped_x) scale.x *= -1; 
+         if(flipped_z) scale.z *= -1; 
+
+          // if rev scaled, move entity in oposite direction to compensate scaling and fake rev scaling
+         if((panel_context->reverse_scale_x && !flipped_x) || (flipped_x && !panel_context->reverse_scale_x))
+            entity->position.x -= scale.x - ref_scale.x;
          if(panel_context->reverse_scale_y)
             entity->position.y -= scale.y - entity->scale.y;
-         if(panel_context->reverse_scale_z)
-            entity->position.z -= scale.z - entity->scale.z;
+         if((panel_context->reverse_scale_z && !flipped_z) || (flipped_z && !panel_context->reverse_scale_z))
+            entity->position.z -= scale.z - ref_scale.z;
 
-         //scale = inv_rot * vec4(scale, 1.0f);
+         auto inv_rot = glm::rotate(mat4identity, glm::radians(-1.0f * entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
+         scale = inv_rot * vec4(scale, 1.0f);
+
          entity->set_scale(scale);
       }
    }
@@ -478,44 +483,32 @@ void update_entity_control_arrows(EntityPanelContext* panel)
 
    auto collision = entity->collision_geometry;
 
-   if(!panel->reverse_scale_x)
-      x->position = vec3{
-         entity->position.x + collision.aabb.length_x,
-         entity->position.y + collision.aabb.length_y * 1.0 / 2,
-         entity->position.z + collision.aabb.length_z * 1.0 / 2
-      };
-   else
-      x->position = vec3{
-         entity->position.x,
-         entity->position.y + collision.aabb.length_y * 1.0 / 2,
-         entity->position.z + collision.aabb.length_z * 1.0 / 2
-      };
+   x->position = entity->position;
+   y->position = entity->position;
+   z->position = entity->position;
 
-   if(!panel->reverse_scale_y)
-      y->position = vec3{
-         entity->position.x + collision.aabb.length_x * 1.0 / 2,
-         entity->position.y + collision.aabb.length_y,
-         entity->position.z + collision.aabb.length_z * 1.0 / 2
-      };
-   else
-      y->position = vec3{
-         entity->position.x + collision.aabb.length_x * 1.0 / 2,
-         entity->position.y,
-         entity->position.z + collision.aabb.length_z * 1.0 / 2
-      };
+   // change scale from local to world coordinates
+   auto rot = glm::rotate(mat4identity, glm::radians(entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
+   vec3 scale_w_coords = rot * vec4(entity->scale, 1.0f);
 
-   if(!panel->reverse_scale_z)
-      z->position = vec3{
-         entity->position.x + collision.aabb.length_x * 1.0 / 2,
-         entity->position.y + collision.aabb.length_y * 1.0 / 2,
-         entity->position.z + collision.aabb.length_z
-      };
-   else
-      z->position = vec3{
-         entity->position.x + collision.aabb.length_x * 1.0 / 2,
-         entity->position.y + collision.aabb.length_y * 1.0 / 2,
-         entity->position.z
-      };
+   if(!panel->reverse_scale_x) x->position.x = max(x->position.x, x->position.x + scale_w_coords.x);
+   else                        x->position.x = min(x->position.x, x->position.x + scale_w_coords.x);
+   x->position.y += scale_w_coords.y / 2.0f;
+   x->position.z += scale_w_coords.z / 2.0f;
+
+   if(!panel->reverse_scale_y) y->position.y = max(y->position.y, y->position.y + scale_w_coords.y);
+   else                        y->position.y = min(y->position.y, y->position.y + scale_w_coords.y);
+   y->position.x += scale_w_coords.x / 2.0f;
+   y->position.z += scale_w_coords.z / 2.0f;
+
+   if(!panel->reverse_scale_z) z->position.z = max(z->position.z, z->position.z + scale_w_coords.z);
+   else                        z->position.z = min(z->position.z, z->position.z + scale_w_coords.z);
+   z->position.y += scale_w_coords.y / 2.0f;
+   z->position.x += scale_w_coords.x / 2.0f;
+
+   x->update_model_matrix();
+   y->update_model_matrix();
+   z->update_model_matrix();
 }
 
 //@todo: needs refactoring
@@ -527,10 +520,6 @@ void render_entity_control_arrows(Entity* entity)
    auto &x = Context.control_scale_arrows[0];
    auto &y = Context.control_scale_arrows[1];
    auto &z = Context.control_scale_arrows[2];
-
-   x->update_model_matrix();
-   y->update_model_matrix();
-   z->update_model_matrix();
 
    //render
    glDepthFunc(GL_ALWAYS); 
