@@ -161,20 +161,20 @@ void debug_entities()
 
 void immediate_draw_aabb_boundaries(Entity* entity)
 {
-   auto temp_col = entity->collision_geometry.aabb;
+   auto bounds = entity->collision_geometry.aabb;
    G_IMMEDIATE_DRAW.add(
       vector<Vertex>{
-         Vertex{entity->position},
-         Vertex{entity->position + vec3(0, temp_col.length_y, 0)},
+         Vertex{vec3(bounds.x0,entity->position.y, bounds.z0)},
+         Vertex{vec3(bounds.x0,entity->position.y + bounds.height, bounds.z0)},
 
-         Vertex{entity->position + vec3(temp_col.length_x, 0, 0)},
-         Vertex{entity->position + vec3(temp_col.length_x, temp_col.length_y, 0)},
+         Vertex{vec3(bounds.x0,entity->position.y, bounds.z1)},
+         Vertex{vec3(bounds.x0,entity->position.y + bounds.height, bounds.z1)},
 
-         Vertex{entity->position + vec3(0, 0, temp_col.length_z)},
-         Vertex{entity->position + vec3(0, temp_col.length_y, temp_col.length_z)},
+         Vertex{vec3(bounds.x1,entity->position.y, bounds.z1)},
+         Vertex{vec3(bounds.x1,entity->position.y + bounds.height, bounds.z1)},
 
-         Vertex{entity->position + vec3(temp_col.length_x, 0, temp_col.length_z)},
-         Vertex{entity->position + vec3(temp_col.length_x, temp_col.length_y, temp_col.length_z)}
+         Vertex{vec3(bounds.x1,entity->position.y, bounds.z0)},
+         Vertex{vec3(bounds.x1,entity->position.y + bounds.height, bounds.z0)},
       },
       GL_POINTS
    );

@@ -416,16 +416,8 @@ void parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, s
 
          if(collision_type == "aabb")
          {
-            new_entity->collision_geometry.aabb = CollisionGeometryAlignedBox {
-               new_entity->scale.x,
-               new_entity->scale.y,
-               new_entity->scale.z
-            };
-
             new_entity->collision_geometry_type = COLLISION_ALIGNED_BOX;
-
-            // FOR BOXES WE NEED TO CORRECT COLLISION FOR ROTATION!
-            new_entity->set_scale(new_entity->scale);
+            new_entity->recalculate_collision_aabb(new_entity->scale);
          }
          else if(collision_type == "slope")
          {

@@ -33,13 +33,6 @@ struct Collision {
    vec2 normal_vec;
 };
 
-struct Boundaries {
-   float x0;
-   float x1;
-   float z0;
-   float z1;
-};
-
 struct SlopeHeightsPlayer
 {
    float at_coord_0;
@@ -60,7 +53,7 @@ bool intersects_vertically_standing_slope(Entity* entity, Player* player);
 Collision get_horizontal_overlap_player_aabb(Entity* entity, Entity* player);
 Collision get_horizontal_overlap_player_slope(Entity* entity, Entity* player);
 float get_slope_height_at_player_position(Entity* player, Entity* entity);
-Boundaries get_slope_boundaries(Entity* entity);
+CollisionGeometryAlignedBox get_slope_boundaries(Entity* entity);
 SlopeHeightsPlayer get_slope_heights_at_player(Entity* player, Entity* entity);
 CollisionData check_for_floor_below_player(Player* player);
 CollisionData check_for_floor_below_player_when_slope(Player* player, bool only_check_player_tunnelling);
@@ -75,31 +68,24 @@ CollisionData check_for_floor_below_player_when_slope(Player* player, bool only_
 Collision get_horizontal_overlap_player_aabb(Entity* entity, Entity* player)
 {
    //box boundaries
-   auto box_collision_geometry = entity->collision_geometry.aabb;
-   float box_x0 = min(entity->position.x, entity->position.x + box_collision_geometry.length_x);
-   float box_x1 = max(entity->position.x, entity->position.x + box_collision_geometry.length_x);
-   float box_z0 = min(entity->position.z, entity->position.z + box_collision_geometry.length_z);
-   float box_z1 = max(entity->position.z, entity->position.z + box_collision_geometry.length_z);
-
+   auto bounds = entity->collision_geometry.aabb;
 
    float player_x = player->position.x;
    float player_z = player->position.z; 
 
-   auto player_collision_geometry = player->collision_geometry.cylinder;
-   float p_radius2 = player_collision_geometry.radius * player_collision_geometry.radius;
-
-   if (box_x0 <= player_x && box_x1 >= player_x && box_z0 <= player_z && box_z1 >= player_z)
+   if (bounds.x0 <= player_x && bounds.x1 >= player_x && 
+       bounds.z0 <= player_z && bounds.z1 >= player_z) 
    {
-      return Collision{true}; // overlap = 0
+      return Collision{true};    // overlap = 0
    }
    else
    {
-      float nx = std::max(box_x0, std::min(box_x1, player_x));
-      float nz = std::max(box_z0, std::min(box_z1, player_z));
+      float nx = std::max(bounds.x0, std::min(bounds.x1, player_x));
+      float nz = std::max(bounds.z0, std::min(bounds.z1, player_z));
       // vector from player to nearest point in rectangle surface
       vec2 n_vec = vec2(nx, nz) - vec2(player_x, player_z);
       float distance = glm::length(n_vec);
-      float p_radius = player_collision_geometry.radius;
+      float p_radius = player->collision_geometry.cylinder.radius;
       float overlap = p_radius - distance;
 
       Collision c;
@@ -122,20 +108,19 @@ Collision get_horizontal_overlap_player_slope(Entity* entity, Entity* player)
    float player_x = player->position.x;
    float player_z = player->position.z;
 
-   float nx = std::max(bounds.x0, std::min(bounds.x1, player_x));
-   float nz = std::max(bounds.z0, std::min(bounds.z1, player_z));
-
-   if (bounds.x0 <= player_x && bounds.x1 >= player_x && bounds.z0 <= player_z && bounds.z1 >= player_z)
+   if (bounds.x0 <= player_x && bounds.x1 >= player_x && 
+       bounds.z0 <= player_z && bounds.z1 >= player_z)
    {
       return Collision{true}; // overlap = 0
    }
    else
    {
+      float nx = std::max(bounds.x0, std::min(bounds.x1, player_x));
+      float nz = std::max(bounds.z0, std::min(bounds.z1, player_z));
       // vector from player to nearest point in rectangle surface
       vec2 n_vec = vec2(nx, nz) - vec2(player_x, player_z);
       float distance = glm::length(n_vec);
-      auto player_collision_geometry = player->collision_geometry.cylinder;
-      float p_radius = player_collision_geometry.radius;
+      float p_radius = player->collision_geometry.cylinder.radius;
       float overlap = p_radius - distance;
 
       Collision c;
@@ -159,7 +144,7 @@ Collision get_vertical_overlap_player_vs_aabb(Entity* entity, Entity* player)
 
    if(player->position.y >= entity->position.y)
    {
-      float box_top = entity->position.y + box_collision_geometry.length_y;
+      float box_top = entity->position.y + box_collision_geometry.height;
       float player_bottom = player->position.y - player_collision_geometry.half_length;
       return Collision{true, box_top - player_bottom, vec2(0, 1)};
    }
@@ -198,12 +183,10 @@ bool intersects_vertically(Entity* entity, Player* player)
    }
    else
    {
-      auto player_collision_geometry = player->entity_ptr->collision_geometry.cylinder;
-      float player_bottom = player->entity_ptr->position.y - player_collision_geometry.half_length;
-      float player_top = player->entity_ptr->position.y + player_collision_geometry.half_length;
+      float player_bottom = player->entity_ptr->position.y - player->half_height;
+      float player_top = player->entity_ptr->position.y + player->half_height;
 
-      auto box_collision_geometry = entity->collision_geometry.aabb;
-      float box_top = entity->position.y + box_collision_geometry.length_y;
+      float box_top = entity->position.y + entity->collision_geometry.aabb.height;
       float box_bottom = entity->position.y;
       
       return player_bottom + COLLISION_EPSILON < box_top && player_top > box_bottom + COLLISION_EPSILON;
@@ -217,19 +200,12 @@ bool intersects_vertically_standing_slope(Entity* entity, Player* player)
    float player_bottom = player->entity_ptr->position.y - player_collision_geometry.half_length;
    float player_top = player->entity_ptr->position.y + player_collision_geometry.half_length;
 
-   auto box_collision_geometry = entity->collision_geometry.aabb;
-   float box_top = entity->position.y + box_collision_geometry.length_y;
+   auto bounds = entity->collision_geometry.aabb;
+   float box_top = entity->position.y + bounds.height;
    float box_bottom = entity->position.y;
-
-   float box_x0 = min(entity->position.x, entity->position.x + box_collision_geometry.length_x);
-   float box_x1 = max(entity->position.x, entity->position.x + box_collision_geometry.length_x);
-   float box_z0 = min(entity->position.z, entity->position.z + box_collision_geometry.length_z);
-   float box_z1 = max(entity->position.z, entity->position.z + box_collision_geometry.length_z);
-      
 
    auto ramp = player->standing_entity_ptr;
    auto y_values = get_slope_heights_at_player(player->entity_ptr, ramp);
-
   
    float player_bottom_pos;
 
@@ -237,57 +213,27 @@ bool intersects_vertically_standing_slope(Entity* entity, Player* player)
    // now imagine the cylinder in the slope, what is the player bottom to be considered for
    // collision? the player bottom or the point of contact with the slope (always higher) ?
    // (to check the ifs accurately, draw x axis and slope at 0 and 180 degrees with player on it and objects behind and after it)
-   
-   
    if(ramp->rotation.y == 0)
    {  // along x axis
-      if(entity->position.x >= box_x0)
-      {
-         player_bottom_pos = y_values.max;
-      }
-      else
-      {
-         player_bottom_pos = player_bottom;
-      }
+      if(entity->position.x >= bounds.x0) player_bottom_pos = y_values.max;
+      else                                player_bottom_pos = player_bottom;
    }
    else if(ramp->rotation.y == 90)
    {  // along negative z
-      if(entity->position.z <= box_z1)
-      {
-         player_bottom_pos = y_values.max;
-      }
-      else
-      {
-         player_bottom_pos = player_bottom;
-      }
-      
+      if(entity->position.z <= bounds.z1) player_bottom_pos = y_values.max;
+      else                                player_bottom_pos = player_bottom;
    }
    else if(ramp->rotation.y == 180)
    {  // along negative x
-      if(entity->position.x <= box_x1)
-      {
-         player_bottom_pos = y_values.max;
-      }
-      else
-      {
-         player_bottom_pos = player_bottom;
-      }
+      if(entity->position.x <= bounds.x1) player_bottom_pos = y_values.max;
+      else                                player_bottom_pos = player_bottom;
    }
    else if(ramp->rotation.y == 270)
    {  // along positive z
-      if(entity->position.z >= box_z0)
-      {
-         player_bottom_pos = y_values.max;
-      }
-      else
-      {
-         player_bottom_pos = player_bottom;
-      }
+      if(entity->position.z >= bounds.z0) player_bottom_pos = y_values.max;
+      else                                player_bottom_pos = player_bottom;
    }
-   else
-   {
-      assert(false);
-   }
+   else assert(false);
 
    return player_bottom_pos + COLLISION_EPSILON < box_top && player_top > box_bottom + COLLISION_EPSILON;
 }
@@ -409,51 +355,48 @@ float get_slope_height_at_player_position(Entity* player, Entity* entity)
    return y;
 }
 
-Boundaries get_slope_boundaries(Entity* entity)
+CollisionGeometryAlignedBox get_slope_boundaries(Entity* entity)
 {
    auto slope = entity->collision_geometry.slope;
+   auto result = CollisionGeometryAlignedBox{};
 
-   float x1;
-   float z1;
-   float x0;
-   float z0;   
    switch((int) entity->rotation.y)
    {
       case 0:
       {
-         x0 = entity->position.x;
-         z0 = entity->position.z;
-         x1 = entity->position.x + slope.length;
-         z1 = entity->position.z + slope.width;
+         result.x0 = entity->position.x;
+         result.z0 = entity->position.z;
+         result.x1 = entity->position.x + slope.length;
+         result.z1 = entity->position.z + slope.width;
          break;
       }
       case 90:
       {
-         x0 = entity->position.x;
-         z0 = entity->position.z - slope.length;
-         x1 = entity->position.x + slope.width;
-         z1 = entity->position.z;
+         result.x0 = entity->position.x;
+         result.z0 = entity->position.z - slope.length;
+         result.x1 = entity->position.x + slope.width;
+         result.z1 = entity->position.z;
          break;
       }
       case 180:
       {
-         x0 = entity->position.x - slope.length;
-         z0 = entity->position.z - slope.width;
-         x1 = entity->position.x;
-         z1 = entity->position.z;
+         result.x0 = entity->position.x - slope.length;
+         result.z0 = entity->position.z - slope.width;
+         result.x1 = entity->position.x;
+         result.z1 = entity->position.z;
          break;
       }
       case 270:
       {
-         x0 = entity->position.x - slope.width;
-         x1 = entity->position.x;
-         z1 = entity->position.z + slope.length;
-         z0 = entity->position.z;
+         result.x0 = entity->position.x - slope.width;
+         result.x1 = entity->position.x;
+         result.z1 = entity->position.z + slope.length;
+         result.z0 = entity->position.z;
          break;
       }
    }
 
-   return Boundaries { x0, x1, z0, z1 };
+   return  result;
 }
 
 
@@ -476,31 +419,16 @@ CollisionData sample_terrain_height_at_player(Entity* player, Entity* entity)
 
    CollisionData cd;
    float height;
-   float x0;
-   float x1;
-   float z0;
-   float z1;
+   CollisionGeometryAlignedBox bounds;
+
    if (entity->collision_geometry_type == COLLISION_ALIGNED_BOX)
    {
-      auto collision_geometry = entity->collision_geometry.aabb;
-
-      //platform boundaries
-      x0 = entity->position.x;
-      x1 = entity->position.x + collision_geometry.length_x;
-      z0 = entity->position.z;
-      z1 = entity->position.z + collision_geometry.length_z;
-
-      float box_top = entity->position.y + collision_geometry.length_y;
-      height = box_top;
+      bounds = entity->collision_geometry.aabb;
+      height = entity->position.y + bounds.height;
    }
    else if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
    {
-      auto bounds = get_slope_boundaries(entity);
-      x0 = bounds.x0;
-      x1 = bounds.x1;
-      z0 = bounds.z0;
-      z1 = bounds.z1;
-      
+      bounds = get_slope_boundaries(entity);
       height = get_slope_height_at_player_position(player, entity);;
    }
    else
@@ -511,15 +439,10 @@ CollisionData sample_terrain_height_at_player(Entity* player, Entity* entity)
    float player_x = player->position.x;
    float player_z = player->position.z;
 
-   float min_x = min(x0, x1);
-   float max_x = max(x0, x1);
-   float min_z = min(z0, z1);
-   float max_z = max(z0, z1);
-
    cd.overlap = height;
 
    // check if player's center lies inside terrain box
-   if(min_x <= player_x && max_x >= player_x && min_z <= player_z && max_z >= player_z)
+   if(bounds.x0 <= player_x && bounds.x1 >= player_x && bounds.z0 <= player_z && bounds.z1 >= player_z)
    {
       cd.is_collided = true;
    }

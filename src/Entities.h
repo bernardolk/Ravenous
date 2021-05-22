@@ -16,9 +16,11 @@ struct CollisionGeometryAlignedCylinder{
 };
 
 struct CollisionGeometryAlignedBox{
-   float length_x;
-   float length_y;
-   float length_z;
+   float height;
+   float x0;
+   float x1;
+   float z0;
+   float z1;
 };
 
 struct CollisionGeometrySlope{
@@ -139,42 +141,17 @@ struct Entity {
 
    void recalculate_collision_aabb(vec3 new_scale)
    {
-      // first just set the values normally
-      collision_geometry.aabb.length_y = new_scale.y;
-      collision_geometry.aabb.length_x = new_scale.x;
-      collision_geometry.aabb.length_z = new_scale.z;
+      // Essentially, we change the lengths from local to world coordinates
+      // and calculate the bounds in world coordinates in order, axis-aligned
+      mat4 rot = glm::rotate(mat4identity, glm::radians(rotation.y), vec3(0.0f, 1.0f, 0.0f));
+      vec3 s_world = rot * vec4(new_scale, 1.0);
 
-      int angle = (int)rotation.y % 360;
-
-      if(angle == 0)
-         return;
-      if(angle < 0)
-         angle = 360 + angle;
-      
-      // then correct it base on rotation
-      switch(angle)
-      {
-         case 90:
-         {
-            auto z_temp = collision_geometry.aabb.length_z;
-            collision_geometry.aabb.length_z = -1 * collision_geometry.aabb.length_x;
-            collision_geometry.aabb.length_x = z_temp;
-            break;
-         }
-         case 180:
-         {
-            collision_geometry.aabb.length_z *= -1;
-            collision_geometry.aabb.length_x *= -1;
-            break;
-         }
-         case 270:
-         {
-            auto z_temp = collision_geometry.aabb.length_z;
-            collision_geometry.aabb.length_z = collision_geometry.aabb.length_x;
-            collision_geometry.aabb.length_x = -1 * z_temp;
-            break;
-         }
-      }
+      auto &bounds = collision_geometry.aabb;
+      bounds.x0 = min(position.x, position.x + s_world.x);
+      bounds.x1 = max(position.x, position.x + s_world.x);
+      bounds.z0 = min(position.z, position.z + s_world.z);
+      bounds.z1 = max(position.z, position.z + s_world.z);
+      bounds.height = new_scale.y;
    }
 };
 
