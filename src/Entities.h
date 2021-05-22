@@ -24,12 +24,14 @@ struct CollisionGeometryAlignedBox{
 };
 
 struct CollisionGeometrySlope{
-   float length;
    float height;
-   float width;
+   float x0;
+   float x1;
+   float z0;
+   float z1;
+   float inclination;
    vec3 tangent;
    vec3 normal;
-   float inclination;
 };
 
 struct Entity {
@@ -72,16 +74,16 @@ struct Entity {
 
    void update_collision_geometry()
    {
+      mat4 rot = glm::rotate(mat4identity, glm::radians(rotation.y), vec3(0.0f, 1.0f, 0.0f));
+      vec3 s_world = rot * vec4(scale, 1.0);
+
       switch(collision_geometry_type)
       {
          case COLLISION_ALIGNED_BOX:
          {
-             // Essentially, we change the lengths from local to world coordinates
-            // and calculate the bounds in world coordinates in order, axis-aligned
-            mat4 rot = glm::rotate(mat4identity, glm::radians(rotation.y), vec3(0.0f, 1.0f, 0.0f));
-            vec3 s_world = rot * vec4(scale, 1.0);
-
             auto &bounds = collision_geometry.aabb;
+            // Essentially, we change the lengths from local to world coordinates
+            // and calculate the bounds in world coordinates in order, axis-aligned
             bounds.x0 = min(position.x, position.x + s_world.x);
             bounds.x1 = max(position.x, position.x + s_world.x);
             bounds.z0 = min(position.z, position.z + s_world.z);
@@ -90,47 +92,27 @@ struct Entity {
             break;
          }
          case COLLISION_ALIGNED_SLOPE:
-            collision_geometry.slope.width   = scale.z;
-            collision_geometry.slope.height  = scale.y;
-            collision_geometry.slope.length  = scale.x;
+         {
+            auto &bounds = collision_geometry.slope;
+            bounds.x0 = min(position.x, position.x + s_world.x);
+            bounds.x1 = max(position.x, position.x + s_world.x);
+            bounds.z0 = min(position.z, position.z + s_world.z);
+            bounds.z1 = max(position.z, position.z + s_world.z);
+            bounds.height = scale.y;
+
+            auto& slope = collision_geometry.slope;
+            // rotates slope tangent to match entity rotation
+            // slope geometry is defined as default (rotation = 0) being going down along +x
+            // here we set the tangent vector to the slope, so the player falls along it when sliding
+            slope.inclination = scale.y / scale.x;
+            float slope_angle = atan(slope.inclination);
+            slope.tangent = rot * vec4(1.0f, -1 * sin(slope_angle), 0.0f, 1.0f);
+            slope.normal  = rot * vec4(1.0f, sin(slope_angle), 0.0f, 1.0f);
             break;
+         }
       }
    }
 
-   void set_slope_properties()
-   {
-      auto& slope = collision_geometry.slope;
-      float inclination = slope.height / slope.length;
-      float slope_angle = atan(inclination);
-      float complementary = 180.0f - (slope_angle + 90.0f); 
-
-      // slope geometry is defined as default (rotation = 0) being going down along +x
-      // here we set the tangent vector to the slope, so the player falls along it when sliding
-      auto slope_direction = vec3(0, -1 * sin(slope_angle), 0);
-      auto slope_normal = vec3(0, sin(complementary), 0);
-      switch((int) rotation.y)
-      {
-         case 0:
-            slope_direction.x = cos(slope_angle);
-            slope_normal.x = cos(complementary);
-            break;
-         case 90:
-            slope_direction.z = -1 * cos(slope_angle);
-            slope_normal.z = -1 * cos(complementary);
-            break;
-         case 180:
-            slope_direction.x = -1 * cos(slope_angle);
-            slope_normal.x = -1 * cos(complementary);
-            break;
-         case 270:
-            slope_direction.z = cos(slope_angle);
-            slope_normal.z = cos(complementary);
-            break;
-      }
-      slope.tangent = slope_direction;
-      slope.normal = slope_normal;
-      slope.inclination = inclination;
-   }
 
    void rotate_y(float angle)
    {
@@ -138,9 +120,39 @@ struct Entity {
       rotation.y = (int) rotation.y % 360;
       if(rotation.y < 0)
          rotation.y = 360 + rotation.y;
+   }
 
-      if(collision_geometry_type == COLLISION_ALIGNED_SLOPE)
-         set_slope_properties();
+   auto get_rect_bounds()
+   {
+      struct rect_bounds{
+         float x0, x1, z0, z1;
+      } bounds;
+
+      switch(collision_geometry_type)
+      {
+         case COLLISION_ALIGNED_BOX:
+         {
+            auto aabb = collision_geometry.aabb;
+            bounds.x0 = aabb.x0; bounds.x1 = aabb.x1; 
+            bounds.z0 = aabb.z0; bounds.z1 = aabb.z1;
+            break;
+         }
+         case COLLISION_ALIGNED_SLOPE:
+         {
+            auto slope = collision_geometry.slope;
+            bounds.x0 = slope.x0; bounds.x1 = slope.x1; 
+            bounds.z0 = slope.z0; bounds.z1 = slope.z1;
+            break;
+         }
+         case COLLISION_ALIGNED_CYLINDER:
+         {
+            auto cyl = collision_geometry.cylinder;
+            bounds.x0 = position.x - cyl.radius ; bounds.x1 = position.x + cyl.radius;
+            bounds.z0 = position.z - cyl.radius ; bounds.z1 = position.z + cyl.radius;
+            break;
+         }
+      }
+      return bounds;
    }
 };
 

@@ -215,6 +215,7 @@ bool compare_vec2(vec2 vec1, vec2 vec2);
 #include "imgui/imgui_impl_opengl3.h"
 
 bool save_configs_to_file();
+bool is_float_zero(float x);
 
 #include <input.h>
 #include <collision.h>
@@ -855,4 +856,10 @@ GLenum glCheckError_(const char* file, int line)
 		std::cout << error << " | " << file << " (" << line << ")" << std::endl;
 	}
 	return errorCode;
+}
+
+inline
+bool is_float_zero(float x)
+{
+   return abs(x) < 0.0001;
 }

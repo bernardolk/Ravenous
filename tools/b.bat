@@ -9,7 +9,7 @@ pushd c:\repositories\ravenous\build
             +%time:~6,1%*10^
             +%time:~7,1% >nul
 			
-cl.exe /MD ^
+cl.exe /std:c++17 /MD ^
 c:\repositories\ravenous\src\ravenous.cpp ^
 c:\repositories\ravenous\include\imgui\imgui.cpp c:\repositories\ravenous\include\imgui\imgui_impl_glfw.cpp ^
 c:\repositories\ravenous\include\imgui\imgui_impl_opengl3.cpp ^
@@ -20,7 +20,7 @@ kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32
 /EHsc /Zi ^
 /I c:\repositories\ravenous\include ^
 /I c:\repositories\ravenous\src ^
-/link /LIBPATH:c:\repositories\ravenous\lib
+/link /LIBPATH:c:\repositories\ravenous\lib 
 popd
 
 

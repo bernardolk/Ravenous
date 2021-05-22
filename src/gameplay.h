@@ -212,19 +212,8 @@ void update_player_state(Player* &player)
           assert(glm::length(player_entity->velocity) > 0);
          // check if still colliding with floor, if so, let player keep sliding, if not, change to FALLING
          Collision c_test;
-         switch(player->standing_entity_ptr->collision_geometry_type)
-         {
-            case COLLISION_ALIGNED_BOX:
-            {
-               c_test = get_horizontal_overlap_player_aabb(player->standing_entity_ptr, player_entity);
-               break;
-            }
-            case COLLISION_ALIGNED_SLOPE:
-            {
-               c_test = get_horizontal_overlap_player_slope(player->standing_entity_ptr, player_entity);
-               break;
-            }
-         }
+         c_test = get_horizontal_overlap_with_player(player->standing_entity_ptr, player);
+            
          if(!c_test.is_collided)
          {
             player->player_state = PLAYER_STATE_FALLING;
@@ -239,7 +228,7 @@ void update_player_state(Player* &player)
          // Here it is assumed player ALREADY has a velocity vec pushing him away from the slope
          assert(glm::length(player_entity->velocity) > 0);
          // check if still colliding with floor, if so, let player keep sliding, if not, change to FALLING
-         auto c_test = get_horizontal_overlap_player_slope(player->slope_player_was_ptr, player_entity);
+         auto c_test = get_horizontal_overlap_with_player(player->slope_player_was_ptr, player);
          if(!c_test.is_collided)
          {
             player->slope_player_was_ptr = NULL;
@@ -581,7 +570,7 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
    // this serves only to enable us to check for standing_entity_ptr, otherwise its NULL and we get an exception
    bool player_qualifies_as_standing = 
       player->player_state == PLAYER_STATE_STANDING || 
-      player->player_state == PLAYER_STATE_SLIDING ||
+      player->player_state == PLAYER_STATE_SLIDING  ||
       player->player_state == PLAYER_STATE_SLIDE_FALLING;
 
    for (int i = 0; i < entity_list_size; i++)
@@ -597,10 +586,11 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
          if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX &&
             intersects_vertically_with_aabb(entity, player))
          {
-            c = get_horizontal_overlap_player_aabb(entity, player->entity_ptr);
+            c = get_horizontal_overlap_with_player(entity, player);
 
             if(c.is_collided && c.overlap >= 0 && c.overlap > biggest_overlap)
             {
+               cout << "collided with " << entity->name << "\n";
                return_cd.collision_outcome = BLOCKED_BY_WALL;
                set_collided_entity = true;
             }
@@ -610,7 +600,7 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
          else if (entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE &&
                   intersects_vertically_with_slope(entity, player->entity_ptr))
          {
-            c = get_horizontal_overlap_player_slope(entity, player->entity_ptr);
+            c = get_horizontal_overlap_with_player(entity, player);
             if(c.is_collided && c.overlap > biggest_overlap)
             {
                auto col_geometry = entity->collision_geometry.slope;
@@ -622,7 +612,7 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
                   set_collided_entity = true;
                   return_cd.collision_outcome = STEPPED_SLOPE;
                   // @WORKAROUND
-                  float v_overlap = get_vertical_overlap_player_vs_slope(entity, player->entity_ptr);
+                  float v_overlap = get_vertical_overlap_player_vs_slope(entity, player);
                   c.overlap = v_overlap;
                }
 
@@ -680,12 +670,12 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
             {
                v_overlap_collision = get_vertical_overlap_player_vs_aabb(entity, player->entity_ptr);
                vertical_overlap = v_overlap_collision.overlap;
-               horizontal_check = get_horizontal_overlap_player_aabb(entity, player->entity_ptr);
+               horizontal_check = get_horizontal_overlap_with_player(entity, player);
             }
             else if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE && intersects_vertically_with_slope(entity, player->entity_ptr))
             {
-               vertical_overlap = get_vertical_overlap_player_vs_slope(entity, player->entity_ptr);
-               horizontal_check = get_horizontal_overlap_player_slope(entity, player->entity_ptr);   
+               vertical_overlap = get_vertical_overlap_player_vs_slope(entity, player);
+               horizontal_check = get_horizontal_overlap_with_player(entity, player);   
             }
          }
          // CHECKS IF ANYTHING WORHTWHILE HAPPENED

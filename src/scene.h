@@ -414,36 +414,24 @@ void parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, s
          p = parse_token(p);
          collision_type = p.string_buffer;
 
-         if(collision_type == "aabb")
+         if(collision_type != "aabb" && collision_type != "slope")
          {
-            new_entity->collision_geometry_type = COLLISION_ALIGNED_BOX;
-            new_entity->update_collision_geometry();
-         }
-         else if(collision_type == "slope")
-         {
-            auto& slope    = new_entity->collision_geometry.slope;
-            slope.length   = new_entity->scale.x;
-            slope.width    = new_entity->scale.z;
-            slope.height   = new_entity->scale.y;
-
-            new_entity->set_slope_properties();
-
-            assert((int)new_entity->rotation.x % 90 == 0);
-            assert((int)new_entity->rotation.y % 90 == 0);
-            assert((int)new_entity->rotation.z % 90 == 0);
-
-            assert(new_entity->scale.x > 0);
-            assert(new_entity->scale.y > 0); 
-            assert(new_entity->scale.z > 0);
-
-            new_entity->collision_geometry_type = COLLISION_ALIGNED_SLOPE;
-         }
-         else
-         {
-            std::cout << "UNRECOGNIZED COLLISION TYPE '" << collision_type << "' AT SCENE DESCRIPTION FILE ('" 
+            std::cout << "UNRECOGNIZED COLLISION TYPE '" << collision_type 
+                        << "' AT SCENE DESCRIPTION FILE ('" 
                         << path << "') LINE NUMBER " << line_count << "\n";
             assert(false);
          }
+
+         if(collision_type == "aabb")
+         {
+            new_entity->collision_geometry_type = COLLISION_ALIGNED_BOX;
+         }
+         else if(collision_type == "slope")
+         {
+            new_entity->collision_geometry_type = COLLISION_ALIGNED_SLOPE;
+         }
+         
+         new_entity->update_collision_geometry();
       }
       else if(property == "hidden")
       {
