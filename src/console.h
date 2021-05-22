@@ -151,22 +151,7 @@ void execute_command(string buffer_line, Player* &player)
       p = parse_whitespace(p);
       p = parse_token(p);
       const string argument = p.string_buffer;
-      // if(argument == "p")
-      // {
-      //    save_player_position_to_file(G_SCENE_INFO.scene_name, player);
-      // }
-      if(argument == "cam")
-      {
-         save_camera_settings_to_file(
-            CAMERA_FILE_PATH,
-            G_SCENE_INFO.camera->Position,
-            G_SCENE_INFO.camera->Front
-         );
-      }
-      else
-      {
-         save_scene_to_file(argument, player, false);
-      }
+      save_scene_to_file(argument, player, false);
    }
 
    else if(command == "copy")
@@ -199,6 +184,16 @@ void execute_command(string buffer_line, Player* &player)
          G_CONFIG.initial_scene = G_SCENE_INFO.scene_name;
          save_configs_to_file();
       }
+      else if(argument == "cam")
+      {
+         save_camera_settings_to_file(
+            CAMERA_FILE_PATH,
+            G_SCENE_INFO.camera->Position,
+            G_SCENE_INFO.camera->Front
+         );
+      }
+      else
+         cout << "You can set 'scene' or 'cam' dude. " << command << " won't work.\n";
    }
    else if(command == "reload")
    {
@@ -209,9 +204,8 @@ void execute_command(string buffer_line, Player* &player)
       }
    }
    else
-   {
       cout << "what do you mean with " << command << " man?\n";
-   }
+   
 }
 
 void handle_console_input(InputFlags flags, Player* &player)

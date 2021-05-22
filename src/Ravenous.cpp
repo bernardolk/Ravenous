@@ -29,8 +29,10 @@ typedef unsigned short int u16;
 typedef unsigned int u32;
 typedef unsigned long long u64;
 const float PI = 3.141592;
+typedef glm::vec4 vec4;
 typedef glm::vec3 vec3;
 typedef glm::vec2 vec2;
+typedef glm::mat4 mat4;
 typedef std::string string;
 
 const float MAX_FLOAT = std::numeric_limits<float>::max();

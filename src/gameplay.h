@@ -826,10 +826,10 @@ void handle_input_flags(InputFlags flags, Player* &player)
          glfwSetInputMode(G_DISPLAY_INFO.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
       }
    }
-   if(flags.key_press & KEY_ESC)
-   {
-       glfwSetWindowShouldClose(G_DISPLAY_INFO.window, true);
-   }
+   // if(flags.key_press & KEY_ESC)
+   // {
+   //     glfwSetWindowShouldClose(G_DISPLAY_INFO.window, true);
+   // }
 }
 
 void game_handle_input_flags(InputFlags flags, Player* &player)
