@@ -595,7 +595,7 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
       {    
          // AABB
          if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX &&
-            intersects_vertically(entity, player))
+            intersects_vertically_with_aabb(entity, player))
          {
             c = get_horizontal_overlap_player_aabb(entity, player->entity_ptr);
 
@@ -608,7 +608,7 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
 
          // ALIGNED SLOPE
          else if (entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE &&
-                  intersects_vertically_slope(entity, player->entity_ptr))
+                  intersects_vertically_with_slope(entity, player->entity_ptr))
          {
             c = get_horizontal_overlap_player_slope(entity, player->entity_ptr);
             if(c.is_collided && c.overlap > biggest_overlap)
@@ -676,13 +676,13 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
          Collision v_overlap_collision; // for ceilling hit detection
          Collision horizontal_check;
          {
-            if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX && intersects_vertically(entity, player))
+            if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX && intersects_vertically_with_aabb(entity, player))
             {
                v_overlap_collision = get_vertical_overlap_player_vs_aabb(entity, player->entity_ptr);
                vertical_overlap = v_overlap_collision.overlap;
                horizontal_check = get_horizontal_overlap_player_aabb(entity, player->entity_ptr);
             }
-            else if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE && intersects_vertically_slope(entity, player->entity_ptr))
+            else if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE && intersects_vertically_with_slope(entity, player->entity_ptr))
             {
                vertical_overlap = get_vertical_overlap_player_vs_slope(entity, player->entity_ptr);
                horizontal_check = get_horizontal_overlap_player_slope(entity, player->entity_ptr);   
