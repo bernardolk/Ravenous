@@ -3,7 +3,7 @@ void update_player_state(Player* &player);
 void make_player_slide(Player* player, CollisionData collision_data);
 void make_player_slide_fall(Player* player, CollisionData collision_data);
 void run_collision_checks_standing(Player* player, Entity** entity_iterator, size_t entity_list_size);
-void run_collision_checks_falling(Player* player, Entity** entity_iterator, size_t entity_list_size);
+void run_collision_checks_falling(Player* player, size_t entity_list_size);
 CollisionData check_collision_horizontal(
       Player* player, EntityBufferElement* entity_iterator, size_t entity_list_size
 ); 
@@ -37,9 +37,8 @@ void update_player_state(Player* &player)
          player->entity_ptr->velocity.y -= G_FRAME_INFO.delta_time * player->fall_acceleration * G_FRAME_INFO.time_step;
 
          // test collision with every object in scene entities vector
-         Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
          size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
-         run_collision_checks_falling(player, entity_iterator, entity_list_size);
+         run_collision_checks_falling(player, entity_list_size);
          break;
       }
       case PLAYER_STATE_STANDING:
@@ -127,9 +126,8 @@ void update_player_state(Player* &player)
          }
 
          // test collision with every object in scene entities vector
-         Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
          size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
-         run_collision_checks_falling(player, entity_iterator, entity_list_size);
+         run_collision_checks_falling(player, entity_list_size);
          break;
       }
       case PLAYER_STATE_SLIDING:
@@ -209,7 +207,7 @@ void update_player_state(Player* &player)
       case PLAYER_STATE_FALLING_FROM_EDGE:
       {
          // Here it is assumed player ALREADY has a velocity vec pushing him away from the platform he is standing on
-          assert(glm::length(player_entity->velocity) > 0);
+         assert(glm::length(player_entity->velocity) > 0);
          // check if still colliding with floor, if so, let player keep sliding, if not, change to FALLING
          Collision c_test;
          c_test = get_horizontal_overlap_with_player(player->standing_entity_ptr, player);
@@ -304,7 +302,7 @@ void run_collision_checks_standing(Player* player, Entity** entity_iterator, siz
 
 // @NOTE! : Because we are marking entities in buffer when checked, we should never use 
 // multiple CONTROLLER LEVEL calls unless we reset the buffers to the active scene entity list
-void run_collision_checks_falling(Player* player, Entity** entity_iterator, size_t entity_list_size)
+void run_collision_checks_falling(Player* player, size_t entity_list_size)
 {
    // Here, we will check first for vertical intersections to see if player needs to be teleported 
    // to the top of the entity it has collided with. 

@@ -47,8 +47,9 @@ const string SHADERS_FILE_EXTENSION = ".shd";
 const string CONFIG_FILE_PATH = PROJECT_PATH + "/config.txt";
 
 // PLAYER CYLINDER SETTINGS ... !!!
-float CYLINDER_HALF_HEIGHT = 0.35f;
-float CYLINDER_RADIUS = 0.10f;
+// 1.75m of height
+float CYLINDER_HALF_HEIGHT = 0.875; 
+float CYLINDER_RADIUS = 0.20f;
 
 float VEC_COMPARE_PRECISION = 0.00001f;
 
