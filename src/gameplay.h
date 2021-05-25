@@ -2,7 +2,7 @@ void handle_input_flags(InputFlags flags, Player* &player);
 void update_player_state(Player* &player);
 void make_player_slide(Player* player, CollisionData collision_data);
 void make_player_slide_fall(Player* player, CollisionData collision_data);
-void run_collision_checks_standing(Player* player, Entity** entity_iterator, size_t entity_list_size);
+void run_collision_checks_standing(Player* player, size_t entity_list_size);
 void run_collision_checks_falling(Player* player, size_t entity_list_size);
 CollisionData check_collision_horizontal(
       Player* player, EntityBufferElement* entity_iterator, size_t entity_list_size
@@ -43,70 +43,68 @@ void update_player_state(Player* &player)
       }
       case PLAYER_STATE_STANDING:
       {
-         // step 1: check if player is colliding with a wall
-         {
-            auto terrain_collision = sample_terrain_height_at_player(player_entity, player->standing_entity_ptr);
-            player->entity_ptr->position.y = terrain_collision.overlap + player->half_height;
 
-            Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
-            size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
-            // check for collisions with scene BUT with floor
-            run_collision_checks_standing(player, entity_iterator, entity_list_size);
-         }
+         // step 1: position player height
+         auto terrain_collision = sample_terrain_height_at_player(player_entity, player->standing_entity_ptr);
+         player->entity_ptr->position.y = terrain_collision.overlap + player->half_height;
 
-         // step 2: check if player is still standing
+         // step 2: resolve possible collisions
+         size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
+         // check for collisions with scene BUT with floor
+         run_collision_checks_standing(player, entity_list_size);
+
+         // step 3: check if player is still standing
+
+         // we sample again, after solving collisions
+         auto players_terrain = sample_terrain_height_at_player(player_entity, player->standing_entity_ptr);
+         player->entity_ptr->position.y = players_terrain.overlap + player->half_height;
+         
+         if(!players_terrain.is_collided)
          {
-            auto terrain_collision = sample_terrain_height_at_player(player_entity, player->standing_entity_ptr);
-            player->entity_ptr->position.y = terrain_collision.overlap + player->half_height;
-            
-            if(!terrain_collision.is_collided)
+            CollisionData check;
+            switch(player->standing_entity_ptr->collision_geometry_type)
             {
-               CollisionData check;
-               if(player->standing_entity_ptr->collision_geometry_type == COLLISION_ALIGNED_BOX)
-               {
+               case COLLISION_ALIGNED_BOX:
                   check = check_for_floor_below_player(player);
-               }
-               else if(player->standing_entity_ptr->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
-               {
+                  break;
+               case COLLISION_ALIGNED_SLOPE:
                   check = check_for_floor_below_player_when_slope(player);
-               }
-               else
-               {
+                  break;
+               default:
                   assert(false);
-               }
-               if(check.is_collided)
+            }
+
+            bool player_fell = false;
+
+            if(!check.is_collided) player_fell = true;
+            
+            else
+            {
+               if(check.collided_entity_ptr->collision_geometry_type == COLLISION_ALIGNED_BOX)
                {
-                  if(check.collided_entity_ptr->collision_geometry_type == COLLISION_ALIGNED_BOX)
+                  player->standing_entity_ptr = check.collided_entity_ptr;
+               }
+               else if(check.collided_entity_ptr->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
+               {
+                  auto collision_geometry = check.collided_entity_ptr->collision_geometry.slope;
+                  if(collision_geometry.inclination < SLIDE_MIN_ANGLE)
                   {
                      player->standing_entity_ptr = check.collided_entity_ptr;
                   }
-                  else if(check.collided_entity_ptr->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
-                  {
-                     auto collision_geometry = check.collided_entity_ptr->collision_geometry.slope;
-                     if(collision_geometry.inclination < SLIDE_MIN_ANGLE)
-                     {
-                        player->standing_entity_ptr = check.collided_entity_ptr;
-                     }
-                     else
-                     {
-                        // make player "slide" towards edge and fall away from floor
-                        std::cout << "PLAYER FELL" << "\n";
-                        player_entity->velocity.y = - 1 * player->fall_speed;
-                        player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
-                        player->height_before_fall = player_entity->position.y;
-                     }
-                  }
-               }
-               else
-               {
-                  // make player "slide" towards edge and fall away from floor
-                  std::cout << "PLAYER FELL" << "\n";
-                  player_entity->velocity.y = - 1 * player->fall_speed;
-                  player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
-                  player->height_before_fall = player_entity->position.y;
+                  else player_fell = true;
                }
             }
+
+            if(player_fell)
+            {
+               // make player "slide" towards edge and fall away from floor
+               std::cout << "PLAYER FELL" << "\n";
+               player_entity->velocity.y = - 1 * player->fall_speed;
+               player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
+               player->height_before_fall = player_entity->position.y;
+            }
          }
+         
          break;
       }
       case PLAYER_STATE_JUMPING:
@@ -146,11 +144,10 @@ void update_player_state(Player* &player)
             break;
          }
 
-         Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
          size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
          
          // check for collisions with scene BUT with floor
-         run_collision_checks_standing(player, entity_iterator, entity_list_size);
+         run_collision_checks_standing(player, entity_list_size);
 
          // correct player position in case collided with a wall
          auto terrain_collision = sample_terrain_height_at_player(player_entity, player->standing_entity_ptr);
@@ -249,7 +246,7 @@ void update_player_state(Player* &player)
 // SCENE COLLISION CONTROLLER FUNCTIONS - ITERATIVE MULTI-CHECK COLLISION DETECTION 
 // ________________________________________________________________________________
 
-void run_collision_checks_standing(Player* player, Entity** entity_iterator, size_t entity_list_size)
+void run_collision_checks_standing(Player* player, size_t entity_list_size)
 {
    auto entity_buffer = (EntityBuffer*)G_BUFFERS.buffers[0];
    bool end_collision_checks = false;
