@@ -34,4 +34,9 @@ struct Player {
 
    int lives = 2;
    float height_before_fall;
+
+   vec3 feet()
+   {
+      return entity_ptr->position - vec3(0.0f, half_height, 0.0f);
+   }
 };

@@ -209,7 +209,7 @@ struct GlobalBuffers {
    void* buffers[20];
 } G_BUFFERS;
 
-bool compare_vec2(vec2 vec1, vec2 vec2);
+bool is_vec2_equal(vec2 vec1, vec2 vec2);
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -219,10 +219,10 @@ bool save_configs_to_file();
 bool is_float_zero(float x);
 
 #include <input.h>
+#include <raycast.h>
 #include <collision.h>
 #include <scene.h>
 #include <console.h>
-#include <raycast.h>
 #include <editor.h>
 #include <gameplay.h>
 
@@ -729,11 +729,11 @@ void render_text_overlay(Camera* camera, Player* player)
    render_text(camera_position,     GUI_x, GUI_y - 30,   1.3);
    render_text(player_pos,          GUI_x, GUI_y - 60,   1.3);
 
-   render_text(lives,               G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, 90, 1.3,  
+   render_text(lives,               G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 90, 1.3,  
       player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1}
    );
-   render_text(player_floor,        G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, 60, 1.3);
-   render_text(player_state_text,   G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, 30, 1.3, player_state_text_color);
+   render_text(player_floor,        G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 60, 1.3);
+   render_text(player_state_text,   G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 30, 1.3, player_state_text_color);
 
    render_text(view_mode_text,            G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y,        1.3);
    render_text(G_SCENE_INFO.scene_name,   G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 30,   1.3, vec3(0.8, 0.8, 0.2));
@@ -791,7 +791,7 @@ inline void update_scene_objects()
 	}
 }
 
-bool compare_vec2(vec2 vec1, vec2 vec2)
+bool is_vec2_equal(vec2 vec1, vec2 vec2)
 {
    float x_diff = abs(vec1.x - vec2.x);
    float y_diff = abs(vec1.y - vec2.y);

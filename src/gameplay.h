@@ -43,17 +43,25 @@ void update_player_state(Player* &player)
       }
       case PLAYER_STATE_STANDING:
       {
+         // step 1: check for floor transitions
+         auto terrain = check_for_floor_below_player(player);
+         
+         if(terrain.hit && terrain.entity != player->standing_entity_ptr)
+         {
+            cout << "transition of floors, from" << player->standing_entity_ptr->name << " to " << terrain.entity->name << "\n";
+            player->standing_entity_ptr = terrain.entity;
+         }
 
-         // step 1: position player height
+         // step 2: position player height
          auto terrain_collision = sample_terrain_height_at_player(player_entity, player->standing_entity_ptr);
          player->entity_ptr->position.y = terrain_collision.overlap + player->half_height;
 
-         // step 2: resolve possible collisions
+         // step 3: resolve possible collisions
          size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
          // check for collisions with scene BUT with floor
          run_collision_checks_standing(player, entity_list_size);
 
-         // step 3: check if player is still standing
+         // step 4: check if player is still standing
 
          // we sample again, after solving collisions
          auto players_terrain = sample_terrain_height_at_player(player_entity, player->standing_entity_ptr);
@@ -61,35 +69,23 @@ void update_player_state(Player* &player)
          
          if(!players_terrain.is_collided)
          {
-            CollisionData check;
-            switch(player->standing_entity_ptr->collision_geometry_type)
-            {
-               case COLLISION_ALIGNED_BOX:
-                  check = check_for_floor_below_player(player);
-                  break;
-               case COLLISION_ALIGNED_SLOPE:
-                  check = check_for_floor_below_player_when_slope(player);
-                  break;
-               default:
-                  assert(false);
-            }
-
+            auto check = check_for_floor_below_player(player);
             bool player_fell = false;
 
-            if(!check.is_collided) player_fell = true;
+            if(!check.hit) player_fell = true;
             
             else
             {
-               if(check.collided_entity_ptr->collision_geometry_type == COLLISION_ALIGNED_BOX)
+               if(check.entity->collision_geometry_type == COLLISION_ALIGNED_BOX)
                {
-                  player->standing_entity_ptr = check.collided_entity_ptr;
+                  player->standing_entity_ptr = check.entity;
                }
-               else if(check.collided_entity_ptr->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
+               else if(check.entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
                {
-                  auto collision_geometry = check.collided_entity_ptr->collision_geometry.slope;
+                  auto collision_geometry = check.entity->collision_geometry.slope;
                   if(collision_geometry.inclination < SLIDE_MIN_ANGLE)
                   {
-                     player->standing_entity_ptr = check.collided_entity_ptr;
+                     player->standing_entity_ptr = check.entity;
                   }
                   else player_fell = true;
                }
@@ -133,12 +129,12 @@ void update_player_state(Player* &player)
          assert(glm::length(player_entity->velocity) > 0);
 
          // check if collided with another floor
-         auto floor_check = check_for_floor_below_player_when_slope(player, true);
+         auto floor_check = check_for_floor_below_player(player);
 
-         if(floor_check.is_collided)
+         if(floor_check.hit)
          {
             player->slope_player_was_ptr = player->standing_entity_ptr;
-            player->standing_entity_ptr = floor_check.collided_entity_ptr;
+            player->standing_entity_ptr = floor_check.entity;
             player->entity_ptr->velocity.y = 0;
             player->player_state = PLAYER_STATE_EVICTED_FROM_SLOPE;
             break;
@@ -170,12 +166,12 @@ void update_player_state(Player* &player)
       {
          assert(glm::length(player_entity->velocity) > 0);
 
-         auto floor_check = check_for_floor_below_player_when_slope(player, true);
+         auto floor_check = check_for_floor_below_player(player);
 
-         if(floor_check.is_collided)
+         if(floor_check.hit)
          {
             player->slope_player_was_ptr = player->standing_entity_ptr;
-            player->standing_entity_ptr = floor_check.collided_entity_ptr;
+            player->standing_entity_ptr = floor_check.entity;
             player->entity_ptr->velocity.y = 0;
             player->player_state = PLAYER_STATE_EVICTED_FROM_SLOPE;
          }
@@ -278,9 +274,6 @@ void run_collision_checks_standing(Player* player, size_t entity_list_size)
                // cout << "PLAYER STEPPED INTO SLOPE \n";
                player->standing_entity_ptr = collision_data.collided_entity_ptr;
                player->entity_ptr->position.y += collision_data.overlap;
-               // @TODO: this is weird, here we are kinda assuming the player is already standing,
-               // (because we do not set its state to standing) and this is not that wrong since,
-               // above, we already checked for vertical collisions and possibly dealt with... lost track of it. 
                break;
             }
             case BLOCKED_BY_WALL:
@@ -573,9 +566,9 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
 	   Entity* &entity = entity_iterator->entity;
 	   float biggest_overlap = -1;
       Collision c;
-      bool set_collided_entity = false;     
-	   if (entity_iterator->collision_check == false && 
-         !(player_qualifies_as_standing && player->standing_entity_ptr == entity))
+      bool set_collided_entity = false;
+      bool entity_is_not_player_current_ground = !(player_qualifies_as_standing && player->standing_entity_ptr == entity);
+	   if (entity_iterator->collision_check == false && entity_is_not_player_current_ground)
       {    
          // AABB
          if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX &&
@@ -592,36 +585,51 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
          }
 
          // ALIGNED SLOPE
-         else if (entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE &&
-                  intersects_vertically_with_slope(entity, player->entity_ptr))
+         else if (entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
          {
+            auto col_geometry = entity->collision_geometry.slope;
+            auto slope_2d_tangent = glm::normalize(vec2(col_geometry.tangent.x, col_geometry.tangent.z));
+
             c = get_horizontal_overlap_with_player(entity, player);
-            if(c.is_collided && c.overlap > biggest_overlap)
+            if(!c.is_collided || (c.overlap > 0 && c.overlap < biggest_overlap))
             {
-               auto col_geometry = entity->collision_geometry.slope;
-               auto slope_2d_tangent = glm::normalize(vec2(col_geometry.tangent.x, col_geometry.tangent.z));
+               entity_iterator++;
+               continue;
+            }
 
-               if(player->player_state == PLAYER_STATE_STANDING &&
-                  c.overlap == 0)
+            // player is facing slope inclined face
+            if(is_vec2_equal(c.normal_vec, -1.0f * slope_2d_tangent))
+            {
+               // if slope is very inclined...
+               if(col_geometry.inclination > SLIDE_MIN_ANGLE && player_qualifies_as_standing)
                {
-                  set_collided_entity = true;
-                  return_cd.collision_outcome = STEPPED_SLOPE;
-                  // @WORKAROUND
-                  float v_overlap = get_vertical_overlap_player_vs_slope(entity, player);
-                  c.overlap = v_overlap;
-               }
-
-               else if(player->player_state == PLAYER_STATE_STANDING &&
-                  c.overlap > 0 &&  // this means player is not INSIDE entity (player centroid)
-                  compare_vec2(c.normal_vec, -1.0f * slope_2d_tangent))
-               {
-                  if(col_geometry.inclination > SLIDE_MIN_ANGLE)
+                  // ...then, we care if the player cylinder touches the slope in any way (cylinder tips count)
+                  if(intersects_vertically_with_slope(entity, player->entity_ptr))
                   {
                      set_collided_entity = true;
                      return_cd.collision_outcome = BLOCKED_BY_WALL;
                   }
                }
-               else if(c.overlap > 0)
+               else
+               {
+                  // either player is falling OR standing but slope is not angled enough...
+                  // we should only care for collisions between slope and the player center in x-z (feet center)
+                  if(player_feet_center_touches_slope(player, entity))
+                  {
+                     set_collided_entity = true;
+                     return_cd.collision_outcome = STEPPED_SLOPE;
+                     // @WORKAROUND
+                     float v_overlap = get_vertical_overlap_player_vs_slope(entity, player);
+                     c.overlap = v_overlap;
+                  }
+               }
+
+            }
+            // player is not facing slope inclined face
+            else
+            {
+               // ...then we care if player (as a cylinder) is touching the slope
+               if(intersects_vertically_with_slope(entity, player->entity_ptr))
                {
                   set_collided_entity = true;
                   return_cd.collision_outcome = BLOCKED_BY_WALL;
@@ -647,6 +655,8 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
 }
 
 
+
+
 CollisionData check_collision_vertical(Player* player, EntityBufferElement* entity_iterator, size_t entity_list_size)
 {
    CollisionData return_cd; 
@@ -667,7 +677,8 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
                vertical_overlap = v_overlap_collision.overlap;
                horizontal_check = get_horizontal_overlap_with_player(entity, player);
             }
-            else if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE && intersects_vertically_with_slope(entity, player->entity_ptr))
+            else if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE && 
+               intersects_vertically_with_slope(entity, player->entity_ptr))
             {
                vertical_overlap = get_vertical_overlap_player_vs_slope(entity, player);
                horizontal_check = get_horizontal_overlap_with_player(entity, player);   
