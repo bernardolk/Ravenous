@@ -1,32 +1,28 @@
-@player_position = -3.5512 3.453 -9.88344
+@player_position = -3.30255 3.978 -9.77246
 @player_initial_velocity = 0 0 0
 @player_state = 0
 @player_fall_acceleration = 13
 
-// Light sources
-
 $point
 position 3.5 10 0.5
-diffuse 1.0 1.0 1.0
-ambient 1.0 1.0 1.0
+diffuse 1 1 1
+ambient 1 1 1
 linear 0.4
 quadratic 0.04
 
 $point
 position -3.5 10 0.5
-diffuse 1.0 1.0 1.0
-ambient 1.0 1.0 1.0
+diffuse 1 1 1
+ambient 1 1 1
 linear 0.4
 quadratic 0.04
 
 $point
-position -8.0 10 1
-diffuse 1.0 1.0 1.0
-ambient 1.0 1.0 1.0
+position -8 10 1
+diffuse 1 1 1
+ambient 1 1 1
 linear 0.4
 quadratic 0.04
-
-// Entities
 
 #floor
 position -15 0 -15
@@ -189,6 +185,7 @@ mesh aabb
 shader model
 texture texture_diffuse sandstone sandstone.jpg
 collision aabb
+hidden
 
 #small upper platform
 position -5.707 4.532 -8

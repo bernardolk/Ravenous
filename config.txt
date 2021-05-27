@@ -1,1 +1,1 @@
-scene = geomdebug
+scene = test

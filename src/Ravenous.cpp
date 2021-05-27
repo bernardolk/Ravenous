@@ -427,7 +427,7 @@ void update_buffers()
 
       auto entity_buffer = (EntityBuffer*)G_BUFFERS.buffers[0];
       EntityBufferElement* entity_buf_iter = entity_buffer->buffer;       
-      for(int i = 0; i < entity_list_size; ++i) // ASSUMES that entity_list_size is ALWYAS smaller then the EntityBuffer->size    
+      for(int i = 0; i < entity_list_size; ++i) // ASSUMES that entity_list_size is ALWAYS smaller then the EntityBuffer->size    
       {
          entity_buf_iter->entity = *entity_iterator;
          entity_buf_iter->collision_check = false;

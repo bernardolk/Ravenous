@@ -11,6 +11,8 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
 void player_death_handler(Player* &player);
 void game_handle_input_flags(InputFlags flags, Player* &player);
 void reset_input_flags(InputFlags flags);
+void mark_entity_checked(Entity* entity);
+void resolve_collision(CollisionData collision, Player* player);
 
 
 float SLIDE_MAX_ANGLE = 1.4;
@@ -128,21 +130,20 @@ void update_player_state(Player* &player)
       {
          assert(glm::length(player_entity->velocity) > 0);
 
-         // check if collided with another floor
-         auto floor_check = check_for_floor_below_player(player);
-
-         if(floor_check.hit)
+         auto terrain = check_for_floor_below_player(player);
+         
+         if(terrain.hit && terrain.entity != player->standing_entity_ptr)
          {
+            cout << "transition of floors, from" << player->standing_entity_ptr->name << " to " << terrain.entity->name << "\n";
+            player->standing_entity_ptr = terrain.entity;
             player->slope_player_was_ptr = player->standing_entity_ptr;
-            player->standing_entity_ptr = floor_check.entity;
             player->entity_ptr->velocity.y = 0;
             player->player_state = PLAYER_STATE_EVICTED_FROM_SLOPE;
             break;
          }
 
-         size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
-         
          // check for collisions with scene BUT with floor
+         size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
          run_collision_checks_standing(player, entity_list_size);
 
          // correct player position in case collided with a wall
@@ -166,35 +167,34 @@ void update_player_state(Player* &player)
       {
          assert(glm::length(player_entity->velocity) > 0);
 
-         auto floor_check = check_for_floor_below_player(player);
-
-         if(floor_check.hit)
+         auto terrain = check_for_floor_below_player(player);
+         
+         if(terrain.hit && terrain.entity != player->standing_entity_ptr)
          {
+            cout << "transition of floors, from" << player->standing_entity_ptr->name << " to " << terrain.entity->name << "\n";
+            player->standing_entity_ptr = terrain.entity;
             player->slope_player_was_ptr = player->standing_entity_ptr;
-            player->standing_entity_ptr = floor_check.entity;
             player->entity_ptr->velocity.y = 0;
             player->player_state = PLAYER_STATE_EVICTED_FROM_SLOPE;
+            break;
          }
 
-         // player fell out of slope
+         // ... or player fell out of slope
+         auto terrain_collision = sample_terrain_height_at_player(player_entity, player->standing_entity_ptr);
+         if(terrain_collision.is_collided)
+         {
+            player->entity_ptr->position.y = terrain_collision.overlap + player->half_height;
+         }  
          else
          {
-            auto terrain_collision = sample_terrain_height_at_player(player_entity, player->standing_entity_ptr);
-            if(terrain_collision.is_collided)
-            {
-               player->entity_ptr->position.y = terrain_collision.overlap + player->half_height;
-            }  
-            else
-            {
-               // make player "slide" towards edge and fall away from floor
-               std::cout << "PLAYER FELL" << "\n";
-               player->slope_player_was_ptr = player->standing_entity_ptr;
-               player->standing_entity_ptr = NULL;
-               player->player_state = PLAYER_STATE_EVICTED_FROM_SLOPE;
-               player->height_before_fall = player_entity->position.y;
-            }
+            // make player "slide" towards edge and fall away from floor
+            std::cout << "PLAYER FELL" << "\n";
+            player->slope_player_was_ptr = player->standing_entity_ptr;
+            player->standing_entity_ptr = NULL;
+            player->player_state = PLAYER_STATE_EVICTED_FROM_SLOPE;
+            player->height_before_fall = player_entity->position.y;
          }
-      
+         
          break;
       }
       case PLAYER_STATE_FALLING_FROM_EDGE:
@@ -252,42 +252,156 @@ void run_collision_checks_standing(Player* player, size_t entity_list_size)
       CollisionData collision_data = check_collision_horizontal(player, entity_buf_iter, entity_list_size);
       if(collision_data.collided_entity_ptr != NULL)
       {
-         // marks entity in entity buffer as checked so we dont check collisions for this entity twice (nor infinite loop)
-         {
-            entity_buf_iter = entity_buffer->buffer;
-            for(int i = 0; i < entity_buffer->size; ++i)
-            {
-               if(entity_buf_iter->entity == collision_data.collided_entity_ptr)
-               {
-                  entity_buf_iter->collision_check = true;
-                  break;
-               }
-               entity_buf_iter++;
-            }
-         }
-         
-         // deals with collision
-         switch(collision_data.collision_outcome)
-         {
-            case STEPPED_SLOPE:
-            {
-               // cout << "PLAYER STEPPED INTO SLOPE \n";
-               player->standing_entity_ptr = collision_data.collided_entity_ptr;
-               player->entity_ptr->position.y += collision_data.overlap;
-               break;
-            }
-            case BLOCKED_BY_WALL:
-            {
-               // move player back using aabb surface normal vec and computed player/entity overlap in horizontal plane
-               player->entity_ptr->position -= vec3(
-                  collision_data.normal_vec.x, 0, collision_data.normal_vec.y
-               ) * collision_data.overlap;
-               break;
-            }
-         }
+         mark_entity_checked(collision_data.collided_entity_ptr);
+         resolve_collision(collision_data, player);
       }
       else end_collision_checks = true;
    }
+}
+
+void mark_entity_checked(Entity* entity)
+{
+   // marks entity in entity buffer as checked so we dont check collisions for this entity twice (nor infinite loop)
+   auto entity_buffer = (EntityBuffer*)G_BUFFERS.buffers[0];
+   auto entity_element = entity_buffer->buffer;
+   for(int i = 0; i < entity_buffer->size; ++i)
+   {
+      if(entity_element->entity == entity)
+      {
+         entity_element->collision_check = true;
+         break;
+      }
+      entity_element++;
+   }
+}
+
+void resolve_collision(CollisionData collision, Player* player)
+{
+   // the point of this is to not trigger health check 
+   // when player hits a wall while falling
+   bool trigger_check_was_player_hurt = false;
+     
+   switch(collision.collision_outcome)
+   {
+      case JUMP_FAIL:
+      {
+         trigger_check_was_player_hurt = true;
+         // make player "slide" towards edge and fall away from floor
+         std::cout << "FELL FROM EDGE" << "\n";
+         player->standing_entity_ptr = collision.collided_entity_ptr;
+         player->entity_ptr->position.y += collision.overlap; 
+         
+         // checks if we need to set player's velocity to the opposite direction from where he is coming
+         bool revert_player_movement = false;
+         if(collision.normal_vec.x != 0)
+         {
+            float player_movement_sign = player->entity_ptr->velocity.x > 0 ? 1 : -1;
+            revert_player_movement = player_movement_sign == collision.normal_vec.x;
+         }
+         else if(collision.normal_vec.y != 0)
+         {
+            float player_movement_sign = player->entity_ptr->velocity.z > 0 ? 1 : -1;
+            revert_player_movement = player_movement_sign == collision.normal_vec.y;
+         }
+
+         // makes player move towards OUT of the platform
+         if(revert_player_movement ||
+            (player->entity_ptr->velocity.x == 0 &&
+               player->entity_ptr->velocity.z == 0))
+         {
+            player->entity_ptr->velocity.x = -1 * collision.normal_vec.x * player->fall_from_edge_speed;
+            player->entity_ptr->velocity.z = -1 *collision.normal_vec.y * player->fall_from_edge_speed;
+         }
+         // makes player fall (combined movement in 3D, player for a moment gets "inside" the platform while he slips)
+         player->entity_ptr->velocity.y = - 1 * player->fall_speed;
+         
+         player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
+         break;
+      }
+      case JUMP_SUCCESS:
+      {
+         trigger_check_was_player_hurt = true;
+         std::cout << "LANDED" << "\n";
+         // move player to surface, stop player and set him to standing
+         player->standing_entity_ptr = collision.collided_entity_ptr;
+         auto height_check = sample_terrain_height_at_player(player->entity_ptr, player->standing_entity_ptr);
+         player->entity_ptr->position.y = height_check.overlap + player->half_height; 
+         player->entity_ptr->velocity = vec3(0,0,0);
+         player->player_state = PLAYER_STATE_STANDING;
+         break;
+      }
+      case JUMP_FACE_FLAT:
+      {
+         std::cout << "JUMP FACE FLAT" << "\n";
+         // deals with collision
+         // move player back using aabb surface normal vec and computed player/entity overlap in horizontal plane
+         player->entity_ptr->position -= 
+               vec3(collision.normal_vec.x, 0, collision.normal_vec.y)  * collision.overlap;
+
+         // make player slide through the tangent of platform
+         auto tangent_vec = vec2(collision.normal_vec.y, collision.normal_vec.x);      
+         auto v_2d = vec2(player->entity_ptr->velocity.x, player->entity_ptr->velocity.z);
+         auto project = (glm::dot(v_2d, tangent_vec)/glm::length2(tangent_vec))*tangent_vec;
+
+         player->entity_ptr->velocity.x = project.x;
+         player->entity_ptr->velocity.z = project.y; 
+               
+         if(player->player_state == PLAYER_STATE_JUMPING)
+         {
+            player->player_state = PLAYER_STATE_FALLING;
+            player->entity_ptr->velocity.y = 0;
+         }
+
+         break;
+      }
+      case JUMP_SLIDE:
+      {
+         trigger_check_was_player_hurt = true;
+         make_player_slide(player, collision);
+         break;
+      }
+      case JUMP_SLIDE_HIGH_INCLINATION:
+      {
+         trigger_check_was_player_hurt = true;
+         make_player_slide_fall(player, collision);
+         break;
+      }
+      case JUMP_CEILING:
+      {
+         std::cout << "HIT CEILING" << "\n";
+         player->entity_ptr->position.y -= collision.overlap + COLLISION_EPSILON; 
+         player->player_state = PLAYER_STATE_FALLING;
+         player->entity_ptr->velocity.y = 0;
+         break; 
+      }
+      case STEPPED_SLOPE:
+      {
+         // cout << "PLAYER STEPPED INTO SLOPE \n";
+         player->standing_entity_ptr = collision.collided_entity_ptr;
+         player->entity_ptr->position.y += collision.overlap;
+         break;
+      }
+      case BLOCKED_BY_WALL:
+      {
+         // move player back using aabb surface normal vec and computed player/entity overlap in horizontal plane
+         player->entity_ptr->position -= vec3(
+            collision.normal_vec.x, 0, collision.normal_vec.y
+         ) * collision.overlap;
+         break;
+      }
+   }
+
+   // hurts player if necessary
+   if(trigger_check_was_player_hurt)
+   {
+      float fall_height = player->height_before_fall - player->entity_ptr->position.y;
+      cout << "->" << fall_height << "\n";
+      if(fall_height >= 3.2)
+         player->lives -= 2;
+      else if(fall_height >= 1.8)
+         player->lives -= 1;
+   }
+
 }
 
 // @NOTE! : Because we are marking entities in buffer when checked, we should never use 
@@ -301,195 +415,30 @@ void run_collision_checks_falling(Player* player, size_t entity_list_size)
    // shouldnt loose the chance to make their jump because we are preventing them from getting stuck first.
 
    auto entity_buffer = (EntityBuffer*)G_BUFFERS.buffers[0];  
-   bool end_collision_checks = false;
-   while(!end_collision_checks)
+   while(true)
    {
       bool any_collision = false;
       // CHECKS VERTICAL COLLISIONS
       {
          auto entity_iter = entity_buffer->buffer;  // places pointer back to start
-         auto collision_data = check_collision_vertical(player, entity_iter, entity_list_size);
-         if(collision_data.collided_entity_ptr != NULL)
+         auto v_collision_data = check_collision_vertical(player, entity_iter, entity_list_size);
+         if(v_collision_data.collided_entity_ptr != NULL)
          {
             // we have collided ladies and gents
             any_collision = true;
-
-            // marks entity in entity buffer as checked so we dont check collisions 
-            // for this entity twice (nor infinite loop)
-            {
-               entity_iter = entity_buffer->buffer;
-               for(int i = 0; i < entity_buffer->size; ++i)
-               {
-                  if(entity_iter->entity == collision_data.collided_entity_ptr)
-                  {
-                     entity_iter->collision_check = true;
-                     break;
-                  }
-                  entity_iter++;
-               }
-            }
-
-            // the point of this is to not trigger health check when player
-            // hits a wall while falling
-            bool trigger_check_was_player_hurt = false;
-            
-            // deals with collision
-            switch(collision_data.collision_outcome)
-            {
-               case JUMP_FAIL:
-               {
-                  trigger_check_was_player_hurt = true;
-                  // make player "slide" towards edge and fall away from floor
-                  std::cout << "FELL FROM EDGE" << "\n";
-                  player->standing_entity_ptr = collision_data.collided_entity_ptr;
-                  player->entity_ptr->position.y += collision_data.overlap; 
-                  
-                  // checks if we need to set player's velocity to the opposite direction from where he is coming
-                  bool revert_player_movement = false;
-                  if(collision_data.normal_vec.x != 0)
-                  {
-                     float player_movement_sign = player->entity_ptr->velocity.x > 0 ? 1 : -1;
-                     revert_player_movement = player_movement_sign == collision_data.normal_vec.x;
-                  }
-                  else if(collision_data.normal_vec.y != 0)
-                  {
-                     float player_movement_sign = player->entity_ptr->velocity.z > 0 ? 1 : -1;
-                     revert_player_movement = player_movement_sign == collision_data.normal_vec.y;
-                  }
-
-                  // makes player move towards OUT of the platform
-                  if(revert_player_movement ||
-                     (player->entity_ptr->velocity.x == 0 &&
-                      player->entity_ptr->velocity.z == 0))
-                  {
-                     player->entity_ptr->velocity.x = -1 * collision_data.normal_vec.x * player->fall_from_edge_speed;
-                     player->entity_ptr->velocity.z = -1 *collision_data.normal_vec.y * player->fall_from_edge_speed;
-                  }
-                  // makes player fall (combined movement in 3D, player for a moment gets "inside" the platform while he slips)
-                  player->entity_ptr->velocity.y = - 1 * player->fall_speed;
-                  
-                  player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
-                  break;
-               }
-               case JUMP_SUCCESS:
-               {
-                  trigger_check_was_player_hurt = true;
-                  std::cout << "LANDED" << "\n";
-                  // move player to surface, stop player and set him to standing
-                  player->standing_entity_ptr = collision_data.collided_entity_ptr;
-                  auto height_check = sample_terrain_height_at_player(player->entity_ptr, player->standing_entity_ptr);
-                  player->entity_ptr->position.y = height_check.overlap + player->half_height; 
-                  player->entity_ptr->velocity = vec3(0,0,0);
-                  player->player_state = PLAYER_STATE_STANDING;
-                  break;
-               }
-               case JUMP_FACE_FLAT:
-               {
-                  std::cout << "JUMP FACE FLAT" << "\n";
-                  // deals with collision
-                  // move player back using aabb surface normal vec and computed player/entity overlap in horizontal plane
-                  player->entity_ptr->position -= 
-                        vec3(collision_data.normal_vec.x, 0, collision_data.normal_vec.y)  * collision_data.overlap;
-
-                  // make player slide through the tangent of platform
-                  auto tangent_vec = vec2(collision_data.normal_vec.y, collision_data.normal_vec.x);      
-                  auto v_2d = vec2(player->entity_ptr->velocity.x, player->entity_ptr->velocity.z);
-                  auto project = (glm::dot(v_2d, tangent_vec)/glm::length2(tangent_vec))*tangent_vec;
-
-                  player->entity_ptr->velocity.x = project.x;
-                  player->entity_ptr->velocity.z = project.y; 
-                       
-                  if(player->player_state == PLAYER_STATE_JUMPING)
-                  {
-                     player->player_state = PLAYER_STATE_FALLING;
-                     player->entity_ptr->velocity.y = 0;
-                  }
-
-                  break;
-               }
-               case JUMP_SLIDE:
-               {
-                  trigger_check_was_player_hurt = true;
-                  make_player_slide(player, collision_data);
-                  break;
-               }
-               case JUMP_SLIDE_HIGH_INCLINATION:
-               {
-                  trigger_check_was_player_hurt = true;
-                  make_player_slide_fall(player, collision_data);
-                  break;
-               }
-               case JUMP_CEILING:
-               {
-                  std::cout << "HIT CEILING" << "\n";
-                  player->entity_ptr->position.y -= collision_data.overlap + COLLISION_EPSILON; 
-                  player->player_state = PLAYER_STATE_FALLING;
-                  player->entity_ptr->velocity.y = 0;
-                  break; 
-               }
-            }
-
-            // hurts player if necessary
-            if(trigger_check_was_player_hurt)
-            {
-               float fall_height = player->height_before_fall - player->entity_ptr->position.y;
-               cout << "->" << fall_height << "\n";
-               if(fall_height >= 3.2)
-                  player->lives -= 2;
-               else if(fall_height >= 1.8)
-                  player->lives -= 1;
-            }  
+            mark_entity_checked(v_collision_data.collided_entity_ptr);
+            resolve_collision(v_collision_data, player);
          }
-      }
 
-      // CHECKS HORIZONTAL COLLISIONS
-      {
-         auto entity_iter = entity_buffer->buffer;  // places pointer back to start
-         auto collision_data = check_collision_horizontal(player, entity_iter, entity_list_size);
-         if(collision_data.collided_entity_ptr != NULL)
+         entity_iter = entity_buffer->buffer;  // places pointer back to start
+         auto h_collision_data = check_collision_horizontal(player, entity_iter, entity_list_size);
+         if(h_collision_data.collided_entity_ptr != NULL)
          {
-            any_collision = true;
-            // marks entity in entity buffer as checked so we dont check collisions for this entity twice (nor infinite loop)
-            {
-               entity_iter = entity_buffer->buffer;
-               for(int i = 0; i < entity_buffer->size; ++i)
-               {
-                  if(entity_iter->entity == collision_data.collided_entity_ptr)
-                  {
-                     entity_iter->collision_check = true;
-                     break;
-                  }
-                  entity_iter++;
-               }
-            }
-            
-            // deals with collision
-            switch(collision_data.collision_outcome)
-            {
-               case STEPPED_SLOPE:
-               {
-                  cout << "PLAYER STEPPED INTO SLOPE \n";
-                  player->standing_entity_ptr = collision_data.collided_entity_ptr;
-                  player->entity_ptr->position.y += collision_data.overlap;
-                  // @TODO: this is weird, here we are kinda assuming the player is already standing,
-                  // (because we do not set its state to standing) and this is not that wrong since,
-                  // above, we already checked for vertical collisions and possibly dealt with... lost track of it. 
-                  break;
-               }
-               case BLOCKED_BY_WALL:
-               {
-                  // move player back using aabb surface normal vec and computed player/entity overlap in horizontal plane
-                   player->entity_ptr->position -= vec3(
-                     collision_data.normal_vec.x, 0, collision_data.normal_vec.y
-                  ) * collision_data.overlap;
-                  break;
-               }
-            }
+            mark_entity_checked(h_collision_data.collided_entity_ptr);
+            resolve_collision(h_collision_data, player);
          }
-      }
-      if(!any_collision)
-      {
-         end_collision_checks = true;
+
+         if(!any_collision) break;
       }
    }
 }
@@ -619,7 +568,7 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
                      set_collided_entity = true;
                      return_cd.collision_outcome = STEPPED_SLOPE;
                      // @WORKAROUND
-                     float v_overlap = get_vertical_overlap_player_vs_slope(entity, player);
+                     float v_overlap = -1 * get_distance_from_slope(entity, player);
                      c.overlap = v_overlap;
                   }
                }
@@ -678,9 +627,10 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
                horizontal_check = get_horizontal_overlap_with_player(entity, player);
             }
             else if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE && 
-               intersects_vertically_with_slope(entity, player->entity_ptr))
+               player_feet_center_touches_slope(player, entity))
             {
-               vertical_overlap = get_vertical_overlap_player_vs_slope(entity, player);
+               // here we should get tunneling
+               vertical_overlap = -1 * get_distance_from_slope(entity, player);
                horizontal_check = get_horizontal_overlap_with_player(entity, player);   
             }
          }

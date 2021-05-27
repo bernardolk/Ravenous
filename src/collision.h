@@ -45,15 +45,13 @@ struct SlopeHeightsPlayer
 Collision get_vertical_overlap_player_vs_aabb(Entity* entity, Entity* player);
 bool intersects_vertically_with_aabb(Entity* entity, Player* player);
 Collision get_horizontal_overlap_with_player(Entity* entity, Player* player);
-float get_vertical_overlap_player_vs_slope(Entity* slope, Player* player);
+float get_distance_from_slope(Entity* slope, Player* player);
 float get_slope_height_at_position(vec3 position, Entity* slope);
 float get_slope_height_at_position(float position, Entity* slope, bool is_x, bool is_z);
 auto project_entity_into_slope(Entity* entity, Entity* ramp);
 float get_slope_height_at_position_along_inclination_axis(float position, Entity* slope);
 bool intersects_vertically_with_slope(Entity* slope, Entity* player);
-CollisionData sample_terrain_height_at_player(Entity* player, Entity* entity); 
-// CollisionData check_for_floor_below_player(Player* player);
-// CollisionData check_for_floor_below_player_when_slope(Player* player, bool only_check_player_tunnelling);
+CollisionData sample_terrain_height_at_player(Entity* player, Entity* entity);
 RaycastTest check_for_floor_below_player(Player* player);
 bool player_feet_center_touches_slope(Player* player, Entity* slope);
 
@@ -116,6 +114,7 @@ bool intersects_vertically_with_aabb(Entity* entity, Player* player)
 {
    // if we are standing in a slope, then we need to check which player height we want to check against,
    // because at each point that the player touches the slope he has a different height
+   // @todo: shouldnt here we ask (player_qualifies_as_standing) ? If sliding, doesnt this matter too?
    if(player->player_state == PLAYER_STATE_STANDING &&
       player->standing_entity_ptr->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
    {
@@ -124,7 +123,9 @@ bool intersects_vertically_with_aabb(Entity* entity, Player* player)
       float box_bottom  = entity->position.y;
       float p_feet = player->entity_ptr->position.y - player->half_height;
       float player_top  = player->entity_ptr->position.y + player->half_height;
-      if(p_feet > box_top || player_top < box_bottom)
+
+      // basic y cull
+      if(p_feet + COLLISION_EPSILON >= box_top || player_top - COLLISION_EPSILON <= box_bottom)
          return false;
 
       auto ramp = player->standing_entity_ptr;
@@ -138,18 +139,8 @@ bool intersects_vertically_with_aabb(Entity* entity, Player* player)
       // computes what should be the player's bottom position considering the
       // box position in slope (before or after player)
       float p_bottom_for_collision;
-      if(box_max_y <= p_feet)
-         p_bottom_for_collision = p_feet;
-      else if (box_min_y >= p_max_y)
-         p_bottom_for_collision = p_max_y;
-      else 
-      {
-         if(entity->name == "jose")
-         {
-            cout << "box_min_y: " << box_min_y << ", box_max_y: " << box_max_y << "\n";
-            cout << "p_feet: " << p_feet << ", p_max_y: " << p_max_y << "\n";
-         }  
-      }
+      if (box_max_y <= p_feet)         p_bottom_for_collision = p_feet;
+      else    p_bottom_for_collision = p_max_y;
 
       // checks if entity overlaps player vertically
       return p_bottom_for_collision + COLLISION_EPSILON < box_top && player_top > box_bottom + COLLISION_EPSILON;
@@ -175,33 +166,29 @@ Collision get_horizontal_overlap_with_player(Entity* entity, Player* player)
    float player_x = player->entity_ptr->position.x;
    float player_z = player->entity_ptr->position.z; 
 
+   // player is inside rect bounds, overlap = 0
    if (x0 <= player_x && x1 >= player_x && z0 <= player_z && z1 >= player_z) 
-   {
-      // overlap = 0
       return Collision{true};    
-   }
-   else
-   {
-      // n_vec = vector from player to nearest point in rectangle surface
-      float nx = std::max(x0, std::min(x1, player_x));
-      float nz = std::max(z0, std::min(z1, player_z));
-      vec2 n_vec = vec2(nx, nz) - vec2(player_x, player_z);
-      float distance = glm::length(n_vec);
-      float overlap = player->radius - distance;
 
-      Collision c;
-      if(overlap > COLLISION_EPSILON)
-      {   
-         c.is_collided = true;
-         c.overlap = overlap;
-         c.normal_vec = glm::normalize(n_vec);
-      }
-      return c;
-   }     
+   // n_vec = vector from player to nearest point in rectangle surface
+   float nx = std::max(x0, std::min(x1, player_x));
+   float nz = std::max(z0, std::min(z1, player_z));
+   vec2 n_vec = vec2(nx, nz) - vec2(player_x, player_z);
+   float distance = glm::length(n_vec);
+   float overlap = player->radius - distance;
+
+   Collision c;
+   if(overlap > COLLISION_EPSILON)
+   {   
+      c.is_collided = true;
+      c.overlap = overlap;
+      c.normal_vec = glm::normalize(n_vec);
+   }
+   return c;
 }
 
 
-float get_vertical_overlap_player_vs_slope(Entity* slope, Player* player)
+float get_distance_from_slope(Entity* slope, Player* player)
 {
    // assumes we already checked that we have vertical intersection 
    float y = get_slope_height_at_position(player->entity_ptr->position, slope);
@@ -251,8 +238,8 @@ bool intersects_vertically_with_slope(Entity* slope, Entity* player)
    float player_bottom  = player->position.y - p_col.half_length;
    float player_top     = player->position.y + p_col.half_length;
 
-   // basic cull in y 
-   if(player_bottom  >= slope_top || player_top <= slope_bottom)
+   // basic cull in y (we use epsilon so if same height no collision is detected)
+   if(player_bottom + COLLISION_EPSILON  >= slope_top || player_top - COLLISION_EPSILON <= slope_bottom)
       return false;
 
    // gets the player projection into the slope
@@ -320,25 +307,35 @@ CollisionData sample_terrain_height_at_player(Entity* player, Entity* entity)
 RaycastTest check_for_floor_below_player(Player* player)
 {
    // cast ray slightly above contact point to catch tunneling correctly
-   float tolerance = 0.01;
-   auto downward_ray = Ray{player->feet() + vec3{0.0f, tolerance, 0.0f}, vec3{0.0f, -1.0f, 0.0f}};
+   float tunneling_tolerance = 0.01;
+   auto downward_ray = Ray{player->feet() + vec3{0.0f, tunneling_tolerance, 0.0f}, vec3{0.0f, -1.0f, 0.0f}};
    RaycastTest raytest = test_ray_against_scene(downward_ray);
-   if(raytest.hit && raytest.distance < tolerance)
-   {
-      cout << "distance from ray to floor: " << raytest.distance << "\n";
+
+   float detection_tolerance = tunneling_tolerance;
+   // because slopes are inclined, if we dont allow more tolerance in detection we will trigger a fall
+   if(raytest.entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
+      detection_tolerance *= 2;
+
+   if(raytest.hit && raytest.distance < detection_tolerance)    
       return raytest;
-   }
-   else
+   else  
       return RaycastTest{false};
 }
 
+//@todo: rename: it is for any entity actually not just slopes
 bool player_feet_center_touches_slope(Player* player, Entity* slope)
 {
-// cast ray slightly above contact point to catch tunneling correctly
-   float tolerance = 0.01;
-   auto downward_ray = Ray{player->feet() + vec3{0.0f, tolerance, 0.0f}, vec3{0.0f, -1.0f, 0.0f}};
+   // cast ray slightly above contact point to catch tunneling correctly
+   float tunneling_tolerance = 0.02;
+   auto downward_ray = Ray{player->feet() - vec3{0.0f, tunneling_tolerance, 0.0f}, vec3{0.0f, 1.0f, 0.0f}};
    RaycastTest raytest = test_ray_against_entity(downward_ray, slope);
-   if(raytest.hit && raytest.distance < tolerance)
+
+   float detection_tolerance = tunneling_tolerance *= 2;
+   // // because slopes are inclined, if we dont allow more tolerance in detection we will trigger a fall
+   // if(raytest.entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
+   //    detection_tolerance *= 2;
+
+   if(raytest.hit && raytest.distance < detection_tolerance)
    {
       return true;
    }
