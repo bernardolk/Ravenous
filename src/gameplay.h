@@ -1,22 +1,15 @@
-void handle_input_flags(InputFlags flags, Player* &player);
+void handle_common_input(InputFlags flags, Player* &player);
 void update_player_state(Player* &player);
 void make_player_slide(Player* player, CollisionData collision_data);
 void make_player_slide_fall(Player* player, CollisionData collision_data);
 void run_collision_checks_standing(Player* player, size_t entity_list_size);
 void run_collision_checks_falling(Player* player, size_t entity_list_size);
-CollisionData check_collision_horizontal(
-      Player* player, EntityBufferElement* entity_iterator, size_t entity_list_size
-); 
-CollisionData check_collision_vertical(Player* player, EntityBufferElement* entity_iterator, size_t entity_list_size);
 void player_death_handler(Player* &player);
-void game_handle_input_flags(InputFlags flags, Player* &player);
+void game_handle_input(InputFlags flags, Player* &player);
 void reset_input_flags(InputFlags flags);
 void mark_entity_checked(Entity* entity);
 void resolve_collision(CollisionData collision, Player* player);
 
-
-float SLIDE_MAX_ANGLE = 1.4;
-float SLIDE_MIN_ANGLE = 0.6;
 
 void update_player_state(Player* &player)
 {
@@ -404,8 +397,6 @@ void resolve_collision(CollisionData collision, Player* player)
 
 }
 
-// @NOTE! : Because we are marking entities in buffer when checked, we should never use 
-// multiple CONTROLLER LEVEL calls unless we reset the buffers to the active scene entity list
 void run_collision_checks_falling(Player* player, size_t entity_list_size)
 {
    // Here, we will check first for vertical intersections to see if player needs to be teleported 
@@ -496,222 +487,10 @@ void make_player_slide_fall(Player* player, CollisionData collision_data)
    player->player_state = PLAYER_STATE_SLIDE_FALLING;
 }
 
-// ______________________________________
-//
-//  ENTITY COLLISION CONTROLLER FUNCTIONS
-// ______________________________________
-
-CollisionData check_collision_horizontal(Player* player, EntityBufferElement* entity_iterator, size_t entity_list_size) 
-{
-   CollisionData return_cd; 
-   // this serves only to enable us to check for standing_entity_ptr, otherwise its NULL and we get an exception
-   bool player_qualifies_as_standing = 
-      player->player_state == PLAYER_STATE_STANDING || 
-      player->player_state == PLAYER_STATE_SLIDING  ||
-      player->player_state == PLAYER_STATE_SLIDE_FALLING;
-
-   for (int i = 0; i < entity_list_size; i++)
-   {
-	   Entity* &entity = entity_iterator->entity;
-	   float biggest_overlap = -1;
-      Collision c;
-      bool set_collided_entity = false;
-      bool entity_is_not_player_current_ground = !(player_qualifies_as_standing && player->standing_entity_ptr == entity);
-	   if (entity_iterator->collision_check == false && entity_is_not_player_current_ground)
-      {    
-         // AABB
-         if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX &&
-            intersects_vertically_with_aabb(entity, player))
-         {
-            c = get_horizontal_overlap_with_player(entity, player);
-
-            if(c.is_collided && c.overlap >= 0 && c.overlap > biggest_overlap)
-            {
-               cout << "collided with " << entity->name << "\n";
-               return_cd.collision_outcome = BLOCKED_BY_WALL;
-               set_collided_entity = true;
-            }
-         }
-
-         // ALIGNED SLOPE
-         else if (entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
-         {
-            auto col_geometry = entity->collision_geometry.slope;
-            auto slope_2d_tangent = glm::normalize(vec2(col_geometry.tangent.x, col_geometry.tangent.z));
-
-            c = get_horizontal_overlap_with_player(entity, player);
-            if(!c.is_collided || (c.overlap > 0 && c.overlap < biggest_overlap))
-            {
-               entity_iterator++;
-               continue;
-            }
-
-            // player is facing slope inclined face
-            if(is_vec2_equal(c.normal_vec, -1.0f * slope_2d_tangent))
-            {
-               // if slope is very inclined...
-               if(col_geometry.inclination > SLIDE_MIN_ANGLE && player_qualifies_as_standing)
-               {
-                  // ...then, we care if the player cylinder touches the slope in any way (cylinder tips count)
-                  if(intersects_vertically_with_slope(entity, player->entity_ptr))
-                  {
-                     set_collided_entity = true;
-                     return_cd.collision_outcome = BLOCKED_BY_WALL;
-                  }
-               }
-               else
-               {
-                  // either player is falling OR standing but slope is not angled enough...
-                  // we should only care for collisions between slope and the player center in x-z (feet center)
-                  if(player_feet_center_touches_slope(player, entity))
-                  {
-                     set_collided_entity = true;
-                     return_cd.collision_outcome = STEPPED_SLOPE;
-                     // @WORKAROUND
-                     float v_overlap = -1 * get_distance_from_slope(entity, player);
-                     c.overlap = v_overlap;
-                  }
-               }
-
-            }
-            // player is not facing slope inclined face
-            else
-            {
-               // ...then we care if player (as a cylinder) is touching the slope
-               if(intersects_vertically_with_slope(entity, player->entity_ptr))
-               {
-                  set_collided_entity = true;
-                  return_cd.collision_outcome = BLOCKED_BY_WALL;
-               }
-            }
-         }
-
-         // set current entity as collided one
-         if(set_collided_entity)
-         {
-            // cout << "horizontal collision with '" << entity->name << "'\n";
-            biggest_overlap = c.overlap;
-
-            return_cd.is_collided = true;
-            return_cd.collided_entity_ptr = entity;
-            return_cd.overlap = c.overlap;
-            return_cd.normal_vec = c.normal_vec;
-         }
-      }
-      entity_iterator++;
-   }
-   return return_cd;
-}
-
-
-
-
-CollisionData check_collision_vertical(Player* player, EntityBufferElement* entity_iterator, size_t entity_list_size)
-{
-   CollisionData return_cd; 
-   for (int i = 0; i < entity_list_size; i++)
-   {
-	   Entity* &entity = entity_iterator->entity;
-	   float biggest_overlap = -1;
-	   if (entity_iterator->collision_check == false)
-      {   
-         // PERFORMS OVERLAP TESTING
-         float vertical_overlap = -1;
-         Collision v_overlap_collision; // for ceilling hit detection
-         Collision horizontal_check;
-         {
-            if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX && intersects_vertically_with_aabb(entity, player))
-            {
-               v_overlap_collision = get_vertical_overlap_player_vs_aabb(entity, player->entity_ptr);
-               vertical_overlap = v_overlap_collision.overlap;
-               horizontal_check = get_horizontal_overlap_with_player(entity, player);
-            }
-            else if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE && 
-               player_feet_center_touches_slope(player, entity))
-            {
-               // here we should get tunneling
-               vertical_overlap = -1 * get_distance_from_slope(entity, player);
-               horizontal_check = get_horizontal_overlap_with_player(entity, player);   
-            }
-         }
-         // CHECKS IF ANYTHING WORHTWHILE HAPPENED
-         if(horizontal_check.is_collided && vertical_overlap >= 0 && vertical_overlap > biggest_overlap)
-         {
-            biggest_overlap = vertical_overlap;
-            return_cd.collided_entity_ptr = entity;
-
-            // PARTICULAR CHECKS FOR SLOPES (PLAYER LIES INSIDE IT)
-            if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE &&
-               horizontal_check.overlap == 0)
-            {
-               auto col_geometry = entity->collision_geometry.slope;
-               if(col_geometry.inclination > SLIDE_MAX_ANGLE)
-               {
-                  return_cd.overlap = vertical_overlap;
-                  return_cd.collision_outcome = JUMP_SLIDE_HIGH_INCLINATION;
-               }
-               else if(col_geometry.inclination > SLIDE_MIN_ANGLE)
-               {
-                  return_cd.overlap = vertical_overlap;
-                  return_cd.collision_outcome = JUMP_SLIDE;
-               }
-               else
-               {
-                  return_cd.overlap = vertical_overlap;
-                  return_cd.collision_outcome = JUMP_SUCCESS;
-               }
-            }
-
-            // player fell right inside geometry
-            else if(horizontal_check.overlap == 0 && 
-               v_overlap_collision.normal_vec.y != -1)
-            {
-               return_cd.overlap = vertical_overlap;
-               return_cd.collision_outcome = JUMP_SUCCESS;
-            }
-
-            // player jumped and hit the ceiling
-            else if(v_overlap_collision.normal_vec.y == -1 &&
-               player->prior_position.y < player->entity_ptr->position.y &&
-               vertical_overlap < 0.03)
-            {
-               return_cd.overlap = vertical_overlap;
-               return_cd.normal_vec = v_overlap_collision.normal_vec;
-               return_cd.collision_outcome = JUMP_CEILING;
-            }
-
-            // player intersected with wall too much below standing area (hit wall)
-            else if(vertical_overlap > 0.001) 
-            {
-               return_cd.overlap = horizontal_check.overlap;
-               return_cd.normal_vec = horizontal_check.normal_vec;
-               return_cd.collision_outcome = JUMP_FACE_FLAT;
-            }
-
-            // player did not get half body inside platform (didnt make the jump)
-            else if(horizontal_check.overlap < player->radius)
-            {
-               return_cd.overlap = vertical_overlap;
-               return_cd.normal_vec = horizontal_check.normal_vec;
-               return_cd.collision_outcome = JUMP_FAIL;
-            }
-
-            // got at least half body inside platform (made the jump)
-            else
-            {
-               return_cd.overlap = vertical_overlap;
-               return_cd.collision_outcome = JUMP_SUCCESS;
-            }
-         }
-      }
-      entity_iterator++;
-   }
-   return return_cd;
-}
 
 
 //@todo: refactor this into game mode input handle and editor mode input handle
-void handle_input_flags(InputFlags flags, Player* &player)
+void handle_common_input(InputFlags flags, Player* &player)
 {
    if(pressed_once(flags, KEY_COMMA))
    {
@@ -778,9 +557,8 @@ void handle_input_flags(InputFlags flags, Player* &player)
    }
 }
 
-void game_handle_input_flags(InputFlags flags, Player* &player)
+void game_handle_input(InputFlags flags, Player* &player)
 {
-
    if(player->player_state == PLAYER_STATE_STANDING)
    {
       // resets velocity

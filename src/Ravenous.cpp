@@ -310,13 +310,13 @@ int main()
             handle_console_input(input_flags, player);
             break;
          case EDITOR_MODE:
-            handle_input_flags(input_flags, player);
+            handle_common_input(input_flags, player);
             Editor::start_frame();
             Editor::handle_input_flags(input_flags, player);
             break;
          case GAME_MODE:
-            handle_input_flags(input_flags, player);
-            game_handle_input_flags(input_flags, player);
+            handle_common_input(input_flags, player);
+            game_handle_input(input_flags, player);
             break;
       }
       reset_input_flags(input_flags);
