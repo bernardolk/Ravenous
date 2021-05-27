@@ -63,15 +63,16 @@ void camera_update(Camera* camera, float viewportWidth, float viewportHeight, Pl
    if(camera->type == THIRD_PERSON)
    {
       camera->Position = player->entity_ptr->position;
-      camera->Position.y += 0.75;
+      camera->Position.y += 1.75;
 
       if (camera->orbital_angle > 360.0f)
          camera->orbital_angle -= 360.0;
       if (camera->orbital_angle < -360.0f)
          camera->orbital_angle += 360.0;
 
-      camera->Position.x += 2 * cos(camera->orbital_angle);
-      camera->Position.z += 2 * sin(camera->orbital_angle); 
+      float distance = 3;
+      camera->Position.x += distance * cos(camera->orbital_angle);
+      camera->Position.z += distance * sin(camera->orbital_angle); 
       camera_look_at(camera, player->entity_ptr->position, true);
    }
 }

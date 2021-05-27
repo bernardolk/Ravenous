@@ -1,4 +1,4 @@
-@player_position = -3.30255 3.978 -9.77246
+@player_position = -7.79221 2.13734 -4.54473
 @player_initial_velocity = 0 0 0
 @player_state = 0
 @player_fall_acceleration = 13
@@ -171,7 +171,7 @@ collision slope
 #ramp 270 base box
 position -5.8 0 -8.619
 rotation 0 0 0
-scale 0.811 1.47 3.825
+scale 0.811 1.5 3.6
 mesh aabb
 shader model
 texture texture_diffuse sandstone sandstone.jpg
@@ -185,10 +185,9 @@ mesh aabb
 shader model
 texture texture_diffuse sandstone sandstone.jpg
 collision aabb
-hidden
 
 #small upper platform
-position -5.707 4.532 -8
+position -9.171 4.532 -7.546
 rotation 0 0 0
 scale 2 0.654 0.8
 mesh aabb

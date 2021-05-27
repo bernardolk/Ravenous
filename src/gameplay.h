@@ -127,10 +127,12 @@ void update_player_state(Player* &player)
          
          if(terrain.hit && terrain.entity != player->standing_entity_ptr)
          {
-            cout << "transition of floors, from" << player->standing_entity_ptr->name << " to " << terrain.entity->name << "\n";
-            player->standing_entity_ptr = terrain.entity;
+            cout << "transition of floors, from " << player->standing_entity_ptr->name << " to " << terrain.entity->name << "\n";
             player->slope_player_was_ptr = player->standing_entity_ptr;
+            player->standing_entity_ptr = terrain.entity;
             player->entity_ptr->velocity.y = 0;
+            player->entity_ptr->position.y += terrain.distance;
+            auto terrain_collision = sample_terrain_height_at_player(player_entity, player->standing_entity_ptr);
             player->player_state = PLAYER_STATE_EVICTED_FROM_SLOPE;
             break;
          }
@@ -139,7 +141,7 @@ void update_player_state(Player* &player)
          size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
          run_collision_checks_standing(player, entity_list_size);
 
-         // correct player position in case collided with a wall
+         // if player is still standing after collision resolutions, correct player height, else, make fall
          auto terrain_collision = sample_terrain_height_at_player(player_entity, player->standing_entity_ptr);
          if(terrain_collision.is_collided)
          {
@@ -165,9 +167,10 @@ void update_player_state(Player* &player)
          if(terrain.hit && terrain.entity != player->standing_entity_ptr)
          {
             cout << "transition of floors, from" << player->standing_entity_ptr->name << " to " << terrain.entity->name << "\n";
-            player->standing_entity_ptr = terrain.entity;
             player->slope_player_was_ptr = player->standing_entity_ptr;
+            player->standing_entity_ptr = terrain.entity;
             player->entity_ptr->velocity.y = 0;
+            player->entity_ptr->position.y += terrain.distance;
             player->player_state = PLAYER_STATE_EVICTED_FROM_SLOPE;
             break;
          }
@@ -415,7 +418,6 @@ void run_collision_checks_falling(Player* player, size_t entity_list_size)
          auto v_collision_data = check_collision_vertical(player, entity_iter, entity_list_size);
          if(v_collision_data.collided_entity_ptr != NULL)
          {
-            // we have collided ladies and gents
             any_collision = true;
             mark_entity_checked(v_collision_data.collided_entity_ptr);
             resolve_collision(v_collision_data, player);
