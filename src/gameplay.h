@@ -425,6 +425,7 @@ void run_collision_checks_falling(Player* player, size_t entity_list_size)
          auto h_collision_data = check_collision_horizontal(player, entity_iter, entity_list_size);
          if(h_collision_data.collided_entity_ptr != NULL)
          {
+            any_collision = true;
             mark_entity_checked(h_collision_data.collided_entity_ptr);
             resolve_collision(h_collision_data, player);
          }
