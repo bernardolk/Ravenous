@@ -192,6 +192,20 @@ void execute_command(string buffer_line, Player* &player)
             G_SCENE_INFO.camera->Front
          );
       }
+      else if(argument == "all")
+      {
+         // save scene
+         save_scene_to_file("", player, false);
+         // set scene
+         G_CONFIG.initial_scene = G_SCENE_INFO.scene_name;
+         save_configs_to_file();
+         // set cam
+         save_camera_settings_to_file(
+            CAMERA_FILE_PATH,
+            G_SCENE_INFO.camera->Position,
+            G_SCENE_INFO.camera->Front
+         );
+      }
       else
          cout << "You can set 'scene' or 'cam' dude. " << command << " won't work.\n";
    }
