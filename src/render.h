@@ -1,6 +1,6 @@
 void render_scene(Scene* scene, Camera* camera);
 void render_entity(Entity* entity);
-void render_text(std::string text, float x, float y, float scale, vec3 color = vec3(1,1,1));
+void render_text(std::string text, float x, float y, float scale = 1.0f, vec3 color = vec3(1.0,1.0,1.0), bool center = false);
 void render_editor_entity(Entity* entity, Scene* scene, Camera* camera);
 
 
@@ -124,7 +124,7 @@ void render_immediate(GlobalImmediateDraw* im, Camera* camera)
    G_IMMEDIATE_DRAW.reset();
 }
 
-void render_text(std::string text, float x, float y, float scale = 1.0, vec3 color) 
+void render_text(std::string text, float x, float y, float scale, vec3 color, bool center) 
 {
    auto find1 = Shader_Catalogue.find("text");
    auto text_shader = find1->second;
@@ -135,6 +135,18 @@ void render_text(std::string text, float x, float y, float scale = 1.0, vec3 col
    Mesh* text_geometry = find2->second;
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(text_geometry->gl_data.VAO);
+
+   if(center)
+   {
+      string::iterator it;
+      float x_sum = 0;
+	   for (it = text.begin(); it != text.end(); it++)
+      {
+		   auto ch = Characters[*it];
+         x_sum += ch.Bearing.x * scale;
+      }
+      x -= x_sum / 2.0f;
+   }
 
 	std::string::iterator c;
 	for (c = text.begin(); c != text.end(); c++) 
@@ -165,10 +177,3 @@ void render_text(std::string text, float x, float y, float scale = 1.0, vec3 col
 		x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
 	}
 }
-
-
-
-
-
-
-

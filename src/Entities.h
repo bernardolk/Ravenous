@@ -154,6 +154,29 @@ struct Entity {
       }
       return bounds;
    }
+
+   float get_height()
+   {
+       switch(collision_geometry_type)
+      {
+         case COLLISION_ALIGNED_BOX:
+         {
+            auto aabb = collision_geometry.aabb;
+            return aabb.height;
+         }
+         case COLLISION_ALIGNED_SLOPE:
+         {
+            auto slope = collision_geometry.slope;
+            return slope.height;
+         }
+         case COLLISION_ALIGNED_CYLINDER:
+         {
+            auto cylinder = collision_geometry.cylinder;
+            return cylinder.half_length;
+         }
+         default: return 0;
+      }
+   }
 };
 
 struct SpotLight {

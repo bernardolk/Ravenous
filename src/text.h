@@ -3,6 +3,7 @@
 
 
 void load_text_textures(string font, int size);
+inline string format_float_tostr(float num, int precision);
 
 
 struct Character {
@@ -67,4 +68,10 @@ void load_text_textures(string font, int size)
 
 	FT_Done_Face(face);
 	FT_Done_FreeType(ft);
+}
+
+inline string format_float_tostr(float num, int precision) 
+{
+	string temp = std::to_string(num);
+	return temp.substr(0, temp.find(".") + 3);
 }

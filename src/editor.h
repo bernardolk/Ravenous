@@ -36,6 +36,8 @@ struct EditorContext {
    Entity* last_selected_entity = nullptr;
    EntityState original_entity_state;
 
+   bool snap_mode = false;
+
    vector<Entity*> entities;
 } Context;
 
@@ -60,6 +62,9 @@ void update_editor_entities();
 void check_for_asset_changes();
 void update_entity_control_arrows(EntityPanelContext* panel);
 void render_entity_control_arrows(EntityPanelContext* panel);
+void check_selection_to_snap(EntityPanelContext* panel);
+void render_text_overlay(Player* player);
+
 
 
 void update()
@@ -188,8 +193,27 @@ void check_selection_to_open_panel()
    auto pickray = cast_pickray();
    auto test = test_ray_against_scene(pickray);
    if(test.hit)
-   {
       set_entity_panel(test.entity);
+}
+
+void check_selection_to_move_entity()
+{
+   auto pickray = cast_pickray();
+   auto test = test_ray_against_scene(pickray, true);
+   if(test.hit)
+      select_entity(test.entity);
+}
+
+void check_selection_to_snap(EntityPanelContext* panel)
+{
+   auto pickray = cast_pickray();
+   auto test = test_ray_against_scene(pickray);
+   if(test.hit)
+   {
+      float top = test.entity->position.y + test.entity->get_height();
+      float current_top = panel->entity->position.y + panel->entity->get_height();
+      float diff = top - current_top;
+      panel->entity->position.y += diff;
    }
 }
 
@@ -218,15 +242,7 @@ void set_entity_panel(Entity* entity)
 }
 
 
-void check_selection_to_move_entity()
-{
-   auto pickray = cast_pickray();
-   auto test = test_ray_against_scene(pickray, true);
-   if(test.hit)
-   {
-      select_entity(test.entity);
-   }
-}
+
 
 void update_editor_entities()
 {
@@ -257,7 +273,7 @@ void update_editor_entities()
    }
 }
 
-void render()
+void render(Player* player)
 {
    // render editor entities
 	Entity **entity_iterator = &(Context.entities[0]);
@@ -277,6 +293,7 @@ void render()
       render_entity(entity);
    }
 
+   // render entity panel
    if(Context.entity_panel.active)
    {
       render_entity_panel(&Context.entity_panel);
@@ -287,7 +304,13 @@ void render()
          render_entity_control_arrows(panel);
       }
    }
-   else Context.entity_panel.rename_buffer[0] = 0;
+   else
+   {
+      Context.entity_panel.rename_buffer[0] = 0;
+      Context.snap_mode = false;
+   } 
+
+   render_text_overlay(player);
 
    ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -442,6 +465,10 @@ void render_entity_panel(EntityPanelContext* panel_context)
 
    // Controls
    {
+      if(ImGui::Button("Snap", ImVec2(82,18)))
+      {
+         Context.snap_mode = true;
+      }
       if(ImGui::Button("Duplicate", ImVec2(82,18)))
       {
          auto new_entity = copy_entity(entity);
@@ -618,6 +645,19 @@ void initialize()
 
 void handle_input_flags(InputFlags flags, Player* &player)
 {
+   if(Context.snap_mode == true)
+   {
+      if(pressed_once(flags, KEY_ESC))
+      {
+         // undo snap mode changes
+         Context.snap_mode = false;
+      }
+      else if(pressed_once(flags, KEY_ENTER))
+      {
+         Context.snap_mode = false;
+      }
+   }
+   
    if(flags.key_press & KEY_LEFT_CTRL && pressed_once(flags, KEY_Z))
    {
       if(Context.entity_panel.active)
@@ -639,11 +679,14 @@ void handle_input_flags(InputFlags flags, Player* &player)
    // click selection
    if(G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK && flags.key_press & KEY_LEFT_CTRL)
    {
-      Editor::check_selection_to_open_panel();
+      if(Context.snap_mode)
+         check_selection_to_snap(&Context.entity_panel);
+      else
+         check_selection_to_open_panel();
    }
    else if(G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK && flags.key_press & KEY_G)
    {
-      Editor::check_selection_to_move_entity();
+      check_selection_to_move_entity();
    }
    else if(G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK)
    {
@@ -782,6 +825,108 @@ void handle_input_flags(InputFlags flags, Player* &player)
             player->entity_ptr->velocity = player->jump_initial_speed * jump_vec;
       }
    }
+}
+
+void render_text_overlay(Player* player) 
+{
+   auto camera = G_SCENE_INFO.camera;
+   string player_floor = "player floor: ";
+   if(player->standing_entity_ptr != NULL)
+      player_floor += player->standing_entity_ptr->name;
+
+   string lives = to_string(player->lives);
+
+   string GUI_atts[]{
+      format_float_tostr(camera->Position.x, 2),               //0
+      format_float_tostr(camera->Position.y,2),                //1
+      format_float_tostr(camera->Position.z,2),                //2
+      format_float_tostr(camera->Pitch,2),                     //3
+      format_float_tostr(camera->Yaw,2),                       //4
+      format_float_tostr(camera->Front.x,2),                   //5
+      format_float_tostr(camera->Front.y,2),                   //6
+      format_float_tostr(camera->Front.z,2),                   //7
+      format_float_tostr(player->entity_ptr->position.x,1),    //8
+      format_float_tostr(player->entity_ptr->position.y,1),    //9 
+      format_float_tostr(player->entity_ptr->position.z,1),    //10
+      format_float_tostr(G_FRAME_INFO.time_step,1)             //11
+   };
+
+   string cam_type = camera->type == FREE_ROAM ? "FREE ROAM" : "THIRD PERSON";
+   string camera_type_string  = "camera type: " + cam_type;
+   string camera_position  = "camera:   x: " + GUI_atts[0] + " y:" + GUI_atts[1] + " z:" + GUI_atts[2];
+   string camera_front     = "    dir:  x: " + GUI_atts[5] + " y:" + GUI_atts[6] + " z:" + GUI_atts[7];
+   string mouse_stats      = "    pitch: " + GUI_atts[3] + " yaw: " + GUI_atts[4];
+   string fps              = to_string(G_FRAME_INFO.current_fps);
+   string fps_gui          = "FPS: " + fps.substr(0, fps.find('.', 0) + 2);
+   string player_pos       = "player:   x: " +  GUI_atts[8] + " y: " +  GUI_atts[9] + " z: " +  GUI_atts[10];
+   string time_step_string = "time step: " + GUI_atts[11] + "x";
+
+
+   vec3 player_state_text_color;
+   std::string player_state_text;
+   switch(player->player_state)
+   {
+      case PLAYER_STATE_STANDING:
+         player_state_text_color = vec3(0, 0.8, 0.1);
+         player_state_text = "PLAYER STANDING";
+         break;
+      case PLAYER_STATE_FALLING:
+         player_state_text_color = vec3(0.8, 0.1, 0.1);
+         player_state_text = "PLAYER FALLING";
+         break;
+      case PLAYER_STATE_FALLING_FROM_EDGE:
+         player_state_text_color = vec3(0.8, 0.1, 0.3);
+         player_state_text = "PLAYER FALLING FROM EDGE";
+         break;
+      case PLAYER_STATE_JUMPING:
+         player_state_text_color = vec3(0.1, 0.3, 0.8);
+         player_state_text = "PLAYER JUMPING";
+         break;
+      case PLAYER_STATE_SLIDING:
+         player_state_text_color = vec3(0.1, 0.3, 0.8);
+         player_state_text = "PLAYER SLIDING";
+         break;
+      case PLAYER_STATE_SLIDE_FALLING:
+         player_state_text_color = vec3(0.1, 0.3, 0.8);
+         player_state_text = "PLAYER SLIDE FALLING";
+         break;
+      case PLAYER_STATE_EVICTED_FROM_SLOPE:
+         player_state_text_color = vec3(0.1, 0.3, 0.8);
+         player_state_text = "PLAYER EVICTED FROM SLOPE";
+         break;
+   }
+
+   std::string view_mode_text;
+   switch(PROGRAM_MODE.current)
+   {
+      case EDITOR_MODE:
+         view_mode_text = "EDITOR MODE";
+         break;
+      case GAME_MODE:
+         view_mode_text = "GAME MODE";
+         break;
+   }
+
+   float GUI_x = 25;
+   float GUI_y = G_DISPLAY_INFO.VIEWPORT_HEIGHT - 60;
+
+   render_text(camera_type_string,  GUI_x, GUI_y,        1.3);
+   render_text(camera_position,     GUI_x, GUI_y - 30,   1.3);
+   render_text(player_pos,          GUI_x, GUI_y - 60,   1.3);
+
+   render_text(lives,               G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 90, 1.3,  
+      player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1}
+   );
+   render_text(player_floor,        G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 60, 1.3);
+   render_text(player_state_text,   G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 30, 1.3, player_state_text_color);
+
+   render_text(view_mode_text,            G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y,        1.3);
+   render_text(G_SCENE_INFO.scene_name,   G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 30,   1.3, vec3(0.8, 0.8, 0.2));
+   render_text(time_step_string,          G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 60,   1.3, vec3(0.8, 0.8, 0.2));
+   render_text(fps_gui,                   G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 90,   1.3);
+
+   if(Context.snap_mode)
+      render_text("SNAP MODE ON", G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, GUI_y - 60, 3.0, vec3(0.8, 0.8, 0.2), true);
 }
 
 }
