@@ -386,6 +386,9 @@ u64 process_keyboard_input_key_release(GLFWwindow* window)
    if(glfwGetKey(window, GLFW_KEY_PERIOD) == GLFW_RELEASE)
       flags = flags | KEY_PERIOD;
 
+   if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_RELEASE)
+      flags = flags | KEY_ESC;
+
    return flags;
 }
 

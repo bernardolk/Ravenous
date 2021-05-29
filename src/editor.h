@@ -40,6 +40,8 @@ struct EditorContext {
    bool snap_mode = false;
    u8 snap_cycle = 0;
    u8 snap_axis = 1;
+   bool snap_inside = true;
+   Entity* snap_reference = nullptr;
    EntityState entity_state_before_snap;
 
    vector<Entity*> entities;
@@ -48,7 +50,7 @@ struct EditorContext {
 void check_selection_to_open_panel();
 void render();
 void select_entity(Entity* entity);
-void render_entity_panel(EntityPanelContext* panel_context);
+void render_entity_panel(EntityPanelContext* panel);
 void start_frame();
 void end_frame();
 void initialize();
@@ -68,7 +70,7 @@ void update_entity_control_arrows(EntityPanelContext* panel);
 void render_entity_control_arrows(EntityPanelContext* panel);
 void check_selection_to_snap(EntityPanelContext* panel);
 void render_text_overlay(Player* player);
-void snap_entity_to_reference(Entity* entity, Entity* reference);
+void snap_entity_to_reference(Entity* entity);
 
 
 
@@ -215,29 +217,49 @@ void check_selection_to_snap(EntityPanelContext* panel)
    auto test = test_ray_against_scene(pickray);
    if(test.hit)
    {
-      snap_entity_to_reference(panel->entity, test.entity);
+      Context.snap_reference = test.entity;
+      snap_entity_to_reference(panel->entity);
    }
 }
 
-void snap_entity_to_reference(Entity* entity, Entity* reference)
+void snap_entity_to_reference(Entity* entity)
 {
-   float bottom = reference->position.y;
-   float height = reference->get_height();
-   float top = bottom + height;
-   float current_bottom = entity->position.y;
-   float current_top = current_bottom + entity->get_height();
+   auto reference = Context.snap_reference;
    float diff = 0;
-   vec3  diff_vec;
-   switch(Context.snap_cycle)
+   auto diff_vec = vec3(0.0f);
+   auto [x0, x1, z0, z1]         = reference->get_rect_bounds();
+   auto [e_x0, e_x1, e_z0, e_z1] = entity->get_rect_bounds();
+
+   switch(Context.snap_axis)
    {
-      case 0:
-         diff_vec = vec3{0, top - current_top, 0};
+      case 0:  // x
+         if     (Context.snap_cycle == 0 && !Context.snap_inside) diff_vec.x = x1 - e_x0;
+         else if(Context.snap_cycle == 0 &&  Context.snap_inside) diff_vec.x = x1 - e_x0 - (e_x1 - e_x0);
+         else if(Context.snap_cycle == 2 && !Context.snap_inside) diff_vec.x = x0 - e_x1;
+         else if(Context.snap_cycle == 2 &&  Context.snap_inside) diff_vec.x = x0 - e_x1 + (e_x1 - e_x0);
+         else if(Context.snap_cycle == 1 ) diff_vec.x = x1 - e_x1 - (x1 - x0) / 2.0 + (e_x1 - e_x0) / 2.0;
          break;
-      case 1:
-         diff_vec = vec3{0, top - height / 2.0 - current_top, 0};
+      case 1:  // y
+      {
+         float bottom = reference->position.y;
+         float height = reference->get_height();
+         float top = bottom + height;
+         float current_bottom = entity->position.y;
+         float current_top = current_bottom + entity->get_height();
+
+         if     (Context.snap_cycle == 0 && !Context.snap_inside) diff_vec.y = top - current_bottom;
+         else if(Context.snap_cycle == 0 &&  Context.snap_inside) diff_vec.y = top - current_top;
+         else if(Context.snap_cycle == 2 && !Context.snap_inside) diff_vec.y = bottom - current_top;
+         else if(Context.snap_cycle == 2 &&  Context.snap_inside) diff_vec.y = bottom - current_bottom;
+         else if(Context.snap_cycle == 1 && !Context.snap_inside) diff_vec.y = top - height / 2.0 - current_top;
          break;
-      case 2:
-         diff_vec = vec3{0, bottom - current_top, 0};
+      }
+      case 2: // z
+         if     (Context.snap_cycle == 0 && !Context.snap_inside) diff_vec.z = z1 - e_z0;
+         else if(Context.snap_cycle == 0 &&  Context.snap_inside) diff_vec.z = z1 - e_z0 - (e_z1 - e_z0);
+         else if(Context.snap_cycle == 2 && !Context.snap_inside) diff_vec.z = z0 - e_z1;
+         else if(Context.snap_cycle == 2 &&  Context.snap_inside) diff_vec.z = z0 - e_z1 + (e_z1 - e_z0);
+         else if(Context.snap_cycle == 1 ) diff_vec.z = z1 - e_z1 - (z1 - z0) / 2.0 + (e_z1 - e_z0) / 2.0;
          break;
    }
 
@@ -352,6 +374,7 @@ void render(Player* player)
    {
       Context.entity_panel.rename_buffer[0] = 0;
       Context.snap_mode = false;
+      Context.snap_reference = nullptr;
    } 
 
    render_text_overlay(player);
@@ -395,18 +418,18 @@ void undo_selected_entity_move_changes()
 }
 
 
-void render_entity_panel(EntityPanelContext* panel_context)
+void render_entity_panel(EntityPanelContext* panel)
 {
-   auto& entity = panel_context->entity;
+   auto& entity = panel->entity;
    ImGui::SetNextWindowPos(ImVec2(100, 300), ImGuiCond_Appearing);
-   ImGui::Begin("Entity Panel", &panel_context->active, ImGuiWindowFlags_AlwaysAutoResize);
+   ImGui::Begin("Entity Panel", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
 
    ImGui::Text(entity->name.c_str());
    
    //rename
    ImGui::NewLine();
-   if(ImGui::InputText("rename", &panel_context->rename_buffer[0], 100))
-      entity->name = panel_context->rename_buffer;
+   if(ImGui::InputText("rename", &panel->rename_buffer[0], 100))
+      entity->name = panel->rename_buffer;
 
    ImGui::NewLine();
    // position
@@ -414,20 +437,20 @@ void render_entity_panel(EntityPanelContext* panel_context)
       ImGui::SliderFloat(
          "x",
          &entity->position.x,
-         panel_context->original_position.x - 4,
-         panel_context->original_position.x + 4
+         panel->original_position.x - 4,
+         panel->original_position.x + 4
       );
       ImGui::SliderFloat(
          "y",
          &entity->position.y,
-         panel_context->original_position.y - 4,
-         panel_context->original_position.y + 4
+         panel->original_position.y - 4,
+         panel->original_position.y + 4
       );
       ImGui::SliderFloat(
          "z", 
          &entity->position.z, 
-         panel_context->original_position.z - 4, 
-         panel_context->original_position.z + 4
+         panel->original_position.z - 4, 
+         panel->original_position.z + 4
       );
    }
 
@@ -459,30 +482,30 @@ void render_entity_panel(EntityPanelContext* panel_context)
          "scale x",
          &scale.x,
          min_scales.x,
-         panel_context->original_scale.x + 4
+         panel->original_scale.x + 4
       );
-      if(ImGui::Checkbox("rev x", &panel_context->reverse_scale_x))
-         panel_context->x_arrow->rotation.z = (int)(panel_context->x_arrow->rotation.z + 180) % 360;
+      if(ImGui::Checkbox("rev x", &panel->reverse_scale_x))
+         panel->x_arrow->rotation.z = (int)(panel->x_arrow->rotation.z + 180) % 360;
 
       // scale in y
       bool scaled_y = ImGui::SliderFloat(
          "scale y",
          &scale.y,
          min_scales.y,
-         panel_context->original_scale.y + 4
+         panel->original_scale.y + 4
       );
-      if(ImGui::Checkbox("rev y", &panel_context->reverse_scale_y))
-         panel_context->y_arrow->rotation.z = (int)(panel_context->y_arrow->rotation.z + 180) % 360;
+      if(ImGui::Checkbox("rev y", &panel->reverse_scale_y))
+         panel->y_arrow->rotation.z = (int)(panel->y_arrow->rotation.z + 180) % 360;
 
       // scale in z
       bool scaled_z = ImGui::SliderFloat(
          "scale z", 
          &scale.z,
          min_scales.z,
-         panel_context->original_scale.z + 4
+         panel->original_scale.z + 4
       );
-      if(ImGui::Checkbox("rev z", &panel_context->reverse_scale_z))
-         panel_context->z_arrow->rotation.x = (int)(panel_context->z_arrow->rotation.x + 180) % 360;
+      if(ImGui::Checkbox("rev z", &panel->reverse_scale_z))
+         panel->z_arrow->rotation.x = (int)(panel->z_arrow->rotation.x + 180) % 360;
 
       // apply scalling
       if(scaled_x || scaled_y || scaled_z)
@@ -491,11 +514,11 @@ void render_entity_panel(EntityPanelContext* panel_context)
          if(flipped_z) scale.z *= -1; 
 
           // if rev scaled, move entity in oposite direction to compensate scaling and fake rev scaling
-         if((panel_context->reverse_scale_x && !flipped_x) || (flipped_x && !panel_context->reverse_scale_x))
+         if((panel->reverse_scale_x && !flipped_x) || (flipped_x && !panel->reverse_scale_x))
             entity->position.x -= scale.x - ref_scale.x;
-         if(panel_context->reverse_scale_y)
+         if(panel->reverse_scale_y)
             entity->position.y -= scale.y - entity->scale.y;
-         if((panel_context->reverse_scale_z && !flipped_z) || (flipped_z && !panel_context->reverse_scale_z))
+         if((panel->reverse_scale_z && !flipped_z) || (flipped_z && !panel->reverse_scale_z))
             entity->position.z -= scale.z - ref_scale.z;
 
          auto inv_rot = glm::rotate(mat4identity, glm::radians(-1.0f * entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
@@ -517,6 +540,11 @@ void render_entity_panel(EntityPanelContext* panel_context)
          undo_snap.rotation  = entity->rotation;
          undo_snap.scale     = entity->scale;
       }
+      if(ImGui::Checkbox("inside", &Context.snap_inside))
+      {
+         snap_entity_to_reference(panel->entity);
+      }
+
       if(ImGui::Button("Duplicate", ImVec2(82,18)))
       {
          auto new_entity = copy_entity(entity);
@@ -693,51 +721,6 @@ void initialize()
 
 void handle_input_flags(InputFlags flags, Player* &player)
 {
-   if(Context.snap_mode == true)
-   {
-      if(pressed_once(flags, KEY_ESC))
-      {
-         Context.snap_mode = false;
-      }
-      else if(pressed_once(flags, KEY_ENTER))
-      {
-         snap_commit();
-      }
-      else if(pressed_only(flags, KEY_X))
-      {
-         if(Context.snap_axis == 0)
-            Context.snap_cycle = (Context.snap_cycle + 1) % 3;
-         else
-         {
-            undo_snap();
-            Context.snap_cycle = 0;
-            Context.snap_axis = 0;
-         }
-      }
-      else if(pressed_only(flags, KEY_Y))
-      {
-         if(Context.snap_axis == 1)
-            Context.snap_cycle = (Context.snap_cycle + 1) % 3;
-         else
-         {
-            undo_snap();
-            Context.snap_cycle = 0;
-            Context.snap_axis = 1;
-         }
-      }
-      else if(pressed_only(flags, KEY_Z))
-      {
-         if(Context.snap_axis == 2)
-            Context.snap_cycle = (Context.snap_cycle + 1) % 3;
-         else
-         {
-            undo_snap();
-            Context.snap_cycle = 0;
-            Context.snap_axis = 2;
-         }
-      }
-   }
-   
    if(flags.key_press & KEY_LEFT_CTRL && pressed_once(flags, KEY_Z))
    {
       if(Context.entity_panel.active && Context.snap_mode == false)
@@ -748,8 +731,67 @@ void handle_input_flags(InputFlags flags, Player* &player)
          undo_selected_entity_move_changes();
    }
 
+   if(pressed_once(flags, KEY_ESC))
+   {
+      if(Context.snap_mode) Context.snap_mode = false;
+      else if(Context.entity_panel.active) Context.entity_panel.active = false;
+   }
+
+
    if(ImGui::GetIO().WantCaptureKeyboard)
       return;
+
+   if(Context.snap_mode == true)
+   {
+      if(pressed_once(flags, KEY_ENTER))
+      {
+         snap_commit();
+      }
+      if(pressed_only(flags, KEY_X))
+      {
+         if(Context.snap_axis == 0)
+            Context.snap_cycle = (Context.snap_cycle + 1) % 3;
+         else
+         {
+            undo_snap();
+            Context.snap_cycle = 0;
+            Context.snap_axis = 0;
+         }
+         if(Context.snap_reference != nullptr)
+            snap_entity_to_reference(Context.entity_panel.entity);
+      }
+      if(pressed_only(flags, KEY_Y))
+      {
+         if(Context.snap_axis == 1)
+            Context.snap_cycle = (Context.snap_cycle + 1) % 3;
+         else
+         {
+            undo_snap();
+            Context.snap_cycle = 0;
+            Context.snap_axis = 1;
+         }
+         if(Context.snap_reference != nullptr)
+            snap_entity_to_reference(Context.entity_panel.entity);
+      }
+      if(pressed_only(flags, KEY_Z))
+      {
+         if(Context.snap_axis == 2)
+            Context.snap_cycle = (Context.snap_cycle + 1) % 3;
+         else
+         {
+            undo_snap();
+            Context.snap_cycle = 0;
+            Context.snap_axis = 2;
+         }
+         if(Context.snap_reference != nullptr)
+            snap_entity_to_reference(Context.entity_panel.entity);
+      }
+      if(pressed_only(flags, KEY_I))
+      {
+         Context.snap_inside = !Context.snap_inside;
+         snap_entity_to_reference(Context.entity_panel.entity);
+      }
+   }
 
    if(pressed_once(flags, KEY_T))
    {  // toggle camera type
@@ -1008,37 +1050,47 @@ void render_text_overlay(Player* player)
    render_text(fps_gui,                   G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 90,   1.3);
 
    // render snap mode indicator
-   string snap_cycle;
-   switch(Context.snap_cycle)
-   {
-      case 0:
-         snap_cycle = "top";
-         break;
-      case 1:
-         snap_cycle = "mid";
-         break;
-      case 2:
-         snap_cycle = "bottom";
-         break;
-   }
-
-   string snap_axis;
-   switch(Context.snap_axis)
-   {
-      case 0:
-         snap_axis = "X";
-         break;
-      case 1:
-         snap_axis = "Y";
-         break;
-      case 2:
-         snap_axis = "Z";
-         break;
-   }
-
    if(Context.snap_mode)
+   {
+      string snap_cycle;
+      switch(Context.snap_cycle)
+      {
+         case 0:
+            snap_cycle = "top";
+            break;
+         case 1:
+            snap_cycle = "mid";
+            break;
+         case 2:
+            snap_cycle = "bottom";
+            break;
+      }
+
+      string snap_axis;
+      switch(Context.snap_axis)
+      {
+         case 0:
+            snap_axis = "X";
+            break;
+         case 1:
+            snap_axis = "Y";
+            break;
+         case 2:
+            snap_axis = "Z";
+            break;
+      }
+
+      vec3 snap_mode_color;
+      if(Context.entity_state_before_snap.position != Context.entity_panel.entity->position)
+         snap_mode_color = vec3(0.8, 0.8, 0.2);
+      else
+         snap_mode_color = vec3(0.6, 1.0, 0.3);
+
+      
       render_text("SNAP MODE ON (" + snap_axis + "-" + snap_cycle + ")", 
-            G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, GUI_y - 60, 3.0, vec3(0.8, 0.8, 0.2), true);
+            G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, GUI_y - 60, 3.0, snap_mode_color, true
+      );
+   }
 }
 
 }
