@@ -37,6 +37,8 @@ struct EditorContext {
    EntityState original_entity_state;
 
    bool snap_mode = false;
+   u8 snap_cycle = 0;
+   EntityState before_snap_entity_state;
 
    vector<Entity*> entities;
 } Context;
@@ -64,6 +66,7 @@ void update_entity_control_arrows(EntityPanelContext* panel);
 void render_entity_control_arrows(EntityPanelContext* panel);
 void check_selection_to_snap(EntityPanelContext* panel);
 void render_text_overlay(Player* player);
+void snap_entity_to_reference(Entity* entity, Entity* reference);
 
 
 
@@ -210,11 +213,33 @@ void check_selection_to_snap(EntityPanelContext* panel)
    auto test = test_ray_against_scene(pickray);
    if(test.hit)
    {
-      float top = test.entity->position.y + test.entity->get_height();
-      float current_top = panel->entity->position.y + panel->entity->get_height();
-      float diff = top - current_top;
-      panel->entity->position.y += diff;
+      snap_entity_to_reference(panel->entity, test.entity);
    }
+}
+
+void snap_entity_to_reference(Entity* entity, Entity* reference)
+{
+   float bottom = reference->position.y;
+   float height = reference->get_height();
+   float top = bottom + height;
+   float current_bottom = entity->position.y;
+   float current_top = current_bottom + entity->get_height();
+   float diff = 0;
+   vec3  diff_vec;
+   switch(Context.snap_cycle)
+   {
+      case 0:
+         diff_vec = vec3{0, top - current_top, 0};
+         break;
+      case 1:
+         diff_vec = vec3{0, top - height / 2.0 - current_top, 0};
+         break;
+      case 2:
+         diff_vec = vec3{0, bottom - current_top, 0};
+         break;
+   }
+
+   entity->position += diff_vec;
 }
 
 void set_entity_panel(Entity* entity)
@@ -656,6 +681,10 @@ void handle_input_flags(InputFlags flags, Player* &player)
       {
          Context.snap_mode = false;
       }
+      else if(pressed_once(flags, KEY_Y))
+      {
+         Context.snap_cycle = (Context.snap_cycle + 1) % 3;
+      }
    }
    
    if(flags.key_press & KEY_LEFT_CTRL && pressed_once(flags, KEY_Z))
@@ -925,8 +954,22 @@ void render_text_overlay(Player* player)
    render_text(time_step_string,          G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 60,   1.3, vec3(0.8, 0.8, 0.2));
    render_text(fps_gui,                   G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 90,   1.3);
 
+   string snap_cycle;
+   switch(Context.snap_cycle)
+   {
+      case 0:
+         snap_cycle = "top";
+         break;
+      case 1:
+         snap_cycle = "mid";
+         break;
+      case 2:
+         snap_cycle = "bottom";
+         break;
+   }
+
    if(Context.snap_mode)
-      render_text("SNAP MODE ON", G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, GUI_y - 60, 3.0, vec3(0.8, 0.8, 0.2), true);
+      render_text("SNAP MODE ON (" + snap_cycle + ")", G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, GUI_y - 60, 3.0, vec3(0.8, 0.8, 0.2), true);
 }
 
 }

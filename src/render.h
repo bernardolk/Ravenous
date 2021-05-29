@@ -143,9 +143,9 @@ void render_text(std::string text, float x, float y, float scale, vec3 color, bo
 	   for (it = text.begin(); it != text.end(); it++)
       {
 		   auto ch = Characters[*it];
-         x_sum += ch.Bearing.x * scale;
+         x_sum += ch.Bearing.x * scale + ch.Size.x * scale;
       }
-      x -= x_sum / 2.0f;
+      x -= x_sum / 2.0;
    }
 
 	std::string::iterator c;
