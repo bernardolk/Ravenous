@@ -36,9 +36,11 @@ struct EditorContext {
    Entity* last_selected_entity = nullptr;
    EntityState original_entity_state;
 
+   // snap mode
    bool snap_mode = false;
    u8 snap_cycle = 0;
-   EntityState before_snap_entity_state;
+   u8 snap_axis = 1;
+   EntityState entity_state_before_snap;
 
    vector<Entity*> entities;
 } Context;
@@ -242,6 +244,23 @@ void snap_entity_to_reference(Entity* entity, Entity* reference)
    entity->position += diff_vec;
 }
 
+void undo_snap()
+{
+   auto entity       = Context.entity_panel.entity;
+   entity->position  = Context.entity_state_before_snap.position;
+   entity->scale     = Context.entity_state_before_snap.scale;
+   entity->rotate_y(Context.entity_state_before_snap.rotation.y - entity->rotation.y);
+}
+
+void snap_commit()
+{
+   auto entity    = Context.entity_panel.entity;
+   auto &undo     = Context.entity_state_before_snap;
+   undo.position  = entity->position;
+   undo.rotation  = entity->rotation;
+   undo.scale     = entity->scale;
+}
+
 void set_entity_panel(Entity* entity)
 {
    Context.last_selected_entity = entity;
@@ -359,17 +378,17 @@ void deselect_entity()
 
 void undo_entity_panel_changes()
 {
-   auto entity = Context.entity_panel.entity;
-   entity->position = Context.entity_panel.original_position;
-   entity->scale = Context.entity_panel.original_scale;
+   auto entity       = Context.entity_panel.entity;
+   entity->position  = Context.entity_panel.original_position;
+   entity->scale     = Context.entity_panel.original_scale;
    entity->rotate_y(Context.entity_panel.original_rotation - entity->rotation.y);
 }
 
 void undo_selected_entity_move_changes()
 {
-   auto entity = Context.last_selected_entity;
-   entity->position = Context.original_entity_state.position;
-   entity->scale = Context.original_entity_state.scale;
+   auto entity       = Context.last_selected_entity;
+   entity->position  = Context.original_entity_state.position;
+   entity->scale     = Context.original_entity_state.scale;
    entity->rotate_y(Context.original_entity_state.rotation.y - entity->rotation.y);
 
    deselect_entity();
@@ -493,6 +512,10 @@ void render_entity_panel(EntityPanelContext* panel_context)
       if(ImGui::Button("Snap", ImVec2(82,18)))
       {
          Context.snap_mode = true;
+         auto &undo_snap     = Context.entity_state_before_snap;
+         undo_snap.position  = entity->position;
+         undo_snap.rotation  = entity->rotation;
+         undo_snap.scale     = entity->scale;
       }
       if(ImGui::Button("Duplicate", ImVec2(82,18)))
       {
@@ -674,23 +697,53 @@ void handle_input_flags(InputFlags flags, Player* &player)
    {
       if(pressed_once(flags, KEY_ESC))
       {
-         // undo snap mode changes
          Context.snap_mode = false;
       }
       else if(pressed_once(flags, KEY_ENTER))
       {
-         Context.snap_mode = false;
+         snap_commit();
       }
-      else if(pressed_once(flags, KEY_Y))
+      else if(pressed_only(flags, KEY_X))
       {
-         Context.snap_cycle = (Context.snap_cycle + 1) % 3;
+         if(Context.snap_axis == 0)
+            Context.snap_cycle = (Context.snap_cycle + 1) % 3;
+         else
+         {
+            undo_snap();
+            Context.snap_cycle = 0;
+            Context.snap_axis = 0;
+         }
+      }
+      else if(pressed_only(flags, KEY_Y))
+      {
+         if(Context.snap_axis == 1)
+            Context.snap_cycle = (Context.snap_cycle + 1) % 3;
+         else
+         {
+            undo_snap();
+            Context.snap_cycle = 0;
+            Context.snap_axis = 1;
+         }
+      }
+      else if(pressed_only(flags, KEY_Z))
+      {
+         if(Context.snap_axis == 2)
+            Context.snap_cycle = (Context.snap_cycle + 1) % 3;
+         else
+         {
+            undo_snap();
+            Context.snap_cycle = 0;
+            Context.snap_axis = 2;
+         }
       }
    }
    
    if(flags.key_press & KEY_LEFT_CTRL && pressed_once(flags, KEY_Z))
    {
-      if(Context.entity_panel.active)
+      if(Context.entity_panel.active && Context.snap_mode == false)
          undo_entity_panel_changes();
+      else if (Context.snap_mode == true)
+         undo_snap();
       else if(Context.last_selected_entity != nullptr)
          undo_selected_entity_move_changes();
    }
@@ -954,6 +1007,7 @@ void render_text_overlay(Player* player)
    render_text(time_step_string,          G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 60,   1.3, vec3(0.8, 0.8, 0.2));
    render_text(fps_gui,                   G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 90,   1.3);
 
+   // render snap mode indicator
    string snap_cycle;
    switch(Context.snap_cycle)
    {
@@ -968,8 +1022,23 @@ void render_text_overlay(Player* player)
          break;
    }
 
+   string snap_axis;
+   switch(Context.snap_axis)
+   {
+      case 0:
+         snap_axis = "X";
+         break;
+      case 1:
+         snap_axis = "Y";
+         break;
+      case 2:
+         snap_axis = "Z";
+         break;
+   }
+
    if(Context.snap_mode)
-      render_text("SNAP MODE ON (" + snap_cycle + ")", G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, GUI_y - 60, 3.0, vec3(0.8, 0.8, 0.2), true);
+      render_text("SNAP MODE ON (" + snap_axis + "-" + snap_cycle + ")", 
+            G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, GUI_y - 60, 3.0, vec3(0.8, 0.8, 0.2), true);
 }
 
 }

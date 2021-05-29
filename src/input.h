@@ -13,6 +13,7 @@ u64 process_keyboard_input_key_release(GLFWwindow* window);
 void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset);
 InputFlags input_phase();
 bool pressed_once(InputFlags flags, u64 key);
+bool pressed_only(InputFlags flags, u64 key);
 void check_mouse_click_hold();
 
 u64 KEY_Q               = 1LL << 0;
@@ -484,6 +485,11 @@ void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
 bool pressed_once(InputFlags flags, u64 key)
 {
    return flags.key_press & key && !(G_INPUT_INFO.key_state & key);
+}
+
+bool pressed_only(InputFlags flags, u64 key)
+{
+   return flags.key_press == key && !(G_INPUT_INFO.key_state & key);
 }
 
 bool pressed(u64 flags, u64 key)
