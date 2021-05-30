@@ -419,13 +419,17 @@ void render(Player* player)
 
    if(Context.measure_mode && Context.first_point_found && Context.second_point_found)
    {
+      auto render_opts = RenderOptions();
+      render_opts.always_on_top = true;
+      render_opts.line_width = 2.0;
+
       G_IMMEDIATE_DRAW.add(
          vector<Vertex>{
             Vertex{Context.measure_from},
             Vertex{vec3(Context.measure_from.x, Context.measure_to, Context.measure_from.z)}
          },
          GL_LINE_LOOP,
-         RenderOptions{false, true}
+         render_opts
       );
    }
 
@@ -1202,9 +1206,15 @@ void render_text_overlay(Player* player)
 
    if(Context.measure_mode)
    {
-       render_text("MEASURE MODE ON",
-            G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, GUI_y - 60, 3.0, vec3(0.8, 0.8, 0.2), true
+      render_text("MEASURE MODE ON",
+         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, GUI_y - 60, 3.0, vec3(0.8, 0.8, 0.2), true
       );
+      if(Context.second_point_found)
+      {
+         render_text("(" + format_float_tostr(abs(Context.measure_to - Context.measure_from.y), 2) + " m)",
+            G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, GUI_y - 80, 2.0, vec3(0.8, 0.8, 0.2), true
+         ); 
+      }
    }
 }
 

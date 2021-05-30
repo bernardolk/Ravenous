@@ -3,6 +3,10 @@ struct RenderOptions
 {
    bool wireframe = false;
    bool always_on_top = false;
+
+   float point_size = 1.0;
+   float line_width = 1.0;
+
 };
 
 struct GlobalImmediateDraw {
@@ -45,7 +49,12 @@ void render_mesh(Mesh* mesh, RenderOptions opts)
       glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
    if(opts.always_on_top)
       glDepthFunc(GL_ALWAYS);
+   if(opts.point_size != 1.0)
+      glPointSize(opts.point_size);
+   if(opts.line_width != 1.0)
+      glLineWidth(opts.line_width);
 
+   // draw
    switch (mesh->render_method)
    {
       case GL_TRIANGLE_STRIP:
@@ -66,6 +75,10 @@ void render_mesh(Mesh* mesh, RenderOptions opts)
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
    if(opts.always_on_top)
       glDepthFunc(GL_LESS);
+   if(opts.point_size != 1.0)
+      glPointSize(1.0);
+   if(opts.line_width != 1.0)
+      glLineWidth(1.0);
 
    glBindVertexArray(0);
 }
