@@ -433,37 +433,44 @@ void render_entity_panel(EntityPanelContext* panel)
 
    ImGui::NewLine();
    // position
+   bool used_pos = false;
    {
-      ImGui::SliderFloat(
+      bool pos_x = ImGui::SliderFloat(
          "x",
          &entity->position.x,
          panel->original_position.x - 4,
          panel->original_position.x + 4
       );
-      ImGui::SliderFloat(
+      bool pos_y = ImGui::SliderFloat(
          "y",
          &entity->position.y,
          panel->original_position.y - 4,
          panel->original_position.y + 4
       );
-      ImGui::SliderFloat(
+      bool pos_z = ImGui::SliderFloat(
          "z", 
          &entity->position.z, 
          panel->original_position.z - 4, 
          panel->original_position.z + 4
       );
+      used_pos = pos_x || pos_y || pos_z;
    }
 
    // rotation
+   bool used_rot = false;
    {
       float rotation = entity->rotation.y;
       if(ImGui::InputFloat("rot y", &rotation, 90))
+      {
          Context.entity_panel.entity->rotate_y(rotation - entity->rotation.y);
+         used_rot = true;
+      }
    }
 
    ImGui::NewLine();
 
    // scale
+   bool scaled_x = false, scaled_y = false, scaled_z = false;
    {
       auto scale = entity->scale;
 
@@ -478,7 +485,7 @@ void render_entity_panel(EntityPanelContext* panel)
       vec3 min_scales {0.0f};
 
       // scale in x
-      bool scaled_x = ImGui::SliderFloat(
+      scaled_x = ImGui::SliderFloat(
          "scale x",
          &scale.x,
          min_scales.x,
@@ -488,7 +495,7 @@ void render_entity_panel(EntityPanelContext* panel)
          panel->x_arrow->rotation.z = (int)(panel->x_arrow->rotation.z + 180) % 360;
 
       // scale in y
-      bool scaled_y = ImGui::SliderFloat(
+      scaled_y = ImGui::SliderFloat(
          "scale y",
          &scale.y,
          min_scales.y,
@@ -498,7 +505,7 @@ void render_entity_panel(EntityPanelContext* panel)
          panel->y_arrow->rotation.z = (int)(panel->y_arrow->rotation.z + 180) % 360;
 
       // scale in z
-      bool scaled_z = ImGui::SliderFloat(
+      scaled_z = ImGui::SliderFloat(
          "scale z", 
          &scale.z,
          min_scales.z,
@@ -531,6 +538,8 @@ void render_entity_panel(EntityPanelContext* panel)
    ImGui::NewLine();
 
    // Controls
+   bool duplicated = false;
+   bool erased = false;
    {
       if(ImGui::Button("Snap", ImVec2(82,18)))
       {
@@ -547,6 +556,7 @@ void render_entity_panel(EntityPanelContext* panel)
 
       if(ImGui::Button("Duplicate", ImVec2(82,18)))
       {
+         duplicated = true;
          auto new_entity = copy_entity(entity);
          new_entity->name += " copy";
          bool already_exists = get_entity_position(G_SCENE_INFO.active_scene, new_entity) > -1;
@@ -558,6 +568,7 @@ void render_entity_panel(EntityPanelContext* panel)
 
       if(ImGui::Button("Erase", ImVec2(82,18)))
       {
+         erased = true;
          auto& list = G_SCENE_INFO.active_scene->entities;
          int index = get_entity_position(G_SCENE_INFO.active_scene, entity);
          list.erase(list.begin() + index);
@@ -565,6 +576,11 @@ void render_entity_panel(EntityPanelContext* panel)
       }
 
       ImGui::Checkbox("Hide", &entity->wireframe);
+   }
+
+   if(used_pos || used_rot || scaled_x || scaled_y || scaled_z || duplicated || erased)
+   {
+      Context.snap_mode = false;
    }
 
    ImGui::End();
