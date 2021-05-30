@@ -159,29 +159,8 @@ std::map<string, Shader*> Shader_Catalogue;
 std::map<string, Texture> Texture_Catalogue;
 
 #include <loaders.h>
-
-
-struct GlobalImmediateDraw {
-   const static int IM_BUFFER_SIZE = 20;
-   Mesh* meshes[IM_BUFFER_SIZE];
-   int ind = 0;
-   void add(vector<Vertex> vertex_vec, GLenum draw_method)
-   {
-      auto mesh = new Mesh();
-      mesh->vertices = vertex_vec;
-      mesh->render_method = draw_method;
-      mesh->setup_gl_data();
-      meshes[ind++] = mesh;
-   };
-   void reset()
-   {
-      for (int i = 0; i < ind; i++)
-         meshes[i] = NULL;
-      ind = 0;
-   }
-} G_IMMEDIATE_DRAW;
-
 #include <render.h>
+
 
 // GLOBAL STRUCT VARIABLES (WITH CUSTOM TYPES)
 GlobalEntityInfo G_ENTITY_INFO;
@@ -675,9 +654,7 @@ inline void update_scene_objects()
    {
       Entity* &entity = *entity_iterator;
 		// Updates model matrix;	
-		entity->update_model_matrix();
-      entity->update_collision_geometry();
-
+		entity->update();
       entity_iterator++;
 	}
 }

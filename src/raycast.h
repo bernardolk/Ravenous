@@ -20,6 +20,7 @@ RaycastTest test_ray_against_scene(Ray ray,  bool only_test_visible_entities);
 RaycastTest test_ray_against_entity(Ray ray, Entity* entity);
 RaycastTest test_ray_against_triangle(Ray ray, Triangle triangle);
 Triangle get_triangle_for_indexed_mesh(Entity* entity, int triangle_index);
+vec3 point_from_detection(Ray ray, RaycastTest result);
 
 
 RaycastTest test_ray_against_scene(Ray ray, bool only_test_visible_entities = false)
@@ -141,4 +142,11 @@ Ray cast_pickray()
    auto origin = G_SCENE_INFO.camera->Position;
 
 	return Ray{origin, direction};
+}
+
+vec3 point_from_detection(Ray ray, RaycastTest result)
+{
+   assert(result.hit);
+
+   return ray.origin + ray.direction * result.distance;
 }

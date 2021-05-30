@@ -30,36 +30,6 @@ struct Mesh {
     string name;
     FILETIME last_written;
 
-    void draw(bool wireframe_mode)
-    {
-      glBindVertexArray(gl_data.VAO);
-
-      // set wireframe mode
-      if(wireframe_mode)
-         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-      switch (render_method)
-      {
-         case GL_TRIANGLE_STRIP:
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.size());
-            break;
-         case GL_LINE_LOOP:
-            glDrawArrays(GL_LINE_LOOP, 0, vertices.size());
-            break;
-         case GL_POINTS:
-            glDrawArrays(GL_POINTS, 0, vertices.size());
-            break;
-         default:
-            glDrawElements(GL_TRIANGLES,  indices.size(), GL_UNSIGNED_INT, 0);
-      }
-
-      // unset wireframe mode
-      if(wireframe_mode)
-         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-      glBindVertexArray(0);
-    }
-
    void setup_gl_data()
    {
       GLData new_gl_data;

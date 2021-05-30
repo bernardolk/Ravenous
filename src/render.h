@@ -1,8 +1,74 @@
+
+struct RenderOptions
+{
+   bool wireframe = false;
+   bool always_on_top = false;
+};
+
+struct GlobalImmediateDraw {
+   const static int IM_BUFFER_SIZE = 20;
+   Mesh* meshes[IM_BUFFER_SIZE];
+   RenderOptions render_opts[IM_BUFFER_SIZE];
+   int ind = 0;
+   void add(vector<Vertex> vertex_vec, GLenum draw_method, RenderOptions opts = RenderOptions{})
+   {
+      auto mesh = new Mesh();
+      mesh->vertices = vertex_vec;
+      mesh->render_method = draw_method;
+      mesh->setup_gl_data();
+      meshes[ind] = mesh;
+      render_opts[ind] = opts;
+
+      ind++;
+   };
+   void reset()
+   {
+      for (int i = 0; i < ind; i++)
+         meshes[i] = NULL;
+      ind = 0;
+   }
+} G_IMMEDIATE_DRAW;
+
 void render_scene(Scene* scene, Camera* camera);
 void render_entity(Entity* entity);
 void render_text(std::string text, float x, float y, float scale = 1.0f, vec3 color = vec3(1.0,1.0,1.0), bool center = false);
 void render_editor_entity(Entity* entity, Scene* scene, Camera* camera);
+void render_mesh(Mesh* mesh, RenderOptions opts = RenderOptions{});
 
+
+void render_mesh(Mesh* mesh, RenderOptions opts)
+{
+   glBindVertexArray(mesh->gl_data.VAO);
+
+   // set render modifiers
+   if(opts.wireframe)
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+   if(opts.always_on_top)
+      glDepthFunc(GL_ALWAYS);
+
+   switch (mesh->render_method)
+   {
+      case GL_TRIANGLE_STRIP:
+         glDrawArrays(GL_TRIANGLE_STRIP, 0, mesh->vertices.size());
+         break;
+      case GL_LINE_LOOP:
+         glDrawArrays(GL_LINE_LOOP, 0, mesh->vertices.size());
+         break;
+      case GL_POINTS:
+         glDrawArrays(GL_POINTS, 0, mesh->vertices.size());
+         break;
+      default:
+         glDrawElements(GL_TRIANGLES,  mesh->indices.size(), GL_UNSIGNED_INT, 0);
+   }
+
+   // set to normal
+   if(opts.wireframe)
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+   if(opts.always_on_top)
+      glDepthFunc(GL_LESS);
+
+   glBindVertexArray(0);
+}
 
 void render_entity(Entity* entity)
 {
@@ -33,7 +99,8 @@ void render_entity(Entity* entity)
    }
 
    // draw mesh
-   entity->mesh->draw(entity->wireframe);
+   auto render_opts = RenderOptions{entity->wireframe};
+   render_mesh(entity->mesh, render_opts);
 
    // always good practice to set everything back to defaults once configured.
    glActiveTexture(GL_TEXTURE0);
@@ -107,18 +174,12 @@ void render_immediate(GlobalImmediateDraw* im, Camera* camera)
    for(int i = 0; i < im->ind; i++)
    {
       auto mesh = im->meshes[i];
-      switch(mesh->render_method)
-      {
-         case GL_POINTS:
-         {
-            auto find = Shader_Catalogue.find("immediate_point");
-            auto shader = find->second;
-            shader-> use();
-            shader-> setMatrix4("view",        camera->View4x4);
-            shader-> setMatrix4("projection",  camera->Projection4x4);
-         }
-      }
-      mesh->draw(false);
+      auto find = Shader_Catalogue.find("immediate_point");
+      auto shader = find->second;
+      shader-> use();
+      shader-> setMatrix4("view",        camera->View4x4);
+      shader-> setMatrix4("projection",  camera->Projection4x4);
+      render_mesh(mesh, im->render_opts[i]);
    }
    
    G_IMMEDIATE_DRAW.reset();

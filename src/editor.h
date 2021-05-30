@@ -39,6 +39,15 @@ struct EditorContext {
    Entity* last_selected_entity = nullptr;
    EntityState original_entity_state;
 
+   // toolbar
+   bool toolbar_active = true;
+   // measure y
+   bool measure_mode = false;
+   vec3 measure_from;
+   bool first_point_found = false;
+   bool second_point_found = false;
+   float measure_to;
+
    // snap mode
    bool snap_mode = false;
    u8 snap_cycle = 0;
@@ -51,7 +60,6 @@ struct EditorContext {
    Entity* tri_axis_letters[3];
 } Context;
 
-void check_selection_to_open_panel();
 void render();
 void select_entity(Entity* entity);
 void render_entity_panel(EntityPanelContext* panel);
@@ -72,10 +80,11 @@ void update_editor_entities();
 void check_for_asset_changes();
 void update_entity_control_arrows(EntityPanelContext* panel);
 void render_entity_control_arrows(EntityPanelContext* panel);
+void check_selection_to_open_panel();
 void check_selection_to_snap(EntityPanelContext* panel);
 void render_text_overlay(Player* player);
 void snap_entity_to_reference(Entity* entity);
-
+void render_toolbar();
 
 
 void update()
@@ -87,13 +96,28 @@ void update()
 
    update_editor_entities();
 
+   if(Context.entity_panel.active)
+   {
+      update_entity_control_arrows(&Context.entity_panel);
+   }
+   else
+   {
+      Context.entity_panel.rename_buffer[0] = 0;
+      Context.snap_mode = false;
+      Context.snap_reference = nullptr;
+   }
+
+   if(!Context.measure_mode)
+   {
+      Context.first_point_found  = false;
+      Context.second_point_found = false;
+   }
+
    // respond to mouse if necessary
    if(Context.move_entity_with_mouse)
    {
-      if(Context.mouse_click)
-         deselect_entity();
-      else
-         move_entity_with_mouse(Context.last_selected_entity);
+      if(Context.mouse_click) deselect_entity();
+      else                    move_entity_with_mouse(Context.last_selected_entity);
    }
    Context.mouse_click = false;
 }
@@ -225,6 +249,28 @@ void check_selection_to_snap(EntityPanelContext* panel)
       snap_entity_to_reference(panel->entity);
    }
 }
+
+void check_selection_to_measure()
+{
+   auto pickray = cast_pickray();
+   auto test = test_ray_against_scene(pickray);
+   if(test.hit)
+   {
+      if(!Context.first_point_found || Context.second_point_found)
+      {
+         if(Context.second_point_found) Context.second_point_found = false;
+         Context.first_point_found = true;
+         Context.measure_from = point_from_detection(pickray, test);
+      }
+      else if(!Context.second_point_found)
+      {
+         Context.second_point_found = true;
+         vec3 point = point_from_detection(pickray, test);
+         Context.measure_to = point.y;
+      }
+   }
+}
+
 
 void snap_entity_to_reference(Entity* entity)
 {
@@ -365,19 +411,25 @@ void render(Player* player)
    if(Context.entity_panel.active)
    {
       render_entity_panel(&Context.entity_panel);
-      if(Context.entity_panel.entity->collision_geometry_type == COLLISION_ALIGNED_BOX)
-      {
-         auto panel = &Context.entity_panel;
-         update_entity_control_arrows(panel);
-         render_entity_control_arrows(panel);
-      }
+      // if(Context.entity_panel.entity->collision_geometry_type == COLLISION_ALIGNED_BOX)
+      // {
+      render_entity_control_arrows(&Context.entity_panel);
+      // }
    }
-   else
+
+   if(Context.measure_mode && Context.first_point_found && Context.second_point_found)
    {
-      Context.entity_panel.rename_buffer[0] = 0;
-      Context.snap_mode = false;
-      Context.snap_reference = nullptr;
+      G_IMMEDIATE_DRAW.add(
+         vector<Vertex>{
+            Vertex{Context.measure_from},
+            Vertex{vec3(Context.measure_from.x, Context.measure_to, Context.measure_from.z)}
+         },
+         GL_LINE_LOOP,
+         RenderOptions{false, true}
+      );
    }
+
+   render_toolbar();
 
    render_text_overlay(player);
 
@@ -583,6 +635,20 @@ void render_entity_panel(EntityPanelContext* panel)
    if(used_pos || used_rot || scaled_x || scaled_y || scaled_z || duplicated || erased)
    {
       Context.snap_mode = false;
+      Context.measure_mode = false;
+   }
+
+   ImGui::End();
+}
+
+void render_toolbar()
+{
+   ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 300, 300), ImGuiCond_Appearing);
+   ImGui::Begin("Tools", &Context.toolbar_active, ImGuiWindowFlags_AlwaysAutoResize);
+
+   if(ImGui::Button("Measure Y", ImVec2(120,18)))
+   {
+      Context.measure_mode = true;
    }
 
    ImGui::End();
@@ -592,8 +658,8 @@ void update_entity_control_arrows(EntityPanelContext* panel)
 {
    auto entity = panel->entity;
 
-   if(entity->collision_geometry_type != COLLISION_ALIGNED_BOX)
-      return;
+   // if(entity->collision_geometry_type != COLLISION_ALIGNED_BOX)
+   //    return;
 
    auto &x = panel->x_arrow;
    auto &y = panel->y_arrow;
@@ -776,6 +842,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
    if(pressed_once(flags, KEY_ESC))
    {
       if(Context.snap_mode) Context.snap_mode = false;
+      else if(Context.measure_mode) Context.measure_mode = false;
       else if(Context.entity_panel.active) Context.entity_panel.active = false;
    }
 
@@ -845,10 +912,9 @@ void handle_input_flags(InputFlags flags, Player* &player)
    // click selection
    if(G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK && flags.key_press & KEY_LEFT_CTRL)
    {
-      if(Context.snap_mode)
-         check_selection_to_snap(&Context.entity_panel);
-      else
-         check_selection_to_open_panel();
+      if(Context.snap_mode)         check_selection_to_snap(&Context.entity_panel);
+      else if(Context.measure_mode) check_selection_to_measure();
+      else                          check_selection_to_open_panel();
    }
    else if(G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK && flags.key_press & KEY_G)
    {
@@ -1131,6 +1197,13 @@ void render_text_overlay(Player* player)
 
       render_text("SNAP MODE ON (" + snap_axis + "-" + snap_cycle + ")",
             G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, GUI_y - 60, 3.0, snap_mode_color, true
+      );
+   }
+
+   if(Context.measure_mode)
+   {
+       render_text("MEASURE MODE ON",
+            G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, GUI_y - 60, 3.0, vec3(0.8, 0.8, 0.2), true
       );
    }
 }

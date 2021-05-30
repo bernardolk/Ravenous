@@ -62,6 +62,12 @@ struct Entity {
       CollisionGeometryAlignedBox aabb;
    } collision_geometry;
 
+   void update()
+   {
+      update_model_matrix();
+      update_collision_geometry();
+   }
+
    void update_model_matrix()
    {
       glm::mat4 model = translate(mat4identity, position);
