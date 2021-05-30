@@ -10,13 +10,14 @@ out vec2 TexCoords;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-uniform vec2 coords;
+uniform vec2 screenPos;
+
 
 void main()
 {
     FragPos = vec3(model * vec4(aPos, 1.0));
     Normal = vec3(model * vec4(aNormal, 0.0));  
 
-    gl_Position = vec4(-1.75, -1.7, 1.0, 1.0) + view * vec4(FragPos, 1.0);
+    gl_Position = vec4(screenPos, 1.0, 1.0) + view * vec4(FragPos, 1.0);
 	TexCoords = aTexCoords;
 }

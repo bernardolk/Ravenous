@@ -6,6 +6,9 @@
 namespace Editor
 {
 
+const static float TRIAXIS_SCREENPOS_X = -1.75;
+const static float TRIAXIS_SCREENPOS_Y = -1.75;
+
 struct EntityPanelContext {
    bool active = false;
    Entity* entity = nullptr;
@@ -44,7 +47,8 @@ struct EditorContext {
    Entity* snap_reference = nullptr;
    EntityState entity_state_before_snap;
 
-   vector<Entity*> entities;
+   Entity* tri_axis[3];
+   Entity* tri_axis_letters[3];
 } Context;
 
 void check_selection_to_open_panel();
@@ -101,7 +105,7 @@ void move_entity_with_mouse(Entity* entity)
 
    auto t1 = Triangle{
       vec3{entity->position.x - 50, entity->position.y, entity->position.z - 50},
-      vec3{entity->position.x + 50, entity->position.y, entity->position.z - 50}, 
+      vec3{entity->position.x + 50, entity->position.y, entity->position.z - 50},
       vec3{entity->position.x + 50, entity->position.y, entity->position.z + 50}
    };
 
@@ -111,7 +115,7 @@ void move_entity_with_mouse(Entity* entity)
 
    auto t2 = Triangle{
       vec3{entity->position.x - 50, entity->position.y, entity->position.z - 50},
-      vec3{entity->position.x - 50, entity->position.y, entity->position.z + 50}, 
+      vec3{entity->position.x - 50, entity->position.y, entity->position.z + 50},
       vec3{entity->position.x + 50, entity->position.y, entity->position.z + 50}
    };
 
@@ -164,7 +168,7 @@ void debug_entities()
 {
    Entity **entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
    int entities_vec_size =  G_SCENE_INFO.active_scene->entities.size();
-	for(int it = 0; it < entities_vec_size; it++) 
+	for(int it = 0; it < entities_vec_size; it++)
    {
 	   auto entity = *entity_iterator++;
 
@@ -312,52 +316,50 @@ void set_entity_panel(Entity* entity)
 
 void update_editor_entities()
 {
-	Entity **entity_iterator = &(Context.entities[0]);
-   for(int it=0; it < Context.entities.size(); it++)
+   for(int i=0; i < 3; i++)
    {
-	   auto &entity = *entity_iterator++;
-
-      // auto x_rads = acos(G_SCENE_INFO.camera->Front.x);
-      // auto x_rads_s = asin(G_SCENE_INFO.camera->Front.x);
-      // auto x_angle_c = glm::degrees(x_rads);
-      // auto x_angle_s = glm::degrees(x_rads_s);
-      // entity->rotation.x = x_angle_c;
-      // entity->rotation.z = x_angle_s;
-
-      // its something like that
-      // auto angle_xy = glm::degrees(atan(G_SCENE_INFO.camera->Front.y / G_SCENE_INFO.camera->Front.x));
-      // entity->rotation.z = G_SCENE_INFO.camera->Yaw;
-      // entity->rotation.x = G_SCENE_INFO.camera->Pitch;
-      
-
-      glm::mat4 model = translate(mat4identity, entity->position);
+	   auto entity = Context.tri_axis[i];
+      glm::mat4 model = mat4identity;
 		model = glm::rotate(model, glm::radians(entity->rotation.x), vec3(1.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, glm::radians(entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
 		model = glm::rotate(model, glm::radians(entity->rotation.z), vec3(0.0f, 0.0f, 1.0f));
 		model = glm::scale(model, entity->scale);
 		entity->matModel = model;
+
+      // entity = Context.tri_axis_letters[i];
+      // model = mat4identity;
+		// model = glm::rotate(model, glm::radians(entity->rotation.x), vec3(1.0f, 0.0f, 0.0f));
+		// model = glm::rotate(model, glm::radians(entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
+		// model = glm::rotate(model, glm::radians(entity->rotation.z), vec3(0.0f, 0.0f, 1.0f));
+		// model = glm::scale(model, entity->scale);
+		// entity->matModel = model;
    }
 }
 
 void render(Player* player)
 {
-   // render editor entities
-	Entity **entity_iterator = &(Context.entities[0]);
-   for(int it=0; it < Context.entities.size(); it++)
+   // render triaxis
+   auto triaxis_view = glm::lookAt(vec3(0.0f), G_SCENE_INFO.camera->Front, -1.0f * G_SCENE_INFO.camera->Up);
+   float displacement_x[3] = {0.3f, 0.0f, 0.0f};
+   float displacement_y[3] = {0.0f, 0.3f, 0.0f};
+   for(int i=0; i < 3; i++)
    {
-	   auto entity = *entity_iterator++;
+      // ref. axis
+	   auto entity = Context.tri_axis[i];
       entity->shader->use();
-      // important that the gizmo dont have a position set.
       entity->shader->setMatrix4("model", entity->matModel);
-      // extract rotation out of the camera view mat4 and set into gizmo
-      vec3 scale, trans, skew;
-      glm::vec4 perspective;
-      glm::quat orientation;
-	   auto test = glm::lookAt(vec3(0.0f), G_SCENE_INFO.camera->Front, -1.0f * G_SCENE_INFO.camera->Up);
-      entity->shader-> setMatrix4("view", test);
-
+      entity->shader->setMatrix4("view", triaxis_view);
+      entity->shader->setFloat2("screenPos", TRIAXIS_SCREENPOS_X, TRIAXIS_SCREENPOS_Y);
       render_entity(entity);
+      // axis letter
+	   // entity = Context.tri_axis_letters[i];
+      // entity->shader->use();
+      // entity->shader->setMatrix4("model", entity->matModel);
+      // entity->shader->setMatrix4("view", triaxis_view);
+      // entity->shader->setFloat2("screenPos", TRIAXIS_SCREENPOS_X + displacement_x[i], TRIAXIS_SCREENPOS_Y + displacement_y[i]);
+      // render_entity(entity);
    }
+
 
    // render entity panel
    if(Context.entity_panel.active)
@@ -375,7 +377,7 @@ void render(Player* player)
       Context.entity_panel.rename_buffer[0] = 0;
       Context.snap_mode = false;
       Context.snap_reference = nullptr;
-   } 
+   }
 
    render_text_overlay(player);
 
@@ -425,7 +427,7 @@ void render_entity_panel(EntityPanelContext* panel)
    ImGui::Begin("Entity Panel", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
 
    ImGui::Text(entity->name.c_str());
-   
+
    //rename
    ImGui::NewLine();
    if(ImGui::InputText("rename", &panel->rename_buffer[0], 100))
@@ -448,9 +450,9 @@ void render_entity_panel(EntityPanelContext* panel)
          panel->original_position.y + 4
       );
       bool pos_z = ImGui::SliderFloat(
-         "z", 
-         &entity->position.z, 
-         panel->original_position.z - 4, 
+         "z",
+         &entity->position.z,
+         panel->original_position.z - 4,
          panel->original_position.z + 4
       );
       used_pos = pos_x || pos_y || pos_z;
@@ -481,7 +483,7 @@ void render_entity_panel(EntityPanelContext* panel)
       bool flipped_x = false, flipped_z = false;
       if(scale.x < 0) { scale.x *= -1; flipped_x = true;}
       if(scale.z < 0) { scale.z *= -1; flipped_z = true;}
-      
+
       vec3 min_scales {0.0f};
 
       // scale in x
@@ -506,7 +508,7 @@ void render_entity_panel(EntityPanelContext* panel)
 
       // scale in z
       scaled_z = ImGui::SliderFloat(
-         "scale z", 
+         "scale z",
          &scale.z,
          min_scales.z,
          panel->original_scale.z + 4
@@ -517,8 +519,8 @@ void render_entity_panel(EntityPanelContext* panel)
       // apply scalling
       if(scaled_x || scaled_y || scaled_z)
       {
-         if(flipped_x) scale.x *= -1; 
-         if(flipped_z) scale.z *= -1; 
+         if(flipped_x) scale.x *= -1;
+         if(flipped_z) scale.z *= -1;
 
           // if rev scaled, move entity in oposite direction to compensate scaling and fake rev scaling
          if((panel->reverse_scale_x && !flipped_x) || (flipped_x && !panel->reverse_scale_x))
@@ -534,7 +536,7 @@ void render_entity_panel(EntityPanelContext* panel)
          entity->scale = scale;
       }
    }
-   
+
    ImGui::NewLine();
 
    // Controls
@@ -630,11 +632,11 @@ void update_entity_control_arrows(EntityPanelContext* panel)
 //@todo: needs refactoring
 void render_entity_control_arrows(EntityPanelContext* panel)
 {
-   glDepthFunc(GL_ALWAYS); 
+   glDepthFunc(GL_ALWAYS);
    render_editor_entity(panel->x_arrow, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
    render_editor_entity(panel->y_arrow, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
    render_editor_entity(panel->z_arrow, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
-   glDepthFunc(GL_LESS); 
+   glDepthFunc(GL_LESS);
 }
 
 void start_frame()
@@ -700,9 +702,33 @@ void initialize()
    z_axis->scale = vec3{0.1, 0.1, 0.1};
    z_axis->rotation = vec3{90, 0, 180};
 
-   Context.entities.push_back(x_axis);
-   Context.entities.push_back(y_axis);
-   Context.entities.push_back(z_axis);
+   Context.tri_axis[0] = x_axis;
+   Context.tri_axis[1] = y_axis;
+   Context.tri_axis[2] = z_axis;
+
+   auto letter_x_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, "letter_x");
+   auto x_axis_letter = new Entity();
+   x_axis_letter->mesh = letter_x_mesh;
+   x_axis_letter->textures.push_back(Texture{blue_tex,  "texture_diffuse", "blue.jpg",  "blue axis"});
+   x_axis_letter->shader = shader;
+   x_axis_letter->scale = vec3{0.1, 0.1, 0.1};
+   Context.tri_axis_letters[0] = x_axis_letter;
+
+   auto letter_y_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, "letter_y");
+   auto y_axis_letter = new Entity();
+   y_axis_letter->mesh = letter_y_mesh;
+   y_axis_letter->textures.push_back(Texture{blue_tex,  "texture_diffuse", "green.jpg",  "green axis"});
+   y_axis_letter->shader = shader;
+   y_axis_letter->scale = vec3{0.1, 0.1, 0.1};
+   Context.tri_axis_letters[1] = y_axis_letter;
+
+   auto letter_z_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, "letter_z");
+   auto z_axis_letter = new Entity();
+   z_axis_letter->mesh = letter_z_mesh;
+   z_axis_letter->textures.push_back(Texture{blue_tex,  "texture_diffuse", "pink.jpg",  "pink axis"});
+   z_axis_letter->shader = shader;
+   z_axis_letter->scale = vec3{0.1, 0.1, 0.1};
+   Context.tri_axis_letters[2] = z_axis_letter;
 
    // load entity panel axis arrows
    auto x_arrow = new Entity();
@@ -835,7 +861,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
    }
 
    if(pressed_once(flags, KEY_GRAVE_TICK))
-   { 
+   {
       start_console_mode();
    }
    if(pressed_once(flags, KEY_C))
@@ -847,9 +873,9 @@ void handle_input_flags(InputFlags flags, Player* &player)
       player->entity_ptr->velocity = vec3(0, 0, 0);
       player->height_before_fall = player->entity_ptr->position.y;
    }
-   
+
    // @TODO: this sucks
-   float camera_speed = 
+   float camera_speed =
       G_SCENE_INFO.camera->type == THIRD_PERSON ?
       player->speed * G_FRAME_INFO.delta_time * G_FRAME_INFO.time_step:
       G_FRAME_INFO.delta_time * G_SCENE_INFO.camera->Acceleration;
@@ -900,9 +926,9 @@ void handle_input_flags(InputFlags flags, Player* &player)
    if(player->player_state == PLAYER_STATE_STANDING)
    {
       // resets velocity
-      player->entity_ptr->velocity = vec3(0); 
+      player->entity_ptr->velocity = vec3(0);
 
-      if ((flags.key_press & KEY_UP && G_SCENE_INFO.camera->type == FREE_ROAM) || 
+      if ((flags.key_press & KEY_UP && G_SCENE_INFO.camera->type == FREE_ROAM) ||
             (flags.key_press & KEY_W && G_SCENE_INFO.camera->type == THIRD_PERSON))
       {
          player->entity_ptr->velocity += vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
@@ -931,7 +957,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
 
          player->entity_ptr->velocity = player_frame_speed * glm::normalize(player->entity_ptr->velocity);
       }
-      if (flags.key_press & KEY_SPACE) 
+      if (flags.key_press & KEY_SPACE)
       {
          player->player_state = PLAYER_STATE_JUMPING;
          player->height_before_fall = player->entity_ptr->position.y;
@@ -967,7 +993,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
    }
 }
 
-void render_text_overlay(Player* player) 
+void render_text_overlay(Player* player)
 {
    auto camera = G_SCENE_INFO.camera;
    string player_floor = "player floor: ";
@@ -986,7 +1012,7 @@ void render_text_overlay(Player* player)
       format_float_tostr(camera->Front.y,2),                   //6
       format_float_tostr(camera->Front.z,2),                   //7
       format_float_tostr(player->entity_ptr->position.x,1),    //8
-      format_float_tostr(player->entity_ptr->position.y,1),    //9 
+      format_float_tostr(player->entity_ptr->position.y,1),    //9
       format_float_tostr(player->entity_ptr->position.z,1),    //10
       format_float_tostr(G_FRAME_INFO.time_step,1)             //11
    };
@@ -1054,7 +1080,7 @@ void render_text_overlay(Player* player)
    render_text(camera_position,     GUI_x, GUI_y - 30,   1.3);
    render_text(player_pos,          GUI_x, GUI_y - 60,   1.3);
 
-   render_text(lives,               G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 90, 1.3,  
+   render_text(lives,               G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 90, 1.3,
       player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1}
    );
    render_text(player_floor,        G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 60, 1.3);
@@ -1102,8 +1128,8 @@ void render_text_overlay(Player* player)
       else
          snap_mode_color = vec3(0.6, 1.0, 0.3);
 
-      
-      render_text("SNAP MODE ON (" + snap_axis + "-" + snap_cycle + ")", 
+
+      render_text("SNAP MODE ON (" + snap_axis + "-" + snap_cycle + ")",
             G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, GUI_y - 60, 3.0, snap_mode_color, true
       );
    }
