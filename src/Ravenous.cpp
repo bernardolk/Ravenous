@@ -202,7 +202,7 @@ bool is_float_zero(float x);
 #include <collision.h>
 #include <scene.h>
 #include <console.h>
-#include <editor.h>
+#include <editor/editor_main.h>
 #include <gameplay.h>
 
 #define glCheckError() glCheckError_(__FILE__, __LINE__) 
