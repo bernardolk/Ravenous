@@ -222,7 +222,6 @@ void create_boilerplate_geometry();
 GLenum glCheckError_(const char* file, int line);
 EntityBuffer* allocate_entity_buffer(size_t size);
 void update_buffers();
-void check_view_mode(Player* player);
 void start_frame();
 ProgramConfig load_configs();
 void check_all_entities_have_shaders();
@@ -299,7 +298,6 @@ int main()
       reset_input_flags(input_flags);
 
 		//	UPDATE PHASE
-      check_view_mode(player);
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player);
       update_buffers();
       update_player_state(player);
@@ -368,22 +366,6 @@ void check_all_entities_have_shaders()
       }
    }
 }
-
-
-void check_view_mode(Player* player)
-{
-   if(PROGRAM_MODE.current == EDITOR_MODE)
-   {
-      // do nothing
-   }
-   else if(PROGRAM_MODE.current == GAME_MODE)
-   {
-      // sets camera to player's eye position
-      G_SCENE_INFO.camera->Position = player->entity_ptr->position;
-      G_SCENE_INFO.camera->Position.y += player->half_height * 2.0 / 3.0; 
-   }
-}
-
 
 EntityBuffer* allocate_entity_buffer(size_t size)
 {

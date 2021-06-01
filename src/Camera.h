@@ -53,6 +53,12 @@ void set_camera_to_third_person(Camera* camera, Player* player)
 }
 
 void camera_update(Camera* camera, float viewportWidth, float viewportHeight, Player* player) {
+   if(PROGRAM_MODE.current == GAME_MODE)
+   {
+      camera->Position    = player->entity_ptr->position;
+      camera->Position.y += player->half_height - 0.1; 
+   }
+
 	camera->View4x4 = glm::lookAt(camera->Position, camera->Position + camera->Front, camera->Up);
 	camera->Projection4x4 = glm::perspective(
       glm::radians(camera->FOVy), 
