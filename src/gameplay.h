@@ -59,6 +59,9 @@ void update_player_state(Player* &player)
          {
             std::cout << "PLAYER FELL" << "\n";
             player_entity->velocity.y = - 1 * player->fall_speed;
+            player_entity->velocity.x *= 0.5;
+            player_entity->velocity.z *= 0.5;
+
             player->player_state = PLAYER_STATE_FALLING;
             player->height_before_fall = player_entity->position.y;
          }
@@ -116,7 +119,7 @@ void update_player_state(Player* &player)
          else
          {
             // make player "slide" towards edge and fall away from floor
-            std::cout << "PLAYER FELL" << "\n";
+            std::cout << "PLAYER FELL (EVICTED)" << "\n";
             player->slope_player_was_ptr = player->standing_entity_ptr;
             player->standing_entity_ptr = NULL;
             player->player_state = PLAYER_STATE_EVICTED_FROM_SLOPE;
@@ -150,7 +153,7 @@ void update_player_state(Player* &player)
          else
          {
             // make player "slide" towards edge and fall away from floor
-            std::cout << "PLAYER FELL" << "\n";
+            std::cout << "PLAYER FELL (EVICTED)" << "\n";
             player->slope_player_was_ptr = player->standing_entity_ptr;
             player->standing_entity_ptr = NULL;
             player->player_state = PLAYER_STATE_EVICTED_FROM_SLOPE;
@@ -211,20 +214,12 @@ void check_for_floor_transitions(Player* player)
    {
       if(terrain.entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
       {
-         if(terrain.entity->collision_geometry.slope.inclination >= SLIDE_MAX_ANGLE)
-         {
-            make_player_slide(player, terrain.entity, true);
-         }
-         else if(terrain.entity->collision_geometry.slope.inclination >= SLIDE_MIN_ANGLE)
-         {
-            make_player_slide(player, terrain.entity, false);
-         }
-         else
-         {
-            // player is already standing so no need to update his state
+         // player can only keep standing if ramp is standable
+         if(terrain.entity->collision_geometry.slope.inclination < SLIDE_MIN_ANGLE)
             player->standing_entity_ptr = terrain.entity;
-         }
       }
+      else
+         player->standing_entity_ptr = terrain.entity;
    }
 }
 
@@ -618,7 +613,7 @@ void game_handle_input(InputFlags flags, Player* &player)
             float x = collision_geom.normal.x > 0 ? 1 : collision_geom.normal.x == 0 ? 0 : -1;
             float z = collision_geom.normal.z > 0 ? 1 : collision_geom.normal.z == 0 ? 0 : -1;
             auto jump_vec = glm::normalize(vec3(x, 1, z));
-            player->entity_ptr->velocity = player->jump_initial_speed * jump_vec;
+            player->entity_ptr->velocity = player->slide_jump_speed * jump_vec;
       }
    }
 }
