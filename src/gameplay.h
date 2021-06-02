@@ -382,9 +382,9 @@ void resolve_collision(CollisionData collision, Player* player)
    {
       float fall_height = player->height_before_fall - player->entity_ptr->position.y;
       cout << "->" << fall_height << "\n";
-      if(fall_height >= 3.2)
+      if(fall_height >= player->hurt_height_2)
          player->lives -= 2;
-      else if(fall_height >= 1.8)
+      else if(fall_height >= player->hurt_height_1)
          player->lives -= 1;
    }
 
@@ -502,23 +502,7 @@ void handle_common_input(InputFlags flags, Player* &player)
    }
    if(pressed_once(flags, KEY_F))
    {
-      if(PROGRAM_MODE.current == EDITOR_MODE)
-      {
-         PROGRAM_MODE.last = PROGRAM_MODE.current;
-         PROGRAM_MODE.current = GAME_MODE;
-         G_SCENE_INFO.camera = G_SCENE_INFO.views[1];
-         player->entity_ptr->render_me = false;
-         glfwSetInputMode(G_DISPLAY_INFO.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-         Editor::end_frame();
-      }
-      else if(PROGRAM_MODE.current == GAME_MODE)
-      {
-         PROGRAM_MODE.last = PROGRAM_MODE.current;
-         PROGRAM_MODE.current = EDITOR_MODE;
-         G_SCENE_INFO.camera = G_SCENE_INFO.views[0];
-         player->entity_ptr->render_me = true;
-         glfwSetInputMode(G_DISPLAY_INFO.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-      }
+      toggle_program_modes(player);
    }
    if(flags.key_press & KEY_ESC && flags.key_press & KEY_LEFT_SHIFT)
    {
@@ -566,10 +550,6 @@ void game_handle_input(InputFlags flags, Player* &player)
          player->height_before_fall = player->entity_ptr->position.y;
          player->entity_ptr->velocity.y = player->jump_initial_speed;
       }
-
-      // update camera with player position
-      G_SCENE_INFO.camera->Position = player->entity_ptr->position;
-      G_SCENE_INFO.camera->Position.y +=  player->half_height * 2.0 / 3.0;
    }
    else if(player->player_state == PLAYER_STATE_SLIDING)
    {

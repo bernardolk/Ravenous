@@ -196,6 +196,7 @@ bool is_vec2_equal(vec2 vec1, vec2 vec2);
 
 bool save_configs_to_file();
 bool is_float_zero(float x);
+void toggle_program_modes(Player* player);
 
 #include <input.h>
 #include <raycast.h>
@@ -225,7 +226,6 @@ void update_buffers();
 void start_frame();
 ProgramConfig load_configs();
 void check_all_entities_have_shaders();
-
 
 int main() 
 {
@@ -286,13 +286,13 @@ int main()
             handle_console_input(input_flags, player);
             break;
          case EDITOR_MODE:
-            handle_common_input(input_flags, player);
             Editor::start_frame();
             Editor::handle_input_flags(input_flags, player);
+            handle_common_input(input_flags, player);
             break;
          case GAME_MODE:
-            handle_common_input(input_flags, player);
             game_handle_input(input_flags, player);
+            handle_common_input(input_flags, player);
             break;
       }
       reset_input_flags(input_flags);
@@ -707,6 +707,28 @@ GLenum glCheckError_(const char* file, int line)
 		std::cout << error << " | " << file << " (" << line << ")" << std::endl;
 	}
 	return errorCode;
+}
+
+void toggle_program_modes(Player* player)
+{
+   if(PROGRAM_MODE.current == EDITOR_MODE)
+   {
+      PROGRAM_MODE.last    = PROGRAM_MODE.current;
+      PROGRAM_MODE.current = GAME_MODE;
+      G_SCENE_INFO.camera  = G_SCENE_INFO.views[1];
+      player->entity_ptr->render_me = false;
+      glfwSetInputMode(G_DISPLAY_INFO.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+      Editor::end_frame();
+   }
+   else if(PROGRAM_MODE.current == GAME_MODE)
+   {
+      PROGRAM_MODE.last    = PROGRAM_MODE.current;
+      PROGRAM_MODE.current = EDITOR_MODE;
+      G_SCENE_INFO.camera  = G_SCENE_INFO.views[0];
+      player->entity_ptr->render_me = true;
+      glfwSetInputMode(G_DISPLAY_INFO.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+      Editor::start_frame();
+   }
 }
 
 inline

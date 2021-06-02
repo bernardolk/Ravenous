@@ -53,36 +53,38 @@ void set_camera_to_third_person(Camera* camera, Player* player)
 }
 
 void camera_update(Camera* camera, float viewportWidth, float viewportHeight, Player* player) {
-   if(PROGRAM_MODE.current == GAME_MODE)
-   {
-      camera->Position    = player->entity_ptr->position;
-      camera->Position.y += player->half_height - 0.1; 
-   }
-
-	camera->View4x4 = glm::lookAt(camera->Position, camera->Position + camera->Front, camera->Up);
+   camera->View4x4 = glm::lookAt(camera->Position, camera->Position + camera->Front, camera->Up);
 	camera->Projection4x4 = glm::perspective(
       glm::radians(camera->FOVy), 
       viewportWidth / viewportHeight, 
       camera->NearPlane, camera->FarPlane
    );
-
-   if(camera->type == THIRD_PERSON)
+   
+   switch(PROGRAM_MODE.current)
    {
-      camera->Position = player->entity_ptr->position;
-      camera->Position.y += 1.75;
+      case GAME_MODE:
+         camera->Position    = player->entity_ptr->position;
+         camera->Position.y += player->half_height - 0.1; 
+         break;
+      case EDITOR_MODE:
+         if(camera->type == THIRD_PERSON)
+         {
+            camera->Position = player->entity_ptr->position;
+            camera->Position.y += 1.75;
 
-      if (camera->orbital_angle > 360.0f)
-         camera->orbital_angle -= 360.0;
-      if (camera->orbital_angle < -360.0f)
-         camera->orbital_angle += 360.0;
+            if (camera->orbital_angle > 360.0f)
+               camera->orbital_angle -= 360.0;
+            if (camera->orbital_angle < -360.0f)
+               camera->orbital_angle += 360.0;
 
-      float distance = 3;
-      camera->Position.x += distance * cos(camera->orbital_angle);
-      camera->Position.z += distance * sin(camera->orbital_angle); 
-      camera_look_at(camera, player->entity_ptr->position, true);
+            float distance = 3;
+            camera->Position.x += distance * cos(camera->orbital_angle);
+            camera->Position.z += distance * sin(camera->orbital_angle); 
+            camera_look_at(camera, player->entity_ptr->position, true);
+         }
+         break;
    }
 }
-
 
 void camera_change_direction(Camera* camera, float yawOffset, float pitchOffset) {
 	float newPitch = camera->Pitch += pitchOffset;

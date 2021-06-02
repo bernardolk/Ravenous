@@ -34,6 +34,8 @@ struct Player {
 
    int lives = 2;
    float height_before_fall;
+   float hurt_height_1 = 3.5;
+   float hurt_height_2 = 5.0;
 
    vec3 feet()
    {
