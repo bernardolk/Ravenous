@@ -143,7 +143,8 @@ void render_entity_panel(EntityPanelContext* panel)
       }
       if(ImGui::Checkbox("inside", &Context.snap_inside))
       {
-         snap_entity_to_reference(panel->entity);
+         if(Context.snap_reference != nullptr)
+            snap_entity_to_reference(panel->entity);
       }
 
       if(ImGui::Button("Duplicate", ImVec2(82,18)))
