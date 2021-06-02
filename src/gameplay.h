@@ -449,7 +449,7 @@ void make_player_slide(Player* player, Entity* ramp, bool slide_fall)
    //    camera_look_at(G_SCENE_INFO.camera, camera_dir, false);
    // }
 
-   pv = player->slide_speed * collision_geom.inclination * collision_geom.tangent;
+   pv = player->slide_speed * collision_geom.tangent;
    if(slide_fall)
       player->player_state = PLAYER_STATE_SLIDE_FALLING;
    else
