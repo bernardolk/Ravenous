@@ -323,21 +323,25 @@ CollisionData get_terrain_height_at_player(Entity* player, Entity* entity)
 
 RaycastTest check_for_floor_below_player(Player* player)
 {
-   // cast ray slightly above contact point to catch tunneling correctly
-   float tunneling_tolerance = 0.01;
+   // cast ray slightly above contact point to catch slope tunneling correctly
+   // (we only get to this point with low inclination slopes, the other ones trigger collision before this point)
+   float tunneling_tolerance = 0.03;
    auto downward_ray = Ray{player->feet() + vec3{0.0f, tunneling_tolerance, 0.0f}, vec3{0.0f, -1.0f, 0.0f}};
    RaycastTest raytest = test_ray_against_scene(downward_ray);
 
-   float detection_tolerance = tunneling_tolerance;
    if(!raytest.hit) return RaycastTest{false};
 
-   // because slopes are inclined, if we dont allow more tolerance in detection we will trigger a fall
-   if(raytest.entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
-      detection_tolerance *= 2;
 
-   return raytest.distance < detection_tolerance ?
-      RaycastTest{true, raytest.distance - tunneling_tolerance, raytest.entity} :
-      RaycastTest{false};
+   // because slopes are inclined, if we are standing and moving towards a slope and we
+   // dont allow more tolerance in detection, we will trigger a player fall
+   float detection_tolerance = tunneling_tolerance + 0.01;
+   // if(raytest.entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
+   //     detection_tolerance = 0.0;
+
+   if(raytest.distance <= detection_tolerance)
+      return RaycastTest{true, raytest.distance - tunneling_tolerance, raytest.entity};
+   else
+      return RaycastTest{false};
 }
 
 //@todo: rename: it is for any entity actually not just slopes
@@ -490,6 +494,12 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
          }
          else if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
          {
+            auto top = entity->position.y + entity->get_height();
+            if(top < player->feet().y)
+            { 
+               entity_iterator++; 
+               continue; 
+            }
             // here we should get tunneling
             vertical_overlap = get_distance_from_slope(entity, player);
             horizontal_check = get_horizontal_overlap_with_player(entity, player);   
@@ -536,8 +546,9 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
                return_cd.collision_outcome = JUMP_CEILING;
             }
 
-            // player intersected with wall too much below standing area (hit wall)
-            else if(!horizontal_check.is_inside && vertical_overlap > 0.01) 
+            // player has part of body outside the entity bounds
+            // and is overlapping too much (from top of entity to player feet)
+            else if(!horizontal_check.is_inside && vertical_overlap > 0.05) 
             {
                return_cd.overlap = horizontal_check.overlap;
                return_cd.normal_vec = horizontal_check.normal_vec;
