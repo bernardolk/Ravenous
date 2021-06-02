@@ -33,7 +33,7 @@ RaycastTest test_ray_against_scene(Ray ray, bool only_test_visible_entities = fa
 	for(int it = 0; it < entities_vec_size; it++) 
    {
 	   auto entity = *entity_iterator++;
-      if(only_test_visible_entities && !entity->render_me)
+      if(only_test_visible_entities && (!entity->render_me || entity->wireframe))
          continue;
          
       auto test = test_ray_against_entity(ray, entity);

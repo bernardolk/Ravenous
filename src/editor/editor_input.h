@@ -104,11 +104,17 @@ void handle_input_flags(InputFlags flags, Player* &player)
    if(pressed_once(flags, KEY_C))
    {
       // moves player to camera position
-      player->entity_ptr->position = G_SCENE_INFO.camera->Position + G_SCENE_INFO.camera->Front * 3.0f;
-      camera_look_at(G_SCENE_INFO.views[1], G_SCENE_INFO.camera->Front, false);
-      player->player_state = PLAYER_STATE_FALLING;
-      player->entity_ptr->velocity = vec3(0, 0, 0);
-      player->height_before_fall = player->entity_ptr->position.y;
+      // player->entity_ptr->position = G_SCENE_INFO.camera->Position + G_SCENE_INFO.camera->Front * 8.0f;
+      // camera_look_at(G_SCENE_INFO.views[1], G_SCENE_INFO.camera->Front, false);
+      auto pickray = cast_pickray();
+      auto test = test_ray_against_scene(pickray, true);
+      if(test.hit)
+      {
+         player->entity_ptr->position = point_from_detection(pickray, test);
+         player->player_state = PLAYER_STATE_STANDING;
+         player->standing_entity_ptr = test.entity;
+         player->entity_ptr->velocity = vec3(0, 0, 0);
+      }
    }
 
    // @TODO: this sucks
