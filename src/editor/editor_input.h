@@ -120,8 +120,8 @@ void handle_input_flags(InputFlags flags, Player* &player)
    // @TODO: this sucks
    float camera_speed =
       G_SCENE_INFO.camera->type == THIRD_PERSON ?
-      player->speed * G_FRAME_INFO.delta_time * G_FRAME_INFO.time_step:
-      G_FRAME_INFO.delta_time * G_SCENE_INFO.camera->Acceleration;
+      player->speed * G_FRAME_INFO.duration * G_FRAME_INFO.time_step:
+      G_FRAME_INFO.duration * G_SCENE_INFO.camera->Acceleration;
 
    if(flags.key_press & KEY_LEFT_SHIFT)
    {

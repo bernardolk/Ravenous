@@ -23,13 +23,13 @@ void update_player_state(Player* &player)
 
    // makes player move and register player last position
    player->prior_position = player_entity->position;
-   player_entity->position += player_entity->velocity * G_FRAME_INFO.delta_time * G_FRAME_INFO.time_step;
+   player_entity->position += player_entity->velocity * G_FRAME_INFO.duration * G_FRAME_INFO.time_step;
 
    switch(player->player_state)
    {
       case PLAYER_STATE_FALLING:
       {
-         player->entity_ptr->velocity.y -= G_FRAME_INFO.delta_time * player->fall_acceleration * G_FRAME_INFO.time_step;
+         player->entity_ptr->velocity.y -= G_FRAME_INFO.duration * player->fall_acceleration * G_FRAME_INFO.time_step;
 
          // test collision with every object in scene entities vector
          size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
@@ -76,7 +76,7 @@ void update_player_state(Player* &player)
             For our prototype this should be fine.
          */
          //dampen player speed (vf = v0 - g*t)
-         player->entity_ptr->velocity.y -= G_FRAME_INFO.delta_time * player->fall_acceleration * G_FRAME_INFO.time_step;
+         player->entity_ptr->velocity.y -= G_FRAME_INFO.duration * player->fall_acceleration * G_FRAME_INFO.time_step;
          if (player->entity_ptr->velocity.y <= 0)
          {
             player->entity_ptr->velocity.y = 0;
@@ -230,7 +230,7 @@ void check_for_floor_transitions(Player* player)
 
 void run_collision_checks_standing(Player* player, size_t entity_list_size)
 {
-   auto entity_buffer = (EntityBuffer*)G_BUFFERS.buffers[0];
+   auto entity_buffer = G_BUFFERS.entity_buffer;
    bool end_collision_checks = false;
    while(!end_collision_checks)
    {
@@ -248,7 +248,7 @@ void run_collision_checks_standing(Player* player, size_t entity_list_size)
 void mark_entity_checked(Entity* entity)
 {
    // marks entity in entity buffer as checked so we dont check collisions for this entity twice (nor infinite loop)
-   auto entity_buffer = (EntityBuffer*)G_BUFFERS.buffers[0];
+   auto entity_buffer = G_BUFFERS.entity_buffer;
    auto entity_element = entity_buffer->buffer;
    for(int i = 0; i < entity_buffer->size; ++i)
    {
@@ -378,16 +378,7 @@ void resolve_collision(CollisionData collision, Player* player)
    }
 
    // hurts player if necessary
-   if(trigger_check_was_player_hurt)
-   {
-      float fall_height = player->height_before_fall - player->entity_ptr->position.y;
-      cout << "->" << fall_height << "\n";
-      if(fall_height >= player->hurt_height_2)
-         player->lives -= 2;
-      else if(fall_height >= player->hurt_height_1)
-         player->lives -= 1;
-   }
-
+   if(trigger_check_was_player_hurt) player->maybe_hurt_from_fall();
 }
 
 void run_collision_checks_falling(Player* player, size_t entity_list_size)
@@ -398,7 +389,7 @@ void run_collision_checks_falling(Player* player, size_t entity_list_size)
    // to be resolved once thats done. Horizontal checks come after vertical collisions because players 
    // shouldnt loose the chance to make their jump because we are preventing them from getting stuck first.
 
-   auto entity_buffer = (EntityBuffer*)G_BUFFERS.buffers[0];  
+   auto entity_buffer = G_BUFFERS.entity_buffer;  
    while(true)
    {
       bool any_collision = false;
@@ -607,6 +598,7 @@ void reset_input_flags(InputFlags flags)
 
 void player_death_handler(Player* &player)
 {
-   bool loaded = load_player_attributes_from_file(G_SCENE_INFO.scene_name, player);
-   player->lives = 2;
+   load_player_attributes_from_file(G_SCENE_INFO.scene_name, player);
+   player->lives = player->initial_lives;
+   G_BUFFERS.rm_buffer->add("PLAYER DIED (height:" + format_float_tostr(player->fall_height_log, 2) + " m)", 3000);
 }

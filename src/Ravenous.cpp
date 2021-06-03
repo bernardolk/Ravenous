@@ -101,7 +101,7 @@ struct GlobalInputInfo {
 } G_INPUT_INFO;
 
 struct GlobalFrameInfo {
-   float delta_time;
+   float duration;
    float last_frame_time;
    int frame_counter;
    float current_fps;
@@ -158,9 +158,6 @@ std::map<string, Mesh*> Geometry_Catalogue;
 std::map<string, Shader*> Shader_Catalogue;
 std::map<string, Texture> Texture_Catalogue;
 
-#include <loaders.h>
-#include <render.h>
-
 
 // GLOBAL STRUCT VARIABLES (WITH CUSTOM TYPES)
 GlobalEntityInfo G_ENTITY_INFO;
@@ -184,8 +181,49 @@ struct EntityBuffer {
    size_t size;
 };
 
+struct RenderMessageBufferElement {
+   string message = "";
+   float elapsed = 0;
+   float duration = 0;
+};
+
+struct RenderMessageBuffer {
+   RenderMessageBufferElement* buffer;
+   size_t size;
+   u16 count = 0;
+
+   bool add(string msg, float duration)
+   {
+      if(count < size)
+      {
+         auto item = buffer;
+         for(int i = 0; i < size; i++)
+         {
+            if(item->message == "")
+            {
+               item->message = msg;
+               item->elapsed = 0;
+               item->duration = duration;
+               count++;
+               break;
+            }
+            item++;
+         }
+         return true;
+      }
+      else
+      {
+         cout << "WARNING: message has not been addded to message buffer"
+         << "because it is FULL. Message was: " << msg << "\n";
+         return false;
+      }
+      
+   }
+};
+
 struct GlobalBuffers {
-   void* buffers[20];
+   EntityBuffer* entity_buffer;
+   RenderMessageBuffer* rm_buffer;
 } G_BUFFERS;
 
 bool is_vec2_equal(vec2 vec1, vec2 vec2);
@@ -198,6 +236,8 @@ bool save_configs_to_file();
 bool is_float_zero(float x);
 void toggle_program_modes(Player* player);
 
+#include <loaders.h>
+#include <render.h>
 #include <input.h>
 #include <raycast.h>
 #include <collision.h>
@@ -222,6 +262,7 @@ void initialize_shaders();
 void create_boilerplate_geometry();
 GLenum glCheckError_(const char* file, int line);
 EntityBuffer* allocate_entity_buffer(size_t size);
+RenderMessageBuffer* allocate_render_message_buffer(size_t size);
 void update_buffers();
 void start_frame();
 ProgramConfig load_configs();
@@ -263,7 +304,9 @@ int main()
 
    // Allocate buffers
    EntityBuffer* entity_buffer = allocate_entity_buffer(50);
-   G_BUFFERS.buffers[0] = entity_buffer;
+   G_BUFFERS.entity_buffer = entity_buffer;
+   RenderMessageBuffer* render_message_buffer = allocate_render_message_buffer(10);
+   G_BUFFERS.rm_buffer = render_message_buffer;
    initialize_console_buffers();
 
    Editor::initialize();
@@ -320,6 +363,7 @@ int main()
             render_game_gui(player);
             break;
       }
+      render_message_buffer_contents();
       render_immediate(&G_IMMEDIATE_DRAW, G_SCENE_INFO.camera);
 
       // FINISH FRAME
@@ -334,14 +378,14 @@ int main()
 void start_frame()
 {
    float current_frame_time = glfwGetTime();
-   G_FRAME_INFO.delta_time = current_frame_time - G_FRAME_INFO.last_frame_time;
+   G_FRAME_INFO.duration = current_frame_time - G_FRAME_INFO.last_frame_time;
    G_FRAME_INFO.last_frame_time = current_frame_time;
-   if(G_FRAME_INFO.delta_time > 0.02)
+   if(G_FRAME_INFO.duration > 0.02)
    {
-      G_FRAME_INFO.delta_time = 0.02;
+      G_FRAME_INFO.duration = 0.02;
       //std::cout << "delta time exceeded.\n";
    } 
-   G_FRAME_INFO.current_fps = 1.0f / G_FRAME_INFO.delta_time;
+   G_FRAME_INFO.current_fps = 1.0f / G_FRAME_INFO.duration;
    G_FRAME_INFO.frame_counter_3 = ++G_FRAME_INFO.frame_counter_3 % 3;
    G_FRAME_INFO.frame_counter_10 = ++G_FRAME_INFO.frame_counter_10 % 10;
 }
@@ -369,10 +413,18 @@ void check_all_entities_have_shaders()
 
 EntityBuffer* allocate_entity_buffer(size_t size)
 {
-   EntityBuffer* e_buffer = new EntityBuffer;
+   auto e_buffer = new EntityBuffer;
    e_buffer->buffer = new EntityBufferElement[size];
    e_buffer->size = size;
    return e_buffer;
+}
+
+RenderMessageBuffer* allocate_render_message_buffer(size_t size)
+{
+   auto rm_buffer = new RenderMessageBuffer;
+   rm_buffer->buffer = new RenderMessageBufferElement[size];
+   rm_buffer->size = size;
+   return rm_buffer;
 }
 
 void update_buffers()
@@ -383,14 +435,32 @@ void update_buffers()
       Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
       size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();            
 
-      auto entity_buffer = (EntityBuffer*)G_BUFFERS.buffers[0];
-      EntityBufferElement* entity_buf_iter = entity_buffer->buffer;       
-      for(int i = 0; i < entity_list_size; ++i) // ASSUMES that entity_list_size is ALWAYS smaller then the EntityBuffer->size    
+      EntityBufferElement* entity_buf_iter = G_BUFFERS.entity_buffer->buffer;       
+      // ASSUMES that entity_list_size is ALWAYS smaller then the EntityBuffer->size    
+      for(int i = 0; i < entity_list_size; i++) 
       {
          entity_buf_iter->entity = *entity_iterator;
          entity_buf_iter->collision_check = false;
          entity_buf_iter++; 
          entity_iterator++;
+      }
+   }
+
+   //update render message buffer
+   {
+      size_t size = G_BUFFERS.rm_buffer->size;
+      auto item = G_BUFFERS.rm_buffer->buffer;
+      for(int i = 0; i < size; i++)
+      {
+         if(item->message != "")
+         {
+            if(item->elapsed >= item->duration)
+            {
+               item->message = "";
+               G_BUFFERS.rm_buffer->count -= 1;
+            }
+            else item->elapsed += G_FRAME_INFO.duration * 100.0;
+         }
       }
    }
 }

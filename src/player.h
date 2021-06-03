@@ -32,13 +32,33 @@ struct Player {
    vec3 prior_position = vec3(0);
    vec3 initial_velocity = vec3(0);
 
+   int initial_lives = 2;
    int lives = 2;
    float height_before_fall;
    float hurt_height_1 = 3.5;
    float hurt_height_2 = 5.0;
 
+   float fall_height_log = 0;
+
    vec3 feet()
    {
       return entity_ptr->position - vec3(0.0f, half_height, 0.0f);
+   }
+
+   bool maybe_hurt_from_fall()
+   {
+      float fall_height = height_before_fall - entity_ptr->position.y;
+      fall_height_log = fall_height;
+      if(fall_height >= hurt_height_2)
+      {
+         lives -= 2;
+         return true;
+      }
+      else if(fall_height >= hurt_height_1)
+      {
+         lives -= 1;
+         return true;
+      }
+      return false;
    }
 };

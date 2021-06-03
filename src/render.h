@@ -38,6 +38,7 @@ void render_entity(Entity* entity);
 void render_text(std::string text, float x, float y, float scale = 1.0f, vec3 color = vec3(1.0,1.0,1.0), bool center = false);
 void render_editor_entity(Entity* entity, Scene* scene, Camera* camera);
 void render_mesh(Mesh* mesh, RenderOptions opts = RenderOptions{});
+void render_message_buffer_contents();
 
 
 void render_mesh(Mesh* mesh, RenderOptions opts)
@@ -250,4 +251,18 @@ void render_text(std::string text, float x, float y, float scale, vec3 color, bo
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
 	}
+}
+
+void render_message_buffer_contents()
+{
+   size_t size = G_BUFFERS.rm_buffer->count;
+   auto item = G_BUFFERS.rm_buffer->buffer;
+   for(int i = 0; i < size; i++)
+   {
+      if(item->message != "")
+         render_text(item->message, G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, 
+            G_DISPLAY_INFO.VIEWPORT_HEIGHT - 80, 2.0, vec3(0.8, 0.8, 0.2), true
+         );
+      item++;
+   }
 }
