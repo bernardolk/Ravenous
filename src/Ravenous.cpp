@@ -446,21 +446,18 @@ void update_buffers()
       }
    }
 
-   //update render message buffer
+   // update render message buffer
    {
       size_t size = G_BUFFERS.rm_buffer->size;
       auto item = G_BUFFERS.rm_buffer->buffer;
       for(int i = 0; i < size; i++)
       {
-         if(item->message != "")
+         if(item->message != "" && item->elapsed >= item->duration)
          {
-            if(item->elapsed >= item->duration)
-            {
-               item->message = "";
-               G_BUFFERS.rm_buffer->count -= 1;
-            }
-            else item->elapsed += G_FRAME_INFO.duration * 100.0;
+            item->message = "";
+            G_BUFFERS.rm_buffer->count -= 1;
          }
+         item++;
       }
    }
 }
@@ -789,6 +786,8 @@ void toggle_program_modes(Player* player)
       player->entity_ptr->render_me = false;
       glfwSetInputMode(G_DISPLAY_INFO.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
       Editor::end_frame();
+
+      G_BUFFERS.rm_buffer->add("Game Mode", 2000);
    }
    else if(PROGRAM_MODE.current == GAME_MODE)
    {
@@ -798,6 +797,8 @@ void toggle_program_modes(Player* player)
       player->entity_ptr->render_me = true;
       glfwSetInputMode(G_DISPLAY_INFO.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
       Editor::start_frame();
+
+      G_BUFFERS.rm_buffer->add("Editor Mode", 2000);
    }
 }
 

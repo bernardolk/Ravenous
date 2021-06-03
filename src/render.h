@@ -255,14 +255,23 @@ void render_text(std::string text, float x, float y, float scale, vec3 color, bo
 
 void render_message_buffer_contents()
 {
-   size_t size = G_BUFFERS.rm_buffer->count;
+   int render_count = 0;
+   size_t size = G_BUFFERS.rm_buffer->size;
    auto item = G_BUFFERS.rm_buffer->buffer;
    for(int i = 0; i < size; i++)
    {
+      if(render_count == 3)
+         break;
+
       if(item->message != "")
+      {
+         render_count++;
          render_text(item->message, G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, 
-            G_DISPLAY_INFO.VIEWPORT_HEIGHT - 80, 2.0, vec3(0.8, 0.8, 0.2), true
+            G_DISPLAY_INFO.VIEWPORT_HEIGHT - 80 - render_count * 25, 2.0, vec3(0.8, 0.8, 0.2), true
          );
+         item->elapsed += G_FRAME_INFO.duration * 1000.0;
+      }
+
       item++;
    }
 }
