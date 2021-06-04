@@ -54,6 +54,8 @@ struct EditorContext {
    Entity* snap_reference = nullptr;
    EntityState entity_state_before_snap;
 
+   bool show_event_triggers = false;
+
    Entity* tri_axis[3];
    Entity* tri_axis_letters[3];
 } Context;
@@ -65,6 +67,7 @@ void update_editor_entities();
 void render();
 void render_text_overlay(Player* player);
 void render_toolbar();
+void render_event_triggers(Camera* camera);
 void end_frame();
 void terminate();
 
@@ -152,6 +155,11 @@ void render(Player* player)
       // render_entity(entity);
    }
 
+   if(Context.show_event_triggers)
+   {
+      render_event_triggers(G_SCENE_INFO.camera);
+   }
+
 
    // render entity panel
    if(Context.entity_panel.active)
@@ -193,6 +201,15 @@ void render_toolbar()
    {
       Context.measure_mode = true;
    }
+   if(ImGui::Button("Measure X", ImVec2(120,18)))
+   {
+   }
+   if(ImGui::Button("Measure Z", ImVec2(120,18)))
+   {
+   }
+   
+   ImGui::NewLine();
+   ImGui::Checkbox("Show Event Triggers", &Context.show_event_triggers);
 
    ImGui::End();
 }
@@ -471,6 +488,32 @@ void render_text_overlay(Player* player)
             G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, GUI_y - 80, 2.0, vec3(0.8, 0.8, 0.2), true
          ); 
       }
+   }
+}
+
+void render_event_triggers(Camera* camera)
+{
+   auto checkpoints = G_SCENE_INFO.active_scene->checkpoints;
+   if(checkpoints.size() == 0)
+      return;
+      
+   auto checkpoint = checkpoints[0];
+   // RenderOptions render_opts;
+   // render_opts.wireframe = true;
+
+   auto find = Shader_Catalogue.find("color");
+   auto shader = find->second;
+
+   for(int i = 0; i < checkpoints.size(); i++)
+   {
+      shader->use();
+      shader->setFloat3("color", 0.5, 0.5, 0.3);
+      shader->setFloat("opacity", 0.6);
+      shader->setMatrix4("model",       checkpoint->trigger_model);
+      shader->setMatrix4("view",        camera->View4x4);
+      shader->setMatrix4("projection",  camera->Projection4x4);
+      render_mesh(checkpoint->trigger, RenderOptions{});
+      checkpoint++;
    }
 }
 
