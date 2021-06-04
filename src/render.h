@@ -39,6 +39,7 @@ void render_text(std::string text, float x, float y, float scale = 1.0f, vec3 co
 void render_editor_entity(Entity* entity, Scene* scene, Camera* camera);
 void render_mesh(Mesh* mesh, RenderOptions opts = RenderOptions{});
 void render_message_buffer_contents();
+void render_event_triggers(Camera* camera);
 
 
 void render_mesh(Mesh* mesh, RenderOptions opts)
@@ -185,11 +186,11 @@ void render_game_gui(Player* player)
 
 void render_immediate(GlobalImmediateDraw* im, Camera* camera)
 {
+   auto find = Shader_Catalogue.find("immediate_point");
+   auto shader = find->second;
    for(int i = 0; i < im->ind; i++)
    {
       auto mesh = im->meshes[i];
-      auto find = Shader_Catalogue.find("immediate_point");
-      auto shader = find->second;
       shader-> use();
       shader-> setMatrix4("view",        camera->View4x4);
       shader-> setMatrix4("projection",  camera->Projection4x4);
@@ -197,6 +198,29 @@ void render_immediate(GlobalImmediateDraw* im, Camera* camera)
    }
    
    G_IMMEDIATE_DRAW.reset();
+}
+
+void render_event_triggers(Camera* camera)
+{
+   auto checkpoints = G_SCENE_INFO.active_scene->checkpoints;
+   auto checkpoint = checkpoints[0];
+   // RenderOptions render_opts;
+   // render_opts.wireframe = true;
+
+   auto find = Shader_Catalogue.find("color");
+   auto shader = find->second;
+
+   for(int i = 0; i < checkpoints.size(); i++)
+   {
+      shader->use();
+      shader->setFloat3("color", 0.5, 0.5, 0.3);
+      shader->setFloat("opacity", 0.6);
+      shader->setMatrix4("model",       checkpoint->trigger_model);
+      shader->setMatrix4("view",        camera->View4x4);
+      shader->setMatrix4("projection",  camera->Projection4x4);
+      render_mesh(checkpoint->trigger, RenderOptions{});
+      checkpoint++;
+   }
 }
 
 void render_text(std::string text, float x, float y, float scale, vec3 color, bool center) 

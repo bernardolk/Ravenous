@@ -363,8 +363,9 @@ int main()
             render_game_gui(player);
             break;
       }
-      render_message_buffer_contents();
+      render_event_triggers(G_SCENE_INFO.camera);
       render_immediate(&G_IMMEDIATE_DRAW, G_SCENE_INFO.camera);
+      render_message_buffer_contents();
 
       // FINISH FRAME
 		glfwSwapBuffers(G_DISPLAY_INFO.window);
@@ -692,6 +693,10 @@ void initialize_shaders()
    // editor entity shaders
    auto static_shader = create_shader_program("static", "vertex_static", "fragment_static");
    Shader_Catalogue.insert({static_shader->name, static_shader});
+
+   // general model shader
+   auto color_shader = create_shader_program("color", "vertex_model", "fragment_color");
+   Shader_Catalogue.insert({color_shader->name, color_shader});
 }
 
 

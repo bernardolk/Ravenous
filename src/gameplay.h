@@ -9,6 +9,7 @@ void reset_input_flags(InputFlags flags);
 void mark_entity_checked(Entity* entity);
 void resolve_collision(CollisionData collision, Player* player);
 void check_for_floor_transitions(Player* player);
+void check_trigger_interaction(Player* player);
 
 
 void update_player_state(Player* &player)
@@ -447,6 +448,22 @@ void make_player_slide(Player* player, Entity* ramp, bool slide_fall)
       player->player_state = PLAYER_STATE_SLIDING;
 }
 
+void check_trigger_interaction(Player* player)
+{
+   auto checkpoints = G_SCENE_INFO.active_scene->checkpoints;
+   auto checkpoint = checkpoints[0];
+   for(int i = 0; i < checkpoints.size(); i++)
+   {
+      auto triggered = check_event_trigger_collision(checkpoint, player->entity_ptr);
+      if(triggered)
+      {
+         G_BUFFERS.rm_buffer->add("TRIGGERED", 1000);
+      }
+      checkpoint++;
+   }
+
+}
+
 
 
 //@todo: refactor this into game mode input handle and editor mode input handle
@@ -494,6 +511,10 @@ void handle_common_input(InputFlags flags, Player* &player)
    if(pressed_once(flags, KEY_F))
    {
       toggle_program_modes(player);
+   }
+   if(pressed_once(flags, KEY_J))
+   {
+      check_trigger_interaction(player);
    }
    if(flags.key_press & KEY_ESC && flags.key_press & KEY_LEFT_SHIFT)
    {

@@ -59,6 +59,7 @@ CollisionData check_collision_horizontal(
       Player* player, EntityBufferElement* entity_iterator, size_t entity_list_size
 ); 
 CollisionData check_collision_vertical(Player* player, EntityBufferElement* entity_iterator, size_t entity_list_size);
+bool check_event_trigger_collision(Entity* trigger, Entity* player);
 
 
 float SLIDE_MAX_ANGLE = 1.4;
@@ -574,4 +575,26 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
       entity_iterator++;
    }
    return return_cd;
+}
+
+bool check_event_trigger_collision(Entity* trigger, Entity* player)
+{
+   auto col2 = player->collision_geometry.cylinder;
+   auto top1 = trigger->position.y + trigger->trigger_scale.y * 2;
+   auto top2 = player->position.y + col2.half_length * 2;
+   auto bottom1 = trigger->position.y;
+   auto bottom2 = player->position.y;
+
+   if(top1 < bottom2 || bottom1 > top2)
+      return false;
+   
+   auto trigger_pos_2d = vec2{trigger->trigger_pos.x, trigger->trigger_pos.z};
+   auto player_pos_2d = vec2{player->position.x, player->position.z};
+   auto dist_2d = glm::length(trigger_pos_2d - player_pos_2d);
+   auto radius_sum = trigger->trigger_scale.x + col2.radius;
+
+   if(radius_sum < dist_2d)
+      return false;
+
+   return true;
 }

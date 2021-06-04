@@ -10,12 +10,12 @@ enum CollisionGeometryEnum {
    COLLISION_ALIGNED_SLOPE,
 };
 
-struct CollisionGeometryAlignedCylinder{
+struct CollisionGeometryAlignedCylinder {
    float half_length;
    float radius;
 };
 
-struct CollisionGeometryAlignedBox{
+struct CollisionGeometryAlignedBox {
    float height;
    float x0;
    float x1;
@@ -23,7 +23,7 @@ struct CollisionGeometryAlignedBox{
    float z1;
 };
 
-struct CollisionGeometrySlope{
+struct CollisionGeometrySlope {
    float height;
    float x0;
    float x1;
@@ -34,8 +34,14 @@ struct CollisionGeometrySlope{
    vec3 normal;
 };
 
+enum EntityTypeEnum {
+   STATIC = 0,
+   CHECKPOINT = 1
+};
+
 struct Entity {
    string name = "NONAME";
+   EntityTypeEnum type = STATIC;
 
    // render data
 	Shader* shader;
@@ -51,9 +57,6 @@ struct Entity {
 	vec3 scale = vec3(1.0f);
    vec3 velocity;
 
-   // editor gizmo stuff (should be out of here in the future)
-   vec3 gizmo_position = vec3(0.0f);
-
    // collision simulation data
    CollisionGeometryEnum collision_geometry_type;
    union CollisionGeometry{
@@ -62,10 +65,16 @@ struct Entity {
       CollisionGeometryAlignedBox aabb;
    } collision_geometry;
 
+   Mesh* trigger;
+   vec3 trigger_scale = vec3(1.0f);
+   vec3 trigger_pos = vec3(0.0f);
+   mat4 trigger_model;
+
    void update()
    {
       update_model_matrix();
       update_collision_geometry();
+      update_trigger();
    }
 
    void update_model_matrix()
@@ -161,6 +170,18 @@ struct Entity {
       return bounds;
    }
 
+   void update_trigger()
+   {
+      auto [x0, x1, z0, z1] = get_rect_bounds();
+      trigger_pos = position + vec3{(x1 - x0) / 2.0f, trigger_scale.y, (z1 - z0) / 2.0f};
+      glm::mat4 model = translate(mat4identity, trigger_pos);
+		model = rotate(model, glm::radians(rotation.x), vec3(1.0f, 0.0f, 0.0f));
+		model = rotate(model, glm::radians(rotation.y), vec3(0.0f, 1.0f, 0.0f));
+		model = rotate(model, glm::radians(rotation.z), vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, trigger_scale);
+		trigger_model = model;
+   }
+
    float get_height()
    {
        switch(collision_geometry_type)
@@ -224,8 +245,8 @@ struct Scene {
 	std::vector<SpotLight> spotLights;
 	std::vector<DirectionalLight> directionalLights;
 	std::vector<PointLight> pointLights;
+   std::vector<Entity*> checkpoints;
    float global_shininess = 32.0f;
-	//vector<LightEntity> lights;
 };
 
 

@@ -1,5 +1,5 @@
 bool load_scene_from_file(std::string scene_name);
-void parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, std::string path);
+Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, std::string path);
 void parse_and_load_player_attribute(Parser::Parse p, ifstream* reader, int& line_count, std::string path, Player* player);
 void setup_scene_boilerplate_stuff();
 bool save_player_position_to_file(string scene_name, Player* player);
@@ -143,6 +143,15 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
       
       if(entity->wireframe)
          writer << "hidden\n";
+
+      if(entity->type == CHECKPOINT)
+      {
+         writer << "type 1\n";
+         writer << "trigger " 
+            << entity->trigger_scale.x << " "
+            << entity->trigger_scale.y << " "
+            << entity->trigger_scale.z << "\n";
+      }
    }
 
    writer.close();
@@ -199,7 +208,23 @@ bool load_scene_from_file(std::string scene_name)
       p = parse_symbol(p);
       if(p.cToken == '#')
       {
-         parse_and_load_entity(p, &reader, line_count, path);
+         Entity* new_entity = parse_and_load_entity(p, &reader, line_count, path);
+         if(new_entity->type == CHECKPOINT)
+         {
+            auto mesh_details = new_entity->collision_geometry.cylinder;
+            auto vertices = construct_cylinder(
+               new_entity->trigger_scale.x, 
+               new_entity->trigger_scale.y,
+               24
+            );
+            auto trigger_mesh = new Mesh();
+            trigger_mesh->vertices = vertices;
+            trigger_mesh->render_method = GL_TRIANGLE_STRIP;
+            trigger_mesh->setup_gl_data();
+            new_entity->trigger = trigger_mesh;
+            G_SCENE_INFO.active_scene->checkpoints.push_back(new_entity);
+         }
+         G_SCENE_INFO.active_scene->entities.push_back(new_entity);
       }
       else if(p.cToken == '@')
       {
@@ -271,7 +296,7 @@ void parse_and_load_player_attribute(Parser::Parse p, ifstream* reader, int& lin
 }
 
 
-void parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, std::string path)
+Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, std::string path)
 {
    std::string line;
    bool is_collision_parsed = false;
@@ -409,10 +434,9 @@ void parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, s
          // check so we make sure scale is defined before collision (we use it to define the aabb lengths)
          is_collision_parsed = true;
 
-         std::string collision_type;
          p = parse_all_whitespace(p);
          p = parse_token(p);
-         collision_type = p.string_buffer;
+         string collision_type = p.string_buffer;
 
          if(collision_type != "aabb" && collision_type != "slope")
          {
@@ -437,13 +461,25 @@ void parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, s
       {
          new_entity->wireframe = true;
       }
+      else if(property == "type")
+      {
+         p = parse_all_whitespace(p);
+         p = parse_int(p);
+         int entity_type = p.iToken;
+         new_entity->type = (EntityTypeEnum) entity_type;
+
+      }
+      else if(property == "trigger")
+      {
+         p = parse_float_vector(p);
+         new_entity->trigger_scale = vec3{p.vec3[0], p.vec3[1], p.vec3[2]};
+      }
       else
       {
          break;
       }
    }
-
-   G_SCENE_INFO.active_scene->entities.push_back(new_entity);
+   return new_entity;
 }
 
 void parse_and_load_light_source(Parser::Parse p, ifstream* reader, int& line_count, string path)
