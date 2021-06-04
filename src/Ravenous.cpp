@@ -363,7 +363,6 @@ int main()
             render_game_gui(player);
             break;
       }
-      render_event_triggers(G_SCENE_INFO.camera);
       render_immediate(&G_IMMEDIATE_DRAW, G_SCENE_INFO.camera);
       render_message_buffer_contents();
 

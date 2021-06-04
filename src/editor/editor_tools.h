@@ -23,6 +23,10 @@ void snap_commit()
    undo.position  = entity->position;
    undo.rotation  = entity->rotation;
    undo.scale     = entity->scale;
+   auto &original = Context.original_entity_state;
+   original.position  = entity->position;
+   original.rotation  = entity->rotation;
+   original.scale     = entity->scale;
 }
 
 void snap_entity_to_reference(Entity* entity)
