@@ -309,6 +309,9 @@ int main()
    G_BUFFERS.rm_buffer = render_message_buffer;
    initialize_console_buffers();
 
+   // Initializes World Cells
+   WORLD.init();
+
    Editor::initialize();
 
    // Pre-loop checks

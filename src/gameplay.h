@@ -16,6 +16,8 @@ void update_player_state(Player* &player)
 {
    Entity* &player_entity = player->entity_ptr;
 
+   update_entity_world_cells(player_entity);
+
    if(player->lives <= 0)
    {
       player_death_handler(player);

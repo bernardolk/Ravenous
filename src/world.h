@@ -22,10 +22,78 @@ struct WorldCell {
    
    // coords
    int i = -1, j = -1, k = -1;
+
+   void init()
+   {
+      for(int i = 0; i < WORLD_CELL_CAPACITY; i++)
+         entities[i] = nullptr;
+   }
+
+   void remove(Entity* entity)
+   {
+      for(int i = 0; i < WORLD_CELL_CAPACITY; i++)
+         if(entities[i] == entity)
+         {
+            entities[i] = nullptr;
+            defrag();
+            return;
+         }
+   }
+
+   void add(Entity* entity)
+   {
+      for(int i = 0; i < WORLD_CELL_CAPACITY; i++)
+         if(entities[i] == nullptr)
+         {
+            entities[i] = entity;
+            count++;
+         }
+   }
+
+   void defrag()
+   {
+      //@ATTENTION: untested code
+      if(count == 0) 
+         return;
+
+      unsigned int hole_count = 0;
+      int holes[WORLD_CELL_CAPACITY] = {-1};
+      for(int i = 0; i < count; i++)
+      {
+         if(entities[i] == nullptr)
+            holes[hole_count++] = i;
+      }
+
+      int idx = count - 1; 
+      int hole_idx = 0;
+      while(true)
+      {
+         int hole = holes[hole_idx];
+         if(hole == -1 || idx == 0)
+            break;
+
+         auto item = entities[idx];
+         if(item != nullptr)
+         {
+            entities[hole] = item;
+            entities[idx] = nullptr;
+            hole_idx++;
+         }
+         idx--;
+      }
+   }
 };
 
 struct World {
    WorldCell cells[WORLD_CELLS_X][WORLD_CELLS_Y][WORLD_CELLS_Z];
+
+   void init()
+   {
+      for(int i = 0; i < WORLD_CELLS_X; i++)
+      for(int j = 0; j < WORLD_CELLS_Y; j++)
+      for(int k = 0; k < WORLD_CELLS_Z; k++)
+         cells[i][j][k].init();
+   }
 } WORLD;
 
 auto get_world_cells_coords_from_world_coords(float x, float y, float z)
@@ -98,6 +166,68 @@ void assign_entity_to_world_cell(Entity* entity)
    }
 }
 
+void update_entity_world_cells(Entity* entity)
+{
+   // computes the new cells
+   auto [x0, x1, z0, z1] = entity->get_rect_bounds();
+   float height = entity->get_height();
+
+   auto [i0, j0, k0] = get_world_cells_coords_from_world_coords(x0, entity->position.y, z0);
+   auto [i1, j1, k1] = get_world_cells_coords_from_world_coords(x1, entity->position.y + height, z1);
+
+   vector<WorldCell*> new_cells;
+   for(int i = i0; i <= i1; i++)
+   for(int j = j0; j <= j1; j++)
+   for(int k = k0; k <= k1; k++)
+      new_cells.push_back(&WORLD.cells[i][j][k]);
+
+   // checks the diff between new and old and stores the ones that are no longer
+   // entities world cells
+   vector<WorldCell*> cells_to_remove_from;
+   vector<WorldCell*> cells_to_add_to;
+   for(int i = 0; i < entity->world_cells_count; i++)
+   {
+      auto entity_world_cell = entity->world_cells[i];
+      bool found = false;
+      for(int c = 0; c < new_cells.size(); c++)
+      {
+         if(new_cells[c] == entity_world_cell)
+         {
+            found = true;
+            break;
+         }
+      }
+      if(!found)
+         cells_to_remove_from.push_back(entity_world_cell);
+      else
+         cells_to_add_to.push_back(entity_world_cell);
+   }
+
+   // remove entity from old cells
+   for(int i = 0; i < cells_to_remove_from.size(); i++)
+   {
+      auto cell = cells_to_remove_from[i];
+      cell->remove(entity);
+   }
+
+   // add entity to new cells
+   for(int i = 0; i < cells_to_add_to.size(); i++)
+   {
+      auto cell = cells_to_add_to[i];
+      cell->add(entity);
+   }
+
+   // re-set cells to entity
+   int new_cells_count = 0;
+   for(int i = 0; i < new_cells.size(); i++)
+   {
+      auto cell = new_cells[i];
+      entity->world_cells[new_cells_count] = cell;
+      new_cells_count++;
+   }
+   entity->world_cells_count = new_cells_count;
+
+}
 
 
 
