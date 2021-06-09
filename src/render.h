@@ -66,8 +66,15 @@ void render_mesh(Mesh* mesh, RenderOptions opts)
       case GL_POINTS:
          glDrawArrays(GL_POINTS, 0, mesh->vertices.size());
          break;
-      default:
+      case GL_LINES:
+         glDrawArrays(GL_LINES, 0, mesh->vertices.size());
+         break;
+      case GL_TRIANGLES:
          glDrawElements(GL_TRIANGLES,  mesh->indices.size(), GL_UNSIGNED_INT, 0);
+         break;
+      default:
+         cout << "WARNING: no drawing method set for mesh '" << mesh->name << "', "<< 
+            "it won't be rendered!\n";
    }
 
    // set to normal

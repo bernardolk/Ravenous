@@ -55,6 +55,7 @@ struct EditorContext {
    EntityState entity_state_before_snap;
 
    bool show_event_triggers = false;
+   bool show_world_cells = false;
 
    Entity* tri_axis[3];
    Entity* tri_axis_letters[3];
@@ -68,6 +69,7 @@ void render();
 void render_text_overlay(Player* player);
 void render_toolbar();
 void render_event_triggers(Camera* camera);
+void render_world_cells(Camera* camera);
 void end_frame();
 void terminate();
 
@@ -160,6 +162,11 @@ void render(Player* player)
       render_event_triggers(G_SCENE_INFO.camera);
    }
 
+   if(Context.show_world_cells)
+   {
+      render_world_cells(G_SCENE_INFO.camera);
+   }
+
 
    // render entity panel
    if(Context.entity_panel.active)
@@ -210,6 +217,7 @@ void render_toolbar()
    
    ImGui::NewLine();
    ImGui::Checkbox("Show Event Triggers", &Context.show_event_triggers);
+   ImGui::Checkbox("Show World Cells", &Context.show_world_cells);
 
    ImGui::End();
 }
@@ -509,12 +517,66 @@ void render_event_triggers(Camera* camera)
       shader->use();
       shader->setFloat3("color", 0.5, 0.5, 0.3);
       shader->setFloat("opacity", 0.6);
-      shader->setMatrix4("model",       checkpoint->trigger_model);
-      shader->setMatrix4("view",        camera->View4x4);
-      shader->setMatrix4("projection",  camera->Projection4x4);
+      shader->setMatrix4("model", checkpoint->trigger_model);
+      shader->setMatrix4("view", camera->View4x4);
+      shader->setMatrix4("projection", camera->Projection4x4);
       render_mesh(checkpoint->trigger, RenderOptions{});
       checkpoint++;
    }
+}
+
+void render_world_cells(Camera* camera)
+{
+   auto& scene = G_SCENE_INFO.active_scene;
+
+   // get unique world cells references that are currently in use; 
+   vector<WorldCell*> cells;
+   Entity **entity_iterator = &(scene->entities[0]);
+   int entities_vec_size =  scene->entities.size();
+	for(int it = 0; it < entities_vec_size; it++) 
+   {
+	   auto entity = *entity_iterator++;
+      for(int c = 0; c < entity->world_cells_count; c++)
+      {
+         auto entity_wc = entity->world_cells[c];
+         bool exists = false;
+         for(int wc = 0; wc < cells.size(); wc++)
+         {
+            if(cells[wc] == entity_wc)
+            {
+               exists = true;
+               break;
+            }
+         }
+         if(exists) continue;
+         
+         cells.push_back(entity_wc);
+      }
+   }
+
+   // render
+   auto shader = Shader_Catalogue.find("color")->second;
+   auto cell_mesh = Geometry_Catalogue.find("world cell")->second;
+   RenderOptions opts;
+   opts.wireframe = true;
+   for(int i = 0; i < cells.size(); i++)
+   {
+      // create model matrix
+      vec3 position = get_world_coordinates_from_world_cell_coordinates(
+         cells[i]->i, cells[i]->j, cells[i]->k
+      );
+      glm::mat4 model = translate(mat4identity, position);
+		model = glm::scale(model, vec3{WORLD_CELL_SIZE, WORLD_CELL_SIZE, WORLD_CELL_SIZE});
+
+      shader->use();
+      shader->setFloat3("color", 0.27, 0.55, 0.65);
+      shader->setFloat("opacity", 0.85);
+      shader->setMatrix4("model", model);
+      shader->setMatrix4("view", camera->View4x4);
+      shader->setMatrix4("projection", camera->Projection4x4);
+      render_mesh(cell_mesh, opts);
+   }
+
 }
 
 }

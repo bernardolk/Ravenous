@@ -151,9 +151,9 @@ void render_entity_panel(EntityPanelContext* panel)
       {
          duplicated = true;
          auto new_entity = copy_entity(entity);
-         new_entity->name += " copy";
-         bool already_exists = get_entity_position(G_SCENE_INFO.active_scene, new_entity) > -1;
-         if(already_exists) new_entity->name += "(1)";
+         //new_entity->name += " copy";
+         //bool already_exists = get_entity_position(G_SCENE_INFO.active_scene, new_entity) > -1;
+         //if(already_exists) new_entity->name += "(1)";
          G_SCENE_INFO.active_scene->entities.push_back(new_entity);
          select_entity_to_move_with_mouse(new_entity);
          set_entity_panel(new_entity);
@@ -175,6 +175,12 @@ void render_entity_panel(EntityPanelContext* panel)
    {
       Context.snap_mode = false;
       Context.measure_mode = false;
+   }
+
+   if(erased)
+   {
+      //@todo: maybe here we need to mark it for deletion and delete at the end of the frame...
+      delete entity;
    }
 
    ImGui::End();

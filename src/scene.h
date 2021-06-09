@@ -209,6 +209,7 @@ bool load_scene_from_file(std::string scene_name)
       if(p.cToken == '#')
       {
          Entity* new_entity = parse_and_load_entity(p, &reader, line_count, path);
+
          if(new_entity->type == CHECKPOINT)
          {
             auto mesh_details = new_entity->collision_geometry.cylinder;
@@ -224,7 +225,11 @@ bool load_scene_from_file(std::string scene_name)
             new_entity->trigger = trigger_mesh;
             G_SCENE_INFO.active_scene->checkpoints.push_back(new_entity);
          }
+
          G_SCENE_INFO.active_scene->entities.push_back(new_entity);
+
+         assign_entity_to_world_cell(new_entity);
+
       }
       else if(p.cToken == '@')
       {
@@ -301,6 +306,7 @@ Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count
    std::string line;
    bool is_collision_parsed = false;
 
+   //@todo: this should be replaced by our custom allocator
    Entity* new_entity = new Entity();
    p = parse_name(p);
    new_entity->name = p.string_buffer;

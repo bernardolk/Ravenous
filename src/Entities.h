@@ -1,5 +1,7 @@
 #pragma once
 
+struct WorldCell;
+
 struct GlobalEntityInfo {
    u32 entity_counter = 0;
 };
@@ -39,6 +41,8 @@ enum EntityTypeEnum {
    CHECKPOINT = 1
 };
 
+const static size_t ENTITY_WOLRD_CELL_OCCUPATION_LIMIT = 16;
+
 struct Entity {
    string name = "NONAME";
    EntityTypeEnum type = STATIC;
@@ -64,6 +68,9 @@ struct Entity {
       CollisionGeometryAlignedCylinder cylinder;
       CollisionGeometryAlignedBox aabb;
    } collision_geometry;
+
+   WorldCell* world_cells[ENTITY_WOLRD_CELL_OCCUPATION_LIMIT];
+   int world_cells_count = 0;
 
    Mesh* trigger;
    vec3 trigger_scale = vec3(1.0f);

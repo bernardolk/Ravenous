@@ -152,6 +152,7 @@ void print_every_3rd_frame(std::string thing, std::string prefix)
 #include <player.h>
 #include <camera.h>
 #include <parser.h>
+#include <world.h>
 
 // catalogues 
 std::map<string, Mesh*> Geometry_Catalogue;
@@ -217,7 +218,6 @@ struct RenderMessageBuffer {
          << "because it is FULL. Message was: " << msg << "\n";
          return false;
       }
-      
    }
 };
 
@@ -303,7 +303,7 @@ int main()
    Player* player = G_SCENE_INFO.player;
 
    // Allocate buffers
-   EntityBuffer* entity_buffer = allocate_entity_buffer(50);
+   EntityBuffer* entity_buffer = allocate_entity_buffer(300);
    G_BUFFERS.entity_buffer = entity_buffer;
    RenderMessageBuffer* render_message_buffer = allocate_render_message_buffer(10);
    G_BUFFERS.rm_buffer = render_message_buffer;
@@ -584,6 +584,15 @@ void create_boilerplate_geometry()
    aabb_mesh->render_method = GL_TRIANGLES;
    aabb_mesh->setup_gl_data();
    Geometry_Catalogue.insert({aabb_mesh->name, aabb_mesh});
+
+   auto world_cell_mesh = new Mesh();
+   world_cell_mesh->name = "world cell";
+   world_cell_mesh->vertices = aabb_vertex_vec;
+   world_cell_mesh->indices = aabb_vertex_indices;
+   world_cell_mesh->render_method = GL_TRIANGLES;
+   world_cell_mesh->setup_gl_data();
+   Geometry_Catalogue.insert({world_cell_mesh->name, world_cell_mesh});
+
 
    // SLOPE
    vector<Vertex> slope_vertex_vec = {
