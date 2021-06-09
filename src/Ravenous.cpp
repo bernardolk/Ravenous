@@ -268,7 +268,7 @@ void start_frame();
 ProgramConfig load_configs();
 void check_all_entities_have_shaders();
 
-int main() 
+int main()
 {
    // reads from camera position file
    float* camera_pos = load_camera_settings(CAMERA_FILE_PATH);
@@ -298,8 +298,12 @@ int main()
    initialize_shaders();
    create_boilerplate_geometry();
 
-   load_scene_from_file(G_CONFIG.initial_scene);
+   // Initializes World Cells
+   World WORLD;
+   WORLD.init();
 
+   // loads initial scene
+   load_scene_from_file(G_CONFIG.initial_scene, &WORLD);
    Player* player = G_SCENE_INFO.player;
 
    // Allocate buffers
@@ -309,8 +313,7 @@ int main()
    G_BUFFERS.rm_buffer = render_message_buffer;
    initialize_console_buffers();
 
-   // Initializes World Cells
-   WORLD.init();
+
 
    Editor::initialize();
 
@@ -329,7 +332,7 @@ int main()
       switch(PROGRAM_MODE.current)
       {
          case CONSOLE_MODE:
-            handle_console_input(input_flags, player);
+            handle_console_input(input_flags, player, &WORLD);
             break;
          case EDITOR_MODE:
             Editor::start_frame();
@@ -346,7 +349,7 @@ int main()
 		//	UPDATE PHASE
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player);
       update_buffers();
-      update_player_state(player);
+      update_player_state(player, &WORLD);
 		update_scene_objects();
 
 		//	RENDER PHASE
@@ -360,7 +363,7 @@ int main()
             break;
          case EDITOR_MODE:
             Editor::update();
-            Editor::render(player);
+            Editor::render(player, &WORLD);
             break;
          case GAME_MODE:
             render_game_gui(player);

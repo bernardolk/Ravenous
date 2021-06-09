@@ -1,5 +1,5 @@
 void handle_common_input(InputFlags flags, Player* &player);
-void update_player_state(Player* &player);
+void update_player_state(Player* &player, World* world);
 void make_player_slide(Player* player, Entity* ramp, bool slide_fall = false);
 void run_collision_checks_standing(Player* player, size_t entity_list_size);
 void run_collision_checks_falling(Player* player, size_t entity_list_size);
@@ -12,11 +12,11 @@ void check_for_floor_transitions(Player* player);
 void check_trigger_interaction(Player* player);
 
 
-void update_player_state(Player* &player)
+void update_player_state(Player* &player, World* world)
 {
    Entity* &player_entity = player->entity_ptr;
 
-   update_entity_world_cells(player_entity);
+   world->update_entity_world_cells(player_entity);
 
    if(player->lives <= 0)
    {

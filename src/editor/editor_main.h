@@ -22,6 +22,10 @@ struct EntityPanelContext {
    Entity* z_arrow;
 };
 
+struct WorldPanelContext {
+   bool active = true;
+};
+
 struct EntityState {
    vec3 position;
    vec3 scale;
@@ -31,6 +35,7 @@ struct EntityState {
 struct EditorContext {
    ImGuiStyle* imStyle;
    EntityPanelContext entity_panel;
+   WorldPanelContext world_panel;
 
    bool move_entity_with_mouse = false;
    bool mouse_click = false;
@@ -65,7 +70,7 @@ void initialize();
 void start_frame();
 void update();
 void update_editor_entities();
-void render();
+void render(Player* player, World* world);
 void render_text_overlay(Player* player);
 void render_toolbar();
 void render_event_triggers(Camera* camera);
@@ -75,6 +80,7 @@ void terminate();
 
 #include <editor/editor_tools.h>
 #include <editor/editor_entity_panel.h>
+#include <editor/editor_world_panel.h>
 #include <editor/editor_input.h>
 
 
@@ -133,7 +139,7 @@ void update_editor_entities()
    }
 }
 
-void render(Player* player)
+void render(Player* player, World* world)
 {
    // render triaxis
    auto triaxis_view = glm::lookAt(vec3(0.0f), G_SCENE_INFO.camera->Front, -1.0f * G_SCENE_INFO.camera->Up);
@@ -167,6 +173,10 @@ void render(Player* player)
       render_world_cells(G_SCENE_INFO.camera);
    }
 
+   if(Context.world_panel.active)
+   {
+      render_world_panel(&Context.world_panel, world);
+   }
 
    // render entity panel
    if(Context.entity_panel.active)

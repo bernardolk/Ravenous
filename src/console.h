@@ -1,4 +1,4 @@
-void handle_console_input(InputFlags flags, Player* &player);
+void handle_console_input(InputFlags flags, Player* &player, World* world);
 void check_letter_key_presses(InputFlags flags);
 void clear_console_string_buffer();
 void render_console();
@@ -10,7 +10,7 @@ string commit_buffer();
 void initialize_console_buffers();
 void copy_buffer_to_scratch_buffer();
 void clear_scratch_buffer();
-void execute_command(string buffer_line, Player* &player);
+void execute_command(string buffer_line, Player* &player, World* world);
 
 
 struct GlobalConsoleState {
@@ -141,7 +141,7 @@ void clear_scratch_buffer()
    CONSOLE.c_ind = 0;
 }
 
-void execute_command(string buffer_line, Player* &player)
+void execute_command(string buffer_line, Player* &player, World* world)
 {
    Parser::Parse p {buffer_line.c_str(), 50};
    p = parse_token(p);
@@ -168,7 +168,7 @@ void execute_command(string buffer_line, Player* &player)
       p = parse_token(p);
       const string scene_name = p.string_buffer;
       // updates scene with new one
-      if(load_scene_from_file(scene_name))
+      if(load_scene_from_file(scene_name, world))
       {
          player = G_SCENE_INFO.player; // not irrelevant! do not delete
          player->entity_ptr->render_me = PROGRAM_MODE.last == EDITOR_MODE ? true : false;
@@ -211,7 +211,7 @@ void execute_command(string buffer_line, Player* &player)
    }
    else if(command == "reload")
    {
-      if(load_scene_from_file(G_SCENE_INFO.scene_name))
+      if(load_scene_from_file(G_SCENE_INFO.scene_name, world))
       {
          player = G_SCENE_INFO.player; // not irrelevant! do not delete
          player->entity_ptr->render_me = PROGRAM_MODE.last == EDITOR_MODE ? true : false;
@@ -222,7 +222,7 @@ void execute_command(string buffer_line, Player* &player)
    
 }
 
-void handle_console_input(InputFlags flags, Player* &player)
+void handle_console_input(InputFlags flags, Player* &player, World* world)
 {
    if(pressed_once(flags, KEY_ENTER))
    {
@@ -233,7 +233,7 @@ void handle_console_input(InputFlags flags, Player* &player)
          return;
       }
       auto buffer_line = commit_buffer();
-      execute_command(buffer_line, player);
+      execute_command(buffer_line, player, world);
       quit_console_mode();
    }
 

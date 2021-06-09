@@ -1,4 +1,4 @@
-bool load_scene_from_file(std::string scene_name);
+bool load_scene_from_file(std::string scene_name, World* world);
 Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, std::string path);
 void parse_and_load_player_attribute(Parser::Parse p, ifstream* reader, int& line_count, std::string path, Player* player);
 void setup_scene_boilerplate_stuff();
@@ -170,7 +170,7 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
    return true;
 }
 
-bool load_scene_from_file(std::string scene_name)
+bool load_scene_from_file(std::string scene_name, World* world)
 {
    string path = SCENES_FOLDER_PATH + scene_name + ".txt";
    ifstream reader(path);
@@ -228,8 +228,7 @@ bool load_scene_from_file(std::string scene_name)
 
          G_SCENE_INFO.active_scene->entities.push_back(new_entity);
 
-         assign_entity_to_world_cell(new_entity);
-
+         world->assign_entity_to_world_cells(new_entity);
       }
       else if(p.cToken == '@')
       {
@@ -241,7 +240,7 @@ bool load_scene_from_file(std::string scene_name)
       }
    }
    
-   //reader.close();
+   world->update_cells_in_use_list();
 
    G_SCENE_INFO.scene_name = scene_name;
    return true;
