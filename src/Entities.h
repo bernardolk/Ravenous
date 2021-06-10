@@ -1,5 +1,6 @@
 #pragma once
 
+// forward declarations
 struct WorldCell;
 
 struct GlobalEntityInfo {
@@ -257,7 +258,6 @@ struct Scene {
 };
 
 
-
 Entity* find_entity_in_scene(Scene* scene, std::string name) 
 {
    for(int i = 0; i < scene->entities.size() ; i++)
@@ -280,4 +280,3 @@ int get_entity_position(Scene* scene, Entity* entity)
          return i;
    return -1;
 }
-

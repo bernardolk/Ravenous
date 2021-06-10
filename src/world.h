@@ -27,8 +27,14 @@ struct WorldCell {
    // coords
    int i = -1, j = -1, k = -1;
 
-   void init()
+   void init(int ii, int ji, int ki)
    {
+      // set coordinates
+      i = ii;
+      j = ji;
+      k = ki;
+
+      // initialize entities list
       for(int i = 0; i < WORLD_CELL_CAPACITY; i++)
          entities[i] = nullptr;
    }
@@ -156,7 +162,7 @@ struct World {
       for(int i = 0; i < WORLD_CELLS_X; i++)
       for(int j = 0; j < WORLD_CELLS_Y; j++)
       for(int k = 0; k < WORLD_CELLS_Z; k++)
-         cells[i][j][k].init();
+         cells[i][j][k].init(i, j, k);
    }
 
    void update_cells_in_use_list()
@@ -204,9 +210,6 @@ struct World {
             cout << "FATAL: Too many entities inside world cell [" << i << "," << j << "," << k << "]. Aborting.\n";
             assert(false);
          }
-         cell.i = i;
-         cell.j = j;
-         cell.k = k;
          cell.entities[cell.count] = entity;
          cell.count++;
 

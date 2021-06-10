@@ -170,6 +170,7 @@ struct GlobalSceneInfo {
    Player* player;
    bool input_mode = false;
    string scene_name;
+   World* world;
 } G_SCENE_INFO;
 
 struct EntityBufferElement {
@@ -235,6 +236,7 @@ bool is_vec2_equal(vec2 vec1, vec2 vec2);
 bool save_configs_to_file();
 bool is_float_zero(float x);
 void toggle_program_modes(Player* player);
+void erase_entity(Scene* scene, Entity* entity);
 
 #include <loaders.h>
 #include <render.h>
@@ -301,6 +303,7 @@ int main()
    // Initializes World Cells
    World WORLD;
    WORLD.init();
+   G_SCENE_INFO.world = &WORLD;
 
    // loads initial scene
    load_scene_from_file(G_CONFIG.initial_scene, &WORLD);
@@ -825,4 +828,22 @@ inline
 bool is_float_zero(float x)
 {
    return abs(x) < 0.0001;
+}
+
+// Ideally this would be inside in Entities.h but we can't have it there
+// because compiler complains about not knowing enough about WorldCell.
+// The solution, I think, would be to have a cpp + header file for World.
+void erase_entity(Scene* scene, Entity* entity)
+{
+   // this will remove every entity ptr trace that 
+   // we can remember that we have to clean up
+
+   // remove from scene render list
+   auto& list = scene->entities;
+   int index = get_entity_position(scene, entity);
+   list.erase(list.begin() + index);
+
+   // remove from world cells
+   for(int i = 0; i < entity->world_cells_count; i++)
+      entity->world_cells[i]->remove(entity);
 }

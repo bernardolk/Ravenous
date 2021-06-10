@@ -111,8 +111,14 @@ void update()
    // respond to mouse if necessary
    if(Context.move_entity_with_mouse)
    {
-      if(Context.mouse_click) deselect_entity();
-      else                    move_entity_with_mouse(Context.last_selected_entity);
+      if(Context.mouse_click)
+      {
+         G_SCENE_INFO.world->update_entity_world_cells(Context.last_selected_entity);
+         G_SCENE_INFO.world->update_cells_in_use_list();
+         deselect_entity();
+      }
+      else
+         move_entity_with_mouse(Context.last_selected_entity);
    }
    Context.mouse_click = false;
 }
@@ -516,9 +522,6 @@ void render_event_triggers(Camera* camera)
       return;
       
    auto checkpoint = checkpoints[0];
-   // RenderOptions render_opts;
-   // render_opts.wireframe = true;
-
    auto find = Shader_Catalogue.find("color");
    auto shader = find->second;
 
@@ -539,45 +542,22 @@ void render_world_cells(Camera* camera)
 {
    auto& scene = G_SCENE_INFO.active_scene;
 
-   // get unique world cells references that are currently in use; 
-   vector<WorldCell*> cells;
-   Entity **entity_iterator = &(scene->entities[0]);
-   int entities_vec_size =  scene->entities.size();
-	for(int it = 0; it < entities_vec_size; it++) 
-   {
-	   auto entity = *entity_iterator++;
-      for(int c = 0; c < entity->world_cells_count; c++)
-      {
-         auto entity_wc = entity->world_cells[c];
-         bool exists = false;
-         for(int wc = 0; wc < cells.size(); wc++)
-         {
-            if(cells[wc] == entity_wc)
-            {
-               exists = true;
-               break;
-            }
-         }
-         if(exists) continue;
-         
-         cells.push_back(entity_wc);
-      }
-   }
-
-   // render
    auto shader = Shader_Catalogue.find("color")->second;
    auto cell_mesh = Geometry_Catalogue.find("world cell")->second;
    RenderOptions opts;
    opts.wireframe = true;
-   for(int i = 0; i < cells.size(); i++)
+   for(int i = 0; i < G_SCENE_INFO.world->cells_in_use_count; i++)
    {
-      // create model matrix
+      auto cell = G_SCENE_INFO.world->cells_in_use[i];
+
+      // creates model matrix
       vec3 position = get_world_coordinates_from_world_cell_coordinates(
-         cells[i]->i, cells[i]->j, cells[i]->k
+         cell->i, cell->j, cell->k
       );
       glm::mat4 model = translate(mat4identity, position);
 		model = glm::scale(model, vec3{WORLD_CELL_SIZE, WORLD_CELL_SIZE, WORLD_CELL_SIZE});
 
+      //render
       shader->use();
       shader->setFloat3("color", 0.27, 0.55, 0.65);
       shader->setFloat("opacity", 0.85);
@@ -586,7 +566,6 @@ void render_world_cells(Camera* camera)
       shader->setMatrix4("projection", camera->Projection4x4);
       render_mesh(cell_mesh, opts);
    }
-
 }
 
 }
