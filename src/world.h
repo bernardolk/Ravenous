@@ -57,6 +57,7 @@ struct WorldCell {
          {
             entities[i] = entity;
             count++;
+            return;
          }
    }
 
@@ -66,14 +67,29 @@ struct WorldCell {
       if(count == 0) 
          return;
 
+      // initialize holes array
       unsigned int hole_count = 0;
-      int holes[WORLD_CELL_CAPACITY] = {-1};
+      int holes[WORLD_CELL_CAPACITY];
+      for(int i = 0; i < WORLD_CELL_CAPACITY; i++)
+         holes[i] = -1;
+
+      // find holes and store in array
+      // also count how many items there are
+      int new_count = 0;
       for(int i = 0; i < count; i++)
       {
+         // we dont want to count the last empty spot as a hole
          if(entities[i] == nullptr)
-            holes[hole_count++] = i;
+         {
+            if(i + 1 != count)
+               holes[hole_count++] = i;
+         }
+         else 
+            new_count++;
       }
 
+      // loop through list from top to bottom and fill
+      // holes as it finds candidates to swap      
       int idx = count - 1; 
       int hole_idx = 0;
       while(true)
@@ -91,6 +107,7 @@ struct WorldCell {
          }
          idx--;
       }
+      count = new_count;
    }
 };
 
