@@ -143,41 +143,44 @@ void render_editor_entity(Entity* entity, Scene* scene, Camera* camera)
 
 void render_scene(Scene* scene, Camera* camera) 
 {
+   // set shader settings that are common to the scene
+   auto shader = Shader_Catalogue.find("model")->second;
+   shader->use();
+
+   int point_light_count = 0;
+   for (auto point_light_ptr = scene->pointLights.begin(); 
+      point_light_ptr != scene->pointLights.end(); 
+      point_light_ptr++)
+   {
+      PointLight point_light = *point_light_ptr;
+      string uniform_name = "pointLights[" + to_string(point_light_count) + "]";
+      shader->setFloat3(uniform_name + ".position",  point_light.position);
+      shader->setFloat3(uniform_name + ".diffuse",   point_light.diffuse);
+      shader->setFloat3(uniform_name + ".specular",  point_light.specular);
+      shader->setFloat3(uniform_name + ".ambient",   point_light.ambient);
+      shader->setFloat(uniform_name  + ".constant",  point_light.intensity_constant);
+      shader->setFloat(uniform_name  + ".linear",    point_light.intensity_linear);
+      shader->setFloat(uniform_name  + ".quadratic", point_light.intensity_quadratic);
+      point_light_count++;
+   }
+
+   shader->     setInt("num_directional_light", 0);
+   shader->     setInt("num_spot_lights",       0);
+   shader->     setInt("num_point_lights",    point_light_count);
+   shader-> setMatrix4("view",                camera->View4x4);
+   shader-> setMatrix4("projection",          camera->Projection4x4);
+   shader->   setFloat("shininess",           scene->global_shininess);
+   shader->  setFloat3("viewPos",             camera->Position);
+
 	Entity **entity_iterator = &(scene->entities[0]);
    int entities_vec_size =  scene->entities.size();
 	for(int it = 0; it < entities_vec_size; it++) 
    {
 	   auto entity = *entity_iterator++;
-
       if(!entity->render_me)
          continue;
 
-      // @todo: Everybody uses the same shader, do we need to set this every time?
-      entity->shader->use();
-      auto point_light_ptr = scene->pointLights.begin();
-      int point_light_count = 0;
-      for (point_light_ptr; point_light_ptr != scene->pointLights.end(); point_light_ptr++)
-      {
-         PointLight point_light = *point_light_ptr;
-         string uniform_name = "pointLights[" + to_string(point_light_count) + "]";
-         entity->shader->setFloat3(uniform_name + ".position",  point_light.position);
-         entity->shader->setFloat3(uniform_name + ".diffuse",   point_light.diffuse);
-         entity->shader->setFloat3(uniform_name + ".specular",  point_light.specular);
-         entity->shader->setFloat3(uniform_name + ".ambient",   point_light.ambient);
-         entity->shader->setFloat(uniform_name  + ".constant",  point_light.intensity_constant);
-         entity->shader->setFloat(uniform_name  + ".linear",    point_light.intensity_linear);
-         entity->shader->setFloat(uniform_name  + ".quadratic", point_light.intensity_quadratic);
-         point_light_count++;
-      }
-      entity->shader->     setInt("num_directional_light", 0);
-      entity->shader->     setInt("num_spot_lights",       0);
-      entity->shader->     setInt("num_point_lights",    point_light_count);
-      entity->shader-> setMatrix4("view",                camera->View4x4);
-      entity->shader-> setMatrix4("projection",          camera->Projection4x4);
-      entity->shader->   setFloat("shininess",           scene->global_shininess);
-      entity->shader->  setFloat3("viewPos",             camera->Position);
-      entity->shader-> setMatrix4("model",               entity->matModel);
-
+      entity->shader-> setMatrix4("model", entity->matModel);
       render_entity(entity);
 	}
 }
@@ -191,8 +194,7 @@ void render_game_gui(Player* player)
 
 void render_immediate(GlobalImmediateDraw* im, Camera* camera)
 {
-   auto find = Shader_Catalogue.find("immediate_point");
-   auto shader = find->second;
+   auto shader = Shader_Catalogue.find("immediate_point")->second;
    for(int i = 0; i < im->ind; i++)
    {
       auto mesh = im->meshes[i];
