@@ -180,7 +180,7 @@ struct EntityBufferElement {
 
 struct EntityBuffer {
    EntityBufferElement* buffer;
-   size_t size;
+   int size;
 };
 
 struct RenderMessageBufferElement {
@@ -265,7 +265,7 @@ void create_boilerplate_geometry();
 GLenum glCheckError_(const char* file, int line);
 EntityBuffer* allocate_entity_buffer(size_t size);
 RenderMessageBuffer* allocate_render_message_buffer(size_t size);
-void update_buffers();
+void update_buffers(Player* player, bool changed_cells);
 void start_frame();
 ProgramConfig load_configs();
 void check_all_entities_have_shaders();
@@ -310,13 +310,11 @@ int main()
    Player* player = G_SCENE_INFO.player;
 
    // Allocate buffers
-   EntityBuffer* entity_buffer = allocate_entity_buffer(300);
+   EntityBuffer* entity_buffer = allocate_entity_buffer(WORLD_CELL_CAPACITY * 8);
    G_BUFFERS.entity_buffer = entity_buffer;
    RenderMessageBuffer* render_message_buffer = allocate_render_message_buffer(10);
    G_BUFFERS.rm_buffer = render_message_buffer;
    initialize_console_buffers();
-
-
 
    Editor::initialize();
 
@@ -351,7 +349,8 @@ int main()
 
 		//	UPDATE PHASE
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player);
-      update_buffers();
+      bool changed_cell = WORLD.update_entity_world_cells(player->entity_ptr);
+      update_buffers(player, changed_cell);
       update_player_state(player, &WORLD);
 		update_scene_objects();
 
@@ -436,22 +435,37 @@ RenderMessageBuffer* allocate_render_message_buffer(size_t size)
    return rm_buffer;
 }
 
-void update_buffers()
+void update_buffers(Player* player, bool changed_cells)
 {
    // UPDATE COLLISION DETECTION ENTITY BUFFER
    {
-      // copies from active_scene entity list, all entity pointers to a buffer with metadata about the collision check for the entity
-      Entity** entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
-      size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();            
-
-      EntityBufferElement* entity_buf_iter = G_BUFFERS.entity_buffer->buffer;       
-      // ASSUMES that entity_list_size is ALWAYS smaller then the EntityBuffer->size    
-      for(int i = 0; i < entity_list_size; i++) 
+      // copies collision-check-relevant entity ptrs to a buffer
+      // with metadata about the collision check for the entity
+      auto buffer = G_BUFFERS.entity_buffer->buffer;     
+      if(changed_cells)
       {
-         entity_buf_iter->entity = *entity_iterator;
-         entity_buf_iter->collision_check = false;
-         entity_buf_iter++; 
-         entity_iterator++;
+         int new_size = 0;
+         for(int i = 0; i < player->entity_ptr->world_cells_count; i++)
+         {
+            auto cell = player->entity_ptr->world_cells[i];
+            for(int j = 0; j < cell->count; j++)
+            {
+               auto entity = cell->entities[j];
+               buffer->entity = entity;
+               buffer->collision_check = false;
+               buffer++;
+               new_size++;
+            }
+         }
+         G_BUFFERS.entity_buffer->size = new_size;
+      }
+      else
+      {
+         for(int i = 0; i < G_BUFFERS.entity_buffer->size; i++)
+         {
+            buffer->collision_check = false;
+            buffer++;
+         }
       }
    }
 

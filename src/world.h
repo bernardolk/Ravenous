@@ -220,7 +220,7 @@ struct World {
       }
    }
 
-   void update_entity_world_cells(Entity* entity)
+   bool update_entity_world_cells(Entity* entity)
    {
       // computes the new cells
       auto [x0, x1, z0, z1] = entity->get_rect_bounds();
@@ -295,6 +295,8 @@ struct World {
          new_cells_count++;
       }
       entity->world_cells_count = new_cells_count;
+
+      return cells_to_add_to.size() > 0 || cells_to_remove_from.size() > 0;
    }
 };
 

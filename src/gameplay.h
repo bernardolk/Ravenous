@@ -1,8 +1,8 @@
 void handle_common_input(InputFlags flags, Player* &player);
 void update_player_state(Player* &player, World* world);
 void make_player_slide(Player* player, Entity* ramp, bool slide_fall = false);
-void run_collision_checks_standing(Player* player, size_t entity_list_size);
-void run_collision_checks_falling(Player* player, size_t entity_list_size);
+void run_collision_checks_standing(Player* player);
+void run_collision_checks_falling(Player* player);
 void player_death_handler(Player* &player);
 void game_handle_input(InputFlags flags, Player* &player);
 void reset_input_flags(InputFlags flags);
@@ -15,8 +15,6 @@ void check_trigger_interaction(Player* player);
 void update_player_state(Player* &player, World* world)
 {
    Entity* &player_entity = player->entity_ptr;
-
-   world->update_entity_world_cells(player_entity);
 
    if(player->lives <= 0)
    {
@@ -35,8 +33,7 @@ void update_player_state(Player* &player, World* world)
          player->entity_ptr->velocity.y -= G_FRAME_INFO.duration * player->fall_acceleration * G_FRAME_INFO.time_step;
 
          // test collision with every object in scene entities vector
-         size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
-         run_collision_checks_falling(player, entity_list_size);
+         run_collision_checks_falling(player);
          break;
       }
       case PLAYER_STATE_STANDING:
@@ -50,7 +47,7 @@ void update_player_state(Player* &player, World* world)
 
          // step 3: resolve possible collisions then do step 2 again
          // check for collisions with scene BUT with floor
-         run_collision_checks_standing(player, G_SCENE_INFO.active_scene->entities.size());
+         run_collision_checks_standing(player);
 
          terrain = get_terrain_height_at_player(player_entity, player->standing_entity_ptr);
          player->entity_ptr->position.y = terrain.overlap + player->half_height;
@@ -87,8 +84,7 @@ void update_player_state(Player* &player, World* world)
          }
 
          // test collision with every object in scene entities vector
-         size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
-         run_collision_checks_falling(player, entity_list_size);
+         run_collision_checks_falling(player);
          break;
       }
       case PLAYER_STATE_SLIDING:
@@ -110,8 +106,7 @@ void update_player_state(Player* &player, World* world)
          }
 
          // check for collisions with scene BUT with floor
-         size_t entity_list_size = G_SCENE_INFO.active_scene->entities.size();
-         run_collision_checks_standing(player, entity_list_size);
+         run_collision_checks_standing(player);
 
          // if player is still standing after collision resolutions, correct player height, else, make fall
          auto terrain_collision = get_terrain_height_at_player(player_entity, player->standing_entity_ptr);
@@ -231,20 +226,56 @@ void check_for_floor_transitions(Player* player)
 // SCENE COLLISION CONTROLLER FUNCTIONS - ITERATIVE MULTI-CHECK COLLISION DETECTION 
 // ________________________________________________________________________________
 
-void run_collision_checks_standing(Player* player, size_t entity_list_size)
+void run_collision_checks_standing(Player* player)
 {
    auto entity_buffer = G_BUFFERS.entity_buffer;
-   bool end_collision_checks = false;
-   while(!end_collision_checks)
+   while(true)
    {
-      auto entity_buf_iter = entity_buffer->buffer;  // places pointer back to start
-      CollisionData collision_data = check_collision_horizontal(player, entity_buf_iter, entity_list_size);
+      auto buffer = entity_buffer->buffer;  // places pointer back to start
+      CollisionData collision_data = check_collision_horizontal(player, buffer, entity_buffer->size);
       if(collision_data.collided_entity_ptr != NULL)
       {
          mark_entity_checked(collision_data.collided_entity_ptr);
          resolve_collision(collision_data, player);
       }
-      else end_collision_checks = true;
+      else break;
+   }
+}
+
+void run_collision_checks_falling(Player* player)
+{
+   // Here, we will check first for vertical intersections to see if player needs to be teleported 
+   // to the top of the entity it has collided with. 
+   // If so, we deal with it on the spot (teleports player) and then keep checking for other collisions
+   // to be resolved once thats done. Horizontal checks come after vertical collisions because players 
+   // shouldnt loose the chance to make their jump because we are preventing them from getting stuck first.
+
+   auto entity_buffer = G_BUFFERS.entity_buffer;  
+   while(true)
+   {
+      bool any_collision = false;
+      // CHECKS VERTICAL COLLISIONS
+      {
+         auto buffer = entity_buffer->buffer;  // places pointer back to start
+         auto v_collision_data = check_collision_vertical(player, buffer, entity_buffer->size);
+         if(v_collision_data.collided_entity_ptr != NULL)
+         {
+            any_collision = true;
+            mark_entity_checked(v_collision_data.collided_entity_ptr);
+            resolve_collision(v_collision_data, player);
+         }
+
+         buffer = entity_buffer->buffer;  // places pointer back to start
+         auto h_collision_data = check_collision_horizontal(player, buffer, entity_buffer->size);
+         if(h_collision_data.collided_entity_ptr != NULL)
+         {
+            any_collision = true;
+            mark_entity_checked(h_collision_data.collided_entity_ptr);
+            resolve_collision(h_collision_data, player);
+         }
+
+         if(!any_collision) break;
+      }
    }
 }
 
@@ -382,43 +413,6 @@ void resolve_collision(CollisionData collision, Player* player)
 
    // hurts player if necessary
    if(trigger_check_was_player_hurt) player->maybe_hurt_from_fall();
-}
-
-void run_collision_checks_falling(Player* player, size_t entity_list_size)
-{
-   // Here, we will check first for vertical intersections to see if player needs to be teleported 
-   // to the top of the entity it has collided with. 
-   // If so, we deal with it on the spot (teleports player) and then keep checking for other collisions
-   // to be resolved once thats done. Horizontal checks come after vertical collisions because players 
-   // shouldnt loose the chance to make their jump because we are preventing them from getting stuck first.
-
-   auto entity_buffer = G_BUFFERS.entity_buffer;  
-   while(true)
-   {
-      bool any_collision = false;
-      // CHECKS VERTICAL COLLISIONS
-      {
-         auto entity_iter = entity_buffer->buffer;  // places pointer back to start
-         auto v_collision_data = check_collision_vertical(player, entity_iter, entity_list_size);
-         if(v_collision_data.collided_entity_ptr != NULL)
-         {
-            any_collision = true;
-            mark_entity_checked(v_collision_data.collided_entity_ptr);
-            resolve_collision(v_collision_data, player);
-         }
-
-         entity_iter = entity_buffer->buffer;  // places pointer back to start
-         auto h_collision_data = check_collision_horizontal(player, entity_iter, entity_list_size);
-         if(h_collision_data.collided_entity_ptr != NULL)
-         {
-            any_collision = true;
-            mark_entity_checked(h_collision_data.collided_entity_ptr);
-            resolve_collision(h_collision_data, player);
-         }
-
-         if(!any_collision) break;
-      }
-   }
 }
 
 void make_player_slide(Player* player, Entity* ramp, bool slide_fall)

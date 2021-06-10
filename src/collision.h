@@ -56,9 +56,9 @@ CollisionData get_terrain_height_at_player(Entity* player, Entity* entity);
 RaycastTest check_for_floor_below_player(Player* player);
 bool player_feet_center_touches_slope(Player* player, Entity* slope);
 CollisionData check_collision_horizontal(
-      Player* player, EntityBufferElement* entity_iterator, size_t entity_list_size
+      Player* player, EntityBufferElement* entity_iterator, int entity_list_size
 ); 
-CollisionData check_collision_vertical(Player* player, EntityBufferElement* entity_iterator, size_t entity_list_size);
+CollisionData check_collision_vertical(Player* player, EntityBufferElement* entity_iterator, int entity_list_size);
 bool check_event_trigger_collision(Entity* trigger, Entity* player);
 
 
@@ -345,27 +345,7 @@ RaycastTest check_for_floor_below_player(Player* player)
       return RaycastTest{false};
 }
 
-//@todo: rename: it is for any entity actually not just slopes
-// bool player_feet_center_touches_slope(Player* player, Entity* slope)
-// {
-//    // cast ray upwards
-//    float tunneling_tolerance = 0.002;
-//    auto upward_ray = Ray{player->feet() - vec3{0.0f, tunneling_tolerance, 0.0f}, vec3{0.0f, 1.0f, 0.0f}};
-//    RaycastTest raytest = test_ray_against_entity(upward_ray, slope);
-
-//    float detection_tolerance = tunneling_tolerance *= 2;
-//    // // because slopes are inclined, if we dont allow more tolerance in detection we will trigger a fall
-//    // if(raytest.entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
-//    //    detection_tolerance *= 2;
-
-//    if(raytest.hit && raytest.distance < detection_tolerance)
-//    {
-//       return true;
-//    }
-//    else return false;
-// }
-
-CollisionData check_collision_horizontal(Player* player, EntityBufferElement* entity_iterator, size_t entity_list_size) 
+CollisionData check_collision_horizontal(Player* player, EntityBufferElement* entity_iterator, int entity_list_size) 
 {
    CollisionData return_cd; 
    // this serves only to enable us to check for standing_entity_ptr, otherwise its NULL and we get an exception
@@ -468,7 +448,7 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
 }
 
 
-CollisionData check_collision_vertical(Player* player, EntityBufferElement* entity_iterator, size_t entity_list_size)
+CollisionData check_collision_vertical(Player* player, EntityBufferElement* entity_iterator, int entity_list_size)
 {
    CollisionData return_cd; 
    for (int i = 0; i < entity_list_size; i++)
