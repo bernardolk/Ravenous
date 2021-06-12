@@ -150,6 +150,7 @@ void render_entity_panel(EntityPanelContext* panel)
       if(ImGui::Button("Duplicate", ImVec2(82,18)))
       {
          duplicated = true;
+         // entity manager logic
          auto new_entity = copy_entity(entity);
          new_entity->name += " copy";
          bool already_exists = get_entity_position(G_SCENE_INFO.active_scene, new_entity) > -1;
@@ -216,7 +217,7 @@ void render_entity_control_arrows(EntityPanelContext* panel)
 
 void set_entity_panel(Entity* entity)
 {
-   Context.last_selected_entity = entity;
+   Context.selected_entity = entity;
 
    auto &undo     = Context.original_entity_state;
    undo.position  = entity->position;

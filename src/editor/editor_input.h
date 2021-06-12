@@ -6,7 +6,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
          undo_entity_panel_changes();
       else if (Context.snap_mode == true)
          undo_snap();
-      else if(Context.last_selected_entity != nullptr)
+      else if(Context.selected_entity != nullptr)
          undo_selected_entity_move_changes();
    }
 

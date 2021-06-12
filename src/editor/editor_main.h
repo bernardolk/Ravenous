@@ -11,6 +11,8 @@ const static float TRIAXIS_SCREENPOS_Y = -1.75;
 struct PalettePanelContext {
    bool active = false;
    unsigned int textures[15];
+   Entity* entity_palette[15];
+   unsigned int count = 0;
 };
 
 struct EntityPanelContext {
@@ -44,9 +46,10 @@ struct EditorContext {
    WorldPanelContext world_panel;
    PalettePanelContext palette_panel;
 
+   // move entity controls
    bool move_entity_with_mouse = false;
    bool mouse_click = false;
-   Entity* last_selected_entity = nullptr;
+   Entity* selected_entity = nullptr;
    EntityState original_entity_state;
 
    // toolbar
@@ -121,13 +124,14 @@ void update()
    {
       if(Context.mouse_click)
       {
-         G_SCENE_INFO.world->update_entity_world_cells(Context.last_selected_entity);
+         G_SCENE_INFO.world->update_entity_world_cells(Context.selected_entity);
          G_SCENE_INFO.world->update_cells_in_use_list();
          deselect_entity();
       }
-      else
-         move_entity_with_mouse(Context.last_selected_entity);
+      else move_entity_with_mouse(Context.selected_entity);
    }
+
+   // resets mouse click event
    Context.mouse_click = false;
 }
 
@@ -376,6 +380,9 @@ void initialize()
    auto& palette = Context.palette_panel;
    palette.textures[0] = load_texture_from_file("box.png", EDITOR_ASSETS);
    palette.textures[1] = load_texture_from_file("slope.png", EDITOR_ASSETS);
+
+   // creates palette entities
+   initialize_palette(&palette);
 }
 
 void render_text_overlay(Player* player)

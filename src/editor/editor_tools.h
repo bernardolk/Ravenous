@@ -131,7 +131,7 @@ void check_selection_to_move_entity()
 void select_entity_to_move_with_mouse(Entity* entity)
 {
    Context.move_entity_with_mouse = true;
-   Context.last_selected_entity = entity;
+   Context.selected_entity = entity;
    Context.original_entity_state.position = entity->position;
    Context.original_entity_state.rotation = entity->rotation;
    Context.original_entity_state.scale    = entity->scale;
@@ -142,40 +142,36 @@ void move_entity_with_mouse(Entity* entity)
    Ray ray = cast_pickray();
    float distance = 0;
 
+   // creates a big plane for placing entity in the world with the mouse
    auto t1 = Triangle{
-      vec3{entity->position.x - 50, entity->position.y, entity->position.z - 50},
-      vec3{entity->position.x + 50, entity->position.y, entity->position.z - 50},
-      vec3{entity->position.x + 50, entity->position.y, entity->position.z + 50}
+      vec3{entity->position.x - 500, entity->position.y, entity->position.z - 500},
+      vec3{entity->position.x + 500, entity->position.y, entity->position.z - 500},
+      vec3{entity->position.x + 500, entity->position.y, entity->position.z + 500}
    };
 
    RaycastTest test1 = test_ray_against_triangle(ray, t1);
-   if(test1.hit)
-      distance = test1.distance;
+   if(test1.hit) distance = test1.distance;
 
    auto t2 = Triangle{
-      vec3{entity->position.x - 50, entity->position.y, entity->position.z - 50},
-      vec3{entity->position.x - 50, entity->position.y, entity->position.z + 50},
-      vec3{entity->position.x + 50, entity->position.y, entity->position.z + 50}
+      vec3{entity->position.x - 500, entity->position.y, entity->position.z - 500},
+      vec3{entity->position.x - 500, entity->position.y, entity->position.z + 500},
+      vec3{entity->position.x + 500, entity->position.y, entity->position.z + 500}
    };
 
    RaycastTest test2 = test_ray_against_triangle(ray, t2);
-   if(test2.hit)
-      distance = test2.distance;
+   if(test2.hit) distance = test2.distance;
 
    if(distance != 0)
    {
       entity->position.x = ray.origin.x + ray.direction.x * distance;
       entity->position.z = ray.origin.z + ray.direction.z * distance;
    }
-   else
-   {
-      cout << "warning: can't find plane to place entity!\n";
-   }
+   else cout << "warning: can't find plane to place entity!\n";
 }
 
 void undo_selected_entity_move_changes()
 {
-   auto entity       = Context.last_selected_entity;
+   auto entity       = Context.selected_entity;
    entity->position  = Context.original_entity_state.position;
    entity->scale     = Context.original_entity_state.scale;
    entity->rotate_y(Context.original_entity_state.rotation.y - entity->rotation.y);
