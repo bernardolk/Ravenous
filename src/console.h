@@ -1,4 +1,5 @@
-void handle_console_input(InputFlags flags, Player* &player, World* world);
+void handle_console_input(InputFlags flags, Player* &player, World* world, Camera* camera);
+void execute_command(string buffer_line, Player* &player, World* world, Camera* camera);
 void check_letter_key_presses(InputFlags flags);
 void clear_console_string_buffer();
 void render_console();
@@ -10,7 +11,7 @@ string commit_buffer();
 void initialize_console_buffers();
 void copy_buffer_to_scratch_buffer();
 void clear_scratch_buffer();
-void execute_command(string buffer_line, Player* &player, World* world);
+
 
 
 struct GlobalConsoleState {
@@ -141,7 +142,7 @@ void clear_scratch_buffer()
    CONSOLE.c_ind = 0;
 }
 
-void execute_command(string buffer_line, Player* &player, World* world)
+void execute_command(string buffer_line, Player* &player, World* world, Camera* camera)
 {
    Parser::Parse p {buffer_line.c_str(), 50};
    p = parse_token(p);
@@ -206,8 +207,7 @@ void execute_command(string buffer_line, Player* &player, World* world)
             G_SCENE_INFO.camera->Front
          );
       }
-      else
-         cout << "You can set 'scene' or 'cam' dude. " << command << " won't work.\n";
+      else cout << "you can set 'scene', 'cam' or 'all'. dude. " << command << " won't work.\n";
    }
    else if(command == "reload")
    {
@@ -217,12 +217,30 @@ void execute_command(string buffer_line, Player* &player, World* world)
          player->entity_ptr->render_me = PROGRAM_MODE.last == EDITOR_MODE ? true : false;
       }
    }
-   else
-      cout << "what do you mean with " << command << " man?\n";
-   
+   else if(command == "lives")
+   {
+      player->restore_health();
+   }
+   else if(command == "move")
+   {
+      p = parse_whitespace(p);
+      p = parse_token(p);
+      const string argument = p.string_buffer;
+      if(argument == "cam")
+      {
+         p = parse_float_vector(p);
+         camera->Position.x = p.vec3[0];
+         camera->Position.y = p.vec3[1];
+         camera->Position.z = p.vec3[2];
+      }
+      else cout << "you can move cam only at the moment dude. I don't know what '" 
+         << command << " " << argument << "' means man.\n";
+      
+   }
+   else cout << "what do you mean with " << command << " man?\n";
 }
 
-void handle_console_input(InputFlags flags, Player* &player, World* world)
+void handle_console_input(InputFlags flags, Player* &player, World* world, Camera* camera)
 {
    if(pressed_once(flags, KEY_ENTER))
    {
@@ -233,7 +251,7 @@ void handle_console_input(InputFlags flags, Player* &player, World* world)
          return;
       }
       auto buffer_line = commit_buffer();
-      execute_command(buffer_line, player, world);
+      execute_command(buffer_line, player, world, camera);
       quit_console_mode();
    }
 

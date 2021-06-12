@@ -61,4 +61,9 @@ struct Player {
       }
       return false;
    }
+
+   void restore_health()
+   {
+      lives = initial_lives;
+   }
 };
