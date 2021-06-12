@@ -130,12 +130,12 @@ void render_editor_entity(Entity* entity, Scene* scene, Camera* camera)
 {
    entity->shader->use();
    // important that the gizmo dont have a position set.
-   entity->shader->setMatrix4("model",       entity->matModel);
-   entity->shader-> setMatrix4("view",       camera->View4x4);
-   entity->shader-> setMatrix4("projection", camera->Projection4x4);
-   entity->shader->  setFloat3("viewPos",    camera->Position);
-   entity->shader->   setFloat("shininess",  scene->global_shininess);
-   entity->shader-> setMatrix4("model",      entity->matModel);
+   entity->shader->setMatrix4("model", entity->matModel);
+   entity->shader->setMatrix4("view", camera->View4x4);
+   entity->shader->setMatrix4("projection", camera->Projection4x4);
+   entity->shader->setFloat3("viewPos", camera->Position);
+   entity->shader->setFloat("shininess", scene->global_shininess);
+   entity->shader->setMatrix4("model", entity->matModel);
 
    render_entity(entity);
 }
