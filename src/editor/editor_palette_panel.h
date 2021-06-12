@@ -13,8 +13,7 @@ void render_palette_panel(PalettePanelContext* panel)
       if(ImGui::ImageButton((void*)(intptr_t)panel->textures[i], ImVec2(64,64)))
       {
          auto ref_entity = panel->entity_palette[i];
-         auto new_entity = copy_entity(ref_entity);
-         G_SCENE_INFO.active_scene->entities.push_back(new_entity);
+         auto new_entity = Entity_Manager.copy_entity(ref_entity);
          select_entity_to_move_with_mouse(new_entity);
       }
    }

@@ -1,4 +1,4 @@
-bool load_scene_from_file(std::string scene_name, World* world);
+bool load_scene_from_file(std::string scene_name, WorldStruct* world);
 Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, std::string path);
 void parse_and_load_player_attribute(Parser::Parse p, ifstream* reader, int& line_count, std::string path, Player* player);
 void setup_scene_boilerplate_stuff();
@@ -170,7 +170,7 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
    return true;
 }
 
-bool load_scene_from_file(std::string scene_name, World* world)
+bool load_scene_from_file(std::string scene_name, WorldStruct* world)
 {
    string path = SCENES_FOLDER_PATH + scene_name + ".txt";
    ifstream reader(path);
@@ -189,6 +189,7 @@ bool load_scene_from_file(std::string scene_name, World* world)
    // creates new scene
    auto scene = new Scene();
    G_SCENE_INFO.active_scene = scene;
+   Entity_Manager.set_entity_registry(&G_SCENE_INFO.active_scene->entities);
 
    // creates player
    auto player_entity = create_player_entity();
@@ -226,9 +227,7 @@ bool load_scene_from_file(std::string scene_name, World* world)
             G_SCENE_INFO.active_scene->checkpoints.push_back(new_entity);
          }
 
-         G_SCENE_INFO.active_scene->entities.push_back(new_entity);
-
-         world->assign_entity_to_world_cells(new_entity);
+         world->update_entity_world_cells(new_entity);
       }
       else if(p.cToken == '@')
       {
@@ -305,8 +304,7 @@ Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count
    std::string line;
    bool is_collision_parsed = false;
 
-   //@todo: this should be replaced by our custom allocator
-   Entity* new_entity = new Entity();
+   auto new_entity = Entity_Manager.create_entity();
    p = parse_name(p);
    new_entity->name = p.string_buffer;
 
@@ -571,7 +569,7 @@ Entity* create_player_entity()
    auto find_cylinder = Geometry_Catalogue.find("player_cylinder");
    auto cylinder_mesh = find_cylinder->second;
 
-   auto cylinder = new Entity();
+   auto cylinder = Entity_Manager.create_entity();
    cylinder->name             = "Player";
    cylinder->shader           = model_shader;
    cylinder->textures         = std::vector<Texture>{*cylinder_texture};

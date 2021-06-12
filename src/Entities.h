@@ -3,10 +3,6 @@
 // forward declarations
 struct WorldCell;
 
-struct GlobalEntityInfo {
-   u32 entity_counter = 0;
-};
-
 enum CollisionGeometryEnum {
    COLLISION_ALIGNED_CYLINDER,
    COLLISION_ALIGNED_BOX,
@@ -45,6 +41,7 @@ enum EntityTypeEnum {
 const static size_t ENTITY_WOLRD_CELL_OCCUPATION_LIMIT = 16;
 
 struct Entity {
+   unsigned int id;
    string name = "NONAME";
    EntityTypeEnum type = STATIC;
 
@@ -255,28 +252,33 @@ struct Scene {
 	std::vector<PointLight> pointLights;
    std::vector<Entity*> checkpoints;
    float global_shininess = 32.0f;
+
+   bool search_name(string name)
+   {
+      for(int i = 0; i < entities.size() ; i++)
+         if(entities[i]->name == name)
+            return true;
+      return false;
+   }
+
+   int entity_index(Entity* entity)
+   {
+      for(int i = 0; i < entities.size() ; i++)
+         if(entities[i]->name == entity->name)
+            return i;
+      return -1;
+   }
+
+   Entity* find_entity(std::string name) 
+   {
+      for(int i = 0; i < entities.size() ; i++)
+         if(entities[i]->name == name)
+            return entities[i];
+      return NULL;
+   }
 };
 
 
-Entity* find_entity_in_scene(Scene* scene, std::string name) 
-{
-   for(int i = 0; i < scene->entities.size() ; i++)
-      if(scene->entities[i]->name == name)
-         return scene->entities[i];
-   return NULL;
-}
 
-Entity* copy_entity(Entity* entity)
-{
-   auto entity_2 = new Entity();
-   *entity_2 = *entity;
-   return entity_2;
-}
 
-int get_entity_position(Scene* scene, Entity* entity)
-{
-   for(int i = 0; i < scene->entities.size() ; i++)
-      if(scene->entities[i]->name == entity->name)
-         return i;
-   return -1;
-}
+

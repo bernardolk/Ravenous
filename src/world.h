@@ -152,12 +152,12 @@ auto get_world_cells_coords_from_world_coords(float x, float y, float z)
 // WORLD
 // ------
 
-struct World {
+struct WorldStruct {
    WorldCell cells[WORLD_CELLS_X][WORLD_CELLS_Y][WORLD_CELLS_Z];
    WorldCell* cells_in_use[WORLD_CELLS_X * WORLD_CELLS_Y * WORLD_CELLS_Z];
    int cells_in_use_count = 0;
 
-   void init()
+   WorldStruct()
    {
       for(int i = 0; i < WORLD_CELLS_X; i++)
       for(int j = 0; j < WORLD_CELLS_Y; j++)
@@ -181,45 +181,6 @@ struct World {
       }
    }
 
-   void assign_entity_to_world_cells(Entity* entity)
-   {
-      auto [x0, x1, z0, z1] = entity->get_rect_bounds();
-      float height = entity->get_height();
-
-      auto [i0, j0, k0] = get_world_cells_coords_from_world_coords(x0, entity->position.y, z0);
-      auto [i1, j1, k1] = get_world_cells_coords_from_world_coords(x1, entity->position.y + height, z1);
-
-      int cell_count = 1;
-      for(int i = i0; i <= i1; i++)
-      for(int j = j0; j <= j1; j++)
-      for(int k = k0; k <= k1; k++)
-      {
-         // check if entity is too large
-         if(cell_count > ENTITY_WOLRD_CELL_OCCUPATION_LIMIT)
-         {
-            cout << "FATAL: Entity '" << entity->name << "' is too large and it occupies more than "
-               << "the limit of " << ENTITY_WOLRD_CELL_OCCUPATION_LIMIT << " world cells at a time.\n";
-            assert(false);
-         }
-
-
-         // update cell situation
-         auto& cell = cells[i][j][k];
-         if(cell.count + 1 > WORLD_CELL_CAPACITY)
-         {
-            cout << "FATAL: Too many entities inside world cell [" << i << "," << j << "," << k << "]. Aborting.\n";
-            assert(false);
-         }
-         cell.entities[cell.count] = entity;
-         cell.count++;
-
-         // assign cell to entity
-         entity->world_cells[cell_count - 1] = &cells[i][j][k];
-         entity->world_cells_count = cell_count;
-         cell_count++;
-      }
-   }
-
    bool update_entity_world_cells(Entity* entity)
    {
       // computes the new cells
@@ -234,6 +195,13 @@ struct World {
       for(int j = j0; j <= j1; j++)
       for(int k = k0; k <= k1; k++)
          new_cells.push_back(&cells[i][j][k]);
+
+      if(new_cells.size() > ENTITY_WOLRD_CELL_OCCUPATION_LIMIT)
+      {
+         cout << "FATAL: Entity '" << entity->name << "' is too large and it occupies more than "
+            << "the limit of " << ENTITY_WOLRD_CELL_OCCUPATION_LIMIT << " world cells at a time.\n";
+         assert(false);
+      }
 
       // checks the diff between new and old and stores the ones that are no longer
       // entities world cells

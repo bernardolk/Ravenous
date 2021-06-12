@@ -1,5 +1,5 @@
-void handle_console_input(InputFlags flags, Player* &player, World* world, Camera* camera);
-void execute_command(string buffer_line, Player* &player, World* world, Camera* camera);
+void handle_console_input(InputFlags flags, Player* &player, WorldStruct* world, Camera* camera);
+void execute_command(string buffer_line, Player* &player, WorldStruct* world, Camera* camera);
 void check_letter_key_presses(InputFlags flags);
 void clear_console_string_buffer();
 void render_console();
@@ -142,7 +142,7 @@ void clear_scratch_buffer()
    CONSOLE.c_ind = 0;
 }
 
-void execute_command(string buffer_line, Player* &player, World* world, Camera* camera)
+void execute_command(string buffer_line, Player* &player, WorldStruct* world, Camera* camera)
 {
    Parser::Parse p {buffer_line.c_str(), 50};
    p = parse_token(p);
@@ -240,7 +240,7 @@ void execute_command(string buffer_line, Player* &player, World* world, Camera* 
    else cout << "what do you mean with " << command << " man?\n";
 }
 
-void handle_console_input(InputFlags flags, Player* &player, World* world, Camera* camera)
+void handle_console_input(InputFlags flags, Player* &player, WorldStruct* world, Camera* camera)
 {
    if(pressed_once(flags, KEY_ENTER))
    {

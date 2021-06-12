@@ -80,7 +80,7 @@ void initialize();
 void start_frame();
 void update();
 void update_editor_entities();
-void render(Player* player, World* world);
+void render(Player* player, WorldStruct* world);
 void render_text_overlay(Player* player);
 void render_toolbar();
 void render_event_triggers(Camera* camera);
@@ -124,8 +124,8 @@ void update()
    {
       if(Context.mouse_click)
       {
-         G_SCENE_INFO.world->update_entity_world_cells(Context.selected_entity);
-         G_SCENE_INFO.world->update_cells_in_use_list();
+         World.update_entity_world_cells(Context.selected_entity);
+         World.update_cells_in_use_list();
          deselect_entity();
       }
       else move_entity_with_mouse(Context.selected_entity);
@@ -149,7 +149,7 @@ void update_editor_entities()
    }
 }
 
-void render(Player* player, World* world)
+void render(Player* player, WorldStruct* world)
 {
    // render triaxis
    auto triaxis_view = glm::lookAt(vec3(0.0f), G_SCENE_INFO.camera->Front, -1.0f * G_SCENE_INFO.camera->Up);
@@ -228,7 +228,7 @@ void render_toolbar()
       Context.palette_panel.active = true;
    }
 
-   if(ImGui::Button("Open World Panel", ImVec2(120,18)))
+   if(ImGui::Button("Open WorldStruct Panel", ImVec2(120,18)))
    {
       Context.world_panel.active = true;
    }
@@ -250,7 +250,7 @@ void render_toolbar()
    
    ImGui::NewLine();
    ImGui::Checkbox("Show Event Triggers", &Context.show_event_triggers);
-   ImGui::Checkbox("Show World Cells", &Context.show_world_cells);
+   ImGui::Checkbox("Show WorldStruct Cells", &Context.show_world_cells);
 
    ImGui::End();
 }
@@ -571,9 +571,9 @@ void render_world_cells(Camera* camera)
    auto cell_mesh = Geometry_Catalogue.find("world cell")->second;
    RenderOptions opts;
    opts.wireframe = true;
-   for(int i = 0; i < G_SCENE_INFO.world->cells_in_use_count; i++)
+   for(int i = 0; i < World.cells_in_use_count; i++)
    {
-      auto cell = G_SCENE_INFO.world->cells_in_use[i];
+      auto cell = World.cells_in_use[i];
 
       // creates model matrix
       vec3 position = get_world_coordinates_from_world_cell_coordinates(

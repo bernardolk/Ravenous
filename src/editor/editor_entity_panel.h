@@ -151,11 +151,7 @@ void render_entity_panel(EntityPanelContext* panel)
       {
          duplicated = true;
          // entity manager logic
-         auto new_entity = copy_entity(entity);
-         new_entity->name += " copy";
-         bool already_exists = get_entity_position(G_SCENE_INFO.active_scene, new_entity) > -1;
-         if(already_exists) new_entity->name += "(1)";
-         G_SCENE_INFO.active_scene->entities.push_back(new_entity);
+         auto new_entity = Entity_Manager.copy_entity(entity);
          select_entity_to_move_with_mouse(new_entity);
          set_entity_panel(new_entity);
       }
@@ -163,7 +159,7 @@ void render_entity_panel(EntityPanelContext* panel)
       if(ImGui::Button("Erase", ImVec2(82,18)))
       {
          erased = true;
-         erase_entity(G_SCENE_INFO.active_scene, entity);
+         Entity_Manager.mark_for_deletion(entity);
          Context.entity_panel.active = false;
       }
 
@@ -175,16 +171,8 @@ void render_entity_panel(EntityPanelContext* panel)
       Context.snap_mode = false;
       Context.measure_mode = false;
       entity->update_collision_geometry();
-      G_SCENE_INFO.world->update_entity_world_cells(entity);
-      G_SCENE_INFO.world->update_cells_in_use_list();
-   }
-
-   if(erased)
-   {
-      //@todo: maybe here we need to mark it 
-      // for deletion and delete at the end 
-      // of the frame...  :o
-      delete entity;
+      World.update_entity_world_cells(entity);
+      World.update_cells_in_use_list();
    }
 
    ImGui::End();

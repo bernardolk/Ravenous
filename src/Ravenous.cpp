@@ -153,79 +153,11 @@ void print_every_3rd_frame(std::string thing, std::string prefix)
 #include <camera.h>
 #include <parser.h>
 #include <world.h>
+#include <globals.h>
+#include <entity_manager.h>
 
-// catalogues 
-std::map<string, Mesh*> Geometry_Catalogue;
-std::map<string, Shader*> Shader_Catalogue;
-std::map<string, Texture> Texture_Catalogue;
-
-
-// GLOBAL STRUCT VARIABLES (WITH CUSTOM TYPES)
-GlobalEntityInfo G_ENTITY_INFO;
-
-struct GlobalSceneInfo {
-   Scene* active_scene = NULL;
-   Camera* camera;
-   Camera* views[2];
-   Player* player;
-   bool input_mode = false;
-   string scene_name;
-   World* world;
-} G_SCENE_INFO;
-
-struct EntityBufferElement {
-   Entity* entity;
-   bool  collision_check = false;
-};
-
-struct EntityBuffer {
-   EntityBufferElement* buffer;
-   int size;
-};
-
-struct RenderMessageBufferElement {
-   string message = "";
-   float elapsed = 0;
-   float duration = 0;
-};
-
-struct RenderMessageBuffer {
-   RenderMessageBufferElement* buffer;
-   size_t size;
-   u16 count = 0;
-
-   bool add(string msg, float duration)
-   {
-      if(count < size)
-      {
-         auto item = buffer;
-         for(int i = 0; i < size; i++)
-         {
-            if(item->message == "")
-            {
-               item->message = msg;
-               item->elapsed = 0;
-               item->duration = duration;
-               count++;
-               break;
-            }
-            item++;
-         }
-         return true;
-      }
-      else
-      {
-         cout << "WARNING: message has not been addded to message buffer"
-         << "because it is FULL. Message was: " << msg << "\n";
-         return false;
-      }
-   }
-};
-
-struct GlobalBuffers {
-   EntityBuffer* entity_buffer;
-   RenderMessageBuffer* rm_buffer;
-} G_BUFFERS;
+// entity manager
+EntityManager Entity_Manager;
 
 bool is_vec2_equal(vec2 vec1, vec2 vec2);
 
@@ -295,18 +227,13 @@ int main()
    glEnable(GL_PROGRAM_POINT_SIZE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	// SHADERS
+	// LOAD SHADERS AND GEOMETRY
 	load_text_textures("Consola.ttf", 12);
    initialize_shaders();
    create_boilerplate_geometry();
 
-   // Initializes World Cells
-   World WORLD;
-   WORLD.init();
-   G_SCENE_INFO.world = &WORLD;
-
    // loads initial scene
-   load_scene_from_file(G_CONFIG.initial_scene, &WORLD);
+   load_scene_from_file(G_CONFIG.initial_scene, &World);
    Player* player = G_SCENE_INFO.player;
 
    // Allocate buffers
@@ -315,6 +242,9 @@ int main()
    RenderMessageBuffer* render_message_buffer = allocate_render_message_buffer(10);
    G_BUFFERS.rm_buffer = render_message_buffer;
    initialize_console_buffers();
+
+   // Set entity construct defaults
+   Entity_Manager.set_default_entity_attributes("aabb", "model", "sandstone");
 
    Editor::initialize();
 
@@ -333,7 +263,7 @@ int main()
       switch(PROGRAM_MODE.current)
       {
          case CONSOLE_MODE:
-            handle_console_input(input_flags, player, &WORLD, G_SCENE_INFO.camera);
+            handle_console_input(input_flags, player, &World, G_SCENE_INFO.camera);
             break;
          case EDITOR_MODE:
             Editor::start_frame();
@@ -349,9 +279,9 @@ int main()
 
 		//	UPDATE PHASE
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player);
-      bool changed_cell = WORLD.update_entity_world_cells(player->entity_ptr);
+      bool changed_cell = World.update_entity_world_cells(player->entity_ptr);
       update_buffers(player, changed_cell);
-      update_player_state(player, &WORLD);
+      update_player_state(player, &World);
 		update_scene_objects();
 
 		//	RENDER PHASE
@@ -365,7 +295,7 @@ int main()
             break;
          case EDITOR_MODE:
             Editor::update();
-            Editor::render(player, &WORLD);
+            Editor::render(player, &World);
             break;
          case GAME_MODE:
             render_game_gui(player);
@@ -375,6 +305,7 @@ int main()
       render_message_buffer_contents();
 
       // FINISH FRAME
+      Entity_Manager.safe_delete_marked_entities();
 		glfwSwapBuffers(G_DISPLAY_INFO.window);
       if(PROGRAM_MODE.current == EDITOR_MODE) Editor::end_frame();
 	}
@@ -842,22 +773,4 @@ inline
 bool is_float_zero(float x)
 {
    return abs(x) < 0.0001;
-}
-
-// Ideally this would be inside in Entities.h but we can't have it there
-// because compiler complains about not knowing enough about WorldCell.
-// The solution, I think, would be to have a cpp + header file for World.
-void erase_entity(Scene* scene, Entity* entity)
-{
-   // this will remove every entity ptr trace that 
-   // we can remember that we have to clean up
-
-   // remove from scene render list
-   auto& list = scene->entities;
-   int index = get_entity_position(scene, entity);
-   list.erase(list.begin() + index);
-
-   // remove from world cells
-   for(int i = 0; i < entity->world_cells_count; i++)
-      entity->world_cells[i]->remove(entity);
 }

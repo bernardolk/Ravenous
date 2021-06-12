@@ -2,7 +2,7 @@
 // WORLD PANEL
 // -------------
 
-void render_world_panel(WorldPanelContext* panel, World* world)
+void render_world_panel(WorldPanelContext* panel, WorldStruct* world)
 {
    ImGui::SetNextWindowPos(ImVec2(100, 300), ImGuiCond_Appearing);
    ImGui::Begin("World Panel", &panel->active, ImGuiWindowFlags_None);
