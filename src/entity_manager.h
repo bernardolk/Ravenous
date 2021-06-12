@@ -122,14 +122,18 @@ struct EntityManager
       // copy static values
       *new_entity = *entity;
       // tries new name with copy
-      string new_name = new_entity->name + " copy";
-      // if exists already, keep increasing the number inside parenthesis
-      if(G_SCENE_INFO.active_scene->search_name(new_name))
+      string new_name = new_entity->name;
+      if(new_name != "NONAME")
       {
-         unsigned int n_count = 1;
-         do{
-            new_name = new_name + "(" + to_string(n_count++) + ")";
-         } while(G_SCENE_INFO.active_scene->search_name(new_name));
+         new_name =+ " copy";
+         // if exists already, keep increasing the number inside parenthesis
+         if(G_SCENE_INFO.active_scene->search_name(new_name))
+         {
+            unsigned int n_count = 1;
+            do{
+               new_name = new_name + "(" + to_string(n_count++) + ")";
+            } while(G_SCENE_INFO.active_scene->search_name(new_name));
+         }
       }
       new_entity->name = new_name;
       register_entity(new_entity);

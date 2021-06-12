@@ -268,7 +268,8 @@ int main()
          case EDITOR_MODE:
             Editor::start_frame();
             Editor::handle_input_flags(input_flags, player);
-            handle_common_input(input_flags, player);
+            if(!ImGui::GetIO().WantCaptureKeyboard)
+               handle_common_input(input_flags, player);
             break;
          case GAME_MODE:
             game_handle_input(input_flags, player);
