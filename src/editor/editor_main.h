@@ -3,9 +3,15 @@
 
 namespace Editor
 {
+const static string EDITOR_ASSETS = PROJECT_PATH + "/assets/editor/";
 
 const static float TRIAXIS_SCREENPOS_X = -1.75;
 const static float TRIAXIS_SCREENPOS_Y = -1.75;
+
+struct PalettePanelContext {
+   bool active = false;
+   unsigned int textures[15];
+};
 
 struct EntityPanelContext {
    bool active = false;
@@ -23,7 +29,7 @@ struct EntityPanelContext {
 };
 
 struct WorldPanelContext {
-   bool active = true;
+   bool active = false;
 };
 
 struct EntityState {
@@ -36,6 +42,7 @@ struct EditorContext {
    ImGuiStyle* imStyle;
    EntityPanelContext entity_panel;
    WorldPanelContext world_panel;
+   PalettePanelContext palette_panel;
 
    bool move_entity_with_mouse = false;
    bool mouse_click = false;
@@ -82,6 +89,7 @@ void terminate();
 #include <editor/editor_entity_panel.h>
 #include <editor/editor_world_panel.h>
 #include <editor/editor_input.h>
+#include <editor/editor_palette_panel.h>
 
 
 void update()
@@ -134,14 +142,6 @@ void update_editor_entities()
 		model = glm::rotate(model, glm::radians(entity->rotation.z), vec3(0.0f, 0.0f, 1.0f));
 		model = glm::scale(model, entity->scale);
 		entity->matModel = model;
-
-      // entity = Context.tri_axis_letters[i];
-      // model = mat4identity;
-		// model = glm::rotate(model, glm::radians(entity->rotation.x), vec3(1.0f, 0.0f, 0.0f));
-		// model = glm::rotate(model, glm::radians(entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
-		// model = glm::rotate(model, glm::radians(entity->rotation.z), vec3(0.0f, 0.0f, 1.0f));
-		// model = glm::scale(model, entity->scale);
-		// entity->matModel = model;
    }
 }
 
@@ -160,15 +160,9 @@ void render(Player* player, World* world)
       entity->shader->setMatrix4("view", triaxis_view);
       entity->shader->setFloat2("screenPos", TRIAXIS_SCREENPOS_X, TRIAXIS_SCREENPOS_Y);
       render_entity(entity);
-      // axis letter
-	   // entity = Context.tri_axis_letters[i];
-      // entity->shader->use();
-      // entity->shader->setMatrix4("model", entity->matModel);
-      // entity->shader->setMatrix4("view", triaxis_view);
-      // entity->shader->setFloat2("screenPos", TRIAXIS_SCREENPOS_X + displacement_x[i], TRIAXIS_SCREENPOS_Y + displacement_y[i]);
-      // render_entity(entity);
    }
 
+   // render world objs if toggled
    if(Context.show_event_triggers)
    {
       render_event_triggers(G_SCENE_INFO.camera);
@@ -179,16 +173,21 @@ void render(Player* player, World* world)
       render_world_cells(G_SCENE_INFO.camera);
    }
 
+   // render panels if active
    if(Context.world_panel.active)
    {
       render_world_panel(&Context.world_panel, world);
    }
 
-   // render entity panel
    if(Context.entity_panel.active)
    {
       render_entity_panel(&Context.entity_panel);
       render_entity_control_arrows(&Context.entity_panel);
+   }
+
+   if(Context.palette_panel.active)
+   {
+      render_palette_panel(&Context.palette_panel);
    }
 
    if(Context.measure_mode && Context.first_point_found && Context.second_point_found)
@@ -220,15 +219,29 @@ void render_toolbar()
    ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 300, 300), ImGuiCond_Appearing);
    ImGui::Begin("Tools", &Context.toolbar_active, ImGuiWindowFlags_AlwaysAutoResize);
 
+   if(ImGui::Button("Open Palette", ImVec2(120,18)))
+   {
+      Context.palette_panel.active = true;
+   }
+
+   if(ImGui::Button("Open World Panel", ImVec2(120,18)))
+   {
+      Context.world_panel.active = true;
+   }
+
    if(ImGui::Button("Measure Y", ImVec2(120,18)))
    {
       Context.measure_mode = true;
    }
+
    if(ImGui::Button("Measure X", ImVec2(120,18)))
    {
+      
    }
+
    if(ImGui::Button("Measure Z", ImVec2(120,18)))
    {
+
    }
    
    ImGui::NewLine();
@@ -358,6 +371,11 @@ void initialize()
    Context.entity_panel.x_arrow = x_arrow;
    Context.entity_panel.y_arrow = y_arrow;
    Context.entity_panel.z_arrow = z_arrow;
+
+   // load palette button textures
+   auto& palette = Context.palette_panel;
+   palette.textures[0] = load_texture_from_file("box.png", EDITOR_ASSETS);
+   palette.textures[1] = load_texture_from_file("slope.png", EDITOR_ASSETS);
 }
 
 void render_text_overlay(Player* player)

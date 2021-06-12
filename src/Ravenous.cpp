@@ -333,7 +333,7 @@ int main()
       switch(PROGRAM_MODE.current)
       {
          case CONSOLE_MODE:
-            handle_console_input(input_flags, player, &WORLD);
+            handle_console_input(input_flags, player, &WORLD, G_SCENE_INFO.camera);
             break;
          case EDITOR_MODE:
             Editor::start_frame();
