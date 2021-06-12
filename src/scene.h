@@ -5,6 +5,7 @@ void setup_scene_boilerplate_stuff();
 bool save_player_position_to_file(string scene_name, Player* player);
 bool save_scene_to_file(string scene_name, Player* player, bool do_copy);
 void parse_and_load_light_source(Parser::Parse p, ifstream* reader, int& line_count, string path);
+void parse_and_load_camera_settings(Parser::Parse p, ifstream* reader, int& line_count, std::string path);
 bool load_player_attributes_from_file();
 Entity* create_player_entity();
 Player* create_player(Entity* player_entity);
@@ -61,6 +62,16 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
       cout << "Saving scene failed.\n";
       return false;
    }
+
+   // write camera settings to file
+   auto camera = G_SCENE_INFO.views[0];
+   writer << "*" 
+      << camera->Position.x << " "
+      << camera->Position.y << " "
+      << camera->Position.z << "  "
+      << camera->Front.x << " "
+      << camera->Front.y << " "
+      << camera->Front.z << "\n";
 
    // write player attributes to file
    writer << "@player_position = " 
@@ -189,6 +200,7 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
    // creates new scene
    auto scene = new Scene();
    G_SCENE_INFO.active_scene = scene;
+   G_SCENE_INFO.camera = G_SCENE_INFO.views[0];    // sets to editor camera
    Entity_Manager.set_entity_registry(&G_SCENE_INFO.active_scene->entities);
 
    // creates player
@@ -237,6 +249,10 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
       {
          parse_and_load_light_source(p, &reader, line_count, path);
       }
+      else if(p.cToken == '*')
+      {
+         parse_and_load_camera_settings(p, &reader, line_count, path);
+      }
    }
    
    world->update_cells_in_use_list();
@@ -244,6 +260,17 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
    G_SCENE_INFO.scene_name = scene_name;
    return true;
 } 
+
+void parse_and_load_camera_settings(Parser::Parse p, ifstream* reader, int& line_count, std::string path)
+{
+      p = parse_all_whitespace(p);
+      p = parse_float_vector(p);
+      G_SCENE_INFO.camera->Position = vec3{p.vec3[0], p.vec3[1], p.vec3[2]};
+
+      p = parse_all_whitespace(p);
+      p = parse_float_vector(p);
+      camera_look_at(G_SCENE_INFO.camera, vec3{p.vec3[0], p.vec3[1], p.vec3[2]}, false);
+}
 
 void parse_and_load_player_attribute(Parser::Parse p, ifstream* reader, int& line_count, std::string path, Player* player)
 {
@@ -304,7 +331,7 @@ Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count
    std::string line;
    bool is_collision_parsed = false;
 
-   auto new_entity = Entity_Manager.create_entity();
+   auto new_entity = Entity_Manager.create_entity(false);
    p = parse_name(p);
    new_entity->name = p.string_buffer;
 

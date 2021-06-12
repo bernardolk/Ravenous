@@ -13,7 +13,7 @@ enum CameraType {
 };
 
 struct Camera {
-	vec3 Position;
+	vec3 Position = vec3(0.0f);
 	vec3 Front = vec3(1.0f, 0.0f, 0.0f);
 	vec3 Up = vec3(0.0f, 1.0f, 0.0f);
 	float Acceleration = 3.5f;
@@ -123,13 +123,6 @@ void camera_look_at(Camera* camera, vec3 position, bool isPosition) {
 	camera->Front.y = sin(glm::radians(camera->Pitch));
 	camera->Front.z = cos(glm::radians(camera->Pitch)) * sin(glm::radians(camera->Yaw));
 	camera->Front = glm::normalize(camera->Front);
-}
-
-Camera* camera_create(vec3 initialPosition, vec3 direction, bool isPosition = true) {
-	auto camera = new Camera();
-	camera->Position = initialPosition;
-	camera_look_at(camera, direction, isPosition);
-	return camera;
 }
 
 float* load_camera_settings(string path){

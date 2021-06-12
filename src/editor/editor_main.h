@@ -9,7 +9,7 @@ const static float TRIAXIS_SCREENPOS_X = -1.75;
 const static float TRIAXIS_SCREENPOS_Y = -1.75;
 
 struct PalettePanelContext {
-   bool active = false;
+   bool active = true;
    unsigned int textures[15];
    Entity* entity_palette[15];
    unsigned int count = 0;
@@ -220,30 +220,33 @@ void render(Player* player, WorldStruct* world)
 
 void render_toolbar()
 {
-   ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 300, 300), ImGuiCond_Appearing);
+   ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 220, 180), ImGuiCond_Appearing);
    ImGui::Begin("Tools", &Context.toolbar_active, ImGuiWindowFlags_AlwaysAutoResize);
 
-   if(ImGui::Button("Open Palette", ImVec2(120,18)))
+   if(ImGui::Button("Open Palette", ImVec2(150,18)))
    {
       Context.palette_panel.active = true;
    }
 
-   if(ImGui::Button("Open WorldStruct Panel", ImVec2(120,18)))
+   if(ImGui::Button("Open WorldStruct Panel", ImVec2(150,18)))
    {
       Context.world_panel.active = true;
    }
 
-   if(ImGui::Button("Measure Y", ImVec2(120,18)))
+   ImGui::Text("Measure");
+   if(ImGui::Button("Y", ImVec2(40,18)))
    {
       Context.measure_mode = true;
    }
 
-   if(ImGui::Button("Measure X", ImVec2(120,18)))
+   ImGui::SameLine();
+   if(ImGui::Button("X", ImVec2(40,18)))
    {
       
    }
 
-   if(ImGui::Button("Measure Z", ImVec2(120,18)))
+   ImGui::SameLine();
+   if(ImGui::Button("Z", ImVec2(40,18)))
    {
 
    }

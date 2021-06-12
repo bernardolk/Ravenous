@@ -207,12 +207,8 @@ int main()
    // reads from camera position file
    float* camera_pos = load_camera_settings(CAMERA_FILE_PATH);
 
-	Camera* editor_camera = camera_create(
-      vec3(camera_pos[0], camera_pos[1], camera_pos[2]), vec3(camera_pos[3], camera_pos[4], camera_pos[5]), false
-   );
+	Camera* editor_camera = new Camera();
    Camera* first_person_camera = new Camera();
-
-	G_SCENE_INFO.camera = editor_camera;
    G_SCENE_INFO.views[0] = editor_camera;
    G_SCENE_INFO.views[1] = first_person_camera;
 

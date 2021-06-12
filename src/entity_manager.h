@@ -91,23 +91,25 @@ struct EntityManager
       return new_entity;
    }
 
-   Entity* create_entity(string name)
+   Entity* create_entity(string name, bool load_defaults = true)
    {
       //warning: we don't check if name exists in registry
-      auto new_entity = create_entity();
+      auto new_entity = create_entity(load_defaults);
       new_entity->name = name;
       return new_entity;
    }
 
-   Entity* create_entity()
+   Entity* create_entity(bool load_defaults = true)
    {
       auto new_entity = new Entity();
       new_entity->id = ++count;
-      new_entity->textures.push_back(default_texture);
-      new_entity->shader = default_shader;
-      new_entity->mesh = default_mesh;
+      if(load_defaults)
+      {
+         new_entity->textures.push_back(default_texture);
+         new_entity->shader = default_shader;
+         new_entity->mesh = default_mesh;
+      }
       register_entity(new_entity);
-
       return new_entity;  
    }
 
