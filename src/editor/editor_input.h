@@ -21,6 +21,15 @@ void handle_input_flags(InputFlags flags, Player* &player)
    if(ImGui::GetIO().WantCaptureKeyboard)
       return;
 
+   if(pressed_once(flags, KEY_DELETE))
+   {
+      if(Context.entity_panel.active)
+      {
+         Entity_Manager.mark_for_deletion(Context.entity_panel.entity);
+         Context.entity_panel.active = false;
+      }
+   }
+
    if(Context.snap_mode == true)
    {
       if(pressed_once(flags, KEY_ENTER))
