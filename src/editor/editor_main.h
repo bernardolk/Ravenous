@@ -32,6 +32,7 @@ struct EntityPanelContext {
 
 struct WorldPanelContext {
    bool active = false;
+   vec3 cell_coords = vec3{-1.0f};
 };
 
 struct EntityState {
@@ -621,6 +622,21 @@ void render_world_cells(Camera* camera)
    {
       auto cell = World.cells_in_use[i];
 
+      vec3 color;
+      if(Context.world_panel.cell_coords.x == cell->i &&
+         Context.world_panel.cell_coords.y == cell->j &&
+         Context.world_panel.cell_coords.z == cell->k)
+      {
+         color = vec3(0.8, 0.4, 0.2);
+      }
+      else if((cell->i == WORLD_CELLS_X || cell->i == 0) ||
+              (cell->j == WORLD_CELLS_Y || cell->j == 0) ||
+              (cell->k == WORLD_CELLS_Z || cell->k == 0))
+      {
+         color = vec3(0.0, 0.0, 0.0);
+      }
+      else color = vec3(0.27, 0.55, 0.65);
+
       // creates model matrix
       vec3 position = get_world_coordinates_from_world_cell_coordinates(
          cell->i, cell->j, cell->k
@@ -630,7 +646,7 @@ void render_world_cells(Camera* camera)
 
       //render
       shader->use();
-      shader->setFloat3("color", 0.27, 0.55, 0.65);
+      shader->setFloat3("color", color);
       shader->setFloat("opacity", 0.85);
       shader->setMatrix4("model", model);
       shader->setMatrix4("view", camera->View4x4);

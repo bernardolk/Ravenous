@@ -147,6 +147,12 @@ auto get_world_cells_coords_from_world_coords(float x, float y, float z)
    world_cell_coords.j = (y + world_coords_y_offset) / WORLD_CELL_SIZE;
    world_cell_coords.k = (z + world_coords_z_offset) / WORLD_CELL_SIZE;
 
+   if(world_cell_coords.i < 0 || world_cell_coords.j < 0 || world_cell_coords.k < 0 ||
+      world_cell_coords.i >= WORLD_CELLS_X || world_cell_coords.j >= WORLD_CELLS_X || world_cell_coords.k >= WORLD_CELLS_X)
+   {
+      cout << "OUT OF BOUNDS!";
+   }
+
    return world_cell_coords;
 }
 
