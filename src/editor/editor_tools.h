@@ -115,9 +115,8 @@ void check_selection_to_measure()
 // MOVE ENTITY TOOL
 // -----------------
 void move_entity_with_mouse(Entity* entity);
-void deselect_entity();
-void check_selection_to_move_entity();
 void select_entity_to_move_with_mouse(Entity* entity);
+void check_selection_to_move_entity();
 
 
 void check_selection_to_move_entity()
@@ -131,6 +130,7 @@ void check_selection_to_move_entity()
 void select_entity_to_move_with_mouse(Entity* entity)
 {
    Context.move_entity_with_mouse = true;
+   // Context.scale_on_drop = scale_on_drop;
    Context.selected_entity = entity;
    Context.original_entity_state.position = entity->position;
    Context.original_entity_state.rotation = entity->rotation;
@@ -169,6 +169,32 @@ void move_entity_with_mouse(Entity* entity)
    else cout << "warning: can't find plane to place entity!\n";
 }
 
+
+
+// ------------------
+// SCALE ENTITY TOOL
+// ------------------
+void scale_entity_with_mouse(Entity* entity);
+
+void scale_entity_with_mouse(Entity* entity)
+{
+   // NOT IMPLEMENTED
+}
+
+// -----
+// MISC
+// -----
+void deselect_entity();
+void undo_selected_entity_move_changes();
+void check_for_asset_changes();
+void render_aabb_boundaries(Entity* entity);
+
+void deselect_entity()
+{
+   Context.move_entity_with_mouse = false;
+   Context.scale_entity_with_mouse = false;
+}
+
 void undo_selected_entity_move_changes()
 {
    auto entity       = Context.selected_entity;
@@ -178,17 +204,6 @@ void undo_selected_entity_move_changes()
 
    deselect_entity();
 }
-
-void deselect_entity()
-{
-   Context.move_entity_with_mouse = false;
-}
-
-// -----
-// MISC
-// -----
-void check_for_asset_changes();
-void render_aabb_boundaries(Entity* entity);
 
 void check_for_asset_changes()
 {

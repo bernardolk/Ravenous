@@ -48,6 +48,8 @@ struct EditorContext {
 
    // move entity controls
    bool move_entity_with_mouse = false;
+   bool scale_on_drop = false;
+   bool scale_entity_with_mouse = false;
    bool mouse_click = false;
    Entity* selected_entity = nullptr;
    EntityState original_entity_state;
@@ -124,11 +126,22 @@ void update()
    {
       if(Context.mouse_click)
       {
+         // if entity is being moved from palette, on drop we get to scale it
+         // if moving using the move shortcut, we don't
+         if(Context.scale_on_drop)
+            Context.scale_entity_with_mouse = true;
+         else
+            deselect_entity();
+         
          World.update_entity_world_cells(Context.selected_entity);
          World.update_cells_in_use_list();
-         deselect_entity();
       }
       else move_entity_with_mouse(Context.selected_entity);
+   }
+
+   if(Context.scale_entity_with_mouse)
+   {
+      scale_entity_with_mouse(Context.selected_entity);
    }
 
    // resets mouse click event
@@ -223,12 +236,12 @@ void render_toolbar()
    ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 220, 180), ImGuiCond_Appearing);
    ImGui::Begin("Tools", &Context.toolbar_active, ImGuiWindowFlags_AlwaysAutoResize);
 
-   if(ImGui::Button("Open Palette", ImVec2(150,18)))
+   if(ImGui::Button("Entity Palette", ImVec2(150,18)))
    {
       Context.palette_panel.active = true;
    }
 
-   if(ImGui::Button("Open WorldStruct Panel", ImVec2(150,18)))
+   if(ImGui::Button("World Panel", ImVec2(150,18)))
    {
       Context.world_panel.active = true;
    }
