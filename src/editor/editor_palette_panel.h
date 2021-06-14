@@ -32,6 +32,7 @@ void initialize_palette(PalettePanelContext* panel)
    sandstone_box->shader = model_shader;
    sandstone_box->textures.push_back(sandstone_texture);
    sandstone_box->mesh = Geometry_Catalogue.find("aabb")->second;
+   sandstone_box->collision_geometry_type = COLLISION_ALIGNED_BOX;
    panel->entity_palette[0] = sandstone_box;
    panel->count++;
 
@@ -40,6 +41,7 @@ void initialize_palette(PalettePanelContext* panel)
    sandstone_slope->shader = model_shader;
    sandstone_slope->textures.push_back(sandstone_texture);
    sandstone_slope->mesh = Geometry_Catalogue.find("slope")->second;
+   sandstone_box->collision_geometry_type = COLLISION_ALIGNED_SLOPE;
    panel->entity_palette[1] = sandstone_slope;
    panel->count++;
 }

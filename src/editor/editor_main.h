@@ -46,17 +46,23 @@ struct EditorContext {
    WorldPanelContext world_panel;
    PalettePanelContext palette_panel;
 
-   // move entity controls
-   bool move_entity_with_mouse = false;
-   bool scale_on_drop = false;
-   bool scale_entity_with_mouse = false;
+   // toolbar
+   bool toolbar_active = true;
+
+   // general mode controls
    bool mouse_click = false;
    Entity* selected_entity = nullptr;
    EntityState original_entity_state;
 
-   // toolbar
-   bool toolbar_active = true;
-   // measure y
+   // move mode
+   bool move_mode = false;
+   bool scale_on_drop = false;
+   u8 move_axis = 0;
+
+   // scale mode
+   bool scale_entity_with_mouse = false;
+   
+   // measure mode
    bool measure_mode = false;
    vec3 measure_from;
    bool first_point_found = false;
@@ -122,7 +128,7 @@ void update()
    }
 
    // respond to mouse if necessary
-   if(Context.move_entity_with_mouse)
+   if(Context.move_mode)
    {
       if(Context.mouse_click)
       {
@@ -553,6 +559,30 @@ void render_text_overlay(Player* player)
             G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, GUI_y - 80, 2.0, vec3(0.8, 0.8, 0.2), true
          ); 
       }
+   }
+
+   if(Context.move_mode)
+   {
+      string move_axis;
+      switch(Context.move_axis)
+      {
+         case 0:
+            move_axis = "XZ";
+            break;
+         case 1:
+            move_axis = "X";
+            break;
+         case 2:
+            move_axis = "Y";
+            break;
+         case 3:
+            move_axis = "Z";
+            break;
+      }
+
+      render_text("MOVE MODE ON (" + move_axis + ")", 
+         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, GUI_y - 60, 3.0, vec3(0.8, 0.8, 0.2), true
+      );
    }
 }
 

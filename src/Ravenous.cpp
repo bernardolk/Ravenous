@@ -172,9 +172,9 @@ void toggle_program_modes(Player* player);
 void erase_entity(Scene* scene, Entity* entity);
 
 #include <loaders.h>
+#include <raycast.h>
 #include <render.h>
 #include <input.h>
-#include <raycast.h>
 #include <collision.h>
 #include <scene.h>
 #include <console.h>

@@ -30,6 +30,9 @@ void handle_input_flags(InputFlags flags, Player* &player)
       }
    }
 
+   // --------------------
+   // SNAP MODE SHORTCUTS
+   // --------------------
    if(Context.snap_mode == true)
    {
       if(pressed_once(flags, KEY_ENTER))
@@ -82,6 +85,25 @@ void handle_input_flags(InputFlags flags, Player* &player)
       }
    }
 
+   // --------------------
+   // MODE MODE SHORTCUTS
+   // --------------------
+   if(Context.move_mode == true)
+   {
+      if(pressed_only(flags, KEY_X))
+      {
+         Context.move_axis = 1;
+      }
+      if(pressed_only(flags, KEY_Y))
+      {
+         Context.move_axis = 2;
+      }
+      if(pressed_only(flags, KEY_Z))
+      {
+         Context.move_axis = 3;
+      }
+   }
+
    if(pressed_once(flags, KEY_T))
    {  // toggle camera type
       if (G_SCENE_INFO.camera->type == FREE_ROAM)
@@ -89,27 +111,40 @@ void handle_input_flags(InputFlags flags, Player* &player)
       else if (G_SCENE_INFO.camera->type == THIRD_PERSON)
          set_camera_to_free_roam(G_SCENE_INFO.camera);
    }
-   // click selection
-   if(G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK && flags.key_press & KEY_LEFT_CTRL)
+
+   // ---------------
+   // CLICK CONTROLS
+   // ---------------
+   if(G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK)
    {
-      if(Context.snap_mode)         check_selection_to_snap(&Context.entity_panel);
-      else if(Context.measure_mode) check_selection_to_measure();
-      else                          check_selection_to_open_panel();
-   }
-   else if(G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK && flags.key_press & KEY_G)
-   {
-      check_selection_to_move_entity();
-   }
-   else if(G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK)
-   {
-      // deselection
-      Context.mouse_click = true;
+      if(flags.key_press & KEY_LEFT_CTRL)
+      {
+         if(Context.snap_mode)         check_selection_to_snap(&Context.entity_panel);
+         else if(Context.measure_mode) check_selection_to_measure();
+         else                          check_selection_to_open_panel();
+      }
+      else if(flags.key_press & KEY_G)
+      {
+         check_selection_to_move_entity();
+      }
+      else
+      {
+         // deselection
+         Context.mouse_click = true;
+      }
    }
 
+   // -------------
+   // OPEN CONSOLE
+   // -------------
    if(pressed_once(flags, KEY_GRAVE_TICK))
    {
       start_console_mode();
    }
+
+   // -------------------------------
+   // SPAWN PLAYER ON MOUSE POSITION
+   // -------------------------------
    if(pressed_once(flags, KEY_C))
    {
       // moves player to camera position

@@ -14,21 +14,51 @@ struct GlobalImmediateDraw {
    Mesh* meshes[IM_BUFFER_SIZE];
    RenderOptions render_opts[IM_BUFFER_SIZE];
    int ind = 0;
+
+   GlobalImmediateDraw()
+   {
+      for(int i = 0; i < IM_BUFFER_SIZE; i++)
+      {
+         auto mesh = new Mesh();
+         meshes[i] = mesh;
+      }
+   }
+
    void add(vector<Vertex> vertex_vec, GLenum draw_method, RenderOptions opts = RenderOptions{})
    {
-      auto mesh = new Mesh();
+      auto mesh = meshes[ind];
       mesh->vertices = vertex_vec;
       mesh->render_method = draw_method;
-      mesh->setup_gl_data();
-      meshes[ind] = mesh;
+      mesh->setup_gl_data();  // this will leak memory :/
       render_opts[ind] = opts;
-
       ind++;
-   };
+   }
+
+   void add(vector<Triangle> triangles, GLenum draw_method = GL_LINE_LOOP, RenderOptions opts = RenderOptions{})
+   {
+      vector<Vertex> vertices;
+      for(int i = 0; i < triangles.size(); i++)
+      {
+         vertices.push_back(Vertex{triangles[i].a});
+         vertices.push_back(Vertex{triangles[i].b});
+         vertices.push_back(Vertex{triangles[i].c});
+      }
+      
+      auto mesh = meshes[ind];
+      mesh->vertices = vertices;
+      mesh->render_method = draw_method;
+      mesh->setup_gl_data();  // this will leak memory :/
+      ind++;
+   }
+
    void reset()
    {
       for (int i = 0; i < ind; i++)
-         meshes[i] = NULL;
+      {
+         auto mesh = meshes[i];
+         mesh->indices.clear();
+         mesh->vertices.clear();
+      }
       ind = 0;
    }
 } G_IMMEDIATE_DRAW;
@@ -39,6 +69,7 @@ void render_text(std::string text, float x, float y, float scale = 1.0f, vec3 co
 void render_editor_entity(Entity* entity, Scene* scene, Camera* camera);
 void render_mesh(Mesh* mesh, RenderOptions opts = RenderOptions{});
 void render_message_buffer_contents();
+void render_immediate(GlobalImmediateDraw* im, Camera* camera);
 
 void render_mesh(Mesh* mesh, RenderOptions opts)
 {

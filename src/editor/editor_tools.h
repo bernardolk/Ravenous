@@ -118,7 +118,6 @@ void move_entity_with_mouse(Entity* entity);
 void select_entity_to_move_with_mouse(Entity* entity);
 void check_selection_to_move_entity();
 
-
 void check_selection_to_move_entity()
 {
    auto pickray = cast_pickray();
@@ -129,7 +128,7 @@ void check_selection_to_move_entity()
 
 void select_entity_to_move_with_mouse(Entity* entity)
 {
-   Context.move_entity_with_mouse = true;
+   Context.move_mode = true;
    // Context.scale_on_drop = scale_on_drop;
    Context.selected_entity = entity;
    Context.original_entity_state.position = entity->position;
@@ -140,33 +139,85 @@ void select_entity_to_move_with_mouse(Entity* entity)
 void move_entity_with_mouse(Entity* entity)
 {
    Ray ray = cast_pickray();
-   float distance = 0;
 
-   // creates a big plane for placing entity in the world with the mouse
-   auto t1 = Triangle{
-      vec3{entity->position.x - 500, entity->position.y, entity->position.z - 500},
-      vec3{entity->position.x + 500, entity->position.y, entity->position.z - 500},
-      vec3{entity->position.x + 500, entity->position.y, entity->position.z + 500}
-   };
+   // create a big plane for placing entity in the world with the mouse using raycast from camera to mouse
+   // position. In the case of Y placement, we need to compute the plane considering the camera orientation.
+   Triangle t1, t2;
+   float plane_size = 500.0f;
 
-   RaycastTest test1 = test_ray_against_triangle(ray, t1);
-   if(test1.hit) distance = test1.distance;
-
-   auto t2 = Triangle{
-      vec3{entity->position.x - 500, entity->position.y, entity->position.z - 500},
-      vec3{entity->position.x - 500, entity->position.y, entity->position.z + 500},
-      vec3{entity->position.x + 500, entity->position.y, entity->position.z + 500}
-   };
-
-   RaycastTest test2 = test_ray_against_triangle(ray, t2);
-   if(test2.hit) distance = test2.distance;
-
-   if(distance != 0)
+   switch(Context.move_axis)
    {
-      entity->position.x = ray.origin.x + ray.direction.x * distance;
-      entity->position.z = ray.origin.z + ray.direction.z * distance;
+      case 0:  // XZ 
+      case 1:  // X
+      case 3:  // Z
+         t1.a = vec3{entity->position.x - plane_size, entity->position.y, entity->position.z - plane_size};
+         t1.b = vec3{entity->position.x + plane_size, entity->position.y, entity->position.z - plane_size};
+         t1.c = vec3{entity->position.x + plane_size, entity->position.y, entity->position.z + plane_size};
+         t2.a = vec3{entity->position.x - plane_size, entity->position.y, entity->position.z - plane_size};
+         t2.b = vec3{entity->position.x - plane_size, entity->position.y, entity->position.z + plane_size};
+         t2.c = vec3{entity->position.x + plane_size, entity->position.y, entity->position.z + plane_size}; 
+         break;
+      case 2:  // Y
+      {
+         // creates vector from cam to entity in XZ
+         auto camera = G_SCENE_INFO.camera;
+         vec3 cam_to_entity = camera->Position - entity->position;
+         cam_to_entity.y = camera->Position.y;
+         cam_to_entity = glm::normalize(cam_to_entity);
+         // finds vector that lie in plane considering cam to entity vector as normal to it
+         vec3 up_vec = glm::normalize(vec3{camera->Position.x, 1.0f, camera->Position.z});
+         vec3 vec_in_plane = glm::cross(up_vec, cam_to_entity);
+
+         // creates plane
+         t1.a   = entity->position + (vec_in_plane * -1.0f * plane_size);
+         t1.a.y = camera->Position.y + -1.0f * plane_size;
+
+         t1.b   = entity->position + (vec_in_plane * plane_size);
+         t1.b.y = camera->Position.y + -1.0f * plane_size;
+
+         t1.c   = entity->position + (vec_in_plane * plane_size);
+         t1.c.y = camera->Position.y + plane_size;
+
+         t2.a   = t1.a;
+         t2.b   = entity->position + (vec_in_plane * -1.0f * plane_size);
+         t2.b.y = camera->Position.y + plane_size;
+         t2.c   = t1.c;
+         
+         break;
+      }
    }
-   else cout << "warning: can't find plane to place entity!\n";
+
+   // ray casts against created plane
+   RaycastTest test;
+   
+   test = test_ray_against_triangle(ray, t1);
+   if(!test.hit)
+   {
+      test = test_ray_against_triangle(ray, t2);
+      if(!test.hit)
+      {
+         cout << "warning: can't find plane to place entity!\n";
+         return;
+      }
+   }
+
+   // places entity accordingly
+   switch(Context.move_axis)
+   {
+      case 0:  // XZ 
+         entity->position.x = ray.origin.x + ray.direction.x * test.distance;
+         entity->position.z = ray.origin.z + ray.direction.z * test.distance;
+         break;
+      case 1:  // X
+         entity->position.x = ray.origin.x + ray.direction.x * test.distance;
+         break;
+      case 2:  // Y
+         entity->position.y = ray.origin.y + ray.direction.y * test.distance;
+         break;
+      case 3:  // Z
+         entity->position.z = ray.origin.z + ray.direction.z * test.distance;
+         break;
+   }
 }
 
 
@@ -191,7 +242,7 @@ void render_aabb_boundaries(Entity* entity);
 
 void deselect_entity()
 {
-   Context.move_entity_with_mouse = false;
+   Context.move_mode = false;
    Context.scale_entity_with_mouse = false;
 }
 

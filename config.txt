@@ -1,1 +1,1 @@
-scene = world
+scene = test
