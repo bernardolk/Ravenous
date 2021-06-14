@@ -164,6 +164,7 @@ bool is_vec2_equal(vec2 vec1, vec2 vec2);
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
+#include "ravenous_imconfig.h"
 
 bool save_configs_to_file();
 bool is_float_zero(float x);
