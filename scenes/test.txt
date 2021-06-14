@@ -321,3 +321,12 @@ mesh slope
 shader model
 texture texture_diffuse sandstone sandstone.jpg
 collision slope
+
+#NONAME
+position 3.70004 0 2.04593
+rotation 0 0 0
+scale 1 1 1
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision slope

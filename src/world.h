@@ -22,13 +22,15 @@ const static int WORLD_CELL_CAPACITY = 30;
 
 struct WorldCell {
    Entity* entities[WORLD_CELL_CAPACITY];
-   unsigned int count = 0;
+   unsigned int count;
    
    // coords
    int i = -1, j = -1, k = -1;
 
    void init(int ii, int ji, int ki)
    {
+      count = 0;
+
       // set coordinates
       i = ii;
       j = ji;
@@ -158,6 +160,11 @@ struct WorldStruct {
    int cells_in_use_count = 0;
 
    WorldStruct()
+   {
+      init();
+   }
+
+   void init()
    {
       for(int i = 0; i < WORLD_CELLS_X; i++)
       for(int j = 0; j < WORLD_CELLS_Y; j++)

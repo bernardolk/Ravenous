@@ -177,7 +177,6 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
    else
       cout << "Scene saved succesfully.\n";
 
-
    return true;
 }
 
@@ -196,6 +195,9 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
    if(G_SCENE_INFO.active_scene != NULL)
       G_SCENE_INFO.active_scene->entities.clear();
       // CLEAR BUFFERS ?
+
+   // Gets a new world struct from scratch
+   World.init();
 
    // creates new scene
    auto scene = new Scene();
@@ -258,6 +260,10 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
    world->update_cells_in_use_list();
 
    G_SCENE_INFO.scene_name = scene_name;
+
+   // SAVE BACKUP
+   save_scene_to_file("backup", player, true);
+
    return true;
 } 
 
