@@ -70,6 +70,7 @@ struct Entity {
    WorldCell* world_cells[ENTITY_WOLRD_CELL_OCCUPATION_LIMIT];
    int world_cells_count = 0;
 
+   // event trigger
    Mesh* trigger;
    vec3 trigger_scale = vec3(1.0f);
    vec3 trigger_pos = vec3(0.0f);

@@ -10,8 +10,37 @@ void mark_entity_checked(Entity* entity);
 void resolve_collision(CollisionData collision, Player* player);
 void check_for_floor_transitions(Player* player);
 void check_trigger_interaction(Player* player);
+bool update_player_world_cells(Player* player);
+void move_player(Player* player);
 
+bool update_player_world_cells(Player* player)
+{
+   if(player->entity_ptr->velocity.x == 0 && 
+      player->entity_ptr->velocity.y == 0 && 
+      player->entity_ptr->velocity.z == 0)
+   {
+      return false;
+   }
 
+   // update player world cells
+   auto update_cells = World.update_entity_world_cells(player->entity_ptr);
+   bool changed_cells = false;
+   if(update_cells.status == OK)
+      changed_cells = update_cells.entity_changed_cell;
+   else 
+      G_BUFFERS.rm_buffer->add(update_cells.message, 3500);
+   
+   return changed_cells;
+}
+
+void move_player(Player* player)
+{
+   // makes player move and register player last position
+   player->prior_position = player->entity_ptr->position;
+   player->entity_ptr->position += player->entity_ptr->velocity * G_FRAME_INFO.duration * G_FRAME_INFO.time_step;
+   return;
+}
+ 
 void update_player_state(Player* &player, WorldStruct* world)
 {
    Entity* &player_entity = player->entity_ptr;
@@ -21,10 +50,6 @@ void update_player_state(Player* &player, WorldStruct* world)
       player_death_handler(player);
       return;
    }
-
-   // makes player move and register player last position
-   player->prior_position = player_entity->position;
-   player_entity->position += player_entity->velocity * G_FRAME_INFO.duration * G_FRAME_INFO.time_step;
 
    switch(player->player_state)
    {

@@ -229,10 +229,6 @@ int main()
    initialize_shaders();
    create_boilerplate_geometry();
 
-   // loads initial scene
-   load_scene_from_file(G_CONFIG.initial_scene, &World);
-   Player* player = G_SCENE_INFO.player;
-
    // Allocate buffers
    EntityBuffer* entity_buffer = allocate_entity_buffer(WORLD_CELL_CAPACITY * 8);
    G_BUFFERS.entity_buffer = entity_buffer;
@@ -240,8 +236,16 @@ int main()
    G_BUFFERS.rm_buffer = render_message_buffer;
    initialize_console_buffers();
 
+   // loads initial scene
+   load_scene_from_file(G_CONFIG.initial_scene, &World);
+   Entity_Manager.set_default_entity_attributes(         // sets some loaded assets from scene as
+      "aabb", "model", "sandstone"                       // defaults for entity construction
+   );  
+   Player* player = G_SCENE_INFO.player;
+   World.update_entity_world_cells(player->entity_ptr);  // sets player to the world
+   update_buffers(player, true);                         // populates collision buffer and others
+   
    // Set entity construct defaults
-   Entity_Manager.set_default_entity_attributes("aabb", "model", "sandstone");
 
    Editor::initialize();
 
@@ -251,10 +255,14 @@ int main()
 	// MAIN LOOP
 	while (!glfwWindowShouldClose(G_DISPLAY_INFO.window))
 	{
+      // -------------
       // START FRAME
+      // -------------
 		start_frame();
 
+      // -------------
 		//	INPUT PHASE
+      // -------------
       auto input_flags = input_phase();
 
       switch(PROGRAM_MODE.current)
@@ -275,14 +283,19 @@ int main()
       }
       reset_input_flags(input_flags);
 
+      // -------------
 		//	UPDATE PHASE
+      // -------------
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player);
-      bool changed_cell = World.update_entity_world_cells(player->entity_ptr);
-      update_buffers(player, changed_cell);
+      move_player(player);
+      bool changed_cells = update_player_world_cells(player);
+      update_buffers(player, changed_cells);
       update_player_state(player, &World);
 		update_scene_objects();
 
+      // -------------
 		//	RENDER PHASE
+      // -------------
 		glClearColor(0.196, 0.298, 0.3607, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		render_scene(G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
@@ -302,7 +315,9 @@ int main()
       render_immediate(&G_IMMEDIATE_DRAW, G_SCENE_INFO.camera);
       render_message_buffer_contents();
 
+      // -------------
       // FINISH FRAME
+      // -------------
       Entity_Manager.safe_delete_marked_entities();
 		glfwSwapBuffers(G_DISPLAY_INFO.window);
       if(PROGRAM_MODE.current == EDITOR_MODE) Editor::end_frame();
