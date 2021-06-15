@@ -137,6 +137,15 @@ void render_entity_panel(EntityPanelContext* panel)
       }   
    }
 
+   if(ImGui::CollapsingHeader("Textures"))
+   {
+      for(auto const& texture : Texture_Catalogue)
+      {
+         bool in_use = entity->textures[0].name == texture.second.name;
+         ImGui::RadioButton(texture.second.name.c_str(), in_use);
+      }
+   }
+
    ImGui::NewLine();
 
    // Controls

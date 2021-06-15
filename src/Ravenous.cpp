@@ -190,7 +190,7 @@ using namespace glm;
 
 // FUNCTION PROTOTYPES
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void setup_window(bool debug);
+void setup_GLFW(bool debug);
 void render_ray();
 void update_scene_objects();
 void initialize_shaders();
@@ -202,9 +202,17 @@ void update_buffers(Player* player, bool changed_cells);
 void start_frame();
 ProgramConfig load_configs();
 void check_all_entities_have_shaders();
+void setup_gl();
 
 int main()
 {
+   // INITIAL GLFW AND GLAD SETUPS
+	setup_GLFW(true);
+   setup_gl();
+
+   // populates texture catalogue with diffuse textures
+   load_textures_from_assets_folder();
+
    // reads from camera position file
    float* camera_pos = load_camera_settings(CAMERA_FILE_PATH);
 
@@ -214,15 +222,6 @@ int main()
    G_SCENE_INFO.views[1] = first_person_camera;
 
    G_CONFIG = load_configs();
-
-	// INITIAL GLFW AND GLAD SETUPS
-	setup_window(true);
-
-	// gl enables
-	glEnable(GL_DEPTH_TEST);
-   glEnable(GL_BLEND);
-   glEnable(GL_PROGRAM_POINT_SIZE);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// LOAD SHADERS AND GEOMETRY
 	load_text_textures("Consola.ttf", 12);
@@ -695,7 +694,7 @@ bool is_vec2_equal(vec2 vec1, vec2 vec2)
    return x_diff < VEC_COMPARE_PRECISION && y_diff < VEC_COMPARE_PRECISION;
 }
 
-void setup_window(bool debug) {
+void setup_GLFW(bool debug) {
 	// Setup the window
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -782,8 +781,15 @@ void toggle_program_modes(Player* player)
    }
 }
 
-inline
-bool is_float_zero(float x)
+inline bool is_float_zero(float x)
 {
    return abs(x) < 0.0001;
+}
+
+void setup_gl()
+{
+	glEnable(GL_DEPTH_TEST);
+   glEnable(GL_BLEND);
+   glEnable(GL_PROGRAM_POINT_SIZE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }

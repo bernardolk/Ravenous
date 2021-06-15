@@ -8,6 +8,39 @@
 
 Mesh* load_wavefront_obj_as_mesh(string path, string name, bool setup_gl_data, GLenum render_method);
 unsigned int load_texture_from_file(string path, const string& directory, bool gamma = false);
+vector<string> get_files_in_folder(string directory);
+void load_textures_from_assets_folder();
+
+
+void load_textures_from_assets_folder()
+{
+   auto filenames = get_files_in_folder(TEXTURES_PATH);
+   if(filenames.size() > 0)
+   {
+      for(auto const& texture_filename: filenames)
+      {
+         unsigned int texture_id = load_texture_from_file(texture_filename, TEXTURES_PATH);
+
+         if(texture_id == 0)
+         {
+            cout << "Texture '" << texture_filename << "' could not be loaded. \n"; 
+            assert(false);
+         }
+
+         auto ind = texture_filename.find('.');
+         string texture_name = texture_filename.substr(0, ind);
+
+         Texture new_texture {
+            texture_id,
+            "texture_diffuse",
+            texture_filename,
+            texture_name
+         };
+
+         Texture_Catalogue.insert({texture_name, new_texture});
+      }
+   }
+}
 
 
 Mesh* load_wavefront_obj_as_mesh(string path, string name, bool setup_gl_data = true, GLenum render_method = GL_TRIANGLES) {
@@ -92,9 +125,10 @@ Mesh* load_wavefront_obj_as_mesh(string path, string name, bool setup_gl_data = 
 }
 
 
-// returns the gl_texture ID
 unsigned int load_texture_from_file(std::string filename, const std::string& directory, bool gamma)
 {
+   // returns the gl_texture ID
+   
    std::string path;
    if (path.substr(0, path.length() - 2) == "/")
       path = directory + filename;
@@ -112,12 +146,18 @@ unsigned int load_texture_from_file(std::string filename, const std::string& dir
     
    // sets color channel format
    GLenum format;
-   if (nrComponents == 1)
-      format = GL_RED;
-   else if (nrComponents == 3)
-      format = GL_RGB;
-   else if (nrComponents == 4)
-      format = GL_RGBA;
+   switch(nrComponents)
+   {
+      case 1:
+         format = GL_RED;
+         break;
+      case 3:
+         format = GL_RGB;
+         break;
+      case 4:
+         format = GL_RGBA;
+         break;
+   }
 
    unsigned int textureID;
    glGenTextures(1, &textureID);
@@ -132,4 +172,30 @@ unsigned int load_texture_from_file(std::string filename, const std::string& dir
 
    stbi_image_free(data);
    return textureID;
+}
+
+
+vector<string> get_files_in_folder(string directory)
+{
+   vector<string> filenames;
+   string path_to_files = directory + "\\*";
+   WIN32_FIND_DATA files;
+   HANDLE find_files_handle = FindFirstFile(path_to_files.c_str(), &files);
+
+   if(find_files_handle == INVALID_HANDLE_VALUE) 
+   {
+      cout << "Error: Invalid directory '" + directory + "' for finding files.";
+      return filenames;
+   }
+   
+   do {
+      int a = strcmp(files.cFileName, ".");
+      int b = strcmp(files.cFileName, "..");
+      if(!(a == 0 || b == 0))
+         filenames.push_back(files.cFileName);
+   } while(FindNextFile(find_files_handle, &files));
+
+   FindClose(find_files_handle);
+   
+   return filenames;
 }
