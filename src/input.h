@@ -502,9 +502,9 @@ bool pressed_only(InputFlags flags, u64 key)
    return flags.key_press == key && !(G_INPUT_INFO.key_state & key);
 }
 
-bool pressed(u64 flags, u64 key)
+bool pressed(InputFlags flags, u64 key)
 {
-   return flags & key;
+   return flags.key_press & key;
 }
 
 void check_mouse_click_hold()

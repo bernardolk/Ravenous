@@ -86,10 +86,14 @@ void handle_input_flags(InputFlags flags, Player* &player)
    }
 
    // --------------------
-   // MODE MODE SHORTCUTS
+   // MOVE MODE SHORTCUTS
    // --------------------
    if(Context.move_mode == true)
    {
+      if(pressed(flags, KEY_X) && pressed(flags, KEY_Z))
+      {
+         Context.move_axis = 0;
+      }
       if(pressed_only(flags, KEY_X))
       {
          Context.move_axis = 1;
