@@ -128,6 +128,16 @@ void render_entity_panel(EntityPanelContext* panel)
    }
 
    ImGui::NewLine();
+   if(ImGui::CollapsingHeader("World cells"))
+   {
+      for(int i = 0; i < entity->world_cells_count; i++)
+      {
+         auto cell = entity->world_cells[i];
+         ImGui::Text(cell->coordinates_str().c_str());
+      }   
+   }
+
+   ImGui::NewLine();
 
    // Controls
    bool duplicated = false;
@@ -171,7 +181,11 @@ void render_entity_panel(EntityPanelContext* panel)
       Context.snap_mode = false;
       Context.measure_mode = false;
       entity->update_collision_geometry();
-      World.update_entity_world_cells(entity);
+      auto update_cells = World.update_entity_world_cells(entity);
+      if(update_cells.status != OK)
+      {
+         G_BUFFERS.rm_buffer->add(update_cells.message, 3500);
+      }
       World.update_cells_in_use_list();
    }
 

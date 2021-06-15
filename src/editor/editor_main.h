@@ -140,7 +140,11 @@ void update()
          else
             deselect_entity();
          
-         World.update_entity_world_cells(Context.selected_entity);
+         auto update_cells = World.update_entity_world_cells(Context.selected_entity);
+         if(update_cells.status != OK)
+         {
+            G_BUFFERS.rm_buffer->add(update_cells.message, 3500);
+         }
          World.update_cells_in_use_list();
       }
       else move_entity_with_mouse(Context.selected_entity);
@@ -242,6 +246,8 @@ void render_toolbar()
 {
    ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 220, 180), ImGuiCond_Appearing);
    ImGui::Begin("Tools", &Context.toolbar_active, ImGuiWindowFlags_AlwaysAutoResize);
+
+   ImGui::SliderFloat("cam speed", &G_SCENE_INFO.camera->Acceleration, 1, 10);
 
    if(ImGui::Button("Entity Palette", ImVec2(150,18)))
    {
@@ -629,9 +635,9 @@ void render_world_cells(Camera* camera)
       {
          color = vec3(0.8, 0.4, 0.2);
       }
-      else if((cell->i == WORLD_CELLS_X || cell->i == 0) ||
-              (cell->j == WORLD_CELLS_Y || cell->j == 0) ||
-              (cell->k == WORLD_CELLS_Z || cell->k == 0))
+      else if((cell->i == W_CELLS_NUM_X || cell->i == 0) ||
+              (cell->j == W_CELLS_NUM_Y || cell->j == 0) ||
+              (cell->k == W_CELLS_NUM_Z || cell->k == 0))
       {
          color = vec3(0.0, 0.0, 0.0);
       }
@@ -642,7 +648,7 @@ void render_world_cells(Camera* camera)
          cell->i, cell->j, cell->k
       );
       glm::mat4 model = translate(mat4identity, position);
-		model = glm::scale(model, vec3{WORLD_CELL_SIZE, WORLD_CELL_SIZE, WORLD_CELL_SIZE});
+		model = glm::scale(model, vec3{W_CELL_LEN_METERS, W_CELL_LEN_METERS, W_CELL_LEN_METERS});
 
       //render
       shader->use();
