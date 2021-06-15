@@ -622,17 +622,20 @@ void render_world_cells(Camera* camera)
 
    auto shader = Shader_Catalogue.find("color")->second;
    auto cell_mesh = Geometry_Catalogue.find("world cell")->second;
-   RenderOptions opts;
-   opts.wireframe = true;
+   
    for(int i = 0; i < World.cells_in_use_count; i++)
    {
+      RenderOptions opts;
+      opts.wireframe = true;
+
       auto cell = World.cells_in_use[i];
 
       vec3 color;
       if(Context.world_panel.cell_coords.x == cell->i &&
          Context.world_panel.cell_coords.y == cell->j &&
          Context.world_panel.cell_coords.z == cell->k)
-      {
+      {`
+         opts.line_width = 1.5;
          color = vec3(0.8, 0.4, 0.2);
       }
       else if((cell->i == W_CELLS_NUM_X || cell->i == 0) ||
