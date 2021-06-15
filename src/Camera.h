@@ -35,7 +35,6 @@ void camera_change_direction(Camera* camera, float yawOffset, float pitchOffset)
 // Make camera look at a place in world coordinates to look at. If isPosition is set to true, then
 // a position is expected, if else, then a direction is expected.
 void camera_look_at(Camera* camera, vec3 position, bool isPosition);
-Camera* camera_create(vec3 initialPosition, vec3 direction);
 void save_camera_settings_to_file(string path, vec3 position, vec3 direction);
 float* load_camera_settings(string path);
 void set_camera_to_free_roam(Camera* camera);

@@ -213,15 +213,11 @@ int main()
    // populates texture catalogue with diffuse textures
    load_textures_from_assets_folder();
 
-   // reads from camera position file
-   float* camera_pos = load_camera_settings(CAMERA_FILE_PATH);
-
+   // create cameras
 	Camera* editor_camera = new Camera();
    Camera* first_person_camera = new Camera();
    G_SCENE_INFO.views[0] = editor_camera;
    G_SCENE_INFO.views[1] = first_person_camera;
-
-   G_CONFIG = load_configs();
 
 	// LOAD SHADERS AND GEOMETRY
 	load_text_textures("Consola.ttf", 12);
@@ -236,6 +232,7 @@ int main()
    initialize_console_buffers();
 
    // loads initial scene
+   G_CONFIG = load_configs();
    load_scene_from_file(G_CONFIG.initial_scene, &World);
    Entity_Manager.set_default_entity_attributes(         // sets some loaded assets from scene as
       "aabb", "model", "sandstone"                       // defaults for entity construction
@@ -244,8 +241,6 @@ int main()
    World.update_entity_world_cells(player->entity_ptr);  // sets player to the world
    update_buffers(player, true);                         // populates collision buffer and others
    
-   // Set entity construct defaults
-
    Editor::initialize();
 
    // Pre-loop checks

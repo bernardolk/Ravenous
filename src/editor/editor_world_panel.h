@@ -15,7 +15,7 @@ void render_world_panel(WorldPanelContext* panel, WorldStruct* world)
 
       if(ImGui::CollapsingHeader(cell->coordinates_str().c_str()))
       {
-         if(ImGui::Button("show", ImVec2(30, 30)))
+         if(ImGui::Button("show", ImVec2(50, 30)))
          {
             panel->cell_coords = vec3{cell->i, cell->j, cell->k};
          }

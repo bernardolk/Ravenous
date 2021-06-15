@@ -142,7 +142,10 @@ void render_entity_panel(EntityPanelContext* panel)
       for(auto const& texture : Texture_Catalogue)
       {
          bool in_use = entity->textures[0].name == texture.second.name;
-         ImGui::RadioButton(texture.second.name.c_str(), in_use);
+         if(ImGui::RadioButton(texture.second.name.c_str(), in_use))
+         {
+            entity->textures[0] = texture.second;
+         }
       }
    }
 

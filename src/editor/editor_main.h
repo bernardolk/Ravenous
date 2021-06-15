@@ -634,7 +634,7 @@ void render_world_cells(Camera* camera)
       if(Context.world_panel.cell_coords.x == cell->i &&
          Context.world_panel.cell_coords.y == cell->j &&
          Context.world_panel.cell_coords.z == cell->k)
-      {`
+      {
          opts.line_width = 1.5;
          color = vec3(0.8, 0.4, 0.2);
       }
