@@ -247,7 +247,8 @@ void render_toolbar()
    ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 220, 180), ImGuiCond_Appearing);
    ImGui::Begin("Tools", &Context.toolbar_active, ImGuiWindowFlags_AlwaysAutoResize);
 
-   ImGui::SliderFloat("cam speed", &G_SCENE_INFO.camera->Acceleration, 1, 10);
+   ImGui::Text("Cam speed");
+   ImGui::SliderFloat("", &G_SCENE_INFO.camera->Acceleration, 1, 10);
 
    if(ImGui::Button("Entity Palette", ImVec2(150,18)))
    {
