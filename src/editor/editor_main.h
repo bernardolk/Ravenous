@@ -497,20 +497,27 @@ void render_text_overlay(Player* player)
    float GUI_x = 25;
    float GUI_y = G_DISPLAY_INFO.VIEWPORT_HEIGHT - 60;
 
-   render_text(camera_type_string,  GUI_x, GUI_y,        1.3);
-   render_text(camera_position,     GUI_x, GUI_y - 30,   1.3);
-   render_text(player_pos,          GUI_x, GUI_y - 60,   1.3);
+   string font = "consola22";
+   string font_center = "consola48";
+   render_text(font, GUI_x, GUI_y, camera_type_string);
+   render_text(font, GUI_x, GUI_y - 30, camera_position);
+   render_text(font, GUI_x, GUI_y - 60, player_pos);
 
-   render_text(lives,               G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 90, 1.3,
-      player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1}
+   render_text(
+      font,
+      G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 
+      90,
+      player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1},
+      lives
    );
-   render_text(player_floor,        G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 60, 1.3);
-   render_text(player_state_text,   G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 30, 1.3, player_state_text_color);
 
-   render_text(view_mode_text,            G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y,        1.3);
-   render_text(G_SCENE_INFO.scene_name,   G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 30,   1.3, vec3(0.8, 0.8, 0.2));
-   render_text(time_step_string,          G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 60,   1.3, vec3(0.8, 0.8, 0.2));
-   render_text(fps_gui,                   G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 90,   1.3);
+   render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 60, player_floor);
+   render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 30, player_state_text_color, player_state_text);
+
+   render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y, view_mode_text);
+   render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 30, vec3(0.8, 0.8, 0.2), G_SCENE_INFO.scene_name);
+   render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 60, vec3(0.8, 0.8, 0.2), time_step_string);
+   render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 90, fps_gui);
 
    // render snap mode indicator
    if(Context.snap_mode)
@@ -549,21 +556,36 @@ void render_text_overlay(Player* player)
       else
          snap_mode_color = vec3(0.6, 1.0, 0.3);
 
-
-      render_text("SNAP MODE ON (" + snap_axis + "-" + snap_cycle + ")",
-            G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, GUI_y - 60, 3.0, snap_mode_color, true
+      render_text(
+         font_center, 
+         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, 
+         GUI_y - 60, 
+         snap_mode_color, 
+         true,
+         "SNAP MODE ON (" + snap_axis + "-" + snap_cycle + ")"
       );
    }
 
    if(Context.measure_mode)
    {
-      render_text("MEASURE MODE ON",
-         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, GUI_y - 60, 3.0, vec3(0.8, 0.8, 0.2), true
+      render_text(
+         font_center,
+         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
+         GUI_y - 60,
+         vec3(0.8, 0.8, 0.2),
+         true,
+         "MEASURE MODE ON"
       );
+
       if(Context.second_point_found)
       {
-         render_text("(" + format_float_tostr(abs(Context.measure_to - Context.measure_from.y), 2) + " m)",
-            G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, GUI_y - 80, 2.0, vec3(0.8, 0.8, 0.2), true
+         render_text(
+            font_center,
+            G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
+            GUI_y - 80,
+            vec3(0.8, 0.8, 0.2),
+            true,
+            "(" + format_float_tostr(abs(Context.measure_to - Context.measure_from.y), 2) + " m)"
          ); 
       }
    }
@@ -587,8 +609,13 @@ void render_text_overlay(Player* player)
             break;
       }
 
-      render_text("MOVE MODE ON (" + move_axis + ")", 
-         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, GUI_y - 60, 3.0, vec3(0.8, 0.8, 0.2), true
+      render_text(
+         font_center,
+         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
+         GUI_y - 60,
+         vec3(0.8, 0.8, 0.2),
+         true,
+         "MOVE MODE ON (" + move_axis + ")"
       );
    }
 }

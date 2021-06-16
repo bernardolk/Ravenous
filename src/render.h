@@ -1,4 +1,6 @@
-
+// -------------------------
+// RENDERING OPTIONS STRUCT
+// -------------------------
 struct RenderOptions
 {
    bool wireframe = false;
@@ -9,6 +11,9 @@ struct RenderOptions
 
 };
 
+// -----------------------------
+// GLOBAL IMMEDIATE DRAW STRUCT
+// -----------------------------
 struct GlobalImmediateDraw {
    const static int IM_BUFFER_SIZE = 20;
    Mesh* meshes[IM_BUFFER_SIZE];
@@ -63,14 +68,27 @@ struct GlobalImmediateDraw {
    }
 } G_IMMEDIATE_DRAW;
 
+
+void render_text(float x, float y, string text);
+void render_text(float x, float y, vec3 color, string text);
+void render_text(string font, float x, float y, string text);
+void render_text(string font, float x, float y, bool center, string text);
+void render_text(string font, float x, float y, vec3 color, string text);
+void render_text(string font, float x, float y, vec3 color, bool center, string text);
+void render_text(string font, float x, float y, float scale, string text);
+void render_text(string font, float x, float y, vec3 color, float scale, string text);
+void render_text(string font, float x, float y, vec3 color, float scale, bool center, string text);
 void render_scene(Scene* scene, Camera* camera);
 void render_entity(Entity* entity);
-void render_text(std::string text, float x, float y, float scale = 1.0f, vec3 color = vec3(1.0,1.0,1.0), bool center = false);
 void render_editor_entity(Entity* entity, Scene* scene, Camera* camera);
 void render_mesh(Mesh* mesh, RenderOptions opts = RenderOptions{});
 void render_message_buffer_contents();
 void render_immediate(GlobalImmediateDraw* im, Camera* camera);
 
+
+// ------------
+// RENDER MESH
+// ------------
 void render_mesh(Mesh* mesh, RenderOptions opts)
 {
    glBindVertexArray(mesh->gl_data.VAO);
@@ -121,6 +139,9 @@ void render_mesh(Mesh* mesh, RenderOptions opts)
    glBindVertexArray(0);
 }
 
+// --------------
+// RENDER ENTITY
+// --------------
 void render_entity(Entity* entity)
 {
    // bind appropriate textures
@@ -171,7 +192,9 @@ void render_editor_entity(Entity* entity, Scene* scene, Camera* camera)
    render_entity(entity);
 }
 
-
+// -------------
+// RENDER SCENE
+// -------------
 void render_scene(Scene* scene, Camera* camera) 
 {
    // set shader settings that are common to the scene
@@ -216,13 +239,18 @@ void render_scene(Scene* scene, Camera* camera)
 	}
 }
 
+// -------------------------
+// RENDER GAME GUI
+// -------------------------
 void render_game_gui(Player* player)
 {
    auto color = player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1};
-   string lives_text = to_string(player->lives);
-   render_text(lives_text, 25, 75, 3, color);
+   render_text("consola42", 25, 75, color, to_string(player->lives));
 }
 
+// -----------------------------
+// RENDER IMMEDIATE DRAW BUFFER
+// -----------------------------
 void render_immediate(GlobalImmediateDraw* im, Camera* camera)
 {
    auto shader = Shader_Catalogue.find("immediate_point")->second;
@@ -238,17 +266,92 @@ void render_immediate(GlobalImmediateDraw* im, Camera* camera)
    G_IMMEDIATE_DRAW.reset();
 }
 
-void render_text(std::string text, float x, float y, float scale, vec3 color, bool center) 
+// ------------
+// RENDER TEXT
+// ------------
+void render_text(float x, float y, string text) 
 {
-   auto find1 = Shader_Catalogue.find("text");
-   auto text_shader = find1->second;
+   render_text("consola12", x, y, vec3{1.0, 1.0, 1.0}, 1.0, false, text);
+}
+
+void render_text(string font, float x, float y, string text) 
+{
+   render_text(font, x, y, vec3{1.0, 1.0, 1.0}, 1.0, false, text);
+}
+
+void render_text(float x, float y, vec3 color, string text)
+{
+   render_text("consola12", x, y, color, 1.0, false, text);
+}
+
+void render_text(string font, float x, float y, bool center, string text) 
+{
+   render_text(font, x, y, vec3{1.0, 1.0, 1.0}, 1.0, center, text);
+}
+
+void render_text(string font, float x, float y, vec3 color, string text) 
+{
+   render_text(font, x, y, color, 1.0, false, text);
+}
+
+void render_text(string font, float x, float y, vec3 color, bool center, string text) 
+{
+   render_text(font, x, y, color, 1.0, center, text);
+}
+
+void render_text(string font, float x, float y, float scale, string text) 
+{
+   render_text(font, x, y,  vec3{1.0, 1.0, 1.0}, scale, false, text);
+}
+
+void render_text(string font, float x, float y, vec3 color, float scale, string text) 
+{
+   render_text(font, x, y, color, scale, false, text);
+}
+
+void render_text(string font, float x, float y, vec3 color, float scale, bool center, string text) 
+{
+   // Finds text shader in catalogue and set variables 
+   auto text_shader = Shader_Catalogue.find("text")->second;
 	text_shader->use();
 	text_shader->setFloat3("textColor", color.x, color.y, color.z);
 
-   auto find2 = Geometry_Catalogue.find("text");
-   Mesh* text_geometry = find2->second;
+   // Finds text drawing geometry in geometry catalogue
+   auto text_geometry = Geometry_Catalogue.find("text")->second;
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(text_geometry->gl_data.VAO);
+
+   // Try finding font in catalogue, if doesn't find, tries loading it
+   gl_charmap charmap;
+   auto font_query = Font_Catalogue.find(font);
+   if(font_query == Font_Catalogue.end())
+   {
+      // search for font size in font name (e.g. Consola12) and loads it
+      int ind = 0;
+      while(true)
+      {
+         if(!isalpha(font[ind]))
+            break;
+         
+         else if(ind + 1 == font.size())
+         {
+            cout << "Font '" << font << "' could not be loaded because no size was "
+               << "appended to its name in render_text function call.";
+            return;
+         }
+         ind++;
+      }
+
+      string size_str   = font.substr(ind, font.size());
+      string font_filename  = font.substr(0, ind) + ".ttf";
+
+      int font_size = std::stoi(size_str);
+      charmap = load_text_textures(font_filename, font_size);
+   }
+   else
+   {
+      charmap = font_query->second;
+   }
 
    if(center)
    {
@@ -256,7 +359,7 @@ void render_text(std::string text, float x, float y, float scale, vec3 color, bo
       float x_sum = 0;
 	   for (it = text.begin(); it != text.end(); it++)
       {
-		   auto ch = Characters[*it];
+		   auto ch = charmap[*it];
          x_sum += ch.Bearing.x * scale + ch.Size.x * scale;
       }
       x -= x_sum / 2.0;
@@ -265,7 +368,7 @@ void render_text(std::string text, float x, float y, float scale, vec3 color, bo
 	std::string::iterator c;
 	for (c = text.begin(); c != text.end(); c++) 
    {
-		Character ch = Characters[*c];
+		Character ch = charmap[*c];
 
 		GLfloat xpos = x + ch.Bearing.x * scale;
 		GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
@@ -292,6 +395,10 @@ void render_text(std::string text, float x, float y, float scale, vec3 color, bo
 	}
 }
 
+
+// -------------------------
+// MESSAGE BUFFER RENDERING
+// -------------------------
 void render_message_buffer_contents()
 {
    int render_count = 0;
@@ -305,8 +412,13 @@ void render_message_buffer_contents()
       if(item->message != "")
       {
          render_count++;
-         render_text(item->message, G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, 
-            G_DISPLAY_INFO.VIEWPORT_HEIGHT - 80 - render_count * 25, 2.0, vec3(0.8, 0.8, 0.2), true
+         render_text(
+            "consola24",
+            G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, 
+            G_DISPLAY_INFO.VIEWPORT_HEIGHT - 80 - render_count * 25,  
+            vec3(0.8, 0.8, 0.2),
+            true,
+            item->message
          );
          item->elapsed += G_FRAME_INFO.duration * 1000.0;
       }

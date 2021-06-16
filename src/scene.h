@@ -423,44 +423,28 @@ Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count
          {
             new_entity->textures.push_back(find->second);
          }
-         else if(texture_name == "")
-         {
-            std::cout << "TEXTURE NAME MISSING FOR ENTITY '" << new_entity->name << "' :: FATAL \n"; 
-            assert(false);
-         }
-         else if(texture_type == "")
-         {
-            std::cout << "TEXTURE TYPE MISSING FOR TEXTURE '" << texture_name << "' AT ENTITY '"<< new_entity->name << "' :: FATAL \n"; 
-            assert(false);
-         }
-         else if(texture_filename == "")
-         {
-            std::cout << "TEXTURE FILENAME MISSING FOR TEXTURE '"<<texture_name <<"' AT ENTITY '"<<new_entity->name<<"' :: FATAL \n"; 
-            assert(false);
-         }
          else
          {
-            unsigned int texture_id = load_texture_from_file(texture_filename, TEXTURES_PATH);
-
-            if(texture_id == 0)
+            // texture definition error handling
+            if(texture_name == "" || texture_type == "" || texture_filename == "")
             {
-               std::cout << "TEXTURE '" <<texture_name<< "' COULD NOT BE LOADED WHILE LOADING SCENE DESCRIPTION FILE :: FATAL \n"; 
+               std::cout << "Fatal: Texture for entity '" << new_entity->name << "' is missing either name or type or filename. \n"; 
                assert(false);
             }
             if(!(texture_type == "texture_diffuse" || texture_type == "texture_normal"))
             {
-               std::cout<<"TEXTURE '"<<texture_name<<"' HAS UNKNOWN TEXTURE TYPE " <<texture_type <<
-                  ". ERROR WHILE LOADING SCENE DESCRIPTION FILE :: FATAL \n"; 
+               std::cout<<"Fatal: '"<<texture_name<<"' has unknown texture type '" <<texture_type << "'.\n"; 
                assert(false);
             }
 
-            Texture new_texture{
-               texture_id,
-               texture_type,
-               texture_filename,
-               texture_name
-            };
-
+            unsigned int texture_id = load_texture_from_file(texture_filename, TEXTURES_PATH);
+            if(texture_id == 0)
+            {
+               cout << "Texture '" << texture_name << "' could not be loaded. \n"; 
+               assert(false);
+            }
+            
+            Texture new_texture{texture_id, texture_type, texture_filename, texture_name};
             Texture_Catalogue.insert({texture_name, new_texture});
             new_entity->textures.push_back(new_texture);
          }   
