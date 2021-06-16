@@ -499,7 +499,7 @@ void render_text_overlay(Player* player)
    float GUI_y = G_DISPLAY_INFO.VIEWPORT_HEIGHT - 60;
 
    string font = "consola22";
-   string font_center = "consola48";
+   string font_center = "swanseait38";
    render_text(font, GUI_x, GUI_y, camera_type_string);
    render_text(font, GUI_x, GUI_y - 30, camera_position);
    render_text(font, GUI_x, GUI_y - 60, player_pos);
@@ -563,7 +563,7 @@ void render_text_overlay(Player* player)
          GUI_y - 60, 
          snap_mode_color, 
          true,
-         "SNAP MODE ON (" + snap_axis + "-" + snap_cycle + ")"
+         "SNAP MODE (" + snap_axis + "-" + snap_cycle + ")"
       );
    }
 
@@ -575,7 +575,7 @@ void render_text_overlay(Player* player)
          GUI_y - 60,
          vec3(0.8, 0.8, 0.2),
          true,
-         "MEASURE MODE ON"
+         "MEASURE MODE (Y)"
       );
 
       if(Context.second_point_found)
@@ -616,7 +616,7 @@ void render_text_overlay(Player* player)
          GUI_y - 60,
          vec3(0.8, 0.8, 0.2),
          true,
-         "MOVE MODE ON (" + move_axis + ")"
+         "MOVE MODE (" + move_axis + ")"
       );
    }
 }
