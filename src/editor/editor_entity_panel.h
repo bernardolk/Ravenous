@@ -127,6 +127,14 @@ void render_entity_panel(EntityPanelContext* panel)
       }
    }
 
+   if(entity->type == CHECKPOINT)
+   {
+      ImGui::NewLine();
+      ImGui::Text("Event trigger");
+      ImGui::SliderFloat("radius", &entity->trigger_scale.x, 0, 10);
+      ImGui::SliderFloat("height", &entity->trigger_scale.y, 0, 10);
+   }
+
    ImGui::NewLine();
    if(ImGui::CollapsingHeader("World cells"))
    {
@@ -149,6 +157,21 @@ void render_entity_panel(EntityPanelContext* panel)
          {
             entity->textures[0] = texture.second;
          }
+      }
+   }
+
+   if(ImGui::CollapsingHeader("Entity type"))
+   {
+      auto is_static = entity->type == STATIC;
+      if(ImGui::RadioButton("Static", is_static))
+      {
+         if(!is_static) Entity_Manager.set_type(entity, STATIC);
+      }  
+
+      auto is_checkpoint = entity->type == CHECKPOINT;
+      if(ImGui::RadioButton("Checkpoint", is_checkpoint))
+      {
+         if(!is_checkpoint) Entity_Manager.set_type(entity, CHECKPOINT);
       }
    }
 

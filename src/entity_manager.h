@@ -9,6 +9,7 @@ struct EntityManager
    Texture default_texture;
    vector<Entity*> deletion_stack;
    vector<Entity*>* entity_registry;
+   vector<Entity*>* checkpoints_registry;
    
    // -------------------------------------
    // [INTERNAL] FIND ASSETS IN CATALOGUES
@@ -62,6 +63,11 @@ struct EntityManager
    void set_entity_registry(vector<Entity*>* registry)
    {
       entity_registry = registry;
+   }
+
+   void set_checkpoints_registry(vector<Entity*>* registry)
+   {
+      checkpoints_registry = registry;
    }
 
    // ----------------
@@ -139,6 +145,63 @@ struct EntityManager
       new_entity->name = new_name;
       register_entity(new_entity);
       return new_entity;
+   }
+
+   // ----------------
+   // SET ENTITY TYPE
+   // ----------------
+   // [internal]
+   void _remove_checkpoint_type(Entity* entity)
+   {
+      if(entity->type == CHECKPOINT)
+      {
+         int entity_index_in_vector = -1;
+         int i = 0;
+         for(auto it = checkpoints_registry->begin();
+            it < checkpoints_registry->end(); 
+            it++, i++)
+         {
+            if(*it == entity)
+            {
+               entity_index_in_vector = i;
+               break;
+            }
+         }
+         if(entity_index_in_vector > -1)
+            checkpoints_registry->erase(checkpoints_registry->begin() + entity_index_in_vector);
+      }
+   }
+
+   void _add_checkpoint_type(Entity* entity)
+   {
+      entity->type = CHECKPOINT;
+      entity->trigger = Geometry_Catalogue.find("trigger")->second;
+      checkpoints_registry->push_back(entity);
+   }
+
+   void set_type(Entity* entity, EntityType type)
+   {  
+      switch(type)
+      {
+         case CHECKPOINT:
+         {
+            if(entity->type != CHECKPOINT)
+               _add_checkpoint_type(entity);
+            break;
+         }
+         case STATIC:
+         {
+            if(entity->type == CHECKPOINT)
+               _remove_checkpoint_type(entity);
+            entity->type = STATIC;
+            break;
+         }
+         default:
+         {
+            cout << "Entity manager doesn't know what entity type '" << to_string(type) << "' should be";
+            assert(false);
+         }
+      }
    }
 
    // --------------

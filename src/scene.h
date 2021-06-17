@@ -200,10 +200,12 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
    World.init();
 
    // creates new scene
+   // @todo: possibly leaking memory if switching between scenes.
    auto scene = new Scene();
    G_SCENE_INFO.active_scene = scene;
    G_SCENE_INFO.camera = G_SCENE_INFO.views[0];    // sets to editor camera
    Entity_Manager.set_entity_registry(&G_SCENE_INFO.active_scene->entities);
+   Entity_Manager.set_checkpoints_registry(&G_SCENE_INFO.active_scene->checkpoints);
 
    // creates player
    auto player_entity = create_player_entity();
@@ -224,23 +226,6 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
       if(p.cToken == '#')
       {
          Entity* new_entity = parse_and_load_entity(p, &reader, line_count, path);
-
-         if(new_entity->type == CHECKPOINT)
-         {
-            auto mesh_details = new_entity->collision_geometry.cylinder;
-            auto vertices = construct_cylinder(
-               new_entity->trigger_scale.x, 
-               new_entity->trigger_scale.y,
-               24
-            );
-            auto trigger_mesh = new Mesh();
-            trigger_mesh->vertices = vertices;
-            trigger_mesh->render_method = GL_TRIANGLE_STRIP;
-            trigger_mesh->setup_gl_data();
-            new_entity->trigger = trigger_mesh;
-            G_SCENE_INFO.active_scene->checkpoints.push_back(new_entity);
-         }
-
          world->update_entity_world_cells(new_entity);
       }
       else if(p.cToken == '@')
@@ -486,8 +471,8 @@ Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count
          p = parse_all_whitespace(p);
          p = parse_int(p);
          int entity_type = p.iToken;
-         new_entity->type = (EntityTypeEnum) entity_type;
-
+         auto type_enum = (EntityType) entity_type;
+         Entity_Manager.set_type(new_entity, type_enum);
       }
       else if(property == "trigger")
       {

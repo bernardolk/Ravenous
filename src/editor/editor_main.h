@@ -251,7 +251,16 @@ void render_toolbar()
    ImGui::Text(scene_name.c_str());
 
    ImGui::Text("Cam speed");
-   ImGui::SliderFloat("", &G_SCENE_INFO.camera->Acceleration, 1, 16);
+   if(ImGui::SliderFloat("", &G_SCENE_INFO.camera->Acceleration, 1, 16))
+   {
+      //@Todo: saving this all the time is not cool.
+      //       could add an event to a datastructure with a timing info and
+      //       an event identifier, then every time i insert an event there
+      //       with the same id it will keep it alive longer, when it expires
+      //       we execute it (save configs in this case).
+      G_CONFIG.camspeed = G_SCENE_INFO.camera->Acceleration;
+      save_configs_to_file();
+   }
 
    if(ImGui::Button("Entity Palette", ImVec2(150,18)))
    {

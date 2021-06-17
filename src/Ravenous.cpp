@@ -112,6 +112,7 @@ struct GlobalFrameInfo {
 
 struct ProgramConfig {
    string initial_scene;
+   float camspeed;
 } G_CONFIG;
 
 // SOURCE INCLUDES
@@ -205,6 +206,7 @@ int main()
    // loads initial scene
    G_CONFIG = load_configs();
    load_scene_from_file(G_CONFIG.initial_scene, &World);
+   G_SCENE_INFO.camera->Acceleration = G_CONFIG.camspeed;
    Entity_Manager.set_default_entity_attributes(         // sets some loaded assets from scene as
       "aabb", "model", "sandstone"                       // defaults for entity construction
    );  
@@ -411,7 +413,6 @@ ProgramConfig load_configs()
    Parser::Parse p;
    int line_count = 0;
 
-   // parses entity
    while(parser_nextline(&reader, &line, &p))
    {
       line_count++;
@@ -431,15 +432,19 @@ ProgramConfig load_configs()
          assert(false);
       }
       
-      p = parse_all_whitespace(p);
-      p = parse_token(p);
-      string value = p.string_buffer;
-
+     
       if(attribute == "scene")
       {
-         config.initial_scene = value;
+         p = parse_all_whitespace(p);
+         p = parse_token(p);
+         config.initial_scene = p.string_buffer;
       }
-
+      else if(attribute == "camspeed")
+      {
+         p = parse_all_whitespace(p);
+         p = parse_float(p);
+         config.camspeed = p.fToken;
+      }
    }
 
    return config;
@@ -447,7 +452,6 @@ ProgramConfig load_configs()
 
 bool save_configs_to_file()
 {
-
    ofstream writer(CONFIG_FILE_PATH);
    if(!writer.is_open())
    {
@@ -456,6 +460,7 @@ bool save_configs_to_file()
    }
 
    writer << "scene = " << G_CONFIG.initial_scene << "\n";
+   writer << "camspeed = " << G_CONFIG.camspeed << "\n";
 
    writer.close();
    cout << "Config file saved succesfully.\n";
@@ -597,6 +602,14 @@ void create_boilerplate_geometry()
    quad_horizontal_mesh->setup_gl_data();
    Geometry_Catalogue.insert({quad_horizontal_mesh->name, quad_horizontal_mesh});
 
+   // TRIGGER
+   auto trigger_mesh = new Mesh();
+   auto trigger_vertices = construct_cylinder(1.0, 1.0, 24);
+   trigger_mesh->name = "trigger";
+   trigger_mesh->vertices = trigger_vertices;
+   trigger_mesh->render_method = GL_TRIANGLE_STRIP;
+   trigger_mesh->setup_gl_data();
+   Geometry_Catalogue.insert({trigger_mesh->name, trigger_mesh});
 
    // PLAYER CYLINDER
    Mesh* cylinder_mesh = new Mesh();
