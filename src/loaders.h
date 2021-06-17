@@ -30,9 +30,6 @@ gl_charmap load_text_textures(string font, int size)
 
 	FT_Set_Pixel_Sizes(face, 0, size);
 
-	//Sets opengl to require just 1 byte per pixel in textures
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
    gl_charmap font_charmap;
 	//we will store all characters inside the Characters map
 	for (GLubyte c = 0; c < 128; c++)
@@ -191,11 +188,11 @@ Mesh* load_wavefront_obj_as_mesh(string path, string name, bool setup_gl_data = 
 }
 
 
-unsigned int load_texture_from_file(std::string filename, const std::string& directory, bool gamma)
+unsigned int load_texture_from_file(string filename, const string& directory, bool gamma)
 {
    // returns the gl_texture ID
    
-   std::string path;
+   string path;
    if (path.substr(0, path.length() - 2) == "/")
       path = directory + filename;
    else
@@ -205,7 +202,7 @@ unsigned int load_texture_from_file(std::string filename, const std::string& dir
    unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
    if (!data)
    {
-      std::cout << "Texture failed to load at path: " << path << std::endl;
+      cout << "Texture failed to load at path: " << path << endl;
       stbi_image_free(data);
       return 0;
    }
