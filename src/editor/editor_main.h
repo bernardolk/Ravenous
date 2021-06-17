@@ -5,8 +5,8 @@ namespace Editor
 {
 const static string EDITOR_ASSETS = PROJECT_PATH + "/assets/editor/";
 
-const static float TRIAXIS_SCREENPOS_X = -1.75;
-const static float TRIAXIS_SCREENPOS_Y = -1.75;
+const static float TRIAXIS_SCREENPOS_X = -1.80;
+const static float TRIAXIS_SCREENPOS_Y = -1.80;
 
 struct PalettePanelContext {
    bool active = true;
@@ -175,21 +175,6 @@ void update_editor_entities()
 
 void render(Player* player, WorldStruct* world)
 {
-   // render triaxis
-   auto triaxis_view = glm::lookAt(vec3(0.0f), G_SCENE_INFO.camera->Front, -1.0f * G_SCENE_INFO.camera->Up);
-   float displacement_x[3] = {0.3f, 0.0f, 0.0f};
-   float displacement_y[3] = {0.0f, 0.3f, 0.0f};
-   for(int i=0; i < 3; i++)
-   {
-      // ref. axis
-	   auto entity = Context.tri_axis[i];
-      entity->shader->use();
-      entity->shader->setMatrix4("model", entity->matModel);
-      entity->shader->setMatrix4("view", triaxis_view);
-      entity->shader->setFloat2("screenPos", TRIAXIS_SCREENPOS_X, TRIAXIS_SCREENPOS_Y);
-      render_entity(entity);
-   }
-
    // render world objs if toggled
    if(Context.show_event_triggers)
    {
@@ -199,6 +184,21 @@ void render(Player* player, WorldStruct* world)
    if(Context.show_world_cells)
    {
       render_world_cells(G_SCENE_INFO.camera);
+   }
+   
+   // render triaxis
+   auto triaxis_view = glm::lookAt(vec3(0.0f), G_SCENE_INFO.camera->Front, -1.0f * G_SCENE_INFO.camera->Up);
+   float displacement_x[3] = {0.3f, 0.0f, 0.0f};
+   float displacement_y[3] = {0.0f, 0.3f, 0.0f};
+   for(int i=0; i < 3; i++)
+   {
+      // ref. axis
+	   auto axis = Context.tri_axis[i];
+      axis->shader->use();
+      axis->shader->setMatrix4("model", axis->matModel);
+      axis->shader->setMatrix4("view", triaxis_view);
+      axis->shader->setFloat2("screenPos", TRIAXIS_SCREENPOS_X, TRIAXIS_SCREENPOS_Y);
+      render_entity(axis);
    }
 
    // render panels if active
@@ -244,11 +244,14 @@ void render(Player* player, WorldStruct* world)
 
 void render_toolbar()
 {
-   ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 220, 180), ImGuiCond_Appearing);
+   ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 230, 180), ImGuiCond_Appearing);
    ImGui::Begin("Tools", &Context.toolbar_active, ImGuiWindowFlags_AlwaysAutoResize);
 
+   string scene_name = "Scene -> [" + G_SCENE_INFO.scene_name + "]";
+   ImGui::Text(scene_name.c_str());
+
    ImGui::Text("Cam speed");
-   ImGui::SliderFloat("", &G_SCENE_INFO.camera->Acceleration, 1, 10);
+   ImGui::SliderFloat("", &G_SCENE_INFO.camera->Acceleration, 1, 16);
 
    if(ImGui::Button("Entity Palette", ImVec2(150,18)))
    {
@@ -335,7 +338,7 @@ void initialize()
    y_axis->textures.push_back(Texture{green_tex, "texture_diffuse", "green.jpg", "green axis"});
    z_axis->textures.push_back(Texture{pink_tex,  "texture_diffuse", "pink.jpg",  "pink axis"});
 
-   auto shader = Shader_Catalogue.find("static")->second;
+   auto shader = Shader_Catalogue.find("ortho_gui")->second;
    x_axis->shader = shader;
    x_axis->scale = vec3{0.1, 0.1, 0.1};
    x_axis->rotation = vec3{90, 0, 90};
@@ -415,41 +418,51 @@ void initialize()
    initialize_palette(&palette);
 }
 
+
 void render_text_overlay(Player* player)
 {
+
+   float GUI_y = G_DISPLAY_INFO.VIEWPORT_HEIGHT - 60;
+   float SCREEN_HEIGHT = G_DISPLAY_INFO.VIEWPORT_HEIGHT;
+
+   string font = "consola14";
+   string font_center = "swanseait38";
+
+
+   // CAMERA POSITION
    auto camera = G_SCENE_INFO.camera;
-   string player_floor = "player floor: ";
-   if(player->standing_entity_ptr != NULL)
-      player_floor += player->standing_entity_ptr->name;
 
-   string lives = to_string(player->lives);
-
-   string GUI_atts[]{
-      format_float_tostr(camera->Position.x, 2),               //0
-      format_float_tostr(camera->Position.y,2),                //1
-      format_float_tostr(camera->Position.z,2),                //2
-      format_float_tostr(camera->Pitch,2),                     //3
-      format_float_tostr(camera->Yaw,2),                       //4
-      format_float_tostr(camera->Front.x,2),                   //5
-      format_float_tostr(camera->Front.y,2),                   //6
-      format_float_tostr(camera->Front.z,2),                   //7
-      format_float_tostr(player->entity_ptr->position.x,1),    //8
-      format_float_tostr(player->entity_ptr->position.y,1),    //9
-      format_float_tostr(player->entity_ptr->position.z,1),    //10
-      format_float_tostr(G_FRAME_INFO.time_step,1)             //11
+   string cam_p[3]{
+      format_float_tostr(camera->Position.x, 2),
+      format_float_tostr(camera->Position.y, 2), 
+      format_float_tostr(camera->Position.z ,2), 
    };
-
-   string cam_type = camera->type == FREE_ROAM ? "FREE ROAM" : "THIRD PERSON";
-   string camera_type_string  = "camera type: " + cam_type;
-   string camera_position  = "camera:   x: " + GUI_atts[0] + " y:" + GUI_atts[1] + " z:" + GUI_atts[2];
-   string camera_front     = "    dir:  x: " + GUI_atts[5] + " y:" + GUI_atts[6] + " z:" + GUI_atts[7];
-   string mouse_stats      = "    pitch: " + GUI_atts[3] + " yaw: " + GUI_atts[4];
-   string fps              = to_string(G_FRAME_INFO.current_fps);
-   string fps_gui          = "FPS: " + fps.substr(0, fps.find('.', 0) + 2);
-   string player_pos       = "player:   x: " +  GUI_atts[8] + " y: " +  GUI_atts[9] + " z: " +  GUI_atts[10];
-   string time_step_string = "time step: " + GUI_atts[11] + "x";
+   string camera_position  = "camera:   x: " + cam_p[0] + " y:" + cam_p[1] + " z:" + cam_p[2];
+   render_text(font, 235, 45, camera_position);
 
 
+   // PLAYER POSITION
+   string player_p[3]{
+      format_float_tostr(player->entity_ptr->position.x, 1),
+      format_float_tostr(player->entity_ptr->position.y, 1),
+      format_float_tostr(player->entity_ptr->position.z, 1),
+   };
+   string player_pos = "player:   x: " +  player_p[0] + " y: " +  player_p[1] + " z: " +  player_p[2];
+   render_text(font, 235, 70, player_pos);
+
+
+   // PLAYER LIVES
+   string lives = to_string(player->lives);
+   render_text(
+      font,
+      G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 
+      90,
+      player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1},
+      lives
+   );
+
+
+   // PLAYER STATE
    vec3 player_state_text_color;
    std::string player_state_text;
    switch(player->player_state)
@@ -484,43 +497,21 @@ void render_text_overlay(Player* player)
          break;
    }
 
-   std::string view_mode_text;
-   switch(PROGRAM_MODE.current)
-   {
-      case EDITOR_MODE:
-         view_mode_text = "EDITOR MODE";
-         break;
-      case GAME_MODE:
-         view_mode_text = "GAME MODE";
-         break;
-   }
-
-   float GUI_x = 25;
-   float GUI_y = G_DISPLAY_INFO.VIEWPORT_HEIGHT - 60;
-
-   string font = "consola18";
-   string font_center = "swanseait38";
-   render_text(font, GUI_x, GUI_y, camera_type_string);
-   render_text(font, GUI_x, GUI_y - 30, camera_position);
-   render_text(font, GUI_x, GUI_y - 60, player_pos);
-
-   render_text(
-      font,
-      G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 
-      90,
-      player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1},
-      lives
-   );
-
+   string player_floor = "player floor: ";
+   if(player->standing_entity_ptr != NULL)
+      player_floor += player->standing_entity_ptr->name;
    render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 60, player_floor);
    render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 30, player_state_text_color, player_state_text);
 
-   render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y, view_mode_text);
-   render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 30, vec3(0.8, 0.8, 0.2), G_SCENE_INFO.scene_name);
-   render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 60, vec3(0.8, 0.8, 0.2), time_step_string);
-   render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 200, GUI_y - 90, fps_gui);
 
-   // render snap mode indicator
+   // FPS
+   string fps = to_string(G_FRAME_INFO.current_fps);
+   string fps_gui = "FPS: " + fps.substr(0, fps.find('.', 0) + 2);
+   render_text(font, G_DISPLAY_INFO.VIEWPORT_WIDTH - 120, 30, fps_gui);
+
+
+   // EDITOR TOOLS INDICATORS
+   float centered_text_height = SCREEN_HEIGHT - 120;
    if(Context.snap_mode)
    {
       string snap_cycle;
@@ -560,7 +551,7 @@ void render_text_overlay(Player* player)
       render_text(
          font_center, 
          G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, 
-         GUI_y - 60, 
+         centered_text_height, 
          snap_mode_color, 
          true,
          "SNAP MODE (" + snap_axis + "-" + snap_cycle + ")"
@@ -572,7 +563,7 @@ void render_text_overlay(Player* player)
       render_text(
          font_center,
          G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
-         GUI_y - 60,
+         centered_text_height,
          vec3(0.8, 0.8, 0.2),
          true,
          "MEASURE MODE (Y)"
@@ -583,7 +574,7 @@ void render_text_overlay(Player* player)
          render_text(
             font_center,
             G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
-            GUI_y - 80,
+            centered_text_height - 20,
             vec3(0.8, 0.8, 0.2),
             true,
             "(" + format_float_tostr(abs(Context.measure_to - Context.measure_from.y), 2) + " m)"
@@ -613,7 +604,7 @@ void render_text_overlay(Player* player)
       render_text(
          font_center,
          G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
-         GUI_y - 60,
+         centered_text_height,
          vec3(0.8, 0.8, 0.2),
          true,
          "MOVE MODE (" + move_axis + ")"

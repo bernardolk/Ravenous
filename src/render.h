@@ -342,7 +342,7 @@ void render_text(string font, float x, float y, vec3 color, float scale, bool ce
          ind++;
       }
 
-      string size_str   = font.substr(ind, font.size());
+      string size_str = font.substr(ind, font.size());
       string font_filename  = font.substr(0, ind) + ".ttf";
 
       int font_size = std::stoi(size_str);
@@ -353,6 +353,7 @@ void render_text(string font, float x, float y, vec3 color, float scale, bool ce
       charmap = font_query->second;
    }
 
+   //@todo add enum to CENTER, LEFT ALIGN (default, no extra work) and RIGHT ALIGN
    if(center)
    {
       string::iterator it;
@@ -364,6 +365,7 @@ void render_text(string font, float x, float y, vec3 color, float scale, bool ce
       }
       x -= x_sum / 2.0;
    }
+
 
 	std::string::iterator c;
 	for (c = text.begin(); c != text.end(); c++) 
@@ -401,6 +403,7 @@ void render_text(string font, float x, float y, vec3 color, float scale, bool ce
 // -------------------------
 void render_message_buffer_contents()
 {
+   //@todo make disappearing effect
    int render_count = 0;
    size_t size = G_BUFFERS.rm_buffer->size;
    auto item = G_BUFFERS.rm_buffer->buffer;

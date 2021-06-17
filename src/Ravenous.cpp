@@ -630,8 +630,8 @@ void initialize_shaders()
    Shader_Catalogue.insert({im_point_shader->name, im_point_shader});
 
    // editor entity shaders
-   auto static_shader = create_shader_program("static", "vertex_static", "fragment_static");
-   Shader_Catalogue.insert({static_shader->name, static_shader});
+   auto ortho_shader = create_shader_program("ortho_gui", "vertex_static", "fragment_static");
+   Shader_Catalogue.insert({ortho_shader->name, ortho_shader});
 
    // general model shader
    auto color_shader = create_shader_program("color", "vertex_model", "fragment_color");
