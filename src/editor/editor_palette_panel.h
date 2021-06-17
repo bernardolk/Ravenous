@@ -24,24 +24,15 @@ void render_palette_panel(PalettePanelContext* panel)
 
 void initialize_palette(PalettePanelContext* panel)
 {
-   auto sandstone_texture = Texture_Catalogue.find("sandstone")->second;
-   auto model_shader = Shader_Catalogue.find("model")->second;
-
    // 0
-   auto sandstone_box = new Entity();
-   sandstone_box->shader = model_shader;
-   sandstone_box->textures.push_back(sandstone_texture);
-   sandstone_box->mesh = Geometry_Catalogue.find("aabb")->second;
+   auto sandstone_box = Entity_Manager.create_entity("NONAME", "aabb", "model", "sandstone");
    sandstone_box->collision_geometry_type = COLLISION_ALIGNED_BOX;
    panel->entity_palette[0] = sandstone_box;
    panel->count++;
 
    // 1
-   auto sandstone_slope = new Entity();
-   sandstone_slope->shader = model_shader;
-   sandstone_slope->textures.push_back(sandstone_texture);
-   sandstone_slope->mesh = Geometry_Catalogue.find("slope")->second;
-   sandstone_box->collision_geometry_type = COLLISION_ALIGNED_SLOPE;
+   auto sandstone_slope = Entity_Manager.create_entity("NONAME", "slope", "model", "sandstone");
+   sandstone_slope->collision_geometry_type = COLLISION_ALIGNED_SLOPE;
    panel->entity_palette[1] = sandstone_slope;
    panel->count++;
 }

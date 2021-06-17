@@ -120,9 +120,8 @@ struct EntityManager
    {
       // allocate entity with new id
       auto new_entity = new Entity();
-      new_entity->id = ++count;
-      // copy static values
       *new_entity = *entity;
+      new_entity->id = ++count;
       // tries new name with copy
       string new_name = new_entity->name;
       if(new_name != "NONAME")

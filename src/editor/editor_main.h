@@ -498,7 +498,7 @@ void render_text_overlay(Player* player)
    float GUI_x = 25;
    float GUI_y = G_DISPLAY_INFO.VIEWPORT_HEIGHT - 60;
 
-   string font = "consola22";
+   string font = "consola18";
    string font_center = "swanseait38";
    render_text(font, GUI_x, GUI_y, camera_type_string);
    render_text(font, GUI_x, GUI_y - 30, camera_position);
