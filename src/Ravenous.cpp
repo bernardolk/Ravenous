@@ -183,7 +183,6 @@ int main()
    setup_gl();
 
    // populates texture catalogue with diffuse textures
-   load_textures_from_assets_folder();
 
    // create cameras
 	Camera* editor_camera = new Camera();
@@ -191,8 +190,8 @@ int main()
    G_SCENE_INFO.views[0] = editor_camera;
    G_SCENE_INFO.views[1] = first_person_camera;
 
-	// LOAD SHADERS AND GEOMETRY
-	load_text_textures("Consola.ttf", 12);
+	// load shaders, textures and geometry
+   load_textures_from_assets_folder();
    initialize_shaders();
    create_boilerplate_geometry();
 
@@ -757,4 +756,6 @@ void setup_gl()
    glEnable(GL_BLEND);
    glEnable(GL_PROGRAM_POINT_SIZE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//Sets opengl to require just 1 byte per pixel in textures
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 }

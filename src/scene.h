@@ -570,13 +570,6 @@ bool save_player_position_to_file(string scene_name, Player* player)
 Entity* create_player_entity()
 {
    // cylinder
-   unsigned int pink_texture = load_texture_from_file("pink.jpg", TEXTURES_PATH);
-    auto cylinder_texture = new Texture
-    {
-      pink_texture,
-      "texture_diffuse",
-      "whatever"
-   };
    auto find1 = Shader_Catalogue.find("model");
    auto model_shader = find1->second;
 
@@ -587,9 +580,18 @@ Entity* create_player_entity()
    auto cylinder_mesh = find_cylinder->second;
 
    auto cylinder = Entity_Manager.create_entity();
-   cylinder->name             = "Player";
-   cylinder->shader           = model_shader;
-   cylinder->textures         = std::vector<Texture>{*cylinder_texture};
+   cylinder->name = "Player";
+   cylinder->shader = model_shader;
+
+   unsigned int pink_texture = load_texture_from_file("pink.jpg", TEXTURES_PATH);
+   cylinder->textures = 
+      std::vector<Texture> {
+         Texture {
+            pink_texture,
+            "texture_diffuse",
+            "whatever"
+         }
+      };
    cylinder->mesh             = cylinder_mesh;
 
    // player collision geometry

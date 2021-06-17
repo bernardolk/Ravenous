@@ -137,6 +137,9 @@ void render_entity_panel(EntityPanelContext* panel)
       }   
    }
 
+   auto shader_text = "Shader: " + entity->shader->name;
+   ImGui::Text(shader_text.c_str());
+
    if(ImGui::CollapsingHeader("Textures"))
    {
       for(auto const& texture : Texture_Catalogue)
