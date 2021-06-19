@@ -16,4 +16,5 @@ assets/*
 imgui.ini
 scenes/*
 !scenes/test.txt
+!scenes/world.txt
 camera.txt

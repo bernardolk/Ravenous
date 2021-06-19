@@ -1,0 +1,44 @@
+*-6.25981 9.59456 22.0082  0.740074 -0.614286 -0.273756
+@player_position = 8.17343 0.875 7.17308
+@player_initial_velocity = 0 0 0
+@player_state = 0
+@player_fall_acceleration = 13
+
+$point
+position 3.5 10 0.5
+diffuse 1 1 1
+ambient 1 1 1
+linear 0.4
+quadratic 0.04
+
+$point
+position -3.5 10 0.5
+diffuse 1 1 1
+ambient 1 1 1
+linear 0.4
+quadratic 0.04
+
+$point
+position -8 10 1
+diffuse 1 1 1
+ambient 1 1 1
+linear 0.4
+quadratic 0.04
+
+#first entity
+position 0 -1 0
+rotation 0 0 0
+scale 15 1 15
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision aabb
+
+#NONAME
+position 8.10466 -1 15
+rotation 0 270 0
+scale 1 1 1
+mesh slope
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision slope
