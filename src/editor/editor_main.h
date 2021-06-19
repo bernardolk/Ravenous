@@ -43,6 +43,9 @@ struct EntityState {
 
 struct EditorContext {
    ImGuiStyle* imStyle;
+   string last_frame_scene;
+
+   // panels
    EntityPanelContext entity_panel;
    WorldPanelContext world_panel;
    PalettePanelContext palette_panel;
@@ -106,9 +109,16 @@ void terminate();
 
 void update()
 {
+   if(Context.last_frame_scene != G_SCENE_INFO.scene_name)
+   {
+      Context.entity_panel.active = false;
+      Context.world_panel.active = false;
+   }
+
+   Context.last_frame_scene = G_SCENE_INFO.scene_name;
+
    // check for asset changes
    check_for_asset_changes();
-
    update_editor_entities();
 
    if(Context.entity_panel.active)
@@ -428,12 +438,13 @@ void initialize()
 
    // palette panel
    initialize_palette(&Context.palette_panel);
+
+   Context.last_frame_scene = G_SCENE_INFO.scene_name;
 }
 
 
 void render_text_overlay(Player* player)
 {
-
    float GUI_y = G_DISPLAY_INFO.VIEWPORT_HEIGHT - 60;
    float SCREEN_HEIGHT = G_DISPLAY_INFO.VIEWPORT_HEIGHT;
 

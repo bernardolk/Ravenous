@@ -154,8 +154,8 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <collision.h>
 #include <scene.h>
 #include <console.h>
-#include <editor/editor_main.h>
 #include <gameplay.h>
+#include <editor/editor_main.h>
 
 #define glCheckError() glCheckError_(__FILE__, __LINE__) 
 
