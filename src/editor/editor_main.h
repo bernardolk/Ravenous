@@ -122,10 +122,18 @@ void update()
       Context.snap_reference = nullptr;
    }
 
+   // set editor mode values to initial if not active
    if(!Context.measure_mode)
    {
       Context.first_point_found  = false;
       Context.second_point_found = false;
+   }
+   if(!Context.snap_mode)
+   {
+      Context.snap_cycle = 0;
+      Context.snap_axis = 1;
+      Context.snap_inside = true;
+      Context.snap_reference = nullptr;
    }
 
    // respond to mouse if necessary
@@ -275,7 +283,7 @@ void render_toolbar()
    ImGui::Text("Measure");
    if(ImGui::Button("Y", ImVec2(40,18)))
    {
-      Context.measure_mode = true;
+      activate_measure_mode();
    }
 
    ImGui::SameLine();

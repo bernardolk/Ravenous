@@ -14,7 +14,7 @@ void render_palette_panel(PalettePanelContext* panel)
       {
          auto attributes = panel->entity_palette[i];
          auto new_entity = Entity_Manager.create_entity(&attributes);
-         select_entity_to_move_with_mouse(new_entity);
+         activate_move_mode(new_entity);
       }
    }
 

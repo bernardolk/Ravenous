@@ -1,12 +1,28 @@
+void deactivate_editor_modes()
+{
+   Context.move_mode = false;
+   Context.snap_mode = false;
+   Context.measure_mode = false;
+}
+
 // ----------
 // SNAP TOOL
 // ----------
-
+void activate_snap_mode(Entity* entity);
 void snap_entity_to_reference(Entity* entity);
 void check_selection_to_snap(EntityPanelContext* panel);
 void undo_snap();
 void snap_commit();
 
+void activate_snap_mode(Entity* entity)
+{
+   deactivate_editor_modes();
+   Context.snap_mode = true;
+   auto &undo_snap     = Context.entity_state_before_snap;
+   undo_snap.position  = entity->position;
+   undo_snap.rotation  = entity->rotation;
+   undo_snap.scale     = entity->scale;
+}
 
 void undo_snap()
 {
@@ -88,7 +104,14 @@ void check_selection_to_snap(EntityPanelContext* panel)
 // -------------
 // MEASURE TOOL
 // -------------
+void activate_measure_mode();
 void check_selection_to_measure();
+
+void activate_measure_mode()
+{
+   deactivate_editor_modes();
+   Context.measure_mode = true;
+}
 
 void check_selection_to_measure()
 {
@@ -115,7 +138,7 @@ void check_selection_to_measure()
 // MOVE ENTITY TOOL
 // -----------------
 void move_entity_with_mouse(Entity* entity);
-void select_entity_to_move_with_mouse(Entity* entity);
+void activate_move_mode(Entity* entity);
 void check_selection_to_move_entity();
 
 void check_selection_to_move_entity()
@@ -123,11 +146,12 @@ void check_selection_to_move_entity()
    auto pickray = cast_pickray();
    auto test = test_ray_against_scene(pickray, true);
    if(test.hit)
-      select_entity_to_move_with_mouse(test.entity);
+      activate_move_mode(test.entity);
 }
 
-void select_entity_to_move_with_mouse(Entity* entity)
+void activate_move_mode(Entity* entity)
 {
+   deactivate_editor_modes();
    Context.move_mode = true;
    // Context.scale_on_drop = scale_on_drop;
    Context.selected_entity = entity;
@@ -306,4 +330,3 @@ void render_aabb_boundaries(Entity* entity)
       GL_POINTS
    );
 }
-

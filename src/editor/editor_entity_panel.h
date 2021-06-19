@@ -183,11 +183,7 @@ void render_entity_panel(EntityPanelContext* panel)
    {
       if(ImGui::Button("Snap", ImVec2(82,18)))
       {
-         Context.snap_mode = true;
-         auto &undo_snap     = Context.entity_state_before_snap;
-         undo_snap.position  = entity->position;
-         undo_snap.rotation  = entity->rotation;
-         undo_snap.scale     = entity->scale;
+         activate_snap_mode(entity);
       }
       if(ImGui::Checkbox("inside", &Context.snap_inside))
       {
@@ -200,7 +196,7 @@ void render_entity_panel(EntityPanelContext* panel)
          duplicated = true;
          // entity manager logic
          auto new_entity = Entity_Manager.copy_entity(entity);
-         select_entity_to_move_with_mouse(new_entity);
+         activate_move_mode(new_entity);
          set_entity_panel(new_entity);
       }
 
