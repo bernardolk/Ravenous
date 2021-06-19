@@ -52,21 +52,32 @@ void recompute_collision_buffer_entities(Player* player)
    // copies collision-check-relevant entity ptrs to a buffer
    // with metadata about the collision check for the entity
    auto collision_buffer = G_BUFFERS.entity_buffer->buffer;
-   int new_size = 0, total_entities = 0;
+   int entity_count = 0;
    for(int i = 0; i < player->entity_ptr->world_cells_count; i++)
    {
       auto cell = player->entity_ptr->world_cells[i];
       for(int j = 0; j < cell->count; j++)
       {
-         if(++total_entities > COLLISION_BUFFER_CAPACITY) assert(false);
          auto entity = cell->entities[j];
-         collision_buffer->entity = entity;
-         collision_buffer->collision_check = false;
-         collision_buffer++;
-         new_size++;
+         
+         // adds to buffer only if not present already
+         bool present = false;
+         for(int k = 0; k < entity_count; k++)
+            if(collision_buffer[k].entity == entity)
+               present = true;
+
+         if(!present)
+         {
+            collision_buffer->entity = entity;
+            collision_buffer->collision_check = false;
+            collision_buffer++;
+            entity_count++;
+            if(entity_count > COLLISION_BUFFER_CAPACITY) assert(false);
+         }
       }
    }
-   G_BUFFERS.entity_buffer->size = new_size;
+
+   G_BUFFERS.entity_buffer->size = entity_count;
 }
 
 void reset_collision_buffer_checks()
