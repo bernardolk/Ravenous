@@ -27,7 +27,7 @@ void initialize_palette(PalettePanelContext* panel)
    int texture_count = 0;
    panel->textures[texture_count++] = load_texture_from_file("box.png", EDITOR_ASSETS);
    panel->textures[texture_count++] = load_texture_from_file("slope.png", EDITOR_ASSETS);
-   panel->textures[texture_count++] = load_texture_from_file("box.png", EDITOR_ASSETS);
+   panel->textures[texture_count++] = load_texture_from_file("checkpoint.png", EDITOR_ASSETS);
 
    // 0
    panel->entity_palette[panel->count++] = EntityAttributes{
