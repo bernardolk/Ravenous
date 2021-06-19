@@ -3,7 +3,6 @@ void update_player_state(Player* &player, WorldStruct* world);
 void make_player_slide(Player* player, Entity* ramp, bool slide_fall = false);
 void run_collision_checks_standing(Player* player);
 void run_collision_checks_falling(Player* player);
-void player_death_handler(Player* &player);
 void game_handle_input(InputFlags flags, Player* &player);
 void reset_input_flags(InputFlags flags);
 void mark_entity_checked(Entity* entity);
@@ -82,7 +81,8 @@ void update_player_state(Player* &player, WorldStruct* world)
 
    if(player->lives <= 0)
    {
-      player_death_handler(player);
+      G_BUFFERS.rm_buffer->add("PLAYER DIED (height:" + format_float_tostr(player->fall_height_log, 2) + " m)", 3000);
+      player->die();
       return;
    }
 
@@ -475,6 +475,7 @@ void resolve_collision(CollisionData collision, Player* player)
    if(trigger_check_was_player_hurt) player->maybe_hurt_from_fall();
 }
 
+
 void make_player_slide(Player* player, Entity* ramp, bool slide_fall)
 {
    std::cout << "SLIDE FALLING" << "\n";
@@ -504,6 +505,7 @@ void make_player_slide(Player* player, Entity* ramp, bool slide_fall)
       player->player_state = PLAYER_STATE_SLIDING;
 }
 
+
 void check_trigger_interaction(Player* player)
 {
    auto checkpoints = G_SCENE_INFO.active_scene->checkpoints;
@@ -514,12 +516,11 @@ void check_trigger_interaction(Player* player)
       if(triggered)
       {
          G_BUFFERS.rm_buffer->add("TRIGGERED", 1000);
+         player->set_checkpoint(checkpoint);
       }
       checkpoint++;
    }
-
 }
-
 
 
 //@todo: refactor this into game mode input handle and editor mode input handle
@@ -676,11 +677,4 @@ void reset_input_flags(InputFlags flags)
    // here we record a history for if keys were last pressed or released, so to enable smooth toggle
    G_INPUT_INFO.key_state |= flags.key_press;
    G_INPUT_INFO.key_state &= ~(flags.key_release); 
-}
-
-void player_death_handler(Player* &player)
-{
-   load_player_attributes_from_file(G_SCENE_INFO.scene_name, player);
-   player->lives = player->initial_lives;
-   G_BUFFERS.rm_buffer->add("PLAYER DIED (height:" + format_float_tostr(player->fall_height_log, 2) + " m)", 3000);
 }

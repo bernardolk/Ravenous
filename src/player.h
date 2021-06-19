@@ -40,6 +40,9 @@ struct Player {
 
    float fall_height_log = 0;
 
+   Entity* checkpoint = nullptr;
+   vec3 checkpoint_pos;
+
    vec3 feet()
    {
       return entity_ptr->position - vec3(0.0f, half_height, 0.0f);
@@ -64,6 +67,26 @@ struct Player {
 
    void restore_health()
    {
+      lives = initial_lives;
+   }
+
+   void set_checkpoint(Entity* entity)
+   {
+      if(entity->type != CHECKPOINT) assert(false);
+
+      checkpoint_pos = entity_ptr->position;
+      checkpoint = entity;
+   }
+
+   void goto_checkpoint()
+   {
+      if(checkpoint == nullptr) cout << "teleporting player to initial position.\n";
+      entity_ptr->position = checkpoint_pos;
+   }
+
+   void die()
+   {
+      goto_checkpoint();
       lives = initial_lives;
    }
 };

@@ -11,6 +11,78 @@ Entity* create_player_entity();
 Player* create_player(Entity* player_entity);
 
 
+bool load_scene_from_file(std::string scene_name, WorldStruct* world)
+{
+   string path = SCENES_FOLDER_PATH + scene_name + ".txt";
+   ifstream reader(path);
+
+   if(!reader.is_open())
+   {
+      cout << "Cant load scene from file '" + path + "', path NOT FOUND \n";  
+      return false;
+   }
+
+   // clears the current scene entity data
+   if(G_SCENE_INFO.active_scene != NULL)
+      G_SCENE_INFO.active_scene->entities.clear();
+      // CLEAR BUFFERS ?
+
+   // Gets a new world struct from scratch
+   World.init();
+
+   // creates new scene
+   // @todo: possibly leaking memory if switching between scenes.
+   auto scene = new Scene();
+   G_SCENE_INFO.active_scene = scene;
+   G_SCENE_INFO.camera = G_SCENE_INFO.views[0];    // sets to editor camera
+   Entity_Manager.set_entity_registry(&G_SCENE_INFO.active_scene->entities);
+   Entity_Manager.set_checkpoints_registry(&G_SCENE_INFO.active_scene->checkpoints);
+
+   // creates player
+   auto player_entity = create_player_entity();
+   auto player = create_player(player_entity);
+   scene->entities.push_back(player_entity);
+   G_SCENE_INFO.player = player;
+
+   // starts reading
+   std::string line;
+   Parser::Parse p;
+   int line_count = 0;
+
+   // parses entity
+   while(parser_nextline(&reader, &line, &p))
+   {
+      line_count++;
+      p = parse_symbol(p);
+      if(p.cToken == '#')
+      {
+         Entity* new_entity = parse_and_load_entity(p, &reader, line_count, path);
+         world->update_entity_world_cells(new_entity);
+      }
+      else if(p.cToken == '@')
+      {
+         parse_and_load_player_attribute(p, &reader, line_count, path, G_SCENE_INFO.player);
+      }
+      else if(p.cToken == '$')
+      {
+         parse_and_load_light_source(p, &reader, line_count, path);
+      }
+      else if(p.cToken == '*')
+      {
+         parse_and_load_camera_settings(p, &reader, line_count, path);
+      }
+   }
+   
+   world->update_cells_in_use_list();
+
+   G_SCENE_INFO.scene_name = scene_name;
+
+   // SAVE BACKUP
+   save_scene_to_file("backup", player, true);
+
+   return true;
+} 
+
 bool load_player_attributes_from_file(string scene_name, Player* player)
 {
    string path = SCENES_FOLDER_PATH + scene_name + ".txt";
@@ -180,77 +252,6 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
    return true;
 }
 
-bool load_scene_from_file(std::string scene_name, WorldStruct* world)
-{
-   string path = SCENES_FOLDER_PATH + scene_name + ".txt";
-   ifstream reader(path);
-
-   if(!reader.is_open())
-   {
-      cout << "Cant load scene from file '" + path + "', path NOT FOUND \n";  
-      return false;
-   }
-
-   // clears the current scene entity data
-   if(G_SCENE_INFO.active_scene != NULL)
-      G_SCENE_INFO.active_scene->entities.clear();
-      // CLEAR BUFFERS ?
-
-   // Gets a new world struct from scratch
-   World.init();
-
-   // creates new scene
-   // @todo: possibly leaking memory if switching between scenes.
-   auto scene = new Scene();
-   G_SCENE_INFO.active_scene = scene;
-   G_SCENE_INFO.camera = G_SCENE_INFO.views[0];    // sets to editor camera
-   Entity_Manager.set_entity_registry(&G_SCENE_INFO.active_scene->entities);
-   Entity_Manager.set_checkpoints_registry(&G_SCENE_INFO.active_scene->checkpoints);
-
-   // creates player
-   auto player_entity = create_player_entity();
-   auto player = create_player(player_entity);
-   scene->entities.push_back(player_entity);
-   G_SCENE_INFO.player = player;
-
-   // starts reading
-   std::string line;
-   Parser::Parse p;
-   int line_count = 0;
-
-   // parses entity
-   while(parser_nextline(&reader, &line, &p))
-   {
-      line_count++;
-      p = parse_symbol(p);
-      if(p.cToken == '#')
-      {
-         Entity* new_entity = parse_and_load_entity(p, &reader, line_count, path);
-         world->update_entity_world_cells(new_entity);
-      }
-      else if(p.cToken == '@')
-      {
-         parse_and_load_player_attribute(p, &reader, line_count, path, G_SCENE_INFO.player);
-      }
-      else if(p.cToken == '$')
-      {
-         parse_and_load_light_source(p, &reader, line_count, path);
-      }
-      else if(p.cToken == '*')
-      {
-         parse_and_load_camera_settings(p, &reader, line_count, path);
-      }
-   }
-   
-   world->update_cells_in_use_list();
-
-   G_SCENE_INFO.scene_name = scene_name;
-
-   // SAVE BACKUP
-   save_scene_to_file("backup", player, true);
-
-   return true;
-} 
 
 void parse_and_load_camera_settings(Parser::Parse p, ifstream* reader, int& line_count, std::string path)
 {

@@ -206,13 +206,14 @@ int main()
    // loads initial scene
    G_CONFIG = load_configs();
    load_scene_from_file(G_CONFIG.initial_scene, &World);
-   G_SCENE_INFO.camera->Acceleration = G_CONFIG.camspeed;
-   Entity_Manager.set_default_entity_attributes(         // sets some loaded assets from scene as
-      "aabb", "model", "sandstone"                       // defaults for entity construction
-   );  
    Player* player = G_SCENE_INFO.player;
-   World.update_entity_world_cells(player->entity_ptr);  // sets player to the world
-   recompute_collision_buffer_entities(player);          // populates collision buffer and others
+   player->checkpoint_pos = player->entity_ptr->position;   // set player initial checkpoint position
+   G_SCENE_INFO.camera->Acceleration = G_CONFIG.camspeed;
+   Entity_Manager.set_default_entity_attributes(            // sets some loaded assets from scene as
+      "aabb", "model", "sandstone"                          // defaults for entity construction
+   );  
+   World.update_entity_world_cells(player->entity_ptr);     // sets player to the world
+   recompute_collision_buffer_entities(player);             // populates collision buffer and others
    
    Editor::initialize();
 
