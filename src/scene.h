@@ -7,6 +7,7 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy);
 void parse_and_load_light_source(Parser::Parse p, ifstream* reader, int& line_count, string path);
 void parse_and_load_camera_settings(Parser::Parse p, ifstream* reader, int& line_count, std::string path);
 bool load_player_attributes_from_file();
+bool check_if_scene_exists();
 Entity* create_player_entity();
 Player* create_player(Entity* player_entity);
 
@@ -112,7 +113,6 @@ bool load_player_attributes_from_file(string scene_name, Player* player)
    reader.close();
    return true;
 }
-
 
 bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
 {
@@ -595,4 +595,11 @@ Player* create_player(Entity* player_entity)
    player->half_height  = CYLINDER_HALF_HEIGHT;
    player->radius       = CYLINDER_RADIUS;
    return player;
+}
+
+bool check_if_scene_exists(string scene_name)
+{
+   string path = SCENES_FOLDER_PATH + scene_name + ".txt";
+   ifstream reader(path);
+   return reader.is_open();
 }

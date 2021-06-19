@@ -45,6 +45,7 @@ const string CAMERA_FILE_PATH = PROJECT_PATH + "/camera.txt";
 const string SCENES_FOLDER_PATH = PROJECT_PATH + "/scenes/";
 const string SHADERS_FILE_EXTENSION = ".shd";
 const string CONFIG_FILE_PATH = PROJECT_PATH + "/config.txt";
+const string SCENE_TEMPLATE_NAME = "scene_template";
 
 // PLAYER CYLINDER SETTINGS ... !!!
 // 1.75m of height

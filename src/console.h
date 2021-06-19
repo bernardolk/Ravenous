@@ -147,6 +147,10 @@ void execute_command(string buffer_line, Player* &player, WorldStruct* world, Ca
    Parser::Parse p {buffer_line.c_str(), 50};
    p = parse_token(p);
    const string command = p.string_buffer;
+
+   // ---------------
+   // 'SAVE' COMMAND
+   // ---------------
    if(command == "save")
    {
       p = parse_whitespace(p);
@@ -155,6 +159,9 @@ void execute_command(string buffer_line, Player* &player, WorldStruct* world, Ca
       save_scene_to_file(argument, player, false);
    }
 
+   // ---------------
+   // 'COPY' COMMAND
+   // ---------------
    else if(command == "copy")
    {
       // if you dont want to switch to the new file when saving scene with a new name
@@ -163,6 +170,10 @@ void execute_command(string buffer_line, Player* &player, WorldStruct* world, Ca
       const string scene_name = p.string_buffer;
       save_scene_to_file(scene_name, player, true);
    }
+
+   // ---------------
+   // 'LOAD' COMMAND
+   // ---------------
    else if(command == "load")
    {
       p = parse_whitespace(p);
@@ -175,6 +186,53 @@ void execute_command(string buffer_line, Player* &player, WorldStruct* world, Ca
          player->entity_ptr->render_me = PROGRAM_MODE.last == EDITOR_MODE ? true : false;
       }
    }
+
+   // --------------
+   // 'NEW' COMMAND
+   // --------------
+   else if(command == "new")
+   {
+      p = parse_whitespace(p);
+      p = parse_token(p);
+      const string scene_name = p.string_buffer;
+      if(scene_name != "")
+      {
+         auto current_scene = G_SCENE_INFO.scene_name;
+         if(check_if_scene_exists(scene_name))
+         {
+            G_BUFFERS.rm_buffer->add("Scene name already exists.", 3000);
+            return;
+         }
+
+         if(!load_scene_from_file(SCENE_TEMPLATE_NAME, world))
+         {
+            G_BUFFERS.rm_buffer->add("Scene template not found.", 3000);
+            return;
+         }
+
+         if(!save_scene_to_file(scene_name, player, false))
+         {
+            // if couldnt save copy of template, falls back, so we dont edit the template by mistake
+            if(load_scene_from_file(current_scene, world))
+            {
+               assert(false);    // if this happens, weird!
+            }
+
+            G_BUFFERS.rm_buffer->add("Couldnt save new scene.", 3000);
+         }
+
+         player = G_SCENE_INFO.player; // not irrelevant! do not delete
+         player->entity_ptr->render_me = PROGRAM_MODE.last == EDITOR_MODE ? true : false;
+      }
+      else
+      {
+         G_BUFFERS.rm_buffer->add("Could not create new scene. Provide a name please.", 3000);
+      }
+   }
+
+   // --------------
+   // 'SET' COMMAND
+   // --------------
    else if(command == "set")
    {
       p = parse_whitespace(p);
@@ -203,6 +261,10 @@ void execute_command(string buffer_line, Player* &player, WorldStruct* world, Ca
       }
       else cout << "you can set 'scene' or 'all'. dude. " << command << " won't work.\n";
    }
+
+   // -----------------
+   // 'RELOAD' COMMAND
+   // -----------------
    else if(command == "reload")
    {
       if(load_scene_from_file(G_SCENE_INFO.scene_name, world))
@@ -211,10 +273,26 @@ void execute_command(string buffer_line, Player* &player, WorldStruct* world, Ca
          player->entity_ptr->render_me = PROGRAM_MODE.last == EDITOR_MODE ? true : false;
       }
    }
+
+   // ----------------
+   // 'LIVES' COMMAND
+   // ----------------
    else if(command == "lives")
    {
       player->restore_health();
    }
+
+   // ---------------
+   // 'KILL' COMMAND
+   // ---------------
+   else if(command == "kill")
+   {
+      player->die();
+   }
+
+   // ---------------
+   // 'MOVE' COMMAND
+   // ---------------
    else if(command == "move")
    {
       p = parse_whitespace(p);
@@ -231,6 +309,7 @@ void execute_command(string buffer_line, Player* &player, WorldStruct* world, Ca
          << command << " " << argument << "' means man.\n";
       
    }
+
    else cout << "what do you mean with " << command << " man?\n";
 }
 
