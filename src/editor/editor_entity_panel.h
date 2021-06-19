@@ -255,11 +255,6 @@ void set_entity_panel(Entity* entity)
 {
    Context.selected_entity = entity;
 
-   auto &undo     = Context.original_entity_state;
-   undo.position  = entity->position;
-   undo.rotation  = entity->rotation;
-   undo.scale     = entity->scale;
-
    // could be made using EntityState? could, but I am lazy.
    auto &panel = Context.entity_panel;
    panel.active = true;

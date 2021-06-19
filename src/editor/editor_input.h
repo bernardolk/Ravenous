@@ -1,13 +1,17 @@
 void handle_input_flags(InputFlags flags, Player* &player)
 {
-   if(flags.key_press & KEY_LEFT_CTRL && pressed_once(flags, KEY_Z))
+   if(pressed(flags, KEY_LEFT_CTRL) && pressed_once(flags, KEY_Z))
    {
-      if(Context.entity_panel.active && Context.snap_mode == false)
-         undo_entity_panel_changes();
-      else if (Context.snap_mode == true)
-         undo_snap();
-      else if(Context.selected_entity != nullptr)
-         undo_selected_entity_move_changes();
+      // snap mode controls the undo stack while it is active.
+      if(!Context.snap_mode)
+         Context.undo_stack.undo();
+   }
+
+   if(pressed(flags, KEY_LEFT_CTRL) && pressed_once(flags, KEY_Y))
+   {
+      // snap mode controls the undo stack while it is active.
+      if(!Context.snap_mode)
+         Context.undo_stack.redo();
    }
 
    if(pressed_once(flags, KEY_ESC))
@@ -45,7 +49,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
             Context.snap_cycle = (Context.snap_cycle + 1) % 3;
          else
          {
-            undo_snap();
+            Context.undo_stack.undo();
             Context.snap_cycle = 0;
             Context.snap_axis = 0;
          }
@@ -58,7 +62,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
             Context.snap_cycle = (Context.snap_cycle + 1) % 3;
          else
          {
-            undo_snap();
+            Context.undo_stack.undo();
             Context.snap_cycle = 0;
             Context.snap_axis = 1;
          }
@@ -71,7 +75,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
             Context.snap_cycle = (Context.snap_cycle + 1) % 3;
          else
          {
-            undo_snap();
+            Context.undo_stack.undo();
             Context.snap_cycle = 0;
             Context.snap_axis = 2;
          }
@@ -81,7 +85,8 @@ void handle_input_flags(InputFlags flags, Player* &player)
       if(pressed_only(flags, KEY_I))
       {
          Context.snap_inside = !Context.snap_inside;
-         snap_entity_to_reference(Context.entity_panel.entity);
+         if(Context.snap_reference != nullptr)
+            snap_entity_to_reference(Context.entity_panel.entity);
       }
    }
 

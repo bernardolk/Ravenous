@@ -416,9 +416,9 @@ void render_message_buffer_contents()
       {
          render_count++;
          render_text(
-            "consola24",
+            "consola20",
             G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, 
-            G_DISPLAY_INFO.VIEWPORT_HEIGHT - 80 - render_count * 25,  
+            G_DISPLAY_INFO.VIEWPORT_HEIGHT - 120 - render_count * 25,  
             vec3(0.8, 0.8, 0.2),
             true,
             item->message

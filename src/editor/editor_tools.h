@@ -11,38 +11,19 @@ void deactivate_editor_modes()
 void activate_snap_mode(Entity* entity);
 void snap_entity_to_reference(Entity* entity);
 void check_selection_to_snap(EntityPanelContext* panel);
-void undo_snap();
 void snap_commit();
 
 void activate_snap_mode(Entity* entity)
 {
    deactivate_editor_modes();
    Context.snap_mode = true;
-   auto &undo_snap     = Context.entity_state_before_snap;
-   undo_snap.position  = entity->position;
-   undo_snap.rotation  = entity->rotation;
-   undo_snap.scale     = entity->scale;
-}
-
-void undo_snap()
-{
-   auto entity       = Context.entity_panel.entity;
-   entity->position  = Context.entity_state_before_snap.position;
-   entity->scale     = Context.entity_state_before_snap.scale;
-   entity->rotate_y(Context.entity_state_before_snap.rotation.y - entity->rotation.y);
+   Context.undo_stack.track(entity);
 }
 
 void snap_commit()
 {
-   auto entity    = Context.entity_panel.entity;
-   auto &undo     = Context.entity_state_before_snap;
-   undo.position  = entity->position;
-   undo.rotation  = entity->rotation;
-   undo.scale     = entity->scale;
-   auto &original = Context.original_entity_state;
-   original.position  = entity->position;
-   original.rotation  = entity->rotation;
-   original.scale     = entity->scale;
+   auto entity = Context.entity_panel.entity;
+   Context.undo_stack.track(entity);
 }
 
 void snap_entity_to_reference(Entity* entity)
@@ -140,6 +121,7 @@ void check_selection_to_measure()
 void move_entity_with_mouse(Entity* entity);
 void activate_move_mode(Entity* entity);
 void check_selection_to_move_entity();
+void place_entity(Entity* entity);
 
 void check_selection_to_move_entity()
 {
@@ -153,11 +135,8 @@ void activate_move_mode(Entity* entity)
 {
    deactivate_editor_modes();
    Context.move_mode = true;
-   // Context.scale_on_drop = scale_on_drop;
    Context.selected_entity = entity;
-   Context.original_entity_state.position = entity->position;
-   Context.original_entity_state.rotation = entity->rotation;
-   Context.original_entity_state.scale    = entity->scale;
+   Context.undo_stack.track(entity);
 }
 
 void move_entity_with_mouse(Entity* entity)
@@ -244,6 +223,18 @@ void move_entity_with_mouse(Entity* entity)
    }
 }
 
+void place_entity()
+{
+   Context.move_mode = false;
+   
+   auto update_cells = World.update_entity_world_cells(Context.selected_entity);
+   if(update_cells.status != OK)
+      G_BUFFERS.rm_buffer->add(update_cells.message, 3500);
+
+   World.update_cells_in_use_list();
+   Context.undo_stack.track(Context.selected_entity);
+}
+
 
 
 // ------------------
@@ -259,26 +250,8 @@ void scale_entity_with_mouse(Entity* entity)
 // -----
 // MISC
 // -----
-void deselect_entity();
-void undo_selected_entity_move_changes();
 void check_for_asset_changes();
 void render_aabb_boundaries(Entity* entity);
-
-void deselect_entity()
-{
-   Context.move_mode = false;
-   Context.scale_entity_with_mouse = false;
-}
-
-void undo_selected_entity_move_changes()
-{
-   auto entity       = Context.selected_entity;
-   entity->position  = Context.original_entity_state.position;
-   entity->scale     = Context.original_entity_state.scale;
-   entity->rotate_y(Context.original_entity_state.rotation.y - entity->rotation.y);
-
-   deselect_entity();
-}
 
 void check_for_asset_changes()
 {

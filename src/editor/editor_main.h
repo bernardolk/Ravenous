@@ -8,6 +8,8 @@ const static string EDITOR_ASSETS = PROJECT_PATH + "/assets/editor/";
 const static float TRIAXIS_SCREENPOS_X = -1.80;
 const static float TRIAXIS_SCREENPOS_Y = -1.80;
 
+#include <editor/editor_undo.h>
+
 struct PalettePanelContext {
    bool active = true;
    unsigned int textures[15];
@@ -35,15 +37,15 @@ struct WorldPanelContext {
    vec3 cell_coords = vec3{-1.0f};
 };
 
-struct EntityState {
-   vec3 position;
-   vec3 scale;
-   vec3 rotation;
-};
 
 struct EditorContext {
    ImGuiStyle* imStyle;
+   
+   // scene tracking
    string last_frame_scene;
+
+   // undo stack
+   UndoStack undo_stack;
 
    // panels
    EntityPanelContext entity_panel;
@@ -56,7 +58,6 @@ struct EditorContext {
    // general mode controls
    bool mouse_click = false;
    Entity* selected_entity = nullptr;
-   EntityState original_entity_state;
 
    // move mode
    bool move_mode = false;
@@ -79,14 +80,16 @@ struct EditorContext {
    u8 snap_axis = 1;
    bool snap_inside = true;
    Entity* snap_reference = nullptr;
-   EntityState entity_state_before_snap;
 
+   // render flags 
    bool show_event_triggers = false;
    bool show_world_cells = false;
 
+   // gizmos
    Entity* tri_axis[3];
    Entity* tri_axis_letters[3];
 } Context;
+
 
 void initialize();
 void start_frame();
@@ -151,19 +154,7 @@ void update()
    {
       if(Context.mouse_click)
       {
-         // if entity is being moved from palette, on drop we get to scale it
-         // if moving using the move shortcut, we don't
-         if(Context.scale_on_drop)
-            Context.scale_entity_with_mouse = true;
-         else
-            deselect_entity();
-         
-         auto update_cells = World.update_entity_world_cells(Context.selected_entity);
-         if(update_cells.status != OK)
-         {
-            G_BUFFERS.rm_buffer->add(update_cells.message, 3500);
-         }
-         World.update_cells_in_use_list();
+         place_entity();
       }
       else move_entity_with_mouse(Context.selected_entity);
    }
@@ -566,7 +557,8 @@ void render_text_overlay(Player* player)
       }
 
       vec3 snap_mode_color;
-      if(Context.entity_state_before_snap.position != Context.entity_panel.entity->position)
+      auto state = Context.undo_stack.check();
+      if(state.entity != nullptr && state.position != Context.entity_panel.entity->position)
          snap_mode_color = vec3(0.8, 0.8, 0.2);
       else
          snap_mode_color = vec3(0.6, 1.0, 0.3);

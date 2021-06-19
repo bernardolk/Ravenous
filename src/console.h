@@ -12,8 +12,6 @@ void initialize_console_buffers();
 void copy_buffer_to_scratch_buffer();
 void clear_scratch_buffer();
 
-
-
 struct GlobalConsoleState {
    u16 buffer_capacity = 20;
    const static u16 max_chars = 50;
