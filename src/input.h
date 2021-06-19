@@ -401,7 +401,7 @@ u64 process_keyboard_input_key_release(GLFWwindow* window)
 
 void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 {
-   if (ImGui::GetIO().WantCaptureMouse)
+   if (PROGRAM_MODE.current == EDITOR_MODE && ImGui::GetIO().WantCaptureMouse)
       return;
 
    // activates mouse dragging if clicking and current mouse position has changed a certain ammount

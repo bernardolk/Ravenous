@@ -1,5 +1,5 @@
-*19.8568 7.86994 12.6254  -0.828624 -0.421037 -0.368931
-@player_position = 6.22521 0.875 6.15629
+*13.799 6.59219 19.6573  -0.535068 -0.245309 -0.808409
+@player_position = 6.35198 0.875 8.23911
 @player_initial_velocity = 0 0 0
 @player_state = 0
 @player_fall_acceleration = 13
@@ -352,11 +352,13 @@ collision aabb
 #NONAME
 position 3.23837 0 6.8318
 rotation 0 0 0
-scale 1 1 1
+scale 0.284 1.211 0.387
 mesh aabb
 shader model
 texture texture_diffuse sandstone sandstone.jpg
 collision aabb
+type 1
+trigger 1.443 0.928 1.443
 
 #NONAME
 position 4.86276 0 4.20418
