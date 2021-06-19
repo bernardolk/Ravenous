@@ -12,8 +12,8 @@ void render_palette_panel(PalettePanelContext* panel)
    {
       if(ImGui::ImageButton((void*)(intptr_t)panel->textures[i], ImVec2(64,64)))
       {
-         auto ref_entity = panel->entity_palette[i];
-         auto new_entity = Entity_Manager.copy_entity(ref_entity);
+         auto attributes = panel->entity_palette[i];
+         auto new_entity = Entity_Manager.create_entity(&attributes);
          select_entity_to_move_with_mouse(new_entity);
       }
    }
@@ -24,15 +24,24 @@ void render_palette_panel(PalettePanelContext* panel)
 
 void initialize_palette(PalettePanelContext* panel)
 {
+   panel->textures[0] = load_texture_from_file("box.png", EDITOR_ASSETS);
+   panel->textures[1] = load_texture_from_file("slope.png", EDITOR_ASSETS);
+
    // 0
-   auto sandstone_box = Entity_Manager.create_entity("NONAME", "aabb", "model", "sandstone");
-   sandstone_box->collision_geometry_type = COLLISION_ALIGNED_BOX;
-   panel->entity_palette[0] = sandstone_box;
-   panel->count++;
+   panel->entity_palette[panel->count++] = EntityAttributes{
+      "NONAME", 
+      "aabb", 
+      "model", 
+      "sandstone", 
+      COLLISION_ALIGNED_BOX
+   };
 
    // 1
-   auto sandstone_slope = Entity_Manager.create_entity("NONAME", "slope", "model", "sandstone");
-   sandstone_slope->collision_geometry_type = COLLISION_ALIGNED_SLOPE;
-   panel->entity_palette[1] = sandstone_slope;
-   panel->count++;
+   panel->entity_palette[panel->count++] = EntityAttributes{
+      "NONAME", 
+      "slope", 
+      "model", 
+      "sandstone", 
+      COLLISION_ALIGNED_SLOPE
+   };
 }

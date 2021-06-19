@@ -11,7 +11,7 @@ const static float TRIAXIS_SCREENPOS_Y = -1.80;
 struct PalettePanelContext {
    bool active = true;
    unsigned int textures[15];
-   Entity* entity_palette[15];
+   EntityAttributes entity_palette[15];
    unsigned int count = 0;
 };
 
@@ -418,13 +418,8 @@ void initialize()
    Context.entity_panel.y_arrow = y_arrow;
    Context.entity_panel.z_arrow = z_arrow;
 
-   // load palette button textures
-   auto& palette = Context.palette_panel;
-   palette.textures[0] = load_texture_from_file("box.png", EDITOR_ASSETS);
-   palette.textures[1] = load_texture_from_file("slope.png", EDITOR_ASSETS);
-
-   // creates palette entities
-   initialize_palette(&palette);
+   // palette panel
+   initialize_palette(&Context.palette_panel);
 }
 
 

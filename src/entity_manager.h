@@ -1,3 +1,11 @@
+struct EntityAttributes {
+   string name;
+   string mesh;
+   string shader;
+   string texture;
+   CollisionGeometryEnum collision;
+};
+
 struct EntityManager
 {
    // ---------------
@@ -82,7 +90,20 @@ struct EntityManager
    // ---------------
    // CREATE ENTITY
    // ---------------
-   Entity* create_entity(string name, string mesh, string shader, string texture)
+   Entity* create_entity(EntityAttributes* attrs)
+   {
+      auto new_entity = create_entity(
+         attrs->name,
+         attrs->mesh,
+         attrs->shader,
+         attrs->texture,
+         attrs->collision
+      );
+
+      return new_entity;
+   }
+
+   Entity* create_entity(string name, string mesh, string shader, string texture, CollisionGeometryEnum collision = COLLISION_ALIGNED_BOX)
    {
       auto [_texture, _mesh, _shader] = _find_entity_assets_in_catalogue(mesh, shader, texture);
 
@@ -92,6 +113,8 @@ struct EntityManager
       new_entity->textures.push_back(_texture);
       new_entity->shader = _shader;
       new_entity->mesh = _mesh;
+      new_entity->collision_geometry_type = collision;
+      new_entity->update_collision_geometry();
 
       register_entity(new_entity);
       return new_entity;
@@ -114,8 +137,10 @@ struct EntityManager
          new_entity->textures.push_back(default_texture);
          new_entity->shader = default_shader;
          new_entity->mesh = default_mesh;
+         new_entity->collision_geometry_type = COLLISION_ALIGNED_BOX;
       }
       register_entity(new_entity);
+      new_entity->update_collision_geometry();
       return new_entity;  
    }
 

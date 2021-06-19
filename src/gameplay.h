@@ -11,6 +11,8 @@ void resolve_collision(CollisionData collision, Player* player);
 void check_for_floor_transitions(Player* player);
 void check_trigger_interaction(Player* player);
 bool update_player_world_cells(Player* player);
+void recompute_collision_buffer_entities(Player* player);
+void reset_collision_buffer_checks();
 void move_player(Player* player);
 
 bool update_player_world_cells(Player* player)
@@ -24,13 +26,15 @@ bool update_player_world_cells(Player* player)
 
    // update player world cells
    auto update_cells = World.update_entity_world_cells(player->entity_ptr);
-   bool changed_cells = false;
    if(update_cells.status == OK)
-      changed_cells = update_cells.entity_changed_cell;
-   else 
+   {
+      return update_cells.entity_changed_cell;
+   }
+   else
+   { 
       G_BUFFERS.rm_buffer->add(update_cells.message, 3500);
-   
-   return changed_cells;
+      return false;
+   }
 }
 
 void move_player(Player* player)
@@ -39,6 +43,37 @@ void move_player(Player* player)
    player->prior_position = player->entity_ptr->position;
    player->entity_ptr->position += player->entity_ptr->velocity * G_FRAME_INFO.duration * G_FRAME_INFO.time_step;
    return;
+}
+
+// -----------------
+// COLLISION BUFFER
+// -----------------
+void recompute_collision_buffer_entities(Player* player)
+{
+   // copies collision-check-relevant entity ptrs to a buffer
+   // with metadata about the collision check for the entity
+   auto collision_buffer = G_BUFFERS.entity_buffer->buffer;
+   int new_size = 0, total_entities = 0;
+   for(int i = 0; i < player->entity_ptr->world_cells_count; i++)
+   {
+      auto cell = player->entity_ptr->world_cells[i];
+      for(int j = 0; j < cell->count; j++)
+      {
+         if(++total_entities > COLLISION_BUFFER_CAPACITY) assert(false);
+         auto entity = cell->entities[j];
+         collision_buffer->entity = entity;
+         collision_buffer->collision_check = false;
+         collision_buffer++;
+         new_size++;
+      }
+   }
+   G_BUFFERS.entity_buffer->size = new_size;
+}
+
+void reset_collision_buffer_checks()
+{
+   for(int i = 0; i < G_BUFFERS.entity_buffer->size; i++)
+      G_BUFFERS.entity_buffer->buffer[i].collision_check = false;
 }
  
 void update_player_state(Player* &player, WorldStruct* world)

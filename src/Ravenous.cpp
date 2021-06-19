@@ -129,6 +129,8 @@ struct ProgramConfig {
 #include <globals.h>
 #include <entity_manager.h>
 
+int COLLISION_BUFFER_CAPACITY = WORLD_CELL_CAPACITY * 8;
+
 // entity manager
 EntityManager Entity_Manager;
 
@@ -171,7 +173,7 @@ void create_boilerplate_geometry();
 GLenum glCheckError_(const char* file, int line);
 EntityBuffer* allocate_entity_buffer(size_t size);
 RenderMessageBuffer* allocate_render_message_buffer(size_t size);
-void update_buffers(Player* player, bool changed_cells);
+void reset_message_buffer();
 void start_frame();
 ProgramConfig load_configs();
 void check_all_entities_have_shaders();
@@ -182,8 +184,6 @@ int main()
    // INITIAL GLFW AND GLAD SETUPS
 	setup_GLFW(true);
    setup_gl();
-
-   // populates texture catalogue with diffuse textures
 
    // create cameras
 	Camera* editor_camera = new Camera();
@@ -197,7 +197,7 @@ int main()
    create_boilerplate_geometry();
 
    // Allocate buffers
-   EntityBuffer* entity_buffer = allocate_entity_buffer(WORLD_CELL_CAPACITY * 8);
+   EntityBuffer* entity_buffer = allocate_entity_buffer(COLLISION_BUFFER_CAPACITY);
    G_BUFFERS.entity_buffer = entity_buffer;
    RenderMessageBuffer* render_message_buffer = allocate_render_message_buffer(10);
    G_BUFFERS.rm_buffer = render_message_buffer;
@@ -212,7 +212,7 @@ int main()
    );  
    Player* player = G_SCENE_INFO.player;
    World.update_entity_world_cells(player->entity_ptr);  // sets player to the world
-   update_buffers(player, true);                         // populates collision buffer and others
+   recompute_collision_buffer_entities(player);          // populates collision buffer and others
    
    Editor::initialize();
 
@@ -253,10 +253,13 @@ int main()
       // -------------
 		//	UPDATE PHASE
       // -------------
+      reset_message_buffer();
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player);
       move_player(player);
-      bool changed_cells = update_player_world_cells(player);
-      update_buffers(player, changed_cells);
+      update_player_world_cells(player);
+      //@todo: unless this becomes a performance problem, its easier to recompute the buffer every frame
+      //       then to try placing this call everytime necessary
+      recompute_collision_buffer_entities(player);
       update_player_state(player, &World);
 		update_scene_objects();
 
@@ -346,53 +349,18 @@ RenderMessageBuffer* allocate_render_message_buffer(size_t size)
    return rm_buffer;
 }
 
-void update_buffers(Player* player, bool changed_cells)
+void reset_message_buffer()
 {
-   // UPDATE COLLISION DETECTION ENTITY BUFFER
+   size_t size = G_BUFFERS.rm_buffer->size;
+   auto item = G_BUFFERS.rm_buffer->buffer;
+   for(int i = 0; i < size; i++)
    {
-      // copies collision-check-relevant entity ptrs to a buffer
-      // with metadata about the collision check for the entity
-      auto buffer = G_BUFFERS.entity_buffer->buffer;     
-      if(changed_cells)
+      if(item->message != "" && item->elapsed >= item->duration)
       {
-         int new_size = 0;
-         for(int i = 0; i < player->entity_ptr->world_cells_count; i++)
-         {
-            auto cell = player->entity_ptr->world_cells[i];
-            for(int j = 0; j < cell->count; j++)
-            {
-               auto entity = cell->entities[j];
-               buffer->entity = entity;
-               buffer->collision_check = false;
-               buffer++;
-               new_size++;
-            }
-         }
-         G_BUFFERS.entity_buffer->size = new_size;
+         item->message = "";
+         G_BUFFERS.rm_buffer->count -= 1;
       }
-      else
-      {
-         for(int i = 0; i < G_BUFFERS.entity_buffer->size; i++)
-         {
-            buffer->collision_check = false;
-            buffer++;
-         }
-      }
-   }
-
-   // update render message buffer
-   {
-      size_t size = G_BUFFERS.rm_buffer->size;
-      auto item = G_BUFFERS.rm_buffer->buffer;
-      for(int i = 0; i < size; i++)
-      {
-         if(item->message != "" && item->elapsed >= item->duration)
-         {
-            item->message = "";
-            G_BUFFERS.rm_buffer->count -= 1;
-         }
-         item++;
-      }
+      item++;
    }
 }
 
