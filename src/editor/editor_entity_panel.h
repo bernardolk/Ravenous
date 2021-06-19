@@ -160,20 +160,20 @@ void render_entity_panel(EntityPanelContext* panel)
       }
    }
 
-   if(ImGui::CollapsingHeader("Entity type"))
-   {
-      auto is_static = entity->type == STATIC;
-      if(ImGui::RadioButton("Static", is_static))
-      {
-         if(!is_static) Entity_Manager.set_type(entity, STATIC);
-      }  
+   // if(ImGui::CollapsingHeader("Entity type"))
+   // {
+   //    auto is_static = entity->type == STATIC;
+   //    if(ImGui::RadioButton("Static", is_static))
+   //    {
+   //       if(!is_static) Entity_Manager.set_type(entity, STATIC);
+   //    }  
 
-      auto is_checkpoint = entity->type == CHECKPOINT;
-      if(ImGui::RadioButton("Checkpoint", is_checkpoint))
-      {
-         if(!is_checkpoint) Entity_Manager.set_type(entity, CHECKPOINT);
-      }
-   }
+   //    auto is_checkpoint = entity->type == CHECKPOINT;
+   //    if(ImGui::RadioButton("Checkpoint", is_checkpoint))
+   //    {
+   //       if(!is_checkpoint) Entity_Manager.set_type(entity, CHECKPOINT);
+   //    }
+   // }
 
    ImGui::NewLine();
 

@@ -1,5 +1,5 @@
-*13.799 6.59219 19.6573  -0.535068 -0.245309 -0.808409
-@player_position = 6.35198 0.875 8.23911
+*4.6177 15.328 25.5597  -0.169981 -0.469474 -0.86643
+@player_position = -5.38575 0.875 6.08042
 @player_initial_velocity = 0 0 0
 @player_state = 0
 @player_fall_acceleration = 13
@@ -197,9 +197,9 @@ texture texture_diffuse sandstone sandstone.jpg
 collision aabb
 
 #big pillar
-position -4.4 0 -5.5
+position -4.4 -0.0479999 -5.5
 rotation 0 0 0
-scale 4.699 4.124 0.303
+scale 4.699 5.821 0.303
 mesh aabb
 shader model
 texture texture_diffuse sandstone sandstone.jpg
@@ -368,3 +368,14 @@ mesh slope
 shader model
 texture texture_diffuse sandstone sandstone.jpg
 collision slope
+
+#NONAME
+position -9.2538 4.3 1.89734
+rotation 0 0 0
+scale 0.3 1.2 0.3
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision aabb
+type 1
+trigger 1.5 1 1.5

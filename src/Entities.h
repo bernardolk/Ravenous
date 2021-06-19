@@ -72,7 +72,7 @@ struct Entity {
 
    // event trigger
    Mesh* trigger;
-   vec3 trigger_scale = vec3(1.0f);
+   vec3 trigger_scale = vec3(1.5f, 1.f, 0.f);
    vec3 trigger_pos = vec3(0.0f);
    mat4 trigger_model;
 

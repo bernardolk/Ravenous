@@ -509,16 +509,15 @@ void make_player_slide(Player* player, Entity* ramp, bool slide_fall)
 void check_trigger_interaction(Player* player)
 {
    auto checkpoints = G_SCENE_INFO.active_scene->checkpoints;
-   auto checkpoint = checkpoints[0];
    for(int i = 0; i < checkpoints.size(); i++)
    {
+      auto checkpoint = checkpoints[i];
       auto triggered = check_event_trigger_collision(checkpoint, player->entity_ptr);
       if(triggered)
       {
          G_BUFFERS.rm_buffer->add("TRIGGERED", 1000);
          player->set_checkpoint(checkpoint);
       }
-      checkpoint++;
    }
 }
 

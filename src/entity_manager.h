@@ -4,6 +4,8 @@ struct EntityAttributes {
    string shader;
    string texture;
    CollisionGeometryEnum collision;
+   EntityType type;
+   vec3 scale = vec3{1.0f};
 };
 
 struct EntityManager
@@ -97,13 +99,23 @@ struct EntityManager
          attrs->mesh,
          attrs->shader,
          attrs->texture,
-         attrs->collision
+         attrs->collision,
+         attrs->scale
       );
+
+      // sets new entity_type
+      set_type(new_entity, attrs->type);
 
       return new_entity;
    }
 
-   Entity* create_entity(string name, string mesh, string shader, string texture, CollisionGeometryEnum collision = COLLISION_ALIGNED_BOX)
+   Entity* create_entity(
+      string name,
+      string mesh,
+      string shader,
+      string texture, 
+      CollisionGeometryEnum collision = COLLISION_ALIGNED_BOX,
+      vec3 scale = vec3{1.0f})
    {
       auto [_texture, _mesh, _shader] = _find_entity_assets_in_catalogue(mesh, shader, texture);
 
@@ -113,6 +125,7 @@ struct EntityManager
       new_entity->textures.push_back(_texture);
       new_entity->shader = _shader;
       new_entity->mesh = _mesh;
+      new_entity->scale = scale;
       new_entity->collision_geometry_type = collision;
       new_entity->update_collision_geometry();
 
