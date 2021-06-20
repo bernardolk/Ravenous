@@ -264,6 +264,13 @@ struct EntityManager
       for(int i = 0; i < entity->world_cells_count; i++)
          entity->world_cells[i]->remove(entity);
 
+      // remove from checkpoint registry if checkpoint
+      if(entity->type == CHECKPOINT)
+      {
+         auto& vec = *(checkpoints_registry);
+         vec.erase(std::remove(vec.begin(), vec.end(), entity), vec.end());
+      }
+
       deletion_stack.push_back(entity);
    }
 
