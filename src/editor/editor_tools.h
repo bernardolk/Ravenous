@@ -17,12 +17,14 @@ void activate_snap_mode(Entity* entity)
 {
    deactivate_editor_modes();
    Context.snap_mode = true;
+   Context.snap_tracked_state = get_entity_state(entity);
    Context.undo_stack.track(entity);
 }
 
 void snap_commit()
 {
    auto entity = Context.entity_panel.entity;
+   Context.snap_tracked_state = get_entity_state(entity);
    Context.undo_stack.track(entity);
 }
 
@@ -69,6 +71,7 @@ void snap_entity_to_reference(Entity* entity)
 
    entity->position += diff_vec;
 }
+
 
 void check_selection_to_snap(EntityPanelContext* panel)
 {

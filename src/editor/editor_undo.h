@@ -5,6 +5,16 @@ struct EntityState {
    vec3 rotation;
 };
 
+void apply_state(EntityState state)
+{
+   if(state.entity == nullptr)
+      return;
+
+   state.entity->position = state.position;
+   state.entity->scale = state.scale;
+   state.entity->rotate_y(state.rotation.y - state.entity->rotation.y);
+}
+
 struct UndoStack {
    u8 limit = 0;
    u8 pos = 0;
@@ -29,14 +39,14 @@ struct UndoStack {
    void undo()
    {
       auto state = _apply_undo();
-      _apply_state(state);
+      apply_state(state);
       G_BUFFERS.rm_buffer->add("pos = " + to_string(pos), 500);
    }
 
    void redo()
    {
       auto state = _apply_redo();
-      _apply_state(state);
+      apply_state(state);
       G_BUFFERS.rm_buffer->add("pos = " + to_string(pos), 500);
    }
 
@@ -68,17 +78,6 @@ struct UndoStack {
          return EntityState{};
    }
 
-   // internal
-   void _apply_state(EntityState state)
-   {
-      if(state.entity == nullptr)
-         return;
-
-      state.entity->position = state.position;
-      state.entity->scale = state.scale;
-      state.entity->rotate_y(state.rotation.y - state.entity->rotation.y);
-   }
-
    bool _comp_state(EntityState state1, EntityState state2)
    {
       return state1.entity == state2.entity
@@ -87,3 +86,13 @@ struct UndoStack {
          && state1.rotation == state2.rotation;
    }
 };
+
+EntityState get_entity_state(Entity* entity)
+{
+   EntityState state; 
+   state.position = entity->position;
+   state.scale = entity->scale;
+   state.rotation = entity->rotation;
+   state.entity = entity;
+   return state;
+}

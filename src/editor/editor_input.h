@@ -49,7 +49,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
             Context.snap_cycle = (Context.snap_cycle + 1) % 3;
          else
          {
-            Context.undo_stack.undo();
+            apply_state(Context.snap_tracked_state);
             Context.snap_cycle = 0;
             Context.snap_axis = 0;
          }
@@ -62,7 +62,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
             Context.snap_cycle = (Context.snap_cycle + 1) % 3;
          else
          {
-            Context.undo_stack.undo();
+            apply_state(Context.snap_tracked_state);
             Context.snap_cycle = 0;
             Context.snap_axis = 1;
          }
@@ -75,7 +75,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
             Context.snap_cycle = (Context.snap_cycle + 1) % 3;
          else
          {
-            Context.undo_stack.undo();
+            apply_state(Context.snap_tracked_state);
             Context.snap_cycle = 0;
             Context.snap_axis = 2;
          }

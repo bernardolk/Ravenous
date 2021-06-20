@@ -80,6 +80,7 @@ struct EditorContext {
    u8 snap_axis = 1;
    bool snap_inside = true;
    Entity* snap_reference = nullptr;
+   EntityState snap_tracked_state;
 
    // render flags 
    bool show_event_triggers = false;
