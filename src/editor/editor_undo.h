@@ -1,5 +1,6 @@
 struct EntityState {
    Entity* entity = nullptr;
+   unsigned int id;
    vec3 position;
    vec3 scale;
    vec3 rotation;
@@ -22,20 +23,40 @@ EntityState get_entity_state(Entity* entity)
    state.scale = entity->scale;
    state.rotation = entity->rotation;
    state.entity = entity;
+   state.id = entity->id;
    return state;
 }
+
+struct DeletedEntityLog {
+   u8 size = 0;
+   const static u8 capacity = 100;
+   int entity_ids[capacity];
+
+   void add(Entity* entity) 
+   {
+      if(size + 1 == capacity)
+      {
+         G_BUFFERS.rm_buffer->add("DeletedEntityLog is FULL!", 3000);
+         return;
+      }
+
+      entity_ids[size++] = entity->id;
+   }
+};
 
 struct UndoStack {
    u8 limit = 0;                             // index of last added item
    u8 pos = 0;                               // current index
    const static u8 capacity = 100;           // max items - 1 (pos = 0 is never assigned)
    EntityState stack[100];                   // actual stack
+   DeletedEntityLog deletion_log;            // stores ids of entities that have been deleted
    bool full = false;                        // helps avoid writing out of stack mem boundaries
 
    void track(Entity* entity)
    {
       auto state = EntityState{
-         entity, 
+         entity,
+         entity->id, 
          entity->position, 
          entity->scale,
          entity->rotation
@@ -62,13 +83,27 @@ struct UndoStack {
 
    void undo()
    {
-      auto state = _apply_undo();
+      // gets a valid state to undo (if entity was deleted, then state is invalid)
+      EntityState state;
+      do {
+         state = _get_state_and_move_back();
+         if(pos == 1 && !_is_state_valid(state))
+            return;
+      } while(!_is_state_valid(state));
+
       apply_state(state);
    }
 
    void redo()
    {
-      auto state = _apply_redo();
+      // gets a valid state to undo (if entity was deleted, then state is invalid)
+      EntityState state;
+      do {
+         state = _get_state_and_move_up();
+         if(pos == limit && !_is_state_valid(state))
+            return;
+      } while(!_is_state_valid(state));
+
       apply_state(state);
    }
 
@@ -81,7 +116,7 @@ struct UndoStack {
    }
 
    // internal
-   EntityState _apply_undo()
+   EntityState _get_state_and_move_back()
    {
       if(pos > 1)
          return stack[--pos];
@@ -92,10 +127,12 @@ struct UndoStack {
    }
 
    // internal
-   EntityState _apply_redo()
+   EntityState _get_state_and_move_up()
    {
       if(pos < limit)
          return stack[++pos];
+      if(pos == limit)
+         return stack[pos];
       else
          return EntityState{};
    }
@@ -107,9 +144,19 @@ struct UndoStack {
    }
 
    // internal
+   bool _is_state_valid(EntityState state)
+   {
+      for(int i = 0; i < deletion_log.size; i++)
+         if(deletion_log.entity_ids[i] == state.id)
+            return false;
+      
+      return !_comp_state(get_entity_state(state.entity), state);
+   }
+
+   // internal
    bool _comp_state(EntityState state1, EntityState state2)
    {
-      return state1.entity == state2.entity
+      return state1.id == state2.id
          && state1.position == state2.position
          && state1.scale == state2.scale
          && state1.rotation == state2.rotation;

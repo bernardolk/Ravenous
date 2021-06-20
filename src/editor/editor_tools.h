@@ -5,6 +5,12 @@ void deactivate_editor_modes()
    Context.measure_mode = false;
 }
 
+void editor_erase_entity(Entity* entity)
+{
+   Entity_Manager.mark_for_deletion(entity);
+   Context.undo_stack.deletion_log.add(entity);
+}
+
 // ----------
 // SNAP TOOL
 // ----------

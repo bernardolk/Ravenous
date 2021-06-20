@@ -1,9 +1,8 @@
 // -------------
 // ENTITY PANEL
 // -------------
-void undo_entity_panel_changes();
 void undo_selected_entity_move_changes();
-void set_entity_panel(Entity* entity);
+void open_entity_panel(Entity* entity);
 void check_for_asset_changes();
 void update_entity_control_arrows(EntityPanelContext* panel);
 void render_entity_control_arrows(EntityPanelContext* panel);
@@ -13,11 +12,15 @@ void render_entity_panel(EntityPanelContext* panel);
 void render_entity_panel(EntityPanelContext* panel)
 {
    auto& entity = panel->entity;
-   auto entity_starting_state = get_entity_state(panel->entity);
    ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 300, 370), ImGuiCond_Appearing);
+
    ImGui::Begin("Entity Panel", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
 
-   ImGui::Text(entity->name.c_str());
+   string entity_identification = entity->name + " (" + to_string(entity->id) + ")";
+   ImGui::Text(entity_identification.c_str());
+
+   // entity state tracking
+   bool track = false;
 
    //rename
    ImGui::NewLine();
@@ -28,25 +31,16 @@ void render_entity_panel(EntityPanelContext* panel)
    // position
    bool used_pos = false;
    {
-      bool pos_x = ImGui::SliderFloat(
-         "x",
-         &entity->position.x,
-         panel->original_position.x - 4,
-         panel->original_position.x + 4
-      );
-      bool pos_y = ImGui::SliderFloat(
-         "y",
-         &entity->position.y,
-         panel->original_position.y - 4,
-         panel->original_position.y + 4
-      );
-      bool pos_z = ImGui::SliderFloat(
-         "z",
-         &entity->position.z,
-         panel->original_position.z - 4,
-         panel->original_position.z + 4
-      );
-      used_pos = pos_x || pos_y || pos_z;
+      bool used_x = ImGui::SliderFloat("x", &entity->position.x, panel->original_position.x - 4, panel->original_position.x + 4);
+      track = track || ImGui::IsItemDeactivatedAfterEdit();
+
+      bool used_y = ImGui::SliderFloat("y", &entity->position.y, panel->original_position.y - 4, panel->original_position.y + 4);
+      track = track || ImGui::IsItemDeactivatedAfterEdit();
+
+      bool used_z = ImGui::SliderFloat("z", &entity->position.z, panel->original_position.z - 4, panel->original_position.z + 4);
+      track = track || ImGui::IsItemDeactivatedAfterEdit();
+
+      used_pos = used_x || used_y || used_z;
    }
 
    // rotation
@@ -58,15 +52,15 @@ void render_entity_panel(EntityPanelContext* panel)
          Context.entity_panel.entity->rotate_y(rotation - entity->rotation.y);
          used_rot = true;
       }
+      track = track || ImGui::IsItemDeactivatedAfterEdit();
    }
 
    ImGui::NewLine();
 
    // scale
-   bool scaled_x = false, scaled_y = false, scaled_z = false;
+   bool used_scaling = false;
    {
       auto scale = entity->scale;
-
       auto rot = glm::rotate(mat4identity, glm::radians(entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
       scale = rot * vec4(entity->scale, 1.0f);
       auto ref_scale = scale;
@@ -78,37 +72,30 @@ void render_entity_panel(EntityPanelContext* panel)
       vec3 min_scales {0.0f};
 
       // scale in x
-      scaled_x = ImGui::SliderFloat(
-         "scale x",
-         &scale.x,
-         min_scales.x,
-         panel->original_scale.x + 4
-      );
+      bool scaled_x = ImGui::SliderFloat("scale x", &scale.x, min_scales.x, panel->original_scale.x + 4);
+      track = track || ImGui::IsItemDeactivatedAfterEdit();
+
       if(ImGui::Checkbox("rev x", &panel->reverse_scale_x))
          panel->x_arrow->rotation.z = (int)(panel->x_arrow->rotation.z + 180) % 360;
 
       // scale in y
-      scaled_y = ImGui::SliderFloat(
-         "scale y",
-         &scale.y,
-         min_scales.y,
-         panel->original_scale.y + 4
-      );
+      bool scaled_y = ImGui::SliderFloat("scale y", &scale.y, min_scales.y, panel->original_scale.y + 4);
+      track = track || ImGui::IsItemDeactivatedAfterEdit();
+
       if(ImGui::Checkbox("rev y", &panel->reverse_scale_y))
          panel->y_arrow->rotation.z = (int)(panel->y_arrow->rotation.z + 180) % 360;
 
       // scale in z
-      scaled_z = ImGui::SliderFloat(
-         "scale z",
-         &scale.z,
-         min_scales.z,
-         panel->original_scale.z + 4
-      );
+      bool scaled_z = ImGui::SliderFloat("scale z", &scale.z, min_scales.z, panel->original_scale.z + 4);
+      track = track || ImGui::IsItemDeactivatedAfterEdit();
+
       if(ImGui::Checkbox("rev z", &panel->reverse_scale_z))
          panel->z_arrow->rotation.x = (int)(panel->z_arrow->rotation.x + 180) % 360;
 
+      used_scaling = scaled_x || scaled_y || scaled_z;
+
       // apply scalling
-      if(scaled_x || scaled_y || scaled_z)
+      if(used_scaling)
       {
          if(flipped_x) scale.x *= -1;
          if(flipped_z) scale.z *= -1;
@@ -198,30 +185,34 @@ void render_entity_panel(EntityPanelContext* panel)
          // entity manager logic
          auto new_entity = Entity_Manager.copy_entity(entity);
          activate_move_mode(new_entity);
-         set_entity_panel(new_entity);
+         open_entity_panel(new_entity);
       }
 
       if(ImGui::Button("Erase", ImVec2(82,18)))
       {
-         erased = true;
-         Entity_Manager.mark_for_deletion(entity);
+         erased = true;         
          Context.entity_panel.active = false;
+         editor_erase_entity(entity);
       }
 
       ImGui::Checkbox("Hide", &entity->wireframe);
    }
 
-   if(used_pos || used_rot || scaled_x || scaled_y || scaled_z || duplicated || erased)
+   if(track)
    {
-      if(!duplicated && !erased && ImGui::IsItemDeactivatedAfterEdit())
-      {
-         // we track initial state to be safe (if it wasnt tracked before)
-         // since we only add to stack new states, it should be fine to add even if it is
-         // already there. Currently, there is no tracking for adding/deleting entities.
-         Context.undo_stack.track(entity_starting_state);
-         Context.undo_stack.track(entity);
-      }
-         
+      // we track initial state to be safe (if it wasnt tracked before)
+      // since we only add to stack new states, it should be fine to add even if it is
+      // already there. Currently, there is no tracking for adding/deleting entities.
+      Context.undo_stack.track(panel->entity_tracked_state);
+      Context.undo_stack.track(entity);
+      panel->entity_tracked_state = get_entity_state(entity);
+   }
+
+   // ----------------
+   // action happened
+   // ----------------
+   if(used_pos || used_rot || used_scaling || duplicated || erased)
+   {
       deactivate_editor_modes();
       entity->update_collision_geometry();                              // needs to be done here so world cells get updated correctly
       auto update_cells = World.update_entity_world_cells(entity);
@@ -235,20 +226,12 @@ void render_entity_panel(EntityPanelContext* panel)
    ImGui::End();
 }
 
-void undo_entity_panel_changes()
-{
-   auto entity       = Context.entity_panel.entity;
-   entity->position  = Context.entity_panel.original_position;
-   entity->scale     = Context.entity_panel.original_scale;
-   entity->rotate_y(Context.entity_panel.original_rotation - entity->rotation.y);
-}
-
 void check_selection_to_open_panel()
 {
    auto pickray = cast_pickray();
    auto test = test_ray_against_scene(pickray);
    if(test.hit)
-      set_entity_panel(test.entity);
+      open_entity_panel(test.entity);
 }
 
 void render_entity_control_arrows(EntityPanelContext* panel)
@@ -260,23 +243,20 @@ void render_entity_control_arrows(EntityPanelContext* panel)
    glDepthFunc(GL_LESS);
 }
 
-void set_entity_panel(Entity* entity)
+void open_entity_panel(Entity* entity)
 {
    Context.selected_entity = entity;
 
-   // could be made using EntityState? could, but I am lazy.
    auto &panel = Context.entity_panel;
    panel.active = true;
    panel.entity = entity;
-   panel.original_position = entity->position;
-   panel.original_scale    = entity->scale;
-   panel.original_rotation = entity->rotation.y;
    panel.reverse_scale_x = false;
    panel.reverse_scale_y = false;
    panel.reverse_scale_z = false;
    panel.x_arrow->rotation = vec3{0,0,270};
    panel.y_arrow->rotation = vec3{0,0,0};
    panel.z_arrow->rotation = vec3{90,0,0};
+   panel.entity_tracked_state = get_entity_state(entity);
 }
 
 void update_entity_control_arrows(EntityPanelContext* panel)

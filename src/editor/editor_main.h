@@ -30,6 +30,8 @@ struct EntityPanelContext {
    Entity* x_arrow;
    Entity* y_arrow;
    Entity* z_arrow;
+   bool action_last_frame = false;
+   EntityState entity_tracked_state;
 };
 
 struct WorldPanelContext {
@@ -46,6 +48,9 @@ struct EditorContext {
 
    // undo stack
    UndoStack undo_stack;
+
+   // deletion log
+   DeletedEntityLog deletion_log;
 
    // panels
    EntityPanelContext entity_panel;

@@ -99,8 +99,7 @@ struct WorldCell {
 
    void defrag()
    {
-      //@ATTENTION: untested code
-      if(count == 0) 
+      if(count == 0)
          return;
 
       // initialize holes array

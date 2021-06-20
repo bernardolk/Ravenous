@@ -29,8 +29,8 @@ void handle_input_flags(InputFlags flags, Player* &player)
    {
       if(Context.entity_panel.active)
       {
-         Entity_Manager.mark_for_deletion(Context.entity_panel.entity);
          Context.entity_panel.active = false;
+         editor_erase_entity(Context.entity_panel.entity);
       }
    }
 
