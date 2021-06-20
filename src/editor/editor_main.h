@@ -442,6 +442,9 @@ void render_text_overlay(Player* player)
 
    string font = "consola14";
    string font_center = "swanseait38";
+   string font_center_small = "swanseait20";
+   vec3 tool_text_color_yellow = vec3(0.8, 0.8, 0.2);
+   vec3 tool_text_color_green  = vec3(0.6, 1.0, 0.3);
 
 
    // CAMERA POSITION
@@ -557,20 +560,42 @@ void render_text_overlay(Player* player)
             break;
       }
 
-      vec3 snap_mode_color;
-      auto state = Context.undo_stack.check();
-      if(state.entity != nullptr && state.position != Context.entity_panel.entity->position)
-         snap_mode_color = vec3(0.8, 0.8, 0.2);
+      // if position is changed and not commited, render text yellow
+      vec3 snap_mode_subtext_color;
+      if(Context.snap_reference == nullptr)
+         snap_mode_subtext_color = tool_text_color_yellow;
       else
-         snap_mode_color = vec3(0.6, 1.0, 0.3);
+      {
+         auto state = Context.undo_stack.check();  
+         if(state.entity != nullptr && state.position != Context.entity_panel.entity->position)
+            snap_mode_subtext_color = tool_text_color_yellow;
+         else
+            snap_mode_subtext_color = tool_text_color_green;
+      }
 
+      // selects text based on situation of snap tool
+      string sub_text;
+      if(Context.snap_reference == nullptr)
+         sub_text = "select another entity to snap to.";
+      else
+         sub_text = "press Enter to commit position. x/y/z to change axis.";
+      
       render_text(
          font_center, 
          G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, 
          centered_text_height, 
-         snap_mode_color, 
+         tool_text_color_yellow, 
          true,
          "SNAP MODE (" + snap_axis + "-" + snap_cycle + ")"
+      );
+
+       render_text(
+         font_center_small, 
+         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, 
+         centered_text_height - 40, 
+         snap_mode_subtext_color, 
+         true,
+         sub_text
       );
    }
 

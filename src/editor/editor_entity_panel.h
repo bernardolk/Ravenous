@@ -13,6 +13,7 @@ void render_entity_panel(EntityPanelContext* panel);
 void render_entity_panel(EntityPanelContext* panel)
 {
    auto& entity = panel->entity;
+   auto entity_starting_state = get_entity_state(panel->entity);
    ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 300, 370), ImGuiCond_Appearing);
    ImGui::Begin("Entity Panel", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
 
@@ -212,9 +213,17 @@ void render_entity_panel(EntityPanelContext* panel)
 
    if(used_pos || used_rot || scaled_x || scaled_y || scaled_z || duplicated || erased)
    {
-      Context.snap_mode = false;
-      Context.measure_mode = false;
-      entity->update_collision_geometry();
+      if(!duplicated && !erased && ImGui::IsItemDeactivatedAfterEdit())
+      {
+         // we track initial state to be safe (if it wasnt tracked before)
+         // since we only add to stack new states, it should be fine to add even if it is
+         // already there. Currently, there is no tracking for adding/deleting entities.
+         Context.undo_stack.track(entity_starting_state);
+         Context.undo_stack.track(entity);
+      }
+         
+      deactivate_editor_modes();
+      entity->update_collision_geometry();                              // needs to be done here so world cells get updated correctly
       auto update_cells = World.update_entity_world_cells(entity);
       if(update_cells.status != OK)
       {
