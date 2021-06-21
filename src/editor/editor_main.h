@@ -90,6 +90,7 @@ struct EditorContext {
    // render flags 
    bool show_event_triggers = false;
    bool show_world_cells = false;
+   bool show_lightbulbs = false;
 
    // gizmos
    Entity* tri_axis[3];
@@ -106,6 +107,7 @@ void render_text_overlay(Player* player);
 void render_toolbar();
 void render_event_triggers(Camera* camera);
 void render_world_cells(Camera* camera);
+void render_lightbulbs(Camera* camera);
 void end_frame();
 void terminate();
 
@@ -199,6 +201,11 @@ void render(Player* player, WorldStruct* world)
    if(Context.show_world_cells)
    {
       render_world_cells(G_SCENE_INFO.camera);
+   }
+
+   if(Context.show_lightbulbs)
+   {
+      render_lightbulbs(G_SCENE_INFO.camera);
    }
    
    // render triaxis
@@ -308,6 +315,7 @@ void render_toolbar()
    ImGui::NewLine();
    ImGui::Checkbox("Show Event Triggers", &Context.show_event_triggers);
    ImGui::Checkbox("Show WorldStruct Cells", &Context.show_world_cells);
+   ImGui::Checkbox("Show Point Lights", &Context.show_lightbulbs);
 
    ImGui::End();
 }
@@ -728,4 +736,25 @@ void render_world_cells(Camera* camera)
    }
 }
 
+void render_lightbulbs(Camera* camera)
+{
+   auto& scene = G_SCENE_INFO.active_scene;
+   auto mesh = Geometry_Catalogue.find("lightbulb")->second;
+   auto shader = Shader_Catalogue.find("color")->second;
+
+   for(auto const& light: scene->pointLights)
+   {
+      auto model = translate(mat4identity, light.position);
+      model = glm::scale(model, vec3{0.1f});
+
+      //render
+      shader->use();
+      shader->setFloat3("color", light.diffuse);
+      shader->setFloat("opacity", 0.85);
+      shader->setMatrix4("model", model);
+      shader->setMatrix4("view", camera->View4x4);
+      shader->setMatrix4("projection", camera->Projection4x4);
+      render_mesh(mesh, RenderOptions{});
+   }
+}
 }

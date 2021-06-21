@@ -622,6 +622,9 @@ void create_boilerplate_geometry()
    cylinder_mesh->render_method = GL_TRIANGLE_STRIP;
    cylinder_mesh->setup_gl_data();
    Geometry_Catalogue.insert({cylinder_mesh->name, cylinder_mesh});
+
+   // LIGHTBULB
+   auto lightbulb_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, "lightbulb");
 }
 
 
