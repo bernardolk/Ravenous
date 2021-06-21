@@ -15,9 +15,13 @@ void render_world_panel(WorldPanelContext* panel, WorldStruct* world)
 
       if(ImGui::CollapsingHeader(cell->coordinates_str().c_str()))
       {
-         if(ImGui::Button("show", ImVec2(50, 30)))
+         auto cell_coords = vec3{cell->i, cell->j, cell->k};
+         bool is_active = panel->cell_coords == cell_coords;
+         string show_name = "show##" + to_string(i);
+
+         if(ImGui::Checkbox(show_name.c_str(), &is_active))
          {
-            panel->cell_coords = vec3{cell->i, cell->j, cell->k};
+            panel->cell_coords = is_active ? cell_coords : vec3{-1.0f};
          }
 
          for(int e_i = 0; e_i < WORLD_CELL_CAPACITY; e_i++)
@@ -28,17 +32,9 @@ void render_world_panel(WorldPanelContext* panel, WorldStruct* world)
                string line = to_string(e_i + 1) + ". " + entity->name;
                ImGui::Text(line.c_str());
             }
-            else
-               ImGui::Text("NULL");
          }
       }
    } 
 
    ImGui::End();
 }
-
-
-
-
-
-

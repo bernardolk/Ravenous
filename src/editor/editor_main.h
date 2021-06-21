@@ -39,6 +39,10 @@ struct WorldPanelContext {
    vec3 cell_coords = vec3{-1.0f};
 };
 
+struct LightsPanelContext {
+   bool active = false;
+   int selected_light = -1;
+};
 
 struct EditorContext {
    ImGuiStyle* imStyle;
@@ -56,6 +60,7 @@ struct EditorContext {
    EntityPanelContext entity_panel;
    WorldPanelContext world_panel;
    PalettePanelContext palette_panel;
+   LightsPanelContext lights_panel;
 
    // toolbar
    bool toolbar_active = true;
@@ -116,6 +121,7 @@ void terminate();
 #include <editor/editor_world_panel.h>
 #include <editor/editor_input.h>
 #include <editor/editor_palette_panel.h>
+#include <editor/editor_lights_panel.h>
 
 
 void update()
@@ -223,7 +229,9 @@ void render(Player* player, WorldStruct* world)
       render_entity(axis);
    }
 
-   // render panels if active
+   // --------------
+   // render panels
+   // --------------
    if(Context.world_panel.active)
    {
       render_world_panel(&Context.world_panel, world);
@@ -238,6 +246,11 @@ void render(Player* player, WorldStruct* world)
    if(Context.palette_panel.active)
    {
       render_palette_panel(&Context.palette_panel);
+   }
+
+   if(Context.lights_panel.active)
+   {
+      render_lights_panel(&Context.lights_panel);
    }
 
    if(Context.measure_mode && Context.first_point_found && Context.second_point_found)
@@ -292,6 +305,13 @@ void render_toolbar()
    if(ImGui::Button("World Panel", ImVec2(150,18)))
    {
       Context.world_panel.active = true;
+      Context.show_world_cells = true;
+   }
+
+   if(ImGui::Button("Lights Panel", ImVec2(150,18)))
+   {
+      Context.lights_panel.active = true;
+      Context.show_lightbulbs = true;
    }
 
    ImGui::Text("Measure");
@@ -742,19 +762,48 @@ void render_lightbulbs(Camera* camera)
    auto mesh = Geometry_Catalogue.find("lightbulb")->second;
    auto shader = Shader_Catalogue.find("color")->second;
 
+   auto selected_light = Context.lights_panel.selected_light;
+
+   int i = 0;
    for(auto const& light: scene->pointLights)
    {
       auto model = translate(mat4identity, light.position);
       model = glm::scale(model, vec3{0.1f});
-
+      RenderOptions opts;
+      opts.wireframe = true;
       //render
       shader->use();
-      shader->setFloat3("color", light.diffuse);
-      shader->setFloat("opacity", 0.85);
+      shader->setFloat3("color", 
+         selected_light == i ? vec3{0.9, 0.7, 0.9} : light.diffuse
+      );
+      shader->setFloat("opacity", 1.0);
       shader->setMatrix4("model", model);
       shader->setMatrix4("view", camera->View4x4);
       shader->setMatrix4("projection", camera->Projection4x4);
-      render_mesh(mesh, RenderOptions{});
+      render_mesh(mesh, opts);
+
+      i++;
+   }
+
+   // render selection box around selected lightbulb
+   if(selected_light >= 0 && i >= selected_light)
+   {
+      auto light = scene->pointLights[selected_light];
+      auto aabb_mesh = Geometry_Catalogue.find("aabb")->second;
+
+      auto aabb_model = translate(mat4identity, light.position - vec3{0.1575, 0.5, 0.1575});
+      aabb_model = glm::scale(aabb_model, vec3{0.3f, 0.6f, 0.3f});
+      RenderOptions opts;
+      opts.wireframe = true;
+
+      //render
+      shader->use();
+      shader->setFloat3("color", vec3{0.9, 0.7, 0.9});
+      shader->setFloat("opacity", 1.0);
+      shader->setMatrix4("model", aabb_model);
+      shader->setMatrix4("view", camera->View4x4);
+      shader->setMatrix4("projection", camera->Projection4x4);
+      render_mesh(aabb_mesh, opts);
    }
 }
 }
