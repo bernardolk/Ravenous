@@ -461,25 +461,45 @@ void create_boilerplate_geometry()
    // AABB
    vector<Vertex> aabb_vertex_vec = {
       // bottom
-      Vertex{vec3(0.0f, 0.0f, 0.0f),vec3(0.0f, 0.0f, -1.0f),vec2(0.0f, 0.0f)},   //0
-      Vertex{vec3(1.0f, 0.0f, 0.0f),vec3(0.0f, 0.0f, -1.0f),vec2(0.5f, 0.0f)},   //1
-      Vertex{vec3(1.0f, 0.0f, 1.0f),vec3(0.0f, 0.0f, -1.0f),vec2(0.5f, 0.5f)},   //2
-      Vertex{vec3(0.0f, 0.0f, 1.0f),vec3(0.0f, 0.0f, -1.0f),vec2(0.0f, 0.5f)},   //3
-      // top
-      Vertex{vec3(0.0f, 1.0f, 0.0f),vec3(0.0f, 0.0f, 1.0f),vec2(0.0f, 0.0f)},    //4
-      Vertex{vec3(1.0f, 1.0f, 0.0f),vec3(0.0f, 0.0f, 1.0f),vec2(0.5f, 0.0f)},    //5
-      Vertex{vec3(1.0f, 1.0f, 1.0f),vec3(0.0f, 0.0f, 1.0f),vec2(0.5f, 0.5f)},    //6
-      Vertex{vec3(0.0f, 1.0f, 1.0f),vec3(0.0f, 0.0f, 1.0f),vec2(0.0f, 0.5f)}     //7
-   };
+      Vertex{vec3(0.0f, 0.0f, 0.0f),   vec3(0.0f, -1.0f, 0.0f),   vec2(0.5f, 0.5f)},   //0
+      Vertex{vec3(1.0f, 0.0f, 0.0f),   vec3(0.0f, -1.0f, 0.0f),   vec2(1.0f, 0.5f)},   //1
+      Vertex{vec3(1.0f, 0.0f, 1.0f),   vec3(0.0f, -1.0f, 0.0f),   vec2(1.0f, 1.0f)},   //2
+      Vertex{vec3(0.0f, 0.0f, 1.0f),   vec3(0.0f, -1.0f, 0.0f),   vec2(0.5f, 1.0f)},   //3
+      // top   
+      Vertex{vec3(0.0f, 1.0f, 0.0f),   vec3(0.0f, 1.0f, 0.0f),    vec2(0.5f, 0.5f)},   //4
+      Vertex{vec3(1.0f, 1.0f, 0.0f),   vec3(0.0f, 1.0f, 0.0f),    vec2(1.0f, 0.5f)},   //5
+      Vertex{vec3(1.0f, 1.0f, 1.0f),   vec3(0.0f, 1.0f, 0.0f),    vec2(1.0f, 1.0f)},   //6
+      Vertex{vec3(0.0f, 1.0f, 1.0f),   vec3(0.0f, 1.0f, 0.0f),    vec2(0.5f, 1.0f)},   //7
+      // front       
+      Vertex{vec3(0.0f, 0.0f, 1.0f),   vec3(0.0f, 0.0f, 1.0f),    vec2(0.0f, 0.0f)},   //8
+      Vertex{vec3(1.0f, 0.0f, 1.0f),   vec3(0.0f, 0.0f, 1.0f),    vec2(0.5f, 0.0f)},   //9
+      Vertex{vec3(0.0f, 1.0f, 1.0f),   vec3(0.0f, 0.0f, 1.0f),    vec2(0.0f, 0.5f)},   //10
+      Vertex{vec3(1.0f, 1.0f, 1.0f),   vec3(0.0f, 0.0f, 1.0f),    vec2(0.5f, 0.5f)},   //11
+      // back
+      Vertex{vec3(0.0f, 0.0f, 0.0f),   vec3(0.0f, 0.0f, -1.0f),   vec2(0.0f, 0.0f)},   //12
+      Vertex{vec3(1.0f, 0.0f, 0.0f),   vec3(0.0f, 0.0f, -1.0f),   vec2(0.5f, 0.0f)},   //13
+      Vertex{vec3(0.0f, 1.0f, 0.0f),   vec3(0.0f, 0.0f, -1.0f),   vec2(0.0f, 0.5f)},   //14
+      Vertex{vec3(1.0f, 1.0f, 0.0f),   vec3(0.0f, 0.0f, -1.0f),   vec2(0.5f, 0.5f)},   //15
+      // left
+      Vertex{vec3(0.0f, 0.0f, 0.0f),   vec3(-1.0f, 0.0f, 0.0f),   vec2(0.0f, 0.0f)},   //16
+      Vertex{vec3(0.0f, 0.0f, 1.0f),   vec3(-1.0f, 0.0f, 0.0f),   vec2(0.5f, 0.0f)},   //17
+      Vertex{vec3(0.0f, 1.0f, 0.0f),   vec3(-1.0f, 0.0f, 0.0f),   vec2(0.0f, 0.5f)},   //18
+      Vertex{vec3(0.0f, 1.0f, 1.0f),   vec3(-1.0f, 0.0f, 0.0f),   vec2(0.5f, 0.5f)},   //19
+      // right
+      Vertex{vec3(1.0f, 0.0f, 0.0f),   vec3(1.0f, 0.0f, 0.0f),    vec2(0.0f, 0.0f)},   //20
+      Vertex{vec3(1.0f, 0.0f, 1.0f),   vec3(1.0f, 0.0f, 0.0f),    vec2(0.5f, 0.0f)},   //21
+      Vertex{vec3(1.0f, 1.0f, 0.0f),   vec3(1.0f, 0.0f, 0.0f),    vec2(0.0f, 0.5f)},   //22
+      Vertex{vec3(1.0f, 1.0f, 1.0f),   vec3(1.0f, 0.0f, 0.0f),    vec2(0.5f, 0.5f)},   //23
+   }; 
 
    vector<u32> aabb_vertex_indices = 
    { 
-      0, 1, 2, 2, 3, 0,    // bottom face
-      0, 4, 1, 1, 5, 4,    // side face 1
-      1, 5, 2, 2, 6, 5,    // back face
-      2, 6, 3, 3, 7, 6,    // side face 2
-      3, 7, 0, 0, 4, 7,    // front face
-      4, 5, 6, 6, 7, 4     // top face
+      0, 1, 2, 2, 3, 0,          // bottom face
+      16, 17, 18, 18, 19, 17,    // left face
+      12, 13, 14, 14, 15, 13,    // back face
+      20, 21, 22, 22, 23, 21,    // right face
+      8, 9, 10, 10, 11, 9,       // front face
+      4, 5, 6, 6, 7, 4           // top face
    };
 
    auto aabb_mesh = new Mesh();
@@ -498,26 +518,40 @@ void create_boilerplate_geometry()
    world_cell_mesh->setup_gl_data();
    Geometry_Catalogue.insert({world_cell_mesh->name, world_cell_mesh});
 
-
    // SLOPE
    vector<Vertex> slope_vertex_vec = {
       // bottom
-      Vertex{vec3(0.0f, 0.0f, 0.0f),vec3(0.0f, 0.0f, -1.0f),vec2(0.0f, 0.0f)},   //0
-      Vertex{vec3(1.0f, 0.0f, 0.0f),vec3(0.0f, 0.0f, -1.0f),vec2(0.5f, 0.0f)},   //1
-      Vertex{vec3(1.0f, 0.0f, 1.0f),vec3(0.0f, 0.0f, -1.0f),vec2(0.5f, 0.5f)},   //2
-      Vertex{vec3(0.0f, 0.0f, 1.0f),vec3(0.0f, 0.0f, -1.0f),vec2(0.0f, 0.5f)},   //3
-      // top
-      Vertex{vec3(0.0f, 1.0f, 0.0f),vec3(0.0f, 0.0f, -1.0f),vec2(0.0f, 0.0f)},   //4
-      Vertex{vec3(0.0f, 1.0f, 1.0f),vec3(0.0f, 0.0f, -1.0f),vec2(0.5f, 0.0f)},   //5
+      Vertex{vec3(0.0f, 0.0f, 0.0f),   vec3(0.0f, -1.0f, 0.0f),   vec2(0.5f, 0.5f)},   //0
+      Vertex{vec3(1.0f, 0.0f, 0.0f),   vec3(0.0f, -1.0f, 0.0f),   vec2(1.0f, 0.5f)},   //1
+      Vertex{vec3(1.0f, 0.0f, 1.0f),   vec3(0.0f, -1.0f, 0.0f),   vec2(1.0f, 1.0f)},   //2
+      Vertex{vec3(0.0f, 0.0f, 1.0f),   vec3(0.0f, -1.0f, 0.0f),   vec2(0.5f, 1.0f)},   //3
+      // top   
+      Vertex{vec3(1.0f, 0.0f, 0.0f),   vec3(0.5f, 0.5f, 0.0f),    vec2(0.5f, 0.5f)},   //4
+      Vertex{vec3(1.0f, 0.0f, 1.0f),   vec3(0.5f, 0.5f, 0.0f),    vec2(1.0f, 0.5f)},   //5
+      Vertex{vec3(0.0f, 1.0f, 0.0f),   vec3(0.5f, 0.5f, 0.0f),    vec2(1.0f, 1.0f)},   //6
+      Vertex{vec3(0.0f, 1.0f, 1.0f),   vec3(0.5f, 0.5f, 0.0f),    vec2(0.5f, 1.0f)},   //7
+      // front       
+      Vertex{vec3(0.0f, 0.0f, 1.0f),   vec3(0.0f, 0.0f, 1.0f),    vec2(0.0f, 0.0f)},   //8
+      Vertex{vec3(1.0f, 0.0f, 1.0f),   vec3(0.0f, 0.0f, 1.0f),    vec2(0.5f, 0.0f)},   //9
+      Vertex{vec3(0.0f, 1.0f, 1.0f),   vec3(0.0f, 0.0f, 1.0f),    vec2(0.0f, 0.5f)},   //10
+      // back
+      Vertex{vec3(0.0f, 0.0f, 0.0f),   vec3(0.0f, 0.0f, -1.0f),   vec2(0.0f, 0.0f)},   //11
+      Vertex{vec3(1.0f, 0.0f, 0.0f),   vec3(0.0f, 0.0f, -1.0f),   vec2(0.5f, 0.0f)},   //12
+      Vertex{vec3(0.0f, 1.0f, 0.0f),   vec3(0.0f, 0.0f, -1.0f),   vec2(0.0f, 0.5f)},   //13
+      // left
+      Vertex{vec3(0.0f, 0.0f, 0.0f),   vec3(-1.0f, 0.0f, 0.0f),   vec2(0.0f, 0.0f)},   //14
+      Vertex{vec3(0.0f, 0.0f, 1.0f),   vec3(-1.0f, 0.0f, 0.0f),   vec2(0.5f, 0.0f)},   //15
+      Vertex{vec3(0.0f, 1.0f, 0.0f),   vec3(-1.0f, 0.0f, 0.0f),   vec2(0.0f, 0.5f)},   //16
+      Vertex{vec3(0.0f, 1.0f, 1.0f),   vec3(-1.0f, 0.0f, 0.0f),   vec2(0.5f, 0.5f)},   //17
    };
 
    vector<u32> slope_vertex_indices = 
    { 
-      0, 1, 2, 2, 3, 0,    // bottom face
-      0, 4, 1,             // side face 1
-      3, 5, 2,             // side face 2
-      0, 4, 3, 3, 5, 4,    // back face
-      4, 1, 5, 5, 2, 1,    // slope face
+      0, 1, 2, 2, 3, 0,          // bottom face
+      8, 9, 10,                  // front
+      11, 12, 13,                // back
+      14, 15, 16, 16, 17, 15,    // left face
+      4, 5, 6, 6, 7, 5           // slope face (right face/top)
    };
 
    auto slope_mesh = new Mesh();
