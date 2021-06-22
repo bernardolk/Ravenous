@@ -34,7 +34,7 @@ void camera_update(Camera* camera, float viewportWidth, float viewportHeight, Pl
 void camera_change_direction(Camera* camera, float yawOffset, float pitchOffset);
 // Make camera look at a place in world coordinates to look at. If isPosition is set to true, then
 // a position is expected, if else, then a direction is expected.
-void camera_look_at(Camera* camera, vec3 position, bool isPosition);
+void camera_look_at(Camera* camera, vec3 ref, bool isPosition);
 void save_camera_settings_to_file(string path, vec3 position, vec3 direction);
 float* load_camera_settings(string path);
 void set_camera_to_free_roam(Camera* camera);
@@ -51,7 +51,8 @@ void set_camera_to_third_person(Camera* camera, Player* player)
    camera->type = THIRD_PERSON;
 }
 
-void camera_update(Camera* camera, float viewportWidth, float viewportHeight, Player* player) {
+void camera_update(Camera* camera, float viewportWidth, float viewportHeight, Player* player)
+{
    camera->View4x4 = glm::lookAt(camera->Position, camera->Position + camera->Front, camera->Up);
 	camera->Projection4x4 = glm::perspective(
       glm::radians(camera->FOVy), 
@@ -85,7 +86,8 @@ void camera_update(Camera* camera, float viewportWidth, float viewportHeight, Pl
    }
 }
 
-void camera_change_direction(Camera* camera, float yawOffset, float pitchOffset) {
+void camera_change_direction(Camera* camera, float yawOffset, float pitchOffset)
+{
 	float newPitch = camera->Pitch += pitchOffset;
 	float newYaw = camera->Yaw += yawOffset;
 	camera->Front.x = cos(glm::radians(newPitch)) * cos(glm::radians(newYaw));
@@ -107,15 +109,14 @@ void camera_change_direction(Camera* camera, float yawOffset, float pitchOffset)
 }
 
 
-void camera_look_at(Camera* camera, vec3 position, bool isPosition) {
-	vec3 look_vec;
-	if (isPosition)
-		look_vec = glm::normalize(position - vec3(camera->Position.x, camera->Position.y, camera->Position.z));
-	else
-		look_vec = glm::normalize(position);
+void camera_look_at(Camera* camera, vec3 ref, bool isPosition)
+{
+   // vec3 ref -> either a position or a direction vector (no need to be normalised)
+	vec3 look_vec = ref;
+	if (isPosition) look_vec = ref - vec3(camera->Position.x, camera->Position.y, camera->Position.z);
+	look_vec = glm::normalize(look_vec);
 
-	float pitchRdns = glm::asin(look_vec.y);
-	camera->Pitch = glm::degrees(pitchRdns);
+	camera->Pitch = glm::degrees(glm::asin(look_vec.y));
 	camera->Yaw = glm::degrees(atan2(look_vec.x, -1 * look_vec.z) - 3.141592 / 2);
 
 	camera->Front.x = cos(glm::radians(camera->Pitch)) * cos(glm::radians(camera->Yaw));
@@ -124,7 +125,8 @@ void camera_look_at(Camera* camera, vec3 position, bool isPosition) {
 	camera->Front = glm::normalize(camera->Front);
 }
 
-float* load_camera_settings(string path){
+float* load_camera_settings(string path)
+{
    ifstream reader(path);
 	std::string line;
 
@@ -180,7 +182,8 @@ float* load_camera_settings(string path){
    return &camera_settings[0];
 }
 
-void save_camera_settings_to_file(string path, vec3 position, vec3 direction) {
+void save_camera_settings_to_file(string path, vec3 position, vec3 direction)
+{
    std::ofstream ofs;
    ofs.open(path);
    ofs << position.x << " ";

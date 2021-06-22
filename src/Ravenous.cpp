@@ -204,6 +204,9 @@ int main()
    G_BUFFERS.rm_buffer = render_message_buffer;
    initialize_console_buffers();
 
+   // Initialises immediate draw
+   G_IMMEDIATE_DRAW.init();
+
    // loads initial scene
    G_CONFIG = load_configs();
    load_scene_from_file(G_CONFIG.initial_scene, &World);

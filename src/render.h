@@ -20,11 +20,12 @@ struct GlobalImmediateDraw {
    RenderOptions render_opts[IM_BUFFER_SIZE];
    int ind = 0;
 
-   GlobalImmediateDraw()
+   void init()
    {
       for(int i = 0; i < IM_BUFFER_SIZE; i++)
       {
          auto mesh = new Mesh();
+         mesh->setup_gl_buffers();
          meshes[i] = mesh;
       }
    }
@@ -34,7 +35,7 @@ struct GlobalImmediateDraw {
       auto mesh = meshes[ind];
       mesh->vertices = vertex_vec;
       mesh->render_method = draw_method;
-      mesh->setup_gl_data();  // this will leak memory :/
+      mesh->send_data_to_gl_buffer();
       render_opts[ind] = opts;
       ind++;
    }
@@ -52,7 +53,19 @@ struct GlobalImmediateDraw {
       auto mesh = meshes[ind];
       mesh->vertices = vertices;
       mesh->render_method = draw_method;
-      mesh->setup_gl_data();  // this will leak memory :/
+      mesh->send_data_to_gl_buffer();
+      ind++;
+   }
+
+   void add_line(vec3 points[2], float line_width = 1.0)
+   {
+      auto mesh = meshes[ind];
+      mesh->vertices = vector<Vertex>{ Vertex{points[0]}, Vertex{points[1]}};
+      mesh->render_method = GL_LINES;
+      mesh->send_data_to_gl_buffer();
+      RenderOptions opts;
+      opts.line_width = line_width;
+      render_opts[ind] = opts;
       ind++;
    }
 

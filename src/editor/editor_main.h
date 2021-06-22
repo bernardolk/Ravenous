@@ -42,6 +42,8 @@ struct WorldPanelContext {
 struct LightsPanelContext {
    bool active = false;
    int selected_light = -1;
+   float selected_light_yaw;
+   float selected_light_pitch;
 };
 
 struct EditorContext {
@@ -767,7 +769,7 @@ void render_lightbulbs(Camera* camera)
    int i = 0;
    for(auto const& light: scene->pointLights)
    {
-      auto model = translate(mat4identity, light.position);
+      auto model = translate(mat4identity, light.position + vec3{0, 0.5, 0});
       model = glm::scale(model, vec3{0.1f});
       RenderOptions opts;
       opts.wireframe = true;
@@ -785,18 +787,20 @@ void render_lightbulbs(Camera* camera)
       i++;
    }
 
-   // render selection box around selected lightbulb
+   // render selection box and dir arrow for selected lightbulb
    if(selected_light >= 0 && i >= selected_light)
    {
       auto light = scene->pointLights[selected_light];
+
+      // selection box
       auto aabb_mesh = Geometry_Catalogue.find("aabb")->second;
 
-      auto aabb_model = translate(mat4identity, light.position - vec3{0.1575, 0.5, 0.1575});
+      auto aabb_model = translate(mat4identity, light.position + vec3{0, 0.5, 0} - vec3{0.1575, 0.5, 0.1575});
       aabb_model = glm::scale(aabb_model, vec3{0.3f, 0.6f, 0.3f});
       RenderOptions opts;
       opts.wireframe = true;
 
-      //render
+      //render box
       shader->use();
       shader->setFloat3("color", vec3{0.9, 0.7, 0.9});
       shader->setFloat("opacity", 1.0);
@@ -804,6 +808,44 @@ void render_lightbulbs(Camera* camera)
       shader->setMatrix4("view", camera->View4x4);
       shader->setMatrix4("projection", camera->Projection4x4);
       render_mesh(aabb_mesh, opts);
+
+      // direction arrow
+      auto arrow_mesh = Geometry_Catalogue.find("axis")->second;
+
+      vec3 arrow_origin = light.position - vec3{0.0, 0.7, 0.0};
+      // vec3 front = arrow_origin + light.direction;
+      // vec3 up = glm::cross(arrow_origin, );
+
+      // @todo: this is a workaround, since we are not using quaternions yet, we must
+      //       be careful with 0/180 degree angles between up and direction vectors
+      //       using glm::lookAt()
+      // @todo: Actually now we are using immediate draw and lines.
+
+      float pitch, yaw;
+      compute_angles_from_direction(pitch, yaw, light.direction);
+      vec3 arrow_direction = compute_direction_from_angles(pitch, yaw);
+      vec3 arrow_end = arrow_origin + arrow_direction * 1.5f;
+      vec3 points[2]{ arrow_origin, arrow_end };
+      G_IMMEDIATE_DRAW.add_line(points, 1.5);
+
+      // @todo: epic fail below
+
+      // //mat4 arrow_model = translate(mat4identity, arrow_origin);
+      // mat4 arrow_model = 
+      //    glm::translate(mat4identity, arrow_origin) *
+      //    glm::rotate(mat4identity, glm::radians(90.0f), vec3(1, 0, 0)) *
+      //    glm::lookAt(vec3{0.0}, arrow_direction, vec3{0,1,0})
+      // ;
+      // //arrow_model = glm::scale(arrow_model, vec3{0.2f, 0.3f, 0.2f});
+
+      //render arrow
+      // shader->use();
+      // shader->setFloat3("color", vec3{0.9, 0.7, 0.9});
+      // shader->setFloat("opacity", 1.0);
+      // shader->setMatrix4("model", arrow_model);
+      // shader->setMatrix4("view", camera->View4x4);
+      // shader->setMatrix4("projection", camera->Projection4x4);
+      // render_mesh(arrow_mesh, RenderOptions{});
    }
 }
 }
