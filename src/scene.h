@@ -175,10 +175,6 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
             << light.specular.x << " "
             << light.specular.y << " "
             << light.specular.z << "\n"
-            << "ambient "
-            << light.ambient.x << " "
-            << light.ambient.y << " "
-            << light.ambient.z << "\n"
             << "constant "
             << light.intensity_constant << "\n"
             << "linear "
@@ -209,10 +205,6 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
             << light.specular.x << " "
             << light.specular.y << " "
             << light.specular.z << "\n"
-            << "ambient "
-            << light.ambient.x << " "
-            << light.ambient.y << " "
-            << light.ambient.z << "\n"
             << "innercone "
             << light.innercone << "\n"
             << "outercone "
@@ -246,11 +238,7 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
             << "specular "
             << light.specular.x << " "
             << light.specular.y << " "
-            << light.specular.z << "\n"
-            << "ambient "
-            << light.ambient.x << " "
-            << light.ambient.y << " "
-            << light.ambient.z << "\n";
+            << light.specular.z << "\n";
    }
 
    // write scene data (for each entity)
@@ -598,11 +586,6 @@ void parse_and_load_light_source(Parser::Parse p, ifstream* reader, int& line_co
             p = parse_float_vector(p);
             point_light.specular = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
          }
-         else if(property == "ambient")
-         {
-            p = parse_float_vector(p);
-            point_light.ambient = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
-         }
          else if(property == "constant")
          {
             p = parse_all_whitespace(p);
@@ -655,11 +638,6 @@ void parse_and_load_light_source(Parser::Parse p, ifstream* reader, int& line_co
          {
             p = parse_float_vector(p);
             spotlight.specular = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
-         }
-         else if(property == "ambient")
-         {
-            p = parse_float_vector(p);
-            spotlight.ambient = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
          }
          else if(property == "constant")
          {

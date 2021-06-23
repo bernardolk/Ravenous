@@ -224,7 +224,6 @@ void render_scene(Scene* scene, Camera* camera)
       shader->setFloat3(uniform_name + ".position",  point_light.position);
       shader->setFloat3(uniform_name + ".diffuse",   point_light.diffuse);
       shader->setFloat3(uniform_name + ".specular",  point_light.specular);
-      shader->setFloat3(uniform_name + ".ambient",   point_light.ambient);
       shader->setFloat(uniform_name  + ".constant",  point_light.intensity_constant);
       shader->setFloat(uniform_name  + ".linear",    point_light.intensity_linear);
       shader->setFloat(uniform_name  + ".quadratic", point_light.intensity_quadratic);
@@ -242,7 +241,6 @@ void render_scene(Scene* scene, Camera* camera)
       shader->setFloat3(uniform_name + ".direction", spotlight.direction);
       shader->setFloat3(uniform_name + ".diffuse",   spotlight.diffuse);
       shader->setFloat3(uniform_name + ".specular",  spotlight.specular);
-      shader->setFloat3(uniform_name + ".ambient",   spotlight.ambient);
       shader->setFloat(uniform_name  + ".constant",  spotlight.intensity_constant);
       shader->setFloat(uniform_name  + ".linear",    spotlight.intensity_linear);
       shader->setFloat(uniform_name  + ".quadratic", spotlight.intensity_quadratic);
@@ -257,6 +255,8 @@ void render_scene(Scene* scene, Camera* camera)
    shader-> setMatrix4("view",                camera->View4x4);
    shader-> setMatrix4("projection",          camera->Projection4x4);
    shader->   setFloat("shininess",           scene->global_shininess);
+   shader->  setFloat3("ambient",             scene->ambient_light);
+   shader->   setFloat("ambient_intensity",   scene->ambient_intensity);
    shader->  setFloat3("viewPos",             camera->Position);
 
 	Entity **entity_iterator = &(scene->entities[0]);

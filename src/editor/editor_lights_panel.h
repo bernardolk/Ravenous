@@ -101,6 +101,15 @@ void render_lights_panel(LightsPanelContext* panel)
    // ------------
    if(ImGui::BeginTabItem("Spot Lights"))
    {
+      ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.42f, 0.6f, 0.6f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.42f, 0.7f, 0.7f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.42f, 0.8f, 0.8f));
+      if(ImGui::Button("Add new##spot"))
+      {
+         // create new spotlight
+      }
+      ImGui::PopStyleColor(3);
+
       for(int i = 0; i < G_SCENE_INFO.active_scene->spotLights.size(); i++)
       {
          string header = "spot light source (" + to_string(i) + ")";

@@ -290,18 +290,38 @@ void render_toolbar()
    string scene_name = "Scene -> [" + G_SCENE_INFO.scene_name + "]";
    ImGui::Text(scene_name.c_str());
 
-   ImGui::Text("Cam speed");
-   if(ImGui::SliderFloat("", &G_SCENE_INFO.camera->Acceleration, 1, 16))
+   // GLOBAL CONFIGS
    {
-      //@Todo: saving this all the time is not cool.
-      //       could add an event to a datastructure with a timing info and
-      //       an event identifier, then every time i insert an event there
-      //       with the same id it will keep it alive longer, when it expires
-      //       we execute it (save configs in this case).
-      G_CONFIG.camspeed = G_SCENE_INFO.camera->Acceleration;
-      save_configs_to_file();
+      bool track = false;
+
+      ImGui::Text("Cam speed");
+      ImGui::DragFloat("##camspeed", &G_SCENE_INFO.camera->Acceleration, 0.5, 1, MAX_FLOAT);
+      track = track || ImGui::IsItemDeactivatedAfterEdit();
+      
+      // Ambient light control
+      ImGui::Text("Ambient light");
+      auto ambient = G_SCENE_INFO.active_scene->ambient_light;
+      float colors[3] = { ambient.x, ambient.y, ambient.z};
+      if(ImGui::ColorEdit3("##ambient-color", colors))
+      {
+         G_SCENE_INFO.active_scene->ambient_light = vec3{colors[0], colors[1], colors[2]};
+      }
+      track = track || ImGui::IsItemDeactivatedAfterEdit();
+
+      ImGui::SliderFloat("##ambient-intensity", &G_SCENE_INFO.active_scene->ambient_intensity, 0, 1, "intensity = %.2f");
+      track = track || ImGui::IsItemDeactivatedAfterEdit();
+
+      // save to file changes in config variables
+      if(track)
+      {
+         G_CONFIG.camspeed = G_SCENE_INFO.camera->Acceleration;
+         G_CONFIG.ambient_intensity = G_SCENE_INFO.active_scene->ambient_intensity;
+         G_CONFIG.ambient_light = G_SCENE_INFO.active_scene->ambient_light;
+         save_configs_to_file();
+      }
    }
 
+   // Panels
    if(ImGui::Button("Entity Palette", ImVec2(150,18)))
    {
       Context.palette_panel.active = true;

@@ -114,6 +114,8 @@ struct GlobalFrameInfo {
 struct ProgramConfig {
    string initial_scene;
    float camspeed;
+   vec3 ambient_light;
+   float ambient_intensity;
 } G_CONFIG;
 
 // SOURCE INCLUDES
@@ -212,7 +214,12 @@ int main()
    load_scene_from_file(G_CONFIG.initial_scene, &World);
    Player* player = G_SCENE_INFO.player;
    player->checkpoint_pos = player->entity_ptr->position;   // set player initial checkpoint position
+
+   // set scene attrs from global config
    G_SCENE_INFO.camera->Acceleration = G_CONFIG.camspeed;
+   G_SCENE_INFO.active_scene->ambient_light = G_CONFIG.ambient_light;
+   G_SCENE_INFO.active_scene->ambient_intensity = G_CONFIG.ambient_intensity;
+
    Entity_Manager.set_default_entity_attributes(            // sets some loaded assets from scene as
       "aabb", "model", "sandstone"                          // defaults for entity construction
    );  
@@ -418,6 +425,18 @@ ProgramConfig load_configs()
          p = parse_float(p);
          config.camspeed = p.fToken;
       }
+      else if(attribute == "ambient_light")
+      {
+         p = parse_all_whitespace(p);
+         p = parse_float_vector(p);
+         config.ambient_light = vec3{p.vec3[0], p.vec3[1], p.vec3[2]};
+      }
+      else if(attribute == "ambient_intensity")
+      {
+         p = parse_all_whitespace(p);
+         p = parse_float(p);
+         config.ambient_intensity = p.fToken;
+      }
    }
 
    return config;
@@ -434,6 +453,12 @@ bool save_configs_to_file()
 
    writer << "scene = " << G_CONFIG.initial_scene << "\n";
    writer << "camspeed = " << G_CONFIG.camspeed << "\n";
+   writer << "ambient_light = " 
+      << G_CONFIG.ambient_light.x << " "
+      << G_CONFIG.ambient_light.y << " "
+      << G_CONFIG.ambient_light.z << "\n";
+      
+   writer << "ambient_intensity = " << G_CONFIG.ambient_intensity << "\n";
 
    writer.close();
    cout << "Config file saved succesfully.\n";

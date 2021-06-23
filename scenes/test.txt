@@ -8,7 +8,7 @@ $point
 position 3.5 10 0.5
 diffuse 1 1 1
 specular 0 0 0
-ambient 1 1 1
+ambient 0 0 0
 constant 0
 linear 1.205
 quadratic 0.743
@@ -17,7 +17,7 @@ $point
 position -3.5 10 0.5
 diffuse 1 1 1
 specular 0 0 0
-ambient 1 1 1
+ambient 0 0 0
 constant 0
 linear 0.4
 quadratic 0.04
@@ -26,7 +26,7 @@ $point
 position -8 10 1
 diffuse 1 1 1
 specular 0 0 0
-ambient 1 1 1
+ambient 0 0 0
 constant 0.7
 linear 1.175
 quadratic 0.027
@@ -36,7 +36,7 @@ position 8.2 4.6 -4.4
 direction 0.0317457 -0.862779 0.504584
 diffuse 0.989474 1 0
 specular 0.999997 1 0.99999
-ambient 1 1 1
+ambient 0 0 0
 innercone 1
 outercone 0.871
 constant 0

@@ -1,2 +1,4 @@
 scene = test
 camspeed = 11.515
+ambient_light = 1 0.99999 0.99999
+ambient_intensity = 0.15
