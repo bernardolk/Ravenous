@@ -56,7 +56,22 @@ void render_lights_panel(LightsPanelContext* panel)
       ImGuiTabItemFlags_SetSelected : ImGuiTabItemFlags_None;
    if(ImGui::BeginTabItem("Point Lights", NULL, point_flags))
    {
+      // UNFOCUS TAB
       if(point_flags == ImGuiTabItemFlags_SetSelected) panel->focus_tab = false;
+
+      // ADD BUTTON
+      ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.42f, 0.6f, 0.6f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.42f, 0.7f, 0.7f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.42f, 0.8f, 0.8f));
+      if(ImGui::Button("Add new##point"))
+      {
+         // create new spotlight
+         auto pointlights = &G_SCENE_INFO.active_scene->pointLights;
+         PointLight new_pointlight;
+         pointlights->push_back(new_pointlight);
+         activate_move_light_mode("point", pointlights->size() - 1);
+      }
+      ImGui::PopStyleColor(3);
 
       for(int i = 0; i < G_SCENE_INFO.active_scene->pointLights.size(); i++)
       {
@@ -121,16 +136,20 @@ void render_lights_panel(LightsPanelContext* panel)
       ImGuiTabItemFlags_SetSelected : ImGuiTabItemFlags_None;
    if(ImGui::BeginTabItem("Spot Lights", NULL, spot_flags))
    {
+      // UNFOCUS TAB
       if(spot_flags == ImGuiTabItemFlags_SetSelected) panel->focus_tab = false;
 
+      // ADD BUTTON
       ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.42f, 0.6f, 0.6f));
       ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.42f, 0.7f, 0.7f));
       ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.42f, 0.8f, 0.8f));
       if(ImGui::Button("Add new##spot"))
       {
          // create new spotlight
+         auto spotlights = &G_SCENE_INFO.active_scene->spotLights;
          SpotLight new_spotlight;
-         G_SCENE_INFO.active_scene->spotLights.push_back(new_spotlight);
+         spotlights->push_back(new_spotlight);
+         activate_move_light_mode("spot", spotlights->size() - 1);
       }
       ImGui::PopStyleColor(3);
 
