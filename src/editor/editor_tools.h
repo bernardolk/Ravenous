@@ -129,16 +129,7 @@ void check_selection_to_measure()
 // -----------------
 void move_entity_with_mouse(Entity* entity);
 void activate_move_mode(Entity* entity);
-void check_selection_to_move_entity();
 void place_entity(Entity* entity);
-
-void check_selection_to_move_entity()
-{
-   auto pickray = cast_pickray();
-   auto test = test_ray_against_scene(pickray, true);
-   if(test.hit)
-      activate_move_mode(test.entity);
-}
 
 void activate_move_mode(Entity* entity)
 {
@@ -242,6 +233,129 @@ void place_entity()
 
    World.update_cells_in_use_list();
    Context.undo_stack.track(Context.selected_entity);
+}
+
+
+// ----------------
+// MOVE LIGHT TOOL
+// ----------------
+// @todo: This will DISAPPEAR after lights become entities!
+//       We need to provide entity rights to lights too! revolution now!
+
+void move_light_with_mouse(string type, int index);
+void activate_move_light_mode(string type, int index);
+void place_light(string type, int index);
+
+void activate_move_light_mode(string type, int index)
+{
+   deactivate_editor_modes();
+   Context.move_mode = true;
+   Context.selected_light = index;
+   Context.selected_light_type = type;
+}
+
+void move_light_with_mouse(string type, int index)
+{
+   vec3 position;
+   if(type == "point" && index > -1)
+      position = G_SCENE_INFO.active_scene->pointLights[index].position;
+   else if(type == "spot" && index > -1)
+      position = G_SCENE_INFO.active_scene->spotLights[index].position;
+   else assert(false);
+
+
+   Ray ray = cast_pickray();
+
+   // create a big plane for placing entity in the world with the mouse using raycast from camera to mouse
+   // position. In the case of Y placement, we need to compute the plane considering the camera orientation.
+   Triangle t1, t2;
+   float plane_size = 500.0f;
+
+   switch(Context.move_axis)
+   {
+      case 0:  // XZ 
+      case 1:  // X
+      case 3:  // Z
+         t1.a = vec3{position.x - plane_size, position.y, position.z - plane_size};
+         t1.b = vec3{position.x + plane_size, position.y, position.z - plane_size};
+         t1.c = vec3{position.x + plane_size, position.y, position.z + plane_size};
+         t2.a = vec3{position.x - plane_size, position.y, position.z - plane_size};
+         t2.b = vec3{position.x - plane_size, position.y, position.z + plane_size};
+         t2.c = vec3{position.x + plane_size, position.y, position.z + plane_size}; 
+         break;
+      case 2:  // Y
+      {
+         // creates vector from cam to entity in XZ
+         auto camera = G_SCENE_INFO.camera;
+         vec3 cam_to_entity = camera->Position - position;
+         cam_to_entity.y = camera->Position.y;
+         cam_to_entity = glm::normalize(cam_to_entity);
+         // finds vector that lie in plane considering cam to entity vector as normal to it
+         vec3 up_vec = glm::normalize(vec3{camera->Position.x, 1.0f, camera->Position.z});
+         vec3 vec_in_plane = glm::cross(up_vec, cam_to_entity);
+
+         // creates plane
+         t1.a   = position + (vec_in_plane * -1.0f * plane_size);
+         t1.a.y = camera->Position.y + -1.0f * plane_size;
+
+         t1.b   = position + (vec_in_plane * plane_size);
+         t1.b.y = camera->Position.y + -1.0f * plane_size;
+
+         t1.c   = position + (vec_in_plane * plane_size);
+         t1.c.y = camera->Position.y + plane_size;
+
+         t2.a   = t1.a;
+         t2.b   = position + (vec_in_plane * -1.0f * plane_size);
+         t2.b.y = camera->Position.y + plane_size;
+         t2.c   = t1.c;
+         
+         break;
+      }
+   }
+
+   // ray casts against created plane
+   RaycastTest test;
+   
+   test = test_ray_against_triangle(ray, t1);
+   if(!test.hit)
+   {
+      test = test_ray_against_triangle(ray, t2);
+      if(!test.hit)
+      {
+         cout << "warning: can't find plane to place light!\n";
+         return;
+      }
+   }
+
+   // places entity accordingly
+   switch(Context.move_axis)
+   {
+      case 0:  // XZ 
+         position.x = ray.origin.x + ray.direction.x * test.distance;
+         position.z = ray.origin.z + ray.direction.z * test.distance;
+         break;
+      case 1:  // X
+         position.x = ray.origin.x + ray.direction.x * test.distance;
+         break;
+      case 2:  // Y
+         position.y = ray.origin.y + ray.direction.y * test.distance;
+         break;
+      case 3:  // Z
+         position.z = ray.origin.z + ray.direction.z * test.distance;
+         break;
+   }
+
+   if(type == "point" && index > -1)
+      G_SCENE_INFO.active_scene->pointLights[index].position = position;
+   else if(type == "spot" && index > -1)
+      G_SCENE_INFO.active_scene->spotLights[index].position = position;
+   else assert(false);
+}
+
+void place_light()
+{
+   Context.move_mode = false;
+   Context.selected_light = -1;
 }
 
 

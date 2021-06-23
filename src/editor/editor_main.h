@@ -41,6 +41,7 @@ struct WorldPanelContext {
 
 struct LightsPanelContext {
    bool active = false;
+   bool focus_tab = false;
 
    // selected light
    int selected_light = -1;
@@ -79,6 +80,10 @@ struct EditorContext {
    bool scale_on_drop = false;
    u8 move_axis = 0;
 
+   // move light @todo: will disappear!
+   string selected_light_type = "";
+   int selected_light = -1;
+
    // scale mode
    bool scale_entity_with_mouse = false;
    
@@ -113,6 +118,7 @@ void start_frame();
 void update();
 void update_editor_entities();
 void check_selection_to_open_panel();
+void check_selection_to_move_entity();
 void render(Player* player, WorldStruct* world);
 void render_text_overlay(Player* player);
 void render_toolbar();
@@ -175,9 +181,18 @@ void update()
    {
       if(Context.mouse_click)
       {
-         place_entity();
+         if(Context.selected_light > -1)
+            place_light();
+         else
+            place_entity();
       }
-      else move_entity_with_mouse(Context.selected_entity);
+      else
+      {
+         if(Context.selected_light > -1)
+            move_light_with_mouse(Context.selected_light_type, Context.selected_light);
+         else
+            move_entity_with_mouse(Context.selected_entity);
+      }
    }
 
    if(Context.scale_entity_with_mouse)
@@ -953,9 +968,18 @@ void check_selection_to_open_panel()
    if(test.hit && (!test_light.hit || test_light.distance > test.distance))
       open_entity_panel(test.entity);
    else if(test_light.hit)
-   {
-      open_lights_panel(test_light.obj_hit_type, test_light.obj_hit_index);
-   }
+      open_lights_panel(test_light.obj_hit_type, test_light.obj_hit_index, true);
+}
+
+void check_selection_to_move_entity()
+{
+   auto pickray = cast_pickray();
+   auto test = test_ray_against_scene(pickray, true);
+   auto test_light = test_ray_against_lights(pickray);
+   if(test.hit && (!test_light.hit || test_light.distance > test.distance))
+      activate_move_mode(test.entity);
+   else if(test_light.hit)
+      activate_move_light_mode(test_light.obj_hit_type, test_light.obj_hit_index);
 }
 
 }

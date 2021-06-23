@@ -1,11 +1,11 @@
 // -------------
 // LIGHTS PANEL
 // -------------
-void open_lights_panel(string type, int index);
+void open_lights_panel(string type, int index, bool focus_tab);
 vec3 compute_direction_from_angles(float pitch, float yaw);
 void compute_angles_from_direction(float& pitch, float& yaw, vec3 direction);
 
-void open_lights_panel(string type = "", int index = -1)
+void open_lights_panel(string type = "", int index = -1, bool focus_tab = false)
 {
    Context.lights_panel.active = true;
    if(type != "" && index > -1)
@@ -13,6 +13,8 @@ void open_lights_panel(string type = "", int index = -1)
       Context.lights_panel.selected_light = index;
       Context.lights_panel.selected_light_type = type;
    }
+   if(focus_tab)
+      Context.lights_panel.focus_tab = true;
 }
 
 
@@ -50,9 +52,12 @@ void render_lights_panel(LightsPanelContext* panel)
    // -------------
    // POINT LIGHTS
    // -------------
-   auto point_flags = panel->selected_light_type == "point" ? ImGuiTabItemFlags_SetSelected : ImGuiTabItemFlags_None;
+   auto point_flags = (panel->focus_tab && panel->selected_light_type == "point") ? 
+      ImGuiTabItemFlags_SetSelected : ImGuiTabItemFlags_None;
    if(ImGui::BeginTabItem("Point Lights", NULL, point_flags))
    {
+      if(point_flags == ImGuiTabItemFlags_SetSelected) panel->focus_tab = false;
+
       for(int i = 0; i < G_SCENE_INFO.active_scene->pointLights.size(); i++)
       {
          string header = "point light source (" + to_string(i) + ")";
@@ -112,9 +117,12 @@ void render_lights_panel(LightsPanelContext* panel)
    // ------------
    // SPOT LIGHTS
    // ------------
-   auto spot_flags = panel->selected_light_type == "spot" ? ImGuiTabItemFlags_SetSelected : ImGuiTabItemFlags_None;
+   auto spot_flags = (panel->focus_tab && panel->selected_light_type == "spot") ? 
+      ImGuiTabItemFlags_SetSelected : ImGuiTabItemFlags_None;
    if(ImGui::BeginTabItem("Spot Lights", NULL, spot_flags))
    {
+      if(spot_flags == ImGuiTabItemFlags_SetSelected) panel->focus_tab = false;
+
       ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.42f, 0.6f, 0.6f));
       ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.42f, 0.7f, 0.7f));
       ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.42f, 0.8f, 0.8f));
