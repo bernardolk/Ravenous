@@ -112,6 +112,7 @@ void initialize();
 void start_frame();
 void update();
 void update_editor_entities();
+void check_selection_to_open_panel();
 void render(Player* player, WorldStruct* world);
 void render_text_overlay(Player* player);
 void render_toolbar();
@@ -120,6 +121,7 @@ void render_world_cells(Camera* camera);
 void render_lightbulbs(Camera* camera);
 void end_frame();
 void terminate();
+
 
 #include <editor/editor_tools.h>
 #include <editor/editor_entity_panel.h>
@@ -879,7 +881,7 @@ void render_lightbulbs(Camera* camera)
       // selection box
       auto aabb_mesh = Geometry_Catalogue.find("aabb")->second;
 
-      auto aabb_model = translate(mat4identity, light_position + vec3{0, 0.5, 0} - vec3{0.1575, 0.5, 0.1575});
+      auto aabb_model = translate(mat4identity, light_position - vec3{0.1575, 0, 0.1575});
       aabb_model = glm::scale(aabb_model, vec3{0.3f, 0.6f, 0.3f});
       RenderOptions opts;
       opts.wireframe = true;
@@ -933,4 +935,18 @@ void render_lightbulbs(Camera* camera)
       // render_mesh(arrow_mesh, RenderOptions{});
    }
 }
+
+void check_selection_to_open_panel()
+{
+   auto pickray = cast_pickray();
+   auto test = test_ray_against_scene(pickray);
+   auto test_light = test_ray_against_lights(pickray);
+   if(test.hit && (!test_light.hit || test_light.distance > test.distance))
+      open_entity_panel(test.entity);
+   else if(test_light.hit)
+   {
+      open_lights_panel(test_light.obj_hit_type, test_light.obj_hit_index);
+   }
+}
+
 }

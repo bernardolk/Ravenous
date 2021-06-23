@@ -1,16 +1,18 @@
-struct RaycastTest{
+struct RaycastTest {
    bool hit = false;
    float distance;
    Entity* entity = NULL;
+   int obj_hit_index = -1;
+   string obj_hit_type;
 };
 
-struct Triangle{
+struct Triangle {
    vec3 a;
    vec3 b;
    vec3 c;
 };
 
-struct Ray{
+struct Ray {
    vec3 origin;
    vec3 direction;
 };
@@ -18,9 +20,60 @@ struct Ray{
 Ray cast_pickray();
 RaycastTest test_ray_against_scene(Ray ray,  bool only_test_visible_entities);
 RaycastTest test_ray_against_entity(Ray ray, Entity* entity);
+RaycastTest test_ray_against_mesh(Ray ray, Mesh* mesh, glm::mat4 matModel);
 RaycastTest test_ray_against_triangle(Ray ray, Triangle triangle);
 Triangle get_triangle_for_indexed_mesh(Entity* entity, int triangle_index);
 vec3 point_from_detection(Ray ray, RaycastTest result);
+
+
+RaycastTest test_ray_against_lights(Ray ray)
+{
+   float min_distance = MAX_FLOAT;
+   RaycastTest closest_hit{false, -1};
+
+   auto scene = G_SCENE_INFO.active_scene;
+   auto aabb_mesh = Geometry_Catalogue.find("aabb")->second;
+
+   int point_c = 0;
+	for (auto point_light_ptr = scene->pointLights.begin(); 
+      point_light_ptr != scene->pointLights.end(); 
+      point_light_ptr++)
+   {
+      // subtract lightbulb model size from position
+      auto position = point_light_ptr->position - vec3{0.1575, 0, 0.1575};
+      auto aabb_model = translate(mat4identity, position);
+      aabb_model = glm::scale(aabb_model, vec3{0.3f, 0.6f, 0.3f});
+
+      auto test = test_ray_against_mesh(ray, aabb_mesh, aabb_model);
+      if(test.hit && test.distance < min_distance)
+      {
+         closest_hit = {true, test.distance, NULL, point_c, "point"};
+         min_distance = test.distance;
+      }
+      point_c++;
+   }
+
+   int spot_c = 0;
+   for (auto spotlight_ptr = scene->spotLights.begin(); 
+      spotlight_ptr != scene->spotLights.end(); 
+      spotlight_ptr++)
+   {
+       // subtract lightbulb model size from position
+      auto position = spotlight_ptr->position - vec3{0.1575, 0, 0.1575};
+      auto aabb_model = translate(mat4identity, position);
+      aabb_model = glm::scale(aabb_model, vec3{0.3f, 0.6f, 0.3f});
+
+      auto test = test_ray_against_mesh(ray, aabb_mesh, aabb_model);
+      if(test.hit && test.distance < min_distance)
+      {
+         closest_hit = {true, test.distance, NULL, spot_c, "spot"};
+         min_distance = test.distance;
+      }
+      spot_c++;
+   }
+
+   return closest_hit;
+}
 
 
 RaycastTest test_ray_against_scene(Ray ray, bool only_test_visible_entities = false)
@@ -66,6 +119,23 @@ Triangle get_triangle_for_indexed_mesh(Entity* entity, int triangle_index)
    return Triangle{a, b, c};
 }
 
+Triangle get_triangle_for_indexed_mesh(Mesh* mesh, glm::mat4 matModel, int triangle_index)
+{
+   auto a_ind = mesh->indices[3 * triangle_index + 0];
+   auto b_ind = mesh->indices[3 * triangle_index + 1];
+   auto c_ind = mesh->indices[3 * triangle_index + 2];
+
+   auto a_mesh = mesh->vertices[a_ind].position;
+   auto b_mesh = mesh->vertices[b_ind].position;
+   auto c_mesh = mesh->vertices[c_ind].position;
+
+   auto a = matModel * glm::vec4(a_mesh, 1.0);
+   auto b = matModel * glm::vec4(b_mesh, 1.0);
+   auto c = matModel * glm::vec4(c_mesh, 1.0);
+
+   return Triangle{a, b, c};
+}
+
 
 RaycastTest test_ray_against_entity(Ray ray, Entity* entity)
 {
@@ -75,6 +145,26 @@ RaycastTest test_ray_against_entity(Ray ray, Entity* entity)
    for(int i = 0; i < triangles; i++)
    {
       Triangle t = get_triangle_for_indexed_mesh(entity, i);
+      auto test = test_ray_against_triangle(ray, t);
+      if(test.hit && test.distance < min_distance)
+      {
+         min_hit_test = test;
+         min_distance = test.distance;
+      }
+   }
+
+   return min_hit_test;
+}
+
+
+RaycastTest test_ray_against_mesh(Ray ray, Mesh* mesh, glm::mat4 matModel)
+{
+   int triangles = mesh->indices.size() / 3;
+   float min_distance = MAX_FLOAT;
+   RaycastTest min_hit_test{false, -1};
+   for(int i = 0; i < triangles; i++)
+   {
+      Triangle t = get_triangle_for_indexed_mesh(mesh, matModel, i);
       auto test = test_ray_against_triangle(ray, t);
       if(test.hit && test.distance < min_distance)
       {

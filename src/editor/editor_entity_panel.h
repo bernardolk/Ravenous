@@ -6,7 +6,7 @@ void open_entity_panel(Entity* entity);
 void check_for_asset_changes();
 void update_entity_control_arrows(EntityPanelContext* panel);
 void render_entity_control_arrows(EntityPanelContext* panel);
-void check_selection_to_open_panel();
+
 void render_entity_panel(EntityPanelContext* panel);
 
 void render_entity_panel(EntityPanelContext* panel)
@@ -224,14 +224,6 @@ void render_entity_panel(EntityPanelContext* panel)
    }
 
    ImGui::End();
-}
-
-void check_selection_to_open_panel()
-{
-   auto pickray = cast_pickray();
-   auto test = test_ray_against_scene(pickray);
-   if(test.hit)
-      open_entity_panel(test.entity);
 }
 
 void render_entity_control_arrows(EntityPanelContext* panel)

@@ -1,8 +1,20 @@
 // -------------
 // LIGHTS PANEL
 // -------------
+void open_lights_panel(string type, int index);
 vec3 compute_direction_from_angles(float pitch, float yaw);
 void compute_angles_from_direction(float& pitch, float& yaw, vec3 direction);
+
+void open_lights_panel(string type = "", int index = -1)
+{
+   Context.lights_panel.active = true;
+   if(type != "" && index > -1)
+   {
+      Context.lights_panel.selected_light = index;
+      Context.lights_panel.selected_light_type = type;
+   }
+}
+
 
 vec3 compute_direction_from_angles(float pitch, float yaw)
 {
@@ -46,7 +58,7 @@ void render_lights_panel(LightsPanelContext* panel)
          if(ImGui::CollapsingHeader(header.c_str()))
          {
             auto& light = G_SCENE_INFO.active_scene->pointLights[i];
-            bool is_active = panel->selected_light == i;
+            bool is_active = panel->selected_light == i && panel->selected_light_type == "point";
             auto show_name = "show##point" + to_string(i);
             if(ImGui::Checkbox(show_name.c_str(), &is_active))
             {
@@ -107,6 +119,8 @@ void render_lights_panel(LightsPanelContext* panel)
       if(ImGui::Button("Add new##spot"))
       {
          // create new spotlight
+         SpotLight new_spotlight;
+         G_SCENE_INFO.active_scene->spotLights.push_back(new_spotlight);
       }
       ImGui::PopStyleColor(3);
 
@@ -116,13 +130,28 @@ void render_lights_panel(LightsPanelContext* panel)
          if(ImGui::CollapsingHeader(header.c_str()))
          {
             auto& light = G_SCENE_INFO.active_scene->spotLights[i];
-            bool is_active = panel->selected_light == i;
+
+            // SHOW BUTTON
+            bool is_active = panel->selected_light == i && panel->selected_light_type == "spot";
             auto show_name = "show##spot" + to_string(i);
             if(ImGui::Checkbox(show_name.c_str(), &is_active))
             {
                panel->selected_light = is_active ? i : -1;
                panel->selected_light_type = "spot";
             }
+
+            // DELETE BUTTON
+            ImGui::SameLine();
+            ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.03f, 0.6f, 0.6f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.03f, 0.7f, 0.7f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.03f, 0.8f, 0.8f));
+            auto delete_btn_spot_label = "Delete##spot" + to_string(i);
+            if(ImGui::Button(delete_btn_spot_label.c_str()))
+            {
+               // deletes spotlight
+            }
+            ImGui::PopStyleColor(3);
+
             ImGui::NewLine();
 
             // position 
