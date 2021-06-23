@@ -1,2 +1,2 @@
-scene = world
+scene = test
 camspeed = 11.515

@@ -231,8 +231,28 @@ void render_scene(Scene* scene, Camera* camera)
       point_light_count++;
    }
 
+   int spotlight_count = 0;
+   for (auto spotlight_ptr = scene->spotLights.begin(); 
+   spotlight_ptr != scene->spotLights.end(); 
+   spotlight_ptr++)
+   {
+      SpotLight spotlight = *spotlight_ptr;
+      string uniform_name = "spotLights[" + to_string(spotlight_count) + "]";
+      shader->setFloat3(uniform_name + ".position",  spotlight.position);
+      shader->setFloat3(uniform_name + ".direction", spotlight.direction);
+      shader->setFloat3(uniform_name + ".diffuse",   spotlight.diffuse);
+      shader->setFloat3(uniform_name + ".specular",  spotlight.specular);
+      shader->setFloat3(uniform_name + ".ambient",   spotlight.ambient);
+      shader->setFloat(uniform_name  + ".constant",  spotlight.intensity_constant);
+      shader->setFloat(uniform_name  + ".linear",    spotlight.intensity_linear);
+      shader->setFloat(uniform_name  + ".quadratic", spotlight.intensity_quadratic);
+      shader->setFloat(uniform_name + ".innercone", spotlight.innercone);
+      shader->setFloat(uniform_name + ".outercone", spotlight.outercone);
+      spotlight_count++;
+   }
+
    shader->     setInt("num_directional_light", 0);
-   shader->     setInt("num_spot_lights",       0);
+   shader->     setInt("num_spot_lights",     spotlight_count);
    shader->     setInt("num_point_lights",    point_light_count);
    shader-> setMatrix4("view",                camera->View4x4);
    shader-> setMatrix4("projection",          camera->Projection4x4);

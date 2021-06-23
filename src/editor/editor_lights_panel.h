@@ -4,7 +4,6 @@
 vec3 compute_direction_from_angles(float pitch, float yaw);
 void compute_angles_from_direction(float& pitch, float& yaw, vec3 direction);
 
-
 vec3 compute_direction_from_angles(float pitch, float yaw)
 {
    vec3 arrow_direction;
@@ -30,81 +29,164 @@ void compute_angles_from_direction(float& pitch, float& yaw, vec3 direction)
 
 void render_lights_panel(LightsPanelContext* panel)
 {
-   ImGui::SetNextWindowPos(ImVec2(100, 300), ImGuiCond_Appearing);
-   ImGui::Begin("Lights Panel", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
+   ImGui::SetNextWindowPos(ImVec2(180, 80), ImGuiCond_Appearing);
+   ImGui::Begin("Lights Panel", &panel->active, ImGuiWindowFlags_None);
+   ImGui::SetWindowSize("Lights Panel", ImVec2(330, 800), ImGuiCond_Always);
 
-   ImGui::Text("Point Lights");
-   for(int i = 0; i < G_SCENE_INFO.active_scene->pointLights.size(); i++)
+   ImGui::BeginTabBar("Types");
+
+   // -------------
+   // POINT LIGHTS
+   // -------------
+   if(ImGui::BeginTabItem("Point Lights"))
    {
-      string header = "light source (" + to_string(i) + ")";
-      if(ImGui::CollapsingHeader(header.c_str()))
+      for(int i = 0; i < G_SCENE_INFO.active_scene->pointLights.size(); i++)
       {
-         auto& light = G_SCENE_INFO.active_scene->pointLights[i];
-         bool is_active = panel->selected_light == i;
-         auto show_name = "show##" + to_string(i);
-         if(ImGui::Checkbox(show_name.c_str(), &is_active))
+         string header = "point light source (" + to_string(i) + ")";
+         if(ImGui::CollapsingHeader(header.c_str()))
          {
-            panel->selected_light = is_active ? i : -1;
-         }
-         ImGui::NewLine();
-
-         // position 
-         float positions[]{ light.position[0], light.position[1], light.position[2] };
-         auto label_pos = "position##" + to_string(i);
-         if(ImGui::SliderFloat3(label_pos.c_str(), positions, -10.0, 10.0))
-         {
-            light.position = vec3{positions[0], positions[1], positions[2]};
-         }
-
-         // direction
-         {
-            float yaw, pitch;
-            compute_angles_from_direction(pitch, yaw, light.direction);
-
-            // pitch
-            auto label_pitch = "pitch##" + to_string(i);
-            if(ImGui::SliderFloat(label_pitch.c_str(), &pitch, -89.0, 89.0))
+            auto& light = G_SCENE_INFO.active_scene->pointLights[i];
+            bool is_active = panel->selected_light == i;
+            auto show_name = "show##point" + to_string(i);
+            if(ImGui::Checkbox(show_name.c_str(), &is_active))
             {
-               light.direction = compute_direction_from_angles(pitch, yaw);
+               panel->selected_light = is_active ? i : -1;
+               panel->selected_light_type = "point";
+            }
+            ImGui::NewLine();
+
+            // position 
+            float positions[]{ light.position[0], light.position[1], light.position[2] };
+            auto label_pos = "position##point" + to_string(i);
+            if(ImGui::DragFloat3(label_pos.c_str(), positions, 0.3, -10.0, 10.0))
+            {
+               light.position = vec3{positions[0], positions[1], positions[2]};
             }
 
-            //yaw
-            auto label_yaw = "yaw##" + to_string(i);
-            if(ImGui::SliderFloat(label_yaw.c_str(), &yaw, -360.0, 360.0))
+            // diffuse color 
+            float diffuse[]{ light.diffuse[0], light.diffuse[1], light.diffuse[2] };
+            auto label_diffuse = "diffuse##point" + to_string(i);
+            if(ImGui::ColorPicker3(label_diffuse.c_str(), diffuse, ImGuiColorEditFlags_NoAlpha))
             {
-               light.direction = compute_direction_from_angles(pitch, yaw);
+               light.diffuse = vec3{diffuse[0], diffuse[1], diffuse[2]};
             }
-         }
 
-         // diffuse color 
-         float diffuse[]{ light.diffuse[0], light.diffuse[1], light.diffuse[2] };
-         auto label_diffuse = "diffuse##" + to_string(i);
-         if(ImGui::ColorPicker3(label_diffuse.c_str(), diffuse, ImGuiColorEditFlags_NoAlpha))
-         {
-            light.diffuse = vec3{diffuse[0], diffuse[1], diffuse[2]};
-         }
+            // specular color 
+            float specular[]{ light.specular[0], light.specular[1], light.specular[2] };
+            auto label_specular = "specular##point" + to_string(i);
+            if(ImGui::ColorPicker3(label_specular.c_str(), specular, ImGuiColorEditFlags_NoAlpha))
+            {
+               light.specular = vec3{specular[0], specular[1], specular[2]};
+            }
 
-         // specular color 
-         float specular[]{ light.specular[0], light.specular[1], light.specular[2] };
-         auto label_specular = "specular##" + to_string(i);
-         if(ImGui::ColorPicker3(label_specular.c_str(), specular, ImGuiColorEditFlags_NoAlpha))
-         {
-            light.specular = vec3{specular[0], specular[1], specular[2]};
-         }
+            // intensity (decay)
+            ImGui::Text("Intensity decay");
+            auto label_intensity_const = "const##point" + to_string(i);
+            ImGui::DragFloat(label_intensity_const.c_str(), &light.intensity_constant, 0.05, 0.0, 5.0);
 
-         // intensity
-         float intensity[] { light.intensity_constant, light.intensity_linear, light.intensity_quadratic };
-         auto label_intensity = "intensity##" + to_string(i);
-         if(ImGui::SliderFloat3(label_intensity.c_str(), intensity, 0.0, 5.0))
-         {
-            light.intensity_constant  = intensity[0]; 
-            light.intensity_linear    = intensity[1]; 
-            light.intensity_quadratic = intensity[2]; 
-         }
+            auto label_intensity_linear = "linear##point" + to_string(i);
+            ImGui::DragFloat(label_intensity_linear.c_str(), &light.intensity_linear, 0.005, 0.0, 5.0);
 
-         ImGui::NewLine();
+            auto label_intensity_quad = "quadratic##point" + to_string(i);
+            ImGui::DragFloat(label_intensity_quad.c_str(), &light.intensity_quadratic, 0.0005, 0.0, 5.0);
+
+            ImGui::NewLine();
+         }
       }
-   } 
+      ImGui::EndTabItem();
+   }
+
+   // ------------
+   // SPOT LIGHTS
+   // ------------
+   if(ImGui::BeginTabItem("Spot Lights"))
+   {
+      for(int i = 0; i < G_SCENE_INFO.active_scene->spotLights.size(); i++)
+      {
+         string header = "spot light source (" + to_string(i) + ")";
+         if(ImGui::CollapsingHeader(header.c_str()))
+         {
+            auto& light = G_SCENE_INFO.active_scene->spotLights[i];
+            bool is_active = panel->selected_light == i;
+            auto show_name = "show##spot" + to_string(i);
+            if(ImGui::Checkbox(show_name.c_str(), &is_active))
+            {
+               panel->selected_light = is_active ? i : -1;
+               panel->selected_light_type = "spot";
+            }
+            ImGui::NewLine();
+
+            // position 
+            float positions[]{ light.position[0], light.position[1], light.position[2] };
+            auto label_pos = "position##spot" + to_string(i);
+            if(ImGui::DragFloat3(label_pos.c_str(), positions, 0.3, -10.0, 10.0))
+            {
+               light.position = vec3{positions[0], positions[1], positions[2]};
+            }
+
+            // cones 
+            auto label_innercone = "innercone##spot" + to_string(i);
+            ImGui::DragFloat(label_innercone.c_str(), &light.innercone, 0.001, 1, MAX_FLOAT);
+
+            auto label_outercone = "outercone##spot" + to_string(i);
+            ImGui::DragFloat(label_outercone.c_str(), &light.outercone, 0.001, 0, 1);
+
+            // direction
+            {
+               float yaw, pitch;
+               compute_angles_from_direction(pitch, yaw, light.direction);
+
+               // pitch
+               auto label_pitch = "pitch##spot" + to_string(i);
+               if(ImGui::SliderFloat(label_pitch.c_str(), &pitch, -89.0, 89.0))
+               {
+                  light.direction = compute_direction_from_angles(pitch, yaw);
+               }
+
+               //yaw
+               auto label_yaw = "yaw##spot" + to_string(i);
+               if(ImGui::SliderFloat(label_yaw.c_str(), &yaw, -360.0, 360.0))
+               {
+                  light.direction = compute_direction_from_angles(pitch, yaw);
+               }
+            }
+
+            // diffuse color 
+            float diffuse[]{ light.diffuse[0], light.diffuse[1], light.diffuse[2] };
+            auto label_diffuse = "diffuse##spot" + to_string(i);
+            if(ImGui::ColorPicker3(label_diffuse.c_str(), diffuse, ImGuiColorEditFlags_NoAlpha))
+            {
+               light.diffuse = vec3{diffuse[0], diffuse[1], diffuse[2]};
+            }
+
+            // specular color 
+            float specular[]{ light.specular[0], light.specular[1], light.specular[2] };
+            auto label_specular = "specular##spot" + to_string(i);
+            if(ImGui::ColorPicker3(label_specular.c_str(), specular, ImGuiColorEditFlags_NoAlpha))
+            {
+               light.specular = vec3{specular[0], specular[1], specular[2]};
+            }
+
+            // intensity
+            // intensity (decay)
+            ImGui::Text("Intensity decay");
+            auto label_intensity_const = "const##spot" + to_string(i);
+            ImGui::DragFloat(label_intensity_const.c_str(), &light.intensity_constant, 0.05, 0.0, 5.0);
+
+            auto label_intensity_linear = "linear##spot" + to_string(i);
+            ImGui::DragFloat(label_intensity_linear.c_str(), &light.intensity_linear, 0.005, 0.0, 5.0);
+
+            auto label_intensity_quad = "quadratic##spot" + to_string(i);
+            ImGui::DragFloat(label_intensity_quad.c_str(), &light.intensity_quadratic, 0.0005, 0.0, 5.0);
+
+
+            ImGui::NewLine();
+         }
+      }
+      ImGui::EndTabItem();
+   }
+
+    ImGui::EndTabBar();
 
    ImGui::End();
 }

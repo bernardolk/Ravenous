@@ -41,9 +41,12 @@ struct WorldPanelContext {
 
 struct LightsPanelContext {
    bool active = false;
+
+   // selected light
    int selected_light = -1;
    float selected_light_yaw;
    float selected_light_pitch;
+   string selected_light_type;
 };
 
 struct EditorContext {
@@ -97,7 +100,7 @@ struct EditorContext {
    // render flags 
    bool show_event_triggers = false;
    bool show_world_cells = false;
-   bool show_lightbulbs = false;
+   bool show_lightbulbs = true;
 
    // gizmos
    Entity* tri_axis[3];
@@ -765,42 +768,102 @@ void render_lightbulbs(Camera* camera)
    auto shader = Shader_Catalogue.find("color")->second;
 
    auto selected_light = Context.lights_panel.selected_light;
+   auto selected_light_type = Context.lights_panel.selected_light_type;
 
-   int i = 0;
+   // point lights
+   int point_c = 0;
    for(auto const& light: scene->pointLights)
    {
       auto model = translate(mat4identity, light.position + vec3{0, 0.5, 0});
       model = glm::scale(model, vec3{0.1f});
       RenderOptions opts;
-      opts.wireframe = true;
+      //opts.wireframe = true;
       //render
       shader->use();
-      shader->setFloat3("color", 
-         selected_light == i ? vec3{0.9, 0.7, 0.9} : light.diffuse
-      );
+      shader->setFloat3("color", light.diffuse);
       shader->setFloat("opacity", 1.0);
       shader->setMatrix4("model", model);
       shader->setMatrix4("view", camera->View4x4);
       shader->setMatrix4("projection", camera->Projection4x4);
       render_mesh(mesh, opts);
 
-      i++;
+      point_c++;
+   }
+
+   // spot lights
+   int spot_c = 0;
+   for(auto const& light: scene->spotLights)
+   {
+      auto model = translate(mat4identity, light.position + vec3{0, 0.5, 0});
+      model = glm::scale(model, vec3{0.1f});
+      RenderOptions opts;
+      //opts.wireframe = true;
+      //render
+      shader->use();
+      shader->setFloat3("color", light.diffuse);
+      shader->setFloat("opacity", 1.0);
+      shader->setMatrix4("model", model);
+      shader->setMatrix4("view", camera->View4x4);
+      shader->setMatrix4("projection", camera->Projection4x4);
+      render_mesh(mesh, opts);
+
+      spot_c++;
+   }
+
+   // directional lights
+   int directional_c = 0;
+   for(auto const& light: scene->directionalLights)
+   {
+      auto model = translate(mat4identity, light.position + vec3{0, 0.5, 0});
+      model = glm::scale(model, vec3{0.1f});
+      RenderOptions opts;
+      //opts.wireframe = true;
+      //render
+      shader->use();
+      shader->setFloat3("color", light.diffuse);
+      shader->setFloat("opacity", 1.0);
+      shader->setMatrix4("model", model);
+      shader->setMatrix4("view", camera->View4x4);
+      shader->setMatrix4("projection", camera->Projection4x4);
+      render_mesh(mesh, opts);
+
+      directional_c++;
    }
 
    // render selection box and dir arrow for selected lightbulb
-   if(selected_light >= 0 && i >= selected_light)
+   if(selected_light >= 0)
    {
-      auto light = scene->pointLights[selected_light];
+      vec3 light_position;
+      vec3 light_direction;
+      if(selected_light_type == "point")
+      {
+         assert(selected_light < point_c);
+         auto light = scene->pointLights[selected_light];
+         light_position = light.position;
+      }
+      else if(selected_light_type == "spot")
+      {
+         assert(selected_light < spot_c);
+         auto light = scene->spotLights[selected_light];
+         light_position = light.position;
+         light_direction = light.direction;
+      }
+      else if(selected_light_type == "directional")
+      {
+         assert(selected_light < directional_c);
+         auto light = scene->directionalLights[selected_light];
+         light_position = light.position;
+         light_direction = light.direction;
+      }
 
       // selection box
       auto aabb_mesh = Geometry_Catalogue.find("aabb")->second;
 
-      auto aabb_model = translate(mat4identity, light.position + vec3{0, 0.5, 0} - vec3{0.1575, 0.5, 0.1575});
+      auto aabb_model = translate(mat4identity, light_position + vec3{0, 0.5, 0} - vec3{0.1575, 0.5, 0.1575});
       aabb_model = glm::scale(aabb_model, vec3{0.3f, 0.6f, 0.3f});
       RenderOptions opts;
       opts.wireframe = true;
 
-      //render box
       shader->use();
       shader->setFloat3("color", vec3{0.9, 0.7, 0.9});
       shader->setFloat("opacity", 1.0);
@@ -810,9 +873,20 @@ void render_lightbulbs(Camera* camera)
       render_mesh(aabb_mesh, opts);
 
       // direction arrow
-      auto arrow_mesh = Geometry_Catalogue.find("axis")->second;
+      if (selected_light_type == "spot" || selected_light_type == "directional")
+      {
+         float pitch, yaw;
+         compute_angles_from_direction(pitch, yaw, light_direction);
+         vec3 arrow_direction = compute_direction_from_angles(pitch, yaw);
 
-      vec3 arrow_origin = light.position - vec3{0.0, 0.7, 0.0};
+         vec3 arrow_origin = light_position - vec3{0.0, 0.56, 0.0};
+         vec3 arrow_end = arrow_origin + arrow_direction * 1.5f;
+         vec3 points[2]{ arrow_origin, arrow_end };
+         G_IMMEDIATE_DRAW.add_line(points, 1.5);
+      }
+
+      // @todo: epic fail below (trying to rotate an arrow mesh according to a dir vector)
+      // auto arrow_mesh = Geometry_Catalogue.find("axis")->second;
       // vec3 front = arrow_origin + light.direction;
       // vec3 up = glm::cross(arrow_origin, );
 
@@ -820,15 +894,6 @@ void render_lightbulbs(Camera* camera)
       //       be careful with 0/180 degree angles between up and direction vectors
       //       using glm::lookAt()
       // @todo: Actually now we are using immediate draw and lines.
-
-      float pitch, yaw;
-      compute_angles_from_direction(pitch, yaw, light.direction);
-      vec3 arrow_direction = compute_direction_from_angles(pitch, yaw);
-      vec3 arrow_end = arrow_origin + arrow_direction * 1.5f;
-      vec3 points[2]{ arrow_origin, arrow_end };
-      G_IMMEDIATE_DRAW.add_line(points, 1.5);
-
-      // @todo: epic fail below
 
       // //mat4 arrow_model = translate(mat4identity, arrow_origin);
       // mat4 arrow_model = 

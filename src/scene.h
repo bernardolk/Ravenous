@@ -157,7 +157,7 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
    writer << "@player_state = " << player->initial_player_state << "\n"; 
    writer << "@player_fall_acceleration = " << player->fall_acceleration << "\n";  
 
-   // write light sources
+   // write light sources POINT
    for(int it = 0; it < G_SCENE_INFO.active_scene->pointLights.size(); it++)
    {
       auto light = G_SCENE_INFO.active_scene->pointLights[it];
@@ -171,14 +171,86 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
             << light.diffuse.x << " "
             << light.diffuse.y << " "
             << light.diffuse.z << "\n"
+            << "specular "
+            << light.specular.x << " "
+            << light.specular.y << " "
+            << light.specular.z << "\n"
             << "ambient "
             << light.ambient.x << " "
             << light.ambient.y << " "
             << light.ambient.z << "\n"
+            << "constant "
+            << light.intensity_constant << "\n"
             << "linear "
             << light.intensity_linear << "\n"
             << "quadratic "
             << light.intensity_quadratic << "\n";
+   }
+
+   // write light sources SPOT
+   for(int it = 0; it < G_SCENE_INFO.active_scene->spotLights.size(); it++)
+   {
+      auto light = G_SCENE_INFO.active_scene->spotLights[it];
+
+      writer << "\n$spot\n"
+            << "position "
+            << light.position.x << " "
+            << light.position.y << " "
+            << light.position.z << "\n"
+            << "direction "
+            << light.direction.x << " "
+            << light.direction.y << " "
+            << light.direction.z << "\n"
+            << "diffuse "
+            << light.diffuse.x << " "
+            << light.diffuse.y << " "
+            << light.diffuse.z << "\n"
+            << "specular "
+            << light.specular.x << " "
+            << light.specular.y << " "
+            << light.specular.z << "\n"
+            << "ambient "
+            << light.ambient.x << " "
+            << light.ambient.y << " "
+            << light.ambient.z << "\n"
+            << "innercone "
+            << light.innercone << "\n"
+            << "outercone "
+            << light.outercone << "\n"
+            << "constant "
+            << light.intensity_constant << "\n"
+            << "linear "
+            << light.intensity_linear << "\n"
+            << "quadratic "
+            << light.intensity_quadratic << "\n";
+   }
+
+   // write light sources DIRECTIONAL
+   for(int it = 0; it < G_SCENE_INFO.active_scene->directionalLights.size(); it++)
+   {
+      auto light = G_SCENE_INFO.active_scene->directionalLights[it];
+
+      writer << "\n$directional\n"
+            << "position "
+            << light.position.x << " "
+            << light.position.y << " "
+            << light.position.z << "\n"
+            << "direction "
+            << light.direction.x << " "
+            << light.direction.y << " "
+            << light.direction.z << "\n"
+            << "diffuse "
+            << light.diffuse.x << " "
+            << light.diffuse.y << " "
+            << light.diffuse.z << "\n"
+            << "specular "
+            << light.specular.x << " "
+            << light.specular.y << " "
+            << light.specular.z << "\n"
+            << "ambient "
+            << light.ambient.x << " "
+            << light.ambient.y << " "
+            << light.ambient.z << "\n";
    }
 
    // write scene data (for each entity)
@@ -495,55 +567,135 @@ void parse_and_load_light_source(Parser::Parse p, ifstream* reader, int& line_co
    p = parse_token(p);
    string type = p.string_buffer;
 
-   if (type != "point")
+   if (!(type == "point" || type == "spot"))
    {
       cout << "FATAL: Unrecognized light source in scene file '" << path << "', line " << line_count << ".\n";
       assert(false);
    }
 
-   // only point lights for now being parsed
-   auto point_light = new PointLight();
-
-   while(parser_nextline(reader, &line, &p))
+   if(type == "point")
    {
-      line_count++;
-      p = parse_token(p);
-      const std::string property = p.string_buffer;
+      PointLight point_light;
 
-      if(property == "position")
+      while(parser_nextline(reader, &line, &p))
       {
-         p = parse_float_vector(p);
-         point_light->position = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+         line_count++;
+         p = parse_token(p);
+         const std::string property = p.string_buffer;
+
+         if(property == "position")
+         {
+            p = parse_float_vector(p);
+            point_light.position = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+         }
+         else if(property == "diffuse")
+         {
+            p = parse_float_vector(p);
+            point_light.diffuse = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+         }
+         else if(property == "specular")
+         {
+            p = parse_float_vector(p);
+            point_light.specular = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+         }
+         else if(property == "ambient")
+         {
+            p = parse_float_vector(p);
+            point_light.ambient = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+         }
+         else if(property == "constant")
+         {
+            p = parse_all_whitespace(p);
+            p = parse_float(p);
+            point_light.intensity_constant = p.fToken;
+         }
+         else if(property == "linear")
+         {
+            p = parse_all_whitespace(p);
+            p = parse_float(p);
+            point_light.intensity_linear = p.fToken;
+         }
+         else if(property == "quadratic")
+         {
+            p = parse_all_whitespace(p);
+            p = parse_float(p);
+            point_light.intensity_quadratic = p.fToken;
+         }
+         else break;
       }
-      else if(property == "diffuse")
-      {
-         p = parse_float_vector(p);
-         point_light->diffuse = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
-      }
-      else if(property == "ambient")
-      {
-         p = parse_float_vector(p);
-         point_light->ambient = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
-      }
-      else if(property == "linear")
-      {
-         p = parse_all_whitespace(p);
-         p = parse_float(p);
-         point_light->intensity_linear = p.fToken;
-      }
-      else if(property == "quadratic")
-      {
-         p = parse_all_whitespace(p);
-         p = parse_float(p);
-         point_light->intensity_quadratic = p.fToken;
-      }
-      else
-      {
-         break;
-      }
+
+      G_SCENE_INFO.active_scene->pointLights.push_back(point_light);
    }
+   else if(type == "spot")
+   {
+      SpotLight spotlight;
 
-   G_SCENE_INFO.active_scene->pointLights.push_back(*point_light);
+      while(parser_nextline(reader, &line, &p))
+      {
+         line_count++;
+         p = parse_token(p);
+         const std::string property = p.string_buffer;
+
+         if(property == "position")
+         {
+            p = parse_float_vector(p);
+            spotlight.position = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+         }
+         else if(property == "direction")
+         {
+            p = parse_float_vector(p);
+            spotlight.direction = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+         }
+         else if(property == "diffuse")
+         {
+            p = parse_float_vector(p);
+            spotlight.diffuse = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+         }
+         else if(property == "specular")
+         {
+            p = parse_float_vector(p);
+            spotlight.specular = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+         }
+         else if(property == "ambient")
+         {
+            p = parse_float_vector(p);
+            spotlight.ambient = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+         }
+         else if(property == "constant")
+         {
+            p = parse_all_whitespace(p);
+            p = parse_float(p);
+            spotlight.intensity_constant = p.fToken;
+         }
+         else if(property == "linear")
+         {
+            p = parse_all_whitespace(p);
+            p = parse_float(p);
+            spotlight.intensity_linear = p.fToken;
+         }
+         else if(property == "quadratic")
+         {
+            p = parse_all_whitespace(p);
+            p = parse_float(p);
+            spotlight.intensity_quadratic = p.fToken;
+         }
+         else if(property == "innercone")
+         {
+            p = parse_all_whitespace(p);
+            p = parse_float(p);
+            spotlight.innercone = p.fToken;
+         }
+         else if(property == "outercone")
+         {
+            p = parse_all_whitespace(p);
+            p = parse_float(p);
+            spotlight.outercone = p.fToken;
+         }
+         else break;
+      }
+
+      G_SCENE_INFO.active_scene->spotLights.push_back(spotlight);     
+   }
 }
 
 bool save_player_position_to_file(string scene_name, Player* player)

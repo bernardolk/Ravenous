@@ -215,7 +215,6 @@ struct Entity {
 };
 
 struct SpotLight {
-	unsigned int id;
 	vec3 position;
 	vec3 direction;
 	vec3 diffuse;
@@ -229,18 +228,16 @@ struct SpotLight {
 };
 
 struct PointLight {
-	vec3 position = vec3(0.0f, 2.0f, 0.0f);
-	vec3 direction = vec3(0.0f, -1.0f, 0.0f);
-	vec3 diffuse = vec3(0.5f, 0.5f, 0.5f);
-	vec3 specular = vec3(1.0f, 1.0f, 1.0f);
-	vec3 ambient = vec3(0.01f, 0.01f, 0.01f);
-	float intensity_constant = 1.0f;
-	float intensity_linear = 0.5f;
-	float intensity_quadratic = 0.1f;
+	vec3 position; // = vec3(0.0f, 2.0f, 0.0f);
+	vec3 diffuse; // = vec3(0.5f, 0.5f, 0.5f);
+	vec3 specular; // = vec3(1.0f, 1.0f, 1.0f);
+	vec3 ambient; // = vec3(0.01f, 0.01f, 0.01f);
+	float intensity_constant; // = 1.0f;
+	float intensity_linear; // = 0.5f;
+	float intensity_quadratic; // = 0.1f;
 };
 
 struct DirectionalLight {
-	unsigned int id;
 	vec3 position;
 	vec3 direction;
 	vec3 diffuse;

@@ -6,7 +6,7 @@ void render_palette_panel(PalettePanelContext* panel)
 {
    ImGui::SetNextWindowPos(ImVec2(50, 300), ImGuiCond_Always);
    ImGui::Begin("Palette", &panel->active, ImGuiWindowFlags_NoResize);
-   ImGui::SetWindowSize("Palette", ImVec2(150,700), ImGuiCond_Appearing);
+   ImGui::SetWindowSize("Palette", ImVec2(90, 500), ImGuiCond_Always);
 
    for(unsigned int i = 0; i < panel->count; i++)
    {

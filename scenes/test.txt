@@ -1,4 +1,4 @@
-*4.6177 15.328 25.5597  -0.169981 -0.469474 -0.86643
+*-16.2096 24.4527 29.8546  0.547193 -0.493943 -0.675722
 @player_position = -5.38575 0.875 6.08042
 @player_initial_velocity = 0 0 0
 @player_state = 0
@@ -7,23 +7,41 @@
 $point
 position 3.5 10 0.5
 diffuse 1 1 1
+specular 0 0 0
 ambient 1 1 1
-linear 0.4
-quadratic 0.04
+constant 0
+linear 1.205
+quadratic 0.743
 
 $point
 position -3.5 10 0.5
 diffuse 1 1 1
+specular 0 0 0
 ambient 1 1 1
+constant 0
 linear 0.4
 quadratic 0.04
 
 $point
 position -8 10 1
 diffuse 1 1 1
+specular 0 0 0
 ambient 1 1 1
-linear 0.4
-quadratic 0.04
+constant 0.7
+linear 1.175
+quadratic 0.027
+
+$spot
+position 8.2 4.6 -4.4
+direction 0.0317457 -0.862779 0.504584
+diffuse 0.989474 1 0
+specular 0.999997 1 0.99999
+ambient 1 1 1
+innercone 1
+outercone 0.871
+constant 0
+linear 0.142
+quadratic 0.324
 
 #floor
 position -15 0 -15
