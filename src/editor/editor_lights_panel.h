@@ -43,22 +43,23 @@ void render_lights_panel(LightsPanelContext* panel)
 {
    ImGui::SetNextWindowPos(ImVec2(180, 80), ImGuiCond_Appearing);
    ImGui::Begin("Lights Panel", &panel->active, ImGuiWindowFlags_None);
-   ImGui::SetWindowSize("Lights Panel", ImVec2(330, 800), ImGuiCond_Always);
+   ImGui::SetWindowSize("Lights Panel", ImVec2(330, 900), ImGuiCond_Always);
 
    ImGui::BeginTabBar("Types");
 
    // -------------
    // POINT LIGHTS
    // -------------
-   if(ImGui::BeginTabItem("Point Lights"))
+   auto point_flags = panel->selected_light_type == "point" ? ImGuiTabItemFlags_SetSelected : ImGuiTabItemFlags_None;
+   if(ImGui::BeginTabItem("Point Lights", NULL, point_flags))
    {
       for(int i = 0; i < G_SCENE_INFO.active_scene->pointLights.size(); i++)
       {
          string header = "point light source (" + to_string(i) + ")";
-         if(ImGui::CollapsingHeader(header.c_str()))
+         bool is_active = panel->selected_light == i && panel->selected_light_type == "point";
+         if(ImGui::CollapsingHeader(header.c_str()) || is_active)
          {
             auto& light = G_SCENE_INFO.active_scene->pointLights[i];
-            bool is_active = panel->selected_light == i && panel->selected_light_type == "point";
             auto show_name = "show##point" + to_string(i);
             if(ImGui::Checkbox(show_name.c_str(), &is_active))
             {
@@ -111,7 +112,8 @@ void render_lights_panel(LightsPanelContext* panel)
    // ------------
    // SPOT LIGHTS
    // ------------
-   if(ImGui::BeginTabItem("Spot Lights"))
+   auto spot_flags = panel->selected_light_type == "spot" ? ImGuiTabItemFlags_SetSelected : ImGuiTabItemFlags_None;
+   if(ImGui::BeginTabItem("Spot Lights", NULL, spot_flags))
    {
       ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.42f, 0.6f, 0.6f));
       ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.42f, 0.7f, 0.7f));
@@ -127,12 +129,12 @@ void render_lights_panel(LightsPanelContext* panel)
       for(int i = 0; i < G_SCENE_INFO.active_scene->spotLights.size(); i++)
       {
          string header = "spot light source (" + to_string(i) + ")";
-         if(ImGui::CollapsingHeader(header.c_str()))
+         bool is_active = panel->selected_light == i && panel->selected_light_type == "spot";
+         if(ImGui::CollapsingHeader(header.c_str()) || is_active)
          {
             auto& light = G_SCENE_INFO.active_scene->spotLights[i];
 
             // SHOW BUTTON
-            bool is_active = panel->selected_light == i && panel->selected_light_type == "spot";
             auto show_name = "show##spot" + to_string(i);
             if(ImGui::Checkbox(show_name.c_str(), &is_active))
             {

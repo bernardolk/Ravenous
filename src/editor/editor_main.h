@@ -289,8 +289,9 @@ void render_toolbar()
    ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 230, 180), ImGuiCond_Appearing);
    ImGui::Begin("Tools", &Context.toolbar_active, ImGuiWindowFlags_AlwaysAutoResize);
 
-   string scene_name = "Scene -> [" + G_SCENE_INFO.scene_name + "]";
+   string scene_name = "Scene name: " + G_SCENE_INFO.scene_name;
    ImGui::Text(scene_name.c_str());
+   ImGui::NewLine();
 
    // GLOBAL CONFIGS
    {
@@ -321,9 +322,11 @@ void render_toolbar()
          G_CONFIG.ambient_light = G_SCENE_INFO.active_scene->ambient_light;
          save_configs_to_file();
       }
+
+      ImGui::NewLine();
    }
 
-   // Panels
+   // PANELS
    if(ImGui::Button("Entity Palette", ImVec2(150,18)))
    {
       Context.palette_panel.active = true;
@@ -341,6 +344,9 @@ void render_toolbar()
       Context.show_lightbulbs = true;
    }
 
+   ImGui::NewLine();
+
+   // TOOLS
    ImGui::Text("Measure");
    if(ImGui::Button("Y", ImVec2(40,18)))
    {
@@ -360,9 +366,12 @@ void render_toolbar()
    }
    
    ImGui::NewLine();
+
+   // SHOW STUFF
    ImGui::Checkbox("Show Event Triggers", &Context.show_event_triggers);
    ImGui::Checkbox("Show WorldStruct Cells", &Context.show_world_cells);
    ImGui::Checkbox("Show Point Lights", &Context.show_lightbulbs);
+   ImGui::NewLine();
 
    ImGui::End();
 }

@@ -12,7 +12,7 @@ void render_entity_panel(EntityPanelContext* panel);
 void render_entity_panel(EntityPanelContext* panel)
 {
    auto& entity = panel->entity;
-   ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 300, 370), ImGuiCond_Appearing);
+   ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 550, 370), ImGuiCond_Appearing);
 
    ImGui::Begin("Entity Panel", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
 
