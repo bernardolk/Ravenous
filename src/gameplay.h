@@ -16,15 +16,10 @@ void move_player(Player* player);
 
 bool update_player_world_cells(Player* player)
 {
-   if(player->entity_ptr->velocity.x == 0 && 
-      player->entity_ptr->velocity.y == 0 && 
-      player->entity_ptr->velocity.z == 0)
-   {
-      return false;
-   }
-
    // update player world cells
-   auto update_cells = World.update_entity_world_cells(player->entity_ptr);
+   auto offset1 = vec3{-1.0f * player->radius, -1.0f * player->half_height, -1.0f * player->radius};
+   auto offset2 = vec3{player->radius, 0, player->radius};
+   auto update_cells = World.update_entity_world_cells(player->entity_ptr, offset1, offset2);
    if(update_cells.status == OK)
    {
       return update_cells.entity_changed_cell;
@@ -63,14 +58,16 @@ void recompute_collision_buffer_entities(Player* player)
          // adds to buffer only if not present already
          bool present = false;
          for(int k = 0; k < entity_count; k++)
-            if(collision_buffer[k].entity == entity)
+            if(collision_buffer[k].entity->id == entity->id)
+            {
                present = true;
+               break;
+            }
 
          if(!present)
          {
-            collision_buffer->entity = entity;
-            collision_buffer->collision_check = false;
-            collision_buffer++;
+            collision_buffer[entity_count].entity = entity;
+            collision_buffer[entity_count].collision_check = false;
             entity_count++;
             if(entity_count > COLLISION_BUFFER_CAPACITY) assert(false);
          }

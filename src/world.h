@@ -1,5 +1,6 @@
 
 auto get_world_cells_coords_from_world_coords(float x, float y, float z);
+vec3 get_world_coordinates_from_world_cell_coordinates(int i, int j, int k);
 
 // how many cells we have preallocated for the world
 const static int W_CELLS_NUM_X = 10;
@@ -42,6 +43,8 @@ struct CellUpdate {
    bool entity_changed_cell;
 };
 
+
+
 // -----------
 // WORLD CELL
 // -----------
@@ -82,7 +85,7 @@ struct WorldCell {
    {
       if(count == WORLD_CELL_CAPACITY)
       {
-         string message = "World cell '" + coordinates_str() + "' is full.";
+         string message = "World cell '" + coords_str() + "' is full.";
          return CellUpdate{ CELL_FULL, message };
       }
 
@@ -145,11 +148,29 @@ struct WorldCell {
       count = new_count;
    }
 
-   string coordinates_str()
+   string coords_str()
    {
       return "Cell [" + to_string(i) 
          + "," + to_string(j) + "," + to_string(k) 
          + "] (" + to_string(count) + ")";
+   }
+
+   vec3 coords()
+   {
+      return vec3{i, j, k};
+   }
+
+   vec3 coords_meters()
+   {
+      return get_world_coordinates_from_world_cell_coordinates(i, j, k);
+   }
+
+   string coords_meters_str()
+   {
+      vec3 mcoords = coords_meters();
+      return "[x: " + format_float_tostr(mcoords[0], 1) 
+         + ", y: " + format_float_tostr(mcoords[1], 1) + ", z: " + format_float_tostr(mcoords[2], 1) 
+         + "]";
    }
 };
 
@@ -165,6 +186,7 @@ vec3 get_world_coordinates_from_world_cell_coordinates(int i, int j, int k)
 
    return vec3{world_x, world_y, world_z};
 }
+
 
 auto get_world_cells_coords_from_world_coords(float x, float y, float z)
 {
@@ -189,6 +211,11 @@ auto get_world_cells_coords_from_world_coords(float x, float y, float z)
    world_cell_coords.k = (z + W_CELLS_OFFSET_Z * W_CELL_LEN_METERS) / W_CELL_LEN_METERS;
 
    return world_cell_coords;
+}
+
+auto get_world_cells_coords_from_world_coords(vec3 position)
+{
+   return get_world_cells_coords_from_world_coords(position.x, position.y, position.z);
 }
 
 // ------
@@ -229,16 +256,21 @@ struct WorldStruct {
       }
    }
 
-   CellUpdate update_entity_world_cells(Entity* entity)
+   CellUpdate update_entity_world_cells(Entity* entity, vec3 pos_offset1 = vec3{0}, vec3 pos_offset2 = vec3{0})
    {
+      // If entity is not an AABB, use pos_offset vectors to adjust x-z offsets from entity reference to
+      // boundaries
+      
       string message;
 
       // computes the new cells
       auto [x0, x1, z0, z1] = entity->get_rect_bounds();
       float height = entity->get_height();
 
-      auto [i0, j0, k0] = get_world_cells_coords_from_world_coords(x0, entity->position.y, z0);
-      auto [i1, j1, k1] = get_world_cells_coords_from_world_coords(x1, entity->position.y + height, z1);
+      vec3 pos1 = vec3{x0, entity->position.y, z0} + pos_offset1;
+      vec3 pos2 = vec3{x1, entity->position.y + height, z1} + pos_offset2;
+      auto [i0, j0, k0] = get_world_cells_coords_from_world_coords(pos1);
+      auto [i1, j1, k1] = get_world_cells_coords_from_world_coords(pos2);
 
       // out of bounds catch
       if (i0 == -1 || i1 == -1)

@@ -17,7 +17,7 @@ struct Player {
    Entity* standing_entity_ptr;
    Entity* slope_player_was_ptr;
 
-   float speed = 1.5f;
+   float speed = 3.0f;
    float fall_speed = 0.01f;
    float fall_acceleration = 0.2f;
    float jump_initial_speed = 5.0f;
