@@ -128,9 +128,22 @@ void handle_input_flags(InputFlags flags, Player* &player)
    {
       if(flags.key_press & KEY_LEFT_CTRL)
       {
-         if(Context.snap_mode)         check_selection_to_snap(&Context.entity_panel);
-         else if(Context.measure_mode) check_selection_to_measure();
-         else                          check_selection_to_open_panel();
+         if(Context.snap_mode)
+         {
+            check_selection_to_snap(&Context.entity_panel);
+         }
+         else if(Context.measure_mode)
+         {
+            check_selection_to_measure();
+         }
+         else if(Context.locate_coords_mode)
+         {
+            check_selection_to_locate_coords();
+         }
+         else
+         {
+            check_selection_to_open_panel();
+         }
       }
       else if(flags.key_press & KEY_G)
       {

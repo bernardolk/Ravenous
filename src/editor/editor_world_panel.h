@@ -2,7 +2,7 @@
 // WORLD PANEL
 // -------------
 
-void render_world_panel(WorldPanelContext* panel, WorldStruct* world)
+void render_world_panel(WorldPanelContext* panel, WorldStruct* world, Player* player)
 {
    ImGui::SetNextWindowPos(ImVec2(100, 300), ImGuiCond_Appearing);
    ImGui::Begin("World Panel", &panel->active, ImGuiWindowFlags_None);
@@ -12,17 +12,33 @@ void render_world_panel(WorldPanelContext* panel, WorldStruct* world)
    for(int i = 0; i < world->cells_in_use_count; i++)
    {
       auto cell = world->cells_in_use[i];
+      auto coords = cell->coords();
 
-      if(ImGui::CollapsingHeader(cell->coordinates_str().c_str()))
+      // adds indicator in header if player is inside cell
+      string player_indicator = "";
+      for(int i = 0; i < player->entity_ptr->world_cells_count; i++)
       {
-         auto cell_coords = vec3{cell->i, cell->j, cell->k};
-         bool is_active = panel->cell_coords == cell_coords;
-         string show_name = "show##" + to_string(i);
+         if(coords == player->entity_ptr->world_cells[i]->coords())
+         {
+            player_indicator = " P";
+            break;
+         }
+      }
 
+      string header = cell->coords_str() + player_indicator;
+      if(ImGui::CollapsingHeader(header.c_str()))
+      {
+         bool is_active = panel->cell_coords == coords;
+         string show_name = "show##" + to_string(i);
          if(ImGui::Checkbox(show_name.c_str(), &is_active))
          {
-            panel->cell_coords = is_active ? cell_coords : vec3{-1.0f};
+            panel->cell_coords = is_active ? coords : vec3{-1.0f};
          }
+
+         ImGui::SameLine();
+
+         string coords_meters = cell->coords_meters_str();
+         ImGui::Text(coords_meters.c_str());
 
          for(int e_i = 0; e_i < WORLD_CELL_CAPACITY; e_i++)
          {

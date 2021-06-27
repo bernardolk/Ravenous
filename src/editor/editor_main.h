@@ -94,6 +94,11 @@ struct EditorContext {
    bool second_point_found = false;
    float measure_to;
 
+   // locate coordinates mode
+   bool locate_coords_mode = false;
+   bool locate_coords_found_point = false;
+   vec3 locate_coords_position;
+
    // snap mode
    bool snap_mode = false;
    u8 snap_cycle = 0;
@@ -256,7 +261,7 @@ void render(Player* player, WorldStruct* world)
    // --------------
    if(Context.world_panel.active)
    {
-      render_world_panel(&Context.world_panel, world);
+      render_world_panel(&Context.world_panel, world, player);
    }
 
    if(Context.entity_panel.active)
@@ -291,6 +296,11 @@ void render(Player* player, WorldStruct* world)
       );
    }
 
+   if(Context.locate_coords_mode && Context.locate_coords_found_point)
+   {
+      G_IMMEDIATE_DRAW.add_point(Context.locate_coords_position, 2.0);
+   }
+
    render_toolbar();
 
    render_text_overlay(player);
@@ -306,6 +316,10 @@ void render_toolbar()
 
    string scene_name = "Scene name: " + G_SCENE_INFO.scene_name;
    ImGui::Text(scene_name.c_str());
+   ImGui::NewLine();
+
+   ImGui::InputFloat("##timestep", &G_FRAME_INFO.time_step, 0.5, 1.0, "Timestep = %.1f x");
+
    ImGui::NewLine();
 
    // GLOBAL CONFIGS
@@ -381,6 +395,11 @@ void render_toolbar()
    }
    
    ImGui::NewLine();
+   if(ImGui::Button("Locate Coordinates", ImVec2(150,18)))
+   {
+      activate_locate_coords_mode();
+   }
+
 
    // SHOW STUFF
    ImGui::Checkbox("Show Event Triggers", &Context.show_event_triggers);
@@ -544,10 +563,11 @@ void render_text_overlay(Player* player)
 
 
    // PLAYER POSITION
+   vec3 p_feet = player->feet();
    string player_p[3]{
-      format_float_tostr(player->entity_ptr->position.x, 1),
-      format_float_tostr(player->entity_ptr->position.y, 1),
-      format_float_tostr(player->entity_ptr->position.z, 1),
+      format_float_tostr(p_feet.x, 1),
+      format_float_tostr(p_feet.y, 1),
+      format_float_tostr(p_feet.z, 1),
    };
    string player_pos = "player:   x: " +  player_p[0] + " y: " +  player_p[1] + " z: " +  player_p[2];
    render_text(font, 235, 70, player_pos);
@@ -613,6 +633,10 @@ void render_text_overlay(Player* player)
 
 
    // EDITOR TOOLS INDICATORS
+
+   // ----------
+   // SNAP MODE
+   // ----------
    float centered_text_height = SCREEN_HEIGHT - 120;
    if(Context.snap_mode)
    {
@@ -683,6 +707,9 @@ void render_text_overlay(Player* player)
       );
    }
 
+   // -------------
+   // MEASURE MODE
+   // -------------
    if(Context.measure_mode)
    {
       render_text(
@@ -699,7 +726,7 @@ void render_text_overlay(Player* player)
          render_text(
             font_center,
             G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
-            centered_text_height - 20,
+            centered_text_height - 40,
             vec3(0.8, 0.8, 0.2),
             true,
             "(" + format_float_tostr(abs(Context.measure_to - Context.measure_from.y), 2) + " m)"
@@ -707,6 +734,9 @@ void render_text_overlay(Player* player)
       }
    }
 
+   // ----------
+   // MOVE MODE
+   // ----------
    if(Context.move_mode)
    {
       string move_axis;
@@ -735,6 +765,45 @@ void render_text_overlay(Player* player)
          "MOVE MODE (" + move_axis + ")"
       );
    }
+
+   // -------------------
+   // LOCATE COORDS MODE
+   // -------------------
+   if(Context.locate_coords_mode)
+   {
+      render_text(
+         font_center,
+         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
+         centered_text_height,
+         vec3(0.8, 0.8, 0.2),
+         true,
+         "LOCATE COORDS MODE"
+      );
+
+      string locate_coords_subtext;
+      if(!Context.locate_coords_found_point)
+      {
+         locate_coords_subtext = "Please select a world position to get coordinates.";
+      }
+      else
+      {
+         locate_coords_subtext = 
+            "(x: "  + format_float_tostr(Context.locate_coords_position[0], 2) +
+            ", y: " + format_float_tostr(Context.locate_coords_position[1], 2) +
+            ", z: " + format_float_tostr(Context.locate_coords_position[2], 2) + ")";
+      }
+
+      render_text(
+         font_center_small, 
+         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, 
+         centered_text_height - 40, 
+         tool_text_color_green, 
+         true,
+         locate_coords_subtext
+      );
+   }
+
+
 }
 
 void render_event_triggers(Camera* camera)

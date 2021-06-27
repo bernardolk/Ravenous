@@ -124,6 +124,32 @@ void check_selection_to_measure()
    }
 }
 
+// ------------------------
+// LOCATE COORDINATES MODE
+// ------------------------
+void activate_locate_coords_mode();
+void check_selection_to_locate_coords();
+
+void activate_locate_coords_mode()
+{
+   deactivate_editor_modes();
+   Context.locate_coords_mode = true;
+   Context.locate_coords_found_point = false;
+}
+
+void check_selection_to_locate_coords()
+{
+   auto pickray = cast_pickray();
+   auto test = test_ray_against_scene(pickray);
+   if(test.hit)
+   {
+      Context.locate_coords_found_point = true;
+      Context.locate_coords_position = point_from_detection(pickray, test);
+   }
+}
+
+
+
 // -----------------
 // MOVE ENTITY TOOL
 // -----------------

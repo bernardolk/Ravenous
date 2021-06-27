@@ -129,7 +129,7 @@ void render_entity_panel(EntityPanelContext* panel)
       for(int i = 0; i < entity->world_cells_count; i++)
       {
          auto cell = entity->world_cells[i];
-         ImGui::Text(cell->coordinates_str().c_str());
+         ImGui::Text(cell->coords_str().c_str());
       }   
    }
 

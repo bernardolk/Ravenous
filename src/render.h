@@ -69,6 +69,18 @@ struct GlobalImmediateDraw {
       ind++;
    }
 
+   void add_point(vec3 point, float point_size = 1.0)
+   {
+      auto mesh = meshes[ind];
+      mesh->vertices = vector<Vertex>{ Vertex{point} };
+      mesh->render_method = GL_POINTS;
+      mesh->send_data_to_gl_buffer();
+      RenderOptions opts;
+      opts.point_size = point_size;
+      render_opts[ind] = opts;
+      ind++;
+   }
+
    void reset()
    {
       for (int i = 0; i < ind; i++)
