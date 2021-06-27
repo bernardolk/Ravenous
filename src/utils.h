@@ -30,3 +30,10 @@ inline string format_float_tostr(float num, int precision)
 	string temp = std::to_string(num);
 	return temp.substr(0, temp.find(".") + 3);
 }
+
+inline bool is_float_zero(float x)
+{
+   return abs(x) < 0.0001;
+}
+
+inline get

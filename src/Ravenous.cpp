@@ -145,7 +145,6 @@ bool is_vec2_equal(vec2 vec1, vec2 vec2);
 #include "ravenous_imconfig.h"
 
 bool save_configs_to_file();
-bool is_float_zero(float x);
 void toggle_program_modes(Player* player);
 void erase_entity(Scene* scene, Entity* entity);
 
@@ -791,11 +790,6 @@ void toggle_program_modes(Player* player)
 
       G_BUFFERS.rm_buffer->add("Editor Mode", 2000);
    }
-}
-
-inline bool is_float_zero(float x)
-{
-   return abs(x) < 0.0001;
 }
 
 void setup_gl()

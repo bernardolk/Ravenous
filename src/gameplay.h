@@ -1,6 +1,7 @@
 void handle_common_input(InputFlags flags, Player* &player);
 void update_player_state(Player* &player, WorldStruct* world);
 void make_player_slide(Player* player, Entity* ramp, bool slide_fall = false);
+void make_player_jump_from_slope(Player* player);
 void run_collision_checks_standing(Player* player);
 void run_collision_checks_falling(Player* player);
 void game_handle_input(InputFlags flags, Player* &player);
@@ -513,6 +514,15 @@ void make_player_slide(Player* player, Entity* ramp, bool slide_fall)
       player->player_state = PLAYER_STATE_SLIDING;
 }
 
+void make_player_jump_from_slope(Player* player)
+{
+   player->player_state = PLAYER_STATE_JUMPING;
+   player->height_before_fall = player->entity_ptr->position.y;
+   vec3 n = player->standing_entity_ptr->collision_geometry.slope.normal;
+   vec3 jump_vec = glm::normalize(vec3(n.x, 1, n.z));
+   player->entity_ptr->velocity = player->jump_initial_speed * jump_vec;
+}
+
 
 void check_trigger_interaction(Player* player)
 {
@@ -669,12 +679,7 @@ void game_handle_input(InputFlags flags, Player* &player)
       }
       if (flags.key_press & KEY_SPACE)
       {
-            player->player_state = PLAYER_STATE_JUMPING;
-            auto collision_geom = player->standing_entity_ptr->collision_geometry.slope;
-            float x = collision_geom.normal.x > 0 ? 1 : collision_geom.normal.x == 0 ? 0 : -1;
-            float z = collision_geom.normal.z > 0 ? 1 : collision_geom.normal.z == 0 ? 0 : -1;
-            auto jump_vec = glm::normalize(vec3(x, 1, z));
-            player->entity_ptr->velocity = player->slide_jump_speed * jump_vec;
+         make_player_jump_from_slope(player);
       }
    }
 }

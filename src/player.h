@@ -22,7 +22,7 @@ struct Player {
    float fall_acceleration = 0.2f;
    float jump_initial_speed = 5.0f;
    float slide_jump_speed = 8.0f;
-   float slide_speed = 1.5f;
+   float slide_speed = 3.0f;
    float radius; 
    float half_height;
 
