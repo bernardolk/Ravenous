@@ -31,13 +31,13 @@ void render_entity_panel(EntityPanelContext* panel)
    // position
    bool used_pos = false;
    {
-      bool used_x = ImGui::SliderFloat("x", &entity->position.x, panel->original_position.x - 4, panel->original_position.x + 4);
+      bool used_x = ImGui::DragFloat("x", &entity->position.x, 0.1);
       track = track || ImGui::IsItemDeactivatedAfterEdit();
 
-      bool used_y = ImGui::SliderFloat("y", &entity->position.y, panel->original_position.y - 4, panel->original_position.y + 4);
+      bool used_y = ImGui::DragFloat("y", &entity->position.y, 0.1);
       track = track || ImGui::IsItemDeactivatedAfterEdit();
 
-      bool used_z = ImGui::SliderFloat("z", &entity->position.z, panel->original_position.z - 4, panel->original_position.z + 4);
+      bool used_z = ImGui::DragFloat("z", &entity->position.z, 0.1);
       track = track || ImGui::IsItemDeactivatedAfterEdit();
 
       used_pos = used_x || used_y || used_z;
@@ -72,21 +72,21 @@ void render_entity_panel(EntityPanelContext* panel)
       vec3 min_scales {0.0f};
 
       // scale in x
-      bool scaled_x = ImGui::SliderFloat("scale x", &scale.x, min_scales.x, panel->original_scale.x + 4);
+      bool scaled_x = ImGui::DragFloat("scale x", &scale.x, 0.1);
       track = track || ImGui::IsItemDeactivatedAfterEdit();
 
       if(ImGui::Checkbox("rev x", &panel->reverse_scale_x))
          panel->x_arrow->rotation.z = (int)(panel->x_arrow->rotation.z + 180) % 360;
 
       // scale in y
-      bool scaled_y = ImGui::SliderFloat("scale y", &scale.y, min_scales.y, panel->original_scale.y + 4);
+      bool scaled_y = ImGui::DragFloat("scale y", &scale.y,  0.1);
       track = track || ImGui::IsItemDeactivatedAfterEdit();
 
       if(ImGui::Checkbox("rev y", &panel->reverse_scale_y))
          panel->y_arrow->rotation.z = (int)(panel->y_arrow->rotation.z + 180) % 360;
 
       // scale in z
-      bool scaled_z = ImGui::SliderFloat("scale z", &scale.z, min_scales.z, panel->original_scale.z + 4);
+      bool scaled_z = ImGui::DragFloat("scale z", &scale.z, 0.1);
       track = track || ImGui::IsItemDeactivatedAfterEdit();
 
       if(ImGui::Checkbox("rev z", &panel->reverse_scale_z))
@@ -213,8 +213,9 @@ void render_entity_panel(EntityPanelContext* panel)
    // ----------------
    if(used_pos || used_rot || used_scaling || duplicated || erased)
    {
-      deactivate_editor_modes();
-      entity->update_collision_geometry();                              // needs to be done here so world cells get updated correctly
+      if(!(duplicated || erased))
+         deactivate_editor_modes();
+      entity->update_collision_geometry();                              // needs to be done here to prevent a bug
       auto update_cells = World.update_entity_world_cells(entity);
       if(update_cells.status != OK)
       {

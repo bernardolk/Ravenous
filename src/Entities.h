@@ -275,6 +275,12 @@ struct Scene {
             return entities[i];
       return NULL;
    }
+
+   void load_configs(ProgramConfig configs)
+   {
+      ambient_light = configs.ambient_light;
+      ambient_intensity = configs.ambient_intensity;
+   }
 };
 
 

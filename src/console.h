@@ -182,6 +182,8 @@ void execute_command(string buffer_line, Player* &player, WorldStruct* world, Ca
       {
          player = G_SCENE_INFO.player; // not irrelevant! do not delete
          player->entity_ptr->render_me = PROGRAM_MODE.last == EDITOR_MODE ? true : false;
+         G_CONFIG = load_configs();
+         G_SCENE_INFO.active_scene->load_configs(G_CONFIG);
       }
    }
 
@@ -269,6 +271,8 @@ void execute_command(string buffer_line, Player* &player, WorldStruct* world, Ca
       {
          player = G_SCENE_INFO.player; // not irrelevant! do not delete
          player->entity_ptr->render_me = PROGRAM_MODE.last == EDITOR_MODE ? true : false;
+         G_CONFIG = load_configs();
+         G_SCENE_INFO.active_scene->load_configs(G_CONFIG);
       }
    }
 

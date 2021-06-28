@@ -1,4 +1,4 @@
 scene = world
 camspeed = 11.515
-ambient_light = 0.99999 0.999995 1
+ambient_light = 1 1 1
 ambient_intensity = 0.04

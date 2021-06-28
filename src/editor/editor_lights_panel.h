@@ -77,7 +77,7 @@ void render_lights_panel(LightsPanelContext* panel)
       {
          string header = "point light source (" + to_string(i) + ")";
          bool is_active = panel->selected_light == i && panel->selected_light_type == "point";
-         if(ImGui::CollapsingHeader(header.c_str()) || is_active)
+         if(ImGui::CollapsingHeader(header.c_str(), ImGuiTreeNodeFlags_NoAutoOpenOnLog) || is_active)
          {
             auto& light = G_SCENE_INFO.active_scene->pointLights[i];
             auto show_name = "show##point" + to_string(i);

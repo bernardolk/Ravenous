@@ -35,5 +35,3 @@ inline bool is_float_zero(float x)
 {
    return abs(x) < 0.0001;
 }
-
-inline get

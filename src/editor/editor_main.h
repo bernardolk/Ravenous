@@ -107,7 +107,7 @@ struct EditorContext {
    Entity* snap_reference = nullptr;
    EntityState snap_tracked_state;
 
-   // render flags 
+   // show things 
    bool show_event_triggers = false;
    bool show_world_cells = false;
    bool show_lightbulbs = true;
@@ -166,6 +166,21 @@ void update()
       Context.snap_mode = false;
       Context.snap_reference = nullptr;
    }
+
+   // unselect lights when not panel is not active
+   if(!Context.lights_panel.active)
+   {
+      Context.lights_panel.selected_light = -1;
+      Context.lights_panel.selected_light_type = "";
+   }
+   else if(
+      Context.lights_panel.selected_light != -1 &&
+      Context.lights_panel.selected_light_type != ""
+   )
+   {
+      Context.show_lightbulbs = true;
+   }
+
 
    // set editor mode values to initial if not active
    if(!Context.measure_mode)
