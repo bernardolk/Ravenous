@@ -173,10 +173,16 @@ void render_entity_panel(EntityPanelContext* panel)
       {
          activate_snap_mode(entity);
       }
+      ImGui::SameLine();
       if(ImGui::Checkbox("inside", &Context.snap_inside))
       {
          if(Context.snap_reference != nullptr)
             snap_entity_to_reference(panel->entity);
+      }
+
+      if(ImGui::Button("Strech", ImVec2(82,18)))
+      {
+         activate_stretch_mode(entity);
       }
 
       if(ImGui::Button("Duplicate", ImVec2(82,18)))

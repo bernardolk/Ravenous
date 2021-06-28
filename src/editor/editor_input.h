@@ -16,9 +16,8 @@ void handle_input_flags(InputFlags flags, Player* &player)
 
    if(pressed_once(flags, KEY_ESC))
    {
-      if(Context.snap_mode) Context.snap_mode = false;
-      else if(Context.measure_mode) Context.measure_mode = false;
-      else if(Context.entity_panel.active) Context.entity_panel.active = false;
+      if(Context.entity_panel.active) Context.entity_panel.active = false;
+      else deactivate_editor_modes();
    }
 
 
@@ -90,6 +89,17 @@ void handle_input_flags(InputFlags flags, Player* &player)
       }
    }
 
+   // -----------------------
+   // STRETCH MODE SHORTCUTS
+   // -----------------------
+   if(Context.stretch_mode)
+   {
+      if(pressed_once(flags, KEY_ENTER))
+      {
+         stretch_commit();
+      }
+   }
+
    // --------------------
    // MOVE MODE SHORTCUTS
    // --------------------
@@ -130,7 +140,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
       {
          if(Context.snap_mode)
          {
-            check_selection_to_snap(&Context.entity_panel);
+            check_selection_to_snap();
          }
          else if(Context.measure_mode)
          {
@@ -139,6 +149,10 @@ void handle_input_flags(InputFlags flags, Player* &player)
          else if(Context.locate_coords_mode)
          {
             check_selection_to_locate_coords();
+         }
+         else if(Context.stretch_mode)
+         {
+            check_selection_to_stretch();
          }
          else
          {

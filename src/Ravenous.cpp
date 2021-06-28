@@ -9,6 +9,7 @@
 #include <glm/ext/matrix_transform.hpp> // translate, rotate, scale, identity
 #include <glm/gtx/compatibility.hpp>
 #include <glm/gtx/norm.hpp>
+#include <glm/gtx/normal.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
@@ -136,8 +137,6 @@ int COLLISION_BUFFER_CAPACITY = WORLD_CELL_CAPACITY * 8;
 
 // entity manager
 EntityManager Entity_Manager;
-
-bool is_vec2_equal(vec2 vec1, vec2 vec2);
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -606,12 +605,6 @@ inline void update_scene_objects()
 	}
 }
 
-bool is_vec2_equal(vec2 vec1, vec2 vec2)
-{
-   float x_diff = abs(vec1.x - vec2.x);
-   float y_diff = abs(vec1.y - vec2.y);
-   return x_diff < VEC_COMPARE_PRECISION && y_diff < VEC_COMPARE_PRECISION;
-}
 
 void setup_GLFW(bool debug) {
 	// Setup the window

@@ -25,13 +25,36 @@ void print_every_3rd_frame(std::string thing, std::string prefix)
       std::cout << prefix << ": " << thing << "\n";
 }
 
-inline string format_float_tostr(float num, int precision) 
+inline
+string format_float_tostr(float num, int precision) 
 {
 	string temp = std::to_string(num);
 	return temp.substr(0, temp.find(".") + 3);
 }
 
-inline bool is_float_zero(float x)
+inline 
+bool is_zero(float x)
 {
    return abs(x) < 0.0001;
+}
+
+inline
+bool is_equal(vec2 vec1, vec2 vec2)
+{
+   float x_diff = abs(vec1.x - vec2.x);
+   float y_diff = abs(vec1.y - vec2.y);
+   
+   return x_diff < VEC_COMPARE_PRECISION && y_diff < VEC_COMPARE_PRECISION;
+}
+
+inline
+bool is_equal(vec3 vec1, vec3 vec2)
+{
+   float x_diff = abs(vec1.x - vec2.x);
+   float y_diff = abs(vec1.y - vec2.y);
+   float z_diff = abs(vec1.y - vec2.y);
+
+   return x_diff < VEC_COMPARE_PRECISION 
+      && y_diff < VEC_COMPARE_PRECISION 
+      && z_diff < VEC_COMPARE_PRECISION;
 }

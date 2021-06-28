@@ -1,15 +1,22 @@
+struct Triangle {
+   vec3 a;
+   vec3 b;
+   vec3 c;
+};
+
+struct Face {
+   Triangle a;
+   Triangle b;
+};
+
 struct RaycastTest {
    bool hit = false;
    float distance;
    Entity* entity = NULL;
    int obj_hit_index = -1;
    string obj_hit_type;
-};
-
-struct Triangle {
-   vec3 a;
-   vec3 b;
-   vec3 c;
+   Triangle t;
+   u16 t_index;
 };
 
 struct Ray {
@@ -22,6 +29,7 @@ RaycastTest test_ray_against_scene(Ray ray,  bool only_test_visible_entities);
 RaycastTest test_ray_against_entity(Ray ray, Entity* entity);
 RaycastTest test_ray_against_mesh(Ray ray, Mesh* mesh, glm::mat4 matModel);
 RaycastTest test_ray_against_triangle(Ray ray, Triangle triangle);
+Triangle get_triangle_for_indexed_mesh(Mesh* mesh, glm::mat4 matModel, int triangle_index);
 Triangle get_triangle_for_indexed_mesh(Entity* entity, int triangle_index);
 vec3 point_from_detection(Ray ray, RaycastTest result);
 
@@ -93,30 +101,13 @@ RaycastTest test_ray_against_scene(Ray ray, bool only_test_visible_entities = fa
 
       if(test.hit && test.distance < min_distance)
       {
-         closest_hit = {true, test.distance, entity};
+         closest_hit = test;
+         closest_hit.entity = entity;
          min_distance = test.distance;
       }
 	}
 
    return closest_hit;
-}
-
-
-Triangle get_triangle_for_indexed_mesh(Entity* entity, int triangle_index)
-{
-   auto a_ind = entity->mesh->indices[3 * triangle_index + 0];
-   auto b_ind = entity->mesh->indices[3 * triangle_index + 1];
-   auto c_ind = entity->mesh->indices[3 * triangle_index + 2];
-
-   auto a_mesh = entity->mesh->vertices[a_ind].position;
-   auto b_mesh = entity->mesh->vertices[b_ind].position;
-   auto c_mesh = entity->mesh->vertices[c_ind].position;
-
-   auto a = entity->matModel * glm::vec4(a_mesh, 1.0);
-   auto b = entity->matModel * glm::vec4(b_mesh, 1.0);
-   auto c = entity->matModel * glm::vec4(c_mesh, 1.0);
-
-   return Triangle{a, b, c};
 }
 
 Triangle get_triangle_for_indexed_mesh(Mesh* mesh, glm::mat4 matModel, int triangle_index)
@@ -125,35 +116,32 @@ Triangle get_triangle_for_indexed_mesh(Mesh* mesh, glm::mat4 matModel, int trian
    auto b_ind = mesh->indices[3 * triangle_index + 1];
    auto c_ind = mesh->indices[3 * triangle_index + 2];
 
-   auto a_mesh = mesh->vertices[a_ind].position;
-   auto b_mesh = mesh->vertices[b_ind].position;
-   auto c_mesh = mesh->vertices[c_ind].position;
+   auto a_vertice = mesh->vertices[a_ind].position;
+   auto b_vertice = mesh->vertices[b_ind].position;
+   auto c_vertice = mesh->vertices[c_ind].position;
 
-   auto a = matModel * glm::vec4(a_mesh, 1.0);
-   auto b = matModel * glm::vec4(b_mesh, 1.0);
-   auto c = matModel * glm::vec4(c_mesh, 1.0);
+   auto a = matModel * glm::vec4(a_vertice, 1.0);
+   auto b = matModel * glm::vec4(b_vertice, 1.0);
+   auto c = matModel * glm::vec4(c_vertice, 1.0);
 
    return Triangle{a, b, c};
+}
+
+Triangle get_triangle_for_indexed_mesh(Entity* entity, int triangle_index)
+{
+   Mesh* mesh = entity->mesh;
+   mat4 model = entity->matModel;
+
+   return get_triangle_for_indexed_mesh(mesh, model, triangle_index);
 }
 
 
 RaycastTest test_ray_against_entity(Ray ray, Entity* entity)
 {
-   int triangles = entity->mesh->indices.size() / 3;
-   float min_distance = MAX_FLOAT;
-   RaycastTest min_hit_test{false, -1};
-   for(int i = 0; i < triangles; i++)
-   {
-      Triangle t = get_triangle_for_indexed_mesh(entity, i);
-      auto test = test_ray_against_triangle(ray, t);
-      if(test.hit && test.distance < min_distance)
-      {
-         min_hit_test = test;
-         min_distance = test.distance;
-      }
-   }
+   Mesh* mesh = entity->mesh;
+   mat4 model = entity->matModel;
 
-   return min_hit_test;
+   return test_ray_against_mesh(ray, mesh, model);
 }
 
 
@@ -169,6 +157,7 @@ RaycastTest test_ray_against_mesh(Ray ray, Mesh* mesh, glm::mat4 matModel)
       if(test.hit && test.distance < min_distance)
       {
          min_hit_test = test;
+         min_hit_test.t_index = i;
          min_distance = test.distance;
       }
    }
@@ -210,7 +199,13 @@ RaycastTest test_ray_against_triangle(Ray ray, Triangle triangle)
    float t2 = glm::dot(AO, N) * invdet;
    bool test2 = (det >= 1e-6 && t2 >= 0.0 && u >= 0.0 && v >= 0.0 && (u + v) <= 1.0);
    if (test2)
-      return RaycastTest{true, t2};
+   {
+      RaycastTest test;
+      test.hit = true;
+      test.distance = t2;
+      test.t = triangle;
+      return test;
+   }
 
 	return RaycastTest{false, -1};
 }
@@ -239,4 +234,23 @@ vec3 point_from_detection(Ray ray, RaycastTest result)
    assert(result.hit);
 
    return ray.origin + ray.direction * result.distance;
+}
+
+Face face_from_axis_aligned_triangle(Triangle t)
+{
+   vec3 normal = glm::triangleNormal(t.a, t.b, t.c);
+   vec3 a2 = glm::rotate(t.a, glm::radians(180.0f), normal);
+   vec3 b2 = glm::rotate(t.b, glm::radians(180.0f), normal);
+   vec3 c2 = glm::rotate(t.c, glm::radians(180.0f), normal);
+   return Face{t, Triangle{a2, b2, c2}};
+
+
+   // float x0 = min({t.a.x, t.b.x, t.c.x});
+   // float x1 = max({t.a.x, t.b.x, t.c.x});
+   // float y0 = min({t.a.y, t.b.y, t.c.y});
+   // float y1 = max({t.a.y, t.b.y, t.c.y});
+   // float z0 = min({t.a.z, t.b.z, t.c.z});
+   // float z1 = max({t.a.z, t.b.z, t.c.z});
+
+   // auto t1 = Triangle {vec3{x0,z0,y0}, vec3{x1,z0,y0}, vec3{x0,z0,y1}};
 }

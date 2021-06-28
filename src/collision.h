@@ -78,12 +78,12 @@ auto project_entity_into_slope(Entity* entity, Entity* ramp)
    auto [x0, x1, z0, z1] = entity->get_rect_bounds();
    float p0, p1;
 
-   if(!is_float_zero(slope_c.tangent.x))
+   if(!is_zero(slope_c.tangent.x))
    {
       p0 = get_slope_height_at_position(x0, ramp, true, false);
       p1 = get_slope_height_at_position(x1, ramp, true, false);
    }
-   else if(!is_float_zero(slope_c.tangent.z))
+   else if(!is_zero(slope_c.tangent.z))
    {
       p0 = get_slope_height_at_position(z0, ramp, false, true);
       p1 = get_slope_height_at_position(z1, ramp, false, true);
@@ -215,9 +215,9 @@ float get_slope_height_at_position(vec3 position, Entity* slope)
    auto slope_c = slope->collision_geometry.slope;
    float slope_top = slope->position.y + slope_c.height;
 
-   if (!is_float_zero(slope_c.tangent.x))
+   if (!is_zero(slope_c.tangent.x))
       height = slope_top - slope_c.inclination * slope_c.tangent.x * (position.x - slope->position.x);
-   else if (!is_float_zero(slope_c.tangent.z))
+   else if (!is_zero(slope_c.tangent.z))
       height = slope_top - slope_c.inclination * slope_c.tangent.z * (position.z - slope->position.z);
    else assert(false);
 
@@ -392,7 +392,7 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
             }
 
             // player is facing slope inclined face
-            if(is_vec2_equal(collision.normal_vec, -1.0f * slope_2d_tangent))
+            if(is_equal(collision.normal_vec, -1.0f * slope_2d_tangent))
             {
                // if slope is very inclined...
                if(player_qualifies_as_standing && col_geometry.inclination > SLIDE_MIN_ANGLE)

@@ -27,6 +27,13 @@ EntityState get_entity_state(Entity* entity)
    return state;
 }
 
+bool compare_state(EntityState s1, EntityState s2)
+{
+   return s1.position == s2.position &&
+      s1.scale == s2.scale &&
+      s1.rotation == s2.rotation;
+}
+
 struct DeletedEntityLog {
    u8 size = 0;
    const static u8 capacity = 100;

@@ -107,6 +107,9 @@ struct EditorContext {
    Entity* snap_reference = nullptr;
    EntityState snap_tracked_state;
 
+   // stretch mode
+   bool stretch_mode = false;
+
    // show things 
    bool show_event_triggers = false;
    bool show_world_cells = false;
@@ -689,7 +692,7 @@ void render_text_overlay(Player* player)
          snap_mode_subtext_color = tool_text_color_yellow;
       else
       {
-         auto state = Context.undo_stack.check();  
+         auto state = Context.undo_stack.check();
          if(state.entity != nullptr && state.position != Context.entity_panel.entity->position)
             snap_mode_subtext_color = tool_text_color_yellow;
          else
@@ -818,8 +821,47 @@ void render_text_overlay(Player* player)
       );
    }
 
+   // -------------
+   // STRETCH MODE
+   // -------------
+   if(Context.stretch_mode)
+   {
+      render_text(
+         font_center,
+         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
+         centered_text_height,
+         vec3(0.8, 0.8, 0.2),
+         true,
+         "STRETCH MODE"
+      );
 
+      // if position is changed and not commited, render text yellow
+      vec3 subtext_color;
+      string subtext;
+      auto tracked_state = Context.undo_stack.check();
+      auto current_state = get_entity_state(Context.entity_panel.entity);
+      if(tracked_state.entity != nullptr && compare_state(tracked_state, current_state))
+      {
+         subtext_color = tool_text_color_yellow;
+         subtext = "stretch not commited";
+      }
+      else
+      {
+         subtext_color = tool_text_color_green;
+         subtext = "commited";
+      }
+
+      render_text(
+         font_center_small, 
+         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, 
+         centered_text_height - 40, 
+         subtext_color, 
+         true,
+         subtext
+      );
+   }
 }
+
 
 void render_event_triggers(Camera* camera)
 {
@@ -842,6 +884,7 @@ void render_event_triggers(Camera* camera)
       render_mesh(checkpoint->trigger, RenderOptions{});
    }
 }
+
 
 void render_world_cells(Camera* camera)
 {
@@ -890,6 +933,7 @@ void render_world_cells(Camera* camera)
       render_mesh(cell_mesh, opts);
    }
 }
+
 
 void render_lightbulbs(Camera* camera)
 {

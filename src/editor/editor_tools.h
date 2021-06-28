@@ -16,7 +16,7 @@ void editor_erase_entity(Entity* entity)
 // ----------
 void activate_snap_mode(Entity* entity);
 void snap_entity_to_reference(Entity* entity);
-void check_selection_to_snap(EntityPanelContext* panel);
+void check_selection_to_snap();
 void snap_commit();
 
 void activate_snap_mode(Entity* entity)
@@ -79,14 +79,100 @@ void snap_entity_to_reference(Entity* entity)
 }
 
 
-void check_selection_to_snap(EntityPanelContext* panel)
+void check_selection_to_snap()
 {
    auto pickray = cast_pickray();
    auto test = test_ray_against_scene(pickray);
    if(test.hit)
    {
       Context.snap_reference = test.entity;
-      snap_entity_to_reference(panel->entity);
+      snap_entity_to_reference(Context.entity_panel.entity);
+   }
+}
+
+// -------------
+// STRETCH TOOL
+// -------------
+void activate_stretch_mode(Entity* entity);
+void stretch_entity_to_reference(Entity* entity);
+void check_selection_to_stretch(EntityPanelContext* panel);
+void stretch_commit();
+
+void activate_stretch_mode(Entity* entity)
+{
+   deactivate_editor_modes();
+   Context.stretch_mode = true;
+   Context.undo_stack.track(entity);
+}
+
+void stretch_commit()
+{
+   auto entity = Context.entity_panel.entity;
+   Context.undo_stack.track(entity);
+}
+
+void stretch_entity_to_reference(Entity* entity, Triangle t)
+{
+   // In this function, we are, obviously, considering that
+   // the triangle is axis aligned
+
+   vec3 normal = glm::triangleNormal(t.a, t.b, t.c);
+
+   // test each triangle from entity mesh until finding face
+   // which normal is equivalent to the reference triangle
+   // normal vector
+   Triangle t_entity;
+   bool found_t = false;
+   int triangles = entity->mesh->indices.size() / 3;
+   for(int i = 0; i < triangles; i++)
+   {
+      Triangle _t = get_triangle_for_indexed_mesh(entity, i);
+      vec3 _normal = glm::triangleNormal(_t.a, _t.b, _t.c);
+
+      if(is_equal(normal, _normal))
+      {
+         t_entity = _t;
+         found_t = true;
+         break;
+      }
+   }
+
+   if(!found_t)
+      cout << "Entity has no face that match the selected reference to stretch to.\n";
+
+   // note: since triangles are axis aligned, it doesn't matter from
+   // which vertice (a, b, c) we take the coordinates.
+   int axis_count = 0;
+   if(!is_zero(normal.x))
+   {
+     entity->scale.x += t.a.x - t_entity.a.x;
+     axis_count++;
+   }
+   if(!is_zero(normal.y))
+   {
+     entity->scale.y += t.a.y - t_entity.a.y;
+     axis_count++;
+   }
+   if(!is_zero(normal.z))
+   {
+     entity->scale.x += t.a.z - t_entity.a.z;
+     axis_count++;
+   }
+
+   // assert triangles are axis aligned always
+   assert(axis_count == 1);
+
+   return;
+}
+
+
+void check_selection_to_stretch()
+{
+   auto pickray = cast_pickray();
+   auto test = test_ray_against_scene(pickray);
+   if(test.hit)
+   {
+      stretch_entity_to_reference(Context.entity_panel.entity, test.t);
    }
 }
 
