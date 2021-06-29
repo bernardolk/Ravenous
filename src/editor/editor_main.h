@@ -30,8 +30,8 @@ struct EntityPanelContext {
    Entity* x_arrow;
    Entity* y_arrow;
    Entity* z_arrow;
-   bool action_last_frame = false;
    EntityState entity_tracked_state;
+   bool show_normals = false;
 };
 
 struct WorldPanelContext {
@@ -167,6 +167,7 @@ void update()
    {
       Context.entity_panel.rename_buffer[0] = 0;
       Context.snap_mode = false;
+      Context.stretch_mode = false;
       Context.snap_reference = nullptr;
    }
 
@@ -286,6 +287,8 @@ void render(Player* player, WorldStruct* world)
    {
       render_entity_panel(&Context.entity_panel);
       render_entity_control_arrows(&Context.entity_panel);
+      if(Context.entity_panel.show_normals)
+         render_entity_mesh_normals(&Context.entity_panel);
    }
 
    if(Context.palette_panel.active)

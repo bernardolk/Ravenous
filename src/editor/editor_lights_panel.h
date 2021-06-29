@@ -60,9 +60,9 @@ void render_lights_panel(LightsPanelContext* panel)
       if(point_flags == ImGuiTabItemFlags_SetSelected) panel->focus_tab = false;
 
       // ADD BUTTON
-      ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.42f, 0.6f, 0.6f));
+      ImGui::PushStyleColor(ImGuiCol_Button,        (ImVec4)ImColor::HSV(0.42f, 0.6f, 0.6f));
       ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.42f, 0.7f, 0.7f));
-      ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.42f, 0.8f, 0.8f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonActive,  (ImVec4)ImColor::HSV(0.42f, 0.8f, 0.8f));
       if(ImGui::Button("Add new##point"))
       {
          // create new spotlight
@@ -79,6 +79,7 @@ void render_lights_panel(LightsPanelContext* panel)
          bool is_active = panel->selected_light == i && panel->selected_light_type == "point";
          if(ImGui::CollapsingHeader(header.c_str(), ImGuiTreeNodeFlags_NoAutoOpenOnLog) || is_active)
          {
+            // SHOW BUTTON
             auto& light = G_SCENE_INFO.active_scene->pointLights[i];
             auto show_name = "show##point" + to_string(i);
             if(ImGui::Checkbox(show_name.c_str(), &is_active))
@@ -86,9 +87,21 @@ void render_lights_panel(LightsPanelContext* panel)
                panel->selected_light = is_active ? i : -1;
                panel->selected_light_type = "point";
             }
-            ImGui::NewLine();
+
+            // DELETE BUTTON
+            ImGui::SameLine();
+            ImGui::PushStyleColor(ImGuiCol_Button,        (ImVec4)ImColor::HSV(0.03f, 0.6f, 0.6f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.03f, 0.7f, 0.7f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive,  (ImVec4)ImColor::HSV(0.03f, 0.8f, 0.8f));
+            auto delete_btn_label = "Delete##point" + to_string(i);
+            if(ImGui::Button(delete_btn_label.c_str()))
+            {
+               // deletes pointlight
+            }
+            ImGui::PopStyleColor(3);
 
             // position 
+            ImGui::NewLine();
             float positions[]{ light.position[0], light.position[1], light.position[2] };
             auto label_pos = "position##point" + to_string(i);
             if(ImGui::DragFloat3(label_pos.c_str(), positions, 0.3, -10.0, 10.0))
@@ -140,9 +153,9 @@ void render_lights_panel(LightsPanelContext* panel)
       if(spot_flags == ImGuiTabItemFlags_SetSelected) panel->focus_tab = false;
 
       // ADD BUTTON
-      ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.42f, 0.6f, 0.6f));
+      ImGui::PushStyleColor(ImGuiCol_Button,        (ImVec4)ImColor::HSV(0.42f, 0.6f, 0.6f));
       ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.42f, 0.7f, 0.7f));
-      ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.42f, 0.8f, 0.8f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonActive,  (ImVec4)ImColor::HSV(0.42f, 0.8f, 0.8f));
       if(ImGui::Button("Add new##spot"))
       {
          // create new spotlight
@@ -171,9 +184,9 @@ void render_lights_panel(LightsPanelContext* panel)
 
             // DELETE BUTTON
             ImGui::SameLine();
-            ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.03f, 0.6f, 0.6f));
+            ImGui::PushStyleColor(ImGuiCol_Button,        (ImVec4)ImColor::HSV(0.03f, 0.6f, 0.6f));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.03f, 0.7f, 0.7f));
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.03f, 0.8f, 0.8f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive,  (ImVec4)ImColor::HSV(0.03f, 0.8f, 0.8f));
             auto delete_btn_spot_label = "Delete##spot" + to_string(i);
             if(ImGui::Button(delete_btn_spot_label.c_str()))
             {

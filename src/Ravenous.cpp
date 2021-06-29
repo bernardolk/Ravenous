@@ -401,19 +401,19 @@ void create_boilerplate_geometry()
       Vertex{vec3(0.0f, 0.0f, 1.0f),   vec3(0.0f, -1.0f, 0.0f),   vec2(0.5f, 1.0f)},   //3
       // top   
       Vertex{vec3(0.0f, 1.0f, 0.0f),   vec3(0.0f, 1.0f, 0.0f),    vec2(0.5f, 0.5f)},   //4
-      Vertex{vec3(1.0f, 1.0f, 0.0f),   vec3(0.0f, 1.0f, 0.0f),    vec2(1.0f, 0.5f)},   //5
+      Vertex{vec3(0.0f, 1.0f, 1.0f),   vec3(0.0f, 1.0f, 0.0f),    vec2(1.0f, 0.5f)},   //5
       Vertex{vec3(1.0f, 1.0f, 1.0f),   vec3(0.0f, 1.0f, 0.0f),    vec2(1.0f, 1.0f)},   //6
-      Vertex{vec3(0.0f, 1.0f, 1.0f),   vec3(0.0f, 1.0f, 0.0f),    vec2(0.5f, 1.0f)},   //7
+      Vertex{vec3(1.0f, 1.0f, 0.0f),   vec3(0.0f, 1.0f, 0.0f),    vec2(0.5f, 1.0f)},   //7
       // front       
       Vertex{vec3(0.0f, 0.0f, 1.0f),   vec3(0.0f, 0.0f, 1.0f),    vec2(0.0f, 0.0f)},   //8
       Vertex{vec3(1.0f, 0.0f, 1.0f),   vec3(0.0f, 0.0f, 1.0f),    vec2(0.5f, 0.0f)},   //9
       Vertex{vec3(0.0f, 1.0f, 1.0f),   vec3(0.0f, 0.0f, 1.0f),    vec2(0.0f, 0.5f)},   //10
       Vertex{vec3(1.0f, 1.0f, 1.0f),   vec3(0.0f, 0.0f, 1.0f),    vec2(0.5f, 0.5f)},   //11
       // back
-      Vertex{vec3(0.0f, 0.0f, 0.0f),   vec3(0.0f, 0.0f, -1.0f),   vec2(0.0f, 0.0f)},   //12
-      Vertex{vec3(1.0f, 0.0f, 0.0f),   vec3(0.0f, 0.0f, -1.0f),   vec2(0.5f, 0.0f)},   //13
-      Vertex{vec3(0.0f, 1.0f, 0.0f),   vec3(0.0f, 0.0f, -1.0f),   vec2(0.0f, 0.5f)},   //14
-      Vertex{vec3(1.0f, 1.0f, 0.0f),   vec3(0.0f, 0.0f, -1.0f),   vec2(0.5f, 0.5f)},   //15
+      Vertex{vec3(0.0f, 0.0f, 0.0f),   vec3(0.0f, 0.0f, 1.0f),    vec2(0.0f, 0.0f)},   //12
+      Vertex{vec3(0.0f, 1.0f, 0.0f),   vec3(0.0f, 0.0f, 1.0f),    vec2(0.0f, 0.5f)},   //13
+      Vertex{vec3(1.0f, 1.0f, 0.0f),   vec3(0.0f, 0.0f, 1.0f),    vec2(0.5f, 0.5f)},   //14
+      Vertex{vec3(1.0f, 0.0f, 0.0f),   vec3(0.0f, 0.0f, 1.0f),    vec2(0.5f, 0.0f)},   //15
       // left
       Vertex{vec3(0.0f, 0.0f, 0.0f),   vec3(-1.0f, 0.0f, 0.0f),   vec2(0.0f, 0.0f)},   //16
       Vertex{vec3(0.0f, 0.0f, 1.0f),   vec3(-1.0f, 0.0f, 0.0f),   vec2(0.5f, 0.0f)},   //17
@@ -421,17 +421,17 @@ void create_boilerplate_geometry()
       Vertex{vec3(0.0f, 1.0f, 1.0f),   vec3(-1.0f, 0.0f, 0.0f),   vec2(0.5f, 0.5f)},   //19
       // right
       Vertex{vec3(1.0f, 0.0f, 0.0f),   vec3(1.0f, 0.0f, 0.0f),    vec2(0.0f, 0.0f)},   //20
-      Vertex{vec3(1.0f, 0.0f, 1.0f),   vec3(1.0f, 0.0f, 0.0f),    vec2(0.5f, 0.0f)},   //21
-      Vertex{vec3(1.0f, 1.0f, 0.0f),   vec3(1.0f, 0.0f, 0.0f),    vec2(0.0f, 0.5f)},   //22
-      Vertex{vec3(1.0f, 1.0f, 1.0f),   vec3(1.0f, 0.0f, 0.0f),    vec2(0.5f, 0.5f)},   //23
+      Vertex{vec3(1.0f, 1.0f, 0.0f),   vec3(1.0f, 0.0f, 0.0f),    vec2(0.0f, 0.5f)},   //21
+      Vertex{vec3(1.0f, 1.0f, 1.0f),   vec3(1.0f, 0.0f, 0.0f),    vec2(0.5f, 0.5f)},   //22
+      Vertex{vec3(1.0f, 0.0f, 1.0f),   vec3(1.0f, 0.0f, 0.0f),    vec2(0.5f, 0.0f)},   //23
    }; 
 
    vector<u32> aabb_vertex_indices = 
    { 
       0, 1, 2, 2, 3, 0,          // bottom face
       16, 17, 18, 18, 19, 17,    // left face
-      12, 13, 14, 14, 15, 13,    // back face
-      20, 21, 22, 22, 23, 21,    // right face
+      12, 13, 14, 14, 15, 12,    // back face
+      20, 21, 22, 22, 23, 20,    // right face
       8, 9, 10, 10, 11, 9,       // front face
       4, 5, 6, 6, 7, 4           // top face
    };

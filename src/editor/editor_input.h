@@ -16,8 +16,14 @@ void handle_input_flags(InputFlags flags, Player* &player)
 
    if(pressed_once(flags, KEY_ESC))
    {
-      if(Context.entity_panel.active) Context.entity_panel.active = false;
-      else deactivate_editor_modes();
+      if(check_modes_are_active())     
+         deactivate_editor_modes();
+      else if(Context.entity_panel.active)  
+         Context.entity_panel.active = false;
+      else if(Context.world_panel.active)  
+         Context.world_panel.active = false;
+      else if(Context.lights_panel.active)  
+         Context.lights_panel.active = false;
    }
 
 

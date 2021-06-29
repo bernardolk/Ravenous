@@ -3,6 +3,16 @@ void deactivate_editor_modes()
    Context.move_mode = false;
    Context.snap_mode = false;
    Context.measure_mode = false;
+   Context.stretch_mode = false;
+}
+
+bool check_modes_are_active()
+{
+   return 
+      Context.move_mode    || 
+      Context.snap_mode    ||
+      Context.measure_mode ||
+      Context.stretch_mode;
 }
 
 void editor_erase_entity(Entity* entity)
@@ -115,6 +125,7 @@ void stretch_entity_to_reference(Entity* entity, Triangle t)
 {
    // In this function, we are, obviously, considering that
    // the triangle is axis aligned
+   assert(is_valid(t));
 
    vec3 normal = glm::triangleNormal(t.a, t.b, t.c);
 

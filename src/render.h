@@ -9,6 +9,9 @@ struct RenderOptions
    float point_size = 1.0;
    float line_width = 1.0;
 
+   // for immediate point shader
+   vec3 color = vec3{-1.0};
+   float opacity = 1.0;
 };
 
 // -----------------------------
@@ -57,7 +60,7 @@ struct GlobalImmediateDraw {
       ind++;
    }
 
-   void add_line(vec3 points[2], float line_width = 1.0)
+   void add_line(vec3 points[2], float line_width = 1.0, bool always_on_top = false)
    {
       auto mesh = meshes[ind];
       mesh->vertices = vector<Vertex>{ Vertex{points[0]}, Vertex{points[1]}};
@@ -65,11 +68,29 @@ struct GlobalImmediateDraw {
       mesh->send_data_to_gl_buffer();
       RenderOptions opts;
       opts.line_width = line_width;
+      opts.always_on_top = always_on_top;
       render_opts[ind] = opts;
       ind++;
    }
 
-   void add_point(vec3 point, float point_size = 1.0)
+   void add_lines(vector<vec3> points, float line_width = 1.0, bool always_on_top = false)
+   {
+      auto mesh = meshes[ind];
+      mesh->vertices = vector<Vertex>();
+      for(int i = 0; i < points.size(); i++)
+      {
+         mesh->vertices.push_back(Vertex{points[i]});
+      }
+      mesh->render_method = GL_LINE_LOOP;
+      mesh->send_data_to_gl_buffer();
+      RenderOptions opts;
+      opts.line_width = line_width;
+      opts.always_on_top = always_on_top;
+      render_opts[ind] = opts;
+      ind++;
+   }
+
+   void add_point(vec3 point, float point_size = 1.0, bool always_on_top = false)
    {
       auto mesh = meshes[ind];
       mesh->vertices = vector<Vertex>{ Vertex{point} };
@@ -77,6 +98,22 @@ struct GlobalImmediateDraw {
       mesh->send_data_to_gl_buffer();
       RenderOptions opts;
       opts.point_size = point_size;
+      opts.always_on_top = always_on_top;
+      render_opts[ind] = opts;
+      ind++;
+   }
+
+   void add_triangle(Triangle t, float line_width = 1.0, bool always_on_top = false, vec3 color = vec3{0.8, 0.2, 0.2})
+   {
+      auto mesh = meshes[ind];
+      mesh->vertices = vector<Vertex>{ Vertex{t.a}, Vertex{t.b}, Vertex{t.c}};
+      mesh->indices = vector<unsigned int>{ 0, 1, 2};
+      mesh->render_method = GL_TRIANGLES;
+      mesh->send_data_to_gl_buffer();
+      RenderOptions opts;
+      opts.line_width = line_width;
+      opts.always_on_top = always_on_top;
+      opts.color = color;
       render_opts[ind] = opts;
       ind++;
    }
@@ -301,11 +338,16 @@ void render_immediate(GlobalImmediateDraw* im, Camera* camera)
    auto shader = Shader_Catalogue.find("immediate_point")->second;
    for(int i = 0; i < im->ind; i++)
    {
+      auto opts = im->render_opts[i];
+      vec3 color = opts.color.x == -1 ? vec3(0.9, 0.2, 0.0) : opts.color;
+
       auto mesh = im->meshes[i];
       shader-> use();
       shader-> setMatrix4("view",        camera->View4x4);
       shader-> setMatrix4("projection",  camera->Projection4x4);
-      render_mesh(mesh, im->render_opts[i]);
+      shader-> setFloat("opacity", opts.opacity);
+      shader-> setFloat3("color", color);
+      render_mesh(mesh, opts);
    }
    
    G_IMMEDIATE_DRAW.reset();

@@ -7,6 +7,7 @@ struct Triangle {
 struct Face {
    Triangle a;
    Triangle b;
+   vec3 center;
 };
 
 struct RaycastTest {
@@ -178,38 +179,38 @@ RaycastTest test_ray_against_triangle(Ray ray, Triangle triangle)
 	float det = -glm::dot(ray.direction, N);
 	float invdet = 1.0 / det;
 	vec3 AO = ray.origin - A;
+
+   // check hit with one side of triangle
 	vec3 DAO = glm::cross(AO, ray.direction);
 	float u = glm::dot(E2, DAO) * invdet;
 	float v = -glm::dot(E1, DAO) * invdet;
 	float t = glm::dot(AO, N) * invdet;
-	bool test1 = (det >= 1e-6 && t >= 0.0 && u >= 0.0 && v >= 0.0 && (u + v) <= 1.0);
-	if (test1)
-		return RaycastTest{true, t};
+	bool test = (det >= 1e-6 && t >= 0.0 && u >= 0.0 && v >= 0.0 && (u + v) <= 1.0);
 
-   // check "other-side" (why so much duplication though?)
-   E1 = B - A;
-   E2 = C - A;
-   N = glm::cross(E2, E1);
-   det = -glm::dot(ray.direction, N);
-   invdet = 1.0 / det;
-   AO = ray.origin - A;
-   DAO = glm::cross(ray.direction, AO);
-   u = glm::dot(E2, DAO) * invdet;
-   v = -glm::dot(E1, DAO) * invdet;
-   float t2 = glm::dot(AO, N) * invdet;
-   bool test2 = (det >= 1e-6 && t2 >= 0.0 && u >= 0.0 && v >= 0.0 && (u + v) <= 1.0);
-   if (test2)
+   if(!test)
    {
-      RaycastTest test;
-      test.hit = true;
-      test.distance = t2;
-      test.t = triangle;
-      return test;
+      // check other side
+       N = glm::cross(E2, E1);
+      det = -glm::dot(ray.direction, N);
+      invdet = 1.0 / det;
+      DAO = glm::cross(ray.direction, AO);
+      u = glm::dot(E2, DAO) * invdet;
+      v = -glm::dot(E1, DAO) * invdet;
+      t = glm::dot(AO, N) * invdet;
+      test = (det >= 1e-6 && t >= 0.0 && u >= 0.0 && v >= 0.0 && (u + v) <= 1.0);
+   }
+
+   if (test)
+   {
+      RaycastTest result;
+      result.hit = true;
+      result.distance = t;
+      result.t = triangle;
+      return result;
    }
 
 	return RaycastTest{false, -1};
 }
-
 
 Ray cast_pickray() 
 {
@@ -238,19 +239,55 @@ vec3 point_from_detection(Ray ray, RaycastTest result)
 
 Face face_from_axis_aligned_triangle(Triangle t)
 {
+   // computes center
+   float x0 = min({t.a.x, t.b.x, t.c.x});
+   float x1 = max({t.a.x, t.b.x, t.c.x});
+   float y0 = min({t.a.y, t.b.y, t.c.y});
+   float y1 = max({t.a.y, t.b.y, t.c.y});
+   float z0 = min({t.a.z, t.b.z, t.c.z});
+   float z1 = max({t.a.z, t.b.z, t.c.z});
+
+   float mx, my, mz;
+   mx = x0 == x1 ? x0 : ((x1 - x0) / 2.0f) + x0;
+   my = y0 == y1 ? y0 : ((y1 - y0) / 2.0f) + y0;
+   mz = z0 == z1 ? z0 : ((z1 - z0) / 2.0f) + z0;
+   auto center = vec3{mx, my, mz};
+
    vec3 normal = glm::triangleNormal(t.a, t.b, t.c);
-   vec3 a2 = glm::rotate(t.a, glm::radians(180.0f), normal);
-   vec3 b2 = glm::rotate(t.b, glm::radians(180.0f), normal);
-   vec3 c2 = glm::rotate(t.c, glm::radians(180.0f), normal);
-   return Face{t, Triangle{a2, b2, c2}};
 
+   vec3 a2 = rotate(t.a, glm::radians(180.0f), normal);
+   vec3 b2 = rotate(t.b, glm::radians(180.0f), normal);
+   vec3 c2 = rotate(t.c, glm::radians(180.0f), normal);
 
-   // float x0 = min({t.a.x, t.b.x, t.c.x});
-   // float x1 = max({t.a.x, t.b.x, t.c.x});
-   // float y0 = min({t.a.y, t.b.y, t.c.y});
-   // float y1 = max({t.a.y, t.b.y, t.c.y});
-   // float z0 = min({t.a.z, t.b.z, t.c.z});
-   // float z1 = max({t.a.z, t.b.z, t.c.z});
+   vec3 translation;
+   if(x0 == x1)
+      translation = vec3(0, center.y, center.z);
+   if(y0 == y1)
+      translation = vec3(center.x, 0, center.z);
+   if(z0 == z1)
+      translation = vec3(center.x, center.y, 0);
 
-   // auto t1 = Triangle {vec3{x0,z0,y0}, vec3{x1,z0,y0}, vec3{x0,z0,y1}};
+   a2 += translation * 2.0f;
+   b2 += translation * 2.0f;
+   c2 += translation * 2.0f;
+
+   auto t2 = Triangle{a2, b2, c2};
+
+   Face f;
+   f.a = t;
+   f.b = t2;
+   f.center = center;
+
+   return f;
+}
+
+bool is_equal(Triangle t1, Triangle t2)
+{
+   return t1.a == t2.a && t1.b == t2.b && t1.c == t2.c;
+}
+
+bool is_valid(Triangle t)
+{
+   // checks if vertices are not in a single point
+   return t.a != t.b && t.a != t.c && t.b != t.c;
 }

@@ -22,13 +22,19 @@ void render_entity_panel(EntityPanelContext* panel)
    // entity state tracking
    bool track = false;
 
-   //rename
+   // RENAME
    ImGui::NewLine();
    if(ImGui::InputText("rename", &panel->rename_buffer[0], 100))
       entity->name = panel->rename_buffer;
 
+   // HIDE ENTITY
+   ImGui::Checkbox("Hide", &entity->wireframe);
+
+   ImGui::SameLine();
+   ImGui::Checkbox("Show normals", &panel->show_normals);
+
+   // POSITION
    ImGui::NewLine();
-   // position
    bool used_pos = false;
    {
       bool used_x = ImGui::DragFloat("x", &entity->position.x, 0.1);
@@ -43,7 +49,7 @@ void render_entity_panel(EntityPanelContext* panel)
       used_pos = used_x || used_y || used_z;
    }
 
-   // rotation
+   // ROTATION
    bool used_rot = false;
    {
       float rotation = entity->rotation.y;
@@ -57,7 +63,7 @@ void render_entity_panel(EntityPanelContext* panel)
 
    ImGui::NewLine();
 
-   // scale
+   // SCALE
    bool used_scaling = false;
    {
       auto scale = entity->scale;
@@ -115,6 +121,27 @@ void render_entity_panel(EntityPanelContext* panel)
       }
    }
 
+   // ENTITY POSITIONING TOOLS
+   if(ImGui::Button("Snap", ImVec2(82,18)))
+   {
+      activate_snap_mode(entity);
+   }
+
+   ImGui::SameLine();
+   if(ImGui::Checkbox("inside", &Context.snap_inside))
+   {
+      if(Context.snap_reference != nullptr)
+         snap_entity_to_reference(panel->entity);
+   }
+
+   ImGui::SameLine();
+   if(ImGui::Button("Stretch", ImVec2(82,18)))
+   {
+      activate_stretch_mode(entity);
+   }
+   
+
+   // CHECKPOINT
    if(entity->type == CHECKPOINT)
    {
       ImGui::NewLine();
@@ -123,6 +150,7 @@ void render_entity_panel(EntityPanelContext* panel)
       ImGui::SliderFloat("height", &entity->trigger_scale.y, 0, 10);
    }
 
+   // TABS
    ImGui::NewLine();
    if(ImGui::CollapsingHeader("World cells"))
    {
@@ -148,61 +176,37 @@ void render_entity_panel(EntityPanelContext* panel)
       }
    }
 
-   // if(ImGui::CollapsingHeader("Entity type"))
-   // {
-   //    auto is_static = entity->type == STATIC;
-   //    if(ImGui::RadioButton("Static", is_static))
-   //    {
-   //       if(!is_static) Entity_Manager.set_type(entity, STATIC);
-   //    }  
 
-   //    auto is_checkpoint = entity->type == CHECKPOINT;
-   //    if(ImGui::RadioButton("Checkpoint", is_checkpoint))
-   //    {
-   //       if(!is_checkpoint) Entity_Manager.set_type(entity, CHECKPOINT);
-   //    }
-   // }
-
-   ImGui::NewLine();
-
-   // Controls
+   // ENTITY INSTANCE CONTROLS
    bool duplicated = false;
-   bool erased = false;
+   bool deleted = false;
    {
-      if(ImGui::Button("Snap", ImVec2(82,18)))
-      {
-         activate_snap_mode(entity);
-      }
-      ImGui::SameLine();
-      if(ImGui::Checkbox("inside", &Context.snap_inside))
-      {
-         if(Context.snap_reference != nullptr)
-            snap_entity_to_reference(panel->entity);
-      }
-
-      if(ImGui::Button("Strech", ImVec2(82,18)))
-      {
-         activate_stretch_mode(entity);
-      }
-
+      ImGui::NewLine();
+      ImGui::NewLine();
       if(ImGui::Button("Duplicate", ImVec2(82,18)))
       {
          duplicated = true;
-         // entity manager logic
          auto new_entity = Entity_Manager.copy_entity(entity);
          activate_move_mode(new_entity);
          open_entity_panel(new_entity);
       }
 
-      if(ImGui::Button("Erase", ImVec2(82,18)))
+      ImGui::SameLine();
+      ImGui::PushStyleColor(ImGuiCol_Button,        (ImVec4)ImColor::HSV(0.03f, 0.6f, 0.6f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.03f, 0.7f, 0.7f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonActive,  (ImVec4)ImColor::HSV(0.03f, 0.8f, 0.8f));
+      if(ImGui::Button("Delete", ImVec2(82,18)))
       {
-         erased = true;         
+         deleted = true;         
          Context.entity_panel.active = false;
          editor_erase_entity(entity);
       }
-
-      ImGui::Checkbox("Hide", &entity->wireframe);
+      ImGui::PopStyleColor(3);
    }
+
+   ImGui::NewLine();
+   ImGui::NewLine();
+   // LAYOUT END
 
    if(track)
    {
@@ -217,9 +221,9 @@ void render_entity_panel(EntityPanelContext* panel)
    // ----------------
    // action happened
    // ----------------
-   if(used_pos || used_rot || used_scaling || duplicated || erased)
+   if(used_pos || used_rot || used_scaling || duplicated || deleted)
    {
-      if(!(duplicated || erased))
+      if(!(duplicated || deleted))
          deactivate_editor_modes();
       entity->update_collision_geometry();                              // needs to be done here to prevent a bug
       auto update_cells = World.update_entity_world_cells(entity);
@@ -255,6 +259,7 @@ void open_entity_panel(Entity* entity)
    panel.x_arrow->rotation = vec3{0,0,270};
    panel.y_arrow->rotation = vec3{0,0,0};
    panel.z_arrow->rotation = vec3{90,0,0};
+   panel.show_normals = false;
    panel.entity_tracked_state = get_entity_state(entity);
 }
 
@@ -297,4 +302,24 @@ void update_entity_control_arrows(EntityPanelContext* panel)
    x->update_model_matrix();
    y->update_model_matrix();
    z->update_model_matrix();
+}
+
+void render_entity_mesh_normals(EntityPanelContext* panel)
+{
+   // only for aabb
+   auto entity = panel->entity;
+
+   int triangles = entity->mesh->indices.size() / 3;
+   int ind = 0;
+   for(int i = 0; i < triangles; i+=2, ind++)
+   {
+      Triangle _t = get_triangle_for_indexed_mesh(entity, i);
+      vec3 normal = glm::triangleNormal(_t.a, _t.b, _t.c);
+      Face f = face_from_axis_aligned_triangle(_t);
+      
+      G_IMMEDIATE_DRAW.add_point(f.center, 2.0, true);
+
+      vec3 points[] = {f.center, f.center + normal * 2.0f};
+      G_IMMEDIATE_DRAW.add_line(points, 2.5, true);
+   }
 }
