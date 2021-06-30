@@ -310,8 +310,7 @@ void render_entity_mesh_normals(EntityPanelContext* panel)
    auto entity = panel->entity;
 
    int triangles = entity->mesh->indices.size() / 3;
-   int ind = 0;
-   for(int i = 0; i < triangles; i+=2, ind++)
+   for(int i = 0; i < triangles; i++)
    {
       Triangle _t = get_triangle_for_indexed_mesh(entity, i);
       vec3 normal = glm::triangleNormal(_t.a, _t.b, _t.c);

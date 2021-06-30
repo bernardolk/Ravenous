@@ -429,10 +429,10 @@ void create_boilerplate_geometry()
    vector<u32> aabb_vertex_indices = 
    { 
       0, 1, 2, 2, 3, 0,          // bottom face
-      16, 17, 18, 18, 19, 17,    // left face
+      16, 17, 18, 19, 18, 17,    // left face
       12, 13, 14, 14, 15, 12,    // back face
       20, 21, 22, 22, 23, 20,    // right face
-      8, 9, 10, 10, 11, 9,       // front face
+      8, 9, 10, 11, 10, 9,       // front face
       4, 5, 6, 6, 7, 4           // top face
    };
 

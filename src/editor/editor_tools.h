@@ -4,6 +4,7 @@ void deactivate_editor_modes()
    Context.snap_mode = false;
    Context.measure_mode = false;
    Context.stretch_mode = false;
+   Context.locate_coords_mode = false;
 }
 
 bool check_modes_are_active()
@@ -12,7 +13,8 @@ bool check_modes_are_active()
       Context.move_mode    || 
       Context.snap_mode    ||
       Context.measure_mode ||
-      Context.stretch_mode;
+      Context.stretch_mode ||
+      Context.locate_coords_mode;
 }
 
 void editor_erase_entity(Entity* entity)

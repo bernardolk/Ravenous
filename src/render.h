@@ -18,7 +18,7 @@ struct RenderOptions
 // GLOBAL IMMEDIATE DRAW STRUCT
 // -----------------------------
 struct GlobalImmediateDraw {
-   const static int IM_BUFFER_SIZE = 20;
+   const static int IM_BUFFER_SIZE = 100;
    Mesh* meshes[IM_BUFFER_SIZE];
    RenderOptions render_opts[IM_BUFFER_SIZE];
    int ind = 0;
