@@ -348,6 +348,7 @@ void parse_and_load_player_attribute(Parser::Parse p, ifstream* reader, int& lin
    {
       p = parse_float_vector(p);
       player->entity_ptr->position = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+      player->height_before_fall = p.vec3[1];
    }
    else if(attribute == "player_initial_velocity")
    {

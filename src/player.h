@@ -38,6 +38,7 @@ struct Player {
    float hurt_height_1 = 3.5;
    float hurt_height_2 = 5.0;
 
+   // set when checking for fall, read-only!
    float fall_height_log = 0;
 
    Entity* checkpoint = nullptr;
