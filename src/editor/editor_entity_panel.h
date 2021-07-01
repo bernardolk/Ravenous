@@ -71,12 +71,6 @@ void render_entity_panel(EntityPanelContext* panel)
       scale = rot * vec4(entity->scale, 1.0f);
       auto ref_scale = scale;
 
-      bool flipped_x = false, flipped_z = false;
-      if(scale.x < 0) { scale.x *= -1; flipped_x = true;}
-      if(scale.z < 0) { scale.z *= -1; flipped_z = true;}
-
-      vec3 min_scales {0.0f};
-
       // scale in x
       bool scaled_x = ImGui::DragFloat("scale x", &scale.x, 0.1);
       track = track || ImGui::IsItemDeactivatedAfterEdit();
@@ -85,7 +79,7 @@ void render_entity_panel(EntityPanelContext* panel)
          panel->x_arrow->rotation.z = (int)(panel->x_arrow->rotation.z + 180) % 360;
 
       // scale in y
-      bool scaled_y = ImGui::DragFloat("scale y", &scale.y,  0.1);
+      bool scaled_y = ImGui::DragFloat("scale y", &scale.y, 0.1);
       track = track || ImGui::IsItemDeactivatedAfterEdit();
 
       if(ImGui::Checkbox("rev y", &panel->reverse_scale_y))
@@ -103,15 +97,17 @@ void render_entity_panel(EntityPanelContext* panel)
       // apply scalling
       if(used_scaling)
       {
-         if(flipped_x) scale.x *= -1;
-         if(flipped_z) scale.z *= -1;
+         float min_scale =  0.001;
+         scale.x = scale.x < min_scale ? min_scale : scale.x;
+         scale.y = scale.y < min_scale ? min_scale : scale.y;
+         scale.z = scale.z < min_scale ? min_scale : scale.z;
 
           // if rev scaled, move entity in oposite direction to compensate scaling and fake rev scaling
-         if((panel->reverse_scale_x && !flipped_x) || (flipped_x && !panel->reverse_scale_x))
+         if(panel->reverse_scale_x)
             entity->position.x -= scale.x - ref_scale.x;
          if(panel->reverse_scale_y)
             entity->position.y -= scale.y - entity->scale.y;
-         if((panel->reverse_scale_z && !flipped_z) || (flipped_z && !panel->reverse_scale_z))
+         if(panel->reverse_scale_z)
             entity->position.z -= scale.z - ref_scale.z;
 
          auto inv_rot = glm::rotate(mat4identity, glm::radians(-1.0f * entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
