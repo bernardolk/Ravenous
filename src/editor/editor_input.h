@@ -1,10 +1,29 @@
 void handle_input_flags(InputFlags flags, Player* &player)
 {
+   // -----------------------
+   // HIGH PRIORITY COMMANDS
+   // -----------------------
+   // commands that return once detected,
+   // not allowing for more than one at a time
+   // to be issued.
+
    if(pressed(flags, KEY_LEFT_CTRL) && pressed_once(flags, KEY_Z))
    {
       // snap mode controls the undo stack while it is active.
       if(!Context.snap_mode)
          Context.undo_stack.undo();
+      return;
+   }
+
+   if(pressed(flags, KEY_LEFT_CTRL) && pressed_once(flags, KEY_S))
+   {
+      // save scene
+      save_scene_to_file("", player, false);
+      // set scene
+      G_CONFIG.initial_scene = G_SCENE_INFO.scene_name;
+      save_configs_to_file();
+      G_BUFFERS.rm_buffer->add("world state saved", 1200);
+      return;
    }
 
    if(pressed(flags, KEY_LEFT_CTRL) && pressed_once(flags, KEY_Y))
@@ -12,6 +31,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
       // snap mode controls the undo stack while it is active.
       if(!Context.snap_mode)
          Context.undo_stack.redo();
+      return;
    }
 
    if(pressed_once(flags, KEY_ESC))
@@ -24,6 +44,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
          Context.world_panel.active = false;
       else if(Context.lights_panel.active)  
          Context.lights_panel.active = false;
+      return;
    }
 
 
@@ -36,8 +57,13 @@ void handle_input_flags(InputFlags flags, Player* &player)
       {
          Context.entity_panel.active = false;
          editor_erase_entity(Context.entity_panel.entity);
+         return;
       }
    }
+
+   // ------------------------
+   // LOWER PRIORITY COMMANDS
+   // ------------------------
 
    // --------------------
    // SNAP MODE SHORTCUTS
@@ -92,17 +118,6 @@ void handle_input_flags(InputFlags flags, Player* &player)
          Context.snap_inside = !Context.snap_inside;
          if(Context.snap_reference != nullptr)
             snap_entity_to_reference(Context.entity_panel.entity);
-      }
-   }
-
-   // -----------------------
-   // STRETCH MODE SHORTCUTS
-   // -----------------------
-   if(Context.stretch_mode)
-   {
-      if(pressed_once(flags, KEY_ENTER))
-      {
-         stretch_commit();
       }
    }
 
@@ -203,6 +218,15 @@ void handle_input_flags(InputFlags flags, Player* &player)
       }
    }
 
+   // --------------------------------------------
+   // CONTROL KEY USAGE BLOCKED FROM HERE ONWARDS
+   // --------------------------------------------
+   if(pressed(flags, KEY_LEFT_CTRL))
+      return;
+
+   // -------------------------
+   // CAMERA MOVEMENT CONTROLS
+   // -------------------------
    // @TODO: this sucks
    float camera_speed =
       G_SCENE_INFO.camera->type == THIRD_PERSON ?
@@ -213,10 +237,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
    {
       camera_speed = camera_speed * 2;
    }
-   if(flags.key_press & KEY_LEFT_CTRL)
-   {
-      camera_speed = camera_speed / 2;
-   }
+
    if(flags.key_press & KEY_W)
    {
       G_SCENE_INFO.camera->Position += camera_speed * G_SCENE_INFO.camera->Front;
@@ -252,6 +273,13 @@ void handle_input_flags(InputFlags flags, Player* &player)
    {
       camera_look_at(G_SCENE_INFO.camera, vec3(0.0f, 0.0f, 0.0f), true);
    }
+
+
+   // -----------------------
+   // GAME MOVEMENT CONTROLS
+   // -----------------------
+   // @todo: should refactor those out (the state changes are common to game/editor)
+
    if(player->player_state == PLAYER_STATE_STANDING)
    {
       // resets velocity

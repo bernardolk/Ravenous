@@ -837,31 +837,6 @@ void render_text_overlay(Player* player)
          true,
          "STRETCH MODE"
       );
-
-      // if position is changed and not commited, render text yellow
-      vec3 subtext_color;
-      string subtext;
-      auto tracked_state = Context.undo_stack.check();
-      auto current_state = get_entity_state(Context.entity_panel.entity);
-      if(tracked_state.entity != nullptr && compare_state(tracked_state, current_state))
-      {
-         subtext_color = tool_text_color_green;
-         subtext = "commited";
-      }
-      else
-      {
-         subtext_color = tool_text_color_yellow;
-         subtext = "stretch not commited";
-      }
-
-      render_text(
-         font_center_small, 
-         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, 
-         centered_text_height - 40, 
-         subtext_color, 
-         true,
-         subtext
-      );
    }
 }
 

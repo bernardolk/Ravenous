@@ -222,6 +222,7 @@ void check_selection_to_stretch()
    if(test.hit)
    {
       stretch_entity_to_reference(Context.entity_panel.entity, test.t);
+      stretch_commit();
    }
 }
 
