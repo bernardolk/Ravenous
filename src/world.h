@@ -13,7 +13,7 @@ const static int W_CELLS_OFFSET_Y = W_CELLS_NUM_Y / 2;
 const static int W_CELLS_OFFSET_Z = W_CELLS_NUM_Z / 2;
 
 // how many meters the cell occupies in the world
-const static float W_CELL_LEN_METERS = 10.0f;
+const static float W_CELL_LEN_METERS = 50.0f;
 // how many entities can coexists in a cell
 const static int WORLD_CELL_CAPACITY = 30;
 
