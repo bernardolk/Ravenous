@@ -106,9 +106,10 @@ void check_selection_to_snap()
 // STRETCH TOOL
 // -------------
 void activate_stretch_mode(Entity* entity);
+void stretch_commit();
+auto get_scale_and_position_change(Entity* entity, float old_pos, float new_pos, float n);
 void stretch_entity_to_reference(Entity* entity);
 void check_selection_to_stretch(EntityPanelContext* panel);
-void stretch_commit();
 
 void activate_stretch_mode(Entity* entity)
 {
@@ -123,6 +124,29 @@ void stretch_commit()
    Context.undo_stack.track(entity);
 }
 
+auto get_scale_and_position_change(Entity* entity, float old_pos, float new_pos, float n)
+{
+   struct {
+      float scale_f; 
+      float pos_f = 0.f;
+   } transform;
+
+   float dif = old_pos - new_pos;
+
+   bool shrink = (dif > 0 && n > 0) || (dif < 0 && n < 0);
+
+   if(shrink)
+      transform.scale_f = -1.0 * abs(dif);
+   else
+      transform.scale_f = abs(dif);
+
+   // if normal points to negative dir, move position
+   if(n < 0)
+      transform.pos_f -= dif;
+
+   return transform;
+}
+
 void stretch_entity_to_reference(Entity* entity, Triangle t)
 {
    // In this function, we are, obviously, considering that
@@ -130,6 +154,13 @@ void stretch_entity_to_reference(Entity* entity, Triangle t)
    assert(is_valid(t));
 
    vec3 normal = glm::triangleNormal(t.a, t.b, t.c);
+
+   // assert triangles are axis aligned always
+   if(abs(normal.x) != 1 && abs(normal.y) != 1 && abs(normal.z) != 1) 
+   {
+      G_BUFFERS.rm_buffer->add("Stretch failed", 1200);
+      return;
+   }
 
    // test each triangle from entity mesh until finding face
    // which normal is equivalent to the reference triangle
@@ -142,7 +173,7 @@ void stretch_entity_to_reference(Entity* entity, Triangle t)
       Triangle _t = get_triangle_for_indexed_mesh(entity, i);
       vec3 _normal = glm::triangleNormal(_t.a, _t.b, _t.c);
 
-      if(is_equal(normal, _normal))
+      if(normal == _normal)
       {
          t_entity = _t;
          found_t = true;
@@ -158,25 +189,30 @@ void stretch_entity_to_reference(Entity* entity, Triangle t)
    int axis_count = 0;
    if(!is_zero(normal.x))
    {
-     entity->scale.x += t.a.x - t_entity.a.x;
-     axis_count++;
+      auto [s, p] = get_scale_and_position_change(entity, t_entity.a.x, t.a.x, normal.x);
+      entity->scale.x += s;
+      entity->position.x += p;
+      axis_count++;
    }
    if(!is_zero(normal.y))
    {
-     entity->scale.y += t.a.y - t_entity.a.y;
-     axis_count++;
+      auto [s, p] = get_scale_and_position_change(entity, t_entity.a.y, t.a.y, normal.y);
+      entity->scale.y += s;
+      entity->position.y += p;
+      axis_count++;
    }
    if(!is_zero(normal.z))
    {
-     entity->scale.x += t.a.z - t_entity.a.z;
-     axis_count++;
+      auto [s, p] = get_scale_and_position_change(entity, t_entity.a.z, t.a.z, normal.z);
+      entity->scale.z += s;
+      entity->position.z += p;
+      axis_count++;
    }
 
-   // assert triangles are axis aligned always
    assert(axis_count == 1);
-
    return;
 }
+
 
 
 void check_selection_to_stretch()

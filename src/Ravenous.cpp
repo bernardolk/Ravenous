@@ -453,15 +453,16 @@ void create_boilerplate_geometry()
    Geometry_Catalogue.insert({world_cell_mesh->name, world_cell_mesh});
 
    // SLOPE
+   // with Z coming at the screen, X to the right, slope starts at x=0 high and goes low on x=1
    vector<Vertex> slope_vertex_vec = {
       // bottom
       Vertex{vec3(0.0f, 0.0f, 0.0f),   vec3(0.0f, -1.0f, 0.0f),   vec2(0.5f, 0.5f)},   //0
       Vertex{vec3(1.0f, 0.0f, 0.0f),   vec3(0.0f, -1.0f, 0.0f),   vec2(1.0f, 0.5f)},   //1
       Vertex{vec3(1.0f, 0.0f, 1.0f),   vec3(0.0f, -1.0f, 0.0f),   vec2(1.0f, 1.0f)},   //2
       Vertex{vec3(0.0f, 0.0f, 1.0f),   vec3(0.0f, -1.0f, 0.0f),   vec2(0.5f, 1.0f)},   //3
-      // top   
-      Vertex{vec3(1.0f, 0.0f, 0.0f),   vec3(0.5f, 0.5f, 0.0f),    vec2(0.5f, 0.5f)},   //4
-      Vertex{vec3(1.0f, 0.0f, 1.0f),   vec3(0.5f, 0.5f, 0.0f),    vec2(1.0f, 0.5f)},   //5
+      // right   
+      Vertex{vec3(1.0f, 0.0f, 1.0f),   vec3(0.5f, 0.5f, 0.0f),    vec2(1.0f, 0.5f)},   //4
+      Vertex{vec3(1.0f, 0.0f, 0.0f),   vec3(0.5f, 0.5f, 0.0f),    vec2(0.5f, 0.5f)},   //5
       Vertex{vec3(0.0f, 1.0f, 0.0f),   vec3(0.5f, 0.5f, 0.0f),    vec2(1.0f, 1.0f)},   //6
       Vertex{vec3(0.0f, 1.0f, 1.0f),   vec3(0.5f, 0.5f, 0.0f),    vec2(0.5f, 1.0f)},   //7
       // front       
@@ -470,8 +471,8 @@ void create_boilerplate_geometry()
       Vertex{vec3(0.0f, 1.0f, 1.0f),   vec3(0.0f, 0.0f, 1.0f),    vec2(0.0f, 0.5f)},   //10
       // back
       Vertex{vec3(0.0f, 0.0f, 0.0f),   vec3(0.0f, 0.0f, -1.0f),   vec2(0.0f, 0.0f)},   //11
-      Vertex{vec3(1.0f, 0.0f, 0.0f),   vec3(0.0f, 0.0f, -1.0f),   vec2(0.5f, 0.0f)},   //12
-      Vertex{vec3(0.0f, 1.0f, 0.0f),   vec3(0.0f, 0.0f, -1.0f),   vec2(0.0f, 0.5f)},   //13
+      Vertex{vec3(0.0f, 1.0f, 0.0f),   vec3(0.0f, 0.0f, -1.0f),   vec2(0.0f, 0.5f)},   //12
+      Vertex{vec3(1.0f, 0.0f, 0.0f),   vec3(0.0f, 0.0f, -1.0f),   vec2(0.5f, 0.0f)},   //13
       // left
       Vertex{vec3(0.0f, 0.0f, 0.0f),   vec3(-1.0f, 0.0f, 0.0f),   vec2(0.0f, 0.0f)},   //14
       Vertex{vec3(0.0f, 0.0f, 1.0f),   vec3(-1.0f, 0.0f, 0.0f),   vec2(0.5f, 0.0f)},   //15
@@ -484,8 +485,8 @@ void create_boilerplate_geometry()
       0, 1, 2, 2, 3, 0,          // bottom face
       8, 9, 10,                  // front
       11, 12, 13,                // back
-      14, 15, 16, 16, 17, 15,    // left face
-      4, 5, 6, 6, 7, 5           // slope face (right face/top)
+      14, 15, 16, 17, 16, 15,    // left face
+      4, 5, 6, 6, 7, 4           // right face (slope)
    };
 
    auto slope_mesh = new Mesh();

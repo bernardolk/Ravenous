@@ -845,13 +845,13 @@ void render_text_overlay(Player* player)
       auto current_state = get_entity_state(Context.entity_panel.entity);
       if(tracked_state.entity != nullptr && compare_state(tracked_state, current_state))
       {
-         subtext_color = tool_text_color_yellow;
-         subtext = "stretch not commited";
+         subtext_color = tool_text_color_green;
+         subtext = "commited";
       }
       else
       {
-         subtext_color = tool_text_color_green;
-         subtext = "commited";
+         subtext_color = tool_text_color_yellow;
+         subtext = "stretch not commited";
       }
 
       render_text(

@@ -1,4 +1,4 @@
-*28.4399 9.5283 27.4522  -0.5789 -0.5504 -0.6016
+*-22.5625 14.5108 44.4371  0.6756 -0.3971 -0.6212
 @player_position = 6.8880 0.8750 10.2100
 @player_initial_velocity = 0.0000 0.0000 0.0000
 @player_state = 0
@@ -73,18 +73,18 @@ texture texture_diffuse sandstone sandstone.jpg
 collision slope
 
 #NONAME
-position 0.0000 -5.0000 14.0000
+position 0.0000 -17.6000 14.0000
 rotation 0.0000 0.0000 0.0000
-scale 4.5000 4.0000 1.0000
+scale 4.5000 16.6000 1.0000
 mesh aabb
 shader model
 texture texture_diffuse sandstone sandstone.jpg
 collision aabb
 
 #NONAME
-position 10.5000 -5.0000 14.0000
+position 10.5000 -17.6000 14.0000
 rotation 0.0000 0.0000 0.0000
-scale 4.5000 4.0000 1.0000
+scale 4.5000 16.6000 1.0000
 mesh aabb
 shader model
 texture texture_diffuse sandstone sandstone.jpg
