@@ -1,5 +1,5 @@
-*27.7037 -2.4573 -2.8271  -0.3158 -0.7705 0.5537
-@player_position = 5.4730 0.8750 6.8955
+*2.0914 -26.8969 25.9511  0.7622 -0.5166 0.3901
+@player_position = 12.8524 -39.8730 31.8585
 @player_initial_velocity = 0.0000 0.0000 0.0000
 @player_state = 0
 @player_fall_acceleration = 13.0000
@@ -46,6 +46,17 @@ outercone 0.5090
 constant 2.5000
 linear 0.4100
 quadratic 0.0000
+
+$spot
+position 9.4146 -15.0000 41.1095
+direction 0.0748 -0.8028 -0.5915
+diffuse 0.0048 0.4579 0.1720
+specular 1.0000 1.0000 1.0000
+innercone 1.0000
+outercone 0.5440
+constant 0.0200
+linear 1.1450
+quadratic 0.0320
 
 #first entity
 position 0.0000 -1.0000 0.0000
@@ -219,7 +230,7 @@ texture texture_diffuse sandstone sandstone.jpg
 collision aabb
 
 #NONAME
-position -0.9841 -17.7010 34.1834
+position -0.9841 -17.7010 33.0830
 rotation 0.0000 0.0000 0.0000
 scale 25.7000 0.1010 24.0000
 mesh aabb
@@ -276,6 +287,53 @@ collision aabb
 position 22.7330 -17.6000 3.4885
 rotation 0.0000 0.0000 0.0000
 scale 1.0000 5.3000 2.3000
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision aabb
+
+#NONAME
+position 9.2722 -17.6000 39.8245
+rotation 0.0000 0.0000 0.0000
+scale 0.3000 1.2000 0.3000
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision aabb
+type 1
+trigger 1.5000 1.0000 1.5000
+
+#NONAME
+position -21.9310 -40.8490 -8.5800
+rotation 0.0000 0.0000 0.0000
+scale 52.9000 0.1010 69.9000
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision aabb
+
+#NONAME
+position 17.8778 -12.4000 -4.6619
+rotation 0.0000 0.0000 0.0000
+scale 10.9000 1.0000 10.9000
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision aabb
+
+#NONAME
+position 18.2930 -12.3000 6.4449
+rotation 0.0000 0.0000 0.0000
+scale 2.7930 11.3000 1.0000
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision aabb
+
+#NONAME
+position 6.7237 -33.1879 32.1900
+rotation 0.0000 90.0000 0.0000
+scale 4.3000 0.9000 3.6000
 mesh aabb
 shader model
 texture texture_diffuse sandstone sandstone.jpg

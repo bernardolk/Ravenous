@@ -1,8 +1,8 @@
 void handle_input_flags(InputFlags flags, Player* &player)
 {
-   // -----------------------
-   // HIGH PRIORITY COMMANDS
-   // -----------------------
+   // ------------------------
+   // EDITOR EDITING COMMANDS
+   // ------------------------
    // commands that return once detected,
    // not allowing for more than one at a time
    // to be issued.
@@ -18,6 +18,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
    if(pressed(flags, KEY_LEFT_CTRL) && pressed_once(flags, KEY_S))
    {
       // save scene
+      player->checkpoint_pos = player->entity_ptr->position;
       save_scene_to_file("", player, false);
       // set scene
       G_CONFIG.initial_scene = G_SCENE_INFO.scene_name;
@@ -61,9 +62,9 @@ void handle_input_flags(InputFlags flags, Player* &player)
       }
    }
 
-   // ------------------------
-   // LOWER PRIORITY COMMANDS
-   // ------------------------
+   // ------------------------------------
+   // TOOLS / CAMERA / CHARACTER CONTROLS
+   // ------------------------------------
 
    // --------------------
    // SNAP MODE SHORTCUTS
