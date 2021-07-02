@@ -54,10 +54,18 @@ void handle_input_flags(InputFlags flags, Player* &player)
 
    if(pressed_once(flags, KEY_DELETE))
    {
-      if(Context.entity_panel.active)
+      if(Context.entity_panel.active && Context.entity_panel.focused)
       {
          Context.entity_panel.active = false;
          editor_erase_entity(Context.entity_panel.entity);
+         return;
+      }
+      else if(Context.lights_panel.active && Context.lights_panel.focused)
+      {
+         if(Context.lights_panel.selected_light > -1)
+         {
+            editor_erase_light(Context.lights_panel.selected_light, Context.lights_panel.selected_light_type);
+         }
          return;
       }
    }
