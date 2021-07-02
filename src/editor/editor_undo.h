@@ -90,7 +90,10 @@ struct UndoStack {
 
    void undo()
    {
-      // gets a valid state to undo (if entity was deleted, then state is invalid)
+      if(pos == 0)
+         return;
+
+      // gets a valid state to undo
       EntityState state;
       do {
          state = _get_state_and_move_back();
@@ -103,7 +106,10 @@ struct UndoStack {
 
    void redo()
    {
-      // gets a valid state to undo (if entity was deleted, then state is invalid)
+      if(pos == 0)
+         return;
+         
+      // gets a valid state to redo
       EntityState state;
       do {
          state = _get_state_and_move_up();
@@ -153,10 +159,13 @@ struct UndoStack {
    // internal
    bool _is_state_valid(EntityState state)
    {
+      // if entity was deleted, it isnt valid
       for(int i = 0; i < deletion_log.size; i++)
          if(deletion_log.entity_ids[i] == state.id)
             return false;
       
+      // if entity current state is equal to state in stack
+      // then is not valid for undo also
       return !_comp_state(get_entity_state(state.entity), state);
    }
 

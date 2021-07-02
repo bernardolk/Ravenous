@@ -56,6 +56,9 @@ void render_lights_panel(LightsPanelContext* panel)
       ImGuiTabItemFlags_SetSelected : ImGuiTabItemFlags_None;
    if(ImGui::BeginTabItem("Point Lights", NULL, point_flags))
    {
+      int deleted_light_index = -1;
+      auto pointlights = &G_SCENE_INFO.active_scene->pointLights;
+
       // UNFOCUS TAB
       if(point_flags == ImGuiTabItemFlags_SetSelected) panel->focus_tab = false;
 
@@ -66,21 +69,20 @@ void render_lights_panel(LightsPanelContext* panel)
       if(ImGui::Button("Add new##point"))
       {
          // create new spotlight
-         auto pointlights = &G_SCENE_INFO.active_scene->pointLights;
          PointLight new_pointlight;
          pointlights->push_back(new_pointlight);
          activate_move_light_mode("point", pointlights->size() - 1);
       }
       ImGui::PopStyleColor(3);
 
-      for(int i = 0; i < G_SCENE_INFO.active_scene->pointLights.size(); i++)
+      for(int i = 0; i < pointlights->size(); i++)
       {
          string header = "point light source (" + to_string(i) + ")";
          bool is_active = panel->selected_light == i && panel->selected_light_type == "point";
          if(ImGui::CollapsingHeader(header.c_str(), ImGuiTreeNodeFlags_NoAutoOpenOnLog) || is_active)
          {
             // SHOW BUTTON
-            auto& light = G_SCENE_INFO.active_scene->pointLights[i];
+            auto& light = (*pointlights)[i];
             auto show_name = "show##point" + to_string(i);
             if(ImGui::Checkbox(show_name.c_str(), &is_active))
             {
@@ -96,7 +98,7 @@ void render_lights_panel(LightsPanelContext* panel)
             auto delete_btn_label = "Delete##point" + to_string(i);
             if(ImGui::Button(delete_btn_label.c_str()))
             {
-               // deletes pointlight
+               deleted_light_index = i;
             }
             ImGui::PopStyleColor(3);
 
@@ -139,6 +141,10 @@ void render_lights_panel(LightsPanelContext* panel)
             ImGui::NewLine();
          }
       }
+
+      if(deleted_light_index > -1)
+         pointlights->erase(pointlights->begin() + deleted_light_index);
+
       ImGui::EndTabItem();
    }
 
@@ -149,6 +155,9 @@ void render_lights_panel(LightsPanelContext* panel)
       ImGuiTabItemFlags_SetSelected : ImGuiTabItemFlags_None;
    if(ImGui::BeginTabItem("Spot Lights", NULL, spot_flags))
    {
+      int deleted_light_index = -1;
+      auto spotlights = &G_SCENE_INFO.active_scene->spotLights;
+
       // UNFOCUS TAB
       if(spot_flags == ImGuiTabItemFlags_SetSelected) panel->focus_tab = false;
 
@@ -159,20 +168,19 @@ void render_lights_panel(LightsPanelContext* panel)
       if(ImGui::Button("Add new##spot"))
       {
          // create new spotlight
-         auto spotlights = &G_SCENE_INFO.active_scene->spotLights;
          SpotLight new_spotlight;
          spotlights->push_back(new_spotlight);
          activate_move_light_mode("spot", spotlights->size() - 1);
       }
       ImGui::PopStyleColor(3);
 
-      for(int i = 0; i < G_SCENE_INFO.active_scene->spotLights.size(); i++)
+      for(int i = 0; i < spotlights->size(); i++)
       {
          string header = "spot light source (" + to_string(i) + ")";
          bool is_active = panel->selected_light == i && panel->selected_light_type == "spot";
          if(ImGui::CollapsingHeader(header.c_str()) || is_active)
          {
-            auto& light = G_SCENE_INFO.active_scene->spotLights[i];
+            auto& light = (*spotlights)[i];
 
             // SHOW BUTTON
             auto show_name = "show##spot" + to_string(i);
@@ -190,7 +198,7 @@ void render_lights_panel(LightsPanelContext* panel)
             auto delete_btn_spot_label = "Delete##spot" + to_string(i);
             if(ImGui::Button(delete_btn_spot_label.c_str()))
             {
-               // deletes spotlight
+               deleted_light_index = i;
             }
             ImGui::PopStyleColor(3);
 
@@ -263,6 +271,10 @@ void render_lights_panel(LightsPanelContext* panel)
             ImGui::NewLine();
          }
       }
+
+      if(deleted_light_index > -1)
+         spotlights->erase(spotlights->begin() + deleted_light_index);
+
       ImGui::EndTabItem();
    }
 
