@@ -1,5 +1,5 @@
-*-17.4829 -9.9133 5.0278  0.7351 -0.3729 0.5661
-@player_position = 2.9052 -16.7250 19.8803
+*27.7037 -2.4573 -2.8271  -0.3158 -0.7705 0.5537
+@player_position = 5.4730 0.8750 6.8955
 @player_initial_velocity = 0.0000 0.0000 0.0000
 @player_state = 0
 @player_fall_acceleration = 13.0000
@@ -35,6 +35,17 @@ specular 1.0000 1.0000 1.0000
 constant 0.5000
 linear 0.4000
 quadratic 0.0320
+
+$spot
+position 2.3635 -5.6467 16.0479
+direction -0.2153 -0.8628 0.4575
+diffuse 1.0000 1.0000 1.0000
+specular 1.0000 1.0000 1.0000
+innercone 1.0000
+outercone 0.5090
+constant 2.5000
+linear 0.4100
+quadratic 0.0000
 
 #first entity
 position 0.0000 -1.0000 0.0000
@@ -129,7 +140,142 @@ collision aabb
 #NONAME
 position 0.0000 -17.6000 6.4449
 rotation 0.0000 0.0000 0.0000
-scale 15.9934 16.6000 1.0000
+scale 18.2930 16.6000 1.0000
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision aabb
+
+#NONAME
+position 0.0000 -17.6000 7.3824
+rotation 0.0000 0.0000 0.0000
+scale 1.0000 16.7000 6.8010
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision aabb
+
+#NONAME
+position 13.9693 -17.6000 7.2191
+rotation 0.0000 0.0000 0.0000
+scale 1.0000 16.7000 6.8010
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision aabb
+
+#NONAME
+position 18.0980 -18.6000 5.0200
+rotation 0.0000 0.0000 0.0000
+scale 3.2000 1.0000 2.3010
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision aabb
+
+#NONAME
+position 19.5943 -18.6000 3.3134
+rotation 0.0000 0.0000 0.0000
+scale 3.2000 1.0000 2.3010
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision aabb
+
+#NONAME
+position 21.3209 -18.6000 1.2043
+rotation 0.0000 0.0000 0.0000
+scale 3.2000 1.0000 2.3010
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision aabb
+
+#NONAME
+position 23.2571 -18.6000 -0.8658
+rotation 0.0000 0.0000 0.0000
+scale 3.2000 1.0000 2.3010
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision aabb
+
+#NONAME
+position 18.0322 -18.6000 -3.9920
+rotation 0.0000 0.0000 0.0000
+scale 11.4000 1.0000 3.2010
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision aabb
+
+#NONAME
+position 20.7994 -40.8000 6.2971
+rotation 0.0000 0.0000 0.0000
+scale 0.8010 39.9000 26.8010
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision aabb
+
+#NONAME
+position -0.9841 -17.7010 34.1834
+rotation 0.0000 0.0000 0.0000
+scale 25.7000 0.1010 24.0000
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision aabb
+
+#NONAME
+position 17.6747 -17.6000 4.7684
+rotation 0.0000 0.0000 0.0000
+scale 1.0000 5.2000 1.6000
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision aabb
+
+#NONAME
+position 18.6177 -17.6000 3.2402
+rotation 0.0000 0.0000 0.0000
+scale 1.0000 5.2000 1.8000
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision aabb
+
+#NONAME
+position 19.2749 -17.6000 0.9180
+rotation 0.0000 0.0000 0.0000
+scale 2.1000 5.2000 2.4000
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision aabb
+
+#NONAME
+position 21.3126 -17.6000 -0.7201
+rotation 0.0000 0.0000 0.0000
+scale 2.0000 5.2000 2.0000
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision aabb
+
+#NONAME
+position 20.6672 -17.6000 5.5400
+rotation 0.0000 0.0000 0.0000
+scale 3.2000 5.2000 1.1000
+mesh aabb
+shader model
+texture texture_diffuse sandstone sandstone.jpg
+collision aabb
+
+#NONAME
+position 22.7330 -17.6000 3.4885
+rotation 0.0000 0.0000 0.0000
+scale 1.0000 5.3000 2.3000
 mesh aabb
 shader model
 texture texture_diffuse sandstone sandstone.jpg

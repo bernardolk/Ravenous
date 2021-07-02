@@ -53,8 +53,6 @@ const string SCENE_TEMPLATE_NAME = "scene_template";
 float CYLINDER_HALF_HEIGHT = 0.875; 
 float CYLINDER_RADIUS = 0.20f;
 
-float VEC_COMPARE_PRECISION = 0.00001f;
-
 const glm::mat4 mat4identity(
 	1.0f, 0.0f, 0.0f, 0.0f,
 	0.0f, 1.0f, 0.0f, 0.0f,

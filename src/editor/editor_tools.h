@@ -124,16 +124,31 @@ void stretch_commit()
    Context.undo_stack.track(entity);
 }
 
-auto get_scale_and_position_change(Entity* entity, float old_pos, float new_pos, float n)
+auto get_scale_and_position_change(float e_scale, float e_aligned, float e_opposite, float t, float n)
 {
+   // e_aligned -> entity mesh triangle pos in axis with normal aligned with selected t triangle normal
+   // e_opposite -> entity mesh triangle pos in axis with normal in same direction but opposite sense with selected t triangle normal
+   // e_scale -> entity scale in axis
+   // t -> pos of selected triangle in axis
+   // n -> axis component of t normal (sign)
+
    struct {
       float scale_f; 
       float pos_f = 0.f;
    } transform;
 
-   float dif = old_pos - new_pos;
+   float dif = e_aligned - t;
 
    bool shrink = (dif > 0 && n > 0) || (dif < 0 && n < 0);
+
+   // if we are going to invert the scale of the entity by shrinking it towards itself,
+   // then we stretch using the other side of the entity to achieve expected behaviour.
+   if(shrink && abs(dif) >= e_scale)
+   {
+      dif = e_opposite - t;
+      n *= -1;
+      shrink = false;
+   }
 
    if(shrink)
       transform.scale_f = -1.0 * abs(dif);
@@ -165,45 +180,55 @@ void stretch_entity_to_reference(Entity* entity, Triangle t)
    // test each triangle from entity mesh until finding face
    // which normal is equivalent to the reference triangle
    // normal vector
-   Triangle t_entity;
-   bool found_t = false;
+   // Note: we find 2 triangles per normal thats why we have the bools
+   Triangle e_aligned, e_opposite;
+   bool aligned = false;
+   bool opposite = false;
    int triangles = entity->mesh->indices.size() / 3;
    for(int i = 0; i < triangles; i++)
    {
       Triangle _t = get_triangle_for_indexed_mesh(entity, i);
       vec3 _normal = glm::triangleNormal(_t.a, _t.b, _t.c);
 
-      if(normal == _normal)
+      if(is_equal(normal, _normal) && !aligned)
       {
-         t_entity = _t;
-         found_t = true;
-         break;
+         e_aligned = _t;
+         aligned = true;
       }
+      else if(is_equal(normal, -1.f * _normal) && !opposite)
+      {
+         e_opposite = _t;
+         opposite = true;
+      }
+
+      if(aligned && opposite)
+         break;
    }
 
-   if(!found_t)
-      cout << "Entity has no face that match the selected reference to stretch to.\n";
+   // if this breaks, check normal comparisons in loop above or if entities have right-hand convention
+   // in vertices definitions in geometry
+   assert(aligned && opposite);
 
    // note: since triangles are axis aligned, it doesn't matter from
    // which vertice (a, b, c) we take the coordinates.
    int axis_count = 0;
    if(!is_zero(normal.x))
    {
-      auto [s, p] = get_scale_and_position_change(entity, t_entity.a.x, t.a.x, normal.x);
+      auto [s, p] = get_scale_and_position_change(entity->scale.x, e_aligned.a.x, e_opposite.a.x, t.a.x, normal.x);
       entity->scale.x += s;
       entity->position.x += p;
       axis_count++;
    }
    if(!is_zero(normal.y))
    {
-      auto [s, p] = get_scale_and_position_change(entity, t_entity.a.y, t.a.y, normal.y);
+      auto [s, p] = get_scale_and_position_change(entity->scale.y, e_aligned.a.y, e_opposite.a.y, t.a.y, normal.y);
       entity->scale.y += s;
       entity->position.y += p;
       axis_count++;
    }
    if(!is_zero(normal.z))
    {
-      auto [s, p] = get_scale_and_position_change(entity, t_entity.a.z, t.a.z, normal.z);
+      auto [s, p] = get_scale_and_position_change(entity->scale.z, e_aligned.a.z, e_opposite.a.z, t.a.z, normal.z);
       entity->scale.z += s;
       entity->position.z += p;
       axis_count++;

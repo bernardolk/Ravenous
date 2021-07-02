@@ -38,6 +38,8 @@ bool is_zero(float x)
    return abs(x) < 0.0001;
 }
 
+float VEC_COMPARE_PRECISION = 0.00001f;
+
 inline
 bool is_equal(vec2 vec1, vec2 vec2)
 {
@@ -52,7 +54,7 @@ bool is_equal(vec3 vec1, vec3 vec2)
 {
    float x_diff = abs(vec1.x - vec2.x);
    float y_diff = abs(vec1.y - vec2.y);
-   float z_diff = abs(vec1.y - vec2.y);
+   float z_diff = abs(vec1.z - vec2.z);
 
    return x_diff < VEC_COMPARE_PRECISION 
       && y_diff < VEC_COMPARE_PRECISION 
