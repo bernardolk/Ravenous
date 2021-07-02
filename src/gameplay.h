@@ -584,8 +584,7 @@ void handle_common_input(InputFlags flags, Player* &player)
    }
    if(flags.key_press & KEY_K)
    {
-      load_player_attributes_from_file(G_SCENE_INFO.scene_name, player);
-      player->lives = 2;
+      player->die();
    }
    if(pressed_once(flags, KEY_F))
    {

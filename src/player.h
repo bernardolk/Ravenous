@@ -23,7 +23,7 @@ struct Player {
    float jump_initial_speed = 5.0f;
    float slide_jump_speed = 8.0f;
    float slide_speed = 3.0f;
-   float radius; 
+   float radius;
    float half_height;
 
    PlayerStateEnum player_state;
@@ -35,8 +35,8 @@ struct Player {
    int initial_lives = 2;
    int lives = 2;
    float height_before_fall;
-   float hurt_height_1 = 3.5;
-   float hurt_height_2 = 5.0;
+   float hurt_height_1 = 5.0;
+   float hurt_height_2 = 8.0;
 
    // set when checking for fall, read-only!
    float fall_height_log = 0;

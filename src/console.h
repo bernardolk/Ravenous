@@ -254,6 +254,7 @@ void execute_command(string buffer_line, Player* &player, WorldStruct* world, Ca
       else if(argument == "all")
       {
          // save scene
+         player->checkpoint_pos = player->entity_ptr->position;
          save_scene_to_file("", player, false);
          // set scene
          G_CONFIG.initial_scene = G_SCENE_INFO.scene_name;
