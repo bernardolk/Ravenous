@@ -5,6 +5,7 @@ void deactivate_editor_modes()
    Context.measure_mode = false;
    Context.stretch_mode = false;
    Context.locate_coords_mode = false;
+   Context.place_mode = false;
 }
 
 bool check_modes_are_active()
@@ -21,6 +22,23 @@ void editor_erase_entity(Entity* entity)
 {
    Entity_Manager.mark_for_deletion(entity);
    Context.undo_stack.deletion_log.add(entity);
+}
+
+void editor_erase_light(int index, string type)
+{
+   if(type == "point")
+   {
+      auto pointlights = &G_SCENE_INFO.active_scene->pointLights;
+      pointlights->erase(pointlights->begin() + index);
+   }
+   else if(type == "spot")
+   {
+      auto spotlights = &G_SCENE_INFO.active_scene->spotLights;
+      spotlights->erase(spotlights->begin() + index);
+   }
+
+   if(Context.lights_panel.selected_light == index)
+      Context.lights_panel.selected_light = -1;
 }
 
 // ----------
@@ -309,6 +327,28 @@ void check_selection_to_locate_coords()
    }
 }
 
+// ------------------
+// PLACE ENTITY TOOL
+// ------------------
+void activate_place_mode(Entity* entity);
+void place_entity_with_mouse(Entity* entity);
+
+void activate_place_mode(Entity* entity)
+{
+   deactivate_editor_modes();
+   Context.place_mode = true;
+   Context.selected_entity = entity;
+   Context.undo_stack.track(entity);
+}
+
+
+void place_entity_with_mouse(Entity* entity)
+{
+   auto pickray = cast_pickray();
+   auto test = test_ray_against_scene(pickray, true, entity->id);
+   if(test.hit)
+      entity->position = point_from_detection(pickray, test);
+}
 
 
 // -----------------
@@ -322,6 +362,7 @@ void activate_move_mode(Entity* entity)
 {
    deactivate_editor_modes();
    Context.move_mode = true;
+   Context.move_axis = 0;
    Context.selected_entity = entity;
    Context.undo_stack.track(entity);
 }
@@ -413,6 +454,7 @@ void move_entity_with_mouse(Entity* entity)
 void place_entity()
 {
    Context.move_mode = false;
+   Context.place_mode = false;
    
    auto update_cells = World.update_entity_world_cells(Context.selected_entity);
    if(update_cells.status != OK)

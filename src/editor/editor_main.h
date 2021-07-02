@@ -19,6 +19,7 @@ struct PalettePanelContext {
 
 struct EntityPanelContext {
    bool active = false;
+   bool focused = false;
    Entity* entity = nullptr;
    vec3 original_position = vec3(0);
    vec3 original_scale = vec3(0);
@@ -41,6 +42,7 @@ struct WorldPanelContext {
 
 struct LightsPanelContext {
    bool active = false;
+   bool focused = false;
    bool focus_tab = false;
 
    // selected light
@@ -80,6 +82,9 @@ struct EditorContext {
    bool scale_on_drop = false;
    u8 move_axis = 0;
 
+   // place mode
+   bool place_mode = false;
+
    // move light @todo: will disappear!
    string selected_light_type = "";
    int selected_light = -1;
@@ -103,7 +108,7 @@ struct EditorContext {
    bool snap_mode = false;
    u8 snap_cycle = 0;
    u8 snap_axis = 1;
-   bool snap_inside = true;
+   bool snap_inside = false;
    Entity* snap_reference = nullptr;
    EntityState snap_tracked_state;
 
@@ -196,7 +201,6 @@ void update()
    {
       Context.snap_cycle = 0;
       Context.snap_axis = 1;
-      Context.snap_inside = true;
       Context.snap_reference = nullptr;
    }
 
@@ -217,6 +221,16 @@ void update()
          else
             move_entity_with_mouse(Context.selected_entity);
       }
+   }
+
+   if(Context.place_mode)
+   {
+      if(Context.mouse_click)
+      {
+         place_entity();
+      }
+      else
+         place_entity_with_mouse(Context.selected_entity);
    }
 
    if(Context.scale_entity_with_mouse)
@@ -567,6 +581,8 @@ void render_text_overlay(Player* player)
    string font = "consola14";
    string font_center = "swanseait38";
    string font_center_small = "swanseait20";
+   float centered_text_height = SCREEN_HEIGHT - 120;
+   float centered_text_height_small = centered_text_height - 40;
    vec3 tool_text_color_yellow = vec3(0.8, 0.8, 0.2);
    vec3 tool_text_color_green  = vec3(0.6, 1.0, 0.3);
 
@@ -658,7 +674,6 @@ void render_text_overlay(Player* player)
    // ----------
    // SNAP MODE
    // ----------
-   float centered_text_height = SCREEN_HEIGHT - 120;
    if(Context.snap_mode)
    {
       string snap_cycle;
@@ -721,7 +736,7 @@ void render_text_overlay(Player* player)
        render_text(
          font_center_small, 
          G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, 
-         centered_text_height - 40, 
+         centered_text_height_small, 
          snap_mode_subtext_color, 
          true,
          sub_text
@@ -747,7 +762,7 @@ void render_text_overlay(Player* player)
          render_text(
             font_center,
             G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
-            centered_text_height - 40,
+            centered_text_height_small,
             vec3(0.8, 0.8, 0.2),
             true,
             "(" + format_float_tostr(abs(Context.measure_to - Context.measure_from.y), 2) + " m)"
@@ -784,6 +799,39 @@ void render_text_overlay(Player* player)
          vec3(0.8, 0.8, 0.2),
          true,
          "MOVE MODE (" + move_axis + ")"
+      );
+
+      render_text(
+         font_center,
+         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
+         centered_text_height_small,
+         vec3(0.8, 0.8, 0.2),
+         true,
+         "press M to alternate between move and place modes"
+      );
+   }
+
+   // ----------
+   // PLACE MODE
+   // ----------
+   if(Context.place_mode)
+   {
+      render_text(
+         font_center,
+         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
+         centered_text_height,
+         vec3(0.8, 0.8, 0.2),
+         true,
+         "PLACE MODE"
+      );
+
+      render_text(
+         font_center_small,
+         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
+         centered_text_height_small,
+         vec3(0.8, 0.8, 0.2),
+         true,
+         "press M to alternate between move and place modes"
       );
    }
 
@@ -989,20 +1037,20 @@ void render_lightbulbs(Camera* camera)
       vec3 light_direction;
       if(selected_light_type == "point")
       {
-         assert(selected_light < point_c);
+         assert(selected_light <= point_c);
          auto light = scene->pointLights[selected_light];
          light_position = light.position;
       }
       else if(selected_light_type == "spot")
       {
-         assert(selected_light < spot_c);
+         assert(selected_light <= spot_c);
          auto light = scene->spotLights[selected_light];
          light_position = light.position;
          light_direction = light.direction;
       }
       else if(selected_light_type == "directional")
       {
-         assert(selected_light < directional_c);
+         assert(selected_light <= directional_c);
          auto light = scene->directionalLights[selected_light];
          light_position = light.position;
          light_direction = light.direction;

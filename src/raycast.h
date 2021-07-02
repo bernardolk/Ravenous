@@ -26,7 +26,7 @@ struct Ray {
 };
 
 Ray cast_pickray();
-RaycastTest test_ray_against_scene(Ray ray,  bool only_test_visible_entities);
+RaycastTest test_ray_against_scene(Ray ray,  bool only_test_visible_entities, int skip_id);
 RaycastTest test_ray_against_entity(Ray ray, Entity* entity);
 RaycastTest test_ray_against_mesh(Ray ray, Mesh* mesh, glm::mat4 matModel);
 RaycastTest test_ray_against_triangle(Ray ray, Triangle triangle);
@@ -85,7 +85,7 @@ RaycastTest test_ray_against_lights(Ray ray)
 }
 
 
-RaycastTest test_ray_against_scene(Ray ray, bool only_test_visible_entities = false)
+RaycastTest test_ray_against_scene(Ray ray, bool only_test_visible_entities = false, int skip_id = -1)
 {
    float min_distance = MAX_FLOAT;
    RaycastTest closest_hit{false, -1};
@@ -96,6 +96,8 @@ RaycastTest test_ray_against_scene(Ray ray, bool only_test_visible_entities = fa
    {
 	   auto entity = *entity_iterator++;
       if(only_test_visible_entities && (!entity->render_me || entity->wireframe))
+         continue;
+      if(entity->id == skip_id)
          continue;
          
       auto test = test_ray_against_entity(ray, entity);

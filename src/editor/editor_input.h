@@ -151,8 +151,30 @@ void handle_input_flags(InputFlags flags, Player* &player)
       {
          Context.move_axis = 3;
       }
+      if(pressed_only(flags, KEY_M))
+      {
+         Context.move_mode = false;
+         Context.place_mode = true;
+         return;
+      }
    }
 
+   // ---------------------
+   // PLACE MODE SHORTCUTS
+   // ---------------------
+   if(Context.place_mode == true)
+   {
+      if(pressed_only(flags, KEY_M))
+      {
+         Context.place_mode = false;
+         Context.move_mode = true;
+         return;
+      }
+   }
+
+   // -------------------
+   // CAMERA TYPE TOGGLE
+   // -------------------
    if(pressed_once(flags, KEY_T))
    {  // toggle camera type
       if (G_SCENE_INFO.camera->type == FREE_ROAM)

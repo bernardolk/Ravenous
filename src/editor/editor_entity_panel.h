@@ -15,6 +15,7 @@ void render_entity_panel(EntityPanelContext* panel)
    ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 550, 370), ImGuiCond_Appearing);
 
    ImGui::Begin("Entity Panel", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
+   panel->focused = ImGui::IsWindowFocused();
 
    string entity_identification = entity->name + " (" + to_string(entity->id) + ")";
    ImGui::Text(entity_identification.c_str());
@@ -139,7 +140,12 @@ void render_entity_panel(EntityPanelContext* panel)
    {
       activate_stretch_mode(entity);
    }
-   
+
+   if(ImGui::Button("Place", ImVec2(82,18)))
+   {
+      activate_place_mode(entity);
+   }
+
 
    // CHECKPOINT
    if(entity->type == CHECKPOINT)

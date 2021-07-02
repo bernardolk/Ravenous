@@ -14,6 +14,7 @@ void render_palette_panel(PalettePanelContext* panel)
       {
          auto attributes = panel->entity_palette[i];
          auto new_entity = Entity_Manager.create_entity(&attributes);
+         new_entity->position = G_SCENE_INFO.camera->Position + (2.f * new_entity->scale + 5.f) * G_SCENE_INFO.camera->Front;
          activate_move_mode(new_entity);
       }
    }

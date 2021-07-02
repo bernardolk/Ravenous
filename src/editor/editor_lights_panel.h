@@ -5,6 +5,7 @@ void open_lights_panel(string type, int index, bool focus_tab);
 vec3 compute_direction_from_angles(float pitch, float yaw);
 void compute_angles_from_direction(float& pitch, float& yaw, vec3 direction);
 
+
 void open_lights_panel(string type = "", int index = -1, bool focus_tab = false)
 {
    Context.lights_panel.active = true;
@@ -46,6 +47,7 @@ void render_lights_panel(LightsPanelContext* panel)
    ImGui::SetNextWindowPos(ImVec2(180, 80), ImGuiCond_Appearing);
    ImGui::Begin("Lights Panel", &panel->active, ImGuiWindowFlags_None);
    ImGui::SetWindowSize("Lights Panel", ImVec2(330, 900), ImGuiCond_Always);
+   panel->focused = ImGui::IsWindowFocused();
 
    ImGui::BeginTabBar("Types");
 
@@ -143,7 +145,7 @@ void render_lights_panel(LightsPanelContext* panel)
       }
 
       if(deleted_light_index > -1)
-         pointlights->erase(pointlights->begin() + deleted_light_index);
+         editor_erase_light(deleted_light_index, "point");
 
       ImGui::EndTabItem();
    }
@@ -272,8 +274,8 @@ void render_lights_panel(LightsPanelContext* panel)
          }
       }
 
-      if(deleted_light_index > -1)
-         spotlights->erase(spotlights->begin() + deleted_light_index);
+      if(deleted_light_index > -1) 
+         editor_erase_light(deleted_light_index, "spot");
 
       ImGui::EndTabItem();
    }
