@@ -37,6 +37,7 @@ bool update_player_world_cells(Player* player)
 void move_player(Player* player)
 {
    auto& v = player->entity_ptr->velocity;
+   auto& v_dir = player->v_dir;
    auto& state = player->player_state;
 
    switch(state)
@@ -47,19 +48,18 @@ void move_player(Player* player)
          if(player->dashing)
             speed *= 2;
 
-         if(!(v.x == 0.f && v.y == 0.f && v.z == 0.f))
-            v = glm::normalize(v) * speed;   
-
+         v = v_dir * speed;   
          break;
       }
       case PLAYER_STATE_JUMPING:
       {
-         // make mid-air movement controls less responsive
+         // mid air controls
          if(player->jumping_upwards)
          {
-            v.x *= player->air_friction;
-            v.z *= player->air_friction;
+            v.x = v_dir.x * player->air_speed;
+            v.z = v_dir.z * player->air_speed;
          }
+
          // dampen player y speed (vf = v0 - g*t)
          v.y -= G_FRAME_INFO.duration * player->fall_acceleration * G_FRAME_INFO.time_step;
          break;
@@ -83,7 +83,7 @@ void reset_player_velocity(Player* player)
    player->dashing = false;
 
    if(player->player_state == PLAYER_STATE_STANDING)
-      player->entity_ptr->velocity = vec3(0); 
+      player->v_dir = vec3(0.f); 
 }
 
 // -----------------
@@ -613,7 +613,7 @@ void make_player_jump(Player* player)
 {
    auto& v = player->entity_ptr->velocity;
 
-   if(abs(v.x) < 0.1 && abs(v.z) < 0.1)
+   if(abs(v.x) < 0.05 && abs(v.z) < 0.05)
       player->jumping_upwards = true;
    
    player->player_state = PLAYER_STATE_JUMPING;
@@ -642,7 +642,7 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
    }
 
    // combines all key presses into one v direction
-   auto& v = player->entity_ptr->velocity;
+   auto& v = player->v_dir;
    switch(player->player_state)
    {
       case PLAYER_STATE_JUMPING:
@@ -740,6 +740,9 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
          break;
       }
    }
+
+   if(!(v.x == 0.f && v.y == 0.f && v.z == 0.f))
+      player->v_dir = glm::normalize(v);
 
    move_player(player);
 }

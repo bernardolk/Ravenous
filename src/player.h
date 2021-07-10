@@ -17,21 +17,21 @@ struct Player {
    Entity* standing_entity_ptr;
    Entity* slope_player_was_ptr;
 
-   float speed = 3.0f;
-   float fall_speed = 0.01f;
-   float fall_acceleration = 0.2f;
-   float jump_initial_speed = 5.0f;
-   float slide_jump_speed = 8.0f;
-   float slide_speed = 3.0f;
+   // movement variables
+   vec3 v_dir = vec3(0.f);
+   float air_speed = 1.2;
+   float speed = 3.0;
+   float fall_speed = 0.01;
+   float fall_acceleration = 0.2;
+   float jump_initial_speed = 5.0;
+   float slide_jump_speed = 8.0;
+   float slide_speed = 3.0;
    float radius;
    float half_height;
 
    // movement states
    bool dashing = false;
    bool jumping_upwards = false;
-
-   // movement variables
-   float air_friction = 0.5;
 
    PlayerStateEnum player_state;
    PlayerStateEnum initial_player_state;
