@@ -19,8 +19,11 @@ struct Player {
 
    // movement variables
    vec3 v_dir = vec3(0.f);
-   float air_speed = 1.2;
-   float speed = 3.0;
+   float speed = 0;
+   float acceleration = 5.5;
+   float air_delta_speed = 0.05;
+   float run_speed = 3.0;
+   float dash_speed = 6.0;
    float fall_speed = 0.01;
    float fall_acceleration = 0.2;
    float jump_initial_speed = 5.0;
@@ -32,6 +35,7 @@ struct Player {
    // movement states
    bool dashing = false;
    bool jumping_upwards = false;
+   bool landing = false;
 
    PlayerStateEnum player_state;
    PlayerStateEnum initial_player_state;

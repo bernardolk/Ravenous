@@ -60,3 +60,36 @@ bool is_equal(vec3 vec1, vec3 vec2)
       && y_diff < VEC_COMPARE_PRECISION 
       && z_diff < VEC_COMPARE_PRECISION;
 }
+
+// compare sign
+bool comp_sign(float a, float b)
+{
+   return a * b >= 0.f;
+}
+
+// compare vector length with scalar
+
+bool square_EQ(vec3 v, float n)
+{
+   return v.x * v.x + v.y * v.y + v.z * v.z == n * n; 
+}
+
+bool square_LT(vec3 v, float n)
+{
+   return v.x * v.x + v.y * v.y + v.z * v.z < n * n; 
+}
+
+bool square_GT(vec3 v, float n)
+{
+   return v.x * v.x + v.y * v.y + v.z * v.z > n * n; 
+}
+
+bool square_LE(vec3 v, float n)
+{
+   return v.x * v.x + v.y * v.y + v.z * v.z <= n * n; 
+}
+
+bool square_GE(vec3 v, float n)
+{
+   return v.x * v.x + v.y * v.y + v.z * v.z >= n * n; 
+}

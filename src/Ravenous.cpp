@@ -171,7 +171,7 @@ void create_boilerplate_geometry();
 GLenum glCheckError_(const char* file, int line);
 EntityBuffer* allocate_entity_buffer(size_t size);
 RenderMessageBuffer* allocate_render_message_buffer(size_t size);
-void reset_message_buffer();
+void expire_messages_from_buffer();
 void start_frame();
 void check_all_entities_have_shaders();
 void setup_gl();
@@ -236,12 +236,12 @@ int main()
       // -------------
 		//	INPUT PHASE
       // -------------
-      reset_player_velocity(player);
       auto input_flags = input_phase();
 
       // -------------
 		//	UPDATE PHASE
       // -------------
+      expire_messages_from_buffer();
       switch(PROGRAM_MODE.current)
       {
          case CONSOLE_MODE:
@@ -262,7 +262,6 @@ int main()
             break;
       }
       reset_input_flags(input_flags);
-      reset_message_buffer();
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player);
       update_player_world_cells(player);
       //@todo: unless this becomes a performance problem, its easier to recompute the buffer every frame
@@ -357,7 +356,7 @@ RenderMessageBuffer* allocate_render_message_buffer(size_t size)
    return rm_buffer;
 }
 
-void reset_message_buffer()
+void expire_messages_from_buffer()
 {
    size_t size = G_BUFFERS.rm_buffer->size;
    auto item = G_BUFFERS.rm_buffer->buffer;

@@ -14,7 +14,6 @@ bool update_player_world_cells(Player* player);
 void recompute_collision_buffer_entities(Player* player);
 void reset_collision_buffer_checks();
 void move_player(Player* player);
-void reset_player_velocity(Player* player);
 
 
 bool update_player_world_cells(Player* player)
@@ -40,50 +39,62 @@ void move_player(Player* player)
    auto& v_dir = player->v_dir;
    auto& state = player->player_state;
 
+   string v_dir_string = "v_dir (" + to_string(v_dir.x) + ", " + to_string(v_dir.z) + ")";
+   G_BUFFERS.rm_buffer->add(v_dir_string, 0);
+
+   string v_string = "v (" + to_string(v.x) + ", " + to_string(v.z) + ")";
+   G_BUFFERS.rm_buffer->add(v_string, 0);
+
+   auto dt = G_FRAME_INFO.duration * G_FRAME_INFO.time_step;
+
+   bool no_move_command = v_dir.x == 0 && v_dir.z == 0;
+
    switch(state)
    {
       case PLAYER_STATE_STANDING:
       {
-         float speed = player->speed;
-         if(player->dashing)
-            speed *= 2;
+         auto& speed = player->speed;
+         float d_speed = player->acceleration * dt;
 
-         v = v_dir * speed;   
+         // deacceleration
+         bool contrary_movement = !comp_sign(v_dir.x, v.x) || !comp_sign(v_dir.z, v.z);
+         bool stopped_dashing = !player->dashing && square_GT(v + d_speed, player->run_speed);
+
+         if((speed > 0 && no_move_command) || stopped_dashing)
+            d_speed *= -1;            
+         else if(player->dashing && square_GE(v + d_speed, player->dash_speed))
+            d_speed = 0;
+
+         speed += d_speed;
+         v = speed * v_dir;    
+
          break;
       }
       case PLAYER_STATE_JUMPING:
       {
          // mid air controls
-         if(player->jumping_upwards)
+         if(player->jumping_upwards && !no_move_command)
          {
-            v.x = v_dir.x * player->air_speed;
-            v.z = v_dir.z * player->air_speed;
+            v.x += v_dir.x * player->air_delta_speed;
+            v.z += v_dir.z * player->air_delta_speed;
          }
 
          // dampen player y speed (vf = v0 - g*t)
-         v.y -= G_FRAME_INFO.duration * player->fall_acceleration * G_FRAME_INFO.time_step;
+         v.y -=  player->fall_acceleration * dt;
          break;
       }
       case PLAYER_STATE_FALLING:
       {
          // dampen player y speed (vf = v0 - g*t)
-         v.y -= G_FRAME_INFO.duration * player->fall_acceleration * G_FRAME_INFO.time_step;
+         v.y -= player->fall_acceleration * dt;
          break;
       }
    }
 
    // update player position
    player->prior_position = player->entity_ptr->position;
-   player->entity_ptr->position += v * G_FRAME_INFO.duration * G_FRAME_INFO.time_step;
+   player->entity_ptr->position += v * dt;
    return;
-}
-
-void reset_player_velocity(Player* player)
-{
-   player->dashing = false;
-
-   if(player->player_state == PLAYER_STATE_STANDING)
-      player->v_dir = vec3(0.f); 
 }
 
 // -----------------
@@ -641,8 +652,12 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
          break;
    }
 
-   // combines all key presses into one v direction
+   // reset player movement intention state
+   player->dashing = false;
    auto& v = player->v_dir;
+   v = vec3(0);
+
+   // combines all key presses into one v direction
    switch(player->player_state)
    {
       case PLAYER_STATE_JUMPING:
@@ -742,7 +757,7 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
    }
 
    if(!(v.x == 0.f && v.y == 0.f && v.z == 0.f))
-      player->v_dir = glm::normalize(v);
+      v = glm::normalize(v);
 
    move_player(player);
 }
