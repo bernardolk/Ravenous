@@ -26,12 +26,20 @@ struct Player {
    float radius;
    float half_height;
 
+   // movement states
+   bool dashing = false;
+   bool jumping_upwards = false;
+
+   // movement variables
+   float air_friction = 0.5;
+
    PlayerStateEnum player_state;
    PlayerStateEnum initial_player_state;
 
    vec3 prior_position = vec3(0);
    vec3 initial_velocity = vec3(0);
 
+   // health and hurting
    int initial_lives = 2;
    int lives = 2;
    float height_before_fall;

@@ -1,10 +1,10 @@
 void handle_common_input(InputFlags flags, Player* &player);
+void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm);
 void update_player_state(Player* &player, WorldStruct* world);
 void make_player_slide(Player* player, Entity* ramp, bool slide_fall = false);
 void make_player_jump_from_slope(Player* player);
 void run_collision_checks_standing(Player* player);
 void run_collision_checks_falling(Player* player);
-void game_handle_input(InputFlags flags, Player* &player);
 void reset_input_flags(InputFlags flags);
 void mark_entity_checked(Entity* entity);
 void resolve_collision(CollisionData collision, Player* player);
@@ -14,6 +14,8 @@ bool update_player_world_cells(Player* player);
 void recompute_collision_buffer_entities(Player* player);
 void reset_collision_buffer_checks();
 void move_player(Player* player);
+void reset_player_velocity(Player* player);
+
 
 bool update_player_world_cells(Player* player)
 {
@@ -34,10 +36,54 @@ bool update_player_world_cells(Player* player)
 
 void move_player(Player* player)
 {
-   // makes player move and register player last position
+   auto& v = player->entity_ptr->velocity;
+   auto& state = player->player_state;
+
+   switch(state)
+   {
+      case PLAYER_STATE_STANDING:
+      {
+         float speed = player->speed;
+         if(player->dashing)
+            speed *= 2;
+
+         if(!(v.x == 0.f && v.y == 0.f && v.z == 0.f))
+            v = glm::normalize(v) * speed;   
+
+         break;
+      }
+      case PLAYER_STATE_JUMPING:
+      {
+         // make mid-air movement controls less responsive
+         if(player->jumping_upwards)
+         {
+            v.x *= player->air_friction;
+            v.z *= player->air_friction;
+         }
+         // dampen player y speed (vf = v0 - g*t)
+         v.y -= G_FRAME_INFO.duration * player->fall_acceleration * G_FRAME_INFO.time_step;
+         break;
+      }
+      case PLAYER_STATE_FALLING:
+      {
+         // dampen player y speed (vf = v0 - g*t)
+         v.y -= G_FRAME_INFO.duration * player->fall_acceleration * G_FRAME_INFO.time_step;
+         break;
+      }
+   }
+
+   // update player position
    player->prior_position = player->entity_ptr->position;
-   player->entity_ptr->position += player->entity_ptr->velocity * G_FRAME_INFO.duration * G_FRAME_INFO.time_step;
+   player->entity_ptr->position += v * G_FRAME_INFO.duration * G_FRAME_INFO.time_step;
    return;
+}
+
+void reset_player_velocity(Player* player)
+{
+   player->dashing = false;
+
+   if(player->player_state == PLAYER_STATE_STANDING)
+      player->entity_ptr->velocity = vec3(0); 
 }
 
 // -----------------
@@ -99,8 +145,6 @@ void update_player_state(Player* &player, WorldStruct* world)
    {
       case PLAYER_STATE_FALLING:
       {
-         player->entity_ptr->velocity.y -= G_FRAME_INFO.duration * player->fall_acceleration * G_FRAME_INFO.time_step;
-
          // test collision with every object in scene entities vector
          run_collision_checks_falling(player);
          break;
@@ -144,10 +188,9 @@ void update_player_state(Player* &player, WorldStruct* world)
             IDEALLY we would set our target jump height and let the math work itself out from there.
             For our prototype this should be fine.
          */
-         //dampen player speed (vf = v0 - g*t)
-         player->entity_ptr->velocity.y -= G_FRAME_INFO.duration * player->fall_acceleration * G_FRAME_INFO.time_step;
          if (player->entity_ptr->velocity.y <= 0)
          {
+            player->jumping_upwards = false;
             player->entity_ptr->velocity.y = 0;
             player->player_state = PLAYER_STATE_FALLING;
          }
@@ -369,44 +412,11 @@ void resolve_collision(CollisionData collision, Player* player)
    // the point of this is to not trigger health check 
    // when player hits a wall while falling
    bool trigger_check_was_player_hurt = false;
-     
+
+   // if collided, unset mid-air controls
+   player->jumping_upwards = false;
    switch(collision.collision_outcome)
    {
-      // case JUMP_FAIL:
-      // {
-      //    trigger_check_was_player_hurt = true;
-      //    // make player "slide" towards edge and fall away from floor
-      //    std::cout << "FELL FROM EDGE" << "\n";
-      //    player->standing_entity_ptr = collision.collided_entity_ptr;
-      //    player->entity_ptr->position.y += collision.overlap; 
-         
-      //    // checks if we need to set player's velocity to the opposite direction from where he is coming
-      //    bool revert_player_movement = false;
-      //    if(collision.normal_vec.x != 0)
-      //    {
-      //       float player_movement_sign = player->entity_ptr->velocity.x > 0 ? 1 : -1;
-      //       revert_player_movement = player_movement_sign == collision.normal_vec.x;
-      //    }
-      //    else if(collision.normal_vec.y != 0)
-      //    {
-      //       float player_movement_sign = player->entity_ptr->velocity.z > 0 ? 1 : -1;
-      //       revert_player_movement = player_movement_sign == collision.normal_vec.y;
-      //    }
-
-      //    // makes player move towards OUT of the platform
-      //    if(revert_player_movement ||
-      //       (player->entity_ptr->velocity.x == 0 &&
-      //          player->entity_ptr->velocity.z == 0))
-      //    {
-      //       player->entity_ptr->velocity.x = -1 * collision.normal_vec.x * player->fall_from_edge_speed;
-      //       player->entity_ptr->velocity.z = -1 *collision.normal_vec.y * player->fall_from_edge_speed;
-      //    }
-      //    // makes player fall (combined movement in 3D, player for a moment gets "inside" the platform while he slips)
-      //    player->entity_ptr->velocity.y = - 1 * player->fall_speed;
-         
-      //    player->player_state = PLAYER_STATE_FALLING_FROM_EDGE;
-      //    break;
-      // }
       case JUMP_SUCCESS:
       {
          trigger_check_was_player_hurt = true;
@@ -540,7 +550,6 @@ void check_trigger_interaction(Player* player)
 }
 
 
-//@todo: refactor this into game mode input handle and editor mode input handle
 void handle_common_input(InputFlags flags, Player* &player)
 {
    if(pressed_once(flags, KEY_COMMA))
@@ -600,87 +609,139 @@ void handle_common_input(InputFlags flags, Player* &player)
    }
 }
 
-void game_handle_input(InputFlags flags, Player* &player)
+void make_player_jump(Player* player)
 {
-   if(player->player_state == PLAYER_STATE_STANDING)
+   auto& v = player->entity_ptr->velocity;
+
+   if(abs(v.x) < 0.1 && abs(v.z) < 0.1)
+      player->jumping_upwards = true;
+   
+   player->player_state = PLAYER_STATE_JUMPING;
+   player->height_before_fall = player->entity_ptr->position.y;
+   v.y = player->jump_initial_speed;
+}
+
+void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm)
+{
+   // assign keys
+   u64 MOV_UP, MOV_DOWN, MOV_LEFT, MOV_RIGHT;
+   switch(pm)
    {
-      // resets velocity
-      player->entity_ptr->velocity = vec3(0); 
+      case EDITOR_MODE:
+         MOV_UP    = KEY_UP;
+         MOV_DOWN  = KEY_DOWN;
+         MOV_LEFT  = KEY_LEFT;
+         MOV_RIGHT = KEY_RIGHT;
+         break;
+      case GAME_MODE:
+         MOV_UP    = KEY_W;
+         MOV_DOWN  = KEY_S;
+         MOV_LEFT  = KEY_A;
+         MOV_RIGHT = KEY_D;
+         break;
+   }
 
-      if(flags.key_press & KEY_W)
+   // combines all key presses into one v direction
+   auto& v = player->entity_ptr->velocity;
+   switch(player->player_state)
+   {
+      case PLAYER_STATE_JUMPING:
       {
-         player->entity_ptr->velocity += vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
+         // MID-AIR CONTROL IF JUMPING UP
+         if(player->jumping_upwards)
+         {
+            if(pressed(flags, MOV_UP))
+            {
+               v += vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
+            }
+            if(pressed(flags, MOV_LEFT))
+            {
+               vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
+               v -= vec3(onwards_vector.x, 0, onwards_vector.z);
+            }
+            if(pressed(flags, MOV_DOWN))
+            {
+               v -= vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
+            }
+            if(pressed(flags, MOV_RIGHT))
+            {
+               vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
+               v += vec3(onwards_vector.x, 0, onwards_vector.z);
+            }
+         }
+         break;
       }
-      if(flags.key_press & KEY_A)
+      case PLAYER_STATE_STANDING:
       {
-         vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
-         player->entity_ptr->velocity -= vec3(onwards_vector.x, 0, onwards_vector.z);
-      }
-      if(flags.key_press & KEY_S)
-      {
-         player->entity_ptr->velocity -= vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
-      }
-      if(flags.key_press & KEY_D)
-      {
-         vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
-         player->entity_ptr->velocity += vec3(onwards_vector.x, 0, onwards_vector.z);
-      }
-      // because above we sum all combos of keys pressed, here we normalize the direction and give the movement intensity
-      if(glm::length2(player->entity_ptr->velocity) > 0)
-      {
-         float player_frame_speed = player->speed;
-         if(flags.key_press & KEY_LEFT_SHIFT)  // PLAYER DASH
-            player_frame_speed *= 2;
+         // MOVE
+         if(pressed(flags, MOV_UP))
+         {
+            v += vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
+         }
+         if(pressed(flags, MOV_LEFT))
+         {
+            vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
+            v -= vec3(onwards_vector.x, 0, onwards_vector.z);
+         }
+         if(pressed(flags, MOV_DOWN))
+         {
+            v -= vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
+         }
+         if(pressed(flags, MOV_RIGHT))
+         {
+            vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
+            v += vec3(onwards_vector.x, 0, onwards_vector.z);
+         }
+         
+         // DASH
+         if(flags.key_press & KEY_LEFT_SHIFT)  
+            player->dashing = true;
+         
+         // JUMP
+         if (flags.key_press & KEY_SPACE) 
+            make_player_jump(player);
 
-         player->entity_ptr->velocity = player_frame_speed * glm::normalize(player->entity_ptr->velocity);
+         break;
       }
-      if (flags.key_press & KEY_SPACE) 
+      case PLAYER_STATE_SLIDING:
       {
-         player->player_state = PLAYER_STATE_JUMPING;
-         player->height_before_fall = player->entity_ptr->position.y;
-         player->entity_ptr->velocity.y = player->jump_initial_speed;
+         auto collision_geom = player->standing_entity_ptr->collision_geometry.slope;
+         v = player->slide_speed * collision_geom.tangent;
+
+         if (flags.key_press & MOV_LEFT)
+         {
+            float dot_product = glm::dot(collision_geom.tangent, G_SCENE_INFO.camera->Front);
+            float angle = -12.0f;
+            if (dot_product < 0)
+               angle *= -1;
+
+            auto bitangent = glm::cross(collision_geom.tangent, G_SCENE_INFO.camera->Up);
+            auto normal = glm::cross(bitangent, collision_geom.tangent);
+            auto temp_vec = glm::rotate(v, angle, normal);
+            v.x = temp_vec.x;
+            v.z = temp_vec.z;
+         }
+         if (flags.key_press & MOV_RIGHT)
+         {
+            float dot_product = glm::dot(collision_geom.tangent, G_SCENE_INFO.camera->Front);
+            float angle = 12.0f;
+            if (dot_product < 0)
+               angle *= -1;
+
+            auto bitangent = glm::cross(collision_geom.tangent, G_SCENE_INFO.camera->Up);
+            auto normal = glm::cross(bitangent, collision_geom.tangent);
+            auto temp_vec = glm::rotate(v, angle, normal);
+            v.x = temp_vec.x;
+            v.z = temp_vec.z;
+         }
+         if (flags.key_press & KEY_SPACE)
+            make_player_jump_from_slope(player);
+
+         break;
       }
    }
-   else if(player->player_state == PLAYER_STATE_SLIDING)
-   {
-      auto collision_geom = player->standing_entity_ptr->collision_geometry.slope;
-      player->entity_ptr->velocity = player->slide_speed * collision_geom.tangent;
 
-      if (flags.key_press & KEY_A)
-      {
-         float dot_product = glm::dot(collision_geom.tangent, G_SCENE_INFO.camera->Front);
-         float angle = -12.0f;
-         if (dot_product < 0)
-         {
-            angle *= -1;
-         }
-
-         auto bitangent = glm::cross(collision_geom.tangent, G_SCENE_INFO.camera->Up);
-         auto normal = glm::cross(bitangent, collision_geom.tangent);
-         auto temp_vec = glm::rotate(player->entity_ptr->velocity, angle, normal);
-         player->entity_ptr->velocity.x = temp_vec.x;
-         player->entity_ptr->velocity.z = temp_vec.z;
-      }
-      if (flags.key_press & KEY_D)
-      {
-         float dot_product = glm::dot(collision_geom.tangent, G_SCENE_INFO.camera->Front);
-         float angle = 12.0f;
-         if (dot_product < 0)
-         {
-            angle *= -1;
-         }
-
-         auto bitangent = glm::cross(collision_geom.tangent, G_SCENE_INFO.camera->Up);
-         auto normal = glm::cross(bitangent, collision_geom.tangent);
-         auto temp_vec = glm::rotate(player->entity_ptr->velocity, angle, normal);
-         player->entity_ptr->velocity.x = temp_vec.x;
-         player->entity_ptr->velocity.z = temp_vec.z;
-      }
-      if (flags.key_press & KEY_SPACE)
-      {
-         make_player_jump_from_slope(player);
-      }
-   }
+   move_player(player);
 }
 
 void reset_input_flags(InputFlags flags)

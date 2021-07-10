@@ -236,8 +236,12 @@ int main()
       // -------------
 		//	INPUT PHASE
       // -------------
+      reset_player_velocity(player);
       auto input_flags = input_phase();
 
+      // -------------
+		//	UPDATE PHASE
+      // -------------
       switch(PROGRAM_MODE.current)
       {
          case CONSOLE_MODE:
@@ -247,21 +251,19 @@ int main()
             Editor::start_frame();
             Editor::handle_input_flags(input_flags, player);
             if(!ImGui::GetIO().WantCaptureKeyboard)
+            {
+               handle_movement_input(input_flags, player, EDITOR_MODE);
                handle_common_input(input_flags, player);
+            }
             break;
          case GAME_MODE:
-            game_handle_input(input_flags, player);
+            handle_movement_input(input_flags, player, GAME_MODE);
             handle_common_input(input_flags, player);
             break;
       }
       reset_input_flags(input_flags);
-
-      // -------------
-		//	UPDATE PHASE
-      // -------------
       reset_message_buffer();
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player);
-      move_player(player);
       update_player_world_cells(player);
       //@todo: unless this becomes a performance problem, its easier to recompute the buffer every frame
       //       then to try placing this call everytime necessary
