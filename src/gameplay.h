@@ -39,15 +39,15 @@ void move_player(Player* player)
    auto& v_dir = player->v_dir;
    auto& state = player->player_state;
 
-   string v_dir_string = "v_dir (" + to_string(v_dir.x) + ", " + to_string(v_dir.z) + ")";
+   bool no_move_command = v_dir.x == 0 && v_dir.z == 0;
+
+   if(player->speed < 0.f || no_move_command)
+      player->speed = 0;
+
+   string v_dir_string = "speed: " + to_string(player->speed);
    G_BUFFERS.rm_buffer->add(v_dir_string, 0);
 
-   string v_string = "v (" + to_string(v.x) + ", " + to_string(v.z) + ")";
-   G_BUFFERS.rm_buffer->add(v_string, 0);
-
    auto dt = G_FRAME_INFO.duration * G_FRAME_INFO.time_step;
-
-   bool no_move_command = v_dir.x == 0 && v_dir.z == 0;
 
    switch(state)
    {
@@ -66,6 +66,8 @@ void move_player(Player* player)
             d_speed = 0;
 
          speed += d_speed;
+
+         // if no movement command is issued, v_dir = 0,0,0 !
          v = speed * v_dir;    
 
          break;
@@ -623,9 +625,14 @@ void handle_common_input(InputFlags flags, Player* &player)
 void make_player_jump(Player* player)
 {
    auto& v = player->entity_ptr->velocity;
+   auto& v_dir = player->v_dir;
+   bool no_move_command = v_dir.x == 0 && v_dir.z == 0;
 
-   if(abs(v.x) < 0.05 && abs(v.z) < 0.05)
+   if(no_move_command)
       player->jumping_upwards = true;
+   // minimum jump range
+   else if(square_LE(v, player->jump_horz_thrust))
+      v = v_dir * player->jump_horz_thrust;
    
    player->player_state = PLAYER_STATE_JUMPING;
    player->height_before_fall = player->entity_ptr->position.y;

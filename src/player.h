@@ -22,11 +22,12 @@ struct Player {
    float speed = 0;
    float acceleration = 5.5;
    float air_delta_speed = 0.05;
-   float run_speed = 3.0;
+   float run_speed = 4.0;
    float dash_speed = 6.0;
    float fall_speed = 0.01;
    float fall_acceleration = 0.2;
    float jump_initial_speed = 5.0;
+   float jump_horz_thrust = 2.5;
    float slide_jump_speed = 8.0;
    float slide_speed = 3.0;
    float radius;
