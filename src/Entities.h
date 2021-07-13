@@ -236,7 +236,6 @@ struct PointLight {
 };
 
 struct DirectionalLight {
-	vec3 position=  vec3(0);
 	vec3 direction = vec3(0, -1, 0);
 	vec3 diffuse = vec3(1);
 	vec3 specular = vec3(1);
@@ -248,7 +247,7 @@ struct Scene {
 	std::vector<DirectionalLight> directionalLights;
 	std::vector<PointLight> pointLights;
    std::vector<Entity*> checkpoints;
-   float global_shininess = 32.0f;
+   float global_shininess = 17;
    vec3 ambient_light = vec3(1);
    float ambient_intensity = 0;
 

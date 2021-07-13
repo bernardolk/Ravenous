@@ -281,8 +281,8 @@ void render_scene(Scene* scene, Camera* camera)
 
    int spotlight_count = 0;
    for (auto spotlight_ptr = scene->spotLights.begin(); 
-   spotlight_ptr != scene->spotLights.end(); 
-   spotlight_ptr++)
+      spotlight_ptr != scene->spotLights.end(); 
+      spotlight_ptr++)
    {
       SpotLight spotlight = *spotlight_ptr;
       string uniform_name = "spotLights[" + to_string(spotlight_count) + "]";
@@ -293,12 +293,25 @@ void render_scene(Scene* scene, Camera* camera)
       shader->setFloat(uniform_name  + ".constant",  spotlight.intensity_constant);
       shader->setFloat(uniform_name  + ".linear",    spotlight.intensity_linear);
       shader->setFloat(uniform_name  + ".quadratic", spotlight.intensity_quadratic);
-      shader->setFloat(uniform_name + ".innercone", spotlight.innercone);
-      shader->setFloat(uniform_name + ".outercone", spotlight.outercone);
+      shader->setFloat(uniform_name  + ".innercone", spotlight.innercone);
+      shader->setFloat(uniform_name  + ".outercone", spotlight.outercone);
       spotlight_count++;
    }
 
-   shader->     setInt("num_directional_light", 0);
+   int dir_count = 0;
+   for (auto dir_ptr = scene->directionalLights.begin(); 
+      dir_ptr != scene->directionalLights.end(); 
+      dir_ptr++)
+   {
+      DirectionalLight dir_light = *dir_ptr;
+      string uniform_name = "dirLights[" + to_string(dir_count) + "]";
+      shader->setFloat3(uniform_name + ".direction", dir_light.direction);
+      shader->setFloat3(uniform_name + ".diffuse",   dir_light.diffuse);
+      shader->setFloat3(uniform_name + ".specular",  dir_light.specular);
+      dir_count++;
+   }
+
+   shader->     setInt("num_directional_lights", dir_count);
    shader->     setInt("num_spot_lights",     spotlight_count);
    shader->     setInt("num_point_lights",    point_light_count);
    shader-> setMatrix4("view",                camera->View4x4);

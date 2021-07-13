@@ -215,7 +215,7 @@ int main()
    G_SCENE_INFO.active_scene->ambient_intensity = G_CONFIG.ambient_intensity;
 
    Entity_Manager.set_default_entity_attributes(            // sets some loaded assets from scene as
-      "aabb", "model", "sandstone"                          // defaults for entity construction
+      "aabb", "model", "grey"                               // defaults for entity construction
    );  
    World.update_entity_world_cells(player->entity_ptr);     // sets player to the world
    recompute_collision_buffer_entities(player);             // populates collision buffer and others

@@ -44,8 +44,8 @@ void move_player(Player* player)
    if(player->speed < 0.f || no_move_command)
       player->speed = 0;
 
-   string v_dir_string = "speed: " + to_string(player->speed);
-   G_BUFFERS.rm_buffer->add(v_dir_string, 0);
+   // string v_dir_string = "speed: " + to_string(player->speed);
+   // G_BUFFERS.rm_buffer->add(v_dir_string, 0);
 
    auto dt = G_FRAME_INFO.duration * G_FRAME_INFO.time_step;
 

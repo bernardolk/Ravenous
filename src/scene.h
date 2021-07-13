@@ -229,10 +229,6 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
       auto light = G_SCENE_INFO.active_scene->directionalLights[it];
 
       writer << "\n$directional\n"
-            << "position "
-            << light.position.x << " "
-            << light.position.y << " "
-            << light.position.z << "\n"
             << "direction "
             << light.direction.x << " "
             << light.direction.y << " "
@@ -564,7 +560,7 @@ void parse_and_load_light_source(Parser::Parse p, ifstream* reader, int& line_co
    p = parse_token(p);
    string type = p.string_buffer;
 
-   if (!(type == "point" || type == "spot"))
+   if (!(type == "point" || type == "spot" || type == "directional"))
    {
       cout << "FATAL: Unrecognized light source in scene file '" << path << "', line " << line_count << ".\n";
       assert(false);
@@ -682,6 +678,36 @@ void parse_and_load_light_source(Parser::Parse p, ifstream* reader, int& line_co
       }
 
       G_SCENE_INFO.active_scene->spotLights.push_back(spotlight);     
+   }
+   else if(type == "directional")
+   {
+      DirectionalLight light;
+
+      while(parser_nextline(reader, &line, &p))
+      {
+         line_count++;
+         p = parse_token(p);
+         const std::string property = p.string_buffer;
+
+         if(property == "direction")
+         {
+            p = parse_float_vector(p);
+            light.direction = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+         }
+         else if(property == "diffuse")
+         {
+            p = parse_float_vector(p);
+            light.diffuse = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+         }
+         else if(property == "specular")
+         {
+            p = parse_float_vector(p);
+            light.specular = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+         }
+         else break;
+      }
+
+      G_SCENE_INFO.active_scene->directionalLights.push_back(light);     
    }
 }
 

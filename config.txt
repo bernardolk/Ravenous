@@ -1,4 +1,4 @@
-scene = worldy
+scene = world
 camspeed = 13
 ambient_light = 1 1 1
-ambient_intensity = 0.32
+ambient_intensity = 0.08

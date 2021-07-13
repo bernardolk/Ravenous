@@ -1010,26 +1010,6 @@ void render_lightbulbs(Camera* camera)
       spot_c++;
    }
 
-   // directional lights
-   int directional_c = 0;
-   for(auto const& light: scene->directionalLights)
-   {
-      auto model = translate(mat4identity, light.position + vec3{0, 0.5, 0});
-      model = glm::scale(model, vec3{0.1f});
-      RenderOptions opts;
-      //opts.wireframe = true;
-      //render
-      shader->use();
-      shader->setFloat3("color", light.diffuse);
-      shader->setFloat("opacity", 1.0);
-      shader->setMatrix4("model", model);
-      shader->setMatrix4("view", camera->View4x4);
-      shader->setMatrix4("projection", camera->Projection4x4);
-      render_mesh(mesh, opts);
-
-      directional_c++;
-   }
-
    // render selection box and dir arrow for selected lightbulb
    if(selected_light >= 0)
    {
@@ -1045,13 +1025,6 @@ void render_lightbulbs(Camera* camera)
       {
          assert(selected_light <= spot_c);
          auto light = scene->spotLights[selected_light];
-         light_position = light.position;
-         light_direction = light.direction;
-      }
-      else if(selected_light_type == "directional")
-      {
-         assert(selected_light <= directional_c);
-         auto light = scene->directionalLights[selected_light];
          light_position = light.position;
          light_direction = light.direction;
       }
@@ -1073,7 +1046,7 @@ void render_lightbulbs(Camera* camera)
       render_mesh(aabb_mesh, opts);
 
       // direction arrow
-      if (selected_light_type == "spot" || selected_light_type == "directional")
+      if (selected_light_type == "spot")
       {
          float pitch, yaw;
          compute_angles_from_direction(pitch, yaw, light_direction);
