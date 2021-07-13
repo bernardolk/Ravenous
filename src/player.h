@@ -20,7 +20,7 @@ struct Player {
    // movement variables
    vec3 v_dir = vec3(0.f);
    float speed = 0;
-   float acceleration = 5.5;
+   float acceleration = 7.5;
    float air_delta_speed = 0.05;
    float run_speed = 4.0;
    float dash_speed = 6.0;
