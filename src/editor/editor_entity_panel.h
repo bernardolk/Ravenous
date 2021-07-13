@@ -122,6 +122,21 @@ void render_entity_panel(EntityPanelContext* panel)
       }
    }
 
+   // SLIDE INDICATOR
+   if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
+   {
+      string slide_type;
+      auto inclination = entity->collision_geometry.slope.inclination;
+      if(inclination > SLIDE_MAX_ANGLE)
+         slide_type = "Player will: slide fall";
+      else if(inclination > SLIDE_MIN_ANGLE)
+         slide_type = "Player will: slide";
+      else
+         slide_type = "Player will: stand";
+
+      ImGui::Text(slide_type.c_str());
+   }
+
    // ENTITY POSITIONING TOOLS
    if(ImGui::Button("Snap", ImVec2(82,18)))
    {
@@ -146,6 +161,7 @@ void render_entity_panel(EntityPanelContext* panel)
       activate_place_mode(entity);
    }
 
+   // TABS
 
    // CHECKPOINT
    if(entity->type == CHECKPOINT)
@@ -155,8 +171,7 @@ void render_entity_panel(EntityPanelContext* panel)
       ImGui::SliderFloat("radius", &entity->trigger_scale.x, 0, 10);
       ImGui::SliderFloat("height", &entity->trigger_scale.y, 0, 10);
    }
-
-   // TABS
+   
    ImGui::NewLine();
    if(ImGui::CollapsingHeader("World cells"))
    {

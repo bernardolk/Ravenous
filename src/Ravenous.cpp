@@ -409,10 +409,10 @@ void create_boilerplate_geometry()
       Vertex{vec3(0.0f, 1.0f, 1.0f),   vec3(0.0f, 0.0f, 1.0f),    vec2(0.0f, 0.5f)},   //10
       Vertex{vec3(1.0f, 1.0f, 1.0f),   vec3(0.0f, 0.0f, 1.0f),    vec2(0.5f, 0.5f)},   //11
       // back
-      Vertex{vec3(0.0f, 0.0f, 0.0f),   vec3(0.0f, 0.0f, 1.0f),    vec2(0.0f, 0.0f)},   //12
-      Vertex{vec3(0.0f, 1.0f, 0.0f),   vec3(0.0f, 0.0f, 1.0f),    vec2(0.0f, 0.5f)},   //13
-      Vertex{vec3(1.0f, 1.0f, 0.0f),   vec3(0.0f, 0.0f, 1.0f),    vec2(0.5f, 0.5f)},   //14
-      Vertex{vec3(1.0f, 0.0f, 0.0f),   vec3(0.0f, 0.0f, 1.0f),    vec2(0.5f, 0.0f)},   //15
+      Vertex{vec3(0.0f, 0.0f, 0.0f),   vec3(0.0f, 0.0f, -1.0f),    vec2(0.0f, 0.0f)},   //12
+      Vertex{vec3(0.0f, 1.0f, 0.0f),   vec3(0.0f, 0.0f, -1.0f),    vec2(0.0f, 0.5f)},   //13
+      Vertex{vec3(1.0f, 1.0f, 0.0f),   vec3(0.0f, 0.0f, -1.0f),    vec2(0.5f, 0.5f)},   //14
+      Vertex{vec3(1.0f, 0.0f, 0.0f),   vec3(0.0f, 0.0f, -1.0f),    vec2(0.5f, 0.0f)},   //15
       // left
       Vertex{vec3(0.0f, 0.0f, 0.0f),   vec3(-1.0f, 0.0f, 0.0f),   vec2(0.0f, 0.0f)},   //16
       Vertex{vec3(0.0f, 0.0f, 1.0f),   vec3(-1.0f, 0.0f, 0.0f),   vec2(0.5f, 0.0f)},   //17

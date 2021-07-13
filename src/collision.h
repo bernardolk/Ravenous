@@ -62,7 +62,7 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
 bool check_event_trigger_collision(Entity* trigger, Entity* player);
 
 
-float SLIDE_MAX_ANGLE = 1.4;
+float SLIDE_MAX_ANGLE = 2.0;
 float SLIDE_MIN_ANGLE = 0.6;
 
 auto project_entity_into_slope(Entity* entity, Entity* ramp)

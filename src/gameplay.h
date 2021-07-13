@@ -28,7 +28,7 @@ bool update_player_world_cells(Player* player)
    }
    else
    { 
-      G_BUFFERS.rm_buffer->add(update_cells.message, 3500);
+      cout << update_cells.message << "\n";
       return false;
    }
 }
@@ -89,6 +89,17 @@ void move_player(Player* player)
       {
          // dampen player y speed (vf = v0 - g*t)
          v.y -= player->fall_acceleration * dt;
+         break;
+      }
+      case PLAYER_STATE_SLIDING:
+      {
+         if(player->jumping_from_slope)
+         {
+            player->jumping_from_slope = false;
+            player->player_state = PLAYER_STATE_JUMPING;
+            player->height_before_fall = player->entity_ptr->position.y;
+            player->entity_ptr->velocity = player->v_dir * player->slide_jump_speed;
+         }
          break;
       }
    }
@@ -537,15 +548,6 @@ void make_player_slide(Player* player, Entity* ramp, bool slide_fall)
       player->player_state = PLAYER_STATE_SLIDING;
 }
 
-void make_player_jump_from_slope(Player* player)
-{
-   player->player_state = PLAYER_STATE_JUMPING;
-   player->height_before_fall = player->entity_ptr->position.y;
-   vec3 n = player->standing_entity_ptr->collision_geometry.slope.normal;
-   vec3 jump_vec = glm::normalize(vec3(n.x, 1, n.z));
-   player->entity_ptr->velocity = player->jump_initial_speed * jump_vec;
-}
-
 
 void check_trigger_interaction(Player* player)
 {
@@ -757,7 +759,11 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
             v.z = temp_vec.z;
          }
          if (flags.key_press & KEY_SPACE)
-            make_player_jump_from_slope(player);
+         {
+            vec3 n = player->standing_entity_ptr->collision_geometry.slope.normal;
+            player->jumping_from_slope = true;
+            v = glm::normalize(vec3(n.x, 1, n.z));
+         }
 
          break;
       }

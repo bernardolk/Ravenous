@@ -441,6 +441,10 @@ void render_toolbar()
    ImGui::Checkbox("Show WorldStruct Cells", &Context.show_world_cells);
    ImGui::Checkbox("Show Point Lights", &Context.show_lightbulbs);
    ImGui::NewLine();
+   if(ImGui::Button("Unhide entities"))
+   {
+      unhide_entities();
+   }
 
    ImGui::End();
 }
@@ -1090,7 +1094,7 @@ void render_lightbulbs(Camera* camera)
 void check_selection_to_open_panel()
 {
    auto pickray = cast_pickray();
-   auto test = test_ray_against_scene(pickray);
+   auto test = test_ray_against_scene(pickray, true);
    auto test_light = test_ray_against_lights(pickray);
    if(test.hit && (!test_light.hit || test_light.distance > test.distance))
       open_entity_panel(test.entity);

@@ -41,6 +41,13 @@ void editor_erase_light(int index, string type)
       Context.lights_panel.selected_light = -1;
 }
 
+void unhide_entities()
+{
+   for(auto& entity: G_SCENE_INFO.active_scene->entities)
+      if(entity->wireframe)
+         entity->wireframe = false;
+}
+
 // ----------
 // SNAP TOOL
 // ----------
