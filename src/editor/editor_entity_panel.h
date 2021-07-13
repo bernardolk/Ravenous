@@ -193,7 +193,6 @@ void render_entity_panel(EntityPanelContext* panel)
       {
          duplicated = true;
          auto new_entity = Entity_Manager.copy_entity(entity);
-         activate_move_mode(new_entity);
          open_entity_panel(new_entity);
       }
 
