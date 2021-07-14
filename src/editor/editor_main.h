@@ -626,36 +626,29 @@ void render_text_overlay(Player* player)
 
 
    // PLAYER STATE
-   vec3 player_state_text_color;
+   vec3 player_state_text_color = vec3(0, 0, 0);
    std::string player_state_text;
    switch(player->player_state)
    {
       case PLAYER_STATE_STANDING:
-         player_state_text_color = vec3(0, 0.8, 0.1);
          player_state_text = "PLAYER STANDING";
          break;
       case PLAYER_STATE_FALLING:
-         player_state_text_color = vec3(0.8, 0.1, 0.1);
          player_state_text = "PLAYER FALLING";
          break;
       case PLAYER_STATE_FALLING_FROM_EDGE:
-         player_state_text_color = vec3(0.8, 0.1, 0.3);
          player_state_text = "PLAYER FALLING FROM EDGE";
          break;
       case PLAYER_STATE_JUMPING:
-         player_state_text_color = vec3(0.1, 0.3, 0.8);
          player_state_text = "PLAYER JUMPING";
          break;
       case PLAYER_STATE_SLIDING:
-         player_state_text_color = vec3(0.1, 0.3, 0.8);
          player_state_text = "PLAYER SLIDING";
          break;
       case PLAYER_STATE_SLIDE_FALLING:
-         player_state_text_color = vec3(0.1, 0.3, 0.8);
          player_state_text = "PLAYER SLIDE FALLING";
          break;
       case PLAYER_STATE_EVICTED_FROM_SLOPE:
-         player_state_text_color = vec3(0.1, 0.3, 0.8);
          player_state_text = "PLAYER EVICTED FROM SLOPE";
          break;
    }
@@ -664,7 +657,7 @@ void render_text_overlay(Player* player)
    if(player->standing_entity_ptr != NULL)
       player_floor += player->standing_entity_ptr->name;
    render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 60, player_floor);
-   render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 30, player_state_text_color, player_state_text);
+   render_text("consola18", G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 30, player_state_text_color, player_state_text);
 
 
    // FPS

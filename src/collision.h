@@ -11,7 +11,7 @@ struct SlopeHeightsPlayer
 };
 
 Collision get_vertical_overlap_player_vs_aabb(Entity* entity, Entity* player);
-bool intersects_vertically_with_aabb(Entity* entity, Player* player);
+bool intersects_vertically_or_cull(Entity* entity, Player* player);
 Collision get_horizontal_overlap_with_player(Entity* entity, Player* player);
 float get_distance_from_slope(Entity* slope, Player* player);
 float get_slope_height_at_position(vec3 position, Entity* slope);
@@ -27,10 +27,20 @@ CollisionData check_collision_horizontal(
 ); 
 CollisionData check_collision_vertical(Player* player, EntityBufferElement* entity_iterator, int entity_list_size);
 bool check_event_trigger_collision(Entity* trigger, Entity* player);
+bool player_qualifies_as_standing(Player* player);
 
 
 float SLIDE_MAX_ANGLE = 2.0;
 float SLIDE_MIN_ANGLE = 0.6;
+
+bool player_qualifies_as_standing(Player* player)
+{
+   // this serves only to enable us to check for standing_entity_ptr, otherwise its NULL and we get an exception
+   return player->player_state == PLAYER_STATE_STANDING  || 
+      player->player_state == PLAYER_STATE_SLIDING       ||
+      player->player_state == PLAYER_STATE_SLIDE_FALLING;
+}
+
 
 auto project_entity_into_slope(Entity* entity, Entity* ramp)
 {
@@ -85,12 +95,12 @@ Collision get_vertical_overlap_player_vs_aabb(Entity* entity, Entity* player)
 }
 
 
-bool intersects_vertically_with_aabb(Entity* entity, Player* player)
+bool intersects_vertically_or_cull(Entity* entity, Player* player)
 {
    // if we are standing in a slope, then we need to check which player height we want to check against,
    // because at each point that the player touches the slope he has a different height
    // @todo: shouldnt here we ask (player_qualifies_as_standing) ? If sliding, doesnt this matter too?
-   if(player->player_state == PLAYER_STATE_STANDING &&
+   if(player_qualifies_as_standing(player) &&
       player->standing_entity_ptr->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
    {
       float box_height  = entity->collision_geometry.aabb.height;
@@ -315,23 +325,29 @@ RaycastTest check_for_floor_below_player(Player* player)
 CollisionData check_collision_horizontal(Player* player, EntityBufferElement* entity_iterator, int entity_list_size) 
 {
    CollisionData return_cd; 
-   // this serves only to enable us to check for standing_entity_ptr, otherwise its NULL and we get an exception
-   bool player_qualifies_as_standing = 
-      player->player_state == PLAYER_STATE_STANDING || 
-      player->player_state == PLAYER_STATE_SLIDING  ||
-      player->player_state == PLAYER_STATE_SLIDE_FALLING;
 
    for (int i = 0; i < entity_list_size; i++)
    {
 	   Entity* &entity = entity_iterator->entity;
-	   float biggest_overlap = -1;
+      if(entity->name == "Player")
+      {
+         entity_iterator++;
+         continue;
+      }
+
+	   float biggest_overlap = -1; //@wtf why is this inside the loop?
       Collision collision;
       bool set_collided_entity = false;
-      bool entity_is_not_player_current_ground = !(player_qualifies_as_standing && player->standing_entity_ptr == entity);
+      bool entity_is_not_player_current_ground = !(player_qualifies_as_standing(player) && player->standing_entity_ptr == entity);
 	   if (entity_iterator->collision_check == false && entity_is_not_player_current_ground)
       {    
+         if(!intersects_vertically_or_cull(entity, player))
+         {
+            entity_iterator++;
+            continue;
+         }
          // AABB
-         if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX && intersects_vertically_with_aabb(entity, player))
+         else if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX)
          {
             collision = get_horizontal_overlap_with_player(entity, player);
 
@@ -362,7 +378,7 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
             if(is_equal(collision.normal_vec, -1.0f * slope_2d_tangent))
             {
                // if slope is very inclined...
-               if(player_qualifies_as_standing && col_geometry.inclination > SLIDE_MIN_ANGLE)
+               if(player_qualifies_as_standing(player) && col_geometry.inclination > SLIDE_MIN_ANGLE)
                {
                   // ...then, we care if the player cylinder touches the slope in any way (cylinder tips count)
                   if(intersects_vertically_with_slope(entity, player->entity_ptr))
@@ -421,21 +437,28 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
    for (int i = 0; i < entity_list_size; i++)
    {
 	   Entity* &entity = entity_iterator->entity;
-	   float biggest_overlap = -1;
+      if(entity->name == "Player")
+      {
+         entity_iterator++;
+         continue;
+      }
+
+	   float biggest_overlap = -1; //@wtf why is this inside the loop?
 	   if (entity_iterator->collision_check == false)
       {   
-         float vertical_overlap = -1;
+         float vertical_overlap = -1; 
          Collision v_overlap_collision; // for ceilling hit detection
          Collision horizontal_check;
+
+         if(!intersects_vertically_or_cull(entity, player))
+         { 
+            entity_iterator++; 
+            continue; 
+         }
          
          // A) CHECKS ENTITY GEOMETRIC TYPE
          if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX)
          {
-            if(!intersects_vertically_with_aabb(entity, player))
-            { 
-               entity_iterator++; 
-               continue; 
-            }
             v_overlap_collision = get_vertical_overlap_player_vs_aabb(entity, player->entity_ptr);
             vertical_overlap = v_overlap_collision.overlap;
             horizontal_check = get_horizontal_overlap_with_player(entity, player);
