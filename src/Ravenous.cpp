@@ -128,10 +128,9 @@ struct ProgramConfig {
 #include <camera.h>
 #include <parser.h>
 #include <world.h>
+#include <collision_data.h>
 #include <globals.h>
 #include <entity_manager.h>
-
-int COLLISION_BUFFER_CAPACITY = WORLD_CELL_CAPACITY * 8;
 
 // entity manager
 EntityManager Entity_Manager;
@@ -171,7 +170,9 @@ void create_boilerplate_geometry();
 GLenum glCheckError_(const char* file, int line);
 EntityBuffer* allocate_entity_buffer(size_t size);
 RenderMessageBuffer* allocate_render_message_buffer(size_t size);
+CollisionLog* allocate_collision_log_buffer(size_t size);
 void expire_messages_from_buffer();
+void clear_collision_log_buffer();
 void start_frame();
 void check_all_entities_have_shaders();
 void setup_gl();
@@ -194,10 +195,9 @@ int main()
    create_boilerplate_geometry();
 
    // Allocate buffers
-   EntityBuffer* entity_buffer = allocate_entity_buffer(COLLISION_BUFFER_CAPACITY);
-   G_BUFFERS.entity_buffer = entity_buffer;
-   RenderMessageBuffer* render_message_buffer = allocate_render_message_buffer(10);
-   G_BUFFERS.rm_buffer = render_message_buffer;
+   G_BUFFERS.entity_buffer = allocate_entity_buffer(COLLISION_BUFFER_CAPACITY);;
+   G_BUFFERS.rm_buffer = allocate_render_message_buffer(MESSAGE_BUFFER_CAPACITY);
+   G_BUFFERS.collision_log = allocate_collision_log_buffer(COLLISION_LOG_CAPACITY);
    initialize_console_buffers();
 
    // Initialises immediate draw
@@ -242,6 +242,7 @@ int main()
 		//	UPDATE PHASE
       // -------------
       expire_messages_from_buffer();
+      clear_collision_log_buffer();
       switch(PROGRAM_MODE.current)
       {
          case CONSOLE_MODE:
@@ -356,6 +357,14 @@ RenderMessageBuffer* allocate_render_message_buffer(size_t size)
    return rm_buffer;
 }
 
+CollisionLog* allocate_collision_log_buffer(size_t size)
+{
+   auto collision_log = new CollisionLog;
+   collision_log->entries = (CollisionLogEntry*) malloc(sizeof(CollisionLogEntry) * size);
+   collision_log->size = 0;
+   return collision_log;
+}
+
 void expire_messages_from_buffer()
 {
    size_t size = G_BUFFERS.rm_buffer->size;
@@ -371,6 +380,17 @@ void expire_messages_from_buffer()
    }
 }
 
+void clear_collision_log_buffer()
+{
+   for(int i = 0; i < G_BUFFERS.collision_log->size; i ++)
+   {
+      auto entry = G_BUFFERS.collision_log->entries[i];
+      entry.entity = NULL;
+      entry.outcome = NO_OUTCOME;
+      entry.iteration = -1;
+   }
+   G_BUFFERS.collision_log->size = 0;
+}
 
 void create_boilerplate_geometry()
 {
@@ -699,6 +719,9 @@ void setup_gl()
 	glEnable(GL_DEPTH_TEST);
    glEnable(GL_BLEND);
    glEnable(GL_PROGRAM_POINT_SIZE);
+   glEnable(GL_CULL_FACE);
+   glCullFace(GL_BACK);
+   glFrontFace(GL_CCW);  
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//Sets opengl to require just 1 byte per pixel in textures
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);

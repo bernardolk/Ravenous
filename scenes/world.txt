@@ -1,4 +1,4 @@
-*8.9451 3.6072 -9.8727  -0.5603 -0.5850 0.5864
+*-10.8039 -17.2655 9.6806  0.9727 -0.2198 -0.0749
 @player_position = -3.5250 -10.0250 4.1204
 @player_initial_velocity = 0.0000 0.0000 0.0000
 @player_state = 0
@@ -197,6 +197,7 @@ mesh aabb
 shader model
 texture texture_diffuse grey grey.jpg
 collision aabb
+hidden
 
 #NONAME
 position -0.2434 -8.1000 7.4481
@@ -215,6 +216,7 @@ mesh aabb
 shader model
 texture texture_diffuse grey grey.jpg
 collision aabb
+hidden
 
 #NONAME
 position 2.7566 -12.8470 3.7400
@@ -260,6 +262,7 @@ mesh aabb
 shader model
 texture texture_diffuse grey grey.jpg
 collision aabb
+hidden
 
 #NONAME
 position -4.4500 -12.8470 3.7400
@@ -269,6 +272,7 @@ mesh aabb
 shader model
 texture texture_diffuse grey grey.jpg
 collision aabb
+hidden
 
 #NONAME
 position -6.0000 -12.8470 3.7400
@@ -278,6 +282,7 @@ mesh aabb
 shader model
 texture texture_diffuse grey grey.jpg
 collision aabb
+hidden
 
 #NONAME
 position -7.5000 -12.8470 3.7400
@@ -287,6 +292,7 @@ mesh aabb
 shader model
 texture texture_diffuse grey grey.jpg
 collision aabb
+hidden
 
 #NONAME
 position -10.9430 -12.3468 -6.4600
@@ -305,6 +311,7 @@ mesh aabb
 shader model
 texture texture_diffuse grey grey.jpg
 collision aabb
+hidden
 
 #NONAME
 position -7.9769 -12.4000 2.2011
@@ -539,6 +546,7 @@ mesh aabb
 shader model
 texture texture_diffuse grey grey.jpg
 collision aabb
+hidden
 
 #NONAME
 position -3.8667 -12.8479 11.2941
@@ -548,6 +556,7 @@ mesh slope
 shader model
 texture texture_diffuse grey grey.jpg
 collision slope
+hidden
 
 #NONAME
 position -7.5000 -14.0633 10.8550
@@ -557,6 +566,7 @@ mesh aabb
 shader model
 texture texture_diffuse grey grey.jpg
 collision aabb
+hidden
 
 #NONAME
 position -7.0175 -8.1000 11.1835
@@ -566,6 +576,7 @@ mesh aabb
 shader model
 texture texture_diffuse grey grey.jpg
 collision aabb
+hidden
 
 #NONAME
 position -4.0650 -10.9990 7.6880
@@ -575,6 +586,7 @@ mesh aabb
 shader model
 texture texture_diffuse grey grey.jpg
 collision aabb
+hidden
 
 #NONAME
 position -3.8667 -10.2480 11.2941
@@ -584,6 +596,7 @@ mesh slope
 shader model
 texture texture_diffuse grey grey.jpg
 collision slope
+hidden
 
 #NONAME
 position -3.8667 -10.1143 10.3383
@@ -593,6 +606,7 @@ mesh aabb
 shader model
 texture texture_diffuse grey grey.jpg
 collision aabb
+hidden
 
 #NONAME
 position -2.9500 -12.8470 3.7400
@@ -602,3 +616,4 @@ mesh aabb
 shader model
 texture texture_diffuse grey grey.jpg
 collision aabb
+hidden

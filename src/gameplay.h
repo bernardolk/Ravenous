@@ -5,7 +5,6 @@ void make_player_slide(Player* player, Entity* ramp, bool slide_fall = false);
 void make_player_jump_from_slope(Player* player);
 void run_collision_checks_standing(Player* player);
 void run_collision_checks_falling(Player* player);
-void reset_input_flags(InputFlags flags);
 void mark_entity_checked(Entity* entity);
 void resolve_collision(CollisionData collision, Player* player);
 void check_for_floor_transitions(Player* player);
@@ -153,7 +152,27 @@ void reset_collision_buffer_checks()
    for(int i = 0; i < G_BUFFERS.entity_buffer->size; i++)
       G_BUFFERS.entity_buffer->buffer[i].collision_check = false;
 }
+
+void mark_entity_checked(Entity* entity)
+{
+   // marks entity in entity buffer as checked so we dont check collisions for this entity twice (nor infinite loop)
+   auto entity_buffer = G_BUFFERS.entity_buffer;
+   auto entity_element = entity_buffer->buffer;
+   for(int i = 0; i < entity_buffer->size; ++i)
+   {
+      if(entity_element->entity == entity)
+      {
+         entity_element->collision_check = true;
+         break;
+      }
+      entity_element++;
+   }
+}
  
+
+// ---------------------
+// UPDATE PLAYER STATE
+// --------------------- 
 void update_player_state(Player* &player, WorldStruct* world)
 {
    Entity* &player_entity = player->entity_ptr;
@@ -337,6 +356,67 @@ void update_player_state(Player* &player, WorldStruct* world)
    }
 } 
 
+void make_player_jump(Player* player)
+{
+   auto& v = player->entity_ptr->velocity;
+   auto& v_dir = player->v_dir;
+   bool no_move_command = v_dir.x == 0 && v_dir.z == 0;
+
+   if(no_move_command)
+      player->jumping_upwards = true;
+   // minimum jump range
+   else if(square_LE(v, player->jump_horz_thrust))
+      v = v_dir * player->jump_horz_thrust;
+   
+   player->player_state = PLAYER_STATE_JUMPING;
+   player->height_before_fall = player->entity_ptr->position.y;
+   v.y = player->jump_initial_speed;
+}
+
+void make_player_slide(Player* player, Entity* ramp, bool slide_fall)
+{
+   std::cout << "SLIDE FALLING" << "\n";
+   player->standing_entity_ptr = ramp;
+   auto height_check = get_terrain_height_at_player(player->entity_ptr, ramp);
+   player->entity_ptr->position.y = height_check.overlap + player->half_height;
+   // make player 'snap' to slope
+   auto collision_geom = ramp->collision_geometry.slope;
+   auto &pv = player->entity_ptr->velocity;
+   // make camera (player) turn to face either up or down the slope
+
+   //auto pv_2d = vec2(pv.x, pv.z);
+   // if(G_SCENE_INFO.view_mode == FIRST_PERSON)
+   // {
+   //    auto t_2d = vec2(collision_geom.tangent.x, collision_geom.tangent.z);
+   //    auto dot = glm::dot(pv_2d, t_2d);
+   //    if(dot == 0) dot = 1;   // compensates for orthogonal v and tangent
+   //    auto projected = (dot/glm::length2(t_2d))*t_2d;
+   //    auto camera_dir = vec3(projected.x, G_SCENE_INFO.camera->Front.y, projected.y);
+   //    camera_look_at(G_SCENE_INFO.camera, camera_dir, false);
+   // }
+
+   pv = player->slide_speed * collision_geom.tangent;
+   if(slide_fall)
+      player->player_state = PLAYER_STATE_SLIDE_FALLING;
+   else
+      player->player_state = PLAYER_STATE_SLIDING;
+}
+
+
+void check_trigger_interaction(Player* player)
+{
+   auto checkpoints = G_SCENE_INFO.active_scene->checkpoints;
+   for(int i = 0; i < checkpoints.size(); i++)
+   {
+      auto checkpoint = checkpoints[i];
+      auto triggered = check_event_trigger_collision(checkpoint, player->entity_ptr);
+      if(triggered)
+      {
+         G_BUFFERS.rm_buffer->add("TRIGGERED", 1000);
+         player->set_checkpoint(checkpoint);
+      }
+   }
+}
 
 void check_for_floor_transitions(Player* player)
 {
@@ -357,21 +437,25 @@ void check_for_floor_transitions(Player* player)
    }
 }
 
-// ________________________________________________________________________________
-//
-// SCENE COLLISION CONTROLLER FUNCTIONS - ITERATIVE MULTI-CHECK COLLISION DETECTION 
-// ________________________________________________________________________________
+// -------------------------------------
+// SCENE COLLISION CONTROLLER FUNCTIONS
+// -------------------------------------
+//    iterative collision detection
+// -------------------------------------
 
 void run_collision_checks_standing(Player* player)
 {
    auto entity_buffer = G_BUFFERS.entity_buffer;
+   int c = -1;
    while(true)
    {
+      c++;
       auto buffer = entity_buffer->buffer;  // places pointer back to start
       CollisionData collision_data = check_collision_horizontal(player, buffer, entity_buffer->size);
       if(collision_data.collided_entity_ptr != NULL)
       {
          mark_entity_checked(collision_data.collided_entity_ptr);
+         log_collision(collision_data, c);
          resolve_collision(collision_data, player);
       }
       else break;
@@ -386,9 +470,11 @@ void run_collision_checks_falling(Player* player)
    // to be resolved once thats done. Horizontal checks come after vertical collisions because players 
    // shouldnt loose the chance to make their jump because we are preventing them from getting stuck first.
 
-   auto entity_buffer = G_BUFFERS.entity_buffer;  
+   auto entity_buffer = G_BUFFERS.entity_buffer;
+   int c = -1;
    while(true)
    {
+      c++;
       bool any_collision = false;
       // CHECKS VERTICAL COLLISIONS
       {
@@ -398,6 +484,7 @@ void run_collision_checks_falling(Player* player)
          {
             any_collision = true;
             mark_entity_checked(v_collision_data.collided_entity_ptr);
+            log_collision(v_collision_data, c);
             resolve_collision(v_collision_data, player);
          }
 
@@ -407,27 +494,12 @@ void run_collision_checks_falling(Player* player)
          {
             any_collision = true;
             mark_entity_checked(h_collision_data.collided_entity_ptr);
+            log_collision(h_collision_data, c);
             resolve_collision(h_collision_data, player);
          }
 
          if(!any_collision) break;
       }
-   }
-}
-
-void mark_entity_checked(Entity* entity)
-{
-   // marks entity in entity buffer as checked so we dont check collisions for this entity twice (nor infinite loop)
-   auto entity_buffer = G_BUFFERS.entity_buffer;
-   auto entity_element = entity_buffer->buffer;
-   for(int i = 0; i < entity_buffer->size; ++i)
-   {
-      if(entity_element->entity == entity)
-      {
-         entity_element->collision_check = true;
-         break;
-      }
-      entity_element++;
    }
 }
 
@@ -518,129 +590,9 @@ void resolve_collision(CollisionData collision, Player* player)
    if(trigger_check_was_player_hurt) player->maybe_hurt_from_fall();
 }
 
-
-void make_player_slide(Player* player, Entity* ramp, bool slide_fall)
-{
-   std::cout << "SLIDE FALLING" << "\n";
-   player->standing_entity_ptr = ramp;
-   auto height_check = get_terrain_height_at_player(player->entity_ptr, ramp);
-   player->entity_ptr->position.y = height_check.overlap + player->half_height;
-   // make player 'snap' to slope
-   auto collision_geom = ramp->collision_geometry.slope;
-   auto &pv = player->entity_ptr->velocity;
-   // make camera (player) turn to face either up or down the slope
-
-   //auto pv_2d = vec2(pv.x, pv.z);
-   // if(G_SCENE_INFO.view_mode == FIRST_PERSON)
-   // {
-   //    auto t_2d = vec2(collision_geom.tangent.x, collision_geom.tangent.z);
-   //    auto dot = glm::dot(pv_2d, t_2d);
-   //    if(dot == 0) dot = 1;   // compensates for orthogonal v and tangent
-   //    auto projected = (dot/glm::length2(t_2d))*t_2d;
-   //    auto camera_dir = vec3(projected.x, G_SCENE_INFO.camera->Front.y, projected.y);
-   //    camera_look_at(G_SCENE_INFO.camera, camera_dir, false);
-   // }
-
-   pv = player->slide_speed * collision_geom.tangent;
-   if(slide_fall)
-      player->player_state = PLAYER_STATE_SLIDE_FALLING;
-   else
-      player->player_state = PLAYER_STATE_SLIDING;
-}
-
-
-void check_trigger_interaction(Player* player)
-{
-   auto checkpoints = G_SCENE_INFO.active_scene->checkpoints;
-   for(int i = 0; i < checkpoints.size(); i++)
-   {
-      auto checkpoint = checkpoints[i];
-      auto triggered = check_event_trigger_collision(checkpoint, player->entity_ptr);
-      if(triggered)
-      {
-         G_BUFFERS.rm_buffer->add("TRIGGERED", 1000);
-         player->set_checkpoint(checkpoint);
-      }
-   }
-}
-
-
-void handle_common_input(InputFlags flags, Player* &player)
-{
-   if(pressed_once(flags, KEY_COMMA))
-   {
-      if(G_FRAME_INFO.time_step > 0)
-      {
-         G_FRAME_INFO.time_step -= 0.025; 
-      }
-   }
-   if(pressed_once(flags, KEY_PERIOD))
-   {
-      if(G_FRAME_INFO.time_step < 3)
-      {
-         G_FRAME_INFO.time_step += 0.025;
-      }
-   }
-   if(pressed_once(flags, KEY_1))
-   {
-      G_BUFFERS.rm_buffer->add("TIME STEP x0.05", 1000);
-      G_FRAME_INFO.time_step = 0.05;
-   }
-   if(pressed_once(flags, KEY_2))
-   {
-      G_BUFFERS.rm_buffer->add("TIME STEP x0.1", 1000);
-      G_FRAME_INFO.time_step = 0.1;
-   }
-   if(pressed_once(flags, KEY_3))
-   {
-      G_BUFFERS.rm_buffer->add("TIME STEP x1.0", 1000);
-      G_FRAME_INFO.time_step = 1.0;
-   }
-   if(pressed_once(flags, KEY_4))
-   {
-      G_BUFFERS.rm_buffer->add("TIME STEP x0.3", 1000);
-      G_FRAME_INFO.time_step = 0.3;
-   }
-   if(pressed_once(flags, KEY_5))
-   {
-      G_BUFFERS.rm_buffer->add("TIME STEP x2.0", 1000);
-      G_FRAME_INFO.time_step = 2.0;
-   }
-   if(flags.key_press & KEY_K)
-   {
-      player->die();
-   }
-   if(pressed_once(flags, KEY_F))
-   {
-      toggle_program_modes(player);
-   }
-   if(pressed_once(flags, KEY_J))
-   {
-      check_trigger_interaction(player);
-   }
-   if(flags.key_press & KEY_ESC && flags.key_press & KEY_LEFT_SHIFT)
-   {
-       glfwSetWindowShouldClose(G_DISPLAY_INFO.window, true);
-   }
-}
-
-void make_player_jump(Player* player)
-{
-   auto& v = player->entity_ptr->velocity;
-   auto& v_dir = player->v_dir;
-   bool no_move_command = v_dir.x == 0 && v_dir.z == 0;
-
-   if(no_move_command)
-      player->jumping_upwards = true;
-   // minimum jump range
-   else if(square_LE(v, player->jump_horz_thrust))
-      v = v_dir * player->jump_horz_thrust;
-   
-   player->player_state = PLAYER_STATE_JUMPING;
-   player->height_before_fall = player->entity_ptr->position.y;
-   v.y = player->jump_initial_speed;
-}
-
+// ---------------
+// GAMEPLAY INPUT
+// ---------------
 void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm)
 {
    // assign keys
@@ -775,9 +727,64 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
    move_player(player);
 }
 
-void reset_input_flags(InputFlags flags)
+// --------------
+// SYSTEMS INPUT
+// --------------
+void handle_common_input(InputFlags flags, Player* &player)
 {
-   // here we record a history for if keys were last pressed or released, so to enable smooth toggle
-   G_INPUT_INFO.key_state |= flags.key_press;
-   G_INPUT_INFO.key_state &= ~(flags.key_release); 
+   if(pressed_once(flags, KEY_COMMA))
+   {
+      if(G_FRAME_INFO.time_step > 0)
+      {
+         G_FRAME_INFO.time_step -= 0.025; 
+      }
+   }
+   if(pressed_once(flags, KEY_PERIOD))
+   {
+      if(G_FRAME_INFO.time_step < 3)
+      {
+         G_FRAME_INFO.time_step += 0.025;
+      }
+   }
+   if(pressed_once(flags, KEY_1))
+   {
+      G_BUFFERS.rm_buffer->add("TIME STEP x0.05", 1000);
+      G_FRAME_INFO.time_step = 0.05;
+   }
+   if(pressed_once(flags, KEY_2))
+   {
+      G_BUFFERS.rm_buffer->add("TIME STEP x0.1", 1000);
+      G_FRAME_INFO.time_step = 0.1;
+   }
+   if(pressed_once(flags, KEY_3))
+   {
+      G_BUFFERS.rm_buffer->add("TIME STEP x1.0", 1000);
+      G_FRAME_INFO.time_step = 1.0;
+   }
+   if(pressed_once(flags, KEY_4))
+   {
+      G_BUFFERS.rm_buffer->add("TIME STEP x0.3", 1000);
+      G_FRAME_INFO.time_step = 0.3;
+   }
+   if(pressed_once(flags, KEY_5))
+   {
+      G_BUFFERS.rm_buffer->add("TIME STEP x2.0", 1000);
+      G_FRAME_INFO.time_step = 2.0;
+   }
+   if(flags.key_press & KEY_K)
+   {
+      player->die();
+   }
+   if(pressed_once(flags, KEY_F))
+   {
+      toggle_program_modes(player);
+   }
+   if(pressed_once(flags, KEY_J))
+   {
+      check_trigger_interaction(player);
+   }
+   if(flags.key_press & KEY_ESC && flags.key_press & KEY_LEFT_SHIFT)
+   {
+       glfwSetWindowShouldClose(G_DISPLAY_INFO.window, true);
+   }
 }

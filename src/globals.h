@@ -6,6 +6,11 @@ std::map<string, Texture> Texture_Catalogue;
 typedef std::map<GLchar, Character> gl_charmap;
 std::map<string, gl_charmap> Font_Catalogue;
 
+
+size_t COLLISION_LOG_CAPACITY = 20;
+size_t COLLISION_BUFFER_CAPACITY = WORLD_CELL_CAPACITY * 8;
+size_t MESSAGE_BUFFER_CAPACITY = 10;
+
 // World
 WorldStruct World;
 
@@ -32,6 +37,18 @@ struct RenderMessageBufferElement {
    string message = "";
    float elapsed = 0;
    float duration = 0;
+};
+
+// collision log
+struct CollisionLogEntry {
+   Entity* entity;
+   CollisionOutcomeEnum outcome;
+   int iteration;
+};
+
+struct CollisionLog {
+   CollisionLogEntry* entries;
+   int size;
 };
 
 struct RenderMessageBuffer {
@@ -70,4 +87,22 @@ struct RenderMessageBuffer {
 struct GlobalBuffers {
    EntityBuffer* entity_buffer;
    RenderMessageBuffer* rm_buffer;
+   CollisionLog* collision_log;
 } G_BUFFERS;
+
+
+void log_collision(CollisionData data, int iteration)
+{
+   int& size = G_BUFFERS.collision_log->size;
+   if(size == COLLISION_LOG_CAPACITY)
+   {
+      G_BUFFERS.rm_buffer->add("Warning: Collision Log is full.", 3000);
+      return;
+   }
+
+   CollisionLogEntry entry;
+   entry.entity = data.collided_entity_ptr;
+   entry.outcome = data.collision_outcome;
+   entry.iteration = iteration;
+   G_BUFFERS.collision_log->entries[size++] = entry;
+}

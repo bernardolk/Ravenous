@@ -16,6 +16,7 @@ bool pressed(InputFlags flags, u64 key);
 bool pressed_once(InputFlags flags, u64 key);
 bool pressed_only(InputFlags flags, u64 key);
 void check_mouse_click_hold();
+void reset_input_flags(InputFlags flags);
 
 u64 KEY_Q               = 1LL << 0;
 u64 KEY_W               = 1LL << 1;
@@ -515,4 +516,11 @@ void check_mouse_click_hold()
       G_INPUT_INFO.mouse_state &= ~(MOUSE_LB_CLICK);
       G_INPUT_INFO.mouse_state |= MOUSE_LB_HOLD;
    }
+}
+
+void reset_input_flags(InputFlags flags)
+{
+   // here we record a history for if keys were last pressed or released, so to enable smooth toggle
+   G_INPUT_INFO.key_state |= flags.key_press;
+   G_INPUT_INFO.key_state &= ~(flags.key_release); 
 }
