@@ -612,6 +612,7 @@ void setup_GLFW(bool debug) {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+   glfwWindowHint(GLFW_SAMPLES, 4);
 
 	// Creates the window
 	G_DISPLAY_INFO.window = glfwCreateWindow(G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, "Ravenous", NULL, NULL);
@@ -701,4 +702,5 @@ void setup_gl()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//Sets opengl to require just 1 byte per pixel in textures
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+   glEnable(GL_MULTISAMPLE);
 }
