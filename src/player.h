@@ -65,6 +65,11 @@ struct Player {
       return entity_ptr->position - vec3(0.0f, half_height, 0.0f);
    }
 
+   vec3 top()
+   {
+      return entity_ptr->position + vec3(0.0f, half_height, 0.0f);
+   }
+
    bool maybe_hurt_from_fall()
    {
       float fall_height = height_before_fall - entity_ptr->position.y;
@@ -105,5 +110,6 @@ struct Player {
    {
       goto_checkpoint();
       lives = initial_lives;
+      player_state = PLAYER_STATE_STANDING;
    }
 };
