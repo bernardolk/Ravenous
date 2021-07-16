@@ -12,6 +12,21 @@ enum PlayerStateEnum {
    PLAYER_STATE_EVICTED_FROM_SLOPE
 };
 
+// ----------
+// Animation
+// ----------
+enum PlayerAnimationState {
+   P_ANIM_NO_ANIM = 999,
+   P_ANIM_JUMPING = 0,
+   P_ANIM_LANDING = 1
+};
+
+float P_ANIM_DURATION[] = {
+   400,                          // 0 - jumping
+   200                           // 1 - landing                  
+};
+
+
 struct Player {
    Entity* entity_ptr;
    Entity* standing_entity_ptr;
@@ -34,7 +49,7 @@ struct Player {
    float slide_speed = 2.0;
    float radius;
    float half_height;
-
+   
    // movement states
    bool dashing = false;
    bool jumping_upwards = false;
@@ -57,8 +72,13 @@ struct Player {
    // set when checking for fall, read-only!
    float fall_height_log = 0;
 
+   // checkpoints
    Entity* checkpoint = nullptr;
    vec3 checkpoint_pos;
+
+   // animation
+   float anim_t = 0;             // animation timer
+   PlayerAnimationState anim_state = P_ANIM_NO_ANIM; 
 
    vec3 feet()
    {
@@ -111,5 +131,10 @@ struct Player {
       goto_checkpoint();
       lives = initial_lives;
       player_state = PLAYER_STATE_STANDING;
+   }
+
+   void start_jump_animation()
+   {
+
    }
 };

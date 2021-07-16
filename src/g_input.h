@@ -131,8 +131,6 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
 
    if(!(v.x == 0.f && v.y == 0.f && v.z == 0.f))
       v = glm::normalize(v);
-
-   move_player(player);
 }
 
 // --------------

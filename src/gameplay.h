@@ -28,6 +28,7 @@ void make_player_jump(Player* player)
       v = v_dir * player->jump_horz_thrust;
    
    player->player_state = PLAYER_STATE_JUMPING;
+   player->anim_state = P_ANIM_JUMPING;
    player->height_before_fall = player->entity_ptr->position.y;
    v.y = player->jump_initial_speed;
 }
@@ -265,6 +266,7 @@ void resolve_collision(CollisionData collision, Player* player)
          player->entity_ptr->position.y = height_check.overlap + player->half_height; 
          player->entity_ptr->velocity = vec3(0,0,0);
          player->player_state = PLAYER_STATE_STANDING;
+         player->anim_state = P_ANIM_LANDING;
          break;
       }
       case JUMP_FACE_FLAT:
@@ -288,7 +290,6 @@ void resolve_collision(CollisionData collision, Player* player)
             player->player_state = PLAYER_STATE_FALLING;
             player->entity_ptr->velocity.y = 0;
          }
-
          break;
       }
       case JUMP_SLIDE:

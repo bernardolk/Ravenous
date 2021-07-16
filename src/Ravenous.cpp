@@ -50,8 +50,8 @@ const string SCENE_TEMPLATE_NAME = "scene_template";
 
 // PLAYER CYLINDER SETTINGS ... !!!
 // 1.75m of height
-float CYLINDER_HALF_HEIGHT = 0.875; 
-float CYLINDER_RADIUS = 0.20f;
+float P_HALF_HEIGHT = 0.875; 
+float P_RADIUS = 0.20f;
 
 const glm::mat4 mat4identity(
 	1.0f, 0.0f, 0.0f, 0.0f,
@@ -151,6 +151,7 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <scene.h>
 #include <console.h>
 #include <gameplay.h>
+#include <p_animation.h>
 #include <g_player.h>
 #include <g_input.h>
 #include <editor/editor_main.h>
@@ -266,11 +267,13 @@ int main()
       }
       reset_input_flags(input_flags);
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player);
+      move_player(player);
+      animate_player(player);
       update_player_world_cells(player);
       //@todo: unless this becomes a performance problem, its easier to recompute the buffer every frame
       //       then to try placing this call everytime necessary
       recompute_collision_buffer_entities(player);
-      update_player_state(player, &World);
+      resolve_player_collisions(player, &World);
 		update_scene_objects();
 
       // -------------
@@ -574,7 +577,7 @@ void create_boilerplate_geometry()
    // PLAYER CYLINDER
    Mesh* cylinder_mesh = new Mesh();
    cylinder_mesh->name = "player_cylinder";
-   cylinder_mesh->vertices = construct_cylinder(CYLINDER_RADIUS, CYLINDER_HALF_HEIGHT, 24);
+   cylinder_mesh->vertices = construct_cylinder(P_RADIUS, P_HALF_HEIGHT, 24);
    cylinder_mesh->render_method = GL_TRIANGLE_STRIP;
    cylinder_mesh->setup_gl_data();
    Geometry_Catalogue.insert({cylinder_mesh->name, cylinder_mesh});

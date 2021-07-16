@@ -746,7 +746,7 @@ Entity* create_player_entity()
    cylinder->mesh             = cylinder_mesh;
 
    // player collision geometry
-   auto cgac = new CollisionGeometryAlignedCylinder { CYLINDER_HALF_HEIGHT, CYLINDER_RADIUS };
+   auto cgac = new CollisionGeometryAlignedCylinder { P_HALF_HEIGHT, P_RADIUS };
    cylinder->collision_geometry_type = COLLISION_ALIGNED_CYLINDER;
    cylinder->collision_geometry.cylinder = *cgac;
 
@@ -757,8 +757,8 @@ Player* create_player(Entity* player_entity)
 {
    auto player = new Player();
    player->entity_ptr   = player_entity;
-   player->half_height  = CYLINDER_HALF_HEIGHT;
-   player->radius       = CYLINDER_RADIUS;
+   player->half_height  = P_HALF_HEIGHT;
+   player->radius       = P_RADIUS;
    return player;
 }
 

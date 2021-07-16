@@ -1,5 +1,5 @@
-*-4.6446 -10.2712 6.4612  0.3993 -0.4648 0.7903
-@player_position = -3.2302 -11.6602 9.7487
+*3.4669 2.6428 9.2848  -0.9131 -0.4051 -0.0463
+@player_position = -1.2718 0.7760 9.9526
 @player_initial_velocity = 0.0000 0.0000 0.0000
 @player_state = 0
 @player_fall_acceleration = 13.0000
@@ -53,6 +53,7 @@ mesh aabb
 shader model
 texture texture_diffuse grey grey.jpg
 collision aabb
+hidden
 
 #NONAME
 position -5.7966 -0.3000 7.1732
@@ -215,6 +216,7 @@ mesh aabb
 shader model
 texture texture_diffuse grey grey.jpg
 collision aabb
+hidden
 
 #NONAME
 position 2.7566 -12.8470 3.7400
@@ -279,7 +281,6 @@ mesh aabb
 shader model
 texture texture_diffuse grey grey.jpg
 collision aabb
-hidden
 
 #NONAME
 position -7.5000 -12.8470 3.7400
@@ -289,7 +290,6 @@ mesh aabb
 shader model
 texture texture_diffuse grey grey.jpg
 collision aabb
-hidden
 
 #NONAME
 position -10.9430 -12.3468 -6.4600
@@ -560,7 +560,6 @@ mesh aabb
 shader model
 texture texture_diffuse grey grey.jpg
 collision aabb
-hidden
 
 #NONAME
 position -7.0175 -8.1000 11.1835
@@ -572,9 +571,9 @@ texture texture_diffuse grey grey.jpg
 collision aabb
 
 #NONAME
-position -3.0650 -11.8990 8.4880
+position -3.2650 -11.8990 8.4880
 rotation 0.0000 0.0000 0.0000
-scale 0.2000 0.1000 1.0000
+scale 0.4000 0.1000 1.0000
 mesh aabb
 shader model
 texture texture_diffuse grey grey.jpg
@@ -608,18 +607,18 @@ texture texture_diffuse grey grey.jpg
 collision aabb
 
 #NONAME
-position -3.0650 -11.0990 7.6880
+position -3.1650 -11.0990 7.6880
 rotation 0.0000 0.0000 0.0000
-scale 0.2000 0.1000 1.2010
+scale 0.3010 0.1000 1.2010
 mesh aabb
 shader model
 texture texture_diffuse grey grey.jpg
 collision aabb
 
 #NONAME
-position -3.0650 -10.4990 7.2880
+position -3.4650 -10.4990 7.2880
 rotation 0.0000 0.0000 0.0000
-scale 0.2000 0.1000 1.2010
+scale 0.6000 0.1000 1.2010
 mesh aabb
 shader model
 texture texture_diffuse grey grey.jpg

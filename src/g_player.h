@@ -1,11 +1,13 @@
-void update_player_state(Player* &player, WorldStruct* world);
+void resolve_player_collisions(Player* &player, WorldStruct* world);
 void move_player(Player* player);
 
 
-// ---------------------
-// UPDATE PLAYER STATE
-// --------------------- 
-void update_player_state(Player* &player, WorldStruct* world)
+// --------------------------
+// RESOLVE PLAYER COLLISIONS
+// --------------------------
+// And update it's state based on it
+
+void resolve_player_collisions(Player* &player, WorldStruct* world)
 {
    Entity* &player_entity = player->entity_ptr;
 
@@ -263,4 +265,39 @@ void move_player(Player* player)
    player->prior_position = player->entity_ptr->position;
    player->entity_ptr->position += v * dt;
    return;
+}
+
+
+void animate_player(Player* player)
+{
+   auto& anim_s = player->anim_state;
+   if(anim_s == P_ANIM_NO_ANIM)
+      return;
+
+   auto& anim_t = player->anim_t;
+   anim_t += G_FRAME_INFO.duration * 1000;
+
+   bool end_anim = false;
+   if(anim_t >= P_ANIM_DURATION[anim_s])
+   {
+      anim_t = P_ANIM_DURATION[anim_s];
+      end_anim = true;
+   }
+
+   bool interrupt = false;
+   switch(anim_s)
+   {
+      case P_ANIM_JUMPING:
+         interrupt = p_anim_jumping_update(player);
+         break;
+      case P_ANIM_LANDING:
+         interrupt = p_anim_landing_update(player);
+         break;
+   }
+
+   if(end_anim || interrupt)
+   {
+      anim_s = P_ANIM_NO_ANIM;
+      anim_t = 0;
+   }
 }
