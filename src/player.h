@@ -16,16 +16,21 @@ enum PlayerStateEnum {
 // Animation
 // ----------
 enum PlayerAnimationState {
-   P_ANIM_NO_ANIM = 999,
-   P_ANIM_JUMPING = 0,
-   P_ANIM_LANDING = 1
+   P_ANIM_NO_ANIM          = 999,
+   P_ANIM_JUMPING          = 0,
+   P_ANIM_LANDING          = 1,
+   P_ANIM_LANDING_FALL     = 2
 };
 
 float P_ANIM_DURATION[] = {
    400,                          // 0 - jumping
-   200                           // 1 - landing                  
+   200,                          // 1 - landing                  
+   400                           // 2 - landing fall   
 };
 
+// forward declarations
+struct Player;
+void p_anim_force_interrupt(Player* player);
 
 struct Player {
    Entity* entity_ptr;
@@ -122,15 +127,16 @@ struct Player {
 
    void goto_checkpoint()
    {
-      if(checkpoint == nullptr) cout << "teleporting player to initial position.\n";
       entity_ptr->position = checkpoint_pos;
    }
 
    void die()
    {
-      goto_checkpoint();
       lives = initial_lives;
+      entity_ptr->velocity = vec3(0);
       player_state = PLAYER_STATE_STANDING;
+      p_anim_force_interrupt(this);
+      goto_checkpoint();
    }
 
    void start_jump_animation()

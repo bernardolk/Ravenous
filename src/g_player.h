@@ -1,7 +1,3 @@
-void resolve_player_collisions(Player* &player, WorldStruct* world);
-void move_player(Player* player);
-
-
 // --------------------------
 // RESOLVE PLAYER COLLISIONS
 // --------------------------
@@ -11,21 +7,16 @@ void resolve_player_collisions(Player* &player, WorldStruct* world)
 {
    Entity* &player_entity = player->entity_ptr;
 
-   if(player->lives <= 0)
-   {
-      G_BUFFERS.rm_buffer->add("PLAYER DIED (height:" + format_float_tostr(player->fall_height_log, 2) + " m)", 3000);
-      player->die();
-      return;
-   }
-
    switch(player->player_state)
    {
+
       case PLAYER_STATE_FALLING:
       {
          // test collision with every object in scene entities vector
          run_collision_checks_falling(player);
          break;
       }
+
       case PLAYER_STATE_STANDING:
       {
          // step 1: if player switched floors, either just change his ground or make him slide if applicable
@@ -57,6 +48,7 @@ void resolve_player_collisions(Player* &player, WorldStruct* world)
          }
          break;
       }
+
       case PLAYER_STATE_JUMPING:
       {
          /* remarks about the jump system:
@@ -76,6 +68,7 @@ void resolve_player_collisions(Player* &player, WorldStruct* world)
          run_collision_checks_falling(player);
          break;
       }
+
       case PLAYER_STATE_SLIDING:
       {
          assert(glm::length(player_entity->velocity) > 0);
@@ -114,6 +107,7 @@ void resolve_player_collisions(Player* &player, WorldStruct* world)
          }
          break;
       }
+
       case PLAYER_STATE_SLIDE_FALLING:
       {
          assert(glm::length(player_entity->velocity) > 0);
@@ -149,22 +143,7 @@ void resolve_player_collisions(Player* &player, WorldStruct* world)
          
          break;
       }
-      // case PLAYER_STATE_FALLING_FROM_EDGE:
-      // {
-      //    // Here it is assumed player ALREADY has a velocity vec pushing him away from the platform he is standing on
-      //    assert(glm::length(player_entity->velocity) > 0);
-      //    // check if still colliding with floor, if so, let player keep sliding, if not, change to FALLING
-      //    Collision c_test;
-      //    c_test = get_horizontal_overlap_with_player(player->standing_entity_ptr, player);
-            
-      //    if(!c_test.is_collided)
-      //    {
-      //       player->player_state = PLAYER_STATE_FALLING;
-      //       player->standing_entity_ptr = NULL;
-      //       // player_entity->velocity = vec3(0, 0, 0); 
-      //    }
-      //    break;
-      // }
+
       case PLAYER_STATE_EVICTED_FROM_SLOPE:
       {
          // here, player can already be considered standing somewhere or not. Which is weird.
@@ -293,11 +272,26 @@ void animate_player(Player* player)
       case P_ANIM_LANDING:
          interrupt = p_anim_landing_update(player);
          break;
+      case P_ANIM_LANDING_FALL:
+         interrupt = p_anim_landing_fall_update(player);
+         break;
    }
 
    if(end_anim || interrupt)
    {
       anim_s = P_ANIM_NO_ANIM;
       anim_t = 0;
+   }
+}
+
+
+void check_player_events(Player* player)
+{
+   // Player death
+   if(player->lives <= 0)
+   {
+      G_BUFFERS.rm_buffer->add("PLAYER DIED (height:" + format_float_tostr(player->fall_height_log, 2) + " m)", 3000);
+      player->die();
+      return;
    }
 }

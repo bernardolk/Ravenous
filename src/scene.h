@@ -750,6 +750,9 @@ Entity* create_player_entity()
    cylinder->collision_geometry_type = COLLISION_ALIGNED_CYLINDER;
    cylinder->collision_geometry.cylinder = *cgac;
 
+   // player scale
+   cylinder->scale = vec3{P_RADIUS, P_HALF_HEIGHT, P_RADIUS};
+
    return cylinder;
 }
 

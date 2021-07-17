@@ -266,7 +266,11 @@ void resolve_collision(CollisionData collision, Player* player)
          player->entity_ptr->position.y = height_check.overlap + player->half_height; 
          player->entity_ptr->velocity = vec3(0,0,0);
          player->player_state = PLAYER_STATE_STANDING;
-         player->anim_state = P_ANIM_LANDING;
+         // conditional animation: if falling from jump, land, else, land from fall
+         if(player->half_height < P_HALF_HEIGHT)
+            player->anim_state = P_ANIM_LANDING;
+         else
+            player->anim_state = P_ANIM_LANDING_FALL;
          break;
       }
       case JUMP_FACE_FLAT:

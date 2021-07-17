@@ -235,17 +235,13 @@ int main()
       // START FRAME
       // -------------
 		start_frame();
+      expire_messages_from_buffer();
+      clear_collision_log_buffer();
 
       // -------------
 		//	INPUT PHASE
       // -------------
       auto input_flags = input_phase();
-
-      // -------------
-		//	UPDATE PHASE
-      // -------------
-      expire_messages_from_buffer();
-      clear_collision_log_buffer();
       switch(PROGRAM_MODE.current)
       {
          case CONSOLE_MODE:
@@ -266,7 +262,12 @@ int main()
             break;
       }
       reset_input_flags(input_flags);
+
+      // -------------
+		//	UPDATE PHASE
+      // -------------
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player);
+      check_player_events(player);
       move_player(player);
       animate_player(player);
       update_player_world_cells(player);
@@ -577,7 +578,7 @@ void create_boilerplate_geometry()
    // PLAYER CYLINDER
    Mesh* cylinder_mesh = new Mesh();
    cylinder_mesh->name = "player_cylinder";
-   cylinder_mesh->vertices = construct_cylinder(P_RADIUS, P_HALF_HEIGHT, 24);
+   cylinder_mesh->vertices = construct_cylinder(1.0, 1.0, 24);
    cylinder_mesh->render_method = GL_TRIANGLE_STRIP;
    cylinder_mesh->setup_gl_data();
    Geometry_Catalogue.insert({cylinder_mesh->name, cylinder_mesh});
