@@ -42,7 +42,7 @@ bool p_anim_landing_fall_update(Player* player)
    bool interrupt = false;
    // sets the % of the duration of the animation that consists
    // of player bending his knees on the fall, the rest is standing up again
-   float landing_d = anim_d * 0.5;
+   float landing_d = anim_d * 0.25;
 
    // landing part
    if(player->anim_t <= landing_d)

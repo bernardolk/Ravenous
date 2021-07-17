@@ -1,3 +1,9 @@
+const unsigned int R_SHADOW_BUFFER_WIDTH = 1920, R_SHADOW_BUFFER_HEIGHT = 1080;
+unsigned int R_DEPTH_MAP_FBO;
+unsigned int R_DEPTH_MAP;
+mat4 R_LIGHT_SPACE_MATRIX;
+vec3 R_DIRECTIONAL_LIGHT_POS = vec3{-2.0f, 4.0f, -1.0f};
+
 // -------------------------
 // RENDERING OPTIONS STRUCT
 // -------------------------
@@ -211,26 +217,33 @@ void render_entity(Entity* entity)
    unsigned int specularNr = 1;
    unsigned int normalNr = 1;
    unsigned int heightNr = 1;
-   for (unsigned int i = 0; i < entity->textures.size(); i++)
+
+   unsigned int i;
+   for (i = 0; i < entity->textures.size(); i++)
    {
-      glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
-      // retrieve texture number (the N in diffuse_textureN)
+      // active proper texture unit before binding
+      glActiveTexture(GL_TEXTURE0 + i); 
       string number;
       string name = entity->textures[i].type;
       if (name == "texture_diffuse")
-            number = std::to_string(diffuseNr++);
+         number = to_string(diffuseNr++);
       else if (name == "texture_specular")
-            number = std::to_string(specularNr++); // transfer unsigned int to stream
+         number = to_string(specularNr++);
       else if (name == "texture_normal")
-            number = std::to_string(normalNr++); // transfer unsigned int to stream
+         number = to_string(normalNr++); 
       else if (name == "texture_height")
-            number = std::to_string(heightNr++); // transfer unsigned int to stream
+         number = to_string(heightNr++); 
 
       // now set the sampler to the correct texture unit
       glUniform1i(glGetUniformLocation(entity->shader->gl_programId, (name + number).c_str()), i);
       // and finally bind the texture
       glBindTexture(GL_TEXTURE_2D, entity->textures[i].id);
    }
+
+   // shadow map texture
+   glActiveTexture(GL_TEXTURE0 + i);
+   glUniform1i(glGetUniformLocation(entity->shader->gl_programId, "shadowMap"), i);
+   glBindTexture(GL_TEXTURE_2D, R_DEPTH_MAP);
 
    // draw mesh
    auto render_opts = RenderOptions{entity->wireframe};
@@ -320,6 +333,7 @@ void render_scene(Scene* scene, Camera* camera)
    shader->  setFloat3("ambient",             scene->ambient_light);
    shader->   setFloat("ambient_intensity",   scene->ambient_intensity);
    shader->  setFloat3("viewPos",             camera->Position);
+   shader-> setMatrix4("lightSpaceMatrix",    R_LIGHT_SPACE_MATRIX);
 
 	Entity **entity_iterator = &(scene->entities[0]);
    int entities_vec_size =  scene->entities.size();
@@ -529,3 +543,102 @@ void render_message_buffer_contents()
       item++;
    }
 }
+
+// ----------------
+// RENDER FEATURES
+// ----------------
+
+void create_depth_buffer()
+{
+   // create framebuffer object
+   glGenFramebuffers(1, &R_DEPTH_MAP_FBO); 
+
+   // create framebuffer depth buffer texture
+   glGenTextures(1, &R_DEPTH_MAP);
+   glBindTexture(GL_TEXTURE_2D, R_DEPTH_MAP);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, R_SHADOW_BUFFER_WIDTH, 
+      R_SHADOW_BUFFER_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL
+   );
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER); 
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);  
+
+   // bind texture to framebuffer
+   glBindFramebuffer(GL_FRAMEBUFFER, R_DEPTH_MAP_FBO);
+   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, R_DEPTH_MAP, 0);
+   glDrawBuffer(GL_NONE);
+   glReadBuffer(GL_NONE);
+   glBindFramebuffer(GL_FRAMEBUFFER, 0); 
+}
+
+void create_light_transform_matrix()
+{
+   float near_plane = 1.0f, far_plane = 7.5f;
+   mat4 light_projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane); 
+   mat4 light_view = glm::lookAt(
+      R_DIRECTIONAL_LIGHT_POS, vec3(0.0f, 0.0f,  0.0f), vec3(0.0f, 1.0f, 0.0f)
+   );
+   R_LIGHT_SPACE_MATRIX = light_projection * light_view;
+}
+
+// -----------------
+// RENDER DEPTH MAP
+// -----------------
+void render_depth_map()
+{
+   // setup
+   glViewport(0, 0, R_SHADOW_BUFFER_WIDTH, R_SHADOW_BUFFER_HEIGHT);
+   glBindFramebuffer(GL_FRAMEBUFFER, R_DEPTH_MAP_FBO);
+
+   glClear(GL_DEPTH_BUFFER_BIT);
+   auto depth_shader = Shader_Catalogue.find("depth")->second;
+   depth_shader->use();
+   depth_shader->setMatrix4("lightSpaceMatrix", R_LIGHT_SPACE_MATRIX);
+   
+   Entity **entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
+   int entities_vec_size =  G_SCENE_INFO.active_scene->entities.size();
+   for(int it = 0; it < entities_vec_size; it++) 
+   {
+      auto entity = *entity_iterator++;
+      if(!entity->render_me)
+         continue;
+
+      depth_shader-> setMatrix4("model", entity->matModel);
+      render_mesh(entity->mesh, RenderOptions{});
+   }
+
+   // de-setup
+   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+   glViewport(0, 0, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT);
+}
+
+void render_depth_map_debug()
+{
+	glViewport(0, 0, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT);
+   //glClearColor(0.196, 0.298, 0.3607, 1.0f);
+   //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+   // shadow map texture
+
+   
+   auto depth_debug_shader = Shader_Catalogue.find("depth_debug")->second;
+   depth_debug_shader->use();
+   /*
+   depth_debug_shader->setInt("depthMap", 0);
+   glActiveTexture(GL_TEXTURE0);
+   glBindTexture(GL_TEXTURE_2D, R_DEPTH_MAP);
+   auto plane = Geometry_Catalogue.find("plane")->second;
+   render_mesh(plane);
+   */
+
+   auto aabb = Geometry_Catalogue.find("aabb")->second;
+   render_mesh(aabb);
+}
+
+// void use_depth_map()
+// {
+// 	glViewport(0, 0, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT);
+//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//    ConfigureShaderAndMatrices();
+//    glBindTexture(GL_TEXTURE_2D, depthMap);
+// }

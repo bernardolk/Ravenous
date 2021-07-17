@@ -225,6 +225,11 @@ int main()
    
    Editor::initialize();
 
+   // render features initialization
+   create_depth_buffer();
+   create_light_transform_matrix();
+
+
    // Pre-loop checks
    check_all_entities_have_shaders();
 
@@ -282,7 +287,9 @@ int main()
       // -------------
 		glClearColor(0.196, 0.298, 0.3607, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      render_depth_map();
 		render_scene(G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
+      //render_depth_map_debug();
       switch(PROGRAM_MODE.current)
       {
          case CONSOLE_MODE:
@@ -522,6 +529,25 @@ void create_boilerplate_geometry()
    slope_mesh->setup_gl_data();
    Geometry_Catalogue.insert({slope_mesh->name, slope_mesh});
 
+   // PLANE VBO
+   vector<Vertex> planeVertices = {
+      // positions            // normals         // texcoords
+      Vertex{vec3{25.0f, -0.5f, 25.0f},   vec3{0.0f, 1.0f, 0.0f},   vec2{25.0f, 0.0f}},
+      Vertex{vec3{-25.0f, -0.5f, 25.0f},  vec3{0.0f, 1.0f, 0.0f},   vec2{0.0f, 0.0f}},
+      Vertex{vec3{-25.0f, -0.5f, -25.0f}, vec3{0.0f, 1.0f, 0.0f},   vec2{0.0f, 25.0f}},
+
+      Vertex{vec3{25.0f, -0.5f,  25.0f},  vec3{0.0f, 1.0f, 0.0f},  vec2{25.0f,  0.0f}},
+      Vertex{vec3{-25.0f, -0.5f, -25.0f}, vec3{0.0f, 1.0f, 0.0f},  vec2{ 0.0f, 25.0f}},
+      Vertex{vec3{25.0f, -0.5f, -25.0f},  vec3{0.0f, 1.0f, 0.0f},  vec2{25.0f, 10.0f}}
+   };
+   auto plane_mesh = new Mesh();
+   plane_mesh->name = "plane";
+   plane_mesh->vertices = planeVertices;
+   plane_mesh->indices = {0, 1, 2, 3, 4, 5};
+   plane_mesh->render_method = GL_TRIANGLES;
+   plane_mesh->setup_gl_data();
+   Geometry_Catalogue.insert({plane_mesh->name, plane_mesh});
+
 
    // QUAD VBO
    vector<Vertex> quad_vertex_vec = {
@@ -615,6 +641,14 @@ void initialize_shaders()
    // general model shader
    auto color_shader = create_shader_program("color", "vertex_model", "fragment_color");
    Shader_Catalogue.insert({color_shader->name, color_shader});
+
+   // depth map shader
+   auto depth_shader = create_shader_program("depth", "vertex_depth", "fragment_empty");
+   Shader_Catalogue.insert({depth_shader->name, depth_shader});
+
+   // depth map debug shader
+   auto depth_debug_shader = create_shader_program("depth_debug", "vertex_depth_debug", "fragment_depth_debug");
+   Shader_Catalogue.insert({depth_debug_shader->name, depth_debug_shader});
 }
 
 
