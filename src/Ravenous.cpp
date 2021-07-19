@@ -227,8 +227,7 @@ int main()
 
    // render features initialization
    create_depth_buffer();
-   create_light_transform_matrix();
-
+   create_light_space_transform_matrices();
 
    // Pre-loop checks
    check_all_entities_have_shaders();
@@ -288,6 +287,7 @@ int main()
 		glClearColor(0.196, 0.298, 0.3607, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       render_depth_map();
+      render_depth_cubemap();
 		render_scene(G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
       //render_depth_map_debug();
       switch(PROGRAM_MODE.current)
@@ -649,6 +649,12 @@ void initialize_shaders()
    // depth map debug shader
    auto depth_debug_shader = create_shader_program("depth_debug", "vertex_depth_debug", "fragment_depth_debug");
    Shader_Catalogue.insert({depth_debug_shader->name, depth_debug_shader});
+
+   // depth cubemap
+   auto depth_cubemap_shader = create_shader_program(
+      "depth_cubemap", "vertex_depth_cubemap", "geometry_depth_cubemap" ,"fragment_depth_cubemap"
+   );
+   Shader_Catalogue.insert({depth_cubemap_shader->name, depth_cubemap_shader});
 }
 
 

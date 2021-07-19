@@ -63,6 +63,9 @@ uniform sampler2D texture_specular1;
 uniform sampler2D texture_specular2;
 uniform sampler2D shadowMap;
 
+uniform samplerCube shadowCubemap;
+uniform float cubemap_far_plane;
+
 
 vec3 norm;
 vec3 difTex;
@@ -136,7 +139,7 @@ vec3 calcSpotLight(SpotLight spotlight)
 	return result;
 }
 
-float shadowCalculation(vec4 fragPosLightSpace)
+float shadowDirectionalLight(vec4 fragPosLightSpace)
 {
    // performs perspective divide because this is not passed thorugh gl_Position, 
    // which OpenGL does this for automatically
@@ -157,10 +160,47 @@ float shadowCalculation(vec4 fragPosLightSpace)
 
    // check whether current frag pos is in shadow
    // bias should be surface angle dependent
-   float bias = 0.01;  
+   float bias = 0.005;  
    float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
 
    return shadow;
+}
+
+float shadowPointLight()
+{
+   // ALSO BEING DONE ONLY FOR FIRST LIGHT
+   vec3 lightPos = pointLights[0].position; 
+
+   // get vector between fragment position and light position
+   vec3 fragToLight = FragPos - lightPos;
+
+   // use the light to fragment vector to sample from the depth map    
+   float closestDepth = texture(shadowCubemap, fragToLight).r;
+
+   // it is currently in linear range between [0,1]. Re-transform back to original value
+   closestDepth *= cubemap_far_plane;
+
+   // now get current linear depth as the length between the fragment and light position
+   float currentDepth = length(fragToLight);
+
+   // now test for shadows
+   float bias = 0.05;
+   float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+
+   return shadow;
+}
+
+float shadowCalculation(vec4 fragPosLightSpace)
+{
+   float shadow = 0;
+   // DIRECTIONAL LIGHT
+   if(num_directional_lights > 0)
+      shadow += shadowDirectionalLight(fragPosLightSpace);
+   // POINT LIGHT
+   if(num_point_lights > 0)
+     shadow += shadowPointLight();
+
+   return shadow;   
 }
 
 
