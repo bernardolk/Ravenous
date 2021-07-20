@@ -197,8 +197,8 @@ float shadowCalculation(vec4 fragPosLightSpace)
    if(num_directional_lights > 0)
       shadow += shadowDirectionalLight(fragPosLightSpace);
    // POINT LIGHT
-   if(num_point_lights > 0)
-     shadow += shadowPointLight();
+   // if(num_point_lights > 0)
+     // shadow += shadowPointLight();
 
    return shadow;   
 }
