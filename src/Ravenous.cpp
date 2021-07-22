@@ -171,11 +171,7 @@ void update_scene_objects();
 void initialize_shaders();
 void create_boilerplate_geometry();
 GLenum glCheckError_(const char* file, int line);
-EntityBuffer* allocate_entity_buffer(size_t size);
-RenderMessageBuffer* allocate_render_message_buffer(size_t size);
-CollisionLog* allocate_collision_log_buffer(size_t size);
-void expire_messages_from_buffer();
-void clear_collision_log_buffer();
+void expire_render_messages_from_buffer();
 void start_frame();
 void check_all_entities_have_shaders();
 void setup_gl();
@@ -197,10 +193,10 @@ int main()
    initialize_shaders();
    create_boilerplate_geometry();
 
-   // Allocate buffers
-   G_BUFFERS.entity_buffer = allocate_entity_buffer(COLLISION_BUFFER_CAPACITY);;
-   G_BUFFERS.rm_buffer = allocate_render_message_buffer(MESSAGE_BUFFER_CAPACITY);
-   G_BUFFERS.collision_log = allocate_collision_log_buffer(COLLISION_LOG_CAPACITY);
+   // Allocate buffers and logs
+   G_BUFFERS.entity_buffer = allocate_entity_buffer();
+   G_BUFFERS.rm_buffer = allocate_render_message_buffer();
+   COLLISION_LOG = allocate_collision_log();
    initialize_console_buffers();
 
    // Initialises immediate draw
@@ -239,8 +235,6 @@ int main()
       // START FRAME
       // -------------
 		start_frame();
-      expire_messages_from_buffer();
-      clear_collision_log_buffer();
 
       // -------------
 		//	INPUT PHASE
@@ -310,6 +304,7 @@ int main()
       // FINISH FRAME
       // -------------
       Entity_Manager.safe_delete_marked_entities();
+      expire_render_messages_from_buffer();
 		glfwSwapBuffers(G_DISPLAY_INFO.window);
       if(PROGRAM_MODE.current == EDITOR_MODE) Editor::end_frame();
 	}
@@ -354,31 +349,9 @@ void check_all_entities_have_shaders()
    }
 }
 
-EntityBuffer* allocate_entity_buffer(size_t size)
-{
-   auto e_buffer = new EntityBuffer;
-   e_buffer->buffer = new EntityBufferElement[size];
-   e_buffer->size = size;
-   return e_buffer;
-}
 
-RenderMessageBuffer* allocate_render_message_buffer(size_t size)
-{
-   auto rm_buffer = new RenderMessageBuffer;
-   rm_buffer->buffer = new RenderMessageBufferElement[size];
-   rm_buffer->size = size;
-   return rm_buffer;
-}
 
-CollisionLog* allocate_collision_log_buffer(size_t size)
-{
-   auto collision_log = new CollisionLog;
-   collision_log->entries = (CollisionLogEntry*) malloc(sizeof(CollisionLogEntry) * size);
-   collision_log->size = 0;
-   return collision_log;
-}
-
-void expire_messages_from_buffer()
+void expire_render_messages_from_buffer()
 {
    size_t size = G_BUFFERS.rm_buffer->size;
    auto item = G_BUFFERS.rm_buffer->buffer;
@@ -391,18 +364,6 @@ void expire_messages_from_buffer()
       }
       item++;
    }
-}
-
-void clear_collision_log_buffer()
-{
-   for(int i = 0; i < G_BUFFERS.collision_log->size; i ++)
-   {
-      auto entry = G_BUFFERS.collision_log->entries[i];
-      entry.entity = NULL;
-      entry.outcome = NO_OUTCOME;
-      entry.iteration = -1;
-   }
-   G_BUFFERS.collision_log->size = 0;
 }
 
 void create_boilerplate_geometry()
@@ -602,12 +563,13 @@ void create_boilerplate_geometry()
    Geometry_Catalogue.insert({trigger_mesh->name, trigger_mesh});
 
    // PLAYER CYLINDER
-   Mesh* cylinder_mesh = new Mesh();
-   cylinder_mesh->name = "player_cylinder";
-   cylinder_mesh->vertices = construct_cylinder(1.0, 1.0, 24);
-   cylinder_mesh->render_method = GL_TRIANGLE_STRIP;
-   cylinder_mesh->setup_gl_data();
-   Geometry_Catalogue.insert({cylinder_mesh->name, cylinder_mesh});
+   // Mesh* cylinder_mesh = new Mesh();
+   // cylinder_mesh->name = "player_cylinder";
+   // cylinder_mesh->vertices = construct_cylinder(1.0, 1.0, 24);
+   // cylinder_mesh->render_method = GL_TRIANGLE_STRIP;
+   // cylinder_mesh->setup_gl_data();
+   // Geometry_Catalogue.insert({cylinder_mesh->name, cylinder_mesh});
+   load_wavefront_obj_as_mesh(MODELS_PATH, "cylinder");
 
    // LIGHTBULB
    auto lightbulb_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, "lightbulb");

@@ -52,6 +52,11 @@ struct LightsPanelContext {
    string selected_light_type;
 };
 
+struct CollisionLogPanelContext {
+   bool active = false;
+   bool focused = false;
+};
+
 struct EditorContext {
    ImGuiStyle* imStyle;
    
@@ -69,6 +74,7 @@ struct EditorContext {
    WorldPanelContext world_panel;
    PalettePanelContext palette_panel;
    LightsPanelContext lights_panel;
+   CollisionLogPanelContext collision_log_panel;
 
    // toolbar
    bool toolbar_active = true;
@@ -148,7 +154,7 @@ void terminate();
 #include <editor/editor_input.h>
 #include <editor/editor_palette_panel.h>
 #include <editor/editor_lights_panel.h>
-
+#include <editor/editor_collision_log_panel.h>
 
 void update()
 {
@@ -293,9 +299,7 @@ void render(Player* player, WorldStruct* world)
    // render panels
    // --------------
    if(Context.world_panel.active)
-   {
       render_world_panel(&Context.world_panel, world, player);
-   }
 
    if(Context.entity_panel.active)
    {
@@ -306,15 +310,17 @@ void render(Player* player, WorldStruct* world)
    }
 
    if(Context.palette_panel.active)
-   {
       render_palette_panel(&Context.palette_panel);
-   }
 
    if(Context.lights_panel.active)
-   {
       render_lights_panel(&Context.lights_panel);
-   }
 
+   if(Context.collision_log_panel.active)
+      render_collision_log_panel(&Context.collision_log_panel);
+
+   // -----------------------
+   // render gizmos inscreen
+   // -----------------------
    if(Context.measure_mode && Context.first_point_found && Context.second_point_found)
    {
       auto render_opts = RenderOptions();
@@ -444,6 +450,12 @@ void render_toolbar()
    if(ImGui::Button("Unhide entities"))
    {
       unhide_entities();
+   }
+
+   // OPTIONS
+   if(ImGui::Button("Collision Logger", ImVec2(150,18)))
+   {
+      Context.collision_log_panel.active = true;
    }
 
    ImGui::End();

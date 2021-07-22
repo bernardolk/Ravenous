@@ -727,7 +727,7 @@ Entity* create_player_entity()
    auto find2 = Geometry_Catalogue.find("quad");
    auto quad_mesh = find2->second;
 
-   auto find_cylinder = Geometry_Catalogue.find("player_cylinder");
+   auto find_cylinder = Geometry_Catalogue.find("cylinder");
    auto cylinder_mesh = find_cylinder->second;
 
    auto cylinder = Entity_Manager.create_entity();

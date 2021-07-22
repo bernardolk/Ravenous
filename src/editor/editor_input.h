@@ -239,7 +239,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
       // player->entity_ptr->position = G_SCENE_INFO.camera->Position + G_SCENE_INFO.camera->Front * 8.0f;
       // camera_look_at(G_SCENE_INFO.views[1], G_SCENE_INFO.camera->Front, false);
       auto pickray = cast_pickray();
-      auto test = test_ray_against_scene(pickray, true);
+      auto test = test_ray_against_scene(pickray, true, player->entity_ptr->id);
       if(test.hit)
       {
          player->entity_ptr->position = point_from_detection(pickray, test);
