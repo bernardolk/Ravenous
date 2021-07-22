@@ -135,10 +135,9 @@ struct ProgramConfig {
 // entity manager
 EntityManager Entity_Manager;
 
-#include "dearIMGUI/imgui.h"
-#include "dearIMGUI/imgui_impl_glfw.h"
-#include "dearIMGUI/imgui_impl_opengl3.h"
-#include "ravenous_imconfig.h"
+#include <dearIMGUI/imgui.h>
+#include <dearIMGUI/imgui_impl_glfw.h>
+#include <dearIMGUI/imgui_impl_opengl3.h>
 
 void toggle_program_modes(Player* player);
 void erase_entity(Scene* scene, Entity* entity);
