@@ -135,9 +135,9 @@ struct ProgramConfig {
 // entity manager
 EntityManager Entity_Manager;
 
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
+#include "dearIMGUI/imgui.h"
+#include "dearIMGUI/imgui_impl_glfw.h"
+#include "dearIMGUI/imgui_impl_opengl3.h"
 #include "ravenous_imconfig.h"
 
 void toggle_program_modes(Player* player);
