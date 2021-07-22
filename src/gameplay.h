@@ -11,6 +11,7 @@ void recompute_collision_buffer_entities(Player* player);
 void reset_collision_buffer_checks();
 void make_player_slide(Player* player, Entity* ramp, bool slide_fall = false);
 void make_player_jump_from_slope(Player* player);
+bool check_player_grabbed_ledge(Player* player, Entity* entity);
 
 // -------
 // @TODO: incorporate those in move_player call
@@ -289,7 +290,14 @@ void resolve_collision(CollisionData collision, Player* player)
          player->entity_ptr->velocity.x = project.x;
          player->entity_ptr->velocity.z = project.y; 
                
-         if(player->player_state == PLAYER_STATE_JUMPING)
+         if(check_player_grabbed_ledge(player, collision.collided_entity_ptr))
+         {
+            player->player_state = PLAYER_STATE_GRABBING;
+            player->grabbing_entity = collision.collided_entity_ptr;
+            player->grabbing_edge_normal = collision.normal_vec;
+            player->entity_ptr->velocity.y = 0;
+         }
+         else if(player->player_state == PLAYER_STATE_JUMPING)
          {
             player->player_state = PLAYER_STATE_FALLING;
             player->entity_ptr->velocity.y = 0;
@@ -335,4 +343,17 @@ void resolve_collision(CollisionData collision, Player* player)
 
    // hurts player if necessary
    if(trigger_check_was_player_hurt) player->maybe_hurt_from_fall();
+}
+
+bool check_player_grabbed_ledge(Player* player, Entity* entity)
+{
+   if(!player->grabbing)
+      return false;
+   if(entity->collision_geometry_type != COLLISION_ALIGNED_BOX)
+      return false;
+
+   float edge_y = entity->position.y + entity->get_height();
+   float player_y = player->top().y;
+
+   return player_y < edge_y + 0.1 && player_y > edge_y - 0.1;
 }

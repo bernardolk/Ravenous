@@ -4,7 +4,7 @@
 void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm)
 {
    // assign keys
-   u64 MOV_UP, MOV_DOWN, MOV_LEFT, MOV_RIGHT;
+   u64 MOV_UP, MOV_DOWN, MOV_LEFT, MOV_RIGHT, ACTION;
    switch(pm)
    {
       case EDITOR_MODE:
@@ -12,12 +12,14 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
          MOV_DOWN  = KEY_DOWN;
          MOV_LEFT  = KEY_LEFT;
          MOV_RIGHT = KEY_RIGHT;
+         ACTION = KEY_Z;
          break;
       case GAME_MODE:
          MOV_UP    = KEY_W;
          MOV_DOWN  = KEY_S;
          MOV_LEFT  = KEY_A;
          MOV_RIGHT = KEY_D;
+         ACTION = KEY_LEFT_CTRL;
          break;
    }
 
@@ -53,6 +55,20 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
                v += vec3(onwards_vector.x, 0, onwards_vector.z);
             }
          }
+         if(pressed(flags, ACTION))
+            player->grabbing = true;
+         else
+            player->grabbing = false;
+
+         break;
+      }
+      case PLAYER_STATE_FALLING:
+      {
+          if(pressed(flags, ACTION))
+            player->grabbing = true;
+         else
+            player->grabbing = false;
+
          break;
       }
       case PLAYER_STATE_STANDING:
@@ -125,6 +141,14 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
             v = glm::normalize(vec3(n.x, 1, n.z));
          }
 
+         break;
+      }
+      case PLAYER_STATE_GRABBING:
+      {
+         if(pressed(flags, MOV_UP))
+         {
+            make_player_stand_from_edge(player);
+         }
          break;
       }
    }

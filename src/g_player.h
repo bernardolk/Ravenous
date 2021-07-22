@@ -166,6 +166,18 @@ void resolve_player_collisions(Player* &player, WorldStruct* world)
          }
          break;
       }
+
+      case PLAYER_STATE_GRABBING:
+      {
+         if(!player->grabbing)
+         {
+            player->player_state = PLAYER_STATE_FALLING;
+            player->grabbing_entity = NULL;
+            player->grabbing_edge_normal = vec2(0);
+         }
+
+         break;
+      }
    }
 }
 
@@ -294,4 +306,16 @@ void check_player_events(Player* player)
       player->die();
       return;
    }
+}
+
+void make_player_stand_from_edge(Player* player)
+{
+   // later, we will have animations and stuff, for now just teleports
+   player->entity_ptr->position = vec3 {
+               player->grabbing_edge_normal.x * player->radius * -2,
+               player->grabbing_entity->position.y + player->half_height,
+               player->grabbing_edge_normal.y * player->radius * -2,
+            };
+   
+   player->player_state = PLAYER_STATE_STANDING;
 }

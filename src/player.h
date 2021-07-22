@@ -60,6 +60,10 @@ struct Player {
    bool jumping_upwards = false;
    bool landing = false;
    bool jumping_from_slope = false;
+   bool grabbing = true;
+
+   vec2 grabbing_edge_normal = vec2(0);
+   Entity* grabbing_entity = nullptr;
 
    PlayerStateEnum player_state;
    PlayerStateEnum initial_player_state;
