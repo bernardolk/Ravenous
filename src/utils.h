@@ -93,3 +93,23 @@ bool square_GE(vec3 v, float n)
 {
    return v.x * v.x + v.y * v.y + v.z * v.z >= n * n; 
 }
+
+inline
+float vector_angle(vec2 A, vec2 B)
+{
+   float dot = glm::dot(A, B);
+   float len_A = glm::length(A);
+   float len_B = glm::length(B);
+   float theta = acos(dot / (len_A * len_B));
+   return theta;
+}
+
+inline
+float vector_cos(vec2 A, vec2 B)
+{
+   float dot = glm::dot(A, B);
+   float len_A = glm::length(A);
+   float len_B = glm::length(B);
+   float cos = dot / (len_A * len_B);
+   return cos;
+}

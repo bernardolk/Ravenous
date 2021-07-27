@@ -29,7 +29,7 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
 bool check_event_trigger_collision(Entity* trigger, Entity* player);
 bool player_qualifies_as_standing(Player* player);
 bool player_hit_ceiling_slope(Player* player, Entity* slope);
-
+Collision circle_vs_square(float cx, float cz, float cr, float x0, float x1, float z0, float z1);
 
 float SLIDE_MAX_ANGLE = 2.0;
 float SLIDE_MIN_ANGLE = 0.6;
@@ -155,8 +155,13 @@ Collision get_horizontal_overlap_with_player(Entity* entity, Player* player)
    float player_x = player->entity_ptr->position.x;
    float player_z = player->entity_ptr->position.z;  
 
+   return circle_vs_square(player_x, player_z, player->radius, x0, x1, z0, z1);
+}
+
+Collision circle_vs_square(float cx, float cz, float cr, float x0, float x1, float z0, float z1)
+{
    // player is inside rect bounds
-   if (x0 <= player_x && x1 >= player_x && z0 <= player_z && z1 >= player_z) 
+   if (x0 <= cx && x1 >= cx && z0 <= cz && z1 >= cz) 
    {
      Collision check;
      check.is_inside = true;
@@ -165,11 +170,11 @@ Collision get_horizontal_overlap_with_player(Entity* entity, Player* player)
    }  
 
    // n_vec = surface-normal vector from player to nearest point in rectangle surface
-   float nx = std::max(x0, std::min(x1, player_x));
-   float nz = std::max(z0, std::min(z1, player_z));
-   vec2 n_vec = vec2(nx, nz) - vec2(player_x, player_z);
+   float nx = std::max(x0, std::min(x1, cx));
+   float nz = std::max(z0, std::min(z1, cz));
+   vec2 n_vec = vec2(nx, nz) - vec2(cx, cz);
    float distance = glm::length(n_vec);
-   float overlap = player->radius - distance;
+   float overlap = cr - distance;
 
    return overlap > COLLISION_EPSILON ?
       Collision{true, overlap, glm::normalize(n_vec), false} :

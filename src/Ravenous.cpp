@@ -184,8 +184,8 @@ int main()
    // create cameras
 	Camera* editor_camera = new Camera();
    Camera* first_person_camera = new Camera();
-   G_SCENE_INFO.views[0] = editor_camera;
-   G_SCENE_INFO.views[1] = first_person_camera;
+   G_SCENE_INFO.views[EDITOR_CAM] = editor_camera;
+   G_SCENE_INFO.views[FPS_CAM] = first_person_camera;
 
 	// load shaders, textures and geometry
    load_textures_from_assets_folder();

@@ -14,6 +14,9 @@ void resolve_player_collisions(Player* &player, WorldStruct* world)
       {
          // test collision with every object in scene entities vector
          run_collision_checks_falling(player);
+
+         if(player->grabbing)
+            check_player_grabbed_ledge(player);
          break;
       }
 
@@ -66,6 +69,10 @@ void resolve_player_collisions(Player* &player, WorldStruct* world)
 
          // test collision with every object in scene entities vector
          run_collision_checks_falling(player);
+
+         if(player->grabbing)
+            check_player_grabbed_ledge(player);
+
          break;
       }
 
@@ -173,7 +180,6 @@ void resolve_player_collisions(Player* &player, WorldStruct* world)
          {
             player->player_state = PLAYER_STATE_FALLING;
             player->grabbing_entity = NULL;
-            player->grabbing_edge_normal = vec2(0);
          }
 
          break;
@@ -308,13 +314,13 @@ void check_player_events(Player* player)
    }
 }
 
-void make_player_stand_from_edge(Player* player)
+void make_player_get_up_from_edge(Player* player)
 {
    // later, we will have animations and stuff, for now just teleports
    player->entity_ptr->position = vec3 {
-               player->grabbing_edge_normal.x * player->radius * -2,
+               G_SCENE_INFO.camera->Front.x * player->radius * -2,
                player->grabbing_entity->position.y + player->half_height,
-               player->grabbing_edge_normal.y * player->radius * -2,
+               G_SCENE_INFO.camera->Front.z * player->radius * -2,
             };
    
    player->player_state = PLAYER_STATE_STANDING;

@@ -147,7 +147,7 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
       {
          if(pressed(flags, MOV_UP))
          {
-            make_player_stand_from_edge(player);
+            make_player_get_up_from_edge(player);
          }
          break;
       }

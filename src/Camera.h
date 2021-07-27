@@ -29,6 +29,10 @@ struct Camera {
    float orbital_angle = 0;
 };
 
+// camera array indexes
+u8 EDITOR_CAM = 0;
+u8 FPS_CAM = 1; 
+
 // Prototypes
 void camera_update(Camera* camera, float viewportWidth, float viewportHeight, Player* player);
 void camera_change_direction(Camera* camera, float yawOffset, float pitchOffset);

@@ -12,6 +12,7 @@ void reset_collision_buffer_checks();
 void make_player_slide(Player* player, Entity* ramp, bool slide_fall = false);
 void make_player_jump_from_slope(Player* player);
 bool check_player_grabbed_ledge(Player* player, Entity* entity);
+void make_player_grab_ledge(Player* player, Entity* entity, float theta);
 
 // -------
 // @TODO: incorporate those in move_player call
@@ -290,14 +291,7 @@ void resolve_collision(CollisionData collision, Player* player)
          player->entity_ptr->velocity.x = project.x;
          player->entity_ptr->velocity.z = project.y; 
                
-         if(check_player_grabbed_ledge(player, collision.collided_entity_ptr))
-         {
-            player->player_state = PLAYER_STATE_GRABBING;
-            player->grabbing_entity = collision.collided_entity_ptr;
-            player->grabbing_edge_normal = collision.normal_vec;
-            player->entity_ptr->velocity.y = 0;
-         }
-         else if(player->player_state == PLAYER_STATE_JUMPING)
+         if(player->player_state == PLAYER_STATE_JUMPING)
          {
             player->player_state = PLAYER_STATE_FALLING;
             player->entity_ptr->velocity.y = 0;
@@ -345,15 +339,50 @@ void resolve_collision(CollisionData collision, Player* player)
    if(trigger_check_was_player_hurt) player->maybe_hurt_from_fall();
 }
 
-bool check_player_grabbed_ledge(Player* player, Entity* entity)
+void check_player_grabbed_ledge(Player* player)
 {
-   if(!player->grabbing)
-      return false;
-   if(entity->collision_geometry_type != COLLISION_ALIGNED_BOX)
-      return false;
+   // ledge grab y tollerance
+   const float y_tol = 0.1;
+   // half the ledge grab semicircle region angle, in degrees 
+   const float s_theta = 5;
 
-   float edge_y = entity->position.y + entity->get_height();
+   auto& cam = G_SCENE_INFO.views[FPS_CAM]->Front;
+
    float player_y = player->top().y;
+   auto camera_f = vec2(cam.x, cam.z);
 
-   return player_y < edge_y + 0.1 && player_y > edge_y - 0.1;
+   for(int i = 0; i < G_BUFFERS.entity_buffer->size; i++)
+   {
+      Entity* entity = G_BUFFERS.entity_buffer->buffer[i].entity;
+
+      if(entity->collision_geometry_type != COLLISION_ALIGNED_BOX)
+         continue;
+
+      float edge_y = entity->position.y + entity->get_height();
+      if(player_y < edge_y + y_tol && player_y > edge_y - y_tol)
+      {
+         auto [x0, x1, z0, z1] = entity->get_rect_bounds();
+         auto test = circle_vs_square(player->entity_ptr->position.x, player->entity_ptr->position.z, player->radius + y_tol, x0, x1, z0, z1);
+         vec2 p_front_max = glm::rotate(camera_f, glm::radians(s_theta));
+         vec2 p_front_min = glm::rotate(camera_f, glm::radians(-1.f * s_theta));
+         float theta_max = glm::degrees(vector_angle(p_front_max, test.normal_vec));
+         float theta_min = glm::degrees(vector_angle(p_front_min, test.normal_vec));
+         if(theta_max >= 180 && theta_min <= 180)
+         {
+            float turn_angle = 180 - glm::degrees(vector_angle(camera_f, test.normal_vec));
+            make_player_grab_ledge(player, entity, turn_angle);
+            return;
+         }
+      }
+   }
+}
+
+void make_player_grab_ledge(Player* player, Entity* entity, float theta)
+{
+   // this will be an animation in the future
+   camera_change_direction(G_SCENE_INFO.views[FPS_CAM], theta, 0.f);
+
+   player->player_state = PLAYER_STATE_GRABBING;
+   player->grabbing_entity = entity;
+   player->entity_ptr->velocity.y = 0;
 }
