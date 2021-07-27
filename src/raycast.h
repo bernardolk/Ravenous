@@ -85,7 +85,7 @@ RaycastTest test_ray_against_lights(Ray ray)
 }
 
 
-RaycastTest test_ray_against_scene(Ray ray, bool only_test_visible_entities = false, int skip_id = -1)
+RaycastTest test_ray_against_scene(Ray ray, bool only_test_visible_entities = false, u32 skip_id = -1)
 {
    float min_distance = MAX_FLOAT;
    RaycastTest closest_hit{false, -1};
@@ -112,6 +112,13 @@ RaycastTest test_ray_against_scene(Ray ray, bool only_test_visible_entities = fa
 
    return closest_hit;
 }
+
+
+RaycastTest test_ray_against_scene(Ray ray, u32 skip_id)
+{
+   return test_ray_against_scene(ray, false, skip_id);
+}
+
 
 Triangle get_triangle_for_indexed_mesh(Mesh* mesh, glm::mat4 matModel, int triangle_index)
 {

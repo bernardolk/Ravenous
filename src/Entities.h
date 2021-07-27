@@ -41,7 +41,7 @@ enum EntityType {
 const static size_t ENTITY_WOLRD_CELL_OCCUPATION_LIMIT = 16;
 
 struct Entity {
-   unsigned int id;
+   u32 id;
    string name = "NONAME";
    EntityType type = STATIC;
 
