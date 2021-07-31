@@ -169,10 +169,10 @@ Collision circle_vs_square(float cx, float cz, float cr, float x0, float x1, flo
      return check;  
    }  
 
-   // n_vec = surface-normal vector from player to nearest point in rectangle surface
+   // n_vec = surface-normal vector from circle center to nearest point in rectangle surface
    float nx = std::max(x0, std::min(x1, cx));
    float nz = std::max(z0, std::min(z1, cz));
-   vec2 n_vec = vec2(nx, nz) - vec2(cx, cz);
+   vec2 n_vec = vec2(cx, cz) - vec2(nx, nz);
    float distance = glm::length(n_vec);
    float overlap = cr - distance;
 
@@ -371,6 +371,7 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
 
             if(collision.is_collided && collision.overlap > biggest_overlap)
             {
+               cout << "n = x: " << collision.normal_vec.x << ", z: " << collision.normal_vec.y << "\n";
                return_cd.collision_outcome = BLOCKED_BY_WALL;
                set_collided_entity = true;
             }
@@ -400,7 +401,7 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
             }
 
             // player is facing slope inclined face
-            else if(is_equal(collision.normal_vec, -1.0f * slope_2d_tangent))
+            else if(is_equal(collision.normal_vec, slope_2d_tangent))
             {
                // if slope is very inclined...
                if(player_qualifies_as_standing(player) && col_geometry.inclination > SLIDE_MIN_ANGLE)

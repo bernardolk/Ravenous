@@ -280,7 +280,7 @@ void resolve_collision(CollisionData collision, Player* player)
          std::cout << "JUMP FACE FLAT" << "\n";
          // deals with collision
          // move player back using aabb surface normal vec and computed player/entity overlap in horizontal plane
-         player->entity_ptr->position -= 
+         player->entity_ptr->position += 
                vec3(collision.normal_vec.x, 0, collision.normal_vec.y)  * collision.overlap;
 
          // make player slide through the tangent of platform
@@ -328,7 +328,7 @@ void resolve_collision(CollisionData collision, Player* player)
       case BLOCKED_BY_WALL:
       {
          // move player back using aabb surface normal vec and computed player/entity overlap in horizontal plane
-         player->entity_ptr->position -= vec3(
+         player->entity_ptr->position += vec3(
             collision.normal_vec.x, 0, collision.normal_vec.y
          ) * collision.overlap;
          break;
@@ -362,7 +362,9 @@ void check_player_grabbed_ledge(Player* player)
       if(player_y < edge_y + y_tol && player_y > edge_y - y_tol)
       {
          auto [x0, x1, z0, z1] = entity->get_rect_bounds();
-         auto test = circle_vs_square(player->entity_ptr->position.x, player->entity_ptr->position.z, player->radius + y_tol, x0, x1, z0, z1);
+         auto test = circle_vs_square(
+            player->entity_ptr->position.x, player->entity_ptr->position.z, player->radius + y_tol, x0, x1, z0, z1
+         );
          vec2 p_front_max = glm::rotate(camera_f, glm::radians(s_theta));
          vec2 p_front_min = glm::rotate(camera_f, glm::radians(-1.f * s_theta));
          float theta_max = glm::degrees(vector_angle(p_front_max, test.normal_vec));
