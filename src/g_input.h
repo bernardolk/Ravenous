@@ -55,19 +55,20 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
                v += vec3(onwards_vector.x, 0, onwards_vector.z);
             }
          }
+
          if(pressed(flags, ACTION))
-            player->grabbing = true;
+            player->action = true;
          else
-            player->grabbing = false;
+            player->action = false;
 
          break;
       }
       case PLAYER_STATE_FALLING:
       {
           if(pressed(flags, ACTION))
-            player->grabbing = true;
+            player->action = true;
          else
-            player->grabbing = false;
+            player->action = false;
 
          break;
       }
@@ -100,6 +101,12 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
          // JUMP
          if (flags.key_press & KEY_SPACE) 
             make_player_jump(player);
+
+         // FREE RUN
+         if(pressed(flags, MOV_UP) && pressed(flags, ACTION))
+            player->free_running = true;
+         else
+            player->free_running = false;
 
          break;
       }
@@ -147,13 +154,13 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
       {
          if(pressed(flags, ACTION))
          {
-            player->grabbing = true;
-            
+            player->action = true;
+
             if(pressed(flags, MOV_UP))
                make_player_get_up_from_edge(player);
          }
          else
-            player->grabbing = false;
+            player->action = false;
             
          break;
       }

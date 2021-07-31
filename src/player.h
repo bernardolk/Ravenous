@@ -56,11 +56,12 @@ struct Player {
    float half_height;
    
    // movement states
-   bool dashing = false;
-   bool jumping_upwards = false;
-   bool landing = false;
+   bool dashing            = false;
+   bool jumping_upwards    = false;
+   bool landing            = false;
    bool jumping_from_slope = false;
-   bool grabbing = true;
+   bool action             = false;
+   bool free_running       = false;
 
    Entity* grabbing_entity = nullptr;
 

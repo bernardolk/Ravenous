@@ -15,7 +15,7 @@ void resolve_player_collisions(Player* &player, WorldStruct* world)
          // test collision with every object in scene entities vector
          run_collision_checks_falling(player);
 
-         if(player->grabbing)
+         if(player->action)
             check_player_grabbed_ledge(player);
          break;
       }
@@ -70,7 +70,7 @@ void resolve_player_collisions(Player* &player, WorldStruct* world)
          // test collision with every object in scene entities vector
          run_collision_checks_falling(player);
 
-         if(player->grabbing)
+         if(player->action)
             check_player_grabbed_ledge(player);
 
          break;
@@ -176,7 +176,7 @@ void resolve_player_collisions(Player* &player, WorldStruct* world)
 
       case PLAYER_STATE_GRABBING:
       {
-         if(!player->grabbing)
+         if(!player->action)
          {
             player->player_state = PLAYER_STATE_FALLING;
             player->grabbing_entity = NULL;
@@ -198,9 +198,6 @@ void move_player(Player* player)
    if(player->speed < 0.f || no_move_command)
       player->speed = 0;
 
-   // string v_dir_string = "speed: " + to_string(player->speed);
-   // G_BUFFERS.rm_buffer->add(v_dir_string, 0);
-
    auto dt = G_FRAME_INFO.duration * G_FRAME_INFO.time_step;
 
    switch(state)
@@ -209,6 +206,12 @@ void move_player(Player* player)
       {
          auto& speed = player->speed;
          float d_speed = player->acceleration * dt;
+
+         if(player->free_running)
+         {
+            if(check_player_vaulting(player));
+               break;
+         }
 
          // deacceleration
          bool contrary_movement = !comp_sign(v_dir.x, v.x) || !comp_sign(v_dir.z, v.z);

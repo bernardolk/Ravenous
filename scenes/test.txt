@@ -1,5 +1,5 @@
-*-2.8228 12.2306 19.3223  0.0187 -0.4509 -0.8924
-@player_position = -2.3109 0.8750 2.3655
+*-6.6183 3.7715 11.3114  0.6606 -0.3811 -0.6469
+@player_position = -1.6716 0.8750 5.9754
 @player_initial_velocity = 0.0000 0.0000 0.0000
 @player_state = 0
 @player_fall_acceleration = 13.0000

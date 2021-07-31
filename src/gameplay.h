@@ -13,6 +13,8 @@ void make_player_slide(Player* player, Entity* ramp, bool slide_fall = false);
 void make_player_jump_from_slope(Player* player);
 bool check_player_grabbed_ledge(Player* player, Entity* entity);
 void make_player_grab_ledge(Player* player, Entity* entity, float theta);
+bool check_player_vaulting(Player* player);
+void make_player_vault_over_obstacle(Player* player, Entity* entity, float theta);
 
 // -------
 // @TODO: incorporate those in move_player call
@@ -344,7 +346,9 @@ void check_player_grabbed_ledge(Player* player)
    // ledge grab y tollerance
    const float y_tol = 0.1;
    // half the ledge grab semicircle region angle, in degrees 
-   const float s_theta = 5;
+   const float s_theta = 8;
+   // radius of detection
+   const float dr = 0.1;
 
    auto& cam = G_SCENE_INFO.views[FPS_CAM]->Front;
 
@@ -363,12 +367,11 @@ void check_player_grabbed_ledge(Player* player)
       {
          auto [x0, x1, z0, z1] = entity->get_rect_bounds();
          auto test = circle_vs_square(
-            player->entity_ptr->position.x, player->entity_ptr->position.z, player->radius + y_tol, x0, x1, z0, z1
+            player->entity_ptr->position.x, player->entity_ptr->position.z, player->radius + dr, x0, x1, z0, z1
          );
-         // vec2 p_front_max = glm::rotate(camera_f, glm::radians(s_theta));
-         // vec2 p_front_min = glm::rotate(camera_f, glm::radians(-1.f * s_theta));
-         // float theta_max = glm::degrees(vector_angle(p_front_max, test.normal_vec));
-         // float theta_min = glm::degrees(vector_angle(p_front_min, test.normal_vec));
+
+         if(!test.is_collided)
+            continue;
 
          float theta = glm::degrees(vector_angle(camera_f, test.normal_vec));
          float min_theta = 180 - s_theta;
@@ -391,4 +394,63 @@ void make_player_grab_ledge(Player* player, Entity* entity, float theta)
    player->player_state = PLAYER_STATE_GRABBING;
    player->grabbing_entity = entity;
    player->entity_ptr->velocity.y = 0;
+}
+
+bool check_player_vaulting(Player* player)
+{
+   // action cone half theta 
+   const float s_theta = 8;
+   // radius of detection
+   const float dr = 0.1;
+
+   auto& cam = G_SCENE_INFO.views[FPS_CAM]->Front;
+
+   float player_y = player->entity_ptr->position.y;
+   auto camera_f = vec2(cam.x, cam.z);
+
+   for(int i = 0; i < G_BUFFERS.entity_buffer->size; i++)
+   {
+      Entity* entity = G_BUFFERS.entity_buffer->buffer[i].entity;
+
+      if(entity->collision_geometry_type != COLLISION_ALIGNED_BOX)
+         continue;
+
+      float rel_height = (entity->position.y + entity->get_height()) - player->feet().y;
+
+      // short platforms should be ignored since we will use navigation meshes that include them smoothly with a nav ramp 
+      // and therefore going over them do not count as 'vaulting moves'
+      if(rel_height < 0.3) // also makes sure we only get positive rel heights
+         continue;
+
+      // object is above player waist
+      if(!(player_y > entity->position.y + entity->get_height()))
+         continue;
+
+      auto [x0, x1, z0, z1] = entity->get_rect_bounds();
+      auto test = circle_vs_square(
+         player->entity_ptr->position.x, player->entity_ptr->position.z, player->radius + dr, x0, x1, z0, z1
+      );
+
+      if(!test.is_collided)
+         continue;
+
+      float theta = glm::degrees(vector_angle(camera_f, test.normal_vec));
+      float min_theta = 180 - s_theta;
+      float max_theta = 180 + s_theta;
+      if(min_theta <= theta && theta <= max_theta)
+      {
+         float turn_angle = 180 - glm::degrees(vector_angle(camera_f, test.normal_vec));
+         make_player_vault_over_obstacle(player, entity, turn_angle);
+         return true;
+      }
+   }
+   return false;
+}
+
+void make_player_vault_over_obstacle(Player* player, Entity* entity, float theta)
+{
+   // later, we will have animations and stuff, for now just teleports
+   camera_change_direction(G_SCENE_INFO.views[FPS_CAM], theta, 0.f);
+   player->entity_ptr->position += G_SCENE_INFO.camera->Front.x * player->radius * 2;
+   player->entity_ptr->position.y = entity->position.y + entity->get_height() + player->half_height;
 }
