@@ -697,6 +697,8 @@ GLenum glCheckError_(const char* file, int line)
 
 void toggle_program_modes(Player* player)
 {
+   G_INPUT_INFO.forget_last_mouse_coords = true;
+   
    if(PROGRAM_MODE.current == EDITOR_MODE)
    {
       PROGRAM_MODE.last    = PROGRAM_MODE.current;
