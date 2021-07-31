@@ -365,11 +365,15 @@ void check_player_grabbed_ledge(Player* player)
          auto test = circle_vs_square(
             player->entity_ptr->position.x, player->entity_ptr->position.z, player->radius + y_tol, x0, x1, z0, z1
          );
-         vec2 p_front_max = glm::rotate(camera_f, glm::radians(s_theta));
-         vec2 p_front_min = glm::rotate(camera_f, glm::radians(-1.f * s_theta));
-         float theta_max = glm::degrees(vector_angle(p_front_max, test.normal_vec));
-         float theta_min = glm::degrees(vector_angle(p_front_min, test.normal_vec));
-         if(theta_max >= 180 && theta_min <= 180)
+         // vec2 p_front_max = glm::rotate(camera_f, glm::radians(s_theta));
+         // vec2 p_front_min = glm::rotate(camera_f, glm::radians(-1.f * s_theta));
+         // float theta_max = glm::degrees(vector_angle(p_front_max, test.normal_vec));
+         // float theta_min = glm::degrees(vector_angle(p_front_min, test.normal_vec));
+
+         float theta = glm::degrees(vector_angle(camera_f, test.normal_vec));
+         float min_theta = 180 - s_theta;
+         float max_theta = 180 + s_theta;
+         if(min_theta <= theta && theta <= max_theta)
          {
             float turn_angle = 180 - glm::degrees(vector_angle(camera_f, test.normal_vec));
             make_player_grab_ledge(player, entity, turn_angle);

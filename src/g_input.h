@@ -145,10 +145,16 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
       }
       case PLAYER_STATE_GRABBING:
       {
-         if(pressed(flags, MOV_UP))
+         if(pressed(flags, ACTION))
          {
-            make_player_get_up_from_edge(player);
+            player->grabbing = true;
+            
+            if(pressed(flags, MOV_UP))
+               make_player_get_up_from_edge(player);
          }
+         else
+            player->grabbing = false;
+            
          break;
       }
    }

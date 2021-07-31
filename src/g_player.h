@@ -317,11 +317,8 @@ void check_player_events(Player* player)
 void make_player_get_up_from_edge(Player* player)
 {
    // later, we will have animations and stuff, for now just teleports
-   player->entity_ptr->position = vec3 {
-               G_SCENE_INFO.camera->Front.x * player->radius * -2,
-               player->grabbing_entity->position.y + player->half_height,
-               G_SCENE_INFO.camera->Front.z * player->radius * -2,
-            };
+   player->entity_ptr->position += G_SCENE_INFO.camera->Front.x * player->radius * 2;
+   player->entity_ptr->position.y = player->grabbing_entity->position.y + player->grabbing_entity->get_height() + player->half_height;
    
    player->player_state = PLAYER_STATE_STANDING;
 }
