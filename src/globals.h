@@ -88,7 +88,13 @@ struct RenderMessageBuffer {
          auto item = buffer;
          for(int i = 0; i < size; i++)
          {
-            if(item->message == "")
+            // refresh message instead of adding if already exists
+            if(item->message == msg)
+            {
+               item->elapsed = 0;
+               break;
+            }
+            else if(item->message == "")
             {
                item->message = msg;
                item->elapsed = 0;
