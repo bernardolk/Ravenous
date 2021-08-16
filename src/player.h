@@ -9,7 +9,8 @@ enum PlayerStateEnum {
    PLAYER_STATE_SLIDE_FALLING,
    PLAYER_STATE_GRABBING,
    PLAYER_STATE_FALLING_FROM_EDGE,
-   PLAYER_STATE_EVICTED_FROM_SLOPE
+   PLAYER_STATE_EVICTED_FROM_SLOPE,
+   PLAYER_STATE_VAULTING
 };
 
 // ----------
@@ -19,13 +20,15 @@ enum PlayerAnimationState {
    P_ANIM_NO_ANIM          = 999,
    P_ANIM_JUMPING          = 0,
    P_ANIM_LANDING          = 1,
-   P_ANIM_LANDING_FALL     = 2
+   P_ANIM_LANDING_FALL     = 2,
+   P_ANIM_VAULTING         = 3
 };
 
 float P_ANIM_DURATION[] = {
    400,                          // 0 - jumping
    200,                          // 1 - landing                  
-   400                           // 2 - landing fall   
+   400,                          // 2 - landing fall   
+   0                             // 3 - vaulting
 };
 
 // forward declarations
@@ -71,6 +74,8 @@ struct Player {
    vec3 prior_position = vec3(0);
    vec3 initial_velocity = vec3(0);
 
+   vec3 desired_position = vec3(0);
+
    // health and hurting
    int initial_lives = 2;
    int lives = 2;
@@ -86,7 +91,7 @@ struct Player {
    vec3 checkpoint_pos;
 
    // animation
-   float anim_t = 0;             // animation timer
+   float anim_t = 0;                                           // animation timer
    PlayerAnimationState anim_state = P_ANIM_NO_ANIM; 
 
    vec3 feet()

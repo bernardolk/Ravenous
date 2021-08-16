@@ -271,6 +271,7 @@ void move_player(Player* player)
 void animate_player(Player* player)
 {
    auto& anim_s = player->anim_state;
+   auto ANIM_DURATION = P_ANIM_DURATION[anim_s];
    if(anim_s == P_ANIM_NO_ANIM)
       return;
 
@@ -278,9 +279,9 @@ void animate_player(Player* player)
    anim_t += G_FRAME_INFO.duration * 1000;
 
    bool end_anim = false;
-   if(anim_t >= P_ANIM_DURATION[anim_s])
+   if(ANIM_DURATION > 0 && anim_t >= ANIM_DURATION)
    {
-      anim_t = P_ANIM_DURATION[anim_s];
+      anim_t = ANIM_DURATION;
       end_anim = true;
    }
 
@@ -295,6 +296,11 @@ void animate_player(Player* player)
          break;
       case P_ANIM_LANDING_FALL:
          interrupt = p_anim_landing_fall_update(player);
+         break;
+      case P_ANIM_VAULTING:
+         interrupt = p_anim_vaulting(player);
+         if(interrupt)
+            finish_vaulting(player);
          break;
    }
 
@@ -315,13 +321,4 @@ void check_player_events(Player* player)
       player->die();
       return;
    }
-}
-
-void make_player_get_up_from_edge(Player* player)
-{
-   // later, we will have animations and stuff, for now just teleports
-   player->entity_ptr->position += G_SCENE_INFO.camera->Front.x * player->radius * 2;
-   player->entity_ptr->position.y = player->grabbing_entity->position.y + player->grabbing_entity->get_height() + player->half_height;
-   
-   player->player_state = PLAYER_STATE_STANDING;
 }

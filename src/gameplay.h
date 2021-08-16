@@ -424,10 +424,6 @@ bool check_player_vaulting(Player* player)
       if(rel_height < 0.3) // also makes sure we only get positive rel heights
          continue;
 
-      // // object is above player waist
-      // if(!(player_y > entity->position.y + entity->get_height()))
-      //    continue;
-
       auto [x0, x1, z0, z1] = entity->get_rect_bounds();
       auto test = circle_vs_square(
          player->entity_ptr->position.x, player->entity_ptr->position.z, player->radius + dr, x0, x1, z0, z1
@@ -453,6 +449,22 @@ void make_player_vault_over_obstacle(Player* player, Entity* entity, float theta
 {
    // later, we will have animations and stuff, for now just teleports
    camera_change_direction(G_SCENE_INFO.views[FPS_CAM], theta, 0.f);
-   player->entity_ptr->position += G_SCENE_INFO.camera->Front * player->radius * 2.f;
-   player->entity_ptr->position.y = entity->position.y + entity->get_height() + player->half_height;
+   player->player_state = PLAYER_STATE_VAULTING;
+   player->anim_state = P_ANIM_VAULTING;
+   player->desired_position = player->entity_ptr->position + G_SCENE_INFO.camera->Front * player->radius * 2.f;
+   player->desired_position.y = entity->position.y + entity->get_height() + player->half_height;
+}
+
+void make_player_get_up_from_edge(Player* player)
+{
+   // later, we will have animations and stuff, for now just teleports
+   player->desired_position = player->entity_ptr->position + G_SCENE_INFO.camera->Front.x * player->radius * 2;
+   player->desired_position.y = player->grabbing_entity->position.y + player->grabbing_entity->get_height() + player->half_height;
+   player->player_state = PLAYER_STATE_VAULTING;
+   player->anim_state = P_ANIM_VAULTING;
+}
+
+void finish_vaulting(Player* player)
+{
+   player->player_state = PLAYER_STATE_STANDING;
 }
