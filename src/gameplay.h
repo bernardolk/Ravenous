@@ -408,6 +408,8 @@ bool check_player_vaulting(Player* player)
    float player_y = player->entity_ptr->position.y;
    auto camera_f = vec2(cam.x, cam.z);
 
+   G_BUFFERS.rm_buffer->add("CHECKING VAULTING", 500);
+
    for(int i = 0; i < G_BUFFERS.entity_buffer->size; i++)
    {
       Entity* entity = G_BUFFERS.entity_buffer->buffer[i].entity;
@@ -422,9 +424,9 @@ bool check_player_vaulting(Player* player)
       if(rel_height < 0.3) // also makes sure we only get positive rel heights
          continue;
 
-      // object is above player waist
-      if(!(player_y > entity->position.y + entity->get_height()))
-         continue;
+      // // object is above player waist
+      // if(!(player_y > entity->position.y + entity->get_height()))
+      //    continue;
 
       auto [x0, x1, z0, z1] = entity->get_rect_bounds();
       auto test = circle_vs_square(
@@ -451,6 +453,6 @@ void make_player_vault_over_obstacle(Player* player, Entity* entity, float theta
 {
    // later, we will have animations and stuff, for now just teleports
    camera_change_direction(G_SCENE_INFO.views[FPS_CAM], theta, 0.f);
-   player->entity_ptr->position += G_SCENE_INFO.camera->Front.x * player->radius * 2;
+   player->entity_ptr->position += G_SCENE_INFO.camera->Front * player->radius * 2.f;
    player->entity_ptr->position.y = entity->position.y + entity->get_height() + player->half_height;
 }
