@@ -67,6 +67,11 @@ bool comp_sign(float a, float b)
    return a * b >= 0.f;
 }
 
+float sign(float a)
+{
+   return a < 0 ? -1 : 1;
+}
+
 // compare vector length with scalar
 
 bool square_EQ(vec3 v, float n)

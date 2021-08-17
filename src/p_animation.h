@@ -76,46 +76,50 @@ bool p_anim_landing_fall_update(Player* player)
 
 bool p_anim_vaulting(Player* player)
 {
-   // animation speed in m/s
-   const float v_y = 1.f / 1.f;
-   const float v_xz = 1.f / 2.f;
-
    vec3& p_pos = player->entity_ptr->position;
 
-   if(is_equal(p_pos, player->desired_position))
-      return true;
+   // animation speed in m/s
+   const float v_y  = 2.f / 1.f;
+   const float v_xz = 2.f / 2.f;
+
+   vec3 d      = player->anim_final_pos - p_pos;
+   vec3 d_orig = player->anim_final_pos - player->anim_orig_pos;
+
+   float d_orig_y_sig = sign(d_orig.y);
+   float d_orig_x_sig = sign(d_orig.x);
+   float d_orig_z_sig = sign(d_orig.z);
+
+   float y_dist = abs(d.y);
+   float x_dist = abs(d.x);
+   float z_dist = abs(d.z);
+
+   float ds_y = v_y  * G_FRAME_INFO.duration;
+   float ds_x = v_xz * G_FRAME_INFO.duration;
+   float ds_z = v_xz * G_FRAME_INFO.duration;
+
+   float ds_y_sig = sign(d.y);
+   float ds_x_sig = sign(d.x);
+   float ds_z_sig = sign(d.z);
+
+   if(y_dist >= ds_y && d_orig_y_sig == ds_y_sig)
+      p_pos.y += ds_y_sig * ds_y;
+   else
+      p_pos.y = player->anim_final_pos.y;
    
-   vec3 d = player->desired_position - p_pos;
-   vec3 dunit = glm::normalize(d);
+   if(x_dist >= ds_x && d_orig_x_sig == ds_x_sig)
+      p_pos.x += ds_x_sig * ds_x;
+   else
+      p_pos.x = player->anim_final_pos.x;
 
-   // adds to player's position a bit of movement towards destination
-   // player always goes up (y) but might go anywhere in x-z, thus, squaring
-   if(d.y > 0)
-   {
-      float ds = v_y * G_FRAME_INFO.duration;
-      if(ds * ds < d.y * d.y)
-         p_pos.y += dunit.y * ds;
-      else 
-         p_pos.y = player->desired_position.y;
-   }
-   if(d.x * d.x > 0)
-   {
-      float ds = v_xz * G_FRAME_INFO.duration;
-      if(ds * ds < d.x * d.x)
-         p_pos.x += dunit.x * ds;
-      else 
-         p_pos.x = player->desired_position.x;
-   }
-   if(d.z * d.z > 0)
-   {
-      float ds = v_xz * G_FRAME_INFO.duration;
-      if(ds * ds < d.z * d.z)
-         p_pos.z += dunit.z * ds;
-      else 
-         p_pos.z = player->desired_position.z;
-   }
+   if(z_dist >= ds_z && d_orig_z_sig == ds_z_sig)
+      p_pos.z += ds_z_sig * ds_z;
+   else
+      p_pos.z = player->anim_final_pos.z;
 
-   return false;
+   if(is_equal(p_pos, player->anim_final_pos))
+      return true;
+   else
+      return false;
 }
 
 

@@ -74,8 +74,6 @@ struct Player {
    vec3 prior_position = vec3(0);
    vec3 initial_velocity = vec3(0);
 
-   vec3 desired_position = vec3(0);
-
    // health and hurting
    int initial_lives = 2;
    int lives = 2;
@@ -91,8 +89,10 @@ struct Player {
    vec3 checkpoint_pos;
 
    // animation
-   float anim_t = 0;                                           // animation timer
-   PlayerAnimationState anim_state = P_ANIM_NO_ANIM; 
+   float anim_t = 0;                                         // animation timer
+   PlayerAnimationState anim_state = P_ANIM_NO_ANIM;         // animation state
+   vec3 anim_final_pos  = vec3(0);                           // final position after translation animation
+   vec3 anim_orig_pos   = vec3(0);                           // original position
 
    vec3 feet()
    {
