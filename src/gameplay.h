@@ -405,10 +405,16 @@ bool check_player_vaulting(Player* player)
 
    auto& cam = G_SCENE_INFO.views[FPS_CAM]->Front;
 
+   // DEBUG VIEW
+   G_IMMEDIATE_DRAW.add_line(
+      G_SCENE_INFO.views[FPS_CAM]->Position,
+      G_SCENE_INFO.views[FPS_CAM]->Position + cam * 0.5f,
+      2.0,
+      true
+   );
+
    float player_y = player->entity_ptr->position.y;
    auto camera_f = vec2(cam.x, cam.z);
-
-   G_BUFFERS.rm_buffer->add("CHECKING VAULTING", 500);
 
    for(int i = 0; i < G_BUFFERS.entity_buffer->size; i++)
    {

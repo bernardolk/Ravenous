@@ -57,7 +57,7 @@ struct GlobalSceneInfo {
 
 struct EntityBufferElement {
    Entity* entity;
-   bool  collision_check = false;
+   bool collision_check = false;
 };
 
 struct EntityBuffer {
@@ -114,6 +114,53 @@ struct RenderMessageBuffer {
       }
    }
 };
+
+void expire_render_messages_from_buffer()
+{
+   size_t size = G_BUFFERS.rm_buffer->size;
+   auto item = G_BUFFERS.rm_buffer->buffer;
+   for(int i = 0; i < size; i++)
+   {
+      item->elapsed += G_FRAME_INFO.duration * 1000.0;
+      if(item->message != "" && item->elapsed >= item->duration)
+      {
+         item->message = "";
+         G_BUFFERS.rm_buffer->count -= 1;
+      }
+      item++;
+   }
+}
+
+// fw decl.
+void render_text(string font, float x, float y, vec3 color, bool center, string text);
+
+void render_message_buffer_contents()
+{
+   //@todo make disappearing effect
+   int render_count = 0;
+   size_t size = G_BUFFERS.rm_buffer->size;
+   auto item = G_BUFFERS.rm_buffer->buffer;
+   for(int i = 0; i < size; i++)
+   {
+      if(render_count == 3)
+         break;
+
+      if(item->message != "")
+      {
+         render_count++;
+         render_text(
+            "consola20",
+            G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, 
+            G_DISPLAY_INFO.VIEWPORT_HEIGHT - 120 - render_count * 25,  
+            vec3(0.8, 0.8, 0.2),
+            true,
+            item->message
+         );
+      }
+
+      item++;
+   }
+}
 
 // -----
 // LOGS

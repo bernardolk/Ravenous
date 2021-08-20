@@ -26,122 +26,6 @@ struct RenderOptions
    float opacity = 1.0;
 };
 
-// -----------------------------
-// GLOBAL IMMEDIATE DRAW STRUCT
-// -----------------------------
-struct GlobalImmediateDraw {
-   const static int IM_BUFFER_SIZE = 100;
-   Mesh* meshes[IM_BUFFER_SIZE];
-   RenderOptions render_opts[IM_BUFFER_SIZE];
-   int ind = 0;
-
-   void init()
-   {
-      for(int i = 0; i < IM_BUFFER_SIZE; i++)
-      {
-         auto mesh = new Mesh();
-         mesh->setup_gl_buffers();
-         meshes[i] = mesh;
-      }
-   }
-
-   void add(vector<Vertex> vertex_vec, GLenum draw_method, RenderOptions opts = RenderOptions{})
-   {
-      auto mesh = meshes[ind];
-      mesh->vertices = vertex_vec;
-      mesh->render_method = draw_method;
-      mesh->send_data_to_gl_buffer();
-      render_opts[ind] = opts;
-      ind++;
-   }
-
-   void add(vector<Triangle> triangles, GLenum draw_method = GL_LINE_LOOP, RenderOptions opts = RenderOptions{})
-   {
-      vector<Vertex> vertices;
-      for(int i = 0; i < triangles.size(); i++)
-      {
-         vertices.push_back(Vertex{triangles[i].a});
-         vertices.push_back(Vertex{triangles[i].b});
-         vertices.push_back(Vertex{triangles[i].c});
-      }
-      
-      auto mesh = meshes[ind];
-      mesh->vertices = vertices;
-      mesh->render_method = draw_method;
-      mesh->send_data_to_gl_buffer();
-      ind++;
-   }
-
-   void add_line(vec3 points[2], float line_width = 1.0, bool always_on_top = false)
-   {
-      auto mesh = meshes[ind];
-      mesh->vertices = vector<Vertex>{ Vertex{points[0]}, Vertex{points[1]}};
-      mesh->render_method = GL_LINES;
-      mesh->send_data_to_gl_buffer();
-      RenderOptions opts;
-      opts.line_width = line_width;
-      opts.always_on_top = always_on_top;
-      render_opts[ind] = opts;
-      ind++;
-   }
-
-   void add_lines(vector<vec3> points, float line_width = 1.0, bool always_on_top = false)
-   {
-      auto mesh = meshes[ind];
-      mesh->vertices = vector<Vertex>();
-      for(int i = 0; i < points.size(); i++)
-      {
-         mesh->vertices.push_back(Vertex{points[i]});
-      }
-      mesh->render_method = GL_LINE_LOOP;
-      mesh->send_data_to_gl_buffer();
-      RenderOptions opts;
-      opts.line_width = line_width;
-      opts.always_on_top = always_on_top;
-      render_opts[ind] = opts;
-      ind++;
-   }
-
-   void add_point(vec3 point, float point_size = 1.0, bool always_on_top = false)
-   {
-      auto mesh = meshes[ind];
-      mesh->vertices = vector<Vertex>{ Vertex{point} };
-      mesh->render_method = GL_POINTS;
-      mesh->send_data_to_gl_buffer();
-      RenderOptions opts;
-      opts.point_size = point_size;
-      opts.always_on_top = always_on_top;
-      render_opts[ind] = opts;
-      ind++;
-   }
-
-   void add_triangle(Triangle t, float line_width = 1.0, bool always_on_top = false, vec3 color = vec3{0.8, 0.2, 0.2})
-   {
-      auto mesh = meshes[ind];
-      mesh->vertices = vector<Vertex>{ Vertex{t.a}, Vertex{t.b}, Vertex{t.c}};
-      mesh->indices = vector<unsigned int>{ 0, 1, 2};
-      mesh->render_method = GL_TRIANGLES;
-      mesh->send_data_to_gl_buffer();
-      RenderOptions opts;
-      opts.line_width = line_width;
-      opts.always_on_top = always_on_top;
-      opts.color = color;
-      render_opts[ind] = opts;
-      ind++;
-   }
-
-   void reset()
-   {
-      for (int i = 0; i < ind; i++)
-      {
-         auto mesh = meshes[i];
-         mesh->indices.clear();
-         mesh->vertices.clear();
-      }
-      ind = 0;
-   }
-} G_IMMEDIATE_DRAW;
-
 
 void render_text(float x, float y, string text);
 void render_text(float x, float y, vec3 color, string text);
@@ -157,7 +41,6 @@ void render_entity(Entity* entity);
 void render_editor_entity(Entity* entity, Scene* scene, Camera* camera);
 void render_mesh(Mesh* mesh, RenderOptions opts = RenderOptions{});
 void render_message_buffer_contents();
-void render_immediate(GlobalImmediateDraw* im, Camera* camera);
 
 
 // ------------
@@ -371,29 +254,6 @@ void render_game_gui(Player* player)
    render_text("consola42", 25, 75, color, to_string(player->lives));
 }
 
-// -----------------------------
-// RENDER IMMEDIATE DRAW BUFFER
-// -----------------------------
-void render_immediate(GlobalImmediateDraw* im, Camera* camera)
-{
-   auto shader = Shader_Catalogue.find("immediate_point")->second;
-   for(int i = 0; i < im->ind; i++)
-   {
-      auto opts = im->render_opts[i];
-      vec3 color = opts.color.x == -1 ? vec3(0.9, 0.2, 0.0) : opts.color;
-
-      auto mesh = im->meshes[i];
-      shader-> use();
-      shader-> setMatrix4("view",        camera->View4x4);
-      shader-> setMatrix4("projection",  camera->Projection4x4);
-      shader-> setFloat("opacity", opts.opacity);
-      shader-> setFloat3("color", color);
-      render_mesh(mesh, opts);
-   }
-   
-   G_IMMEDIATE_DRAW.reset();
-}
-
 // ------------
 // RENDER TEXT
 // ------------
@@ -523,39 +383,6 @@ void render_text(string font, float x, float y, vec3 color, float scale, bool ce
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
 	}
-}
-
-
-// -------------------------
-// MESSAGE BUFFER RENDERING
-// -------------------------
-void render_message_buffer_contents()
-{
-   //@todo make disappearing effect
-   int render_count = 0;
-   size_t size = G_BUFFERS.rm_buffer->size;
-   auto item = G_BUFFERS.rm_buffer->buffer;
-   for(int i = 0; i < size; i++)
-   {
-      if(render_count == 3)
-         break;
-
-      if(item->message != "")
-      {
-         render_count++;
-         render_text(
-            "consola20",
-            G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, 
-            G_DISPLAY_INFO.VIEWPORT_HEIGHT - 120 - render_count * 25,  
-            vec3(0.8, 0.8, 0.2),
-            true,
-            item->message
-         );
-         item->elapsed += G_FRAME_INFO.duration * 1000.0;
-      }
-
-      item++;
-   }
 }
 
 // ----------------

@@ -25,6 +25,9 @@
 #include <stdint.h>
 
 // TYPE DEFINITIONS
+typedef int i16;
+typedef long int i32;
+typedef long long int i64;
 typedef unsigned char u8;
 typedef unsigned short int u16;
 typedef unsigned int u32;
@@ -145,6 +148,7 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <loaders.h>
 #include <raycast.h>
 #include <render.h>
+#include <im_render.h>
 #include <input.h>
 #include <collision.h>
 #include <scene.h>
@@ -170,7 +174,6 @@ void update_scene_objects();
 void initialize_shaders();
 void create_boilerplate_geometry();
 GLenum glCheckError_(const char* file, int line);
-void expire_render_messages_from_buffer();
 void start_frame();
 void check_all_entities_have_shaders();
 void setup_gl();
@@ -296,7 +299,8 @@ int main()
             render_game_gui(player);
             break;
       }
-      render_immediate(&G_IMMEDIATE_DRAW, G_SCENE_INFO.camera);
+      G_IMMEDIATE_DRAW.render();
+      G_IMMEDIATE_DRAW.check_expired_entries();
       render_message_buffer_contents();
 
       // -------------
@@ -345,23 +349,6 @@ void check_all_entities_have_shaders()
          cout << "FATAL: GL DATA not set for entity '" << entity->name << "'.\n";
          assert(false); 
       }
-   }
-}
-
-
-
-void expire_render_messages_from_buffer()
-{
-   size_t size = G_BUFFERS.rm_buffer->size;
-   auto item = G_BUFFERS.rm_buffer->buffer;
-   for(int i = 0; i < size; i++)
-   {
-      if(item->message != "" && item->elapsed >= item->duration)
-      {
-         item->message = "";
-         G_BUFFERS.rm_buffer->count -= 1;
-      }
-      item++;
    }
 }
 

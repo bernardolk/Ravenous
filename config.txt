@@ -1,4 +1,4 @@
-scene = test
+scene = playground
 camspeed = 13
 ambient_light = 1 1 1
 ambient_intensity = 0.14
