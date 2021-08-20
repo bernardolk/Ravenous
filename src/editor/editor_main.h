@@ -965,7 +965,9 @@ void render_world_cells(Camera* camera)
       shader->setMatrix4("model", model);
       shader->setMatrix4("view", camera->View4x4);
       shader->setMatrix4("projection", camera->Projection4x4);
+      glDisable(GL_CULL_FACE);
       render_mesh(cell_mesh, opts);
+      glEnable(GL_CULL_FACE);
    }
 }
 
