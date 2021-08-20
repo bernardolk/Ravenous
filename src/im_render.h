@@ -1,6 +1,10 @@
-// -----------------------------
-// GLOBAL IMMEDIATE DRAW STRUCT
-// -----------------------------
+// -----------------------
+// GLOBAL IMMEDIATE DRAW 
+// -----------------------
+// This module allows for adding geometric primitives to a buffer
+// and render them each frame from anywhere in the code, mostly
+// for debugging purposes
+
 struct ImmediateDrawElement {
    bool empty;
    Mesh mesh;
