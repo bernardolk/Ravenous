@@ -23,7 +23,7 @@ CollisionData get_terrain_height_at_player(Entity* player, Entity* entity);
 RaycastTest check_for_floor_below_player(Player* player);
 bool player_feet_center_touches_slope(Player* player, Entity* slope);
 CollisionData check_collision_horizontal(
-      Player* player, EntityBufferElement* entity_iterator, int entity_list_size
+      Player* player, EntityBufferElement* entity_iterator, int entity_list_size, bool iterative
 ); 
 CollisionData check_collision_vertical(Player* player, EntityBufferElement* entity_iterator, int entity_list_size);
 bool check_event_trigger_collision(Entity* trigger, Entity* player);
@@ -338,121 +338,121 @@ RaycastTest check_for_floor_below_player(Player* player)
       return RaycastTest{false};
 }
 
-CollisionData check_collision_horizontal(Player* player, EntityBufferElement* entity_iterator, int entity_list_size) 
+CollisionData check_collision_horizontal(Player* player, EntityBufferElement* entity_iterator, int entity_list_size, bool iterative = true) 
 {
    CollisionData return_cd; 
 
    for (int i = 0; i < entity_list_size; i++)
    {
 	   Entity* &entity = entity_iterator->entity;
-      if(entity->name == "Player")
+      
+      // skip if match any 
+      bool entity_is_player         = entity->name == "Player",
+           entity_is_player_ground  = player_qualifies_as_standing(player) && player->standing_entity_ptr == entity,
+           culled                   = !intersects_vertically_or_cull(entity, player),
+           checked                  = iterative && entity_iterator->collision_check;
+
+      if(entity_is_player || entity_is_player_ground || culled || checked)
       {
          entity_iterator++;
          continue;
       }
 
-	   float biggest_overlap = -1; //@wtf why is this inside the loop?
+      // start test
+      float biggest_overlap = -1;                        //@wtf why is this inside the loop?
       Collision collision;
       bool set_collided_entity = false;
-      bool entity_is_not_player_current_ground = !(player_qualifies_as_standing(player) && player->standing_entity_ptr == entity);
-	   if (entity_iterator->collision_check == false && entity_is_not_player_current_ground)
+
+      // AABB
+      if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX)
       {
-         // player cylinder doesnt intersect entity's bounding box    
-         if(!intersects_vertically_or_cull(entity, player))
+         collision = get_horizontal_overlap_with_player(entity, player);
+
+         if(collision.is_collided && collision.overlap > biggest_overlap)
+         {
+            cout << "n = x: " << collision.normal_vec.x << ", z: " << collision.normal_vec.y << "\n";
+            return_cd.collision_outcome = BLOCKED_BY_WALL;
+            set_collided_entity = true;
+         }
+      }
+
+      // ALIGNED SLOPE
+      else if (entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
+      {
+         // get some info about slope
+         auto col_geometry = entity->collision_geometry.slope;
+         auto slope_2d_tangent = glm::normalize(vec2(col_geometry.tangent.x, col_geometry.tangent.z));
+
+         collision = get_horizontal_overlap_with_player(entity, player);
+
+         // return early if not collided or player is inside slope
+         if(!collision.is_collided || collision.is_inside || collision.overlap < biggest_overlap)
          {
             entity_iterator++;
             continue;
          }
 
-         // AABB
-         if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX)
+         // player is hitting slope like a wall
+         if(player->feet().y < entity->position.y)
          {
-            collision = get_horizontal_overlap_with_player(entity, player);
-
-            if(collision.is_collided && collision.overlap > biggest_overlap)
-            {
-               cout << "n = x: " << collision.normal_vec.x << ", z: " << collision.normal_vec.y << "\n";
-               return_cd.collision_outcome = BLOCKED_BY_WALL;
-               set_collided_entity = true;
-            }
+            set_collided_entity = true;
+            return_cd.collision_outcome = BLOCKED_BY_WALL;
          }
 
-         // ALIGNED SLOPE
-         else if (entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
+         // player is facing slope inclined face
+         else if(is_equal(collision.normal_vec, slope_2d_tangent))
          {
-            // get some info about slope
-            auto col_geometry = entity->collision_geometry.slope;
-            auto slope_2d_tangent = glm::normalize(vec2(col_geometry.tangent.x, col_geometry.tangent.z));
-
-            collision = get_horizontal_overlap_with_player(entity, player);
-
-            // return early if not collided or player is inside slope
-            if(!collision.is_collided || collision.is_inside || collision.overlap < biggest_overlap)
+            // if slope is very inclined...
+            if(player_qualifies_as_standing(player) && col_geometry.inclination > SLIDE_MIN_ANGLE)
             {
-               entity_iterator++;
-               continue;
-            }
-
-            // player is hitting slope like a wall
-            if(player->feet().y < entity->position.y)
-            {
-               set_collided_entity = true;
-               return_cd.collision_outcome = BLOCKED_BY_WALL;
-            }
-
-            // player is facing slope inclined face
-            else if(is_equal(collision.normal_vec, slope_2d_tangent))
-            {
-               // if slope is very inclined...
-               if(player_qualifies_as_standing(player) && col_geometry.inclination > SLIDE_MIN_ANGLE)
-               {
-                  // ...then, we care if the player cylinder touches the slope in any way (cylinder tips count)
-                  if(intersects_vertically_with_slope(entity, player->entity_ptr))
-                  {
-                     set_collided_entity = true;
-                     return_cd.collision_outcome = BLOCKED_BY_WALL;
-                  }
-               }
-               else
-               {
-                  // either player is (falling) OR (standing but slope is not angled enough)...
-                  // we should only care for collisions between slope and the player center in x-z (feet center)
-                  float v_overlap = get_distance_from_slope(entity, player);
-                  if(v_overlap > 0)
-                  {
-                     set_collided_entity = true;
-                     return_cd.collision_outcome = STEPPED_SLOPE;
-                     collision.overlap = v_overlap; // @WORKAROUND
-                  }
-               }
-
-            }
-            // player is not facing slope inclined face
-            else
-            {
-               // ...then we care if player (as a cylinder) is touching the slope
+               // ...then, we care if the player cylinder touches the slope in any way (cylinder tips count)
                if(intersects_vertically_with_slope(entity, player->entity_ptr))
                {
                   set_collided_entity = true;
                   return_cd.collision_outcome = BLOCKED_BY_WALL;
                }
             }
+            else
+            {
+               // either player is (falling) OR (standing but slope is not angled enough)...
+               // we should only care for collisions between slope and the player center in x-z (feet center)
+               float v_overlap = get_distance_from_slope(entity, player);
+               if(v_overlap > 0)
+               {
+                  set_collided_entity = true;
+                  return_cd.collision_outcome = STEPPED_SLOPE;
+                  collision.overlap = v_overlap; // @WORKAROUND
+               }
+            }
+
          }
-
-         // set current entity as collided one
-         if(set_collided_entity)
+         // player is not facing slope inclined face
+         else
          {
-            // cout << "horizontal collision with '" << entity->name << "'\n";
-            biggest_overlap = collision.overlap;
-
-            return_cd.is_collided = true;
-            return_cd.collided_entity_ptr = entity;
-            return_cd.overlap = collision.overlap;
-            return_cd.normal_vec = collision.normal_vec;
+            // ...then we care if player (as a cylinder) is touching the slope
+            if(intersects_vertically_with_slope(entity, player->entity_ptr))
+            {
+               set_collided_entity = true;
+               return_cd.collision_outcome = BLOCKED_BY_WALL;
+            }
          }
       }
+
+      // set current entity as collided one
+      if(set_collided_entity)
+      {
+         // cout << "horizontal collision with '" << entity->name << "'\n";
+         biggest_overlap = collision.overlap;
+
+         return_cd.is_collided = true;
+         return_cd.collided_entity_ptr = entity;
+         return_cd.overlap = collision.overlap;
+         return_cd.normal_vec = collision.normal_vec;
+      }
+
       entity_iterator++;
    }
+
    return return_cd;
 }
 
@@ -606,4 +606,38 @@ bool check_event_trigger_collision(Entity* trigger, Entity* player)
       return false;
 
    return true;
+}
+
+// this will snap player to the collided entity according to its normal vec (if player overlaps it in the test)
+void CL_snap_player(Player* player, vec2 normal_vec, float overlap)
+{
+   if(overlap > 0)
+      player->entity_ptr->position += vec3(normal_vec.x, 0, normal_vec.y) * overlap;
+}
+
+// returns the position of the player if he were to cross an obstacle (ledge grabbing standing or vaulting)
+vec3 CL_player_future_pos_obstacle(Player* player, vec2 normal_vec, float overlap, float delta_y)
+{
+   vec3 original_pos = player->entity_ptr->position;
+   CL_snap_player(player, normal_vec, overlap);
+   vec3 position = player->entity_ptr->position + to_xz(pCam->Front) * player->radius * 2.f;
+   position.y += delta_y;
+   player->entity_ptr->position = original_pos;
+   return position;
+}
+
+bool CL_test_in_mock_position(Player* player, vec3 pos)
+{
+   vec3 original_pos = player->entity_ptr->position;
+
+   player->entity_ptr->position = pos;
+   CollisionData test = check_collision_horizontal(
+      player,
+      G_BUFFERS.entity_buffer->buffer,
+      G_BUFFERS.entity_buffer->size,
+      false
+   );
+
+   player->entity_ptr->position = original_pos;
+   return test.is_collided;
 }

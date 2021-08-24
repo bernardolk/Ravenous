@@ -21,7 +21,7 @@ struct CollisionData {
    bool is_collided            = false;
    Entity* collided_entity_ptr = NULL;
    float overlap               = 0;
-   vec2 normal_vec        = vec2(0,0);
+   vec2 normal_vec             = vec2(0,0);
    CollisionOutcomeEnum collision_outcome;
 };
 

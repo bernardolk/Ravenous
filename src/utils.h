@@ -38,6 +38,8 @@ bool is_zero(float x)
    return abs(x) < 0.0001;
 }
 
+// VECTOR COMPARISON
+
 float VEC_COMPARE_PRECISION = 0.00001f;
 
 inline
@@ -61,43 +63,51 @@ bool is_equal(vec3 vec1, vec3 vec2)
       && z_diff < VEC_COMPARE_PRECISION;
 }
 
-// compare sign
+// SIGN COMPARISON
+inline
 bool comp_sign(float a, float b)
 {
    return a * b >= 0.f;
 }
 
+inline
 float sign(float a)
 {
    return a < 0 ? -1 : 1;
 }
 
-// compare vector length with scalar
-
+// VECTOR LENGTH COMPARISON
+inline
 bool square_EQ(vec3 v, float n)
 {
    return v.x * v.x + v.y * v.y + v.z * v.z == n * n; 
 }
 
+inline
 bool square_LT(vec3 v, float n)
 {
    return v.x * v.x + v.y * v.y + v.z * v.z < n * n; 
 }
 
+inline
 bool square_GT(vec3 v, float n)
 {
    return v.x * v.x + v.y * v.y + v.z * v.z > n * n; 
 }
 
+inline
 bool square_LE(vec3 v, float n)
 {
    return v.x * v.x + v.y * v.y + v.z * v.z <= n * n; 
 }
 
+inline
 bool square_GE(vec3 v, float n)
 {
    return v.x * v.x + v.y * v.y + v.z * v.z >= n * n; 
 }
+
+// VECTOR ANGLE
 
 inline
 float vector_angle(vec2 A, vec2 B)
@@ -117,4 +127,41 @@ float vector_cos(vec2 A, vec2 B)
    float len_B = glm::length(B);
    float cos = dot / (len_A * len_B);
    return cos;
+}
+
+// VECTOR DIMENSION CONVERSION
+inline
+vec3 to_xz(vec3 vector)
+{
+   return vec3(vector.x, 0, vector.z);
+}
+
+inline
+vec3 to_xy(vec3 vector)
+{
+   return vec3(vector.x, vector.y, 0);
+}
+
+inline
+vec3 to_zy(vec3 vector)
+{
+   return vec3(0, vector.y, vector.z);
+}
+
+inline
+vec2 to2d_xz(vec3 vector)
+{
+   return vec2(vector.x, vector.z);
+}
+
+inline
+vec2 to2d_xy(vec3 vector)
+{
+   return vec2(vector.x, vector.y);
+}
+
+inline
+vec2 to2d_zy(vec3 vector)
+{
+   return vec2(vector.z, vector.y);
 }

@@ -12,9 +12,9 @@ void reset_collision_buffer_checks();
 void make_player_slide(Player* player, Entity* ramp, bool slide_fall = false);
 void make_player_jump_from_slope(Player* player);
 bool check_player_grabbed_ledge(Player* player, Entity* entity);
-void make_player_grab_ledge(Player* player, Entity* entity, float theta, vec2 normal_vec, float d);
+void make_player_grab_ledge(Player* player, Entity* entity, vec2 normal_vec, float d);
 bool check_player_vaulting(Player* player);
-void make_player_vault_over_obstacle(Player* player, Entity* entity, float theta, vec2 normal_vec, float d);
+void make_player_vault_over_obstacle(Player* player, Entity* entity, vec2 normal_vec, float d);
 
 // -------
 // @TODO: incorporate those in move_player call
@@ -341,6 +341,10 @@ void resolve_collision(CollisionData collision, Player* player)
    if(trigger_check_was_player_hurt) player->maybe_hurt_from_fall();
 }
 
+// ---------------
+// LEDGE GRABBING
+// ---------------
+
 void check_player_grabbed_ledge(Player* player)
 {
    // ledge grab y tollerance
@@ -381,24 +385,42 @@ void check_player_grabbed_ledge(Player* player)
       float max_theta = 180 + s_theta;
       if(min_theta <= theta && theta <= max_theta)
       {
-         float turn_angle = 180 - glm::degrees(vector_angle(camera_f, test.normal_vec));
-         make_player_grab_ledge(player, entity, turn_angle, test.normal_vec, test.overlap - dr);
+         // checks if area above ledge is free for standing
+         float delta_y = (entity->position.y - player->feet().y) + entity->get_height() + player->half_height;
+         vec3 future_pos = CL_player_future_pos_obstacle(player, test.normal_vec, test.overlap - dr, delta_y);
+         if(CL_test_in_mock_position(player, future_pos))
+            continue;
+
+         make_player_grab_ledge(player, entity, test.normal_vec, test.overlap - dr);
          return;
       }
    }
 }
 
-void make_player_grab_ledge(Player* player, Entity* entity, float theta, vec2 normal_vec, float d)
+void make_player_grab_ledge(Player* player, Entity* entity, vec2 normal_vec, float d)
 {
    // this will be an animation in the future
-   camera_change_direction(pCam, theta, 0.f);
-   // makes player snap to wall
-   if(d > 0)
-      player->entity_ptr->position += vec3(normal_vec.x, 0, normal_vec.y) * d;
+   float turn_angle = 180 - glm::degrees(vector_angle(to2d_xz(pCam->Front), normal_vec));
+   camera_change_direction(pCam, turn_angle, 0.f);
+   CL_snap_player(player, normal_vec, d);
+
    player->player_state = PLAYER_STATE_GRABBING;
    player->grabbing_entity = entity;
-   player->entity_ptr->velocity.y = 0;
+   player->entity_ptr->velocity = vec3(0);
 }
+
+void make_player_get_up_from_edge(Player* player)
+{
+   player->player_state       = PLAYER_STATE_VAULTING;
+   player->anim_state         = P_ANIM_VAULTING;
+   player->anim_final_pos     = player->entity_ptr->position + to_xz(pCam->Front) * player->radius * 2.f;
+   player->anim_final_pos.y   = player->grabbing_entity->position.y + player->grabbing_entity->get_height() + player->half_height;
+   player->anim_orig_pos      = player->entity_ptr->position;
+}
+
+// ---------
+// VAULTING
+// ---------
 
 bool check_player_vaulting(Player* player)
 {
@@ -431,6 +453,9 @@ bool check_player_vaulting(Player* player)
       // and therefore going over them do not count as 'vaulting moves'
       if(rel_height < 0.3) // also makes sure we only get positive rel heights
          continue;
+      
+      if(rel_height >= player->half_height * 2)
+         continue;
 
       auto [x0, x1, z0, z1] = entity->get_rect_bounds();
       auto test = circle_vs_square(
@@ -448,39 +473,30 @@ bool check_player_vaulting(Player* player)
       float max_theta = 180 + s_theta;
       if(min_theta <= theta && theta <= max_theta)
       {
-         float turn_angle = 180 - glm::degrees(vector_angle(camera_f, test.normal_vec));
-         make_player_vault_over_obstacle(player, entity, turn_angle, test.normal_vec, test.overlap - dr);
+         // checks if area above ledge is free for standing
+         float delta_y = (entity->position.y - player->feet().y) + entity->get_height() + player->half_height;
+         vec3 future_pos = CL_player_future_pos_obstacle(player, test.normal_vec, test.overlap - dr, delta_y);
+         if(CL_test_in_mock_position(player, future_pos))
+            continue;
+         
+         make_player_vault_over_obstacle(player, entity, test.normal_vec, test.overlap - dr);
          return true;
       }
    }
    return false;
 }
 
-void make_player_vault_over_obstacle(Player* player, Entity* entity, float theta, vec2 normal_vec, float d)
+void make_player_vault_over_obstacle(Player* player, Entity* entity, vec2 normal_vec, float d)
 {
-   camera_change_direction(pCam, theta, 0.f);
-   // makes player snap to wall
-   if(d > 0)
-      player->entity_ptr->position += vec3(normal_vec.x, 0, normal_vec.y) * d;
+   float turn_angle = 180 - glm::degrees(vector_angle(to2d_xz(pCam->Front), normal_vec));
+   camera_change_direction(pCam, turn_angle, 0.f);
+   CL_snap_player(player, normal_vec, d);
+
    player->player_state          = PLAYER_STATE_VAULTING;
    player->anim_state            = P_ANIM_VAULTING;
-   player->anim_final_pos        = player->entity_ptr->position + 
-                                   vec3(pCam->Front.x, 0, pCam->Front.z) * player->radius * 2.f;
+   player->anim_final_pos        = player->entity_ptr->position + to_xz(pCam->Front) * player->radius * 2.f;
    player->anim_final_pos.y      = entity->position.y + entity->get_height() + player->half_height;
    player->anim_orig_pos         = player->entity_ptr->position;
-
-}
-
-void make_player_get_up_from_edge(Player* player)
-{
-   player->player_state       = PLAYER_STATE_VAULTING;
-   player->anim_state         = P_ANIM_VAULTING;
-   player->anim_final_pos     = player->entity_ptr->position + 
-                                vec3(pCam->Front.x, 0, pCam->Front.z) * player->radius * 2.f;
-
-   player->anim_final_pos.y   = player->grabbing_entity->position.y + player->grabbing_entity->get_height() + player->half_height;
-   player->anim_orig_pos      = player->entity_ptr->position;
-   
 }
 
 void finish_vaulting(Player* player)
