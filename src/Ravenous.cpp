@@ -138,6 +138,10 @@ struct ProgramConfig {
 // entity manager
 EntityManager Entity_Manager;
 
+// camera handles
+Camera* pCam;
+Camera* edCam;
+
 #include <dearIMGUI/imgui.h>
 #include <dearIMGUI/imgui_impl_glfw.h>
 #include <dearIMGUI/imgui_impl_opengl3.h>
@@ -178,6 +182,8 @@ void start_frame();
 void check_all_entities_have_shaders();
 void setup_gl();
 
+
+
 int main()
 {
    // INITIAL GLFW AND GLAD SETUPS
@@ -189,6 +195,8 @@ int main()
    Camera* first_person_camera = new Camera();
    G_SCENE_INFO.views[EDITOR_CAM] = editor_camera;
    G_SCENE_INFO.views[FPS_CAM] = first_person_camera;
+   pCam = first_person_camera;
+   edCam = editor_camera;
 
 	// load shaders, textures and geometry
    load_textures_from_assets_folder();
