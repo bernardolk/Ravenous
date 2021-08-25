@@ -74,6 +74,7 @@ struct RenderMessageBufferElement {
    string message = "";
    float elapsed = 0;
    float duration = 0;
+   vec3 color;
 };
 
 struct RenderMessageBuffer {
@@ -81,7 +82,7 @@ struct RenderMessageBuffer {
    size_t size;
    u16 count = 0;
 
-   bool add(string msg, float duration)
+   bool add(string msg, float duration, vec3 color = vec3(-1))
    {
       if(count < size)
       {
@@ -99,6 +100,7 @@ struct RenderMessageBuffer {
                item->message = msg;
                item->elapsed = 0;
                item->duration = duration;
+               item->color = color;
                count++;
                break;
             }
@@ -152,7 +154,7 @@ void render_message_buffer_contents()
             "consola20",
             G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, 
             G_DISPLAY_INFO.VIEWPORT_HEIGHT - 120 - render_count * 25,  
-            vec3(0.8, 0.8, 0.2),
+            item->color == vec3(-1) ? vec3(0.8, 0.8, 0.2) : item->color,
             true,
             item->message
          );
@@ -282,4 +284,9 @@ CollisionLog* allocate_collision_log()
    collision_log->write = collision_log->main;
 
    return collision_log;
+}
+
+void RENDER_MESSAGE(string msg, float duration, vec3 color = vec3(-1))
+{
+   G_BUFFERS.rm_buffer->add(msg, duration, color);
 }

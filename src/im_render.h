@@ -79,7 +79,7 @@ struct GlobalImmediateDraw {
       _set_mesh(i, vertex_vec, draw_method, opts);
    }
 
-   void add_line(vec3 points[2], float line_width = 1.0, bool always_on_top = false)
+   void add_line(vec3 points[2], float line_width = 1.0, bool always_on_top = false, vec3 color = vec3(0))
    {
       int i = _find_space();
       if(i == -1) return;
@@ -89,11 +89,12 @@ struct GlobalImmediateDraw {
       RenderOptions opts;
       opts.line_width = line_width;
       opts.always_on_top = always_on_top;
+      opts.color = color;
 
       _set_mesh(i, vertex_vec, GL_LINES, opts);
    }
 
-   void add_line(vec3 pointA, vec3 pointB, float line_width = 1.0, bool always_on_top = false)
+   void add_line(vec3 pointA, vec3 pointB, float line_width = 1.0, bool always_on_top = false, vec3 color = vec3(0))
    {
       int i = _find_space();
       if(i == -1) return;
@@ -103,6 +104,7 @@ struct GlobalImmediateDraw {
       RenderOptions opts;
       opts.line_width = line_width;
       opts.always_on_top = always_on_top;
+      opts.color = color;
 
       _set_mesh(i, vertex_vec, GL_LINES, opts);
    }
