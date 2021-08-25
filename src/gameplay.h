@@ -350,7 +350,7 @@ void check_player_grabbed_ledge(Player* player)
    // ledge grab y tollerance
    const float y_tol = 0.1;
    // half the ledge grab semicircle region angle, in degrees 
-   const float s_theta = 8;
+   const float s_theta = 40;
    // radius of detection
    const float dr = 0.1;
 
@@ -400,7 +400,8 @@ void check_player_grabbed_ledge(Player* player)
 void make_player_grab_ledge(Player* player, Entity* entity, vec2 normal_vec, float d)
 {
    // this will be an animation in the future
-   float turn_angle = 180 - glm::degrees(vector_angle(to2d_xz(pCam->Front), normal_vec));
+   float turn_angle = glm::degrees(vector_angle_signed(to2d_xz(pCam->Front), normal_vec)) - 180;
+   RENDER_MESSAGE(to_string(turn_angle), 1200);
    camera_change_direction(pCam, turn_angle, 0.f);
    CL_snap_player(player, normal_vec, d);
 
@@ -425,17 +426,9 @@ void make_player_get_up_from_edge(Player* player)
 bool check_player_vaulting(Player* player)
 {
    // action cone half theta 
-   const float s_theta = 8;
+   const float s_theta = 40;
    // radius of detection
    const float dr = 0.1;
-
-   // DEBUG VIEW
-   G_IMMEDIATE_DRAW.add_line(
-      pCam->Position,
-      pCam->Position + pCam->Front * 1.f,
-      2.0,
-      true
-   );
 
    float player_y = player->entity_ptr->position.y;
    auto camera_f = vec2(pCam->Front.x, pCam->Front.z);
@@ -488,7 +481,7 @@ bool check_player_vaulting(Player* player)
 
 void make_player_vault_over_obstacle(Player* player, Entity* entity, vec2 normal_vec, float d)
 {
-   float turn_angle = 180 - glm::degrees(vector_angle(to2d_xz(pCam->Front), normal_vec));
+   float turn_angle = glm::degrees(vector_angle_signed(to2d_xz(pCam->Front), normal_vec)) - 180;
    camera_change_direction(pCam, turn_angle, 0.f);
    CL_snap_player(player, normal_vec, d);
 
@@ -502,4 +495,16 @@ void make_player_vault_over_obstacle(Player* player, Entity* entity, vec2 normal
 void finish_vaulting(Player* player)
 {
    player->player_state = PLAYER_STATE_STANDING;
+}
+
+void GP_run_scratch(Player* player)
+{
+   float s_theta = 40;
+   float theta = glm::degrees(vector_angle(to2d_xz(pCam->Front), vec2(0, -1)));
+   float min_theta = 180 - s_theta;
+   float max_theta = 180 + s_theta;
+   bool pass = min_theta <= theta && theta <= max_theta;
+   vec3 color = pass ? vec3(0, 0.8, 0.1) : vec3(0.9, 0, 0.1);
+   RENDER_MESSAGE(to_string(theta), 0, color);
+
 }

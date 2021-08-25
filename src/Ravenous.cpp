@@ -284,6 +284,7 @@ int main()
       recompute_collision_buffer_entities(player);
       resolve_player_collisions(player, &World);
 		update_scene_objects();
+      GP_run_scratch(player);
 
       // -------------
 		//	RENDER PHASE
