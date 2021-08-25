@@ -420,6 +420,9 @@ void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
    // MOVE CAMERA WITH MOUSE IF APPROPRIATE
    if (PROGRAM_MODE.current == GAME_MODE || (G_INPUT_INFO.mouse_state & MOUSE_DRAGGING) ) 
    {
+      if(G_INPUT_INFO.block_mouse_move)
+         return;
+         
       // 'teleports' stored coordinates to current mouse coordinates
       if (G_INPUT_INFO.forget_last_mouse_coords) 
       {

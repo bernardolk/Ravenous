@@ -274,6 +274,7 @@ void execute_command(string buffer_line, Player* &player, WorldStruct* world, Ca
          player->entity_ptr->render_me = PROGRAM_MODE.last == EDITOR_MODE ? true : false;
          G_CONFIG = load_configs();
          G_SCENE_INFO.active_scene->load_configs(G_CONFIG);
+         G_INPUT_INFO.block_mouse_move = false;
       }
    }
 

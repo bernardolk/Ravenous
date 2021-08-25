@@ -93,6 +93,8 @@ struct Player {
    PlayerAnimationState anim_state = P_ANIM_NO_ANIM;         // animation state
    vec3 anim_final_pos  = vec3(0);                           // final position after translation animation
    vec3 anim_orig_pos   = vec3(0);                           // original position
+   vec3 anim_final_dir  = vec3(0);                           // final player orientation
+   vec3 anim_orig_dir   = vec3(0);                           // original player orientation
 
    vec3 feet()
    {

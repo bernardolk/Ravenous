@@ -38,6 +38,12 @@ string to_string(vec3 vec)
    return "(" + to_string(vec.x) + ", " + to_string(vec.y) + ", " + to_string(vec.z) + ")";
 }
 
+inline
+string to_string(vec2 vec)
+{
+   return "(" + to_string(vec.x) + ", " + to_string(vec.y) + ")";
+}
+
 inline 
 bool is_zero(float x)
 {

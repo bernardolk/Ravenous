@@ -76,6 +76,8 @@ bool p_anim_landing_fall_update(Player* player)
 
 bool p_anim_vaulting(Player* player)
 {
+   G_INPUT_INFO.block_mouse_move = true;
+
    vec3& p_pos = player->entity_ptr->position;
 
    // animation speed in m/s
@@ -116,7 +118,23 @@ bool p_anim_vaulting(Player* player)
    else
       p_pos.z = player->anim_final_pos.z;
 
-   if(is_equal(p_pos, player->anim_final_pos))
+   // camera direction animation
+   float orig_angle = glm::degrees(vector_angle_signed(nrmlz(to2d_xz(player->anim_orig_dir)), to2d_xz(player->anim_final_dir)));
+   float orig_sign = sign(180 - orig_angle);
+   float turn_angle = -0.5 * orig_sign;
+   camera_change_direction(pCam, turn_angle, 0.f);
+
+   float updated_angle = glm::degrees(vector_angle_signed(nrmlz(to2d_xz(pCam->Front)), to2d_xz(player->anim_final_dir)));
+   float updated_sign = sign(180 - updated_angle);
+   if(updated_sign != orig_sign)
+      camera_look_at(pCam, player->anim_final_dir, false);
+
+   RENDER_MESSAGE("front: " + to_string(nrmlz(to2d_xz(pCam->Front))));
+   RENDER_MESSAGE("final dir: " + to_string(player->anim_final_dir), 0, vec3(0.8, 0.8, 0.8));
+   RENDER_MESSAGE("orig angle: " + to_string(orig_angle), 0, vec3(0.8, 0.8, 0.8));
+   RENDER_MESSAGE("current angle: " +  to_string(updated_angle));
+
+   if(is_equal(p_pos, player->anim_final_pos) && is_equal(pCam->Front, player->anim_final_dir))
       return true;
    else
       return false;

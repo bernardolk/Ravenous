@@ -399,15 +399,17 @@ void check_player_grabbed_ledge(Player* player)
 
 void make_player_grab_ledge(Player* player, Entity* entity, vec2 normal_vec, float d)
 {
+   
    // this will be an animation in the future
+   vec3 rev_normal = vec3(normal_vec.x == 0 ? 0 : -1.0 * normal_vec.x, 0, normal_vec.y == 0 ? 0 : -1.0 * normal_vec.y);
    float turn_angle = glm::degrees(vector_angle_signed(to2d_xz(pCam->Front), normal_vec)) - 180;
-   RENDER_MESSAGE(to_string(turn_angle), 1200);
    camera_change_direction(pCam, turn_angle, 0.f);
    CL_snap_player(player, normal_vec, d);
 
    player->player_state = PLAYER_STATE_GRABBING;
    player->grabbing_entity = entity;
    player->entity_ptr->velocity = vec3(0);
+   player->anim_final_dir     = rev_normal;
 }
 
 void make_player_get_up_from_edge(Player* player)
@@ -417,6 +419,7 @@ void make_player_get_up_from_edge(Player* player)
    player->anim_final_pos     = player->entity_ptr->position + nrmlz(to_xz(pCam->Front)) * player->radius * 2.f;
    player->anim_final_pos.y   = player->grabbing_entity->position.y + player->grabbing_entity->get_height() + player->half_height;
    player->anim_orig_pos      = player->entity_ptr->position;
+   player->anim_orig_dir      = nrmlz(to_xz(pCam->Front));
    player->entity_ptr->velocity = vec3(0);
 }
 
@@ -482,31 +485,35 @@ bool check_player_vaulting(Player* player)
 
 void make_player_vault_over_obstacle(Player* player, Entity* entity, vec2 normal_vec, float d)
 {
-   float turn_angle = glm::degrees(vector_angle_signed(nrmlz(to2d_xz(pCam->Front)), normal_vec)) - 180;
-   camera_change_direction(pCam, turn_angle, 0.f);
    CL_snap_player(player, normal_vec, d);
 
+   vec3 rev_normal = vec3(normal_vec.x == 0 ? 0 : -1.0 * normal_vec.x, 0, normal_vec.y == 0 ? 0 : -1.0 * normal_vec.y);
+
    player->player_state          = PLAYER_STATE_VAULTING;
-   player->anim_state            = P_ANIM_VAULTING;
-   player->anim_final_pos        = player->entity_ptr->position + nrmlz(to_xz(pCam->Front)) * player->radius * 2.f;
+   player->anim_state               = P_ANIM_VAULTING;
+   player->anim_final_pos        = player->entity_ptr->position + rev_normal * player->radius * 2.f;
    player->anim_final_pos.y      = entity->position.y + entity->get_height() + player->half_height;
    player->anim_orig_pos         = player->entity_ptr->position;
    player->entity_ptr->velocity  = vec3(0);
+   player->anim_orig_dir         = nrmlz(to_xz(pCam->Front));
+   player->anim_final_dir        = rev_normal;
 }
 
 void finish_vaulting(Player* player)
 {
+   G_INPUT_INFO.forget_last_mouse_coords = true;
+   G_INPUT_INFO.block_mouse_move = false;
    player->player_state = PLAYER_STATE_STANDING;
 }
 
 void GP_run_scratch(Player* player)
 {
-   float s_theta = 40;
-   float theta = glm::degrees(vector_angle(to2d_xz(pCam->Front), vec2(0, -1)));
-   float min_theta = 180 - s_theta;
-   float max_theta = 180 + s_theta;
-   bool pass = min_theta <= theta && theta <= max_theta;
-   vec3 color = pass ? vec3(0, 0.8, 0.1) : vec3(0.9, 0, 0.1);
-   RENDER_MESSAGE(to_string(theta), 0, color);
+   // float s_theta = 40;
+   // float theta = glm::degrees(vector_angle(to2d_xz(pCam->Front), vec2(0, -1)));
+   // float min_theta = 180 - s_theta;
+   // float max_theta = 180 + s_theta;
+   // bool pass = min_theta <= theta && theta <= max_theta;
+   // vec3 color = pass ? vec3(0, 0.8, 0.1) : vec3(0.9, 0, 0.1);
+   // RENDER_MESSAGE(to_string(theta), 0, color);
 
 }

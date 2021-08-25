@@ -15,6 +15,7 @@ const size_t COLLISION_LOG_BUFFER_CAPACITY = 150;
 const size_t COLLISION_LOG_CAPACITY = 20;
 const size_t COLLISION_BUFFER_CAPACITY = WORLD_CELL_CAPACITY * 8;
 const size_t MESSAGE_BUFFER_CAPACITY = 10;
+const int MAX_MESSAGES_TO_RENDER = 4;
 
 // ----------------------
 // global buffers struct
@@ -144,7 +145,7 @@ void render_message_buffer_contents()
    auto item = G_BUFFERS.rm_buffer->buffer;
    for(int i = 0; i < size; i++)
    {
-      if(render_count == 3)
+      if(render_count == MAX_MESSAGES_TO_RENDER)
          break;
 
       if(item->message != "")
@@ -286,7 +287,7 @@ CollisionLog* allocate_collision_log()
    return collision_log;
 }
 
-void RENDER_MESSAGE(string msg, float duration, vec3 color = vec3(-1))
+void RENDER_MESSAGE(string msg, float duration = 0, vec3 color = vec3(-1))
 {
    G_BUFFERS.rm_buffer->add(msg, duration, color);
 }

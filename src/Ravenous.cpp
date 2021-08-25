@@ -101,6 +101,7 @@ struct GlobalInputInfo {
    MouseCoordinates mouse_coords;
    u64 key_state = 0;
    u8 mouse_state = 0;
+   bool block_mouse_move = false;
 } G_INPUT_INFO;
 
 struct GlobalFrameInfo {
