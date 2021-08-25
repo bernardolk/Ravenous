@@ -33,6 +33,7 @@ RaycastTest test_ray_against_triangle(Ray ray, Triangle triangle);
 Triangle get_triangle_for_indexed_mesh(Mesh* mesh, glm::mat4 matModel, int triangle_index);
 Triangle get_triangle_for_indexed_mesh(Entity* entity, int triangle_index);
 vec3 point_from_detection(Ray ray, RaycastTest result);
+vec3 get_triangle_normal(Triangle t);
 
 
 RaycastTest test_ray_against_lights(Ray ray)
@@ -288,6 +289,11 @@ Face face_from_axis_aligned_triangle(Triangle t)
    f.center = center;
 
    return f;
+}
+
+vec3 get_triangle_normal(Triangle t)
+{
+   return glm::triangleNormal(t.a, t.b, t.c);
 }
 
 bool is_equal(Triangle t1, Triangle t2)

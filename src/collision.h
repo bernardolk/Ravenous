@@ -506,15 +506,15 @@ CollisionData check_collision_vertical(Player* player, EntityBufferElement* enti
             }
          }
 
-         
          // B) CHECKS IF ANYTHING WORHTWHILE HAPPENED
          if(horizontal_check.is_collided && vertical_overlap >= 0 && vertical_overlap > biggest_overlap)
          {
             biggest_overlap = vertical_overlap;
             return_cd.collided_entity_ptr = entity;
 
-
             // player jumped and hit the ceiling (AABB)
+            // @bug this is completely wrong! the normal vec being used is fake.
+            // I cant get rid of this until we have real cylinder vs box collision detection in place.
             if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX &&
                v_overlap_collision.normal_vec.y == -1 &&
                player->prior_position.y < player->entity_ptr->position.y &&

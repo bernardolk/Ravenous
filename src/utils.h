@@ -177,3 +177,15 @@ vec2 to2d_zy(vec3 vector)
 {
    return vec2(vector.z, vector.y);
 }
+
+inline
+vec3 nrmlz(vec3 vec)
+{
+   return glm::normalize(vec);
+}
+
+inline
+vec2 nrmlz(vec2 vec)
+{
+   return glm::normalize(vec);
+}

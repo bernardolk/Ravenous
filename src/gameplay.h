@@ -414,9 +414,10 @@ void make_player_get_up_from_edge(Player* player)
 {
    player->player_state       = PLAYER_STATE_VAULTING;
    player->anim_state         = P_ANIM_VAULTING;
-   player->anim_final_pos     = player->entity_ptr->position + to_xz(pCam->Front) * player->radius * 2.f;
+   player->anim_final_pos     = player->entity_ptr->position + nrmlz(to_xz(pCam->Front)) * player->radius * 2.f;
    player->anim_final_pos.y   = player->grabbing_entity->position.y + player->grabbing_entity->get_height() + player->half_height;
    player->anim_orig_pos      = player->entity_ptr->position;
+   player->entity_ptr->velocity = vec3(0);
 }
 
 // ---------
@@ -481,15 +482,16 @@ bool check_player_vaulting(Player* player)
 
 void make_player_vault_over_obstacle(Player* player, Entity* entity, vec2 normal_vec, float d)
 {
-   float turn_angle = glm::degrees(vector_angle_signed(to2d_xz(pCam->Front), normal_vec)) - 180;
+   float turn_angle = glm::degrees(vector_angle_signed(nrmlz(to2d_xz(pCam->Front)), normal_vec)) - 180;
    camera_change_direction(pCam, turn_angle, 0.f);
    CL_snap_player(player, normal_vec, d);
 
    player->player_state          = PLAYER_STATE_VAULTING;
    player->anim_state            = P_ANIM_VAULTING;
-   player->anim_final_pos        = player->entity_ptr->position + to_xz(pCam->Front) * player->radius * 2.f;
+   player->anim_final_pos        = player->entity_ptr->position + nrmlz(to_xz(pCam->Front)) * player->radius * 2.f;
    player->anim_final_pos.y      = entity->position.y + entity->get_height() + player->half_height;
    player->anim_orig_pos         = player->entity_ptr->position;
+   player->entity_ptr->velocity  = vec3(0);
 }
 
 void finish_vaulting(Player* player)
