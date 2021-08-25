@@ -26,10 +26,16 @@ void print_every_3rd_frame(std::string thing, std::string prefix)
 }
 
 inline
-string format_float_tostr(float num, int precision) 
+string format_float_tostr(float num, int precision)   
 {
 	string temp = std::to_string(num);
 	return temp.substr(0, temp.find(".") + 3);
+}
+
+inline
+string to_string(vec3 vec)
+{
+   return "(" + to_string(vec.x) + ", " + to_string(vec.y) + ", " + to_string(vec.z) + ")";
 }
 
 inline 
@@ -117,6 +123,12 @@ float vector_angle(vec2 A, vec2 B)
    float len_B = glm::length(B);
    float theta = acos(dot / (len_A * len_B));
    return theta;
+}
+
+inline
+float vector_angle_signed(vec2 A, vec2 B)
+{
+   return atan2( A.x*B.y - A.y*B.x, A.x*B.x + A.y*B.y );
 }
 
 inline
