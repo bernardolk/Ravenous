@@ -222,14 +222,6 @@ void handle_input_flags(InputFlags flags, Player* &player)
       }
    }
 
-   // -------------
-   // OPEN CONSOLE
-   // -------------
-   if(pressed_once(flags, KEY_GRAVE_TICK))
-   {
-      start_console_mode();
-   }
-
    // -------------------------------
    // SPAWN PLAYER ON MOUSE POSITION
    // -------------------------------

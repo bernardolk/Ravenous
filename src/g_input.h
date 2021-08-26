@@ -222,6 +222,10 @@ void handle_common_input(InputFlags flags, Player* &player)
    {
       toggle_program_modes(player);
    }
+   if(pressed_once(flags, KEY_GRAVE_TICK))
+   {
+      start_console_mode();
+   }
    if(pressed_once(flags, KEY_J))
    {
       check_trigger_interaction(player);
