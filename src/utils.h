@@ -51,7 +51,6 @@ bool is_zero(float x)
 }
 
 // VECTOR COMPARISON
-
 float VEC_COMPARE_PRECISION = 0.00001f;
 
 inline

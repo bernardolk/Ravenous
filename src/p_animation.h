@@ -119,22 +119,35 @@ bool p_anim_vaulting(Player* player)
       p_pos.z = player->anim_final_pos.z;
 
    // camera direction animation
-   float orig_angle = glm::degrees(vector_angle_signed(nrmlz(to2d_xz(player->anim_orig_dir)), to2d_xz(player->anim_final_dir)));
-   float orig_sign = sign(180 - orig_angle);
-   float turn_angle = -0.5 * orig_sign;
+   vec2 f_dir_xz        = to2d_xz(player->anim_final_dir);
+   float orig_sva       = vector_angle_signed(nrmlz(to2d_xz(player->anim_orig_dir)), f_dir_xz);
+   float orig_angle     = glm::degrees(orig_sva);
+   float orig_sign      = sign(orig_angle);
+   float turn_angle     = 0.5 * orig_sign;
    camera_change_direction(pCam, turn_angle, 0.f);
 
-   float updated_angle = glm::degrees(vector_angle_signed(nrmlz(to2d_xz(pCam->Front)), to2d_xz(player->anim_final_dir)));
-   float updated_sign = sign(180 - updated_angle);
+   float updated_sva    = vector_angle_signed(nrmlz(to2d_xz(pCam->Front)), f_dir_xz);
+   float updated_angle  = glm::degrees(updated_sva);
+   float updated_sign   = sign(updated_angle);
    if(updated_sign != orig_sign)
-      camera_look_at(pCam, player->anim_final_dir, false);
+   {
+      camera_change_direction(pCam, -1.0* updated_angle, 0.f);
+      updated_angle = 0;
+      camera_look_at(pCam, vec3(player->anim_final_dir.x, pCam->Front.y, player->anim_final_dir.z), false);
+   }
 
+   /*
    RENDER_MESSAGE("front: " + to_string(nrmlz(to2d_xz(pCam->Front))));
    RENDER_MESSAGE("final dir: " + to_string(player->anim_final_dir), 0, vec3(0.8, 0.8, 0.8));
    RENDER_MESSAGE("orig angle: " + to_string(orig_angle), 0, vec3(0.8, 0.8, 0.8));
    RENDER_MESSAGE("current angle: " +  to_string(updated_angle));
+   RENDER_MESSAGE("sva cam-final: " +  to_string(updated_sva), 0, vec3(0,0.8,0.1));
+   RENDER_MESSAGE("sva orig-final: " +  to_string(orig_sva), 0, vec3(0,0.8,0.1));
+   RENDER_MESSAGE("orig sign: " +  to_string(orig_sign), 0, vec3(0.8,0.0,0.1));
+   RENDER_MESSAGE("updated sign: " +  to_string(updated_sign), 0, vec3(0.8,0.0,0.1));
+   */
 
-   if(is_equal(p_pos, player->anim_final_pos) && is_equal(pCam->Front, player->anim_final_dir))
+   if(is_equal(p_pos, player->anim_final_pos) && updated_angle == 0)
       return true;
    else
       return false;

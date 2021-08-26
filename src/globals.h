@@ -15,7 +15,7 @@ const size_t COLLISION_LOG_BUFFER_CAPACITY = 150;
 const size_t COLLISION_LOG_CAPACITY = 20;
 const size_t COLLISION_BUFFER_CAPACITY = WORLD_CELL_CAPACITY * 8;
 const size_t MESSAGE_BUFFER_CAPACITY = 10;
-const int MAX_MESSAGES_TO_RENDER = 4;
+const int MAX_MESSAGES_TO_RENDER = 8;
 
 // ----------------------
 // global buffers struct
