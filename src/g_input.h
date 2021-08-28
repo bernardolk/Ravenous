@@ -1,27 +1,55 @@
 // ---------------
 // GAMEPLAY INPUT
 // ---------------
-void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm)
+u64 KEY_MOVE_UP, KEY_MOVE_DOWN, KEY_MOVE_LEFT, KEY_MOVE_RIGHT, KEY_ACTION;
+
+void process_move_keys(InputFlags flags, vec3& v)
 {
-   // assign keys
-   u64 MOV_UP, MOV_DOWN, MOV_LEFT, MOV_RIGHT, ACTION;
+   if(pressed(flags, KEY_MOVE_UP))
+   {
+      v += nrmlz(to_xz(pCam->Front));
+   }
+   if(pressed(flags, KEY_MOVE_LEFT))
+   {
+      vec3 onwards_vector = cross(pCam->Front, pCam->Up);
+      v -= nrmlz(to_xz(onwards_vector));
+   }
+   if(pressed(flags, KEY_MOVE_DOWN))
+   {
+      v -= nrmlz(to_xz(pCam->Front));
+   }
+   if(pressed(flags, KEY_MOVE_RIGHT))
+   {
+      vec3 onwards_vector = cross(pCam->Front, pCam->Up);
+      v += nrmlz(to_xz(onwards_vector));
+   }
+}
+
+void assign_keys_to_actions(ProgramModeEnum pm)
+{
    switch(pm)
    {
       case EDITOR_MODE:
-         MOV_UP    = KEY_UP;
-         MOV_DOWN  = KEY_DOWN;
-         MOV_LEFT  = KEY_LEFT;
-         MOV_RIGHT = KEY_RIGHT;
-         ACTION = KEY_Z;
+         KEY_MOVE_UP    = KEY_UP;
+         KEY_MOVE_DOWN  = KEY_DOWN;
+         KEY_MOVE_LEFT  = KEY_LEFT;
+         KEY_MOVE_RIGHT = KEY_RIGHT;
+         KEY_ACTION = KEY_Z;
          break;
       case GAME_MODE:
-         MOV_UP    = KEY_W;
-         MOV_DOWN  = KEY_S;
-         MOV_LEFT  = KEY_A;
-         MOV_RIGHT = KEY_D;
-         ACTION = KEY_LEFT_CTRL;
+         KEY_MOVE_UP    = KEY_W;
+         KEY_MOVE_DOWN  = KEY_S;
+         KEY_MOVE_LEFT  = KEY_A;
+         KEY_MOVE_RIGHT = KEY_D;
+         KEY_ACTION = KEY_LEFT_CTRL;
          break;
    }
+}
+
+void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm)
+{
+   // assign keys
+   assign_keys_to_actions(pm);
 
    // reset player movement intention state
    player->dashing = false;
@@ -31,69 +59,12 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
    // combines all key presses into one v direction
    switch(player->player_state)
    {
-      case PLAYER_STATE_JUMPING:
-      {
-         // MID-AIR CONTROL IF JUMPING UP
-         if(player->jumping_upwards)
-         {
-            if(pressed(flags, MOV_UP))
-            {
-               v += vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
-            }
-            if(pressed(flags, MOV_LEFT))
-            {
-               vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
-               v -= vec3(onwards_vector.x, 0, onwards_vector.z);
-            }
-            if(pressed(flags, MOV_DOWN))
-            {
-               v -= vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
-            }
-            if(pressed(flags, MOV_RIGHT))
-            {
-               vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
-               v += vec3(onwards_vector.x, 0, onwards_vector.z);
-            }
-         }
 
-         if(pressed(flags, ACTION))
-            player->action = true;
-         else
-            player->action = false;
-
-         break;
-      }
-      case PLAYER_STATE_FALLING:
-      {
-          if(pressed(flags, ACTION))
-            player->action = true;
-         else
-            player->action = false;
-
-         break;
-      }
       case PLAYER_STATE_STANDING:
       {
          // MOVE
-         if(pressed(flags, MOV_UP))
-         {
-            v += vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
-         }
-         if(pressed(flags, MOV_LEFT))
-         {
-            vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
-            v -= vec3(onwards_vector.x, 0, onwards_vector.z);
-         }
-         if(pressed(flags, MOV_DOWN))
-         {
-            v -= vec3(G_SCENE_INFO.camera->Front.x, 0, G_SCENE_INFO.camera->Front.z);
-         }
-         if(pressed(flags, MOV_RIGHT))
-         {
-            vec3 onwards_vector = glm::normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
-            v += vec3(onwards_vector.x, 0, onwards_vector.z);
-         }
-         
+         process_move_keys(flags, v);
+
          // DASH
          if(flags.key_press & KEY_LEFT_SHIFT)  
             player->dashing = true;
@@ -103,19 +74,44 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
             make_player_jump(player);
 
          // FREE RUN
-         if(pressed(flags, MOV_UP) && pressed(flags, ACTION))
+         if(pressed(flags, KEY_MOVE_UP) && pressed(flags, KEY_ACTION))
             player->free_running = true;
          else
             player->free_running = false;
 
          break;
       }
+
+      case PLAYER_STATE_JUMPING:
+      {
+         // MID-AIR CONTROL IF JUMPING UP
+         if(player->jumping_upwards)
+            process_move_keys(flags, v);
+
+         if(pressed(flags, KEY_ACTION))
+            player->action = true;
+         else
+            player->action = false;
+
+         break;
+      }
+
+      case PLAYER_STATE_FALLING:
+      {
+          if(pressed(flags, KEY_ACTION))
+            player->action = true;
+         else
+            player->action = false;
+
+         break;
+      }
+      
       case PLAYER_STATE_SLIDING:
       {
          auto collision_geom = player->standing_entity_ptr->collision_geometry.slope;
          v = player->slide_speed * collision_geom.tangent;
 
-         if (flags.key_press & MOV_LEFT)
+         if (flags.key_press & KEY_MOVE_LEFT)
          {
             float dot_product = glm::dot(collision_geom.tangent, G_SCENE_INFO.camera->Front);
             float angle = -12.0f;
@@ -128,7 +124,7 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
             v.x = temp_vec.x;
             v.z = temp_vec.z;
          }
-         if (flags.key_press & MOV_RIGHT)
+         if (flags.key_press & KEY_MOVE_RIGHT)
          {
             float dot_product = glm::dot(collision_geom.tangent, G_SCENE_INFO.camera->Front);
             float angle = 12.0f;
@@ -152,11 +148,11 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
       }
       case PLAYER_STATE_GRABBING:
       {
-         if(pressed(flags, ACTION))
+         if(pressed(flags, KEY_ACTION))
          {
             player->action = true;
 
-            if(pressed(flags, MOV_UP))
+            if(pressed(flags, KEY_MOVE_UP))
                make_player_get_up_from_edge(player);
          }
          else

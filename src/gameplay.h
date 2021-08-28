@@ -10,6 +10,7 @@ bool update_player_world_cells(Player* player);
 void recompute_collision_buffer_entities(Player* player);
 void reset_collision_buffer_checks();
 void make_player_slide(Player* player, Entity* ramp, bool slide_fall = false);
+void make_player_jump(Player* player);
 void make_player_jump_from_slope(Player* player);
 bool check_player_grabbed_ledge(Player* player, Entity* entity);
 void make_player_grab_ledge(Player* player, Entity* entity, vec2 normal_vec, float d);
