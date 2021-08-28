@@ -1,5 +1,6 @@
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <editor/editor_colors.h>
 
 namespace Editor
 {
@@ -100,6 +101,7 @@ struct EditorContext {
    
    // measure mode
    bool measure_mode = false;
+   u8 measure_axis = 0;          // x,y,z == 0,1,2
    vec3 measure_from;
    bool first_point_found = false;
    bool second_point_found = false;
@@ -326,11 +328,20 @@ void render(Player* player, WorldStruct* world)
       auto render_opts = RenderOptions();
       render_opts.always_on_top = true;
       render_opts.line_width = 2.0;
+      render_opts.color = ED_RED;
+
+      vec3 second_point;
+      if(Context.measure_axis == 0)
+         second_point = vec3(Context.measure_to, Context.measure_from.y, Context.measure_from.z);
+      if(Context.measure_axis == 1)
+         second_point = vec3(Context.measure_from.x, Context.measure_to, Context.measure_from.z);
+      if(Context.measure_axis == 2)
+         second_point = vec3(Context.measure_from.x, Context.measure_from.y, Context.measure_to);   
 
       G_IMMEDIATE_DRAW.add(
          vector<Vertex>{
             Vertex{Context.measure_from},
-            Vertex{vec3(Context.measure_from.x, Context.measure_to, Context.measure_from.z)}
+            Vertex{second_point}
          },
          GL_LINE_LOOP,
          render_opts
@@ -418,21 +429,21 @@ void render_toolbar()
 
    // TOOLS
    ImGui::Text("Measure");
-   if(ImGui::Button("Y", ImVec2(40,18)))
+   if(ImGui::Button("X", ImVec2(40,18)))
    {
-      activate_measure_mode();
+      activate_measure_mode(0);
    }
 
    ImGui::SameLine();
-   if(ImGui::Button("X", ImVec2(40,18)))
+   if(ImGui::Button("Y", ImVec2(40,18)))
    {
-      
+      activate_measure_mode(1);
    }
-
+   
    ImGui::SameLine();
    if(ImGui::Button("Z", ImVec2(40,18)))
    {
-
+      activate_measure_mode(2);
    }
    
    ImGui::NewLine();
@@ -757,24 +768,34 @@ void render_text_overlay(Player* player)
    // -------------
    if(Context.measure_mode)
    {
+      string axis = 
+         Context.measure_axis == 0 ? "x" :
+         Context.measure_axis == 1 ? "y" :
+         "z";
+
       render_text(
          font_center,
          G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
          centered_text_height,
          vec3(0.8, 0.8, 0.2),
          true,
-         "MEASURE MODE (Y)"
+         "MEASURE MODE (" + axis + ")"
       );
 
       if(Context.second_point_found)
       {
+         float dist_ref = 
+            Context.measure_axis == 0 ? Context.measure_from.x :
+            Context.measure_axis == 1 ? Context.measure_from.y :
+                                        Context.measure_from.z ;
+
          render_text(
             font_center,
             G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
             centered_text_height_small,
             vec3(0.8, 0.8, 0.2),
             true,
-            "(" + format_float_tostr(abs(Context.measure_to - Context.measure_from.y), 2) + " m)"
+            "(" + format_float_tostr(abs(Context.measure_to - dist_ref), 2) + " m)"
          ); 
       }
    }

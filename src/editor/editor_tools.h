@@ -3,6 +3,8 @@ void deactivate_editor_modes()
    Context.move_mode = false;
    Context.snap_mode = false;
    Context.measure_mode = false;
+   Context.first_point_found = false;
+   Context.second_point_found = false;
    Context.stretch_mode = false;
    Context.locate_coords_mode = false;
    Context.place_mode = false;
@@ -280,13 +282,14 @@ void check_selection_to_stretch()
 // -------------
 // MEASURE TOOL
 // -------------
-void activate_measure_mode();
+void activate_measure_mode(u8 axis);
 void check_selection_to_measure();
 
-void activate_measure_mode()
+void activate_measure_mode(u8 axis)
 {
    deactivate_editor_modes();
    Context.measure_mode = true;
+   Context.measure_axis = axis;
 }
 
 void check_selection_to_measure()
@@ -305,7 +308,12 @@ void check_selection_to_measure()
       {
          Context.second_point_found = true;
          vec3 point = point_from_detection(pickray, test);
-         Context.measure_to = point.y;
+         if(Context.measure_axis == 0)
+            Context.measure_to = point.x;
+         else if(Context.measure_axis == 1)
+            Context.measure_to = point.y;
+         else if(Context.measure_axis == 2)
+            Context.measure_to = point.z;
       }
    }
 }

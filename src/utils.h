@@ -194,3 +194,9 @@ vec2 nrmlz(vec2 vec)
 {
    return glm::normalize(vec);
 }
+
+inline
+vec3 cross(vec3 A, vec3 B)
+{
+   return glm::cross(A,B);
+}
