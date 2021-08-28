@@ -653,7 +653,7 @@ void check_for_asset_changes()
 void render_aabb_boundaries(Entity* entity)
 {
    auto bounds = entity->collision_geometry.aabb;
-   G_IMMEDIATE_DRAW.add(
+   IM_RENDER.add(
       vector<Vertex>{
          Vertex{vec3(bounds.x0,entity->position.y, bounds.z0)},
          Vertex{vec3(bounds.x0,entity->position.y + bounds.height, bounds.z0)},

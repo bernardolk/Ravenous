@@ -612,16 +612,16 @@ bool check_event_trigger_collision(Entity* trigger, Entity* player)
 void CL_snap_player(Player* player, vec2 normal_vec, float overlap)
 {
    if(overlap > 0)
-      player->entity_ptr->position += vec3(normal_vec.x, 0, normal_vec.y) * overlap;
+      player->entity_ptr->position -= to3d_xz(normal_vec) * overlap;
 }
 
 // returns the position of the player if he were to cross an obstacle (ledge grabbing standing or vaulting)
-vec3 CL_player_future_pos_obstacle(Player* player, vec2 normal_vec, float overlap, float delta_y)
+vec3 CL_player_future_pos_obstacle(Player* player, vec2 normal_vec, float overlap, float y_pos)
 {
    vec3 original_pos = player->entity_ptr->position;
    CL_snap_player(player, normal_vec, overlap);
-   vec3 position = player->entity_ptr->position + to_xz(pCam->Front) * player->radius * 2.f;
-   position.y += delta_y;
+   vec3 position = player->entity_ptr->position - to3d_xz(normal_vec) * player->radius * 2.f;
+   position.y = y_pos;
    player->entity_ptr->position = original_pos;
    return position;
 }

@@ -211,7 +211,7 @@ int main()
    initialize_console_buffers();
 
    // Initialises immediate draw
-   G_IMMEDIATE_DRAW.init();
+   IM_RENDER.init();
 
    // loads initial scene
    G_CONFIG = load_configs();
@@ -309,8 +309,8 @@ int main()
             render_game_gui(player);
             break;
       }
-      G_IMMEDIATE_DRAW.render();
-      G_IMMEDIATE_DRAW.check_expired_entries();
+      IM_RENDER.render();
+      IM_RENDER.check_expired_entries();
       render_message_buffer_contents();
 
       // -------------
@@ -591,6 +591,10 @@ void initialize_shaders()
    // immediate draw shaders
    auto im_point_shader = create_shader_program("immediate_point", "vertex_point", "fragment_point");
    Shader_Catalogue.insert({im_point_shader->name, im_point_shader});
+
+   // immediate draw mesh shaders
+   auto im_mesh_shader = create_shader_program("im_mesh", "vertex_simple_mesh", "fragment_color");
+   Shader_Catalogue.insert({im_mesh_shader->name, im_mesh_shader});
 
    // editor entity shaders
    auto ortho_shader = create_shader_program("ortho_gui", "vertex_static", "fragment_static");

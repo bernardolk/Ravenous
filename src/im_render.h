@@ -10,6 +10,10 @@ struct ImmediateDrawElement {
    Mesh mesh;
    RenderOptions render_options;
    i16 duration;
+   bool is_mesh;
+   vec3 pos;
+   vec3 rot;
+   vec3 scale;
 };
 
 struct GlobalImmediateDraw {
@@ -48,6 +52,26 @@ struct GlobalImmediateDraw {
       obj->mesh.send_data_to_gl_buffer();
       obj->render_options = opts;
       obj->empty = false;
+   }
+
+   void _set_mesh(int i, Mesh* mesh, RenderOptions opts)
+   {
+      auto obj = &list[i];
+      obj->mesh = *mesh;
+      obj->mesh.send_data_to_gl_buffer();
+      obj->render_options = opts;
+      obj->is_mesh = true;
+      obj->empty = false;
+   }
+
+   mat4 _get_mat_model(vec3 pos, vec3 rot, vec3 scale)
+   {
+      glm::mat4 model = translate(mat4identity, pos);
+		model = rotate(model, glm::radians(rot.x), vec3(1.0f, 0.0f, 0.0f));
+		model = rotate(model, glm::radians(rot.y), vec3(0.0f, 1.0f, 0.0f));
+		model = rotate(model, glm::radians(rot.z), vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, scale);
+		return model;
    }
 
    void _set_indices(int i, vector<u32> indices)
@@ -156,6 +180,35 @@ struct GlobalImmediateDraw {
       _set_indices(i, indices);
    }
 
+   void add_mesh(Mesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color = vec3(1.0,0,0), int duration = 2000)
+   {
+      int i = _find_space();
+      if(i == -1) return;
+
+      RenderOptions opts;
+      opts.color = color;
+      opts.wireframe = true;
+
+      auto obj = &list[i];
+      obj->duration = duration;
+      obj->pos = pos;
+      obj->rot = rot;
+      obj->scale = scale;
+
+      _set_mesh(i, mesh, opts);
+   }
+
+   void add_mesh(Entity* entity)
+   {
+     add_mesh(entity->mesh, entity->position, entity->rotation, entity->scale);
+   }
+
+   void add_mesh(Entity* entity, vec3 pos)
+   {
+     add_mesh(entity->mesh, pos, entity->rotation, entity->scale);
+   }
+
+
    void check_expired_entries()
    {
       for (int i = 0; i < IM_BUFFER_SIZE; i++)
@@ -174,7 +227,9 @@ struct GlobalImmediateDraw {
 
    void render()
    {
-      auto shader = Shader_Catalogue.find("immediate_point")->second;
+      Shader* im_point_shader = Shader_Catalogue.find("immediate_point")->second;
+      Shader* im_mesh_shader = Shader_Catalogue.find("im_mesh")->second;
+      Shader* shader = im_point_shader;
       for(int i = 0; i < IM_BUFFER_SIZE; i++)
       {
          auto obj = &list[i];
@@ -182,7 +237,19 @@ struct GlobalImmediateDraw {
 
          vec3 color = obj->render_options.color.x == -1 ? vec3(0.9, 0.2, 0.0) : obj->render_options.color;
 
-         shader->use();
+         if(obj->is_mesh)
+         {
+            shader = im_mesh_shader;
+            shader->use();
+            auto matModel = _get_mat_model(obj->pos, obj->rot, obj->scale);
+            shader->setMatrix4("model", matModel);
+         }
+         else
+         {
+            shader = im_point_shader;
+            shader->use();
+         }
+
          shader->setMatrix4("view"        ,G_SCENE_INFO.camera->View4x4);
          shader->setMatrix4("projection"  ,G_SCENE_INFO.camera->Projection4x4);
          shader->setFloat  ("opacity"     ,obj->render_options.opacity);
@@ -192,4 +259,4 @@ struct GlobalImmediateDraw {
       }
    }
 
-} G_IMMEDIATE_DRAW;
+} IM_RENDER;

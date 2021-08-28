@@ -472,10 +472,14 @@ bool check_player_vaulting(Player* player)
       if(min_theta <= theta && theta <= max_theta)
       {
          // checks if area above ledge is free for standing
-         float delta_y = (entity->position.y - player->feet().y) + entity->get_height() + player->half_height;
-         vec3 future_pos = CL_player_future_pos_obstacle(player, test.normal_vec, test.overlap - dr, delta_y);
+         float y_pos = entity->position.y + entity->get_height() + player->half_height;
+         vec3 future_pos = CL_player_future_pos_obstacle(player, test.normal_vec, dr - test.overlap, y_pos);
+         IM_RENDER.add_mesh(player->entity_ptr, future_pos);
          if(CL_test_in_mock_position(player, future_pos))
+         {
+            RENDER_MESSAGE("Vaulting failed.");
             continue;
+         }
          
          make_player_vault_over_obstacle(player, entity, test.normal_vec, test.overlap - dr);
          return true;
@@ -491,7 +495,7 @@ void make_player_vault_over_obstacle(Player* player, Entity* entity, vec2 normal
    vec3 rev_normal = vec3(normal_vec.x == 0 ? 0 : -1.0 * normal_vec.x, 0, normal_vec.y == 0 ? 0 : -1.0 * normal_vec.y);
 
    player->player_state          = PLAYER_STATE_VAULTING;
-   player->anim_state               = P_ANIM_VAULTING;
+   player->anim_state            = P_ANIM_VAULTING;
    player->anim_final_pos        = player->entity_ptr->position + rev_normal * player->radius * 2.f;
    player->anim_final_pos.y      = entity->position.y + entity->get_height() + player->half_height;
    player->anim_orig_pos         = player->entity_ptr->position;

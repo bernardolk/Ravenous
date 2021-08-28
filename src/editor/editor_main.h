@@ -338,7 +338,7 @@ void render(Player* player, WorldStruct* world)
       if(Context.measure_axis == 2)
          second_point = vec3(Context.measure_from.x, Context.measure_from.y, Context.measure_to);   
 
-      G_IMMEDIATE_DRAW.add(
+      IM_RENDER.add(
          vector<Vertex>{
             Vertex{Context.measure_from},
             Vertex{second_point}
@@ -350,7 +350,7 @@ void render(Player* player, WorldStruct* world)
 
    if(Context.locate_coords_mode && Context.locate_coords_found_point)
    {
-      G_IMMEDIATE_DRAW.add_point(Context.locate_coords_position, 2.0);
+      IM_RENDER.add_point(Context.locate_coords_position, 2.0);
    }
 
    render_toolbar();
@@ -1087,7 +1087,7 @@ void render_lightbulbs(Camera* camera)
          vec3 arrow_origin = light_position - vec3{0.0, 0.56, 0.0};
          vec3 arrow_end = arrow_origin + arrow_direction * 1.5f;
          vec3 points[2]{ arrow_origin, arrow_end };
-         G_IMMEDIATE_DRAW.add_line(points, 1.5);
+         IM_RENDER.add_line(points, 1.5);
       }
 
       // @todo: epic fail below (trying to rotate an arrow mesh according to a dir vector)
