@@ -1,11 +1,28 @@
 // -----------------------
 // GLOBAL IMMEDIATE DRAW 
 // -----------------------
-// This module allows for adding geometric primitives to a buffer
-// and render them each frame from anywhere in the code, mostly
-// for debugging purposes
+
+/* --------------------------- */
+/*      > Instructions         */
+/* --------------------------- */
+/* This module allows for adding geometric primitives to a buffer and render them each frame from anywhere in the code, mostly
+ for debugging purposes. To use, simply add IM_RENDER.<function>(IMHASH, <args>) to your code. The IMHASH macro will expand to
+ a hash calculation based on file and line of the function call. This way we can 'keep alive' the obj in the buffer if it is
+ being requested to be updated, instead of clearing it and reseting it.
+*/
+
+
+/* --------------------------- */
+/*           > Macros          */
+/* --------------------------- */
+#define IMHASH IM_RENDER._hash_file_and_line(__FILE__, __LINE__)
+#define IM_R_FIND_SLOT() ImmediateDrawElementSlot slot = _find_element_or_empty_slot(_hash); \
+                         if(slot.empty && slot.index == -1) return;
+
+hash<string> im_hasher;
 
 struct ImmediateDrawElement {
+   size_t hash;
    bool empty;
    Mesh mesh;
    RenderOptions render_options;
@@ -14,6 +31,11 @@ struct ImmediateDrawElement {
    vec3 pos;
    vec3 rot;
    vec3 scale;
+};
+
+struct ImmediateDrawElementSlot {
+   bool empty;
+   int index;
 };
 
 struct GlobalImmediateDraw {
@@ -32,16 +54,24 @@ struct GlobalImmediateDraw {
       }
    }
 
-   int _find_space()
+   /* --------------------------- */
+   /*     > Private functions     */
+   /* --------------------------- */
+   ImmediateDrawElementSlot _find_element_or_empty_slot(size_t hash)
    {
+      int slot = -1;
       for(int i = 0; i < IM_BUFFER_SIZE; i++)
       { 
-         if(list[i].empty)
-            return i;
+         if(slot == -1 && list[i].empty)
+            slot = i;
+         if(list[i].hash == hash)
+            return ImmediateDrawElementSlot { false, i };
       }
 
-      cout << "IM RENDER BUFFER IS FULL\n";
-      return -1;
+      if(slot == -1)
+         cout << "IM RENDER BUFFER IS FULL\n";
+
+      return ImmediateDrawElementSlot { true, slot };
    }
 
    void _set_mesh(int i, vector<Vertex> vertices, GLenum draw_method, RenderOptions opts)
@@ -64,6 +94,17 @@ struct GlobalImmediateDraw {
       obj->empty = false;
    }
 
+   void _update_mesh(int i, vec3 pos, vec3 rot, vec3 scale, vec3 color, int duration)
+   {
+      auto obj = &list[i];
+      obj->render_options.color = color;
+      obj->duration  = duration;
+      obj->pos       = pos;
+      obj->rot       = rot;
+      obj->scale     = scale;
+   }
+
+
    mat4 _get_mat_model(vec3 pos, vec3 rot, vec3 scale)
    {
       glm::mat4 model = translate(mat4identity, pos);
@@ -79,18 +120,24 @@ struct GlobalImmediateDraw {
       list[i].mesh.indices = indices;
    }
 
-   void add(vector<Vertex> vertex_vec, GLenum draw_method, RenderOptions opts = RenderOptions{})
+   size_t _hash_file_and_line(char* file, int line)
    {
-      int i = _find_space();
-      if(i == -1) return;
-      
-      _set_mesh(i, vertex_vec, draw_method, opts);
+      return im_hasher(string(file) + "-" + to_string(line));
    }
 
-   void add(vector<Triangle> triangles, GLenum draw_method = GL_LINE_LOOP, RenderOptions opts = RenderOptions{})
+   /* --------------------------- */
+   /*      > Add primitives       */
+   /* --------------------------- */
+   void add(size_t _hash, vector<Vertex> vertex_vec, GLenum draw_method, RenderOptions opts = RenderOptions{})
    {
-      int i = _find_space();
-      if(i == -1) return;
+      IM_R_FIND_SLOT();
+      
+      _set_mesh(slot.index, vertex_vec, draw_method, opts);
+   }
+
+   void add(size_t _hash, vector<Triangle> triangles, GLenum draw_method = GL_LINE_LOOP, RenderOptions opts = RenderOptions{})
+   {
+      IM_R_FIND_SLOT();
 
       vector<Vertex> vertex_vec;
       for(int i = 0; i < triangles.size(); i++)
@@ -100,13 +147,12 @@ struct GlobalImmediateDraw {
          vertex_vec.push_back(Vertex{triangles[i].c});
       }
       
-      _set_mesh(i, vertex_vec, draw_method, opts);
+      _set_mesh(slot.index, vertex_vec, draw_method, opts);
    }
 
-   void add_line(vec3 points[2], float line_width = 1.0, bool always_on_top = false, vec3 color = vec3(0))
+   void add_line(size_t _hash, vec3 points[2], float line_width = 1.0, bool always_on_top = false, vec3 color = vec3(0))
    {
-      int i = _find_space();
-      if(i == -1) return;
+      IM_R_FIND_SLOT();
 
       auto vertex_vec = vector<Vertex>{ Vertex{points[0]}, Vertex{points[1]} };
 
@@ -115,13 +161,12 @@ struct GlobalImmediateDraw {
       opts.always_on_top = always_on_top;
       opts.color = color;
 
-      _set_mesh(i, vertex_vec, GL_LINES, opts);
+      _set_mesh(slot.index, vertex_vec, GL_LINES, opts);
    }
 
-   void add_line(vec3 pointA, vec3 pointB, float line_width = 1.0, bool always_on_top = false, vec3 color = vec3(0))
+   void add_line(size_t _hash, vec3 pointA, vec3 pointB, float line_width = 1.0, bool always_on_top = false, vec3 color = vec3(0))
    {
-      int i = _find_space();
-      if(i == -1) return;
+      IM_R_FIND_SLOT();
 
       auto vertex_vec = vector<Vertex>{ Vertex{pointA}, Vertex{pointB} };
 
@@ -130,13 +175,12 @@ struct GlobalImmediateDraw {
       opts.always_on_top = always_on_top;
       opts.color = color;
 
-      _set_mesh(i, vertex_vec, GL_LINES, opts);
+      _set_mesh(slot.index, vertex_vec, GL_LINES, opts);
    }
 
-   void add_line_loop(vector<vec3> points, float line_width = 1.0, bool always_on_top = false)
+   void add_line_loop(size_t _hash, vector<vec3> points, float line_width = 1.0, bool always_on_top = false)
    {
-      int i = _find_space();
-      if(i == -1) return;
+      IM_R_FIND_SLOT();
 
       auto vertex_vec = vector<Vertex>();
       for(int i = 0; i < points.size(); i++)
@@ -146,13 +190,12 @@ struct GlobalImmediateDraw {
       opts.line_width = line_width;
       opts.always_on_top = always_on_top;
 
-      _set_mesh(i, vertex_vec, GL_LINE_LOOP, opts);
+      _set_mesh(slot.index, vertex_vec, GL_LINE_LOOP, opts);
    }
 
-   void add_point(vec3 point, float point_size = 1.0, bool always_on_top = false)
+   void add_point(size_t _hash, vec3 point, float point_size = 1.0, bool always_on_top = false)
    {
-      int i = _find_space();
-      if(i == -1) return;
+      IM_R_FIND_SLOT();
 
       auto vertex_vec = vector<Vertex>{ Vertex{point} };
 
@@ -160,13 +203,12 @@ struct GlobalImmediateDraw {
       opts.point_size = point_size;
       opts.always_on_top = always_on_top;
 
-      _set_mesh(i, vertex_vec, GL_POINTS, opts);
+      _set_mesh(slot.index, vertex_vec, GL_POINTS, opts);
    }
 
-   void add_triangle(Triangle t, float line_width = 1.0, bool always_on_top = false, vec3 color = vec3{0.8, 0.2, 0.2})
+   void add_triangle(size_t _hash, Triangle t, float line_width = 1.0, bool always_on_top = false, vec3 color = vec3{0.8, 0.2, 0.2})
    {
-      int i = _find_space();
-      if(i == -1) return;
+      IM_R_FIND_SLOT();
 
       auto vertex_vec = vector<Vertex>{ Vertex{t.a}, Vertex{t.b}, Vertex{t.c} };
       auto indices = vector<u32>{ 0, 1, 2 };
@@ -176,39 +218,51 @@ struct GlobalImmediateDraw {
       opts.always_on_top = always_on_top;
       opts.color = color;
 
-      _set_mesh(i, vertex_vec, GL_TRIANGLES, opts);
-      _set_indices(i, indices);
+      _set_mesh(slot.index, vertex_vec, GL_TRIANGLES, opts);
+      _set_indices(slot.index, indices);
    }
 
-   void add_mesh(Mesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color = vec3(1.0,0,0), int duration = 2000)
+   /* --------------------------- */
+   /*        > Add Mesh           */
+   /* --------------------------- */
+   void add_mesh(size_t _hash, Mesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color = vec3(1.0,0,0), int duration = 2000)
    {
-      int i = _find_space();
-      if(i == -1) return;
+      IM_R_FIND_SLOT();
+ 
+      if(!slot.empty)
+      {
+         _update_mesh(slot.index, pos, rot, scale, color, duration);
+         return;
+      }
 
       RenderOptions opts;
       opts.color = color;
       opts.wireframe = true;
 
-      auto obj = &list[i];
+      auto obj = &list[slot.index];
+      obj->hash = _hash;
       obj->duration = duration;
       obj->pos = pos;
       obj->rot = rot;
       obj->scale = scale;
 
-      _set_mesh(i, mesh, opts);
+      _set_mesh(slot.index, mesh, opts);
    }
 
-   void add_mesh(Entity* entity)
+   void add_mesh(size_t _hash, Entity* entity)
    {
-     add_mesh(entity->mesh, entity->position, entity->rotation, entity->scale);
+     add_mesh(_hash, entity->mesh, entity->position, entity->rotation, entity->scale);
    }
 
-   void add_mesh(Entity* entity, vec3 pos)
+   void add_mesh(size_t _hash, Entity* entity, vec3 pos)
    {
-     add_mesh(entity->mesh, pos, entity->rotation, entity->scale);
+     add_mesh(_hash, entity->mesh, pos, entity->rotation, entity->scale);
    }
 
 
+   /* --------------------------- */
+   /*      > Functionalities      */
+   /* --------------------------- */
    void check_expired_entries()
    {
       for (int i = 0; i < IM_BUFFER_SIZE; i++)
@@ -221,6 +275,7 @@ struct GlobalImmediateDraw {
             obj->mesh.vertices.clear();
             obj->empty = true;
             obj->duration = 0;
+            obj->hash = 0;
          }
       }
    }

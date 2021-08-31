@@ -346,9 +346,9 @@ void render_entity_mesh_normals(EntityPanelContext* panel)
       vec3 normal = glm::triangleNormal(_t.a, _t.b, _t.c);
       Face f = face_from_axis_aligned_triangle(_t);
       
-      IM_RENDER.add_point(f.center, 2.0, true);
+      IM_RENDER.add_point(IMHASH, f.center, 2.0, true);
 
       vec3 points[] = {f.center, f.center + normal * 2.0f};
-      IM_RENDER.add_line(points, 2.5, true);
+      IM_RENDER.add_line(IMHASH, points, 2.5, true);
    }
 }

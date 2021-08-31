@@ -654,6 +654,7 @@ void render_aabb_boundaries(Entity* entity)
 {
    auto bounds = entity->collision_geometry.aabb;
    IM_RENDER.add(
+      IMHASH,
       vector<Vertex>{
          Vertex{vec3(bounds.x0,entity->position.y, bounds.z0)},
          Vertex{vec3(bounds.x0,entity->position.y + bounds.height, bounds.z0)},

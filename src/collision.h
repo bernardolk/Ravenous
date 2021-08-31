@@ -370,7 +370,6 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
 
          if(collision.is_collided && collision.overlap > biggest_overlap)
          {
-            cout << "n = x: " << collision.normal_vec.x << ", z: " << collision.normal_vec.y << "\n";
             return_cd.collision_outcome = BLOCKED_BY_WALL;
             set_collided_entity = true;
          }

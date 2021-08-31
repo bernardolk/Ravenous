@@ -161,7 +161,7 @@ void check_trigger_interaction(Player* player)
       auto triggered = check_event_trigger_collision(checkpoint, player->entity_ptr);
       if(triggered)
       {
-         G_BUFFERS.rm_buffer->add("TRIGGERED", 1000);
+         RENDER_MESSAGE("TRIGGERED", 1000);
          player->set_checkpoint(checkpoint);
       }
    }
@@ -475,7 +475,7 @@ bool check_player_vaulting(Player* player)
          // checks if area above ledge is free for standing
          float y_pos = entity->position.y + entity->get_height() + player->half_height;
          vec3 future_pos = CL_player_future_pos_obstacle(player, test.normal_vec, dr - test.overlap, y_pos);
-         IM_RENDER.add_mesh(player->entity_ptr, future_pos);
+         IM_RENDER.add_mesh(IMHASH, player->entity_ptr, future_pos);
          if(CL_test_in_mock_position(player, future_pos))
          {
             RENDER_MESSAGE("Vaulting failed.");
