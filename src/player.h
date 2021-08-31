@@ -39,6 +39,7 @@ struct Player {
    Entity* entity_ptr;
    Entity* standing_entity_ptr;
    Entity* slope_player_was_ptr;
+   Entity* vaulting_entity_ptr;
 
    // movement variables
    vec3 v_dir = vec3(0.f);
@@ -95,6 +96,7 @@ struct Player {
    vec3 anim_orig_pos   = vec3(0);                           // original position
    vec3 anim_final_dir  = vec3(0);                           // final player orientation
    vec3 anim_orig_dir   = vec3(0);                           // original player orientation
+   bool anim_finished_turning = false;                       // player has finished turning his camera
 
    vec3 feet()
    {

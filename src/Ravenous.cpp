@@ -106,6 +106,7 @@ struct GlobalInputInfo {
 
 struct GlobalFrameInfo {
    float duration;
+   float real_duration;
    float last_frame_time;
    int frame_counter;
    float current_fps;
@@ -329,7 +330,8 @@ int main()
 void start_frame()
 {
    float current_frame_time = glfwGetTime();
-   G_FRAME_INFO.duration = current_frame_time - G_FRAME_INFO.last_frame_time;
+   G_FRAME_INFO.real_duration = current_frame_time - G_FRAME_INFO.last_frame_time;
+   G_FRAME_INFO.duration = G_FRAME_INFO.real_duration * G_FRAME_INFO.time_step;
    G_FRAME_INFO.last_frame_time = current_frame_time;
    if(G_FRAME_INFO.duration > 0.02)
    {

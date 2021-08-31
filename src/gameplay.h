@@ -15,7 +15,8 @@ void make_player_jump_from_slope(Player* player);
 bool check_player_grabbed_ledge(Player* player, Entity* entity);
 void make_player_grab_ledge(Player* player, Entity* entity, vec2 normal_vec, float d);
 bool check_player_vaulting(Player* player);
-void make_player_vault_over_obstacle(Player* player, Entity* entity, vec2 normal_vec, float d);
+void make_player_vault_over_obstacle(Player* player, Entity* entity, vec2 normal_vec, vec3 final_position);
+
 
 // -------
 // @TODO: incorporate those in move_player call
@@ -387,12 +388,12 @@ void check_player_grabbed_ledge(Player* player)
       if(min_theta <= theta && theta <= max_theta)
       {
          // checks if area above ledge is free for standing
-         float delta_y = (entity->position.y - player->feet().y) + entity->get_height() + player->half_height;
-         vec3 future_pos = CL_player_future_pos_obstacle(player, test.normal_vec, test.overlap - dr, delta_y);
+         float y_pos = entity->position.y + entity->get_height() + player->half_height;
+         vec3 future_pos = CL_player_future_pos_obstacle(player, test.normal_vec, dr - test.overlap, y_pos);
          if(CL_test_in_mock_position(player, future_pos))
             continue;
 
-         make_player_grab_ledge(player, entity, test.normal_vec, test.overlap - dr);
+         make_player_grab_ledge(player, entity, test.normal_vec, dr - test.overlap);
          return;
       }
    }
@@ -481,27 +482,25 @@ bool check_player_vaulting(Player* player)
             continue;
          }
          
-         make_player_vault_over_obstacle(player, entity, test.normal_vec, test.overlap - dr);
+         make_player_vault_over_obstacle(player, entity, test.normal_vec, future_pos);
          return true;
       }
    }
    return false;
 }
 
-void make_player_vault_over_obstacle(Player* player, Entity* entity, vec2 normal_vec, float d)
+void make_player_vault_over_obstacle(Player* player, Entity* entity, vec2 normal_vec, vec3 final_position)
 {
-   CL_snap_player(player, normal_vec, d);
-
-   vec3 rev_normal = vec3(normal_vec.x == 0 ? 0 : -1.0 * normal_vec.x, 0, normal_vec.y == 0 ? 0 : -1.0 * normal_vec.y);
+   vec3 rev_normal = rev_2Dnormal(normal_vec);
 
    player->player_state          = PLAYER_STATE_VAULTING;
    player->anim_state            = P_ANIM_VAULTING;
-   player->anim_final_pos        = player->entity_ptr->position + rev_normal * player->radius * 2.f;
-   player->anim_final_pos.y      = entity->position.y + entity->get_height() + player->half_height;
+   player->anim_final_pos        = final_position;
    player->anim_orig_pos         = player->entity_ptr->position;
    player->entity_ptr->velocity  = vec3(0);
    player->anim_orig_dir         = nrmlz(to_xz(pCam->Front));
    player->anim_final_dir        = rev_normal;
+   player->vaulting_entity_ptr   = entity;
 }
 
 void finish_vaulting(Player* player)
@@ -509,6 +508,9 @@ void finish_vaulting(Player* player)
    G_INPUT_INFO.forget_last_mouse_coords = true;
    G_INPUT_INFO.block_mouse_move = false;
    player->player_state = PLAYER_STATE_STANDING;
+   player->standing_entity_ptr = player->vaulting_entity_ptr;
+   player->vaulting_entity_ptr = NULL;
+   player->anim_finished_turning = false;
 }
 
 void GP_run_scratch(Player* player)

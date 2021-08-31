@@ -198,7 +198,7 @@ void move_player(Player* player)
    if(player->speed < 0.f || no_move_command)
       player->speed = 0;
 
-   auto dt = G_FRAME_INFO.duration * G_FRAME_INFO.time_step;
+   auto dt = G_FRAME_INFO.duration;
 
    switch(state)
    {

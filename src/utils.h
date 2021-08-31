@@ -206,3 +206,9 @@ vec3 cross(vec3 A, vec3 B)
 {
    return glm::cross(A,B);
 }
+
+inline
+vec3 rev_2Dnormal(vec2 normal)
+{
+   return vec3(normal.x == 0 ? 0 : -1.0 * normal.x, 0, normal.y == 0 ? 0 : -1.0 * normal.y);
+}

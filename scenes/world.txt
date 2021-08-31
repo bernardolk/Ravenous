@@ -1,5 +1,5 @@
-*-10.7510 -0.8709 5.0997  0.8975 -0.4226 0.1264
-@player_position = 0.3132 -6.2250 4.1196
+*-6.6151 -2.5823 4.1841  0.8390 -0.5239 0.1467
+@player_position = -0.0428 -6.2250 4.1211
 @player_initial_velocity = 0.0000 0.0000 0.0000
 @player_state = 0
 @player_fall_acceleration = 13.0000
@@ -22,7 +22,7 @@ quadratic 0.0320
 
 $point
 position -9.6955 -10.2108 -3.3625
-diffuse 1.0000 0.0000 0.0000
+diffuse 0.0000 0.8737 1.0000
 specular 1.0000 1.0000 1.0000
 constant 3.3000
 linear 0.0000

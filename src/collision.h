@@ -609,10 +609,10 @@ bool check_event_trigger_collision(Entity* trigger, Entity* player)
 }
 
 // this will snap player to the collided entity according to its normal vec (if player overlaps it in the test)
-void CL_snap_player(Player* player, vec2 normal_vec, float overlap)
+void CL_snap_player(Player* player, vec2 dir, float overlap)
 {
    if(overlap > 0)
-      player->entity_ptr->position -= to3d_xz(normal_vec) * overlap;
+      player->entity_ptr->position -= to3d_xz(dir) * overlap;
 }
 
 // returns the position of the player if he were to cross an obstacle (ledge grabbing standing or vaulting)
