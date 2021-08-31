@@ -47,16 +47,28 @@ struct GlobalImmediateDraw {
       list = new ImmediateDrawElement[IM_BUFFER_SIZE];
       for(int i = 0; i < IM_BUFFER_SIZE; i++)
       {
-         auto obj = &list[i];
-         obj->mesh.setup_gl_buffers();
-         obj->duration = 0;
-         obj->empty = true;
+         _empty_slot(i);
+         (&list[i])->mesh.setup_gl_buffers();
       }
    }
 
    /* --------------------------- */
    /*     > Private functions     */
    /* --------------------------- */
+   void _empty_slot(int i)
+   {
+      auto obj = &list[i];
+      obj->mesh.indices.clear();
+      obj->mesh.vertices.clear();
+      obj->empty     = true;
+      obj->hash      = 0;
+      obj->duration  = 0;
+      obj->is_mesh   = false;
+      obj->scale     = vec3(0);
+      obj->pos       = vec3(0);
+      obj->rot       = vec3(0);
+   }
+
    ImmediateDrawElementSlot _find_element_or_empty_slot(size_t hash)
    {
       int slot = -1;
@@ -270,13 +282,7 @@ struct GlobalImmediateDraw {
          auto obj = &list[i];
          obj->duration -= G_FRAME_INFO.duration * 1000.0;
          if(obj->duration <= 0)
-         {
-            obj->mesh.indices.clear();
-            obj->mesh.vertices.clear();
-            obj->empty = true;
-            obj->duration = 0;
-            obj->hash = 0;
-         }
+            _empty_slot(i);
       }
    }
 
