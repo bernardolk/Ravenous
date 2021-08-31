@@ -134,8 +134,6 @@ bool p_anim_vaulting(Player* player)
       if(updated_sign != orig_sign)
       {
          camera_change_direction(pCam, -1.0* updated_angle, 0.f);
-         // auto dir = nrmlz(vec3(player->anim_final_dir.x, pCam->Front.y, player->anim_final_dir.z));
-         // camera_look_at(pCam, dir, false);
          player->anim_finished_turning = true;
       }
    }
