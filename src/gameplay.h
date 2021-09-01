@@ -13,9 +13,10 @@ void make_player_slide(Player* player, Entity* ramp, bool slide_fall = false);
 void make_player_jump(Player* player);
 void make_player_jump_from_slope(Player* player);
 bool check_player_grabbed_ledge(Player* player, Entity* entity);
-void make_player_grab_ledge(Player* player, Entity* entity, vec2 normal_vec, float d);
+void make_player_grab_ledge(Player* player, Entity* entity, vec2 normal_vec, vec3 final_position, float d);
 bool check_player_vaulting(Player* player);
 void make_player_vault_over_obstacle(Player* player, Entity* entity, vec2 normal_vec, vec3 final_position);
+bool check_for_sliding_slope_floor(Player* player);
 
 
 // -------
@@ -184,6 +185,24 @@ void check_for_floor_transitions(Player* player)
       else
          player->standing_entity_ptr = terrain.entity;
    }
+}
+
+bool check_for_sliding_slope_floor(Player* player)
+{
+   auto col_geometry = player->standing_entity_ptr->collision_geometry.slope;
+   if(col_geometry.inclination > SLIDE_MAX_ANGLE)
+   {
+      make_player_slide(player, player->standing_entity_ptr, true);
+      return true;
+   }
+
+   if(col_geometry.inclination > SLIDE_MIN_ANGLE)
+   {
+      make_player_slide(player, player->standing_entity_ptr);
+      return true;
+   }
+
+   return false;
 }
 
 // -------------------------------------
@@ -364,65 +383,111 @@ void check_player_grabbed_ledge(Player* player)
    {
       Entity* entity = G_BUFFERS.entity_buffer->buffer[i].entity;
 
-      if(entity->collision_geometry_type != COLLISION_ALIGNED_BOX)
-         continue;
-
-      float edge_y = entity->position.y + entity->get_height();
-      if(!(player_y < edge_y + y_tol && player_y > edge_y - y_tol))
-         continue;
-
-      auto [x0, x1, z0, z1] = entity->get_rect_bounds();
-      auto test = circle_vs_square(
-         player->entity_ptr->position.x, 
-         player->entity_ptr->position.z, 
-         player->radius + dr,
-         x0, x1, z0, z1
-      );
-
-      if(!test.is_collided)
-         continue;
-
-      float theta = glm::degrees(vector_angle(camera_f, test.normal_vec));
-      float min_theta = 180 - s_theta;
-      float max_theta = 180 + s_theta;
-      if(min_theta <= theta && theta <= max_theta)
+      if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX)
       {
-         // checks if area above ledge is free for standing
-         float y_pos = entity->position.y + entity->get_height() + player->half_height;
-         vec3 future_pos = CL_player_future_pos_obstacle(player, test.normal_vec, dr - test.overlap, y_pos);
-         if(CL_test_in_mock_position(player, future_pos))
+         float edge_y = entity->position.y + entity->get_height();
+         if(!(player_y < edge_y + y_tol && player_y > edge_y - y_tol))
             continue;
 
-         make_player_grab_ledge(player, entity, test.normal_vec, dr - test.overlap);
-         return;
+         auto [x0, x1, z0, z1] = entity->get_rect_bounds();
+         auto test = circle_vs_square(
+            player->entity_ptr->position.x, 
+            player->entity_ptr->position.z, 
+            player->radius + dr,
+            x0, x1, z0, z1
+         );
+
+         if(!test.is_collided)
+            continue;
+
+         float theta = glm::degrees(vector_angle(camera_f, test.normal_vec));
+         float min_theta = 180 - s_theta;
+         float max_theta = 180 + s_theta;
+         if(min_theta <= theta && theta <= max_theta)
+         {
+            // checks if area above ledge is free for standing
+            float y_pos = entity->position.y + entity->get_height() + player->half_height;
+            vec3 future_pos = CL_player_future_pos_obstacle(player, test.normal_vec, dr - test.overlap, y_pos);
+            IM_RENDER.add_mesh(IMHASH, player->entity_ptr, future_pos);
+            if(CL_test_in_mock_position(player, future_pos))
+               continue;
+
+            make_player_grab_ledge(player, entity, test.normal_vec, future_pos, dr - test.overlap);
+            return;
+         }
+      }
+
+      else if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
+      {
+         float edge_y = entity->position.y;
+         if(!(player_y < edge_y + y_tol && player_y > edge_y - y_tol))
+            continue;
+
+         auto [x0, x1, z0, z1] = entity->get_rect_bounds();
+         auto test = circle_vs_square(
+            player->entity_ptr->position.x, 
+            player->entity_ptr->position.z, 
+            player->radius + dr,
+            x0, x1, z0, z1
+         );
+
+         if(!test.is_collided)
+            continue;
+
+         // player is not facing slope's inclined face
+         if(get_slope_normal(entity) != test.normal_vec)
+            continue;
+
+         float theta = glm::degrees(vector_angle(camera_f, test.normal_vec));
+         float min_theta = 180 - s_theta;
+         float max_theta = 180 + s_theta;
+         if(min_theta <= theta && theta <= max_theta)
+         {
+            // checks if area above ledge is free for standing
+            float y_pos = entity->position.y + player->half_height;
+            vec3 future_pos = CL_player_future_pos_obstacle(player, test.normal_vec, dr - test.overlap, y_pos);
+            // IM_RENDER.add_mesh(IMHASH, player->entity_ptr, future_pos);
+            if(CL_test_in_mock_position(player, future_pos, entity))
+            {
+               RENDER_MESSAGE("grabbing failed");
+               continue;
+            }
+
+            make_player_grab_ledge(player, entity, test.normal_vec, future_pos, dr - test.overlap);
+            return;
+         }
       }
    }
 }
 
-void make_player_grab_ledge(Player* player, Entity* entity, vec2 normal_vec, float d)
+void make_player_grab_ledge(Player* player, Entity* entity, vec2 normal_vec, vec3 final_position, float d)
 {
-   
+   vec3 rev_normal = rev_2Dnormal(normal_vec);
+
    // this will be an animation in the future
-   vec3 rev_normal = vec3(normal_vec.x == 0 ? 0 : -1.0 * normal_vec.x, 0, normal_vec.y == 0 ? 0 : -1.0 * normal_vec.y);
    float turn_angle = glm::degrees(vector_angle_signed(to2d_xz(pCam->Front), normal_vec)) - 180;
    camera_change_direction(pCam, turn_angle, 0.f);
    CL_snap_player(player, normal_vec, d);
 
-   player->player_state = PLAYER_STATE_GRABBING;
-   player->grabbing_entity = entity;
-   player->entity_ptr->velocity = vec3(0);
-   player->anim_final_dir     = rev_normal;
+   player->player_state          = PLAYER_STATE_GRABBING;
+   player->grabbing_entity       = entity;
+   player->entity_ptr->velocity  = vec3(0);
+   // after we are able to move while grabbing the ledge, this should move away from here
+   {
+      player->anim_final_dir        = rev_normal;
+      player->anim_final_pos        = final_position;
+      player->anim_orig_pos         = player->entity_ptr->position;
+      player->anim_orig_dir         = nrmlz(to_xz(pCam->Front));
+      player->entity_ptr->velocity  = vec3(0);
+   }
 }
 
 void make_player_get_up_from_edge(Player* player)
 {
-   player->player_state       = PLAYER_STATE_VAULTING;
-   player->anim_state         = P_ANIM_VAULTING;
-   player->anim_final_pos     = player->entity_ptr->position + nrmlz(to_xz(pCam->Front)) * player->radius * 2.f;
-   player->anim_final_pos.y   = player->grabbing_entity->position.y + player->grabbing_entity->get_height() + player->half_height;
-   player->anim_orig_pos      = player->entity_ptr->position;
-   player->anim_orig_dir      = nrmlz(to_xz(pCam->Front));
-   player->entity_ptr->velocity = vec3(0);
+   player->player_state          = PLAYER_STATE_VAULTING;
+   player->anim_state            = P_ANIM_VAULTING;
+   player->vaulting_entity_ptr   = player->grabbing_entity;
+   player->grabbing_entity       = NULL;
 }
 
 // ---------
@@ -475,7 +540,7 @@ bool check_player_vaulting(Player* player)
          // checks if area above ledge is free for standing
          float y_pos = entity->position.y + entity->get_height() + player->half_height;
          vec3 future_pos = CL_player_future_pos_obstacle(player, test.normal_vec, dr - test.overlap, y_pos);
-         IM_RENDER.add_mesh(IMHASH, player->entity_ptr, future_pos);
+         // IM_RENDER.add_mesh(IMHASH, player->entity_ptr, future_pos);
          if(CL_test_in_mock_position(player, future_pos))
          {
             RENDER_MESSAGE("Vaulting failed.");

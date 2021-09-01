@@ -282,6 +282,13 @@ struct Scene {
    }
 };
 
+inline
+vec2 get_slope_normal(Entity* slope)
+{
+   auto col_geometry = slope->collision_geometry.slope;
+   auto nrml = glm::normalize(vec2(col_geometry.tangent.x, col_geometry.tangent.z));
+   return nrml;
+}
 
 
 

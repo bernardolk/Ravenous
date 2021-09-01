@@ -23,7 +23,11 @@ CollisionData get_terrain_height_at_player(Entity* player, Entity* entity);
 RaycastTest check_for_floor_below_player(Player* player);
 bool player_feet_center_touches_slope(Player* player, Entity* slope);
 CollisionData check_collision_horizontal(
-      Player* player, EntityBufferElement* entity_iterator, int entity_list_size, bool iterative
+      Player* player,
+      EntityBufferElement* entity_iterator,
+      int entity_list_size, bool iterative,
+      Entity* skip_entity,
+      bool dont_skip_if_inside_slope
 ); 
 CollisionData check_collision_vertical(Player* player, EntityBufferElement* entity_iterator, int entity_list_size);
 bool check_event_trigger_collision(Entity* trigger, Entity* player);
@@ -338,21 +342,31 @@ RaycastTest check_for_floor_below_player(Player* player)
       return RaycastTest{false};
 }
 
-CollisionData check_collision_horizontal(Player* player, EntityBufferElement* entity_iterator, int entity_list_size, bool iterative = true) 
+CollisionData check_collision_horizontal(
+   Player* player, 
+   EntityBufferElement* entity_iterator,
+   int entity_list_size,
+   bool iterative = true,
+   Entity* skip_entity = NULL,
+   bool dont_skip_if_inside_slope = false) 
 {
+   //PS: the iterative argument in this function should be true whenever we are doing iterative checks and need to mark as checked entities
+   // that had a collision with player in a previous iteration
+
    CollisionData return_cd; 
 
    for (int i = 0; i < entity_list_size; i++)
    {
 	   Entity* &entity = entity_iterator->entity;
       
-      // skip if match any 
+      // skip if match any
       bool entity_is_player         = entity->name == "Player",
            entity_is_player_ground  = player_qualifies_as_standing(player) && player->standing_entity_ptr == entity,
            culled                   = !intersects_vertically_or_cull(entity, player),
-           checked                  = iterative && entity_iterator->collision_check;
+           checked                  = iterative && entity_iterator->collision_check,
+           skip_it                  = skip_entity != NULL && skip_entity == entity;
 
-      if(entity_is_player || entity_is_player_ground || culled || checked)
+      if(entity_is_player || entity_is_player_ground || culled || checked || skip_it)
       {
          entity_iterator++;
          continue;
@@ -380,12 +394,12 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
       {
          // get some info about slope
          auto col_geometry = entity->collision_geometry.slope;
-         auto slope_2d_tangent = glm::normalize(vec2(col_geometry.tangent.x, col_geometry.tangent.z));
+         auto slope_2d_tangent = get_slope_normal(entity);
 
          collision = get_horizontal_overlap_with_player(entity, player);
 
-         // return early if not collided or player is inside slope
-         if(!collision.is_collided || collision.is_inside || collision.overlap < biggest_overlap)
+         // return early if not collided or player is inside slope (unless we set the flag to check this case)
+         if(!collision.is_collided || (!dont_skip_if_inside_slope && (collision.is_inside || collision.overlap < biggest_overlap)))
          {
             entity_iterator++;
             continue;
@@ -423,7 +437,6 @@ CollisionData check_collision_horizontal(Player* player, EntityBufferElement* en
                   collision.overlap = v_overlap; // @WORKAROUND
                }
             }
-
          }
          // player is not facing slope inclined face
          else
@@ -608,6 +621,7 @@ bool check_event_trigger_collision(Entity* trigger, Entity* player)
 }
 
 // this will snap player to the collided entity according to its normal vec (if player overlaps it in the test)
+// it only does so in the XZ plane
 void CL_snap_player(Player* player, vec2 dir, float overlap)
 {
    if(overlap > 0)
@@ -625,7 +639,7 @@ vec3 CL_player_future_pos_obstacle(Player* player, vec2 normal_vec, float overla
    return position;
 }
 
-bool CL_test_in_mock_position(Player* player, vec3 pos)
+bool CL_test_in_mock_position(Player* player, vec3 pos, Entity* skip_entity = NULL)
 {
    vec3 original_pos = player->entity_ptr->position;
 
@@ -634,7 +648,9 @@ bool CL_test_in_mock_position(Player* player, vec3 pos)
       player,
       G_BUFFERS.entity_buffer->buffer,
       G_BUFFERS.entity_buffer->size,
-      false
+      false,
+      skip_entity,
+      true
    );
 
    player->entity_ptr->position = original_pos;

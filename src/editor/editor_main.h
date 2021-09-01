@@ -676,12 +676,18 @@ void render_text_overlay(Player* player)
          player_state_text = "PLAYER EVICTED FROM SLOPE";
          break;
    }
+   render_text("consola18", G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 30, player_state_text_color, player_state_text);
+
 
    string player_floor = "player floor: ";
    if(player->standing_entity_ptr != NULL)
       player_floor += player->standing_entity_ptr->name;
    render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 60, player_floor);
-   render_text("consola18", G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 30, player_state_text_color, player_state_text);
+
+   string p_grab = "grabbing: ";
+   if(player->grabbing_entity != NULL)
+      p_grab += player->grabbing_entity->name;
+   render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 45, p_grab);
 
 
    // FPS

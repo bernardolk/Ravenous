@@ -22,8 +22,17 @@ void resolve_player_collisions(Player* &player, WorldStruct* world)
 
       case PLAYER_STATE_STANDING:
       {
+         assert(player->standing_entity_ptr != NULL);
+
          // step 1: if player switched floors, either just change his ground or make him slide if applicable
          check_for_floor_transitions(player);
+
+         // step 2: check if player is actually sliding
+         if(player->standing_entity_ptr->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
+         {
+            bool is_sliding = check_for_sliding_slope_floor(player);
+            if(is_sliding) break;
+         }
 
          // step 2: position player at terrain's height
          auto terrain = get_terrain_height_at_player(player_entity, player->standing_entity_ptr);

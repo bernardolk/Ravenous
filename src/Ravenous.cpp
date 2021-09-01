@@ -24,20 +24,8 @@
 #include <algorithm>
 #include <stdint.h>
 
-// TYPE DEFINITIONS
-typedef int i16;
-typedef long int i32;
-typedef long long int i64;
-typedef unsigned char u8;
-typedef unsigned short int u16;
-typedef unsigned int u32;
-typedef unsigned long long u64;
-const float PI = 3.141592;
-typedef glm::vec4 vec4;
-typedef glm::vec3 vec3;
-typedef glm::vec2 vec2;
-typedef glm::mat4 mat4;
-typedef std::string string;
+#include <rvn_types.h>
+
 
 const float MAX_FLOAT = std::numeric_limits<float>::max();
 const string PROJECT_PATH = "c:/repositories/ravenous";
