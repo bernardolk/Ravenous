@@ -355,6 +355,7 @@ void render_text(string font, float x, float y, vec3 color, float scale, bool ce
    }
 
 
+   glDepthFunc(GL_ALWAYS);
 	std::string::iterator c;
 	for (c = text.begin(); c != text.end(); c++) 
    {
@@ -383,6 +384,7 @@ void render_text(string font, float x, float y, vec3 color, float scale, bool ce
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
 	}
+   glDepthFunc(GL_LESS);
 }
 
 // ----------------
