@@ -245,6 +245,10 @@ void render_scene(Scene* scene, Camera* camera)
 	}
 }
 
+
+string p_grab = "Grabbed: ";
+int p_floor = -1;
+
 // -------------------------
 // RENDER GAME GUI
 // -------------------------
@@ -252,6 +256,29 @@ void render_game_gui(Player* player)
 {
    auto color = player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1};
    render_text("consola42", 25, 75, color, to_string(player->lives));
+
+   if(player->grabbing_entity != NULL)
+   {  
+      p_grab = "Grabbed: ";
+      string last_grabbed = player->grabbing_entity->name;
+      p_grab += "'" + last_grabbed + "'";
+   }
+   render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 45, p_grab);
+
+   string player_floor = "player floor: ";
+   if(player->standing_entity_ptr != NULL) 
+   {
+      player_floor += player->standing_entity_ptr->name;
+      if(p_floor != player->standing_entity_ptr->id)
+      {
+         p_floor = player->standing_entity_ptr->id;
+         cout << "new floor: " << p_floor << "\n";
+      }
+   }
+   render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 60, player_floor);
+
+   
+
 }
 
 // ------------

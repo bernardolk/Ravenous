@@ -198,7 +198,7 @@ bool player_hit_ceiling_slope(Player* player, Entity* slope)
 {
    // considering that player checks if player's head is between slope floor's and slope's ramp
    bool player_is_going_up = player->prior_position.y < player->entity_ptr->position.y;
-   float y = get_slope_height_at_position(player->entity_ptr->position, slope);
+   //float y = get_slope_height_at_position(player->entity_ptr->position, slope);
    float p_head = player->top().y;
    float p_feet = player->feet().y;
    float y_diff = p_head - slope->position.y;
@@ -629,11 +629,23 @@ void CL_snap_player(Player* player, vec2 dir, float overlap)
 }
 
 // returns the position of the player if he were to cross an obstacle (ledge grabbing standing or vaulting)
-vec3 CL_player_future_pos_obstacle(Player* player, vec2 normal_vec, float overlap, float y_pos)
+vec3 CL_player_future_pos_obstacle(Player* player,  Entity* entity, vec2 normal_vec, float overlap)
 {
+   // snap to entity wall and "go through it" in xz
    vec3 original_pos = player->entity_ptr->position;
    CL_snap_player(player, normal_vec, overlap);
    vec3 position = player->entity_ptr->position - to3d_xz(normal_vec) * player->radius * 2.f;
+
+   // computes y position at that xz position
+   float y_pos;
+   if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX)
+   {
+      y_pos = entity->position.y + entity->get_height() + player->half_height;
+      cout << entity->name << "'s height is: " << to_string(y_pos) << "\n";
+   }
+   else if (entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
+      y_pos = get_slope_height_at_position(position, entity) + player->half_height;
+   else assert(false);
    position.y = y_pos;
    player->entity_ptr->position = original_pos;
    return position;

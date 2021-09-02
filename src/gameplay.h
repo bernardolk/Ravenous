@@ -176,13 +176,13 @@ void check_for_floor_transitions(Player* player)
    
    if(terrain.hit && terrain.entity != player->standing_entity_ptr)
    {
-      if(terrain.entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
-      {
-         // player can only keep standing if ramp is standable
-         if(terrain.entity->collision_geometry.slope.inclination < SLIDE_MIN_ANGLE)
-            player->standing_entity_ptr = terrain.entity;
-      }
-      else
+      // if(terrain.entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
+      // {
+      //    // player can only keep standing if ramp is standable
+      //    if(terrain.entity->collision_geometry.slope.inclination < SLIDE_MIN_ANGLE)
+      //       player->standing_entity_ptr = terrain.entity;
+      // }
+      // else
          player->standing_entity_ptr = terrain.entity;
    }
 }
@@ -378,7 +378,7 @@ void check_player_grabbed_ledge(Player* player)
    float player_y = player->top().y;
    auto camera_f = vec2(pCam->Front.x, pCam->Front.z);
 
-   // this should iterate over player's world cells's entities
+
    for(int i = 0; i < G_BUFFERS.entity_buffer->size; i++)
    {
       Entity* entity = G_BUFFERS.entity_buffer->buffer[i].entity;
@@ -406,8 +406,7 @@ void check_player_grabbed_ledge(Player* player)
          if(min_theta <= theta && theta <= max_theta)
          {
             // checks if area above ledge is free for standing
-            float y_pos = entity->position.y + entity->get_height() + player->half_height;
-            vec3 future_pos = CL_player_future_pos_obstacle(player, test.normal_vec, dr - test.overlap, y_pos);
+            vec3 future_pos = CL_player_future_pos_obstacle(player, entity, test.normal_vec, dr - test.overlap);
             IM_RENDER.add_mesh(IMHASH, player->entity_ptr, future_pos);
             if(CL_test_in_mock_position(player, future_pos))
                continue;
@@ -444,14 +443,10 @@ void check_player_grabbed_ledge(Player* player)
          if(min_theta <= theta && theta <= max_theta)
          {
             // checks if area above ledge is free for standing
-            float y_pos = entity->position.y + player->half_height;
-            vec3 future_pos = CL_player_future_pos_obstacle(player, test.normal_vec, dr - test.overlap, y_pos);
-            // IM_RENDER.add_mesh(IMHASH, player->entity_ptr, future_pos);
+            vec3 future_pos = CL_player_future_pos_obstacle(player, entity, test.normal_vec, dr - test.overlap);
+            IM_RENDER.add_mesh(IMHASH, player->entity_ptr, future_pos);
             if(CL_test_in_mock_position(player, future_pos, entity))
-            {
-               RENDER_MESSAGE("grabbing failed");
                continue;
-            }
 
             make_player_grab_ledge(player, entity, test.normal_vec, future_pos, dr - test.overlap);
             return;
@@ -538,8 +533,7 @@ bool check_player_vaulting(Player* player)
       if(min_theta <= theta && theta <= max_theta)
       {
          // checks if area above ledge is free for standing
-         float y_pos = entity->position.y + entity->get_height() + player->half_height;
-         vec3 future_pos = CL_player_future_pos_obstacle(player, test.normal_vec, dr - test.overlap, y_pos);
+         vec3 future_pos = CL_player_future_pos_obstacle(player, entity, test.normal_vec, dr - test.overlap);
          // IM_RENDER.add_mesh(IMHASH, player->entity_ptr, future_pos);
          if(CL_test_in_mock_position(player, future_pos))
          {
@@ -570,12 +564,12 @@ void make_player_vault_over_obstacle(Player* player, Entity* entity, vec2 normal
 
 void finish_vaulting(Player* player)
 {
-   G_INPUT_INFO.forget_last_mouse_coords = true;
-   G_INPUT_INFO.block_mouse_move = false;
-   player->player_state = PLAYER_STATE_STANDING;
-   player->standing_entity_ptr = player->vaulting_entity_ptr;
-   player->vaulting_entity_ptr = NULL;
-   player->anim_finished_turning = false;
+   G_INPUT_INFO.forget_last_mouse_coords  = true;
+   G_INPUT_INFO.block_mouse_move          = false;
+   player->player_state                   = PLAYER_STATE_STANDING;
+   player->standing_entity_ptr            = player->vaulting_entity_ptr;
+   player->vaulting_entity_ptr            = NULL;
+   player->anim_finished_turning          = false;
 }
 
 void GP_run_scratch(Player* player)
