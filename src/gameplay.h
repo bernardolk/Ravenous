@@ -43,12 +43,12 @@ void make_player_jump(Player* player)
 void make_player_slide(Player* player, Entity* ramp, bool slide_fall)
 {
    std::cout << "SLIDE FALLING" << "\n";
-   player->standing_entity_ptr = ramp;
-   auto height_check = get_terrain_height_at_player(player->entity_ptr, ramp);
-   player->entity_ptr->position.y = height_check.overlap + player->half_height;
+   player->standing_entity_ptr         = ramp;
+   auto height_check                   = CL_get_terrain_height_at_player(player->entity_ptr, ramp);
+   player->entity_ptr->position.y      = height_check.overlap + player->half_height;
    // make player 'snap' to slope
-   auto collision_geom = ramp->collision_geometry.slope;
-   auto &pv = player->entity_ptr->velocity;
+   auto collision_geom                 = ramp->collision_geometry.slope;
+   auto &pv                            = player->entity_ptr->velocity;
    // make camera (player) turn to face either up or down the slope
 
    //auto pv_2d = vec2(pv.x, pv.z);
@@ -158,8 +158,8 @@ void check_trigger_interaction(Player* player)
    auto checkpoints = G_SCENE_INFO.active_scene->checkpoints;
    for(int i = 0; i < checkpoints.size(); i++)
    {
-      auto checkpoint = checkpoints[i];
-      auto triggered = check_event_trigger_collision(checkpoint, player->entity_ptr);
+      auto checkpoint            = checkpoints[i];
+      auto triggered             = CL_check_event_trigger_collision(checkpoint, player->entity_ptr);
       if(triggered)
       {
          RENDER_MESSAGE("TRIGGERED", 1000);
@@ -172,7 +172,7 @@ void check_for_floor_transitions(Player* player)
 {
    // this proc is used when player is standing
 
-   auto terrain = check_for_floor_below_player(player);
+   auto terrain = CL_check_for_floor_below_player(player);
    
    if(terrain.hit && terrain.entity != player->standing_entity_ptr)
    {
@@ -219,7 +219,7 @@ void run_collision_checks_standing(Player* player)
    {
       c++;
       auto buffer = entity_buffer->buffer;  // places pointer back to start
-      CollisionData collision_data = check_collision_horizontal(player, buffer, entity_buffer->size);
+      CollisionData collision_data = CL_check_collision_horizontal(player, buffer, entity_buffer->size);
       if(collision_data.collided_entity_ptr != NULL)
       {
          mark_entity_checked(collision_data.collided_entity_ptr);
@@ -247,7 +247,7 @@ void run_collision_checks_falling(Player* player)
       // CHECKS VERTICAL COLLISIONS
       {
          auto buffer = entity_buffer->buffer;  // places pointer back to start
-         auto v_collision_data = check_collision_vertical(player, buffer, entity_buffer->size);
+         auto v_collision_data = CL_check_collision_vertical(player, buffer, entity_buffer->size);
          if(v_collision_data.collided_entity_ptr != NULL)
          {
             any_collision = true;
@@ -257,7 +257,7 @@ void run_collision_checks_falling(Player* player)
          }
 
          buffer = entity_buffer->buffer;  // places pointer back to start
-         auto h_collision_data = check_collision_horizontal(player, buffer, entity_buffer->size);
+         auto h_collision_data = CL_check_collision_horizontal(player, buffer, entity_buffer->size);
          if(h_collision_data.collided_entity_ptr != NULL)
          {
             any_collision = true;
@@ -286,16 +286,16 @@ void resolve_collision(CollisionData collision, Player* player)
          trigger_check_was_player_hurt = true;
          std::cout << "LANDED" << "\n";
          // move player to surface, stop player and set him to standing
-         player->standing_entity_ptr = collision.collided_entity_ptr;
-         auto height_check = get_terrain_height_at_player(player->entity_ptr, player->standing_entity_ptr);
-         player->entity_ptr->position.y = height_check.overlap + player->half_height; 
-         player->entity_ptr->velocity = vec3(0,0,0);
-         player->player_state = PLAYER_STATE_STANDING;
+         player->standing_entity_ptr            = collision.collided_entity_ptr;
+         auto height_check                      = CL_get_terrain_height_at_player(player->entity_ptr, player->standing_entity_ptr);
+         player->entity_ptr->position.y         = height_check.overlap + player->half_height; 
+         player->entity_ptr->velocity           = vec3(0,0,0);
+         player->player_state                   = PLAYER_STATE_STANDING;
          // conditional animation: if falling from jump, land, else, land from fall
          if(player->half_height < P_HALF_HEIGHT)
-            player->anim_state = P_ANIM_LANDING;
+            player->anim_state                  = P_ANIM_LANDING;
          else
-            player->anim_state = P_ANIM_LANDING_FALL;
+            player->anim_state                  = P_ANIM_LANDING_FALL;
          break;
       }
       case JUMP_FACE_FLAT:
@@ -307,17 +307,17 @@ void resolve_collision(CollisionData collision, Player* player)
                vec3(collision.normal_vec.x, 0, collision.normal_vec.y)  * collision.overlap;
 
          // make player slide through the tangent of platform
-         auto tangent_vec = vec2(collision.normal_vec.y, collision.normal_vec.x);      
-         auto v_2d = vec2(player->entity_ptr->velocity.x, player->entity_ptr->velocity.z);
-         auto project = (glm::dot(v_2d, tangent_vec)/glm::length2(tangent_vec))*tangent_vec;
+         auto tangent_vec                       = vec2(collision.normal_vec.y, collision.normal_vec.x);      
+         auto v_2d                              = vec2(player->entity_ptr->velocity.x, player->entity_ptr->velocity.z);
+         auto project                           = (glm::dot(v_2d, tangent_vec)/glm::length2(tangent_vec))*tangent_vec;
 
-         player->entity_ptr->velocity.x = project.x;
-         player->entity_ptr->velocity.z = project.y; 
+         player->entity_ptr->velocity.x         = project.x;
+         player->entity_ptr->velocity.z         = project.y; 
                
          if(player->player_state == PLAYER_STATE_JUMPING)
          {
-            player->player_state = PLAYER_STATE_FALLING;
-            player->entity_ptr->velocity.y = 0;
+            player->player_state                = PLAYER_STATE_FALLING;
+            player->entity_ptr->velocity.y      = 0;
          }
          break;
       }
@@ -336,24 +336,22 @@ void resolve_collision(CollisionData collision, Player* player)
       case JUMP_CEILING:
       {
          std::cout << "HIT CEILING" << "\n";
-         player->entity_ptr->position.y -= collision.overlap + COLLISION_EPSILON; 
-         player->player_state = PLAYER_STATE_FALLING;
-         player->entity_ptr->velocity.y = 0;
+         player->entity_ptr->position.y      -= collision.overlap + COLLISION_EPSILON; 
+         player->player_state                = PLAYER_STATE_FALLING;
+         player->entity_ptr->velocity.y      = 0;
          break; 
       }
       case STEPPED_SLOPE:
       {
          // cout << "PLAYER STEPPED INTO SLOPE \n";
-         player->standing_entity_ptr = collision.collided_entity_ptr;
-         player->entity_ptr->position.y += collision.overlap;
+         player->standing_entity_ptr      = collision.collided_entity_ptr;
+         player->entity_ptr->position.y   += collision.overlap;
          break;
       }
       case BLOCKED_BY_WALL:
       {
          // move player back using aabb surface normal vec and computed player/entity overlap in horizontal plane
-         player->entity_ptr->position += vec3(
-            collision.normal_vec.x, 0, collision.normal_vec.y
-         ) * collision.overlap;
+         player->entity_ptr->position += vec3(collision.normal_vec.x, 0, collision.normal_vec.y) * collision.overlap;
          break;
       }
    }
@@ -390,7 +388,7 @@ void check_player_grabbed_ledge(Player* player)
             continue;
 
          auto [x0, x1, z0, z1] = entity->get_rect_bounds();
-         auto test = circle_vs_square(
+         auto test = CL_circle_vs_square(
             player->entity_ptr->position.x, 
             player->entity_ptr->position.z, 
             player->radius + dr,
@@ -423,7 +421,7 @@ void check_player_grabbed_ledge(Player* player)
             continue;
 
          auto [x0, x1, z0, z1] = entity->get_rect_bounds();
-         auto test = circle_vs_square(
+         auto test = CL_circle_vs_square(
             player->entity_ptr->position.x, 
             player->entity_ptr->position.z, 
             player->radius + dr,
@@ -517,7 +515,7 @@ bool check_player_vaulting(Player* player)
          continue;
 
       auto [x0, x1, z0, z1] = entity->get_rect_bounds();
-      auto test = circle_vs_square(
+      auto test = CL_circle_vs_square(
          player->entity_ptr->position.x,
          player->entity_ptr->position.z,
          player->radius + dr,
