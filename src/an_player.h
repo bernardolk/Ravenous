@@ -1,10 +1,61 @@
+void AN_animate_player              (Player* player); 
+void AN_p_anim_force_interrupt      (Player* player); 
+bool AN_p_anim_jumping_update       (Player* player); 
+bool AN_p_anim_landing_update       (Player* player); 
+bool AN_p_anim_landing_fall_update  (Player* player); 
+bool AN_p_anim_vaulting             (Player* player); 
 
-bool p_anim_jumping_update(Player* player)
+
+void AN_animate_player(Player* player)
+{
+   auto& anim_s         = player->anim_state;
+   auto ANIM_DURATION   = P_ANIM_DURATION[anim_s];
+   if(anim_s == P_ANIM_NO_ANIM)
+      return;
+
+   auto& anim_t         = player->anim_t;
+   anim_t               += G_FRAME_INFO.duration * 1000;
+
+   bool end_anim = false;
+   if(ANIM_DURATION > 0 && anim_t >= ANIM_DURATION)
+   {
+      anim_t            = ANIM_DURATION;
+      end_anim          = true;
+   }
+
+   bool interrupt       = false;
+   switch(anim_s)
+   {
+      case P_ANIM_JUMPING:
+         interrupt                  = AN_p_anim_jumping_update(player);
+         break;
+      case P_ANIM_LANDING:
+         interrupt                  = AN_p_anim_landing_update(player);
+         break;
+      case P_ANIM_LANDING_FALL:
+         interrupt                  = AN_p_anim_landing_fall_update(player);
+         break;
+      case P_ANIM_VAULTING:
+         interrupt                  = AN_p_anim_vaulting(player);
+         if(interrupt)
+            GP_finish_vaulting(player);
+         break;
+   }
+
+   if(end_anim || interrupt)
+   {
+      anim_s = P_ANIM_NO_ANIM;
+      anim_t = 0;
+   }
+}
+
+
+bool AN_p_anim_jumping_update(Player* player)
 {
    // interpolate between 0 and duration the player's height
-   float anim_d = P_ANIM_DURATION[P_ANIM_JUMPING];
-   float new_half_height = P_HALF_HEIGHT - 0.1 * player->anim_t / anim_d;
-   float h_diff = player->half_height - new_half_height;
+   float anim_d            = P_ANIM_DURATION[P_ANIM_JUMPING];
+   float new_half_height   = P_HALF_HEIGHT - 0.1 * player->anim_t / anim_d;
+   float h_diff            = player->half_height - new_half_height;
 
    player->half_height = new_half_height;
    player->entity_ptr->collision_geometry.cylinder.half_length = new_half_height;
@@ -16,7 +67,7 @@ bool p_anim_jumping_update(Player* player)
 }
 
 
-bool p_anim_landing_update(Player* player)
+bool AN_p_anim_landing_update(Player* player)
 {
    bool interrupt = false;
    // add a linear height step of 0.5m per second
@@ -36,7 +87,8 @@ bool p_anim_landing_update(Player* player)
    return interrupt;
 }
 
-bool p_anim_landing_fall_update(Player* player)
+
+bool AN_p_anim_landing_fall_update(Player* player)
 {
    float anim_d = P_ANIM_DURATION[P_ANIM_LANDING_FALL];
    bool interrupt = false;
@@ -74,7 +126,8 @@ bool p_anim_landing_fall_update(Player* player)
    return interrupt;
 }
 
-bool p_anim_vaulting(Player* player)
+
+bool AN_p_anim_vaulting(Player* player)
 {
    G_INPUT_INFO.block_mouse_move = true;
 
@@ -156,7 +209,7 @@ bool p_anim_vaulting(Player* player)
 }
 
 
-void p_anim_force_interrupt(Player* player)
+void AN_p_anim_force_interrupt(Player* player)
 {
    player->anim_state = P_ANIM_NO_ANIM;
    player->anim_t = 0;

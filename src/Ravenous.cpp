@@ -142,16 +142,16 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <raycast.h>
 #include <render.h>
 #include <im_render.h>
-#include <input.h>
+#include <in_flags.h>
 #include <cl_tests.h>
 #include <cl_entities.h>
-#include <gameplay.h>
+#include <g_player.h>
+#include <an_player.h>
 #include <cl_controller.h>
+#include <g_update.h>
 #include <scene.h>
 #include <console.h>
-#include <p_animation.h>
-#include <g_player.h>
-#include <g_input.h>
+#include <in_handlers.h>
 #include <editor/editor_main.h>
 
 #define glCheckError() glCheckError_(__FILE__, __LINE__) 
@@ -251,13 +251,13 @@ int main()
             Editor::handle_input_flags(input_flags, player);
             if(!ImGui::GetIO().WantCaptureKeyboard)
             {
-               handle_movement_input(input_flags, player, EDITOR_MODE);
-               handle_common_input(input_flags, player);
+               IN_handle_movement_input(input_flags, player, EDITOR_MODE);
+               IN_handle_common_input(input_flags, player);
             }
             break;
          case GAME_MODE:
-            handle_movement_input(input_flags, player, GAME_MODE);
-            handle_common_input(input_flags, player);
+            IN_handle_movement_input(input_flags, player, GAME_MODE);
+            IN_handle_common_input(input_flags, player);
             break;
       }
       reset_input_flags(input_flags);
@@ -266,14 +266,14 @@ int main()
 		//	UPDATE PHASE
       // -------------
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player);
-      check_player_events(player);
-      move_player(player);
-      animate_player(player);
+      GP_check_player_events(player);
+      GP_move_player(player);
+      AN_animate_player(player);
       CL_update_player_world_cells(player);
       //@todo: unless this becomes a performance problem, its easier to recompute the buffer every frame
       //       then to try placing this call everytime necessary
       CL_recompute_collision_buffer_entities(player);
-      CL_resolve_player_collisions(player, &World);
+      GP_update_player_state(player, &World);
 		update_scene_objects();
 
       // -------------

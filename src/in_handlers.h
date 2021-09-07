@@ -1,9 +1,10 @@
-// ---------------
-// GAMEPLAY INPUT
-// ---------------
+void IN_handle_common_input                     (InputFlags flags, Player* &player);
+void IN_handle_movement_input                   (InputFlags flags, Player* &player, ProgramModeEnum pm);
+
 u64 KEY_MOVE_UP, KEY_MOVE_DOWN, KEY_MOVE_LEFT, KEY_MOVE_RIGHT, KEY_ACTION;
 
-void process_move_keys(InputFlags flags, vec3& v)
+
+void IN_process_move_keys(InputFlags flags, vec3& v)
 {
    if(pressed(flags, KEY_MOVE_UP))
    {
@@ -25,7 +26,7 @@ void process_move_keys(InputFlags flags, vec3& v)
    }
 }
 
-void assign_keys_to_actions(ProgramModeEnum pm)
+void IN_assign_keys_to_actions(ProgramModeEnum pm)
 {
    switch(pm)
    {
@@ -46,10 +47,10 @@ void assign_keys_to_actions(ProgramModeEnum pm)
    }
 }
 
-void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm)
+void IN_handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm)
 {
    // assign keys
-   assign_keys_to_actions(pm);
+   IN_assign_keys_to_actions(pm);
 
    // reset player movement intention state
    player->dashing = false;
@@ -63,7 +64,7 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
       case PLAYER_STATE_STANDING:
       {
          // MOVE
-         process_move_keys(flags, v);
+         IN_process_move_keys(flags, v);
 
          // DASH
          if(flags.key_press & KEY_LEFT_SHIFT)  
@@ -71,7 +72,7 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
          
          // JUMP
          if (flags.key_press & KEY_SPACE) 
-            make_player_jump(player);
+            GP_make_player_jump(player);
 
          // FREE RUN
          if(pressed(flags, KEY_MOVE_UP) && pressed(flags, KEY_ACTION))
@@ -86,7 +87,7 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
       {
          // MID-AIR CONTROL IF JUMPING UP
          if(player->jumping_upwards)
-            process_move_keys(flags, v);
+            IN_process_move_keys(flags, v);
 
          if(pressed(flags, KEY_ACTION))
             player->action = true;
@@ -153,7 +154,7 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
             player->action = true;
 
             if(pressed(flags, KEY_MOVE_UP))
-               make_player_get_up_from_edge(player);
+               GP_make_player_get_up_from_edge(player);
          }
          else
             player->action = false;
@@ -169,7 +170,7 @@ void handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm
 // --------------
 // SYSTEMS INPUT
 // --------------
-void handle_common_input(InputFlags flags, Player* &player)
+void IN_handle_common_input(InputFlags flags, Player* &player)
 {
    if(pressed_once(flags, KEY_COMMA))
    {
@@ -224,7 +225,7 @@ void handle_common_input(InputFlags flags, Player* &player)
    }
    if(pressed_once(flags, KEY_J))
    {
-      check_trigger_interaction(player);
+      GP_check_trigger_interaction(player);
    }
    if(flags.key_press & KEY_ESC && flags.key_press & KEY_LEFT_SHIFT)
    {

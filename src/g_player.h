@@ -1,206 +1,21 @@
-// --------------------------
-// RESOLVE PLAYER COLLISIONS
-// --------------------------
-// And update it's state based on it
+void GP_move_player(Player* player);
+void GP_update_player_state(Player* &player, WorldStruct* world);
 
-void CL_resolve_player_collisions(Player* &player, WorldStruct* world)
-{
-   Entity* &player_entity = player->entity_ptr;
+void GP_make_player_slide                       (Player* player, Entity* ramp, bool slide_fall = false);
+void GP_make_player_jump                        (Player* player);
+void GP_make_player_jump_from_slope             (Player* player);
+void GP_make_player_grab_ledge                  (Player* player, Entity* entity, vec2 normal_vec, vec3 final_position, float d);
+void GP_make_player_vault_over_obstacle         (Player* player, Entity* entity, vec2 normal_vec, vec3 final_position);
 
-   switch(player->player_state)
-   {
+void GP_check_trigger_interaction               (Player* player);
+void GP_check_for_floor_transitions             (Player* player);
+bool GP_check_player_grabbed_ledge              (Player* player, Entity* entity);
+bool GP_check_player_vaulting                   (Player* player);
+bool GP_check_for_sliding_slope_floor           (Player* player);
 
-      case PLAYER_STATE_FALLING:
-      {
-         // test collision with every object in scene entities vector
-         CL_run_collision_checks_falling(player);
 
-         if(player->action)
-            check_player_grabbed_ledge(player);
-         break;
-      }
 
-      case PLAYER_STATE_STANDING:
-      {
-         assert(player->standing_entity_ptr != NULL);
-
-         // step 1: if player switched floors, either just change his ground or make him slide if applicable
-         check_for_floor_transitions(player);
-
-         // step 2: check if player is actually sliding
-         if(player->standing_entity_ptr->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
-         {
-            bool is_sliding                  = check_for_sliding_slope_floor(player);
-            if(is_sliding) break;
-         }
-
-         // step 2: position player at terrain's height
-         auto terrain                        = CL_get_terrain_height_at_player(player_entity, player->standing_entity_ptr);
-         player->entity_ptr->position.y      = terrain.overlap + player->half_height;
-
-         // step 3: resolve possible collisions then do step 2 again
-         // check for collisions with scene BUT with floor
-         CL_run_collision_checks_standing(player);
-
-         terrain                             = CL_get_terrain_height_at_player(player_entity, player->standing_entity_ptr);
-         player->entity_ptr->position.y      = terrain.overlap + player->half_height;
-
-         // step 4: check if player is still standing on terrain
-         auto xz_check                       = CL_get_horizontal_overlap_with_player(player->standing_entity_ptr, player);
-
-         if(!xz_check.is_collided)
-         {
-            std::cout << "PLAYER FELL" << "\n";
-            player->player_state             = PLAYER_STATE_FALLING;
-            player_entity->velocity.y        = - 1 * player->fall_speed;
-            player_entity->velocity.x        *= 0.5;
-            player_entity->velocity.z        *= 0.5;
-            player->height_before_fall       = player_entity->position.y;
-         }
-         break;
-      }
-
-      case PLAYER_STATE_JUMPING:
-      {
-         /* remarks about the jump system:
-            we set at input key_press time (input.h) a high velocity upward for the player
-            at each frame we decrement a little bit from the y velocity component using delta frame time
-            IDEALLY we would set our target jump height and let the math work itself out from there.
-            For our prototype this should be fine.
-         */
-         if (player->entity_ptr->velocity.y <= 0)
-         {
-            player->player_state             = PLAYER_STATE_FALLING;
-            player->jumping_upwards          = false;
-            player->entity_ptr->velocity.y   = 0;
-         }
-
-         // test collision with every object in scene entities vector
-         CL_run_collision_checks_falling(player);
-
-         if(player->action)
-            check_player_grabbed_ledge(player);
-
-         break;
-      }
-
-      case PLAYER_STATE_SLIDING:
-      {
-         assert(glm::length(player_entity->velocity) > 0);
-
-         auto terrain = CL_check_for_floor_below_player(player);
-         
-         if(terrain.hit && terrain.entity != player->standing_entity_ptr)
-         {
-            cout << "EVICTED FROM SLOPE (" << player->standing_entity_ptr->name << ") to (" << terrain.entity->name << ")\n";
-            player->player_state             = PLAYER_STATE_EVICTED_FROM_SLOPE;
-            player->slope_player_was_ptr     = player->standing_entity_ptr;
-            player->standing_entity_ptr      = terrain.entity;
-            player->entity_ptr->velocity.y   = 0;
-            player->entity_ptr->position.y   += terrain.distance;
-            auto terrain_collision           = CL_get_terrain_height_at_player(player_entity, player->standing_entity_ptr);
-
-            break;
-         }
-
-         // check for collisions with scene BUT with floor
-         CL_run_collision_checks_standing(player);
-
-         // if player is still standing after collision resolutions, correct player height, else, make fall
-         auto terrain_collision = CL_get_terrain_height_at_player(player_entity, player->standing_entity_ptr);
-         if(terrain_collision.is_collided)
-         {
-            player->entity_ptr->position.y   = terrain_collision.overlap + player->half_height;
-         }
-         else
-         {
-            // make player "slide" towards edge and fall away from floor
-            std::cout << "PLAYER FELL (EVICTED)" << "\n";
-            player->slope_player_was_ptr     = player->standing_entity_ptr;
-            player->standing_entity_ptr      = NULL;
-            player->player_state             = PLAYER_STATE_EVICTED_FROM_SLOPE;
-            player->height_before_fall       = player_entity->position.y;
-         }
-         break;
-      }
-
-      case PLAYER_STATE_SLIDE_FALLING:
-      {
-         assert(glm::length(player_entity->velocity) > 0);
-
-         auto terrain = CL_check_for_floor_below_player(player);
-         
-         if(terrain.hit && terrain.entity != player->standing_entity_ptr)
-         {
-            cout << "EVICTED FROM SLOPE (" << player->standing_entity_ptr->name << ") to (" << terrain.entity->name << ")\n";
-            player->player_state             = PLAYER_STATE_EVICTED_FROM_SLOPE;
-            player->slope_player_was_ptr     = player->standing_entity_ptr;
-            player->standing_entity_ptr      = terrain.entity;
-            player->entity_ptr->velocity.y   = 0;
-            player->entity_ptr->position.y   += terrain.distance;
-
-            break;
-         }
-
-         // ... or player fell out of slope
-         auto terrain_collision              = CL_get_terrain_height_at_player(player_entity, player->standing_entity_ptr);
-         if(terrain_collision.is_collided)
-         {
-            player->entity_ptr->position.y   = terrain_collision.overlap + player->half_height;
-         }  
-         else
-         {
-            // make player "slide" towards edge and fall away from floor
-            std::cout << "PLAYER FELL (EVICTED)" << "\n";
-            player->slope_player_was_ptr     = player->standing_entity_ptr;
-            player->standing_entity_ptr      = NULL;
-            player->player_state             = PLAYER_STATE_EVICTED_FROM_SLOPE;
-            player->height_before_fall       = player_entity->position.y;
-         }
-         
-         break;
-      }
-
-      case PLAYER_STATE_EVICTED_FROM_SLOPE:
-      {
-         // here, player can already be considered standing somewhere or not. Which is weird.
-         assert(player->slope_player_was_ptr != NULL);
-
-         // Here it is assumed player ALREADY has a velocity vec pushing him away from the slope
-         assert(glm::length(player_entity->velocity) > 0);
-
-         // check if still colliding with floor, if so, let player keep sliding, if not, change to FALLING
-         auto c_test = CL_get_horizontal_overlap_with_player(player->slope_player_was_ptr, player);
-         if(!c_test.is_collided)
-         {
-            player->slope_player_was_ptr        = NULL;
-
-            if(player->standing_entity_ptr != NULL)
-               player->player_state             = PLAYER_STATE_STANDING;
-            else
-            {
-               player->player_state             = PLAYER_STATE_FALLING;
-               player->entity_ptr->velocity.x   = 0;
-               player->entity_ptr->velocity.z   = 0;
-            }
-         }
-         break;
-      }
-
-      case PLAYER_STATE_GRABBING:
-      {
-         if(!player->action)
-         {
-            player->player_state                = PLAYER_STATE_FALLING;
-            player->grabbing_entity             = NULL;
-         }
-
-         break;
-      }
-   }
-}
-
-void move_player(Player* player)
+void GP_move_player(Player* player)
 {
    auto& v           = player->entity_ptr->velocity;
    auto& v_dir       = player->v_dir;
@@ -218,12 +33,12 @@ void move_player(Player* player)
    {
       case PLAYER_STATE_STANDING:
       {
-         auto& speed                = player->speed;
-         float d_speed              = player->acceleration * dt;
+         auto& speed    = player->speed;
+         float d_speed  = player->acceleration * dt;
 
          if(player->free_running)
          {
-            if(check_player_vaulting(player));
+            if(GP_check_player_vaulting(player));
                break;
          }
 
@@ -233,9 +48,9 @@ void move_player(Player* player)
 
          if((speed > 0 && no_move_command) || stopped_dashing)                   { d_speed   *= -1; }            
          else if(player->dashing && square_GE(v + d_speed, player->dash_speed))  { d_speed   = 0;   }
-         speed                      += d_speed;
-         v                          = speed * v_dir;     // if no movement command is issued, v_dir = 0,0,0 !
 
+         speed += d_speed;
+         v = speed * v_dir;     // if no movement command is issued, v_dir = 0,0,
          break;
       }
 
@@ -245,11 +60,11 @@ void move_player(Player* player)
          // mid air controls
          if(player->jumping_upwards && !no_move_command)
          {
-            v.x   += v_dir.x * player->air_delta_speed;
-            v.z   += v_dir.z * player->air_delta_speed;
+            v.x += v_dir.x * player->air_delta_speed;
+            v.z += v_dir.z * player->air_delta_speed;
          }
 
-         v.y   -=  player->fall_acceleration * dt;  // dampen player y speed (vf = v0 - g*t)
+         v.y -=  player->fall_acceleration * dt;  // dampen player y speed (vf = v0 - g*t)
          break;
       }
 
@@ -281,51 +96,337 @@ void move_player(Player* player)
 }
 
 
-void animate_player(Player* player)
+// -------
+// @TODO: incorporate those in move_player call
+// -------
+void GP_make_player_jump(Player* player)
 {
-   auto& anim_s         = player->anim_state;
-   auto ANIM_DURATION   = P_ANIM_DURATION[anim_s];
-   if(anim_s == P_ANIM_NO_ANIM)
-      return;
+   auto& v = player->entity_ptr->velocity;
+   auto& v_dir = player->v_dir;
+   bool no_move_command = v_dir.x == 0 && v_dir.z == 0;
 
-   auto& anim_t         = player->anim_t;
-   anim_t               += G_FRAME_INFO.duration * 1000;
+   if(no_move_command)
+      player->jumping_upwards = true;
+   // minimum jump range
+   else if(square_LE(v, player->jump_horz_thrust))
+      v = v_dir * player->jump_horz_thrust;
+   
+   player->player_state = PLAYER_STATE_JUMPING;
+   player->anim_state = P_ANIM_JUMPING;
+   player->height_before_fall = player->entity_ptr->position.y;
+   v.y = player->jump_initial_speed;
+}
 
-   bool end_anim = false;
-   if(ANIM_DURATION > 0 && anim_t >= ANIM_DURATION)
+
+void GP_make_player_slide(Player* player, Entity* ramp, bool slide_fall)
+{
+   std::cout << "SLIDE FALLING" << "\n";
+   player->standing_entity_ptr         = ramp;
+   auto height_check                   = CL_get_terrain_height_at_player(player->entity_ptr, ramp);
+   player->entity_ptr->position.y      = height_check.overlap + player->half_height;
+   // make player 'snap' to slope
+   auto collision_geom                 = ramp->collision_geometry.slope;
+   auto &pv                            = player->entity_ptr->velocity;
+   // make camera (player) turn to face either up or down the slope
+
+   //auto pv_2d = vec2(pv.x, pv.z);
+   // if(G_SCENE_INFO.view_mode == FIRST_PERSON)
+   // {
+   //    auto t_2d = vec2(collision_geom.tangent.x, collision_geom.tangent.z);
+   //    auto dot = glm::dot(pv_2d, t_2d);
+   //    if(dot == 0) dot = 1;   // compensates for orthogonal v and tangent
+   //    auto projected = (dot/glm::length2(t_2d))*t_2d;
+   //    auto camera_dir = vec3(projected.x, G_SCENE_INFO.camera->Front.y, projected.y);
+   //    camera_look_at(G_SCENE_INFO.camera, camera_dir, false);
+   // }
+
+   pv = player->slide_speed * collision_geom.tangent;
+   if(slide_fall)
+      player->player_state = PLAYER_STATE_SLIDE_FALLING;
+   else
+      player->player_state = PLAYER_STATE_SLIDING;
+}
+
+
+// ----------------------
+// > FLOOR RELATED STUFF
+// ----------------------
+
+void GP_check_for_floor_transitions(Player* player)
+{
+   // this proc is used when player is standing
+
+   auto terrain = CL_check_for_floor_below_player(player);
+   
+   if(terrain.hit && terrain.entity != player->standing_entity_ptr)
    {
-      anim_t            = ANIM_DURATION;
-      end_anim          = true;
-   }
-
-   bool interrupt       = false;
-   switch(anim_s)
-   {
-      case P_ANIM_JUMPING:
-         interrupt                  = p_anim_jumping_update(player);
-         break;
-      case P_ANIM_LANDING:
-         interrupt                  = p_anim_landing_update(player);
-         break;
-      case P_ANIM_LANDING_FALL:
-         interrupt                  = p_anim_landing_fall_update(player);
-         break;
-      case P_ANIM_VAULTING:
-         interrupt                  = p_anim_vaulting(player);
-         if(interrupt)
-            finish_vaulting(player);
-         break;
-   }
-
-   if(end_anim || interrupt)
-   {
-      anim_s = P_ANIM_NO_ANIM;
-      anim_t = 0;
+      // if(terrain.entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
+      // {
+      //    // player can only keep standing if ramp is standable
+      //    if(terrain.entity->collision_geometry.slope.inclination < SLIDE_MIN_ANGLE)
+      //       player->standing_entity_ptr = terrain.entity;
+      // }
+      // else
+         player->standing_entity_ptr = terrain.entity;
    }
 }
 
 
-void check_player_events(Player* player)
+bool GP_check_for_sliding_slope_floor(Player* player)
+{
+   auto col_geometry = player->standing_entity_ptr->collision_geometry.slope;
+   if(col_geometry.inclination > SLIDE_MAX_ANGLE)
+   {
+      GP_make_player_slide(player, player->standing_entity_ptr, true);
+      return true;
+   }
+
+   if(col_geometry.inclination > SLIDE_MIN_ANGLE)
+   {
+      GP_make_player_slide(player, player->standing_entity_ptr);
+      return true;
+   }
+
+   return false;
+}
+
+
+// -------------------
+// > ACTION
+// -------------------
+
+void GP_check_trigger_interaction(Player* player)
+{
+   auto checkpoints = G_SCENE_INFO.active_scene->checkpoints;
+   for(int i = 0; i < checkpoints.size(); i++)
+   {
+      auto checkpoint            = checkpoints[i];
+      auto triggered             = CL_check_event_trigger_collision(checkpoint, player->entity_ptr);
+      if(triggered)
+      {
+         RENDER_MESSAGE("TRIGGERED", 1000);
+         player->set_checkpoint(checkpoint);
+      }
+   }
+}
+
+
+// -------------------
+// > LEDGE GRABBING
+// -------------------
+
+void GP_check_player_grabbed_ledge(Player* player)
+{
+   // ledge grab y tollerance
+   const float y_tol = 0.1;
+   // half the ledge grab semicircle region angle, in degrees 
+   const float s_theta = 40;
+   // radius of detection
+   const float dr = 0.1;
+
+   float player_y = player->top().y;
+   auto camera_f = vec2(pCam->Front.x, pCam->Front.z);
+
+
+   for(int i = 0; i < G_BUFFERS.entity_buffer->size; i++)
+   {
+      Entity* entity = G_BUFFERS.entity_buffer->buffer[i].entity;
+
+      if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX)
+      {
+         float edge_y = entity->position.y + entity->get_height();
+         if(!(player_y < edge_y + y_tol && player_y > edge_y - y_tol))
+            continue;
+
+         auto [x0, x1, z0, z1] = entity->get_rect_bounds();
+         auto test = CL_circle_vs_square(
+            player->entity_ptr->position.x, 
+            player->entity_ptr->position.z, 
+            player->radius + dr,
+            x0, x1, z0, z1
+         );
+
+         if(!test.is_collided)
+            continue;
+
+         float theta = glm::degrees(vector_angle(camera_f, test.normal_vec));
+         float min_theta = 180 - s_theta;
+         float max_theta = 180 + s_theta;
+         if(min_theta <= theta && theta <= max_theta)
+         {
+            // checks if area above ledge is free for standing
+            vec3 future_pos = CL_player_future_pos_obstacle(player, entity, test.normal_vec, dr - test.overlap);
+            IM_RENDER.add_mesh(IMHASH, player->entity_ptr, future_pos);
+            if(CL_test_in_mock_position(player, future_pos))
+               continue;
+
+            GP_make_player_grab_ledge(player, entity, test.normal_vec, future_pos, dr - test.overlap);
+            return;
+         }
+      }
+
+      else if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
+      {
+         float edge_y = entity->position.y;
+         if(!(player_y < edge_y + y_tol && player_y > edge_y - y_tol))
+            continue;
+
+         auto [x0, x1, z0, z1] = entity->get_rect_bounds();
+         auto test = CL_circle_vs_square(
+            player->entity_ptr->position.x, 
+            player->entity_ptr->position.z, 
+            player->radius + dr,
+            x0, x1, z0, z1
+         );
+
+         if(!test.is_collided)
+            continue;
+
+         // player is not facing slope's inclined face
+         if(get_slope_normal(entity) != test.normal_vec)
+            continue;
+
+         float theta = glm::degrees(vector_angle(camera_f, test.normal_vec));
+         float min_theta = 180 - s_theta;
+         float max_theta = 180 + s_theta;
+         if(min_theta <= theta && theta <= max_theta)
+         {
+            // checks if area above ledge is free for standing
+            vec3 future_pos = CL_player_future_pos_obstacle(player, entity, test.normal_vec, dr - test.overlap);
+            IM_RENDER.add_mesh(IMHASH, player->entity_ptr, future_pos);
+            if(CL_test_in_mock_position(player, future_pos, entity))
+               continue;
+
+            GP_make_player_grab_ledge(player, entity, test.normal_vec, future_pos, dr - test.overlap);
+            return;
+         }
+      }
+   }
+}
+
+
+void GP_make_player_grab_ledge(Player* player, Entity* entity, vec2 normal_vec, vec3 final_position, float d)
+{
+   vec3 rev_normal = rev_2Dnormal(normal_vec);
+
+   // this will be an animation in the future
+   float turn_angle = glm::degrees(vector_angle_signed(to2d_xz(pCam->Front), normal_vec)) - 180;
+   camera_change_direction(pCam, turn_angle, 0.f);
+   CL_snap_player(player, normal_vec, d);
+
+   player->player_state          = PLAYER_STATE_GRABBING;
+   player->grabbing_entity       = entity;
+   player->entity_ptr->velocity  = vec3(0);
+   // after we are able to move while grabbing the ledge, this should move away from here
+   {
+      player->anim_final_dir        = rev_normal;
+      player->anim_final_pos        = final_position;
+      player->anim_orig_pos         = player->entity_ptr->position;
+      player->anim_orig_dir         = nrmlz(to_xz(pCam->Front));
+      player->entity_ptr->velocity  = vec3(0);
+   }
+}
+
+
+void GP_make_player_get_up_from_edge(Player* player)
+{
+   player->player_state          = PLAYER_STATE_VAULTING;
+   player->anim_state            = P_ANIM_VAULTING;
+   player->vaulting_entity_ptr   = player->grabbing_entity;
+   player->grabbing_entity       = NULL;
+}
+
+// -------------------
+// > VAULTING
+// -------------------
+
+bool GP_check_player_vaulting(Player* player)
+{
+   // action cone half theta 
+   const float s_theta = 40;
+   // radius of detection
+   const float dr = 0.1;
+
+   float player_y = player->entity_ptr->position.y;
+   auto camera_f = vec2(pCam->Front.x, pCam->Front.z);
+
+   for(int i = 0; i < G_BUFFERS.entity_buffer->size; i++)
+   {
+      Entity* entity = G_BUFFERS.entity_buffer->buffer[i].entity;
+
+      if(entity->collision_geometry_type != COLLISION_ALIGNED_BOX)
+         continue;
+
+      float rel_height = (entity->position.y + entity->get_height()) - player->feet().y;
+
+      // short platforms should be ignored since we will use navigation meshes that include them smoothly with a nav ramp 
+      // and therefore going over them do not count as 'vaulting moves'
+      if(rel_height < 0.3) // also makes sure we only get positive rel heights
+         continue;
+      
+      if(rel_height >= player->half_height * 2)
+         continue;
+
+      auto [x0, x1, z0, z1] = entity->get_rect_bounds();
+      auto test = CL_circle_vs_square(
+         player->entity_ptr->position.x,
+         player->entity_ptr->position.z,
+         player->radius + dr,
+         x0, x1, z0, z1
+      );
+
+      if(!test.is_collided)
+         continue;
+
+      float theta = glm::degrees(vector_angle(camera_f, test.normal_vec));
+      float min_theta = 180 - s_theta;
+      float max_theta = 180 + s_theta;
+      if(min_theta <= theta && theta <= max_theta)
+      {
+         // checks if area above ledge is free for standing
+         vec3 future_pos = CL_player_future_pos_obstacle(player, entity, test.normal_vec, dr - test.overlap);
+         // IM_RENDER.add_mesh(IMHASH, player->entity_ptr, future_pos);
+         if(CL_test_in_mock_position(player, future_pos))
+         {
+            RENDER_MESSAGE("Vaulting failed.");
+            continue;
+         }
+         
+         GP_make_player_vault_over_obstacle(player, entity, test.normal_vec, future_pos);
+         return true;
+      }
+   }
+   return false;
+}
+
+
+void GP_make_player_vault_over_obstacle(Player* player, Entity* entity, vec2 normal_vec, vec3 final_position)
+{
+   vec3 rev_normal = rev_2Dnormal(normal_vec);
+
+   player->player_state             = PLAYER_STATE_VAULTING;
+   player->anim_state               = P_ANIM_VAULTING;
+   player->anim_final_pos           = final_position;
+   player->anim_orig_pos            = player->entity_ptr->position;
+   player->entity_ptr->velocity     = vec3(0);
+   player->anim_orig_dir            = nrmlz(to_xz(pCam->Front));
+   player->anim_final_dir           = rev_normal;
+   player->vaulting_entity_ptr      = entity;
+}
+
+
+void GP_finish_vaulting(Player* player)
+{
+   G_INPUT_INFO.forget_last_mouse_coords  = true;
+   G_INPUT_INFO.block_mouse_move          = false;
+   player->player_state                   = PLAYER_STATE_STANDING;
+   player->standing_entity_ptr            = player->vaulting_entity_ptr;
+   player->vaulting_entity_ptr            = NULL;
+   player->anim_finished_turning          = false;
+}
+
+
+void GP_check_player_events(Player* player)
 {
    // Player death
    if(player->lives <= 0)

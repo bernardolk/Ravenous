@@ -7,6 +7,7 @@ void CL_recompute_collision_buffer_entities        (Player* player);
 void CL_mark_entity_checked                        (Entity* entity);
 void CL_reset_collision_buffer_checks              ();
 
+
 // ----------------------------------------
 // > SCENE COLLISION CONTROLLER FUNCTIONS
 // ----------------------------------------
@@ -134,7 +135,7 @@ void CL_resolve_collision(EntitiesCollision collision, Player* player)
       case JUMP_SLIDE:
       {
          trigger_check_was_player_hurt          = true;
-         make_player_slide(player, collision.collided_entity_ptr);
+         GP_make_player_slide(player, collision.collided_entity_ptr);
          break;
       }
 
@@ -142,7 +143,7 @@ void CL_resolve_collision(EntitiesCollision collision, Player* player)
       case JUMP_SLIDE_HIGH_INCLINATION:
       {
          trigger_check_was_player_hurt          = true;
-         make_player_slide(player, collision.collided_entity_ptr, true);
+         GP_make_player_slide(player, collision.collided_entity_ptr, true);
          break;
       }
 

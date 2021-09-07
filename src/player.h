@@ -33,7 +33,7 @@ float P_ANIM_DURATION[] = {
 
 // forward declarations
 struct Player;
-void p_anim_force_interrupt(Player* player);
+void AN_p_anim_force_interrupt(Player* player);
 
 struct Player {
    Entity* entity_ptr;
@@ -145,10 +145,10 @@ struct Player {
 
    void die()
    {
-      lives = initial_lives;
-      entity_ptr->velocity = vec3(0);
-      player_state = PLAYER_STATE_STANDING;
-      p_anim_force_interrupt(this);
+      lives                   = initial_lives;
+      entity_ptr->velocity    = vec3(0);
+      player_state            = PLAYER_STATE_STANDING;
+      AN_p_anim_force_interrupt(this);
       goto_checkpoint();
    }
 

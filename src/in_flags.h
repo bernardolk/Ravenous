@@ -69,7 +69,6 @@ u64 KEY_COMMA           = 1LL << 47;
 u64 KEY_PERIOD          = 1LL << 48;
 u64 KEY_DELETE          = 1LL << 49;
 
-
 u16 MOUSE_LB_CLICK       = 1 << 0;
 u16 MOUSE_RB_CLICK       = 1 << 1;
 u16 MOUSE_DRAGGING       = 1 << 2;
@@ -250,6 +249,7 @@ u64 process_keyboard_input_key_press(GLFWwindow* window)
    return flags;
 }
 
+
 u64 process_keyboard_input_key_release(GLFWwindow* window)
 {
    u64 flags = 0;
@@ -401,6 +401,7 @@ u64 process_keyboard_input_key_release(GLFWwindow* window)
    return flags;
 }
 
+
 void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 {
    if (PROGRAM_MODE.current == EDITOR_MODE && ImGui::GetIO().WantCaptureMouse)
@@ -448,6 +449,7 @@ void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 	G_INPUT_INFO.mouse_coords.y = ypos;
 }
 
+
 void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset) 
 {
    if (ImGui::GetIO().WantCaptureMouse)
@@ -455,6 +457,7 @@ void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset)
       
    G_SCENE_INFO.camera->Position += (float)(3 * yoffset) * G_SCENE_INFO.camera->Front;
 }
+
 
 void on_mouse_btn(GLFWwindow* window, int button, int action, int mods) 
 {
@@ -497,20 +500,24 @@ void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
    }
 }
 
+
 bool pressed_once(InputFlags flags, u64 key)
 {
    return flags.key_press & key && !(G_INPUT_INFO.key_state & key);
 }
+
 
 bool pressed_only(InputFlags flags, u64 key)
 {
    return flags.key_press == key && !(G_INPUT_INFO.key_state & key);
 }
 
+
 bool pressed(InputFlags flags, u64 key)
 {
    return flags.key_press & key;
 }
+
 
 void check_mouse_click_hold()
 {
@@ -520,6 +527,7 @@ void check_mouse_click_hold()
       G_INPUT_INFO.mouse_state |= MOUSE_LB_HOLD;
    }
 }
+
 
 void reset_input_flags(InputFlags flags)
 {
