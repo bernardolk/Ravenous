@@ -47,7 +47,7 @@ void render_collision_log_panel(CollisionLogPanelContext* panel)
       {
          for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
          {
-            CollisionLogEntry* entry = read_collision_log_entry(row);
+            CollisionLogEntry* entry = CL_read_collision_log_entry(row);
             if(entry == nullptr || entry->entity == NULL)
                break;
                

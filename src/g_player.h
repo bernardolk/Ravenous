@@ -3,7 +3,7 @@
 // --------------------------
 // And update it's state based on it
 
-void resolve_player_collisions(Player* &player, WorldStruct* world)
+void CL_resolve_player_collisions(Player* &player, WorldStruct* world)
 {
    Entity* &player_entity = player->entity_ptr;
 
@@ -13,7 +13,7 @@ void resolve_player_collisions(Player* &player, WorldStruct* world)
       case PLAYER_STATE_FALLING:
       {
          // test collision with every object in scene entities vector
-         run_collision_checks_falling(player);
+         CL_run_collision_checks_falling(player);
 
          if(player->action)
             check_player_grabbed_ledge(player);
@@ -30,7 +30,7 @@ void resolve_player_collisions(Player* &player, WorldStruct* world)
          // step 2: check if player is actually sliding
          if(player->standing_entity_ptr->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
          {
-            bool is_sliding = check_for_sliding_slope_floor(player);
+            bool is_sliding                  = check_for_sliding_slope_floor(player);
             if(is_sliding) break;
          }
 
@@ -40,7 +40,7 @@ void resolve_player_collisions(Player* &player, WorldStruct* world)
 
          // step 3: resolve possible collisions then do step 2 again
          // check for collisions with scene BUT with floor
-         run_collision_checks_standing(player);
+         CL_run_collision_checks_standing(player);
 
          terrain                             = CL_get_terrain_height_at_player(player_entity, player->standing_entity_ptr);
          player->entity_ptr->position.y      = terrain.overlap + player->half_height;
@@ -76,7 +76,7 @@ void resolve_player_collisions(Player* &player, WorldStruct* world)
          }
 
          // test collision with every object in scene entities vector
-         run_collision_checks_falling(player);
+         CL_run_collision_checks_falling(player);
 
          if(player->action)
             check_player_grabbed_ledge(player);
@@ -104,7 +104,7 @@ void resolve_player_collisions(Player* &player, WorldStruct* world)
          }
 
          // check for collisions with scene BUT with floor
-         run_collision_checks_standing(player);
+         CL_run_collision_checks_standing(player);
 
          // if player is still standing after collision resolutions, correct player height, else, make fall
          auto terrain_collision = CL_get_terrain_height_at_player(player_entity, player->standing_entity_ptr);
@@ -245,18 +245,18 @@ void move_player(Player* player)
          // mid air controls
          if(player->jumping_upwards && !no_move_command)
          {
-            v.x                     += v_dir.x * player->air_delta_speed;
-            v.z                     += v_dir.z * player->air_delta_speed;
+            v.x   += v_dir.x * player->air_delta_speed;
+            v.z   += v_dir.z * player->air_delta_speed;
          }
 
-         v.y                        -=  player->fall_acceleration * dt;  // dampen player y speed (vf = v0 - g*t)
+         v.y   -=  player->fall_acceleration * dt;  // dampen player y speed (vf = v0 - g*t)
          break;
       }
 
 
       case PLAYER_STATE_FALLING:
       {
-         v.y                        -= player->fall_acceleration * dt;  // dampen player y speed (vf = v0 - g*t)
+         v.y -= player->fall_acceleration * dt;  // dampen player y speed (vf = v0 - g*t)
          break;
       }
 
@@ -283,35 +283,35 @@ void move_player(Player* player)
 
 void animate_player(Player* player)
 {
-   auto& anim_s = player->anim_state;
-   auto ANIM_DURATION = P_ANIM_DURATION[anim_s];
+   auto& anim_s         = player->anim_state;
+   auto ANIM_DURATION   = P_ANIM_DURATION[anim_s];
    if(anim_s == P_ANIM_NO_ANIM)
       return;
 
-   auto& anim_t = player->anim_t;
-   anim_t += G_FRAME_INFO.duration * 1000;
+   auto& anim_t         = player->anim_t;
+   anim_t               += G_FRAME_INFO.duration * 1000;
 
    bool end_anim = false;
    if(ANIM_DURATION > 0 && anim_t >= ANIM_DURATION)
    {
-      anim_t = ANIM_DURATION;
-      end_anim = true;
+      anim_t            = ANIM_DURATION;
+      end_anim          = true;
    }
 
-   bool interrupt = false;
+   bool interrupt       = false;
    switch(anim_s)
    {
       case P_ANIM_JUMPING:
-         interrupt = p_anim_jumping_update(player);
+         interrupt                  = p_anim_jumping_update(player);
          break;
       case P_ANIM_LANDING:
-         interrupt = p_anim_landing_update(player);
+         interrupt                  = p_anim_landing_update(player);
          break;
       case P_ANIM_LANDING_FALL:
-         interrupt = p_anim_landing_fall_update(player);
+         interrupt                  = p_anim_landing_fall_update(player);
          break;
       case P_ANIM_VAULTING:
-         interrupt = p_anim_vaulting(player);
+         interrupt                  = p_anim_vaulting(player);
          if(interrupt)
             finish_vaulting(player);
          break;

@@ -121,7 +121,6 @@ struct ProgramConfig {
 #include <camera.h>
 #include <parser.h>
 #include <world.h>
-#include <collision_data.h>
 #include <globals.h>
 #include <entity_manager.h>
 
@@ -144,10 +143,12 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <render.h>
 #include <im_render.h>
 #include <input.h>
-#include <collision.h>
+#include <cl_tests.h>
+#include <cl_entities.h>
+#include <gameplay.h>
+#include <cl_controller.h>
 #include <scene.h>
 #include <console.h>
-#include <gameplay.h>
 #include <p_animation.h>
 #include <g_player.h>
 #include <g_input.h>
@@ -195,8 +196,8 @@ int main()
 
    // Allocate buffers and logs
    G_BUFFERS.entity_buffer = allocate_entity_buffer();
-   G_BUFFERS.rm_buffer = allocate_render_message_buffer();
-   COLLISION_LOG = allocate_collision_log();
+   G_BUFFERS.rm_buffer     = allocate_render_message_buffer();
+   COLLISION_LOG           = CL_allocate_collision_log();
    initialize_console_buffers();
 
    // Initialises immediate draw
@@ -209,15 +210,15 @@ int main()
    player->checkpoint_pos = player->entity_ptr->position;   // set player initial checkpoint position
 
    // set scene attrs from global config
-   G_SCENE_INFO.camera->Acceleration = G_CONFIG.camspeed;
-   G_SCENE_INFO.active_scene->ambient_light = G_CONFIG.ambient_light;
-   G_SCENE_INFO.active_scene->ambient_intensity = G_CONFIG.ambient_intensity;
+   G_SCENE_INFO.camera->Acceleration               = G_CONFIG.camspeed;
+   G_SCENE_INFO.active_scene->ambient_light        = G_CONFIG.ambient_light;
+   G_SCENE_INFO.active_scene->ambient_intensity    = G_CONFIG.ambient_intensity;
 
    Entity_Manager.set_default_entity_attributes(            // sets some loaded assets from scene as
       "aabb", "model", "grey"                               // defaults for entity construction
    );  
    World.update_entity_world_cells(player->entity_ptr);     // sets player to the world
-   recompute_collision_buffer_entities(player);             // populates collision buffer and others
+   CL_recompute_collision_buffer_entities(player);          // populates collision buffer and others
    
    Editor::initialize();
 
@@ -268,13 +269,12 @@ int main()
       check_player_events(player);
       move_player(player);
       animate_player(player);
-      update_player_world_cells(player);
+      CL_update_player_world_cells(player);
       //@todo: unless this becomes a performance problem, its easier to recompute the buffer every frame
       //       then to try placing this call everytime necessary
-      recompute_collision_buffer_entities(player);
-      resolve_player_collisions(player, &World);
+      CL_recompute_collision_buffer_entities(player);
+      CL_resolve_player_collisions(player, &World);
 		update_scene_objects();
-      GP_run_scratch(player);
 
       // -------------
 		//	RENDER PHASE
