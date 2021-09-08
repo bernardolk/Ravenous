@@ -54,6 +54,7 @@ struct Player {
    float air_delta_speed         = 0.05;
    float run_speed               = 4.0;
    float dash_speed              = 6.0;
+   float walk_speed              = 0.92;
    float fall_speed              = 0.01;
    float fall_acceleration       = 0.2;
    float jump_initial_speed      = 5.0;
@@ -64,12 +65,13 @@ struct Player {
 
    
    // movement states
-   bool dashing            = false;
-   bool jumping_upwards    = false;
-   bool landing            = false;
-   bool jumping_from_slope = false;
-   bool action             = false;
-   bool free_running       = false;
+   bool dashing                  = false;
+   bool walking                  = false;
+   bool jumping_upwards          = false;
+   bool landing                  = false;
+   bool jumping_from_slope       = false;
+   bool action                   = false;
+   bool free_running             = false;
 
    Entity* grabbing_entity = nullptr;
 
@@ -80,14 +82,12 @@ struct Player {
    vec3 initial_velocity = vec3(0);
 
    // health and hurting
-   int initial_lives = 2;
-   int lives = 2;
+   int initial_lives             = 2;
+   int lives                     = 2;
+   float hurt_height_1           = 5.0;
+   float hurt_height_2           = 8.0;
    float height_before_fall;
-   float hurt_height_1 = 5.0;
-   float hurt_height_2 = 8.0;
-
-   // set when checking for fall, read-only!
-   float fall_height_log = 0;
+   float fall_height_log         = 0;                        // set when checking for fall, read-only!
 
    // checkpoints
    Entity* checkpoint = nullptr;

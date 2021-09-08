@@ -501,18 +501,21 @@ void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
 }
 
 
+inline
 bool pressed_once(InputFlags flags, u64 key)
 {
    return flags.key_press & key && !(G_INPUT_INFO.key_state & key);
 }
 
 
+inline
 bool pressed_only(InputFlags flags, u64 key)
 {
    return flags.key_press == key && !(G_INPUT_INFO.key_state & key);
 }
 
 
+inline
 bool pressed(InputFlags flags, u64 key)
 {
    return flags.key_press & key;

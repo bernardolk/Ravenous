@@ -20,7 +20,10 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
          assert(player->standing_entity_ptr != NULL);
 
          // step 1: if player switched floors, either just change his ground or make him slide if applicable
-         GP_check_for_floor_transitions(player);
+         if(player->walking)
+            GP_check_for_floor_transitions_while_walking(player);
+         else
+            GP_check_for_floor_transitions(player);
 
          // step 2: check if player is actually sliding
          if(player->standing_entity_ptr->collision_geometry_type == COLLISION_ALIGNED_SLOPE)

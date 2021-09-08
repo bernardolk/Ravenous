@@ -1,5 +1,4 @@
 void GP_move_player(Player* player);
-void GP_update_player_state(Player* &player, WorldStruct* world);
 
 void GP_make_player_slide                       (Player* player, Entity* ramp, bool slide_fall = false);
 void GP_make_player_jump                        (Player* player);
@@ -38,14 +37,21 @@ void GP_move_player(Player* player)
          float d_speed  = player->acceleration * dt;
 
          // deacceleration
-         bool contrary_movement     = !comp_sign(v_dir.x, v.x) || !comp_sign(v_dir.z, v.z);
-         bool stopped_dashing       = !player->dashing && square_GT(v + d_speed, player->run_speed);
+         bool stopped                         = (speed > 0 && no_move_command);
+         bool moving_contrary_to_momentum     = !comp_sign(v_dir.x, v.x) || !comp_sign(v_dir.z, v.z);
+         bool stopped_dashing                 = !player->dashing && square_GT(v + d_speed, player->run_speed);
+         bool started_walking_while_fast      = player->walking  && square_GT(v + d_speed, player->walk_speed);
+         bool cap_speed_dashing               = player->dashing && square_GE(v + d_speed, player->dash_speed);
+         bool cap_speed_walking               = player->walking && square_GE(v + d_speed, player->walk_speed);
 
-         if((speed > 0 && no_move_command) || stopped_dashing)                   { d_speed   *= -1; }            
-         else if(player->dashing && square_GE(v + d_speed, player->dash_speed))  { d_speed   = 0;   }
+         if(stopped || stopped_dashing || started_walking_while_fast || moving_contrary_to_momentum)
+         { d_speed   *= -1; }            
+         else if(cap_speed_dashing || cap_speed_walking)  
+         { d_speed   = 0;   }
 
          speed += d_speed;
          v = speed * v_dir;     // if no movement command is issued, v_dir = 0,0,
+
          break;
       }
 
@@ -165,6 +171,24 @@ void GP_check_for_floor_transitions(Player* player)
       // }
       // else
          player->standing_entity_ptr = terrain.entity;
+   }
+}
+
+void GP_check_for_floor_transitions_while_walking(Player* player)
+{
+   // this proc is used when player is standing and walking
+   // avoids player stepping into abyss or slopes when walking
+
+   auto terrain = CL_check_for_floor_below_player(player);
+   
+   if(terrain.hit && terrain.entity != player->standing_entity_ptr 
+      && terrain.entity->collision_geometry_type == COLLISION_ALIGNED_BOX)
+   {
+      player->standing_entity_ptr = terrain.entity;
+   }
+   else if(!(terrain.hit && terrain.entity == player->standing_entity_ptr))
+   {
+      player->entity_ptr->position = player->prior_position;
    }
 }
 
