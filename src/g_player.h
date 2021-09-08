@@ -17,6 +17,7 @@ bool GP_check_for_sliding_slope_floor           (Player* player);
 
 void GP_move_player(Player* player)
 {
+   // updates player position
    auto& v           = player->entity_ptr->velocity;
    auto& v_dir       = player->v_dir;
    auto& state       = player->player_state;
@@ -35,12 +36,6 @@ void GP_move_player(Player* player)
       {
          auto& speed    = player->speed;
          float d_speed  = player->acceleration * dt;
-
-         if(player->free_running)
-         {
-            if(GP_check_player_vaulting(player));
-               break;
-         }
 
          // deacceleration
          bool contrary_movement     = !comp_sign(v_dir.x, v.x) || !comp_sign(v_dir.z, v.z);
@@ -96,9 +91,6 @@ void GP_move_player(Player* player)
 }
 
 
-// -------
-// @TODO: incorporate those in move_player call
-// -------
 void GP_make_player_jump(Player* player)
 {
    auto& v = player->entity_ptr->velocity;
@@ -107,9 +99,14 @@ void GP_make_player_jump(Player* player)
 
    if(no_move_command)
       player->jumping_upwards = true;
-   // minimum jump range
-   else if(square_LE(v, player->jump_horz_thrust))
-      v = v_dir * player->jump_horz_thrust;
+   else
+   {
+      // square_LE(v, player->jump_horz_thrust)
+      if(player->dashing)
+         v = v_dir * player->jump_horz_dash_thrust;
+      else
+         v = v_dir * player->jump_horz_thrust;
+   }
    
    player->player_state = PLAYER_STATE_JUMPING;
    player->anim_state = P_ANIM_JUMPING;

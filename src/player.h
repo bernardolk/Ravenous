@@ -41,23 +41,27 @@ struct Player {
    Entity* slope_player_was_ptr;
    Entity* vaulting_entity_ptr;
 
+   // geometry
+   float radius;
+   float half_height;
+
    // movement variables
    vec3 v_dir = vec3(0.f);
    float speed = 0;
 
    // movement constants
-   float acceleration = 7.5;
-   float air_delta_speed = 0.05;
-   float run_speed = 4.0;
-   float dash_speed = 6.0;
-   float fall_speed = 0.01;
-   float fall_acceleration = 0.2;
-   float jump_initial_speed = 5.0;
-   float jump_horz_thrust = 2.5;
-   float slide_jump_speed = 6.7;
-   float slide_speed = 2.0;
-   float radius;
-   float half_height;
+   float acceleration            = 7.5;
+   float air_delta_speed         = 0.05;
+   float run_speed               = 4.0;
+   float dash_speed              = 6.0;
+   float fall_speed              = 0.01;
+   float fall_acceleration       = 0.2;
+   float jump_initial_speed      = 5.0;
+   float jump_horz_thrust        = 3.0;
+   float jump_horz_dash_thrust   = 5.0;
+   float slide_jump_speed        = 6.7;
+   float slide_speed             = 2.0;
+
    
    // movement states
    bool dashing            = false;

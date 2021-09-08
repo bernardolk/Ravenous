@@ -52,17 +52,15 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
             player_entity->velocity.z        *= 0.5;
             player->height_before_fall       = player_entity->position.y;
          }
+
+         if(player->free_running)
+            GP_check_player_vaulting(player);
+
          break;
       }
 
       case PLAYER_STATE_JUMPING:
       {
-         /* remarks about the jump system:
-            we set at input key_press time (input.h) a high velocity upward for the player
-            at each frame we decrement a little bit from the y velocity component using delta frame time
-            IDEALLY we would set our target jump height and let the math work itself out from there.
-            For our prototype this should be fine.
-         */
          if (player->entity_ptr->velocity.y <= 0)
          {
             player->player_state             = PLAYER_STATE_FALLING;
