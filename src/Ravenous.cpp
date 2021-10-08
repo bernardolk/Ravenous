@@ -606,6 +606,7 @@ void initialize_shaders()
    auto depth_cubemap_shader = create_shader_program(
       "depth_cubemap", "vertex_depth_cubemap", "geometry_depth_cubemap" ,"fragment_depth_cubemap"
    );
+
    Shader_Catalogue.insert({depth_cubemap_shader->name, depth_cubemap_shader});
 }
 
@@ -663,7 +664,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
-
 
 GLenum glCheckError_(const char* file, int line)
 {

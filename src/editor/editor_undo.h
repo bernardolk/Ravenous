@@ -1,11 +1,3 @@
-struct EntityState {
-   Entity* entity = nullptr;
-   unsigned int id;
-   vec3 position;
-   vec3 scale;
-   vec3 rotation;
-};
-
 void apply_state(EntityState state)
 {
    if(state.entity == nullptr)

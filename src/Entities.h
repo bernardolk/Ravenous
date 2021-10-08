@@ -214,6 +214,14 @@ struct Entity {
    }
 };
 
+struct EntityState {
+   Entity* entity = nullptr;
+   unsigned int id;
+   vec3 position;
+   vec3 scale;
+   vec3 rotation;
+};
+
 struct SpotLight {
 	vec3 position = vec3(0);
 	vec3 direction = vec3(0, -1, 0);
@@ -288,6 +296,17 @@ vec2 get_slope_normal(Entity* slope)
    auto col_geometry = slope->collision_geometry.slope;
    auto nrml = glm::normalize(vec2(col_geometry.tangent.x, col_geometry.tangent.z));
    return nrml;
+}
+
+
+mat4 mat_model_from_entity_state(EntityState state)
+{
+   glm::mat4 model = translate(mat4identity, state.position);
+   model = rotate(model, glm::radians(state.rotation.x), vec3(1.0f, 0.0f, 0.0f));
+   model = rotate(model, glm::radians(state.rotation.y), vec3(0.0f, 1.0f, 0.0f));
+   model = rotate(model, glm::radians(state.rotation.z), vec3(0.0f, 0.0f, 1.0f));
+   model = glm::scale(model, state.scale);
+   return model;
 }
 
 
