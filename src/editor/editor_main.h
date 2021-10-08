@@ -301,7 +301,7 @@ void render(Player* player, WorldStruct* world)
    if(Context.entity_panel.active)
    {
       // update
-      auto state = Context.entity_panel.entity_tracked_state;
+      auto state = get_entity_state(Context.selected_entity);
       auto model = mat_model_from_entity_state(state);
 
       // compute color intensity based on time
@@ -317,6 +317,28 @@ void render(Player* player, WorldStruct* world)
       glowing_line->setFloat3("color", intensity * 0.890, intensity * 0.168, intensity * 0.6);
       glowing_line->setFloat("opacity", 1);
       render_mesh(Context.selected_entity->mesh, RenderOptions{true, false, 3});
+   }
+
+   // render glowing wireframe on top of snap reference entity
+   if(Context.snap_mode && Context.snap_reference != nullptr)
+   {
+      // update
+      auto state = get_entity_state(Context.snap_reference);
+      auto model = mat_model_from_entity_state(state);
+
+      // compute color intensity based on time
+      float time_value = glfwGetTime();
+      float intensity = sin(time_value) * 2;
+      if(intensity < 0) intensity *= -1.0;
+      intensity += 1.0;
+
+      // render
+      auto glowing_line = Shader_Catalogue.find("color")->second;
+      glowing_line->use();
+      glowing_line->setMatrix4("model", model);
+      glowing_line->setFloat3("color", intensity * 0.952, intensity * 0.843, intensity * 0.105);
+      glowing_line->setFloat("opacity", 1);
+      render_mesh(Context.snap_reference->mesh, RenderOptions{true, false, 3});
    }
 
    // --------------

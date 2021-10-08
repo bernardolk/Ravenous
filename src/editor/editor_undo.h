@@ -1,24 +1,3 @@
-void apply_state(EntityState state)
-{
-   if(state.entity == nullptr)
-      return;
-
-   state.entity->position = state.position;
-   state.entity->scale = state.scale;
-   state.entity->rotate_y(state.rotation.y - state.entity->rotation.y);
-}
-
-EntityState get_entity_state(Entity* entity)
-{
-   EntityState state; 
-   state.position = entity->position;
-   state.scale = entity->scale;
-   state.rotation = entity->rotation;
-   state.entity = entity;
-   state.id = entity->id;
-   return state;
-}
-
 bool compare_state(EntityState s1, EntityState s2)
 {
    return s1.position == s2.position &&

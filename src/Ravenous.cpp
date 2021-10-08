@@ -116,6 +116,7 @@ struct ProgramConfig {
 #include <character.h>
 #include <shader.h>
 #include <entities.h>
+#include <entity_state.h>
 #include <model.h>
 #include <player.h>
 #include <camera.h>
