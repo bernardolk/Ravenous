@@ -225,7 +225,7 @@ void GP_check_trigger_interaction(Player* player)
       auto triggered             = CL_check_event_trigger_collision(checkpoint, player->entity_ptr);
       if(triggered)
       {
-         RENDER_MESSAGE("TRIGGERED", 1000);
+         RENDER_MESSAGE("CHECKPOINT", 1000);
          player->set_checkpoint(checkpoint);
       }
    }

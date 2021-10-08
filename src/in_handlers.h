@@ -1,7 +1,7 @@
 void IN_handle_common_input                     (InputFlags flags, Player* &player);
 void IN_handle_movement_input                   (InputFlags flags, Player* &player, ProgramModeEnum pm);
 
-u64 KEY_MOVE_UP, KEY_MOVE_DOWN, KEY_MOVE_LEFT, KEY_MOVE_RIGHT, KEY_ACTION, KEY_WALK;
+u64 KEY_MOVE_UP, KEY_MOVE_DOWN, KEY_MOVE_LEFT, KEY_MOVE_RIGHT, KEY_DASH, KEY_WALK, KEY_ACTION;
 
 
 void IN_assign_keys_to_actions(ProgramModeEnum pm)
@@ -13,16 +13,18 @@ void IN_assign_keys_to_actions(ProgramModeEnum pm)
          KEY_MOVE_DOWN        = KEY_DOWN;
          KEY_MOVE_LEFT        = KEY_LEFT;
          KEY_MOVE_RIGHT       = KEY_RIGHT;
-         KEY_ACTION           = KEY_Z;
+         KEY_DASH             = KEY_Z;
          KEY_WALK             = KEY_X;
+         KEY_ACTION           = KEY_J;
          break;
       case GAME_MODE:
          KEY_MOVE_UP          = KEY_W;
          KEY_MOVE_DOWN        = KEY_S;
          KEY_MOVE_LEFT        = KEY_A;
          KEY_MOVE_RIGHT       = KEY_D;
-         KEY_ACTION           = KEY_LEFT_SHIFT;
+         KEY_DASH             = KEY_LEFT_SHIFT;
          KEY_WALK             = KEY_LEFT_CTRL;
+         KEY_ACTION           = KEY_E;
          break;
    }
 }
@@ -74,7 +76,7 @@ void IN_handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum
          IN_process_move_keys(flags, v_dir);
 
          // DASH
-         if(flags.key_press & KEY_ACTION)  
+         if(flags.key_press & KEY_DASH)  
             player->dashing = true;
          
          // WALK
@@ -86,8 +88,12 @@ void IN_handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum
             GP_make_player_jump(player);
 
          // FREE RUN
-         if(pressed(flags, KEY_MOVE_UP) && pressed(flags, KEY_ACTION))
+         if(pressed(flags, KEY_MOVE_UP) && pressed(flags, KEY_DASH))
             player->free_running = true;
+
+         // INTERACT
+         if(pressed(flags, KEY_ACTION))
+            GP_check_trigger_interaction(player);
 
          break;
       }
@@ -98,7 +104,7 @@ void IN_handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum
          if(player->jumping_upwards)
             IN_process_move_keys(flags, v_dir);
 
-         if(pressed(flags, KEY_ACTION))
+         if(pressed(flags, KEY_DASH))
             player->action = true;
 
          break;
@@ -106,7 +112,7 @@ void IN_handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum
 
       case PLAYER_STATE_FALLING:
       {
-          if(pressed(flags, KEY_ACTION))
+          if(pressed(flags, KEY_DASH))
             player->action = true;
 
          break;
@@ -154,7 +160,7 @@ void IN_handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum
       }
       case PLAYER_STATE_GRABBING:
       {
-         if(pressed(flags, KEY_ACTION))
+         if(pressed(flags, KEY_DASH))
          {
             player->action = true;
 
@@ -226,10 +232,6 @@ void IN_handle_common_input(InputFlags flags, Player* &player)
    if(pressed_once(flags, KEY_GRAVE_TICK))
    {
       start_console_mode();
-   }
-   if(pressed_once(flags, KEY_J))
-   {
-      GP_check_trigger_interaction(player);
    }
    if(flags.key_press & KEY_ESC && flags.key_press & KEY_LEFT_SHIFT)
    {
