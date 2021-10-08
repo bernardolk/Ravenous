@@ -230,10 +230,6 @@ void render_entity_panel(EntityPanelContext* panel)
 
    if(track)
    {
-      // we track initial state to be safe (if it wasnt tracked before)
-      // since we only add to stack new states, it should be fine to add even if it is
-      // already there. Currently, there is no tracking for adding/deleting entities.
-      Context.undo_stack.track(panel->entity_tracked_state);
       Context.undo_stack.track(entity);
       panel->entity_tracked_state = get_entity_state(entity);
    }
