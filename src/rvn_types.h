@@ -21,13 +21,9 @@ const float MAX_FLOAT = std::numeric_limits<float>::max();
 const float MIN_FLOAT = std::numeric_limits<float>::min();
 
 // AXIS
-namespace vec3
-{
-   const vec3 unit_x = vec3(1,0,0);
-   const vec3 unit_y = vec3(1,0,0);
-   const vec3 unit_z = vec3(1,0,0);
-};
-
+const vec3 UNIT_X = vec3(1,0,0);
+const vec3 UNIT_Y = vec3(1,0,0);
+const vec3 UNIT_Z = vec3(1,0,0);
 
 inline
 bool is_equal(vec2 vec1, vec2 vec2)

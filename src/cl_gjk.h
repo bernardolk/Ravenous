@@ -21,33 +21,40 @@
 // ------------------
 struct Simplex {
 	private:
-		std::array<vec3, 4> points;
-		uint size;
+		vec3 points[4];
+		u32 p_size;
 
 	public:
 		Simplex()
-			: points({ 0, 0, 0, 0 })
-			, size(0)
-		{}
+      {
+         points[0] = vec3(0);
+         points[1] = vec3(0);
+         points[2] = vec3(0);
+         points[3] = vec3(0);
+         p_size = 0;
+      }
 
 		Simplex& operator=(std::initializer_list<vec3> list) {
 			for (auto v = list.begin(); v != list.end(); v++) {
 				points[std::distance(list.begin(), v)] = *v;
 			}
-			size = list.size();
+			p_size = list.size();
 
 			return *this;
 		}
 
 		void push_front(vec3 point) {
-			points = { point, points[0], points[1], points[2] };
-			size = std::min(size + 1, 4u);
+         points[1] = points[0];
+         points[2] = points[1];
+         points[3] = points[2];
+         points[0] = point;
+         
+			p_size = p_size + 1;
+         assert(p_size <= 4);
 		}
 
-		vec3& operator[](uint i) { return points[i]; }
-		uint size() const { return size; }
-		auto begin() const { return points.begin(); }
-		auto end()   const { return points.end() - (4 - size); }
+		vec3& operator[](u32 i) { return points[i]; }
+		u32 size() const { return p_size; }
 };
 
 // ------------------
@@ -82,22 +89,21 @@ bool CL_same_general_direction(vec3 a, vec3 b)
 // > GJK SUPPORT FUNCTIONS
 // ------------------------
 
-GJK_Point CL_find_furthest_vertex(Mesh collision_mesh, vec3 direction):
+GJK_Point CL_find_furthest_vertex(Mesh* collision_mesh, vec3 direction)
 {
 	// linearly scan the CollisionMesh doing dot products with the vertices and storing the one with max value, then return it
 
    float max_inner_p = MIN_FLOAT;
    vec3 furthest_vertex;
 
-   for (i = 0; i < collision_mesh->vertices.size(); i++)
+   for (int i = 0; i < collision_mesh->vertices.size(); i++)
    {
-      auto vertex = vertices[i];
-      vec3 position = vertex[0];
-      float inner_p = glm::dot(position, direction);
+      vec3 vertex_pos = collision_mesh->vertices[i].position;
+      float inner_p = glm::dot(vertex_pos, direction);
       if(inner_p > max_inner_p)
       {
          max_inner_p = inner_p;
-         furthest_vertex = position;
+         furthest_vertex = vertex_pos;
       }
    }
 
@@ -105,17 +111,17 @@ GJK_Point CL_find_furthest_vertex(Mesh collision_mesh, vec3 direction):
 }
 
 
-GJK_Point CL_get_support_point(Mesh collision_mesh_A, Mesh collision_mesh_A, vec3 direction)
+GJK_Point CL_get_support_point(Mesh* collision_mesh_A, Mesh* collision_mesh_B, vec3 direction)
 {
    // Gets a support point in the minkowski difference of both meshes, in the direction supplied.
 
-   GJK_Point point_a = CL_find_furthest_vertex(collision_mesh_A, direction);
-   GJK_Point point_b = CL_find_furthest_vertex(collision_mesh_B, -1.f * direction);
+   GJK_Point gjk_point_a = CL_find_furthest_vertex(collision_mesh_A, direction);
+   GJK_Point gjk_point_b = CL_find_furthest_vertex(collision_mesh_B, -1.f * direction);
 
-   if (point_a.empty || point_b.empty)
-      return point_a;
+   if (gjk_point_a.empty || gjk_point_b.empty)
+      return gjk_point_a;
 
-   return GJK_Point{point_a.vertex - point_b.vertex, false};
+   return GJK_Point{gjk_point_a.point - gjk_point_b.point, false};
 }
 
 // -----------------------
@@ -124,31 +130,35 @@ GJK_Point CL_get_support_point(Mesh collision_mesh_A, Mesh collision_mesh_A, vec
 
 GJK_Iteration CL_update_line_simplex(GJK_Iteration gjk)
 {
-   // auto points = gjk.simplex;
-   // auto direction = gjk.direction;
-
-   vec3 a = simplex[0];
-   vec3 b = simplex[1];
+   vec3 a = gjk.simplex[0];
+   vec3 b = gjk.simplex[1];
 
    vec3 ab = b - a;
    vec3 ao =   - a;
 
+   GJK_Iteration next;
+
    if (CL_same_general_direction(ab, ao))
-      return GJK_Iteration{gjk.simplex, direction = cross(ab, ao, ab)};
+   {
+      next.simplex   = gjk.simplex;
+      next.direction = cross(ab, ao, ab);
+   }
 
    else
-      return GJK_Iteration{simplex = { a }, direction = ao};
+   {
+      next.simplex   = { a };
+      next.direction = ao;
+   }
+
+   return next;
 }
 
 
 GJK_Iteration CL_update_triangle_simplex(GJK_Iteration gjk)
 {
-   // auto points = gjk.simplex;
-   //auto direction = gjk.direction;
-
-   vec3 a = simplex[0];
-   vec3 b = simplex[1];
-   vec3 c = simplex[2];
+   vec3 a = gjk.simplex[0];
+   vec3 b = gjk.simplex[1];
+   vec3 c = gjk.simplex[2];
 
    vec3 ab = b - a;
    vec3 ac = c - a;
@@ -156,28 +166,46 @@ GJK_Iteration CL_update_triangle_simplex(GJK_Iteration gjk)
    
    vec3 abc = glm::cross(ab, ac);
 
+   GJK_Iteration next;
+
    if(CL_same_general_direction(glm::cross(abc, ac), ao))
    {
       if(CL_same_general_direction(ac, ao))
-         return GJK_Iteration{simplex = { a, c }, direction = cross(ac, ao, ac)};
-
+      {
+         next.simplex   = { a, c };
+         next.direction = cross(ac, ao, ac);
+      }
       else
-         return CL_update_line_simplex(GJK_Iteration{simplex = { a, b }, gjk.direction});
+      {
+         next.simplex   = { a, b };
+         next.direction = gjk.direction;
+      }
    }
 
    else
    {
       if(CL_same_general_direction(glm::cross(ab, abc), ao))
-         return CL_update_line_simplex(GJK_Iteration{simplex = {a, b}, gjk.direction});
+      {
+         next.simplex   = {a, b};
+         next.direction = gjk.direction;
+      }
 
       else
       {
          if(CL_same_general_direction(abc, ao))
-            return GJK_Iteration{simplex = gjk.simplex, direction = abc};
+         {
+            next.simplex   = gjk.simplex;
+            next.direction = abc;
+         }
          else
-            return GJK_Iteration{simplex = {a, c, b}, direction = -1.f * abc};
+         {
+            next.simplex   = { a, c, b };
+            next.direction = -1.f * abc;   
+         }
       }
    }
+
+   return next;
 }
 
 
@@ -197,26 +225,36 @@ GJK_Iteration CL_update_tetrahedron_simplex(GJK_Iteration gjk)
 	vec3 acd = glm::cross(ac, ad);
 	vec3 adb = glm::cross(ad, ab);
 
+   GJK_Iteration next;
+
    // check if mikowski's diff origin is pointing towards tetrahedron normal faces
    // (it shouldn't, since the origin should be contained in the shape and point down not up like the inclined faces's normals)
 
    if(CL_same_general_direction(abc, ao))
    {
-      return CL_update_triangle_simplex(GJK_Iteration{simplex = {a, b, c}, direction = gjk.direction});
+      next.simplex   = { a, b, c };
+      next.direction = gjk.direction; 
+      return CL_update_triangle_simplex(next);
    }
 
    if(CL_same_general_direction(acd, ao))
    {
-      return CL_update_triangle_simplex(GJK_Iteration{simplex = {a, c, d}, direction = gjk.direction});
+      next.simplex   = { a, c, d };
+      next.direction = gjk.direction; 
+      return CL_update_triangle_simplex(next);
    }
 
    if(CL_same_general_direction(adb, ao))
    {
-      return CL_update_triangle_simplex(GJK_Iteration{simplex = {a, d, b}, direction = gjk.direction});
+      next.simplex   = { a, d, b };
+      next.direction = gjk.direction; 
+      return CL_update_triangle_simplex(next);
    }
 
    // was not the case, found collision
-   return GJK_Iteration{points = {a, b, c, d}, direction = gjk.direction, true};
+   next.simplex = gjk.simplex;
+   next.finished = true;
+   return next;
 }
 
 
@@ -234,6 +272,7 @@ GJK_Iteration CL_update_simplex_and_direction(GJK_Iteration gjk)
 
    // something went wrong
    assert(false);
+   return gjk;
 }
 
 
@@ -244,23 +283,29 @@ GJK_Iteration CL_update_simplex_and_direction(GJK_Iteration gjk)
 bool CL_run_GJK(Entity entity_A, Entity entity_B)
 {
    // Runs GJK algorithm
-   Mesh collider_A = entity_A.collision_mesh;
-   Mesh collider_B = entity_B.collision_mesh;
+   Mesh* collider_A = &entity_A.collision_mesh;
+   Mesh* collider_B = &entity_B.collision_mesh;
 
-   GJK_Point support_point = CL_get_support_point(collider_A, collider_B, vec3::unit_x);
+   GJK_Point support = CL_get_support_point(collider_A, collider_B, UNIT_X);
+
+   if(support.empty)
+      return false;
 
    GJK_Iteration gjk;
-   gjk.simplex.push_front(support_point);
-   gjk.direction = -1.0f * support_point;
+   gjk.simplex.push_front(support.point);
+   gjk.direction = -1.0f * support.point;
 
    while(true)
    {
-      support_point = CL_get_support_point(collider_A, collider_B, vec3::unit_x);
+      support = CL_get_support_point(collider_A, collider_B, UNIT_X);
 
-      if(!CL_same_general_direction(support_point, gjk.direction))
+      if(support.empty)
+         return false;
+
+      if(!CL_same_general_direction(support.point, gjk.direction))
          return false;    // no collision
 
-      gjk.simplex.push_front(support_point);
+      gjk.simplex.push_front(support.point);
 
       gjk = CL_update_simplex_and_direction(gjk);
 

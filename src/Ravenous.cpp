@@ -149,6 +149,7 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <cl_controller.h>
 #include <cl_resolvers.h>
 #include <cl_buffers.h>
+#include <cl_gjk.h>
 #include <g_update.h>
 #include <scene.h>
 #include <console.h>
