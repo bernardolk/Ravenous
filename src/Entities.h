@@ -67,6 +67,8 @@ struct Entity {
       CollisionGeometryAlignedBox aabb;
    } collision_geometry;
 
+   Mesh collision_mesh;                // cant be pointer because will get multiplied by model matrix (per instance dependent)
+
    WorldCell* world_cells[ENTITY_WOLRD_CELL_OCCUPATION_LIMIT];
    int world_cells_count = 0;
 
@@ -164,6 +166,14 @@ struct Entity {
             slope.normal  = rot * vec4(1.0f, sin(slope_angle), 0.0f, 1.0f);
             break;
          }
+      }
+
+      // new code
+
+      // multiply every vertex of collision mesh by the model matrix
+      for (int i = 0; i < collision_mesh.vertices.size(); i++)
+      {
+         collision_mesh.vertices[0] *= matModel;
       }
    }
 

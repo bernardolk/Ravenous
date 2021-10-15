@@ -453,6 +453,9 @@ Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count
             new_entity->mesh = find->second;
          else
             new_entity->mesh = load_wavefront_obj_as_mesh(MODELS_PATH, model_name);
+
+         // makes collision mesh equals to mesh
+         new_entity->collision_mesh = *new_entity->mesh;
       }
       else if(property == "texture")
       {

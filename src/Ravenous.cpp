@@ -19,7 +19,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
-#include <limits>
 #include <assert.h>
 #include <algorithm>
 #include <stdint.h>
@@ -27,7 +26,6 @@
 #include <rvn_types.h>
 
 
-const float MAX_FLOAT = std::numeric_limits<float>::max();
 const string PROJECT_PATH = "c:/repositories/ravenous";
 const string TEXTURES_PATH = PROJECT_PATH + "/assets/textures/";
 const string MODELS_PATH = PROJECT_PATH + "/assets/models/";
@@ -149,6 +147,8 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <g_player.h>
 #include <an_player.h>
 #include <cl_controller.h>
+#include <cl_resolvers.h>
+#include <cl_buffers.h>
 #include <g_update.h>
 #include <scene.h>
 #include <console.h>

@@ -1,3 +1,5 @@
+#include <limits>
+
 // TYPE DEFINITIONS
 typedef int i16;
 typedef long int i32;
@@ -15,6 +17,17 @@ typedef std::string string;
 
 // VECTOR COMPARISON
 float VEC_COMPARE_PRECISION = 0.00001f;
+const float MAX_FLOAT = std::numeric_limits<float>::max();
+const float MIN_FLOAT = std::numeric_limits<float>::min();
+
+// AXIS
+namespace vec3
+{
+   const vec3 unit_x = vec3(1,0,0);
+   const vec3 unit_y = vec3(1,0,0);
+   const vec3 unit_z = vec3(1,0,0);
+};
+
 
 inline
 bool is_equal(vec2 vec1, vec2 vec2)
@@ -60,4 +73,13 @@ inline
 bool operator!=(const vec2& lhs, const vec2& rhs)
 {
    return !is_equal(lhs, rhs);
+}
+
+
+// VECTOR OPERATIONS
+
+inline
+vec3 cross(vec3 a, vec3 b, vec3 c)
+{
+   return glm::cross(glm::cross(a, b), c);
 }
