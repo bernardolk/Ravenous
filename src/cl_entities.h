@@ -40,11 +40,8 @@ float SLIDE_MIN_ANGLE = 0.6;
 // > FUNCTIONS
 // ------------------
 
-PrimitivesCollision      CL_get_vertical_overlap_player_vs_aabb          (Entity* entity, Entity* player);
-PrimitivesCollision      CL_get_horizontal_overlap_with_player           (Entity* entity, Player* player);
-
-EntitiesCollision  CL_get_terrain_height_at_player                          (Entity* player, Entity* entity);
-EntitiesCollision  CL_check_collision_horizontal(
+// main functions
+EntitiesCollision        CL_check_collision_horizontal(
       Player* player,
       EntityBufferElement* entity_iterator,
       int entity_list_size, bool iterative,
@@ -53,21 +50,22 @@ EntitiesCollision  CL_check_collision_horizontal(
 ); 
 EntitiesCollision  CL_check_collision_vertical         (Player* player, EntityBufferElement* entity_iterator, int entity_list_size);
 
+// helper functions
+PrimitivesCollision      CL_get_vertical_overlap_player_vs_aabb          (Entity* entity, Entity* player);
+PrimitivesCollision      CL_get_horizontal_overlap_with_player           (Entity* entity, Player* player);
+EntitiesCollision        CL_get_terrain_height_at_player                 (Entity* player, Entity* entity);
+
 RaycastTest    CL_check_for_floor_below_player                          (Player* player);
-
-
 bool           CL_intersects_vertically_or_cull                         (Entity* entity, Player* player);
 bool           CL_intersects_vertically_with_slope                      (Entity* slope, Entity* player);
 bool           CL_player_feet_center_touches_slope                      (Player* player, Entity* slope);
 bool           CL_check_event_trigger_collision                         (Entity* trigger, Entity* player);
 bool           CL_player_qualifies_as_standing                          (Player* player);
 bool           CL_player_hit_ceiling_slope                              (Player* player, Entity* slope);
-
 float          CL_get_distance_from_slope                               (Entity* slope, Player* player);
 float          CL_get_slope_height_at_position                          (vec3 position, Entity* slope);
 float          CL_get_slope_height_at_position                          (float position, Entity* slope, bool is_x, bool is_z);
 float          CL_get_slope_height_at_position_along_inclination_axis   (float position, Entity* slope);
-
 auto           CL_project_entity_into_slope                             (Entity* entity, Entity* ramp);
 
 
