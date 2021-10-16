@@ -1,0 +1,35 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+   ],
+   "settings": {
+      "files.associations": {
+         "*.ejs": "html",
+         "initializer_list": "cpp",
+         "vector": "cpp",
+         "xstring": "cpp",
+         "xtree": "cpp",
+         "xutility": "cpp"
+      }
+   },
+   "launch": {
+      "version": "0.2.0",
+      "configurations": [
+         {
+             "name": "Launch",
+             "type": "cppvsdbg",
+             "request": "launch",
+             "program": "c:\\repositories\\ravenous\\build\\Ravenous.exe",
+             "args": [],
+             "stopAtEntry": false,
+             "cwd": "${workspaceFolder}",
+             "environment": [],
+             "externalConsole": false,
+             "internalConsoleOptions": "neverOpen",
+             //"preLaunchTask": "build code"
+         }
+     ]
+   }
+}
