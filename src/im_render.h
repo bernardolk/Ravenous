@@ -205,7 +205,7 @@ struct GlobalImmediateDraw {
       _set_mesh(slot.index, vertex_vec, GL_LINE_LOOP, opts);
    }
 
-   void add_point(size_t _hash, vec3 point, float point_size = 1.0, bool always_on_top = false)
+   void add_point(size_t _hash, vec3 point, float point_size = 1.0, bool always_on_top = false, vec3 color = vec3(0))
    {
       IM_R_FIND_SLOT();
 
@@ -214,6 +214,7 @@ struct GlobalImmediateDraw {
       RenderOptions opts;
       opts.point_size = point_size;
       opts.always_on_top = always_on_top;
+      opts.color = color;
 
       _set_mesh(slot.index, vertex_vec, GL_POINTS, opts);
    }

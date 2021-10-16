@@ -267,6 +267,7 @@ int main()
       // -------------
 		//	UPDATE PHASE
       // -------------
+		update_scene_objects();
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player);
       GP_check_player_events(player);
       GP_move_player(player);
@@ -276,7 +277,13 @@ int main()
       //       then to try placing this call everytime necessary
       CL_recompute_collision_buffer_entities(player);
       GP_update_player_state(player, &World);
-		update_scene_objects();
+      
+      // GJK
+      Entity* box_a = G_SCENE_INFO.active_scene->find_entity("boxA");
+      Entity* box_b = G_SCENE_INFO.active_scene->find_entity("boxB");
+      bool boxes_collided = CL_run_GJK(box_a, box_b);
+      RENDER_MESSAGE(boxes_collided ? "Collision!!" : "No Collision!" );
+
 
       // -------------
 		//	RENDER PHASE

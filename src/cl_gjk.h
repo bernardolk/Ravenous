@@ -44,9 +44,9 @@ struct Simplex {
 		}
 
 		void push_front(vec3 point) {
-         points[1] = points[0];
-         points[2] = points[1];
          points[3] = points[2];
+         points[2] = points[1];
+         points[1] = points[0];
          points[0] = point;
          
 			p_size = p_size + 1;
@@ -88,6 +88,16 @@ bool CL_same_general_direction(vec3 a, vec3 b)
 // ------------------------
 // > GJK SUPPORT FUNCTIONS
 // ------------------------
+Mesh CL_get_collider(Entity* entity)
+{
+   // A collider is a CollisionMesh with Model matrix applied to it
+   Mesh collider;
+   for (int i = 0; i < entity->collision_mesh.vertices.size(); i++)
+      collider.vertices.push_back(Vertex{entity->collision_mesh.vertices[i] * entity->matModel});
+
+   return collider;
+}
+
 
 GJK_Point CL_find_furthest_vertex(Mesh* collision_mesh, vec3 direction)
 {
@@ -116,7 +126,7 @@ GJK_Point CL_get_support_point(Mesh* collision_mesh_A, Mesh* collision_mesh_B, v
    // Gets a support point in the minkowski difference of both meshes, in the direction supplied.
 
    GJK_Point gjk_point_a = CL_find_furthest_vertex(collision_mesh_A, direction);
-   GJK_Point gjk_point_b = CL_find_furthest_vertex(collision_mesh_B, -1.f * direction);
+   GJK_Point gjk_point_b = CL_find_furthest_vertex(collision_mesh_B, -direction);
 
    if (gjk_point_a.empty || gjk_point_b.empty)
       return gjk_point_a;
@@ -280,24 +290,25 @@ GJK_Iteration CL_update_simplex_and_direction(GJK_Iteration gjk)
 // > CL_RUN_GJK
 // ------------------
 
-bool CL_run_GJK(Entity entity_A, Entity entity_B)
+bool CL_run_GJK(Entity* entity_A, Entity* entity_B)
 {
-   // Runs GJK algorithm
-   Mesh* collider_A = &entity_A.collision_mesh;
-   Mesh* collider_B = &entity_B.collision_mesh;
+   Mesh collider_A = CL_get_collider(entity_A);
+   Mesh collider_B = CL_get_collider(entity_B);
 
-   GJK_Point support = CL_get_support_point(collider_A, collider_B, UNIT_X);
+   GJK_Point support = CL_get_support_point(&collider_A, &collider_B, UNIT_X);
 
    if(support.empty)
       return false;
 
    GJK_Iteration gjk;
    gjk.simplex.push_front(support.point);
-   gjk.direction = -1.0f * support.point;
+   gjk.direction = -support.point;
+
+   IM_RENDER.add_point(IMHASH, support.point, 2.0, true, vec3(1,0,0));
 
    while(true)
    {
-      support = CL_get_support_point(collider_A, collider_B, UNIT_X);
+      support = CL_get_support_point(&collider_A, &collider_B, gjk.direction);
 
       if(support.empty)
          return false;
@@ -306,6 +317,8 @@ bool CL_run_GJK(Entity entity_A, Entity entity_B)
          return false;    // no collision
 
       gjk.simplex.push_front(support.point);
+
+      IM_RENDER.add_point(IMHASH, support.point, 2.0, true, gjk.simplex.size() == 2 ? vec3(0,1,0) : vec3(0,0,1));
 
       gjk = CL_update_simplex_and_direction(gjk);
 

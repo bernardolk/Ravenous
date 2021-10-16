@@ -18,7 +18,7 @@ typedef std::string string;
 // VECTOR COMPARISON
 float VEC_COMPARE_PRECISION = 0.00001f;
 const float MAX_FLOAT = std::numeric_limits<float>::max();
-const float MIN_FLOAT = std::numeric_limits<float>::min();
+const float MIN_FLOAT = -MAX_FLOAT;
 
 // AXIS
 const vec3 UNIT_X = vec3(1,0,0);

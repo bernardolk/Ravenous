@@ -167,14 +167,6 @@ struct Entity {
             break;
          }
       }
-
-      // new code
-
-      // multiply every vertex of collision mesh by the model matrix
-      for (int i = 0; i < collision_mesh.vertices.size(); i++)
-      {
-         collision_mesh.vertices[0] *= matModel;
-      }
    }
 
    void update_trigger()
