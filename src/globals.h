@@ -44,6 +44,8 @@ struct GlobalSceneInfo {
    Player* player;
    bool input_mode = false;
    string scene_name;
+
+   bool tmp_unstuck_things = false;
 } G_SCENE_INFO;
 
 // ---------------

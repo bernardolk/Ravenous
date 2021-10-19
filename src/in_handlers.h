@@ -237,4 +237,9 @@ void IN_handle_common_input(InputFlags flags, Player* &player)
    {
        glfwSetWindowShouldClose(G_DISPLAY_INFO.window, true);
    }
+   if(pressed_once(flags, KEY_Y))
+   {
+      // for testing EPA collision resolve
+      G_SCENE_INFO.tmp_unstuck_things = true;
+   }
 }

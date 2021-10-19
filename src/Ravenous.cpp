@@ -290,7 +290,13 @@ int main()
       {
          EPA_Result box_epa_test = CL_run_EPA(box_gjk_test.simplex, &box_collider_A, &box_collider_B);
          RENDER_MESSAGE("Penetration: " + format_float_tostr(box_epa_test.penetration, 2));
-         
+
+         if(G_SCENE_INFO.tmp_unstuck_things)
+         {
+            box_b->position += box_epa_test.direction * box_epa_test.penetration;
+            box_b->update();
+            G_SCENE_INFO.tmp_unstuck_things = false;
+         }  
       }
       RENDER_MESSAGE(box_gjk_test.collision ? "Collision!!" : "No Collision!" );
 
