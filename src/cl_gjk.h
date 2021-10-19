@@ -20,11 +20,9 @@
 // > SIMPLEX
 // ------------------
 struct Simplex {
-	private:
 		vec3 points[4];
 		u32 p_size;
 
-	public:
 		Simplex()
       {
          points[0] = vec3(0);
@@ -67,6 +65,14 @@ struct GJK_Iteration {
 };
 
 // ------------------
+// > GJK_Result
+// ------------------
+struct GJK_Result {
+   Simplex simplex;
+   bool collision;
+};
+
+// ------------------
 // > GJK_Point
 // ------------------
 struct GJK_Point {
@@ -101,7 +107,11 @@ Mesh CL_get_collider(Entity* entity)
 
 GJK_Point CL_find_furthest_vertex(Mesh* collision_mesh, vec3 direction)
 {
-	// linearly scan the CollisionMesh doing dot products with the vertices and storing the one with max value, then return it
+	// Linearly scan the CollisionMesh doing dot products with the vertices and storing the one with max value, then return it
+   // Note: sometimes, the dot product between two points equals the same, but there is always a right and a wrong pair 
+   // of support points that are ideal to go together. We are not storing these 'dispute points' and testing between them for
+   // the sake of simplicity. If anything, it should take a bit more iteration to find a solution but it should work either
+   // way.
 
    float max_inner_p = MIN_FLOAT;
    vec3 furthest_vertex;
@@ -290,39 +300,40 @@ GJK_Iteration CL_update_simplex_and_direction(GJK_Iteration gjk)
 // > CL_RUN_GJK
 // ------------------
 
-bool CL_run_GJK(Entity* entity_A, Entity* entity_B)
+GJK_Result CL_run_GJK(Mesh* collider_A, Mesh* collider_B)
 {
-   Mesh collider_A = CL_get_collider(entity_A);
-   Mesh collider_B = CL_get_collider(entity_B);
+   GJK_Result result;
+   result.collision = false;
 
-   GJK_Point support = CL_get_support_point(&collider_A, &collider_B, UNIT_X);
+   GJK_Point support = CL_get_support_point(collider_A, collider_B, UNIT_X);
 
    if(support.empty)
-      return false;
+      return result;
 
    GJK_Iteration gjk;
    gjk.simplex.push_front(support.point);
    gjk.direction = -support.point;
 
-   IM_RENDER.add_point(IMHASH, support.point, 2.0, true, vec3(1,0,0));
+   //IM_RENDER.add_point(IMHASH, support.point, 2.0, true, vec3(1,0,0));
 
    while(true)
    {
-      support = CL_get_support_point(&collider_A, &collider_B, gjk.direction);
+      support = CL_get_support_point(collider_A, collider_B, gjk.direction);
 
-      if(support.empty)
-         return false;
-
-      if(!CL_same_general_direction(support.point, gjk.direction))
-         return false;    // no collision
+      if(support.empty || !CL_same_general_direction(support.point, gjk.direction))
+         return result;    // no collision
 
       gjk.simplex.push_front(support.point);
 
-      IM_RENDER.add_point(IMHASH, support.point, 2.0, true, gjk.simplex.size() == 2 ? vec3(0,1,0) : vec3(0,0,1));
+      //IM_RENDER.add_point(IMHASH, support.point, 2.0, true, gjk.simplex.size() == 2 ? vec3(0,1,0) : vec3(0,0,1));
 
       gjk = CL_update_simplex_and_direction(gjk);
 
       if(gjk.finished)
-         return true;
+      {
+         result.simplex = gjk.simplex;
+         result.collision = true;
+         return result;
+      }
    }
 }

@@ -150,6 +150,7 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <cl_resolvers.h>
 #include <cl_buffers.h>
 #include <cl_gjk.h>
+#include <cl_epa.h>
 #include <g_update.h>
 #include <scene.h>
 #include <console.h>
@@ -281,8 +282,17 @@ int main()
       // GJK
       Entity* box_a = G_SCENE_INFO.active_scene->find_entity("boxA");
       Entity* box_b = G_SCENE_INFO.active_scene->find_entity("boxB");
-      bool boxes_collided = CL_run_GJK(box_a, box_b);
-      RENDER_MESSAGE(boxes_collided ? "Collision!!" : "No Collision!" );
+
+      Mesh box_collider_A = CL_get_collider(box_a);
+      Mesh box_collider_B = CL_get_collider(box_b);
+      GJK_Result box_gjk_test = CL_run_GJK(&box_collider_A, &box_collider_B);
+      if(box_gjk_test.collision)
+      {
+         EPA_Result box_epa_test = CL_run_EPA(box_gjk_test.simplex, &box_collider_A, &box_collider_B);
+         RENDER_MESSAGE("Penetration: " + format_float_tostr(box_epa_test.penetration, 2));
+         
+      }
+      RENDER_MESSAGE(box_gjk_test.collision ? "Collision!!" : "No Collision!" );
 
 
       // -------------
