@@ -5,6 +5,7 @@
 
 
 struct EPA_Result {
+   bool collision = false;
    float penetration;
    vec3 direction; 
 };
@@ -82,14 +83,20 @@ EPA_Result CL_run_EPA(Simplex simplex, Mesh* collider_A, Mesh* collider_B)
 
    vec3 penetration_normal;
 	float min_distance_to_face = MAX_FLOAT;
+
+   int EPA_iterations = 0;
 	
-	while (min_distance_to_face == MAX_FLOAT)
+	while (min_distance_to_face == MAX_FLOAT && EPA_iterations < 10)
    {
+      EPA_iterations++;
 		penetration_normal   = vec3(face_normals[closest_face_index]);
 		min_distance_to_face = face_normals[closest_face_index].w;
  
 		GJK_Point support  = CL_get_support_point(collider_A, collider_B, penetration_normal);
-		float s_distance   = glm::dot(penetration_normal, support.point);
+      if(support.empty)
+         break;
+
+      float s_distance   = glm::dot(penetration_normal, support.point);
  
       // if we have a vertex in support direction and its farther enough to check
 		if (abs(s_distance - min_distance_to_face) > 0.001f)
@@ -150,11 +157,21 @@ EPA_Result CL_run_EPA(Simplex simplex, Mesh* collider_A, Mesh* collider_B)
 		}
 	}
 
-   if (min_distance_to_face == MAX_FLOAT)
-			assert(false);
+   for (int i = 0; i < polytope.size(); i++)
+   {
+      IM_RENDER.add_point(IMCUSTOMHASH("poly-" + to_string(i)), 
+         polytope[i], 2.0, true, get_random_color(), 2000);
+   }
+
 
 	EPA_Result result;
- 
+
+   if (min_distance_to_face != MAX_FLOAT)
+      result.collision = true;      
+
+   // if (min_distance_to_face != MAX_FLOAT)
+		// assert(false);
+      
 	result.direction = penetration_normal;
 	result.penetration = min_distance_to_face + 0.001f;
 

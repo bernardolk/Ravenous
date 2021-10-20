@@ -281,20 +281,24 @@ int main()
       
       // GJK
       Entity* box_a = G_SCENE_INFO.active_scene->find_entity("boxA");
-      Entity* box_b = G_SCENE_INFO.active_scene->find_entity("boxB");
+      Entity* box_b = G_SCENE_INFO.active_scene->find_entity("Player");
 
       Mesh box_collider_A = CL_get_collider(box_a);
       Mesh box_collider_B = CL_get_collider(box_b);
       GJK_Result box_gjk_test = CL_run_GJK(&box_collider_A, &box_collider_B);
       if(box_gjk_test.collision)
       {
-         EPA_Result box_epa_test = CL_run_EPA(box_gjk_test.simplex, &box_collider_A, &box_collider_B);
-         RENDER_MESSAGE("Penetration: " + format_float_tostr(box_epa_test.penetration, 2));
-
          if(G_SCENE_INFO.tmp_unstuck_things)
          {
-            box_b->position += box_epa_test.direction * box_epa_test.penetration;
-            box_b->update();
+            EPA_Result box_epa_test = CL_run_EPA(box_gjk_test.simplex, &box_collider_A, &box_collider_B);
+            RENDER_MESSAGE("Penetration: " + format_float_tostr(box_epa_test.penetration, 2));
+            
+            if(box_epa_test.collision)
+            {
+               box_b->position += box_epa_test.direction * box_epa_test.penetration;
+               box_b->update();
+            }
+
             G_SCENE_INFO.tmp_unstuck_things = false;
          }  
       }

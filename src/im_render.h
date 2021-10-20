@@ -15,6 +15,7 @@
 /* --------------------------- */
 /*           > Macros          */
 /* --------------------------- */
+#define IMCUSTOMHASH(x) im_hasher(x)
 #define IMHASH IM_RENDER._hash_file_and_line(__FILE__, __LINE__)
 #define IM_R_FIND_SLOT() ImmediateDrawElementSlot slot = _find_element_or_empty_slot(_hash); \
                          if(slot.empty && slot.index == -1) return;
@@ -205,9 +206,16 @@ struct GlobalImmediateDraw {
       _set_mesh(slot.index, vertex_vec, GL_LINE_LOOP, opts);
    }
 
-   void add_point(size_t _hash, vec3 point, float point_size = 1.0, bool always_on_top = false, vec3 color = vec3(0))
+   void add_point(size_t _hash, vec3 point, float point_size = 1.0, bool always_on_top = false, vec3 color = vec3(0), float duration = 0)
    {
       IM_R_FIND_SLOT();
+
+      if(duration != 0 )
+      {
+         auto obj = &list[slot.index];
+         obj->hash = _hash;
+         obj->duration = duration;
+      }
 
       auto vertex_vec = vector<Vertex>{ Vertex{point} };
 

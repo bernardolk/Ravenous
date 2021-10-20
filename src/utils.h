@@ -1,3 +1,5 @@
+#include <ctime>
+
 void print_vec(vec3 vec, std::string prefix)
 {
    std::cout << prefix << ": (" << vec.x << ", " << vec.y << ", " << vec.z << ") \n";
@@ -188,3 +190,33 @@ vec3 rev_2Dnormal(vec2 normal)
 {
    return vec3(normal.x == 0 ? 0 : -1.0 * normal.x, 0, normal.y == 0 ? 0 : -1.0 * normal.y);
 }
+
+inline
+int get_random_int(int min, int max)
+{
+   static bool first = true;
+   if (first) 
+   {  
+      std::srand( std::time(NULL) ); //seeding for the first time only!
+      first = false;
+   }
+   return min + rand() % (( max + 1 ) - min);
+}
+
+inline float get_random_float(int min, int max)
+{
+   return get_random_int(min * 1000, max * 1000) / 1000.f;
+}
+
+
+// colors
+inline
+vec3 get_random_color()
+{
+   return vec3(
+      get_random_float(0, 1),
+      get_random_float(0, 1),
+      get_random_float(0, 1)
+   );
+}
+

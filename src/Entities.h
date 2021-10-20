@@ -67,7 +67,7 @@ struct Entity {
       CollisionGeometryAlignedBox aabb;
    } collision_geometry;
 
-   Mesh collision_mesh;                // cant be pointer because will get multiplied by model matrix (per instance dependent)
+   Mesh* collision_mesh;   // gets multiplied by model matrix on demand
 
    WorldCell* world_cells[ENTITY_WOLRD_CELL_OCCUPATION_LIMIT];
    int world_cells_count = 0;

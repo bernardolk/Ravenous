@@ -38,7 +38,9 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
 
          // step 3: resolve possible collisions then do step 2 again
          // check for collisions with scene BUT with floor
-         CL_run_collision_checks_standing(player);
+
+         
+         // CL_run_collision_checks_standing(player);
 
          terrain                             = CL_get_terrain_height_at_player(player_entity, player->standing_entity_ptr);
          player->entity_ptr->position.y      = terrain.overlap + player->half_height;

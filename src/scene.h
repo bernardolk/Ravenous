@@ -455,7 +455,7 @@ Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count
             new_entity->mesh = load_wavefront_obj_as_mesh(MODELS_PATH, model_name);
 
          // makes collision mesh equals to mesh
-         new_entity->collision_mesh = *new_entity->mesh;
+         new_entity->collision_mesh = new_entity->mesh;
       }
       else if(property == "texture")
       {
@@ -733,12 +733,12 @@ Entity* create_player_entity()
    auto find_cylinder = Geometry_Catalogue.find("cylinder");
    auto cylinder_mesh = find_cylinder->second;
 
-   auto cylinder = Entity_Manager.create_entity();
-   cylinder->name = "Player";
-   cylinder->shader = model_shader;
+   auto entity = Entity_Manager.create_entity();
+   entity->name = "Player";
+   entity->shader = model_shader;
 
    unsigned int pink_texture = load_texture_from_file("pink.jpg", TEXTURES_PATH);
-   cylinder->textures = 
+   entity->textures = 
       std::vector<Texture> {
          Texture {
             pink_texture,
@@ -746,17 +746,18 @@ Entity* create_player_entity()
             "whatever"
          }
       };
-   cylinder->mesh             = cylinder_mesh;
+   entity->mesh = cylinder_mesh;
+   entity->collision_mesh = cylinder_mesh;
 
    // player collision geometry
    auto cgac = new CollisionGeometryAlignedCylinder { P_HALF_HEIGHT, P_RADIUS };
-   cylinder->collision_geometry_type = COLLISION_ALIGNED_CYLINDER;
-   cylinder->collision_geometry.cylinder = *cgac;
+   entity->collision_geometry_type = COLLISION_ALIGNED_CYLINDER;
+   entity->collision_geometry.cylinder = *cgac;
 
    // player scale
-   cylinder->scale = vec3{P_RADIUS, P_HALF_HEIGHT, P_RADIUS};
+   entity->scale = vec3{P_RADIUS, P_HALF_HEIGHT, P_RADIUS};
 
-   return cylinder;
+   return entity;
 }
 
 Player* create_player(Entity* player_entity)
