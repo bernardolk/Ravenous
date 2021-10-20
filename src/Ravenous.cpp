@@ -291,12 +291,16 @@ int main()
          if(G_SCENE_INFO.tmp_unstuck_things)
          {
             EPA_Result box_epa_test = CL_run_EPA(box_gjk_test.simplex, &box_collider_A, &box_collider_B);
-            RENDER_MESSAGE("Penetration: " + format_float_tostr(box_epa_test.penetration, 2));
             
             if(box_epa_test.collision)
             {
+               RENDER_MESSAGE("Penetration: " + format_float_tostr(box_epa_test.penetration, 2), 2000);
                box_b->position += box_epa_test.direction * box_epa_test.penetration;
                box_b->update();
+            }
+            else
+            {
+               RENDER_MESSAGE("No Penetration Found!", 2000);
             }
 
             G_SCENE_INFO.tmp_unstuck_things = false;

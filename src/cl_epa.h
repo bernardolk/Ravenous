@@ -67,6 +67,19 @@ void CL_add_if_outer_edge(
 }
 
 
+inline
+bool CL_support_is_in_polytope(vector<vec3> polytope, vec3 support_point)
+{
+   for (int i = 0; i < polytope.size(); i++)
+   {
+      if (polytope[i] == support_point)
+         return true;
+   }
+
+   return false;
+}
+
+
 EPA_Result CL_run_EPA(Simplex simplex, Mesh* collider_A, Mesh* collider_B)
 {
    vector<vec3> polytope;
@@ -86,14 +99,14 @@ EPA_Result CL_run_EPA(Simplex simplex, Mesh* collider_A, Mesh* collider_B)
 
    int EPA_iterations = 0;
 	
-	while (min_distance_to_face == MAX_FLOAT && EPA_iterations < 10)
+	while (min_distance_to_face == MAX_FLOAT && EPA_iterations < 5)
    {
       EPA_iterations++;
 		penetration_normal   = vec3(face_normals[closest_face_index]);
 		min_distance_to_face = face_normals[closest_face_index].w;
  
 		GJK_Point support  = CL_get_support_point(collider_A, collider_B, penetration_normal);
-      if(support.empty)
+      if(support.empty || CL_support_is_in_polytope(polytope, support.point))
          break;
 
       float s_distance   = glm::dot(penetration_normal, support.point);
@@ -161,6 +174,10 @@ EPA_Result CL_run_EPA(Simplex simplex, Mesh* collider_A, Mesh* collider_B)
    {
       IM_RENDER.add_point(IMCUSTOMHASH("poly-" + to_string(i)), 
          polytope[i], 2.0, true, get_random_color(), 2000);
+
+      for (int j = 0; j < polytope.size(); j++)
+         if (i != j && glm::length(polytope[i] - polytope[j]) <= 0.001)
+            RENDER_MESSAGE("POINTS " + to_string(i) + " AND " + to_string(j) + " ARE EQUAL", 2000);
    }
 
 
