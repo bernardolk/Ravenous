@@ -340,7 +340,7 @@ GJK_Result CL_run_GJK(Mesh* collider_A, Mesh* collider_B)
 
       if(support.empty || !CL_same_general_direction(support.point, gjk.direction))
       {
-         _CL_debug_render_simplex(gjk.simplex);
+         // _CL_debug_render_simplex(gjk.simplex);
          return result;    // no collision
       }
 
@@ -353,7 +353,7 @@ GJK_Result CL_run_GJK(Mesh* collider_A, Mesh* collider_B)
       it_count++;
       if(gjk.finished)
       {
-         _CL_debug_render_simplex(gjk.simplex);
+         // _CL_debug_render_simplex(gjk.simplex);
          result.simplex = gjk.simplex;
          result.collision = true;
          return result;

@@ -286,16 +286,20 @@ int main()
       Mesh box_collider_A = CL_get_collider(box_a);
       Mesh box_collider_B = CL_get_collider(box_b);
       GJK_Result box_gjk_test = CL_run_GJK(&box_collider_A, &box_collider_B);
+
+      float _push_factor = 1;
+      if(PROGRAM_MODE.current == EDITOR_MODE)
+          _push_factor = IM_ED_float_slider();
       if(box_gjk_test.collision)
       {
-         if(G_SCENE_INFO.tmp_unstuck_things)
-         {
+         // if(G_SCENE_INFO.tmp_unstuck_things)
+         // {
             EPA_Result box_epa_test = CL_run_EPA(box_gjk_test.simplex, &box_collider_A, &box_collider_B);
             
             if(box_epa_test.collision)
             {
-               RENDER_MESSAGE("Penetration: " + format_float_tostr(box_epa_test.penetration, 2), 2000);
-               box_b->position += box_epa_test.direction * box_epa_test.penetration;
+               RENDER_MESSAGE("Penetration: " + format_float_tostr(box_epa_test.penetration, 2), 1);
+               box_b->position += box_epa_test.direction * (box_epa_test.penetration * _push_factor);
                box_b->update();
             }
             else
@@ -303,10 +307,10 @@ int main()
                RENDER_MESSAGE("No Penetration Found!", 2000);
             }
 
-            G_SCENE_INFO.tmp_unstuck_things = false;
-         }  
+            //G_SCENE_INFO.tmp_unstuck_things = false;
+         //}  
       }
-      RENDER_MESSAGE(box_gjk_test.collision ? "Collision!!" : "No Collision!" );
+      // RENDER_MESSAGE(box_gjk_test.collision ? "Collision!!" : "No Collision!" );
 
 
       // -------------

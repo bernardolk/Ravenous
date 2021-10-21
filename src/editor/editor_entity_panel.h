@@ -54,7 +54,7 @@ void render_entity_panel(EntityPanelContext* panel)
    bool used_rot = false;
    {
       float rotation = entity->rotation.y;
-      if(ImGui::InputFloat("rot y", &rotation, 90))
+      if(ImGui::InputFloat("rot y", &rotation, 20))
       {
          Context.entity_panel.entity->rotate_y(rotation - entity->rotation.y);
          used_rot = true;
