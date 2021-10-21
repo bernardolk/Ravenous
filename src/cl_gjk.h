@@ -192,13 +192,15 @@ GJK_Iteration CL_update_triangle_simplex(GJK_Iteration gjk)
    {
       if(CL_same_general_direction(ac, ao))
       {
+         // search in purple region
          next.simplex   = { a, c };
          next.direction = cross(ac, ao, ac);
       }
       else
       {
+         // search in navy/blue grey region
          next.simplex   = { a, b };
-         next.direction = gjk.direction;
+         next.direction = -ac + (-ab);
       }
    }
 
@@ -206,21 +208,24 @@ GJK_Iteration CL_update_triangle_simplex(GJK_Iteration gjk)
    {
       if(CL_same_general_direction(glm::cross(ab, abc), ao))
       {
+         // search in cyan region
          next.simplex   = {a, b};
-         next.direction = gjk.direction;
+         next.direction = glm::cross(ab, abc);
       }
 
       else
       {
          if(CL_same_general_direction(abc, ao))
          {
+            // search up
             next.simplex   = gjk.simplex;
             next.direction = abc;
          }
          else
          {
+            // search down
             next.simplex   = { a, c, b };
-            next.direction = -1.f * abc;   
+            next.direction = -abc;   
          }
       }
    }
@@ -253,21 +258,21 @@ GJK_Iteration CL_update_tetrahedron_simplex(GJK_Iteration gjk)
    if(CL_same_general_direction(abc, ao))
    {
       next.simplex   = { a, b, c };
-      next.direction = gjk.direction; 
+      next.direction = abc; 
       return CL_update_triangle_simplex(next);
    }
 
    if(CL_same_general_direction(acd, ao))
    {
       next.simplex   = { a, c, d };
-      next.direction = gjk.direction; 
+      next.direction = acd; 
       return CL_update_triangle_simplex(next);
    }
 
    if(CL_same_general_direction(adb, ao))
    {
       next.simplex   = { a, d, b };
-      next.direction = gjk.direction; 
+      next.direction = adb; 
       return CL_update_triangle_simplex(next);
    }
 
@@ -299,6 +304,18 @@ GJK_Iteration CL_update_simplex_and_direction(GJK_Iteration gjk)
 // ------------------
 // > CL_RUN_GJK
 // ------------------
+vec3 Debug_Colors[] = {
+   vec3(0.60, 0, 0),
+   vec3(0.00, 0.60, 0),
+   vec3(0.00, 0, 0.60),
+   vec3(0.80, 0.80, 0.80),
+};
+
+void _CL_debug_render_simplex(Simplex simplex)
+{
+   for(int i = 0; i < simplex.size(); i++)
+      IM_RENDER.add_point(IMHASH, simplex[i], 2.0, true, Debug_Colors[i]);
+}
 
 GJK_Result CL_run_GJK(Mesh* collider_A, Mesh* collider_B)
 {
@@ -314,26 +331,33 @@ GJK_Result CL_run_GJK(Mesh* collider_A, Mesh* collider_B)
    gjk.simplex.push_front(support.point);
    gjk.direction = -support.point;
 
-   //IM_RENDER.add_point(IMHASH, support.point, 2.0, true, vec3(1,0,0));
+   //IM_RENDER.add_point(IMHASH, support.point, 2.0, true, Debug_Colors[0]);
 
+   int it_count = 0;
    while(true)
    {
       support = CL_get_support_point(collider_A, collider_B, gjk.direction);
 
       if(support.empty || !CL_same_general_direction(support.point, gjk.direction))
+      {
+         _CL_debug_render_simplex(gjk.simplex);
          return result;    // no collision
+      }
 
       gjk.simplex.push_front(support.point);
 
-      //IM_RENDER.add_point(IMHASH, support.point, 2.0, true, gjk.simplex.size() == 2 ? vec3(0,1,0) : vec3(0,0,1));
+      //IM_RENDER.add_point(IMHASH, support.point, 2.0, true, Debug_Colors[it_count + 1]);
 
       gjk = CL_update_simplex_and_direction(gjk);
 
+      it_count++;
       if(gjk.finished)
       {
+         _CL_debug_render_simplex(gjk.simplex);
          result.simplex = gjk.simplex;
          result.collision = true;
          return result;
       }
    }
 }
+
