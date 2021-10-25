@@ -18,3 +18,4 @@ scenes/*
 !scenes/test.txt
 !scenes/world.txt
 camera.txt
+src/ravenous.code-workspace

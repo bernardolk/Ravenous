@@ -270,6 +270,11 @@ struct GlobalImmediateDraw {
       _set_mesh(slot.index, mesh, opts);
    }
 
+   void add_mesh(size_t _hash, Entity* entity, int duration)
+   {
+     add_mesh(_hash, entity->mesh, entity->position, entity->rotation, entity->scale, vec3(1.0,0,0), duration);
+   }
+
    void add_mesh(size_t _hash, Entity* entity)
    {
      add_mesh(_hash, entity->mesh, entity->position, entity->rotation, entity->scale);
@@ -289,6 +294,9 @@ struct GlobalImmediateDraw {
       for (int i = 0; i < IM_BUFFER_SIZE; i++)
       {
          auto obj = &list[i];
+         if(obj->empty)
+            continue;
+            
          obj->duration -= G_FRAME_INFO.duration * 1000.0;
          if(obj->duration <= 0)
             _empty_slot(i);
