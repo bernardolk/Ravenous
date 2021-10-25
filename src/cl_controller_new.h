@@ -7,6 +7,9 @@ void CL_run_collision_detection(Entity* entityA, Entity* entityB)
    Mesh box_collider_A = CL_get_collider(entityA);
    Mesh box_collider_B = CL_get_collider(entityB);
    GJK_Result box_gjk_test = CL_run_GJK(&box_collider_A, &box_collider_B);
+   
+   
+   IM_ED_toggle_btn(&IM_Values.btn2, "Unstuck");
 
    if(box_gjk_test.collision)
    {
@@ -19,14 +22,15 @@ void CL_run_collision_detection(Entity* entityA, Entity* entityB)
             RENDER_MESSAGE("Penetration: " + format_float_tostr(box_epa_test.penetration, 2), 1);
 
             RENDER_MESSAGE(to_str(entityB->position), 1);
-            entityB->position += box_epa_test.direction * box_epa_test.penetration;
+
+            if(IM_Values.btn2)
+            {
+               entityB->position += box_epa_test.direction * box_epa_test.penetration;
+               RENDER_MESSAGE("STUCK OUT: " + format_float_tostr(box_epa_test.penetration, 4) + "", 2000);
+               //IM_Values.btn2 = false;
+            }
             entityB->update();
 
-            if(!IM_Values.btn)
-            {
-               int a = 0;
-               a++;
-            }
 
             RENDER_MESSAGE(to_str(entityB->position), 1);
 

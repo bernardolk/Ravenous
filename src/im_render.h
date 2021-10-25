@@ -15,6 +15,10 @@
 /* --------------------------- */
 /*           > Macros          */
 /* --------------------------- */
+// use IMCUSTOMHASH when you need to run IM_RENDER in a loop. In that case, __FILE__ and __LINE__ doesn't cut it,
+// as in every iteration the item being added would be replaced because it would have the same hash always.
+// Put a prefix + i from the loop in it and you should be fine.
+
 #define IMCUSTOMHASH(x) im_hasher(x)
 #define IMHASH IM_RENDER._hash_file_and_line(__FILE__, __LINE__)
 #define IM_R_FIND_SLOT() ImmediateDrawElementSlot slot = _find_element_or_empty_slot(_hash); \

@@ -25,7 +25,7 @@ std::pair<std::vector<vec4>, size_t> CL_EPA_get_face_normals_and_closest_face(
 		vec3 c = polytope[faces[i + 2]];
 
 		vec3 normal = glm::normalize(glm::cross(b - a, c - a));
-		float distance = glm::dot(normal, a);
+		float distance = glm::dot(normal, c);
 
 		if (distance < 0) {
 			normal   *= -1;
@@ -170,15 +170,32 @@ EPA_Result CL_run_EPA(Simplex simplex, Mesh* collider_A, Mesh* collider_B)
 		}
 	}
 
+   // RENDER POLYTOPE
    for (int i = 0; i < polytope.size(); i++)
    {
       IM_RENDER.add_point(IMCUSTOMHASH("poly-" + to_string(i)), 
-         polytope[i], 2.0, true, get_random_color(), 2000);
+         polytope[i], 2.0, false, vec3(0.4, 0.2, 0.4), 1);
+
 
       for (int j = 0; j < polytope.size(); j++)
          if (i != j && glm::length(polytope[i] - polytope[j]) <= 0.001)
             RENDER_MESSAGE("POINTS " + to_string(i) + " AND " + to_string(j) + " ARE EQUAL", 2000);
    }
+
+   // RENDER EDGES
+   for (size_t i = 0; i < face_normals.size(); i++)
+   {
+	   size_t f = i * 3;
+      IM_RENDER.add_line(IMHASH, polytope[faces[f    ]], polytope[faces[f + 1]], 1.5, false, vec3(0.3, 0.5, 0.2));
+      IM_RENDER.add_line(IMHASH, polytope[faces[f + 1]], polytope[faces[f + 2]], 1.5, false, vec3(0.3, 0.5, 0.2));
+      IM_RENDER.add_line(IMHASH, polytope[faces[f + 2]], polytope[faces[f    ]], 1.5, false, vec3(0.3, 0.5, 0.2));
+   }
+
+   // RENDER ORIGIN
+   IM_RENDER.add_point(IMHASH, vec3(0), 3.0, false, vec3(0.956, 0.784, 0.184));
+
+   // RENDER PENETRATION VECTOR
+   IM_RENDER.add_line(IMHASH, vec3(0), penetration_normal * min_distance_to_face, 2.0, false, vec3(0.882, 0.254, 0.878));
 
 
 	EPA_Result result;
@@ -190,7 +207,7 @@ EPA_Result CL_run_EPA(Simplex simplex, Mesh* collider_A, Mesh* collider_B)
 		// assert(false);
       
 	result.direction = penetration_normal;
-	result.penetration = min_distance_to_face + 0.001f;
+	result.penetration = min_distance_to_face + 0.0001f;
 
 	return result;
 }

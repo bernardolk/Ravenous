@@ -2,7 +2,8 @@
 
 struct ImmediateEditorValues {
    float val_float = 0.f;
-   bool btn = true;
+   bool btn = false;
+   bool btn2 = false;
 } IM_Values;
 
 
@@ -28,13 +29,13 @@ float IM_ED_float_slider(string label = "")
 }
 
 
-bool IM_ED_toggle_btn(string label = "")
+bool IM_ED_toggle_btn(bool* btn, string label = "")
 {
    _START_IM_ED();
 
    string _label = label == "" ? "Btn" : label;
-   if(ImGui::Button(_label.c_str(), ImVec2(30,30)))
-      IM_Values.btn = !IM_Values.btn;
+   if(ImGui::Button(_label.c_str(), ImVec2(100,30)))
+      *btn = !*btn;
    
    _END_IM_ED()
 
