@@ -1,7 +1,6 @@
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <editor/editor_colors.h>
-#include <editor/editor_im_macros.h>
 
 namespace Editor
 {

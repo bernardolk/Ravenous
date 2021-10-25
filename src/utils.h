@@ -35,13 +35,13 @@ string format_float_tostr(float num, int precision)
 }
 
 inline
-string to_string(vec3 vec)
+string to_str(vec3 vec)
 {
    return "(" + to_string(vec.x) + ", " + to_string(vec.y) + ", " + to_string(vec.z) + ")";
 }
 
 inline
-string to_string(vec2 vec)
+string to_str(vec2 vec)
 {
    return "(" + to_string(vec.x) + ", " + to_string(vec.y) + ")";
 }

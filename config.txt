@@ -1,4 +1,4 @@
 scene = gjk
-camspeed = 13
+camspeed = 4
 ambient_light = 1 1 1
 ambient_intensity = 0.08

@@ -13,7 +13,8 @@
          "xtree": "cpp",
          "xutility": "cpp",
          "algorithm": "cpp",
-         "xlocale": "cpp"
+         "xlocale": "cpp",
+         "string": "cpp"
       }
    },
    "launch": {

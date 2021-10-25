@@ -136,6 +136,8 @@ Camera* edCam;
 
 void toggle_program_modes(Player* player);
 void erase_entity(Scene* scene, Entity* entity);
+#include <editor/editor_im_macros.h>
+
 
 #include <loaders.h>
 #include <raycast.h>
@@ -149,8 +151,7 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <cl_controller.h>
 #include <cl_resolvers.h>
 #include <cl_buffers.h>
-#include <cl_gjk.h>
-#include <cl_epa.h>
+#include <cl_controller_new.h>
 #include <g_update.h>
 #include <scene.h>
 #include <console.h>
@@ -239,18 +240,25 @@ int main()
       // START FRAME
       // -------------
 		start_frame();
+      if(PROGRAM_MODE.current == EDITOR_MODE)
+         Editor::start_frame();
+
 
       // -------------
 		//	INPUT PHASE
       // -------------
       auto input_flags = input_phase();
+
+      IM_ED_toggle_btn();
+      if(IM_Values.btn)
+         input_flags.key_press = input_flags.key_press | KEY_LEFT;
+
       switch(PROGRAM_MODE.current)
       {
          case CONSOLE_MODE:
             handle_console_input(input_flags, player, &World, G_SCENE_INFO.camera);
             break;
          case EDITOR_MODE:
-            Editor::start_frame();
             Editor::handle_input_flags(input_flags, player);
             if(!ImGui::GetIO().WantCaptureKeyboard)
             {
@@ -281,36 +289,8 @@ int main()
       
       // GJK
       Entity* box_a = G_SCENE_INFO.active_scene->find_entity("boxA");
-      Entity* box_b = G_SCENE_INFO.active_scene->find_entity("Player");
-
-      Mesh box_collider_A = CL_get_collider(box_a);
-      Mesh box_collider_B = CL_get_collider(box_b);
-      GJK_Result box_gjk_test = CL_run_GJK(&box_collider_A, &box_collider_B);
-
-      float _push_factor = 1;
-      if(PROGRAM_MODE.current == EDITOR_MODE)
-          _push_factor = IM_ED_float_slider();
-      if(box_gjk_test.collision)
-      {
-         // if(G_SCENE_INFO.tmp_unstuck_things)
-         // {
-            EPA_Result box_epa_test = CL_run_EPA(box_gjk_test.simplex, &box_collider_A, &box_collider_B);
-            
-            if(box_epa_test.collision)
-            {
-               RENDER_MESSAGE("Penetration: " + format_float_tostr(box_epa_test.penetration, 2), 1);
-               box_b->position += box_epa_test.direction * (box_epa_test.penetration * _push_factor);
-               box_b->update();
-            }
-            else
-            {
-               RENDER_MESSAGE("No Penetration Found!", 2000);
-            }
-
-            //G_SCENE_INFO.tmp_unstuck_things = false;
-         //}  
-      }
-      // RENDER_MESSAGE(box_gjk_test.collision ? "Collision!!" : "No Collision!" );
+      Entity* p_entity = player->entity_ptr;
+      CL_run_collision_detection(box_a, p_entity);
 
 
       // -------------
