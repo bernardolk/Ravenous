@@ -14,7 +14,8 @@
          "xutility": "cpp",
          "algorithm": "cpp",
          "xlocale": "cpp",
-         "string": "cpp"
+         "string": "cpp",
+         "xiosbase": "cpp"
       }
    },
    "launch": {

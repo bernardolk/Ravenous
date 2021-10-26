@@ -237,6 +237,12 @@ int main()
 	while (!glfwWindowShouldClose(G_DISPLAY_INFO.window))
 	{
       // -------------
+		//	INPUT PHASE
+      // -------------
+      // This needs to be first or dearImGUI will crash.
+      auto input_flags = input_phase();
+
+      // -------------
       // START FRAME
       // -------------
 		start_frame();
@@ -244,11 +250,9 @@ int main()
          Editor::start_frame();
 
 
-      // -------------
-		//	INPUT PHASE
-      // -------------
-      auto input_flags = input_phase();
-
+      // ---------------
+      // INPUT HANDLING
+      // ---------------
       IM_ED_toggle_btn(&IM_Values.btn, "Move");
       if(IM_Values.btn)
          input_flags.key_press = input_flags.key_press | KEY_LEFT;
@@ -289,8 +293,7 @@ int main()
       
       // GJK
       Entity* box_a = G_SCENE_INFO.active_scene->find_entity("boxA");
-      Entity* p_entity = player->entity_ptr;
-      CL_run_collision_detection(box_a, p_entity);
+      CL_run_collision_detection(box_a, player);
 
 
       // -------------
@@ -325,7 +328,8 @@ int main()
       Entity_Manager.safe_delete_marked_entities();
       expire_render_messages_from_buffer();
 		glfwSwapBuffers(G_DISPLAY_INFO.window);
-      if(PROGRAM_MODE.current == EDITOR_MODE) Editor::end_frame();
+      if(PROGRAM_MODE.current == EDITOR_MODE) 
+         Editor::end_frame();
 	}
 
 	glfwTerminate();

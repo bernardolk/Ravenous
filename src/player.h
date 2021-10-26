@@ -156,6 +156,12 @@ struct Player {
       goto_checkpoint();
    }
 
+   void brute_stop()
+   {
+      speed = 0;
+      entity_ptr->velocity = vec3(0);
+   }
+
    void start_jump_animation()
    {
 

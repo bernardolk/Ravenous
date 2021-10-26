@@ -2,10 +2,11 @@
 #include<cl_epa.h>
 
 
-void CL_run_collision_detection(Entity* entityA, Entity* entityB)
+void CL_run_collision_detection(Entity* entityA, Player* player)
 {
+   Entity* player_entity = player->entity_ptr;
    Mesh box_collider_A = CL_get_collider(entityA);
-   Mesh box_collider_B = CL_get_collider(entityB);
+   Mesh box_collider_B = CL_get_collider(player_entity);
    GJK_Result box_gjk_test = CL_run_GJK(&box_collider_A, &box_collider_B);
    
    
@@ -19,20 +20,30 @@ void CL_run_collision_detection(Entity* entityA, Entity* entityB)
          
          if(box_epa_test.collision)
          {
-            RENDER_MESSAGE("Penetration: " + format_float_tostr(box_epa_test.penetration, 2), 1);
+            RENDER_MESSAGE("Penetration: " + format_float_tostr(box_epa_test.penetration, 4), 1);
 
-            RENDER_MESSAGE(to_str(entityB->position), 1);
+            RENDER_MESSAGE(to_str(player_entity->position), 1);
 
             if(IM_Values.btn2)
             {
-               entityB->position += box_epa_test.direction * box_epa_test.penetration;
-               RENDER_MESSAGE("STUCK OUT: " + format_float_tostr(box_epa_test.penetration, 4) + "", 2000);
-               //IM_Values.btn2 = false;
+               float old_z = player_entity->position.z;
+               player_entity->position += box_epa_test.direction * box_epa_test.penetration;
+               player->brute_stop();
+
+               // RENDER_MESSAGE("STUCK OUT: " + format_float_tostr(box_epa_test.penetration, 4) + "", 2000);
+               // IM_Values.btn2 = false;
+               // if(!IM_Values.btn)
+               // {
+               //    float diff_z = player_entity->position.z - old_z;
+               //    RENDER_MESSAGE("ITERATION: " + to_string(IM_Values.val_int++) + " dif: " + fmt_tostr(diff_z, 4), 1000);
+
+               // }
+
+               player_entity->update();
             }
-            entityB->update();
 
 
-            RENDER_MESSAGE(to_str(entityB->position), 1);
+            RENDER_MESSAGE(to_str(player_entity->position), 1);
 
             vec3 startpoint = entityA->position + vec3(entityA->scale.x / 2.0, entityA->scale.y + 0.2, entityA->scale.z / 2.0);
             vec3 endpoint   = startpoint + box_epa_test.direction * entityA->scale.x / 2.0f;

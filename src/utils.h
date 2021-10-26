@@ -28,10 +28,16 @@ void print_every_3rd_frame(std::string thing, std::string prefix)
 }
 
 inline
-string format_float_tostr(float num, int precision)   
+string format_float_tostr(float num, int precision = 3)   
 {
 	string temp = std::to_string(num);
-	return temp.substr(0, temp.find(".") + 3);
+	return temp.substr(0, temp.find(".") + precision);
+}
+
+inline
+string fmt_tostr(float num, int precision)   
+{
+	return format_float_tostr(num, precision);
 }
 
 inline
