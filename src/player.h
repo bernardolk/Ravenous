@@ -46,8 +46,8 @@ struct Player {
    float half_height;
 
    // movement variables
-   vec3 v_dir = vec3(0.f);
-   float speed = 0;
+   vec3 v_dir = vec3(0.f);          // intended movement direction
+   float speed = 0;                 // accumulated speed scalar
 
    // movement constants
    float acceleration            = 7.5;
@@ -159,7 +159,7 @@ struct Player {
    void brute_stop()
    {
       speed = 0;
-      entity_ptr->velocity = vec3(0);
+      //entity_ptr->velocity = vec3(0);
    }
 
    void start_jump_animation()

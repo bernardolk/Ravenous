@@ -247,8 +247,7 @@ int main()
       // -------------
 		start_frame();
       if(PROGRAM_MODE.current == EDITOR_MODE)
-         Editor::start_frame();
-
+         Editor::start_dear_imgui_frame();
 
       // ---------------
       // INPUT HANDLING
@@ -329,7 +328,7 @@ int main()
       expire_render_messages_from_buffer();
 		glfwSwapBuffers(G_DISPLAY_INFO.window);
       if(PROGRAM_MODE.current == EDITOR_MODE) 
-         Editor::end_frame();
+         Editor::end_dear_imgui_frame();
 	}
 
 	glfwTerminate();
@@ -719,7 +718,7 @@ void toggle_program_modes(Player* player)
       G_SCENE_INFO.camera  = G_SCENE_INFO.views[1];
       player->entity_ptr->render_me = false;
       glfwSetInputMode(G_DISPLAY_INFO.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-      Editor::end_frame();
+      Editor::end_dear_imgui_frame();
 
       G_BUFFERS.rm_buffer->add("Game Mode", 2000);
    }
@@ -730,7 +729,7 @@ void toggle_program_modes(Player* player)
       G_SCENE_INFO.camera  = G_SCENE_INFO.views[0];
       player->entity_ptr->render_me = true;
       glfwSetInputMode(G_DISPLAY_INFO.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-      Editor::start_frame();
+      Editor::start_dear_imgui_frame();
 
       G_BUFFERS.rm_buffer->add("Editor Mode", 2000);
    }

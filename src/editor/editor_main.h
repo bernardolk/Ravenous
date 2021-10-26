@@ -135,7 +135,7 @@ struct EditorContext {
 
 
 void initialize();
-void start_frame();
+void start_dear_imgui_frame();
 void update();
 void update_editor_entities();
 void check_selection_to_open_panel();
@@ -146,7 +146,7 @@ void render_toolbar();
 void render_event_triggers(Camera* camera);
 void render_world_cells(Camera* camera);
 void render_lightbulbs(Camera* camera);
-void end_frame();
+void end_dear_imgui_frame();
 void terminate();
 
 
@@ -517,14 +517,14 @@ void render_toolbar()
    ImGui::End();
 }
 
-void start_frame()
+void start_dear_imgui_frame()
 {
    ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 }
 
-void end_frame()
+void end_dear_imgui_frame()
 {
 	ImGui::EndFrame();
 }
