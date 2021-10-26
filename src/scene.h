@@ -6,6 +6,7 @@ bool save_player_position_to_file(string scene_name, Player* player);
 bool save_scene_to_file(string scene_name, Player* player, bool do_copy);
 void parse_and_load_light_source(Parser::Parse p, ifstream* reader, int& line_count, string path);
 void parse_and_load_camera_settings(Parser::Parse p, ifstream* reader, int& line_count, std::string path);
+void parse_and_load_player_orientation(Parser::Parse p, ifstream* reader, int& line_count, std::string path);
 bool load_player_attributes_from_file();
 bool check_if_scene_exists();
 Entity* create_player_entity();
@@ -75,6 +76,10 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
       else if(p.cToken == '*')
       {
          parse_and_load_camera_settings(p, &reader, line_count, path);
+      }
+      else if(p.cToken == '&')
+      {
+         parse_and_load_player_orientation(p, &reader, line_count, path);
       }
    }
    
@@ -161,7 +166,12 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
                << player->initial_velocity.y << " "
                << player->initial_velocity.z << "\n";
    writer << "@player_state = " << player->initial_player_state << "\n"; 
-   writer << "@player_fall_acceleration = " << player->fall_acceleration << "\n";  
+   writer << "@player_fall_acceleration = " << player->fall_acceleration << "\n";
+   auto fps_cam = G_SCENE_INFO.views[FPS_CAM];
+   writer << "&player_orientation = "
+      << fps_cam->Front.x << " "
+      << fps_cam->Front.y << " "
+      << fps_cam->Front.z << "\n"; 
 
    // write light sources POINT
    for(int it = 0; it < G_SCENE_INFO.active_scene->pointLights.size(); it++)
@@ -324,6 +334,28 @@ void parse_and_load_camera_settings(Parser::Parse p, ifstream* reader, int& line
       p = parse_all_whitespace(p);
       p = parse_float_vector(p);
       camera_look_at(G_SCENE_INFO.camera, vec3{p.vec3[0], p.vec3[1], p.vec3[2]}, false);
+}
+
+void parse_and_load_player_orientation(Parser::Parse p, ifstream* reader, int& line_count, std::string path)
+{
+   p = parse_token(p);
+   std::string attribute = p.string_buffer;
+
+   p = parse_all_whitespace(p);
+   p = parse_symbol(p);
+
+   if(p.cToken != '=')
+   {
+      std::cout << "SYNTAX ERROR, MISSING '=' CHARACTER AT SCENE DESCRIPTION FILE ('" << path << "') LINE NUMBER " << line_count << "\n";
+      assert(false);
+   }
+
+   if(attribute == "player_orientation")
+   {
+      p = parse_float_vector(p);
+      auto orientation = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+      G_SCENE_INFO.views[FPS_CAM]->Front = orientation;
+   }
 }
 
 void parse_and_load_player_attribute(Parser::Parse p, ifstream* reader, int& line_count, std::string path, Player* player)

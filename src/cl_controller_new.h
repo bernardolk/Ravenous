@@ -1,5 +1,6 @@
 #include<cl_gjk.h>
 #include<cl_epa.h>
+#include<cl_resolvers_new.h>
 
 
 void CL_run_collision_detection(Entity* entityA, Player* player)
@@ -22,15 +23,11 @@ void CL_run_collision_detection(Entity* entityA, Player* player)
 
          RENDER_MESSAGE(to_str(player_entity->position), 1);
 
-         if(IM_Values.btn2)
-         {
-            float old_z = player_entity->position.z;
-            player_entity->position += epa.direction * epa.penetration;
-            //player->brute_stop();
-            CL_wall_slide_player(player, epa);
+         float old_z = player_entity->position.z;
+         player_entity->position += epa.direction * epa.penetration;
+         CL_wall_slide_player(player, epa);
 
-            player_entity->update();
-         }
+         player_entity->update();
       }
    }
 }

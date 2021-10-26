@@ -6,8 +6,8 @@
 struct ImmediateEditorValues {
    float val_float = 0.f;
    int val_int = 0;
-   bool btn = true;
-   bool btn2 = true;
+   bool btn = false;
+   bool btn2 = false;
 } IM_Values;
 
 
