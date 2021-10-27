@@ -125,7 +125,9 @@ void CL_new_resolve_collision(CL_Results results, Player* player)
          P_change_state(player, PLAYER_STATE_FALLING);
          break;
       case PLAYER_STATE_FALLING:
-         P_state_change_falling_to_standing(player, results.entity);
+         // collided_with_floor 
+         if(dot(results.normal, vec3(0,1,0)) > 0)
+            P_state_change_falling_to_standing(player, results.entity);
          break;
    }
 }
