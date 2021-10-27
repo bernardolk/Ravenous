@@ -146,6 +146,7 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <in_flags.h>
 #include <cl_tests.h>
 #include <cl_entities.h>
+#include <p_state.h>
 #include <g_player.h>
 #include <an_player.h>
 #include <cl_controller.h>
@@ -288,11 +289,9 @@ int main()
       //@todo: unless this becomes a performance problem, its easier to recompute the buffer every frame
       //       then to try placing this call everytime necessary
       CL_recompute_collision_buffer_entities(player);
+      CL_run_iterative_collision_detection(player);
       GP_update_player_state(player, &World);
       
-      // GJK
-      Entity* box_a = G_SCENE_INFO.active_scene->find_entity("boxA");
-      CL_run_collision_detection(box_a, player);
 
 
       // -------------

@@ -41,6 +41,9 @@ struct Player {
    Entity* slope_player_was_ptr;
    Entity* vaulting_entity_ptr;
 
+   // TEMP - DELETE LATER
+   Entity* skip_collision_with_floor = NULL;
+
    // geometry
    float radius;
    float half_height;
@@ -159,7 +162,6 @@ struct Player {
    void brute_stop()
    {
       speed = 0;
-      //entity_ptr->velocity = vec3(0);
    }
 
    void start_jump_animation()

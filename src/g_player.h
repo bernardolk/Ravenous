@@ -118,6 +118,9 @@ void GP_make_player_jump(Player* player)
    player->anim_state = P_ANIM_JUMPING;
    player->height_before_fall = player->entity_ptr->position.y;
    v.y = player->jump_initial_speed;
+
+   // TEMP - DELETE LATER
+   player->skip_collision_with_floor = player->standing_entity_ptr;
 }
 
 

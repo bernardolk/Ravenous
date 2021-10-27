@@ -7,11 +7,11 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
 
       case PLAYER_STATE_FALLING:
       {
-         // test collision with every object in scene entities vector
-         CL_run_collision_checks_falling(player);
+         // // test collision with every object in scene entities vector
+         // CL_run_collision_checks_falling(player);
 
-         if(player->action)
-            GP_check_player_grabbed_ledge(player);
+         // if(player->action)
+         //    GP_check_player_grabbed_ledge(player);
          break;
       }
 
@@ -50,16 +50,11 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
 
          if(!xz_check.is_collided)
          {
-            std::cout << "PLAYER FELL" << "\n";
-            player->player_state             = PLAYER_STATE_FALLING;
-            player_entity->velocity.y        = - 1 * player->fall_speed;
-            player_entity->velocity.x        *= 0.5;
-            player_entity->velocity.z        *= 0.5;
-            player->height_before_fall       = player_entity->position.y;
+            P_change_state(player, PLAYER_STATE_FALLING);
          }
 
-         if(player->free_running)
-            GP_check_player_vaulting(player);
+         // if(player->free_running)
+         //    GP_check_player_vaulting(player);
 
          break;
       }
@@ -67,17 +62,13 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
       case PLAYER_STATE_JUMPING:
       {
          if (player->entity_ptr->velocity.y <= 0)
-         {
-            player->player_state             = PLAYER_STATE_FALLING;
-            player->jumping_upwards          = false;
-            player->entity_ptr->velocity.y   = 0;
-         }
+            P_change_state(player, PLAYER_STATE_FALLING);
 
          // test collision with every object in scene entities vector
-         CL_run_collision_checks_falling(player);
+         // CL_run_collision_checks_falling(player);
 
-         if(player->action)
-            GP_check_player_grabbed_ledge(player);
+         // if(player->action)
+         //    GP_check_player_grabbed_ledge(player);
 
          break;
       }
