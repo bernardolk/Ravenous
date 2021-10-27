@@ -24,6 +24,8 @@ struct RenderOptions
    // for immediate point shader
    vec3 color = vec3{-1.0};
    float opacity = 1.0;
+
+   bool dont_cull_face = false;
 };
 
 
@@ -59,6 +61,8 @@ void render_mesh(Mesh* mesh, RenderOptions opts)
       glPointSize(opts.point_size);
    if(opts.line_width != 1.0)
       glLineWidth(opts.line_width);
+   if(opts.dont_cull_face)
+      glDisable(GL_CULL_FACE);
 
    // draw
    switch (mesh->render_method)
@@ -92,6 +96,8 @@ void render_mesh(Mesh* mesh, RenderOptions opts)
       glPointSize(1.0);
    if(opts.line_width != 1.0)
       glLineWidth(1.0);
+   if(opts.dont_cull_face)
+      glEnable(GL_CULL_FACE);
 
    glBindVertexArray(0);
 }

@@ -3,6 +3,7 @@
 // ---------------------------------------------
 // Uses the output of GJK to compute a penetration vector, useful for resolving collisions
 
+int CL_MAX_EPA_ITERATIONS = 100;
 
 struct EPA_Result {
    bool collision = false;
@@ -99,7 +100,7 @@ EPA_Result CL_run_EPA(Simplex simplex, Mesh* collider_A, Mesh* collider_B)
 
    int EPA_iterations = 0;
 	
-	while (min_distance_to_face == MAX_FLOAT && EPA_iterations < 5)
+	while (min_distance_to_face == MAX_FLOAT && EPA_iterations < CL_MAX_EPA_ITERATIONS)
    {
       EPA_iterations++;
 		penetration_normal   = vec3(face_normals[closest_face_index]);
@@ -151,7 +152,6 @@ EPA_Result CL_run_EPA(Simplex simplex, Mesh* collider_A, Mesh* collider_B)
          // finds normals and closest face from the new faces
 			auto [new_normals, new_closest_face_index] = CL_EPA_get_face_normals_and_closest_face(polytope, new_faces);
 
-         // 
          float old_min_distance_to_face = MAX_FLOAT;
 			for (size_t i = 0; i < face_normals.size(); i++) {
             float dist = face_normals[i].w;
@@ -170,25 +170,30 @@ EPA_Result CL_run_EPA(Simplex simplex, Mesh* collider_A, Mesh* collider_B)
 		}
 	}
 
+
+   // RENDER_MESSAGE("There are " + to_string(polytope.size()) + " points");
+
    // RENDER POLYTOPE
    for (int i = 0; i < polytope.size(); i++)
    {
       IM_RENDER.add_point(IMCUSTOMHASH("poly-" + to_string(i)), 
-         polytope[i], 2.0, false, vec3(0.4, 0.2, 0.4), 1);
-
+         polytope[i], 2.0, true, vec3(0.4, 0.2, 0.4), 1);
 
       for (int j = 0; j < polytope.size(); j++)
          if (i != j && glm::length(polytope[i] - polytope[j]) <= 0.001)
             RENDER_MESSAGE("POINTS " + to_string(i) + " AND " + to_string(j) + " ARE EQUAL", 2000);
    }
 
+
+   // RENDER_MESSAGE("There are " + to_string(face_normals.size()) + " faces");
+
    // RENDER EDGES
    for (size_t i = 0; i < face_normals.size(); i++)
    {
 	   size_t f = i * 3;
-      IM_RENDER.add_line(IMHASH, polytope[faces[f    ]], polytope[faces[f + 1]], 1.5, false, vec3(0.3, 0.5, 0.2));
-      IM_RENDER.add_line(IMHASH, polytope[faces[f + 1]], polytope[faces[f + 2]], 1.5, false, vec3(0.3, 0.5, 0.2));
-      IM_RENDER.add_line(IMHASH, polytope[faces[f + 2]], polytope[faces[f    ]], 1.5, false, vec3(0.3, 0.5, 0.2));
+      IM_RENDER.add_line(IMHASH, polytope[faces[f    ]], polytope[faces[f + 1]], 1.5, true, vec3(0.3, 0.5, 0.2));
+      IM_RENDER.add_line(IMHASH, polytope[faces[f + 1]], polytope[faces[f + 2]], 1.5, true, vec3(0.3, 0.5, 0.2));
+      IM_RENDER.add_line(IMHASH, polytope[faces[f + 2]], polytope[faces[f    ]], 1.5, true, vec3(0.3, 0.5, 0.2));
    }
 
    // RENDER ORIGIN

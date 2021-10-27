@@ -177,6 +177,7 @@ struct GlobalImmediateDraw {
       opts.line_width = line_width;
       opts.always_on_top = always_on_top;
       opts.color = color;
+      opts.dont_cull_face = true;
 
       _set_mesh(slot.index, vertex_vec, GL_LINES, opts);
    }
@@ -191,6 +192,7 @@ struct GlobalImmediateDraw {
       opts.line_width = line_width;
       opts.always_on_top = always_on_top;
       opts.color = color;
+      opts.dont_cull_face = true;
 
       _set_mesh(slot.index, vertex_vec, GL_LINES, opts);
    }
@@ -206,6 +208,7 @@ struct GlobalImmediateDraw {
       RenderOptions opts;
       opts.line_width = line_width;
       opts.always_on_top = always_on_top;
+      opts.dont_cull_face = true;
 
       _set_mesh(slot.index, vertex_vec, GL_LINE_LOOP, opts);
    }

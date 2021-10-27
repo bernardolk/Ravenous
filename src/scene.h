@@ -165,7 +165,12 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
                << player->initial_velocity.x << " " 
                << player->initial_velocity.y << " "
                << player->initial_velocity.z << "\n";
-   writer << "@player_state = " << player->initial_player_state << "\n"; 
+
+   if(player->player_state == PLAYER_STATE_STANDING)
+      writer << "@player_state = " << PLAYER_STATE_STANDING << "\n"; 
+   else
+      writer << "@player_state = " << player->initial_player_state << "\n"; 
+
    writer << "@player_fall_acceleration = " << player->fall_acceleration << "\n";
    auto fps_cam = G_SCENE_INFO.views[FPS_CAM];
    writer << "&player_orientation = "
@@ -309,6 +314,11 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
       }
    }
 
+   // Write things that need to be written after all entities are saved
+   writer << "\n";
+   if(player->player_state == PLAYER_STATE_STANDING)
+      writer << "@player_standing_entity = " << player->standing_entity_ptr->name << "\n";
+
    writer.close();
 
    if(do_copy)
@@ -385,6 +395,23 @@ void parse_and_load_player_attribute(Parser::Parse p, ifstream* reader, int& lin
       p = parse_float_vector(p);
       player->initial_velocity = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
       player->entity_ptr->velocity = player->initial_velocity;
+   }
+   else if(attribute == "player_standing_entity")
+   {
+      std::string entity_name;
+      p = parse_all_whitespace(p);
+      p = parse_token(p);
+      entity_name = p.string_buffer;
+
+      auto entity_ptr = G_SCENE_INFO.active_scene->find_entity(entity_name);
+      if(entity_ptr != NULL)
+         player->standing_entity_ptr = entity_ptr;
+      else
+      {
+         cout << "COULDN'T FIND PLAYER_STANDING_ENTITY IN SCENE ENTITIES." << 
+            "MAKE SURE THIS ATTRIBUTE IS LOADED AFTER ALL ENTITIES ARE LOADED\n";
+         assert(false);
+      }
    }
    else if(attribute == "player_state")
    {

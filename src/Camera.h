@@ -1,8 +1,8 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <glm/ext/vector_float2.hpp> // vec2
-#include <glm/ext/vector_float3.hpp> // vec3
+#include <glm/ext/vector_float2.hpp> 
+#include <glm/ext/vector_float3.hpp>
 #include <glm/gtx/compatibility.hpp>
 #include <vector>
 #include <parser.h>
