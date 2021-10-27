@@ -141,7 +141,8 @@ EPA_Result CL_run_EPA(Simplex simplex, Mesh* collider_A, Mesh* collider_B)
 
          // construct new faces from the outer_edges listed before
          std::vector<size_t> new_faces;
-			for (auto [edgeIndex1, edgeIndex2] : outer_edges) {
+			for (auto [edgeIndex1, edgeIndex2] : outer_edges)
+         {
 				new_faces.push_back(edgeIndex1);
 				new_faces.push_back(edgeIndex2);
 				new_faces.push_back(polytope.size());
@@ -153,17 +154,18 @@ EPA_Result CL_run_EPA(Simplex simplex, Mesh* collider_A, Mesh* collider_B)
 			auto [new_normals, new_closest_face_index] = CL_EPA_get_face_normals_and_closest_face(polytope, new_faces);
 
          float old_min_distance_to_face = MAX_FLOAT;
-			for (size_t i = 0; i < face_normals.size(); i++) {
+			for (size_t i = 0; i < face_normals.size(); i++)
+         {
             float dist = face_normals[i].w;
-				if (dist < old_min_distance_to_face) {
+				if (dist < old_min_distance_to_face)
+            {
 					old_min_distance_to_face = dist;
 					closest_face_index = i;
 				}
 			}
  
-			if (new_normals[new_closest_face_index].w < old_min_distance_to_face) {
+			if (new_normals[new_closest_face_index].w < old_min_distance_to_face)
 				closest_face_index = new_closest_face_index + face_normals.size();
-			}
  
 			faces  .insert(faces  .end(), new_faces  .begin(), new_faces  .end());
 			face_normals.insert(face_normals.end(), new_normals.begin(), new_normals.end());
