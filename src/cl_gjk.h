@@ -94,16 +94,6 @@ bool CL_same_general_direction(vec3 a, vec3 b)
 // ------------------------
 // > GJK SUPPORT FUNCTIONS
 // ------------------------
-Mesh CL_get_collider(Entity* entity)
-{
-   // A collider is a CollisionMesh with Model matrix applied to it
-   Mesh collider;
-   for (int i = 0; i < entity->collision_mesh->vertices.size(); i++)
-      collider.vertices.push_back(Vertex{entity->collision_mesh->vertices[i] * entity->matModel});
-
-   return collider;
-}
-
 
 GJK_Point CL_find_furthest_vertex(Mesh* collision_mesh, vec3 direction)
 {
@@ -311,11 +301,13 @@ vec3 Debug_Colors[] = {
    vec3(0.80, 0.80, 0.80),
 };
 
+
 void _CL_debug_render_simplex(Simplex simplex)
 {
    for(int i = 0; i < simplex.size(); i++)
       IM_RENDER.add_point(IMHASH, simplex[i], 2.0, true, Debug_Colors[i]);
 }
+
 
 GJK_Result CL_run_GJK(Mesh* collider_A, Mesh* collider_B)
 {

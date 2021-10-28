@@ -241,7 +241,7 @@ void render_entity_panel(EntityPanelContext* panel)
    {
       if(!(duplicated || deleted))
          deactivate_editor_modes();
-      entity->update_collision_geometry();                              // needs to be done here to prevent a bug
+      entity->old_update_collision_geometry();                              // needs to be done here to prevent a bug
       auto update_cells = World.update_entity_world_cells(entity);
       if(update_cells.status != OK)
       {

@@ -135,6 +135,65 @@ struct Mesh {
 
       glBindVertexArray(0);
    }
+
+
+   BoundingBox compute_bounding_box()
+   {
+      // This returns a bounding box that contains the mesh
+      // Vertices of the bounding box do not necessarely match vertices in the mesh
+      // So, this does NOT return the min/max vertices of the mesh in axial direction
+      // (support points)
+
+      vec3 max_d = vec3(MIN_FLOAT, MIN_FLOAT, MIN_FLOAT);
+      vec3 min_d = vec3(MAX_FLOAT, MAX_FLOAT, MAX_FLOAT);
+
+      float maxx, minx, maxy, miny, maxz, minz;
+
+      for (int i = 0; i < vertices.size(); i++)
+      {
+         vec3 vertex = vertices[i].position;
+         float dotx = glm::dot(vertex, vec3(1,0,0));
+         float doty = glm::dot(vertex, vec3(0,1,0));
+         float dotz = glm::dot(vertex, vec3(0,0,1));
+
+         if(dotx < min_d.x)
+         {
+            minx    = vertex.x;
+            min_d.x = dotx;
+         }
+         if(dotx > max_d.x)
+         {
+            maxx    = vertex.x;
+            max_d.x = dotx;
+         }
+
+         if(doty < min_d.y)
+         {
+            miny    = vertex.y;
+            min_d.y = doty;
+         }
+         if(doty > max_d.y)
+         {
+            maxy    = vertex.y;
+            max_d.y = doty;
+         }
+
+         if(dotz < min_d.z)
+         {
+            minz    = vertex.z;
+            min_d.z = dotz;
+         }
+         if(dotz > max_d.z)
+         {
+            maxz    = vertex.z;
+            max_d.z = dotz;
+         }
+      }
+
+      BoundingBox bb;
+      bb.set(vec3(minx, miny, minz), vec3(maxx, maxy, maxz));
+      return bb;
+   }
 };
 
 

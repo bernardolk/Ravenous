@@ -127,7 +127,7 @@ struct EntityManager
       new_entity->mesh = _mesh;
       new_entity->scale = scale;
       new_entity->collision_geometry_type = collision;
-      new_entity->update_collision_geometry();
+      new_entity->old_update_collision_geometry();
 
       register_entity(new_entity);
       return new_entity;
@@ -153,7 +153,7 @@ struct EntityManager
          new_entity->collision_geometry_type = COLLISION_ALIGNED_BOX;
       }
       register_entity(new_entity);
-      new_entity->update_collision_geometry();
+      new_entity->old_update_collision_geometry();
       return new_entity;  
    }
 

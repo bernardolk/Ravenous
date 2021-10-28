@@ -1,9 +1,15 @@
+struct CL_Results {
+   bool collision = false;
+   Entity* entity;
+   float penetration;
+   vec3 normal;
+};
+
 #include<cl_gjk.h>
 #include<cl_epa.h>
 #include<cl_resolvers_new.h>
 
 // prototypes
-struct CL_Results;
 void CL_run_iterative_collision_detection(Player* player);
 CL_Results CL_run_collision_detection(
    Player* player,
@@ -16,15 +22,30 @@ CL_Results CL_test_player_vs_entity(Entity* entity, Player* player);
 void CL_new_resolve_collision(CL_Results results, Player* player);
 
 
-struct CL_Results {
-   bool collision = false;
-   Entity* entity;
-   float penetration;
-   vec3 normal;
-};
-
-
 // functions
+
+void CL_run_iterative_collision_detection(Player* player)
+{
+   // iterative collision detection
+   auto entity_buffer = G_BUFFERS.entity_buffer;
+   int c = -1;
+   while(true)
+   {
+      c++;
+      auto buffer = entity_buffer->buffer;            // places pointer back to start
+      // TEMP - DELETE LATER
+      auto result = CL_run_collision_detection(player, buffer, entity_buffer->size, true, player->skip_collision_with_floor);
+
+      if(result.collision)
+      {
+         CL_mark_entity_checked(result.entity);
+         // CL_log_collision(result, c);
+         CL_new_resolve_collision(result, player);
+      }
+      else break;
+   }
+}
+
 
 CL_Results CL_run_collision_detection(
    Player* player,
@@ -60,29 +81,6 @@ CL_Results CL_run_collision_detection(
    return {};
 }
 
-void CL_run_iterative_collision_detection(Player* player)
-{
-   // iterative collision detection
-   auto entity_buffer = G_BUFFERS.entity_buffer;
-   int c = -1;
-   while(true)
-   {
-      c++;
-      auto buffer = entity_buffer->buffer;            // places pointer back to start
-      // TEMP - DELETE LATER
-      auto result = CL_run_collision_detection(player, buffer, entity_buffer->size, true, player->skip_collision_with_floor);
-
-      if(result.collision)
-      {
-         CL_mark_entity_checked(result.entity);
-         // CL_log_collision(result, c);
-         CL_new_resolve_collision(result, player);
-      }
-      else break;
-   }
-}
-
-
 
 CL_Results CL_test_player_vs_entity(Entity* entity, Player* player)
 {
@@ -91,13 +89,14 @@ CL_Results CL_test_player_vs_entity(Entity* entity, Player* player)
 
    Entity* player_entity = player->entity_ptr;
 
-   Mesh entity_collider = CL_get_collider(entity);
-   Mesh player_collider = CL_get_collider(player_entity);
+   Mesh entity_collider = entity->collider;
+   Mesh player_collider = player_entity->collider;
 
    GJK_Result box_gjk_test = CL_run_GJK(&entity_collider, &player_collider);
    
    if(box_gjk_test.collision)
    {
+      RENDER_MESSAGE("GJK COLLISION");
       EPA_Result epa = CL_run_EPA(box_gjk_test.simplex, &entity_collider, &player_collider);
       
       if(epa.collision)
@@ -112,22 +111,4 @@ CL_Results CL_test_player_vs_entity(Entity* entity, Player* player)
    }
 
    return cl_results;
-}
-
-
-void CL_new_resolve_collision(CL_Results results, Player* player)
-{
-   CL_wall_slide_player(player, results.normal);
-
-   switch(player->player_state)
-   {
-      case PLAYER_STATE_JUMPING:
-         P_change_state(player, PLAYER_STATE_FALLING);
-         break;
-      case PLAYER_STATE_FALLING:
-         // collided_with_floor 
-         if(dot(results.normal, vec3(0,1,0)) > 0)
-            P_state_change_falling_to_standing(player, results.entity);
-         break;
-   }
 }

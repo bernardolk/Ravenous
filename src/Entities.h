@@ -3,6 +3,7 @@
 // forward declarations
 struct WorldCell;
 
+// OLD TYPES - I HOPE TO GET RID OF THEM SOON D:
 enum CollisionGeometryEnum {
    COLLISION_ALIGNED_CYLINDER,
    COLLISION_ALIGNED_BOX,
@@ -33,12 +34,14 @@ struct CollisionGeometrySlope {
    vec3 normal;
 };
 
+// [END] OLD TYPES
+
 enum EntityType {
    STATIC = 0,
    CHECKPOINT = 1
 };
 
-const static size_t ENTITY_WOLRD_CELL_OCCUPATION_LIMIT = 16;
+const static size_t ENTITY_WOLRD_CELL_OCCUPATION_LIMIT = 50;
 
 struct Entity {
    u32 id;
@@ -67,7 +70,9 @@ struct Entity {
       CollisionGeometryAlignedBox aabb;
    } collision_geometry;
 
-   Mesh* collision_mesh;   // gets multiplied by model matrix on demand
+   Mesh* collision_mesh;         // static collision mesh vertex data
+   Mesh  collider;               // dynamic collision mesh, obtained by multiplying static collision mesh with model matrix
+   BoundingBox bounding_box;     // computed using the collider mesh, used for fast first pass collision tests
 
    WorldCell* world_cells[ENTITY_WOLRD_CELL_OCCUPATION_LIMIT];
    int world_cells_count = 0;
@@ -77,6 +82,11 @@ struct Entity {
    vec3 trigger_scale = vec3(1.5f, 1.f, 0.f);
    vec3 trigger_pos = vec3(0.0f);
    mat4 trigger_model;
+
+
+   // ----------
+   // > METHODS
+   // ----------
 
    auto get_rect_bounds()
    {
@@ -111,12 +121,32 @@ struct Entity {
       return bounds;
    }
 
+
    void update()
    {
+      // @todo WE DON'T NEED TO RUN THIS EVERY TICK!
+      // just run for entities that change it's entity state
+
+      // order here is very important
       update_model_matrix();
-      update_collision_geometry();
+      update_collider();
+      update_bounding_box();
+      old_update_collision_geometry();
       update_trigger();
    }
+
+
+   void update_collider()
+   {
+      // empty collider
+      collider.indices.clear();
+      collider.vertices.clear();
+
+      // multiplies model matrix to collision mesh
+      for (int i = 0; i < collision_mesh->vertices.size(); i++)
+         collider.vertices.push_back(Vertex{collision_mesh->vertices[i] * matModel});
+   }
+
 
    void update_model_matrix()
    {
@@ -128,8 +158,17 @@ struct Entity {
 		matModel = model;
    }
 
-   void update_collision_geometry()
+
+   void update_bounding_box()
    {
+      // uses the collider to compute an AABB 
+      bounding_box = collider.compute_bounding_box();
+   }
+
+
+   void old_update_collision_geometry()
+   {
+      // OLD CODE - HOPE TO GET RID OF IT SOON D:
       mat4 rot = glm::rotate(mat4identity, glm::radians(rotation.y), vec3(0.0f, 1.0f, 0.0f));
       vec3 s_world = rot * vec4(scale, 1.0);
 

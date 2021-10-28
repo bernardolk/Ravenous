@@ -109,16 +109,17 @@ struct ProgramConfig {
 } G_CONFIG;
 
 // SOURCE INCLUDES
+#include <cl_types.h>
 #include <mesh.h>
 #include <utils.h>
 #include <character.h>
 #include <shader.h>
 #include <entities.h>
 #include <entity_state.h>
-#include <model.h>
 #include <player.h>
 #include <camera.h>
 #include <parser.h>
+#include <cl_collider.h>
 #include <world.h>
 #include <globals.h>
 #include <entity_manager.h>
@@ -641,6 +642,10 @@ inline void update_scene_objects()
 		// Updates model matrix;	
 		entity->update();
       entity_iterator++;
+
+      auto[min,max] = entity->bounding_box.bounds();
+      IM_RENDER.add_point(IMHASH, min, 3.0, true, vec3(0.964, 0.576, 0.215));
+      IM_RENDER.add_point(IMHASH, max, 3.0, true, vec3(0.964, 0.576, 0.215));
 	}
 }
 

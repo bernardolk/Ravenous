@@ -4,7 +4,6 @@
 #include <glad/glad.h>
 #include <string>
 #include <stdio.h>
-#include <Model.h>
 #include <vector>
 
 float skyboxVertices[] = {

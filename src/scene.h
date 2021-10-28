@@ -514,7 +514,13 @@ Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count
             new_entity->mesh = load_wavefront_obj_as_mesh(MODELS_PATH, model_name);
 
          // makes collision mesh equals to mesh
+         // @TODO when we get REAL about this, collision mesh should be a separate mesh (of course).
          new_entity->collision_mesh = new_entity->mesh;
+
+         // I think this line here is actually fine, unless we want to have a collider array allocated and
+         // turn the Collider type into Collider* in the entity type definition
+         new_entity->collider = *new_entity->collision_mesh;
+
       }
       else if(property == "texture")
       {
@@ -588,7 +594,7 @@ Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count
             new_entity->collision_geometry_type = COLLISION_ALIGNED_SLOPE;
          }
          
-         new_entity->update_collision_geometry();
+         new_entity->old_update_collision_geometry();
       }
       else if(property == "hidden")
       {

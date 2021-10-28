@@ -1,5 +1,5 @@
 
-auto get_world_cells_coords_from_world_coords(float x, float y, float z);
+auto world_coords_to_cells(float x, float y, float z);
 vec3 get_world_coordinates_from_world_cell_coordinates(int i, int j, int k);
 
 // how many cells we have preallocated for the world
@@ -44,26 +44,43 @@ struct CellUpdate {
 };
 
 
-
 // -----------
 // WORLD CELL
 // -----------
+// World cells are the way we spatially partition the game world. These are AABB's that contain a list of entities that touch them.
+// Entities also have a list of the world cells they are currently living in.
+// The reason is that in this game, things are more static than dynamic, so performing work on the lists on position changes is not
+// that expensive (because it doesn't happen as often) and is useful to have a entity->world_cells link like this for various checks.
+// WORLD CELLS ORIGINS LIE TO THE NEGATIVE AND GROW TOWARDS THE POSITIVE DIRECTION OF THEIR AXIS.
+// So index 0 is at -50 (e.g.) and the cell extends until -40 (when we have length = 10).
 
 struct WorldCell {
    Entity* entities[WORLD_CELL_CAPACITY];
    unsigned int count;
    
-   // coords
+   // logical coords
    int i = -1, j = -1, k = -1;
+
+   // world coords / bounding box
+   BoundingBox bounding_box;
 
    void init(int ii, int ji, int ki)
    {
       count = 0;
 
-      // set coordinates
+      // set logical coordinates
       i = ii;
       j = ji;
       k = ki;
+
+      // set physical world coordinates to bounding box
+      vec3 origin = get_world_coordinates_from_world_cell_coordinates(ii, ji, ki);
+      bounding_box.minx = origin.x;
+      bounding_box.miny = origin.y;
+      bounding_box.minz = origin.z;
+      bounding_box.maxx = origin.x + W_CELL_LEN_METERS;
+      bounding_box.maxy = origin.y + W_CELL_LEN_METERS;
+      bounding_box.maxz = origin.z + W_CELL_LEN_METERS;
 
       // initialize entities list
       for(int i = 0; i < WORLD_CELL_CAPACITY; i++)
@@ -188,7 +205,7 @@ vec3 get_world_coordinates_from_world_cell_coordinates(int i, int j, int k)
 }
 
 
-auto get_world_cells_coords_from_world_coords(float x, float y, float z)
+auto world_coords_to_cells(float x, float y, float z)
 {
    struct {
       int i, j, k;
@@ -213,14 +230,16 @@ auto get_world_cells_coords_from_world_coords(float x, float y, float z)
    return world_cell_coords;
 }
 
-auto get_world_cells_coords_from_world_coords(vec3 position)
+auto world_coords_to_cells(vec3 position)
 {
-   return get_world_cells_coords_from_world_coords(position.x, position.y, position.z);
+   return world_coords_to_cells(position.x, position.y, position.z);
 }
 
-// ------
-// WORLD
-// ------
+
+// ----------------
+// > WORLD
+// ----------------
+
 
 struct WorldStruct {
    WorldCell cells[W_CELLS_NUM_X][W_CELLS_NUM_Y][W_CELLS_NUM_Z];
@@ -264,13 +283,9 @@ struct WorldStruct {
       string message;
 
       // computes the new cells
-      auto [x0, x1, z0, z1] = entity->get_rect_bounds();
-      float height = entity->get_height();
-
-      vec3 pos1 = vec3{x0, entity->position.y, z0} + pos_offset1;
-      vec3 pos2 = vec3{x1, entity->position.y + height, z1} + pos_offset2;
-      auto [i0, j0, k0] = get_world_cells_coords_from_world_coords(pos1);
-      auto [i1, j1, k1] = get_world_cells_coords_from_world_coords(pos2);
+      auto [bb_min, bb_max]   = entity->bounding_box.bounds();
+      auto [i0, j0, k0]       = world_coords_to_cells(bb_min);
+      auto [i1, j1, k1]       = world_coords_to_cells(bb_max);
 
       // out of bounds catch
       if (i0 == -1 || i1 == -1)

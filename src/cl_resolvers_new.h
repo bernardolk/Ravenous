@@ -41,3 +41,20 @@ void CL_wall_slide_player(Player* player, vec3 wall_normal)
    //    vec3(0.9,0.24,0.24)
    // );
 }
+
+void CL_new_resolve_collision(CL_Results results, Player* player)
+{
+   CL_wall_slide_player(player, results.normal);
+
+   switch(player->player_state)
+   {
+      case PLAYER_STATE_JUMPING:
+         P_change_state(player, PLAYER_STATE_FALLING);
+         break;
+      case PLAYER_STATE_FALLING:
+         // collided_with_floor 
+         if(dot(results.normal, vec3(0,1,0)) > 0)
+            P_state_change_falling_to_standing(player, results.entity);
+         break;
+   }
+}
