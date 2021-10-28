@@ -13,6 +13,8 @@ enum PlayerStateEnum {
    PLAYER_STATE_VAULTING
 };
 
+string PLAYER_NAME = "Player";
+
 // ----------
 // Animation
 // ----------

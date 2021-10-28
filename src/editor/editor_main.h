@@ -36,6 +36,12 @@ struct EntityPanelContext {
    bool show_normals = false;
 };
 
+struct PlayerPanelContext {
+   bool active = false;
+   bool focused = false;
+   Player* player;
+};
+
 struct WorldPanelContext {
    bool active = false;
    vec3 cell_coords = vec3{-1.0f};
@@ -72,6 +78,7 @@ struct EditorContext {
 
    // panels
    EntityPanelContext entity_panel;
+   PlayerPanelContext player_panel;
    WorldPanelContext world_panel;
    PalettePanelContext palette_panel;
    LightsPanelContext lights_panel;
@@ -138,7 +145,7 @@ void initialize();
 void start_dear_imgui_frame();
 void update();
 void update_editor_entities();
-void check_selection_to_open_panel();
+void check_selection_to_open_panel(Player* player);
 void check_selection_to_move_entity();
 void render(Player* player, WorldStruct* world);
 void render_text_overlay(Player* player);
@@ -152,6 +159,7 @@ void terminate();
 
 #include <editor/editor_tools.h>
 #include <editor/editor_entity_panel.h>
+#include <editor/editor_player_panel.h>
 #include <editor/editor_world_panel.h>
 #include <editor/editor_input.h>
 #include <editor/editor_palette_panel.h>
@@ -172,6 +180,7 @@ void update()
    check_for_asset_changes();
    update_editor_entities();
 
+   // ENTITY PANEL
    if(Context.entity_panel.active)
    {
       update_entity_control_arrows(&Context.entity_panel);
@@ -353,6 +362,11 @@ void render(Player* player, WorldStruct* world)
       render_entity_control_arrows(&Context.entity_panel);
       if(Context.entity_panel.show_normals)
          render_entity_mesh_normals(&Context.entity_panel);
+   }
+
+   if(Context.player_panel.active)
+   {
+      render_player_panel(&Context.player_panel);
    }
 
    if(Context.palette_panel.active)
@@ -1170,13 +1184,19 @@ void render_lightbulbs(Camera* camera)
    }
 }
 
-void check_selection_to_open_panel()
+void check_selection_to_open_panel(Player* player)
 {
    auto pickray = cast_pickray();
    auto test = test_ray_against_scene(pickray, true);
    auto test_light = test_ray_against_lights(pickray);
    if(test.hit && (!test_light.hit || test_light.distance > test.distance))
-      open_entity_panel(test.entity);
+   {
+      if(test.entity->name == PLAYER_NAME)
+         open_player_panel(player);
+      else
+         open_entity_panel(test.entity);
+
+   }
    else if(test_light.hit)
       open_lights_panel(test_light.obj_hit_type, test_light.obj_hit_index, true);
 }

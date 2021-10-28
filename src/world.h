@@ -277,12 +277,9 @@ struct WorldStruct {
 
    CellUpdate update_entity_world_cells(Entity* entity, vec3 pos_offset1 = vec3{0}, vec3 pos_offset2 = vec3{0})
    {
-      // If entity is not an AABB, use pos_offset vectors to adjust x-z offsets from entity reference to
-      // boundaries
-      
       string message;
 
-      // computes the new cells
+      // computes which cells the entity is occupying based on it's axis aligned bounding box
       auto [bb_min, bb_max]   = entity->bounding_box.bounds();
       auto [i0, j0, k0]       = world_coords_to_cells(bb_min);
       auto [i1, j1, k1]       = world_coords_to_cells(bb_max);

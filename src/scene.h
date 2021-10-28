@@ -799,7 +799,7 @@ Entity* create_player_entity()
    auto cylinder_mesh = find_cylinder->second;
 
    auto entity = Entity_Manager.create_entity();
-   entity->name = "Player";
+   entity->name = PLAYER_NAME;
    entity->shader = model_shader;
 
    unsigned int pink_texture = load_texture_from_file("pink.jpg", TEXTURES_PATH);

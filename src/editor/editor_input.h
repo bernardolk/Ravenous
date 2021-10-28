@@ -208,7 +208,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
          }
          else
          {
-            check_selection_to_open_panel();
+            check_selection_to_open_panel(player);
          }
       }
       else if(flags.key_press & KEY_G)
