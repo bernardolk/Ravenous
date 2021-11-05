@@ -3,6 +3,7 @@ struct EntityAttributes {
    string mesh;
    string shader;
    string texture;
+   string collision_mesh;
    CollisionGeometryEnum collision;
    EntityType type;
    vec3 scale = vec3{1.0f};
@@ -10,9 +11,9 @@ struct EntityAttributes {
 
 struct EntityManager
 {
-   // ---------------
-   // ENTITY MANAGER
-   // ---------------
+   // ------------------
+   // > ENTITY MANAGER
+   // ------------------
    unsigned int count = 0;
    Shader* default_shader;
    Mesh* default_mesh;
@@ -21,50 +22,72 @@ struct EntityManager
    vector<Entity*>* entity_registry;
    vector<Entity*>* checkpoints_registry;
    
-   // -------------------------------------
-   // [INTERNAL] FIND ASSETS IN CATALOGUES
-   // -------------------------------------
-   auto _find_entity_assets_in_catalogue(string mesh, string shader, string texture)
+   // --------------------------------------
+   // > FIND ASSETS IN CATALOGUES
+   // --------------------------------------
+   // [INTERNAL]
+   auto _find_entity_assets_in_catalogue(string mesh, string collision_mesh, string shader, string texture)
    {
       struct {
          Texture texture;
          Mesh* mesh;
+         Mesh* collision_mesh;
          Shader* shader;
       } attrs;
 
-      auto _texture = Texture_Catalogue.find(texture);
-      if(_texture == Texture_Catalogue.end())
+      if(mesh != "")
       {
-         cout << "FATAL: texture'" << texture << "' not found in texture catalogue.\n";
-         assert(false);
+         auto _mesh = Geometry_Catalogue.find(mesh);
+         if(_mesh == Geometry_Catalogue.end())
+         {
+            cout << "FATAL: mesh'" << mesh << "' not found in mesh catalogue.\n";
+            assert(false);
+         }
+         attrs.mesh = _mesh->second;
+      }
+      
+      if(collision_mesh != "")
+      {
+         auto _collision_mesh = Geometry_Catalogue.find(collision_mesh);
+         if(_collision_mesh == Geometry_Catalogue.end())
+         {
+            cout << "FATAL: mesh'" << collision_mesh << "' not found in mesh catalogue.\n";
+            assert(false);
+         }
+         attrs.collision_mesh = _collision_mesh->second;
       }
 
-      auto _shader = Shader_Catalogue.find(shader);
-      if(_shader == Shader_Catalogue.end())
+      if(shader != "")
       {
-         cout << "FATAL: shader'" << shader << "' not found in shader catalogue.\n";
-         assert(false);
+         auto _shader = Shader_Catalogue.find(shader);
+         if(_shader == Shader_Catalogue.end())
+         {
+            cout << "FATAL: shader'" << shader << "' not found in shader catalogue.\n";
+            assert(false);
+         }
+         attrs.shader = _shader->second;
       }
 
-      auto _mesh = Geometry_Catalogue.find(mesh);
-      if(_mesh == Geometry_Catalogue.end())
+      if(texture != "")
       {
-         cout << "FATAL: mesh'" << mesh << "' not found in mesh catalogue.\n";
-         assert(false);
+         auto _texture = Texture_Catalogue.find(texture);
+         if(_texture == Texture_Catalogue.end())
+         {
+            cout << "FATAL: texture'" << texture << "' not found in texture catalogue.\n";
+            assert(false);
+         }
+         attrs.texture = _texture->second;
       }
 
-      attrs.texture = _texture->second;
-      attrs.mesh    = _mesh->second;
-      attrs.shader  = _shader->second;
       return attrs;
    }
 
-   // --------------------------
-   // DEFAULT ENTITY ATTRIBUTES
-   // --------------------------
+   // ---------------------------------
+   // > SET DEFAULT ENTITY ATTRIBUTES
+   // ---------------------------------
    void set_default_entity_attributes(string mesh, string shader, string texture)
    {
-      auto [_texture, _mesh, _shader] = _find_entity_assets_in_catalogue(mesh, shader, texture);
+      auto [_texture, _mesh, _,  _shader] = _find_entity_assets_in_catalogue(mesh, "", shader, texture);
       default_texture = _texture;
       default_shader  = _shader;
       default_mesh    = _mesh;
@@ -80,18 +103,49 @@ struct EntityManager
       checkpoints_registry = registry;
    }
 
-   // ----------------
-   // REGISTER ENTITY
-   // ----------------
-   void register_entity(Entity* entity)
+   // ------------------
+   // > REGISTER ENTITY
+   // ------------------
+   void register_in_world_and_scene(Entity* entity)
    {
       G_SCENE_INFO.active_scene->entities.push_back(entity);
       World.update_entity_world_cells(entity);
    }
 
-   // ---------------
-   // CREATE ENTITY
-   // ---------------
+   // -----------------
+   // > CREATE ENTITY
+   // -----------------
+   // Deals with entity creation. All entities created should be created through here.
+
+   Entity* create_entity(
+      string name,
+      string mesh,
+      string shader,
+      string texture,
+      string collision_mesh,
+      CollisionGeometryEnum collision = COLLISION_ALIGNED_BOX,
+      vec3 scale = vec3{1.0f})
+   {
+      auto [_texture, _mesh, _collision_mesh, _shader] = _find_entity_assets_in_catalogue(mesh, collision_mesh, shader, texture);
+
+      auto new_entity                                 = new Entity();
+      new_entity->id                                  = ++count;
+      new_entity->name                                = name;
+      new_entity->shader                              = _shader;
+      new_entity->mesh                                = _mesh;
+      new_entity->scale                               = scale;
+      new_entity->collision_mesh                      = _collision_mesh;
+      new_entity->collision_geometry_type             = collision;
+      new_entity->textures.push_back(_texture);
+      new_entity->old_update_collision_geometry();
+
+      register_in_world_and_scene(new_entity);
+      return new_entity;
+   }
+
+   // ----------------------------------------
+   // > > Creates based on attributes struct
+   // ----------------------------------------
    Entity* create_entity(EntityAttributes* attrs)
    {
       auto new_entity = create_entity(
@@ -99,6 +153,7 @@ struct EntityManager
          attrs->mesh,
          attrs->shader,
          attrs->texture,
+         attrs->collision_mesh,
          attrs->collision,
          attrs->scale
       );
@@ -109,30 +164,9 @@ struct EntityManager
       return new_entity;
    }
 
-   Entity* create_entity(
-      string name,
-      string mesh,
-      string shader,
-      string texture, 
-      CollisionGeometryEnum collision = COLLISION_ALIGNED_BOX,
-      vec3 scale = vec3{1.0f})
-   {
-      auto [_texture, _mesh, _shader] = _find_entity_assets_in_catalogue(mesh, shader, texture);
-
-      auto new_entity = new Entity();
-      new_entity->id = ++count;
-      new_entity->name = name;
-      new_entity->textures.push_back(_texture);
-      new_entity->shader = _shader;
-      new_entity->mesh = _mesh;
-      new_entity->scale = scale;
-      new_entity->collision_geometry_type = collision;
-      new_entity->old_update_collision_geometry();
-
-      register_entity(new_entity);
-      return new_entity;
-   }
-
+   // -----------------------------------------------------------
+   // > > Creates with a said name and maybe defaults or blank
+   // -----------------------------------------------------------
    Entity* create_entity(string name, bool load_defaults = true)
    {
       //warning: we don't check if name exists in registry
@@ -141,31 +175,36 @@ struct EntityManager
       return new_entity;
    }
 
-   Entity* create_entity(bool load_defaults = true)
+   // ------------------------------------
+   // > > Creates with defaults or blank
+   // ------------------------------------
+   Entity* create_entity(bool load_defaults = false)
    {
       auto new_entity = new Entity();
       new_entity->id = ++count;
       if(load_defaults)
       {
          new_entity->textures.push_back(default_texture);
-         new_entity->shader = default_shader;
-         new_entity->mesh = default_mesh;
+         new_entity->shader                  = default_shader;
+         new_entity->mesh                    = default_mesh;
+         new_entity->collision_mesh          = default_mesh;
          new_entity->collision_geometry_type = COLLISION_ALIGNED_BOX;
       }
-      register_entity(new_entity);
+      register_in_world_and_scene(new_entity);
       new_entity->old_update_collision_geometry();
       return new_entity;  
    }
 
-   // ------------
-   // COPY ENTITY
-   // ------------
+
+   // ---------------
+   // > COPY ENTITY
+   // ---------------
    Entity* copy_entity(Entity* entity)
    {
       // allocate entity with new id
       auto new_entity = new Entity();
-      *new_entity = *entity;
-      new_entity->id = ++count;
+      *new_entity     = *entity;
+      new_entity->id  = ++count;
       // tries new name with copy
       string new_name = new_entity->name;
       if(new_name != "NONAME")
@@ -181,13 +220,13 @@ struct EntityManager
          }
       }
       new_entity->name = new_name;
-      register_entity(new_entity);
+      register_in_world_and_scene(new_entity);
       return new_entity;
    }
 
-   // ----------------
-   // SET ENTITY TYPE
-   // ----------------
+   // ------------------
+   // > SET ENTITY TYPE
+   // ------------------
    // [internal]
    void _remove_checkpoint_type(Entity* entity)
    {
@@ -242,9 +281,9 @@ struct EntityManager
       }
    }
 
-   // --------------
-   // DELETE ENTITY
-   // --------------
+   // ----------------
+   // > DELETE ENTITY
+   // ----------------
    void mark_for_deletion(Entity* entity)
    {
       // remove from scene render list

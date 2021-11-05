@@ -35,7 +35,8 @@ void initialize_palette(PalettePanelContext* panel)
       "NONAME", 
       "aabb", 
       "model", 
-      "grey", 
+      "grey",
+      "aabb", 
       COLLISION_ALIGNED_BOX,
       STATIC
    };
@@ -45,7 +46,8 @@ void initialize_palette(PalettePanelContext* panel)
       "NONAME", 
       "slope", 
       "model", 
-      "grey", 
+      "grey",
+      "slope", 
       COLLISION_ALIGNED_SLOPE,
       STATIC
    };
@@ -56,6 +58,7 @@ void initialize_palette(PalettePanelContext* panel)
       "aabb", 
       "model", 
       "grey", 
+      "aabb", 
       COLLISION_ALIGNED_BOX,
       CHECKPOINT,
       vec3(0.3, 1.2, 0.3)
