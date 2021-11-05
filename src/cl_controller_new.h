@@ -89,15 +89,18 @@ CL_Results CL_test_player_vs_entity(Entity* entity, Player* player)
 
    Entity* player_entity = player->entity_ptr;
 
-   Mesh entity_collider = entity->collider;
-   Mesh player_collider = player_entity->collider;
+   Mesh* entity_collider = &entity->collider;
+   Mesh* player_collider = &player_entity->collider;
 
-   GJK_Result box_gjk_test = CL_run_GJK(&entity_collider, &player_collider);
+   if(entity->name == "boxA")
+      IM_RENDER.add_mesh(IMHASH, entity_collider);
+
+   GJK_Result box_gjk_test = CL_run_GJK(entity_collider, player_collider);
    
    if(box_gjk_test.collision)
    {
       RENDER_MESSAGE("GJK COLLISION");
-      EPA_Result epa = CL_run_EPA(box_gjk_test.simplex, &entity_collider, &player_collider);
+      EPA_Result epa = CL_run_EPA(box_gjk_test.simplex, entity_collider, player_collider);
       
       if(epa.collision)
       {

@@ -295,17 +295,17 @@ GJK_Iteration CL_update_simplex_and_direction(GJK_Iteration gjk)
 // > CL_RUN_GJK
 // ------------------
 vec3 Debug_Colors[] = {
-   vec3(0.60, 0, 0),
-   vec3(0.00, 0.60, 0),
-   vec3(0.00, 0, 0.60),
-   vec3(0.80, 0.80, 0.80),
+   COLOR_RED_1,
+   COLOR_GREEN_1,
+   COLOR_BLUE_1,
+   COLOR_PURPLE_1,
 };
 
 
 void _CL_debug_render_simplex(Simplex simplex)
 {
    for(int i = 0; i < simplex.size(); i++)
-      IM_RENDER.add_point(IMHASH, simplex[i], 2.0, true, Debug_Colors[i]);
+      IM_RENDER.add_point(IM_ITERHASH(i), simplex[i], 2.0, true, Debug_Colors[i]);
 }
 
 
@@ -323,7 +323,7 @@ GJK_Result CL_run_GJK(Mesh* collider_A, Mesh* collider_B)
    gjk.simplex.push_front(support.point);
    gjk.direction = -support.point;
 
-   //IM_RENDER.add_point(IMHASH, support.point, 2.0, true, Debug_Colors[0]);
+   // IM_RENDER.add_point(IMHASH, support.point, 2.0, true, Debug_Colors[0]);
 
    int it_count = 0;
    while(true)
@@ -338,14 +338,14 @@ GJK_Result CL_run_GJK(Mesh* collider_A, Mesh* collider_B)
 
       gjk.simplex.push_front(support.point);
 
-      //IM_RENDER.add_point(IMHASH, support.point, 2.0, true, Debug_Colors[it_count + 1]);
+      // IM_RENDER.add_point(IM_ITERHASH(it_count), support.point, 2.0, true, Debug_Colors[it_count + 1]);
 
       gjk = CL_update_simplex_and_direction(gjk);
 
       it_count++;
       if(gjk.finished)
       {
-         // _CL_debug_render_simplex(gjk.simplex);
+         _CL_debug_render_simplex(gjk.simplex);
          result.simplex = gjk.simplex;
          result.collision = true;
          return result;

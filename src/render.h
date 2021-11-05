@@ -282,9 +282,6 @@ void render_game_gui(Player* player)
       }
    }
    render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 60, player_floor);
-
-   
-
 }
 
 // ------------

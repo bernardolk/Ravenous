@@ -20,6 +20,7 @@
 // Put a prefix + i from the loop in it and you should be fine.
 
 #define IMCUSTOMHASH(x) im_hasher(x)
+#define IM_ITERHASH(x) IM_RENDER._hash_file_line_and_iteration(__FILE__, __LINE__, x)
 #define IMHASH IM_RENDER._hash_file_and_line(__FILE__, __LINE__)
 #define IM_R_FIND_SLOT() ImmediateDrawElementSlot slot = _find_element_or_empty_slot(_hash); \
                          if(slot.empty && slot.index == -1) return;
@@ -36,6 +37,7 @@ struct ImmediateDrawElement {
    vec3 pos;
    vec3 rot;
    vec3 scale;
+   bool is_multpl_by_matmodel;
 };
 
 struct ImmediateDrawElementSlot {
@@ -65,13 +67,14 @@ struct GlobalImmediateDraw {
       auto obj = &list[i];
       obj->mesh.indices.clear();
       obj->mesh.vertices.clear();
-      obj->empty     = true;
-      obj->hash      = 0;
-      obj->duration  = 0;
-      obj->is_mesh   = false;
-      obj->scale     = vec3(0);
-      obj->pos       = vec3(0);
-      obj->rot       = vec3(0);
+      obj->empty                    = true;
+      obj->hash                     = 0;
+      obj->duration                 = 0;
+      obj->is_mesh                  = false;
+      obj->scale                    = vec3(0);
+      obj->pos                      = vec3(0);
+      obj->rot                      = vec3(0);
+      obj->is_multpl_by_matmodel    = false;
    }
 
    ImmediateDrawElementSlot _find_element_or_empty_slot(size_t hash)
@@ -99,6 +102,7 @@ struct GlobalImmediateDraw {
       obj->mesh.send_data_to_gl_buffer();
       obj->render_options = opts;
       obj->empty = false;
+      // missing is mesh?
    }
 
    void _set_mesh(int i, Mesh* mesh, RenderOptions opts)
@@ -121,6 +125,13 @@ struct GlobalImmediateDraw {
       obj->scale     = scale;
    }
 
+   void _update_mesh(int i, vec3 color, int duration)
+   {
+      auto obj = &list[i];
+      obj->render_options.color = color;
+      obj->duration  = duration;
+   }
+
 
    mat4 _get_mat_model(vec3 pos, vec3 rot, vec3 scale)
    {
@@ -140,6 +151,11 @@ struct GlobalImmediateDraw {
    size_t _hash_file_and_line(char* file, int line)
    {
       return im_hasher(string(file) + "-" + to_string(line));
+   }
+
+   size_t _hash_file_line_and_iteration(char* file, int line, int it)
+   {
+      return im_hasher(string(file) + "-" + to_string(line) + "-" + to_string(it));
    }
 
    /* --------------------------- */
@@ -258,7 +274,7 @@ struct GlobalImmediateDraw {
    /* --------------------------- */
    /*        > Add Mesh           */
    /* --------------------------- */
-   void add_mesh(size_t _hash, Mesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color = vec3(1.0,0,0), int duration = 2000)
+   void add_mesh(size_t _hash, Mesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color = COLOR_BLUE_1, int duration = 2000)
    {
       IM_R_FIND_SLOT();
  
@@ -281,6 +297,29 @@ struct GlobalImmediateDraw {
 
       _set_mesh(slot.index, mesh, opts);
    }
+
+   void add_mesh(size_t _hash, Mesh* mesh, vec3 color = COLOR_BLUE_1, float duration = 2000)
+   {
+      IM_R_FIND_SLOT();
+ 
+      if(!slot.empty)
+      {
+         _update_mesh(slot.index, color, duration);
+         return;
+      }
+
+      RenderOptions opts;
+      opts.color     = color;
+      opts.wireframe = true;
+
+      auto obj                      = &list[slot.index];
+      obj->hash                     = _hash;
+      obj->duration                 = duration;
+      obj->is_multpl_by_matmodel    = true;
+
+      _set_mesh(slot.index, mesh, opts);
+   }
+
 
    void add_mesh(size_t _hash, Entity* entity, int duration)
    {
@@ -331,8 +370,15 @@ struct GlobalImmediateDraw {
          {
             shader = im_mesh_shader;
             shader->use();
-            auto matModel = _get_mat_model(obj->pos, obj->rot, obj->scale);
-            shader->setMatrix4("model", matModel);
+            if(!obj->is_multpl_by_matmodel)
+            {
+               auto matModel = _get_mat_model(obj->pos, obj->rot, obj->scale);
+               shader->setMatrix4("model", matModel);
+            }
+            else
+            {
+               shader->setMatrix4("model", mat4identity);
+            }
          }
          else
          {

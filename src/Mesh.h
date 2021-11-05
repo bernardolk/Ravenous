@@ -56,6 +56,9 @@ struct Mesh {
 
    void setup_gl_data()
    {
+      // to avoid a pretty bad rendering issue
+      assert(indices.size() > 0);
+
       GLData new_gl_data;
 
       // create buffers/arrays

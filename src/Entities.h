@@ -139,7 +139,6 @@ struct Entity {
    void update_collider()
    {
       // empty collider
-      collider.indices.clear();
       collider.vertices.clear();
 
       // multiplies model matrix to collision mesh

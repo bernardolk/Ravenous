@@ -644,7 +644,7 @@ inline void update_scene_objects()
 		entity->update();
       entity_iterator++;
 
-      auto[min,max] = entity->bounding_box.bounds();
+      // auto[min,max] = entity->bounding_box.bounds();
       // IM_RENDER.add_point(IMHASH, min, 3.0, true, vec3(0.964, 0.576, 0.215));
       // IM_RENDER.add_point(IMHASH, max, 3.0, true, vec3(0.964, 0.576, 0.215));
 	}

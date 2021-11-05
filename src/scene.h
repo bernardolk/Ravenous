@@ -63,6 +63,16 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
       if(p.cToken == '#')
       {
          Entity* new_entity = parse_and_load_entity(p, &reader, line_count, path);
+
+         // set up collider
+         new_entity->collider = *new_entity->collision_mesh;
+         new_entity->collider.name = new_entity->name + "-collider";
+         new_entity->collider.setup_gl_data();
+
+         // creates the entity bounding box (so world cells for it get calculated correctly)
+         new_entity->update_model_matrix();
+         new_entity->update_collider();
+         new_entity->update_bounding_box();
          world->update_entity_world_cells(new_entity);
       }
       else if(p.cToken == '@')
@@ -516,11 +526,6 @@ Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count
          // makes collision mesh equals to mesh
          // @TODO when we get REAL about this, collision mesh should be a separate mesh (of course).
          new_entity->collision_mesh = new_entity->mesh;
-
-         // I think this line here is actually fine, unless we want to have a collider array allocated and
-         // turn the Collider type into Collider* in the entity type definition
-         new_entity->collider = *new_entity->collision_mesh;
-
       }
       else if(property == "texture")
       {
