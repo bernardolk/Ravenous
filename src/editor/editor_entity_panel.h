@@ -31,8 +31,12 @@ void render_entity_panel(EntityPanelContext* panel)
    // HIDE ENTITY
    ImGui::Checkbox("Hide", &entity->wireframe);
 
+   ImGui::Text("Show");
+   ImGui::Checkbox("Normals", &panel->show_normals);
    ImGui::SameLine();
-   ImGui::Checkbox("Show normals", &panel->show_normals);
+   ImGui::Checkbox("Collider", &panel->show_collider);
+   ImGui::SameLine();
+   ImGui::Checkbox("Bounding box", &panel->show_bounding_box);
 
    // POSITION
    ImGui::NewLine();
@@ -276,6 +280,8 @@ void open_entity_panel(Entity* entity)
    panel.y_arrow->rotation = vec3{0,0,0};
    panel.z_arrow->rotation = vec3{90,0,0};
    panel.show_normals = false;
+   panel.show_collider = false;
+   panel.show_bounding_box = false;
    panel.entity_tracked_state = get_entity_state(entity);
 }
 

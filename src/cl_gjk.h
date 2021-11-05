@@ -345,7 +345,7 @@ GJK_Result CL_run_GJK(Mesh* collider_A, Mesh* collider_B)
       it_count++;
       if(gjk.finished)
       {
-         _CL_debug_render_simplex(gjk.simplex);
+         //_CL_debug_render_simplex(gjk.simplex);
          result.simplex = gjk.simplex;
          result.collision = true;
          return result;

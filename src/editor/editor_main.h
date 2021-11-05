@@ -33,7 +33,9 @@ struct EntityPanelContext {
    Entity* y_arrow;
    Entity* z_arrow;
    EntityState entity_tracked_state;
-   bool show_normals = false;
+   bool show_normals       = false;
+   bool show_collider      = false;
+   bool show_bounding_box  = false;
 };
 
 struct PlayerPanelContext {
@@ -358,10 +360,21 @@ void render(Player* player, WorldStruct* world)
 
    if(Context.entity_panel.active)
    {
-      render_entity_panel(&Context.entity_panel);
-      render_entity_control_arrows(&Context.entity_panel);
-      if(Context.entity_panel.show_normals)
-         render_entity_mesh_normals(&Context.entity_panel);
+      auto& panel = Context.entity_panel;
+
+      render_entity_panel(&panel);
+      render_entity_control_arrows(&panel);
+
+      if(panel.show_normals)
+         render_entity_mesh_normals(&panel);
+      if(panel.show_collider)
+         IM_RENDER.add_mesh(IMHASH, &panel.entity->collider, COLOR_PURPLE_1, 0);
+      if(panel.show_bounding_box)
+      {
+         auto aabb = Geometry_Catalogue.find("aabb")->second;
+         auto [pos, scale] = panel.entity->bounding_box.get_pos_and_scale();
+         IM_RENDER.add_mesh(IMHASH, aabb, pos, vec3(0), scale, COLOR_PINK_1, 0);
+      }
    }
 
    if(Context.player_panel.active)

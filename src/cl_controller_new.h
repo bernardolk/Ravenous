@@ -92,9 +92,6 @@ CL_Results CL_test_player_vs_entity(Entity* entity, Player* player)
    Mesh* entity_collider = &entity->collider;
    Mesh* player_collider = &player_entity->collider;
 
-   if(entity->name == "boxA")
-      IM_RENDER.add_mesh(IMHASH, entity_collider);
-
    GJK_Result box_gjk_test = CL_run_GJK(entity_collider, player_collider);
    
    if(box_gjk_test.collision)

@@ -14,11 +14,11 @@ void CL_wall_slide_player(Player* player, vec3 wall_normal)
    // IM_RENDER.add_line(IMHASH, vec3(0, 2, 0) ,vec3(0, 2, 0) + up_vec * 1);
    vec3 draw_o = player->top() + 0.5f;
    vec3 draw_o2 = player->top() + 0.8f;
-   IM_RENDER.add_line(IMHASH, draw_o, draw_o + horiz_vec * 1.f, COLOR_RED_1);
+   // IM_RENDER.add_line(IMHASH, draw_o, draw_o + horiz_vec * 1.f, COLOR_RED_1);
 
    pv = dot(pv, horiz_vec) * normalize(horiz_vec) * player->speed;
 
-   IM_RENDER.add_line(IMHASH, draw_o2, draw_o2 + pv * 1.f, COLOR_GREEN_1);
+   // IM_RENDER.add_line(IMHASH, draw_o2, draw_o2 + pv * 1.f, COLOR_GREEN_1);
 
 
    // vec3 left_vec     = -right_vec;
