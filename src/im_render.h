@@ -167,6 +167,11 @@ struct GlobalImmediateDraw {
       _set_mesh(slot.index, vertex_vec, draw_method, opts);
    }
 
+   void add_line(size_t _hash, vec3 pointA, vec3 pointB, vec3 color)
+   {
+      add_line(_hash, pointA, pointB, 1.0, false, color);
+   }
+
    void add_line(size_t _hash, vec3 points[2], float line_width = 1.0, bool always_on_top = false, vec3 color = vec3(0))
    {
       IM_R_FIND_SLOT();

@@ -41,13 +41,17 @@ void GP_move_player(Player* player)
          bool moving_contrary_to_momentum     = !comp_sign(v_dir.x, v.x) || !comp_sign(v_dir.z, v.z);
          bool stopped_dashing                 = !player->dashing && square_GT(v + d_speed, player->run_speed);
          bool started_walking_while_fast      = player->walking  && square_GT(v + d_speed, player->walk_speed);
-         bool cap_speed_dashing               = player->dashing && square_GE(v + d_speed, player->dash_speed);
-         bool cap_speed_walking               = player->walking && square_GE(v + d_speed, player->walk_speed);
+         bool cap_speed_dashing               = player->dashing  && square_GE(v + d_speed, player->dash_speed);
+         bool cap_speed_walking               = player->walking  && square_GE(v + d_speed, player->walk_speed);
+         bool cap_speed_running               = !(player->dashing || player->walking)  && square_GE(v + d_speed, player->run_speed);
 
-         if(stopped || stopped_dashing || started_walking_while_fast || moving_contrary_to_momentum)
-         { d_speed   *= -1; }            
-         else if(cap_speed_dashing || cap_speed_walking)  
-         { d_speed   = 0;   }
+         // if(stopped || stopped_dashing || started_walking_while_fast || moving_contrary_to_momentum)
+         // { d_speed   *= -1; }            
+        
+         if(stopped)
+         { speed = 0; d_speed = 0; }
+         else if(cap_speed_dashing || cap_speed_walking || cap_speed_running)  
+         { d_speed   = 0; }
 
          speed += d_speed;
          v = speed * v_dir;     // if no movement command is issued, v_dir = 0,0,

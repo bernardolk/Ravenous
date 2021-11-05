@@ -109,6 +109,7 @@ struct ProgramConfig {
 } G_CONFIG;
 
 // SOURCE INCLUDES
+#include <colors.h>
 #include <cl_types.h>
 #include <mesh.h>
 #include <utils.h>
@@ -644,8 +645,8 @@ inline void update_scene_objects()
       entity_iterator++;
 
       auto[min,max] = entity->bounding_box.bounds();
-      IM_RENDER.add_point(IMHASH, min, 3.0, true, vec3(0.964, 0.576, 0.215));
-      IM_RENDER.add_point(IMHASH, max, 3.0, true, vec3(0.964, 0.576, 0.215));
+      // IM_RENDER.add_point(IMHASH, min, 3.0, true, vec3(0.964, 0.576, 0.215));
+      // IM_RENDER.add_point(IMHASH, max, 3.0, true, vec3(0.964, 0.576, 0.215));
 	}
 }
 

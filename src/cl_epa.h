@@ -172,38 +172,35 @@ EPA_Result CL_run_EPA(Simplex simplex, Mesh* collider_A, Mesh* collider_B)
 		}
 	}
 
-
-   // RENDER_MESSAGE("There are " + to_string(polytope.size()) + " points");
-
-   // RENDER POLYTOPE
-   for (int i = 0; i < polytope.size(); i++)
+   // DEBUG
+   if(false)
    {
-      IM_RENDER.add_point(IMCUSTOMHASH("poly-" + to_string(i)), 
-         polytope[i], 2.0, true, vec3(0.4, 0.2, 0.4), 1);
+      // RENDER POLYTOPE
+      for (int i = 0; i < polytope.size(); i++)
+      {
+         IM_RENDER.add_point(IMCUSTOMHASH("poly-" + to_string(i)), 
+            polytope[i], 2.0, true, vec3(0.4, 0.2, 0.4), 1);
 
-      for (int j = 0; j < polytope.size(); j++)
-         if (i != j && glm::length(polytope[i] - polytope[j]) <= 0.001)
-            RENDER_MESSAGE("POINTS " + to_string(i) + " AND " + to_string(j) + " ARE EQUAL", 2000);
+         for (int j = 0; j < polytope.size(); j++)
+            if (i != j && glm::length(polytope[i] - polytope[j]) <= 0.001)
+               RENDER_MESSAGE("POINTS " + to_string(i) + " AND " + to_string(j) + " ARE EQUAL", 2000);
+      }
+
+      // RENDER EDGES
+      for (size_t i = 0; i < face_normals.size(); i++)
+      {
+         size_t f = i * 3;
+         IM_RENDER.add_line(IMHASH, polytope[faces[f    ]], polytope[faces[f + 1]], 1.5, true, vec3(0.3, 0.5, 0.2));
+         IM_RENDER.add_line(IMHASH, polytope[faces[f + 1]], polytope[faces[f + 2]], 1.5, true, vec3(0.3, 0.5, 0.2));
+         IM_RENDER.add_line(IMHASH, polytope[faces[f + 2]], polytope[faces[f    ]], 1.5, true, vec3(0.3, 0.5, 0.2));
+      }
+
+      // RENDER ORIGIN
+      IM_RENDER.add_point(IMHASH, vec3(0), 3.0, false, vec3(0.956, 0.784, 0.184));
+
+      // RENDER PENETRATION VECTOR
+      IM_RENDER.add_line(IMHASH, vec3(0), penetration_normal * min_distance_to_face, 2.0, false, vec3(0.882, 0.254, 0.878));
    }
-
-
-   // RENDER_MESSAGE("There are " + to_string(face_normals.size()) + " faces");
-
-   // RENDER EDGES
-   for (size_t i = 0; i < face_normals.size(); i++)
-   {
-	   size_t f = i * 3;
-      IM_RENDER.add_line(IMHASH, polytope[faces[f    ]], polytope[faces[f + 1]], 1.5, true, vec3(0.3, 0.5, 0.2));
-      IM_RENDER.add_line(IMHASH, polytope[faces[f + 1]], polytope[faces[f + 2]], 1.5, true, vec3(0.3, 0.5, 0.2));
-      IM_RENDER.add_line(IMHASH, polytope[faces[f + 2]], polytope[faces[f    ]], 1.5, true, vec3(0.3, 0.5, 0.2));
-   }
-
-   // RENDER ORIGIN
-   IM_RENDER.add_point(IMHASH, vec3(0), 3.0, false, vec3(0.956, 0.784, 0.184));
-
-   // RENDER PENETRATION VECTOR
-   IM_RENDER.add_line(IMHASH, vec3(0), penetration_normal * min_distance_to_face, 2.0, false, vec3(0.882, 0.254, 0.878));
-
 
 	EPA_Result result;
 

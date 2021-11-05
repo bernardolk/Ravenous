@@ -3,7 +3,7 @@
 // forward declarations
 struct WorldCell;
 
-// OLD TYPES - I HOPE TO GET RID OF THEM SOON D:
+// [START] OLD TYPES - I HOPE TO GET RID OF THEM SOON D:
 enum CollisionGeometryEnum {
    COLLISION_ALIGNED_CYLINDER,
    COLLISION_ALIGNED_BOX,
@@ -37,30 +37,30 @@ struct CollisionGeometrySlope {
 // [END] OLD TYPES
 
 enum EntityType {
-   STATIC = 0,
-   CHECKPOINT = 1
+   STATIC            = 0,
+   CHECKPOINT        = 1
 };
 
 const static size_t ENTITY_WOLRD_CELL_OCCUPATION_LIMIT = 50;
 
 struct Entity {
    u32 id;
-   string name = "NONAME";
-   EntityType type = STATIC;
+   string name       = "NONAME";
+   EntityType type   = STATIC;
 
    // render data
 	Shader* shader;
    Mesh* mesh;
    std::vector<Texture> textures;
-	glm::mat4 matModel = mat4identity;
-   bool render_me = true;
-   bool wireframe = false;
+	glm::mat4 matModel   = mat4identity;
+   bool render_me       = true;
+   bool wireframe       = false;
 
    // simulation data
-	vec3 position = vec3(0.0f);
-	vec3 rotation = vec3(0.0f);
-	vec3 scale = vec3(1.0f);
-   vec3 velocity = vec3(0.0f);
+	vec3 position        = vec3(0.0f);
+	vec3 rotation        = vec3(0.0f);
+	vec3 scale           = vec3(1.0f);
+   vec3 velocity        = vec3(0.0f);
 
    // collision simulation data
    CollisionGeometryEnum collision_geometry_type;
@@ -79,8 +79,8 @@ struct Entity {
 
    // event trigger
    Mesh* trigger;
-   vec3 trigger_scale = vec3(1.5f, 1.f, 0.f);
-   vec3 trigger_pos = vec3(0.0f);
+   vec3 trigger_scale   = vec3(1.5f, 1.f, 0.f);
+   vec3 trigger_pos     = vec3(0.0f);
    mat4 trigger_model;
 
 

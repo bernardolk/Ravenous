@@ -163,6 +163,7 @@ struct Player {
 
    void brute_stop()
    {
+      // bypass deaceleration steps. Stops player right on his tracks.
       speed = 0;
    }
 
