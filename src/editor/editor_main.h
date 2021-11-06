@@ -11,6 +11,11 @@ const static float TRIAXIS_SCREENPOS_Y = -1.80;
 
 #include <editor/editor_undo.h>
 
+struct InputRecorderPanelContext {
+   bool active = false;
+   int selected_recording = -1;
+};
+
 struct PalettePanelContext {
    bool active = true;
    unsigned int textures[15];
@@ -85,6 +90,7 @@ struct EditorContext {
    PalettePanelContext palette_panel;
    LightsPanelContext lights_panel;
    CollisionLogPanelContext collision_log_panel;
+   InputRecorderPanelContext input_recorder_panel;
 
    // toolbar
    bool toolbar_active = true;
@@ -140,7 +146,7 @@ struct EditorContext {
    // gizmos
    Entity* tri_axis[3];
    Entity* tri_axis_letters[3];
-} Context;
+} EdContext;
 
 
 void initialize();
@@ -167,105 +173,106 @@ void terminate();
 #include <editor/editor_palette_panel.h>
 #include <editor/editor_lights_panel.h>
 #include <editor/editor_collision_log_panel.h>
+#include <editor/editor_input_recorder_panel.h>
 
 void update()
 {
-   if(Context.last_frame_scene != G_SCENE_INFO.scene_name)
+   if(EdContext.last_frame_scene != G_SCENE_INFO.scene_name)
    {
-      Context.entity_panel.active = false;
-      Context.world_panel.active = false;
+      EdContext.entity_panel.active = false;
+      EdContext.world_panel.active = false;
    }
 
-   Context.last_frame_scene = G_SCENE_INFO.scene_name;
+   EdContext.last_frame_scene = G_SCENE_INFO.scene_name;
 
    // check for asset changes
    check_for_asset_changes();
    update_editor_entities();
 
    // ENTITY PANEL
-   if(Context.entity_panel.active)
+   if(EdContext.entity_panel.active)
    {
-      update_entity_control_arrows(&Context.entity_panel);
+      update_entity_control_arrows(&EdContext.entity_panel);
    }
    else
    {
-      Context.entity_panel.rename_buffer[0] = 0;
-      Context.snap_mode = false;
-      Context.stretch_mode = false;
-      Context.snap_reference = nullptr;
+      EdContext.entity_panel.rename_buffer[0] = 0;
+      EdContext.snap_mode = false;
+      EdContext.stretch_mode = false;
+      EdContext.snap_reference = nullptr;
    }
 
    // unselect lights when not panel is not active
-   if(!Context.lights_panel.active)
+   if(!EdContext.lights_panel.active)
    {
-      Context.lights_panel.selected_light = -1;
-      Context.lights_panel.selected_light_type = "";
+      EdContext.lights_panel.selected_light = -1;
+      EdContext.lights_panel.selected_light_type = "";
    }
    else if(
-      Context.lights_panel.selected_light != -1 &&
-      Context.lights_panel.selected_light_type != ""
+      EdContext.lights_panel.selected_light != -1 &&
+      EdContext.lights_panel.selected_light_type != ""
    )
    {
-      Context.show_lightbulbs = true;
+      EdContext.show_lightbulbs = true;
    }
 
 
    // set editor mode values to initial if not active
-   if(!Context.measure_mode)
+   if(!EdContext.measure_mode)
    {
-      Context.first_point_found  = false;
-      Context.second_point_found = false;
+      EdContext.first_point_found  = false;
+      EdContext.second_point_found = false;
    }
-   if(!Context.snap_mode)
+   if(!EdContext.snap_mode)
    {
-      Context.snap_cycle = 0;
-      Context.snap_axis = 1;
-      Context.snap_reference = nullptr;
+      EdContext.snap_cycle = 0;
+      EdContext.snap_axis = 1;
+      EdContext.snap_reference = nullptr;
    }
 
    // respond to mouse if necessary
-   if(Context.move_mode)
+   if(EdContext.move_mode)
    {
-      if(Context.mouse_click)
+      if(EdContext.mouse_click)
       {
-         if(Context.selected_light > -1)
+         if(EdContext.selected_light > -1)
             place_light();
          else
             place_entity();
       }
       else
       {
-         if(Context.selected_light > -1)
-            move_light_with_mouse(Context.selected_light_type, Context.selected_light);
+         if(EdContext.selected_light > -1)
+            move_light_with_mouse(EdContext.selected_light_type, EdContext.selected_light);
          else
-            move_entity_with_mouse(Context.selected_entity);
+            move_entity_with_mouse(EdContext.selected_entity);
       }
    }
 
-   if(Context.place_mode)
+   if(EdContext.place_mode)
    {
-      if(Context.mouse_click)
+      if(EdContext.mouse_click)
       {
          place_entity();
       }
       else
-         place_entity_with_mouse(Context.selected_entity);
+         place_entity_with_mouse(EdContext.selected_entity);
    }
 
-   if(Context.scale_entity_with_mouse)
+   if(EdContext.scale_entity_with_mouse)
    {
-      scale_entity_with_mouse(Context.selected_entity);
+      scale_entity_with_mouse(EdContext.selected_entity);
    }
 
    // resets mouse click event
-   Context.mouse_click = false;
+   EdContext.mouse_click = false;
 }
 
 void update_editor_entities()
 {
    for(int i=0; i < 3; i++)
    {
-	   auto entity = Context.tri_axis[i];
+	   auto entity = EdContext.tri_axis[i];
       glm::mat4 model = mat4identity;
 		model = glm::rotate(model, glm::radians(entity->rotation.x), vec3(1.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, glm::radians(entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
@@ -278,17 +285,17 @@ void update_editor_entities()
 void render(Player* player, WorldStruct* world)
 {
    // render world objs if toggled
-   if(Context.show_event_triggers)
+   if(EdContext.show_event_triggers)
    {
       render_event_triggers(G_SCENE_INFO.camera);
    }
 
-   if(Context.show_world_cells)
+   if(EdContext.show_world_cells)
    {
       render_world_cells(G_SCENE_INFO.camera);
    }
 
-   if(Context.show_lightbulbs)
+   if(EdContext.show_lightbulbs)
    {
       render_lightbulbs(G_SCENE_INFO.camera);
    }
@@ -300,7 +307,7 @@ void render(Player* player, WorldStruct* world)
    for(int i=0; i < 3; i++)
    {
       // ref. axis
-	   auto axis = Context.tri_axis[i];
+	   auto axis = EdContext.tri_axis[i];
       axis->shader->use();
       axis->shader->setMatrix4("model", axis->matModel);
       axis->shader->setMatrix4("view", triaxis_view);
@@ -309,10 +316,10 @@ void render(Player* player, WorldStruct* world)
    }
 
    // render glowing wireframe on top of selected entity
-   if(Context.entity_panel.active)
+   if(EdContext.entity_panel.active)
    {
       // update
-      auto state = get_entity_state(Context.selected_entity);
+      auto state = get_entity_state(EdContext.selected_entity);
       auto model = mat_model_from_entity_state(state);
 
       // compute color intensity based on time
@@ -327,14 +334,14 @@ void render(Player* player, WorldStruct* world)
       glowing_line->setMatrix4("model", model);
       glowing_line->setFloat3("color", intensity * 0.890, intensity * 0.168, intensity * 0.6);
       glowing_line->setFloat("opacity", 1);
-      render_mesh(Context.selected_entity->mesh, RenderOptions{true, false, 3});
+      render_mesh(EdContext.selected_entity->mesh, RenderOptions{true, false, 3});
    }
 
    // render glowing wireframe on top of snap reference entity
-   if(Context.snap_mode && Context.snap_reference != nullptr)
+   if(EdContext.snap_mode && EdContext.snap_reference != nullptr)
    {
       // update
-      auto state = get_entity_state(Context.snap_reference);
+      auto state = get_entity_state(EdContext.snap_reference);
       auto model = mat_model_from_entity_state(state);
 
       // compute color intensity based on time
@@ -349,18 +356,18 @@ void render(Player* player, WorldStruct* world)
       glowing_line->setMatrix4("model", model);
       glowing_line->setFloat3("color", intensity * 0.952, intensity * 0.843, intensity * 0.105);
       glowing_line->setFloat("opacity", 1);
-      render_mesh(Context.snap_reference->mesh, RenderOptions{true, false, 3});
+      render_mesh(EdContext.snap_reference->mesh, RenderOptions{true, false, 3});
    }
 
    // --------------
    // render panels
    // --------------
-   if(Context.world_panel.active)
-      render_world_panel(&Context.world_panel, world, player);
+   if(EdContext.world_panel.active)
+      render_world_panel(&EdContext.world_panel, world, player);
 
-   if(Context.entity_panel.active)
+   if(EdContext.entity_panel.active)
    {
-      auto& panel = Context.entity_panel;
+      auto& panel = EdContext.entity_panel;
 
       render_entity_panel(&panel);
       render_entity_control_arrows(&panel);
@@ -377,24 +384,27 @@ void render(Player* player, WorldStruct* world)
       }
    }
 
-   if(Context.player_panel.active)
+   if(EdContext.player_panel.active)
    {
-      render_player_panel(&Context.player_panel);
+      render_player_panel(&EdContext.player_panel);
    }
 
-   if(Context.palette_panel.active)
-      render_palette_panel(&Context.palette_panel);
+   if(EdContext.palette_panel.active)
+      render_palette_panel(&EdContext.palette_panel);
 
-   if(Context.lights_panel.active)
-      render_lights_panel(&Context.lights_panel);
+   if(EdContext.lights_panel.active)
+      render_lights_panel(&EdContext.lights_panel);
 
-   if(Context.collision_log_panel.active)
-      render_collision_log_panel(&Context.collision_log_panel);
+   if(EdContext.input_recorder_panel.active)
+      render_input_recorder_panel(&EdContext.input_recorder_panel);
+
+   if(EdContext.collision_log_panel.active)
+      render_collision_log_panel(&EdContext.collision_log_panel);
 
    // -----------------------
    // render gizmos inscreen
    // -----------------------
-   if(Context.measure_mode && Context.first_point_found && Context.second_point_found)
+   if(EdContext.measure_mode && EdContext.first_point_found && EdContext.second_point_found)
    {
       auto render_opts = RenderOptions();
       render_opts.always_on_top = true;
@@ -402,17 +412,17 @@ void render(Player* player, WorldStruct* world)
       render_opts.color = ED_RED;
 
       vec3 second_point;
-      if(Context.measure_axis == 0)
-         second_point = vec3(Context.measure_to, Context.measure_from.y, Context.measure_from.z);
-      if(Context.measure_axis == 1)
-         second_point = vec3(Context.measure_from.x, Context.measure_to, Context.measure_from.z);
-      if(Context.measure_axis == 2)
-         second_point = vec3(Context.measure_from.x, Context.measure_from.y, Context.measure_to);   
+      if(EdContext.measure_axis == 0)
+         second_point = vec3(EdContext.measure_to, EdContext.measure_from.y, EdContext.measure_from.z);
+      if(EdContext.measure_axis == 1)
+         second_point = vec3(EdContext.measure_from.x, EdContext.measure_to, EdContext.measure_from.z);
+      if(EdContext.measure_axis == 2)
+         second_point = vec3(EdContext.measure_from.x, EdContext.measure_from.y, EdContext.measure_to);   
 
       IM_RENDER.add(
          IMHASH,
          vector<Vertex>{
-            Vertex{Context.measure_from},
+            Vertex{EdContext.measure_from},
             Vertex{second_point}
          },
          GL_LINE_LOOP,
@@ -420,9 +430,9 @@ void render(Player* player, WorldStruct* world)
       );
    }
 
-   if(Context.locate_coords_mode && Context.locate_coords_found_point)
+   if(EdContext.locate_coords_mode && EdContext.locate_coords_found_point)
    {
-      IM_RENDER.add_point(IMHASH, Context.locate_coords_position, 2.0);
+      IM_RENDER.add_point(IMHASH, EdContext.locate_coords_position, 2.0);
    }
 
    render_toolbar();
@@ -436,7 +446,7 @@ void render(Player* player, WorldStruct* world)
 void render_toolbar()
 {
    ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 230, 180), ImGuiCond_Appearing);
-   ImGui::Begin("Tools", &Context.toolbar_active, ImGuiWindowFlags_AlwaysAutoResize);
+   ImGui::Begin("Tools", &EdContext.toolbar_active, ImGuiWindowFlags_AlwaysAutoResize);
 
    string scene_name = "Scene name: " + G_SCENE_INFO.scene_name;
    ImGui::Text(scene_name.c_str());
@@ -482,19 +492,24 @@ void render_toolbar()
    // PANELS
    if(ImGui::Button("Entity Palette", ImVec2(150,18)))
    {
-      Context.palette_panel.active = true;
+      EdContext.palette_panel.active = true;
    }
 
    if(ImGui::Button("World Panel", ImVec2(150,18)))
    {
-      Context.world_panel.active = true;
-      Context.show_world_cells = true;
+      EdContext.world_panel.active = true;
+      EdContext.show_world_cells = true;
    }
 
    if(ImGui::Button("Lights Panel", ImVec2(150,18)))
    {
-      Context.lights_panel.active = true;
-      Context.show_lightbulbs = true;
+      EdContext.lights_panel.active = true;
+      EdContext.show_lightbulbs = true;
+   }
+
+   if(ImGui::Button("Input Recorder", ImVec2(150,18)))
+   {
+      EdContext.input_recorder_panel.active = true;
    }
 
    ImGui::NewLine();
@@ -526,9 +541,9 @@ void render_toolbar()
 
 
    // SHOW STUFF
-   ImGui::Checkbox("Show Event Triggers", &Context.show_event_triggers);
-   ImGui::Checkbox("Show WorldStruct Cells", &Context.show_world_cells);
-   ImGui::Checkbox("Show Point Lights", &Context.show_lightbulbs);
+   ImGui::Checkbox("Show Event Triggers", &EdContext.show_event_triggers);
+   ImGui::Checkbox("Show WorldStruct Cells", &EdContext.show_world_cells);
+   ImGui::Checkbox("Show Point Lights", &EdContext.show_lightbulbs);
    ImGui::NewLine();
    if(ImGui::Button("Unhide entities"))
    {
@@ -538,7 +553,7 @@ void render_toolbar()
    // OPTIONS
    if(ImGui::Button("Collision Logger", ImVec2(150,18)))
    {
-      Context.collision_log_panel.active = true;
+      EdContext.collision_log_panel.active = true;
    }
 
    ImGui::End();
@@ -572,8 +587,8 @@ void initialize()
 	ImGui_ImplOpenGL3_Init(glsl_version);
 
 	ImGui::StyleColorsDark();
-	Context.imStyle = &ImGui::GetStyle();
-	Context.imStyle->WindowRounding = 1.0f;
+	EdContext.imStyle = &ImGui::GetStyle();
+	EdContext.imStyle->WindowRounding = 1.0f;
 
    // load tri axis gizmo
    auto axis_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, "axis");
@@ -607,9 +622,9 @@ void initialize()
    z_axis->scale = vec3{0.1, 0.1, 0.1};
    z_axis->rotation = vec3{90, 0, 180};
 
-   Context.tri_axis[0] = x_axis;
-   Context.tri_axis[1] = y_axis;
-   Context.tri_axis[2] = z_axis;
+   EdContext.tri_axis[0] = x_axis;
+   EdContext.tri_axis[1] = y_axis;
+   EdContext.tri_axis[2] = z_axis;
 
    auto letter_x_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, "letter_x");
    auto x_axis_letter = new Entity();
@@ -617,7 +632,7 @@ void initialize()
    x_axis_letter->textures.push_back(Texture{blue_tex,  "texture_diffuse", "blue.jpg",  "blue axis"});
    x_axis_letter->shader = shader;
    x_axis_letter->scale = vec3{0.1, 0.1, 0.1};
-   Context.tri_axis_letters[0] = x_axis_letter;
+   EdContext.tri_axis_letters[0] = x_axis_letter;
 
    auto letter_y_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, "letter_y");
    auto y_axis_letter = new Entity();
@@ -625,7 +640,7 @@ void initialize()
    y_axis_letter->textures.push_back(Texture{blue_tex,  "texture_diffuse", "green.jpg",  "green axis"});
    y_axis_letter->shader = shader;
    y_axis_letter->scale = vec3{0.1, 0.1, 0.1};
-   Context.tri_axis_letters[1] = y_axis_letter;
+   EdContext.tri_axis_letters[1] = y_axis_letter;
 
    auto letter_z_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, "letter_z");
    auto z_axis_letter = new Entity();
@@ -633,7 +648,7 @@ void initialize()
    z_axis_letter->textures.push_back(Texture{blue_tex,  "texture_diffuse", "pink.jpg",  "pink axis"});
    z_axis_letter->shader = shader;
    z_axis_letter->scale = vec3{0.1, 0.1, 0.1};
-   Context.tri_axis_letters[2] = z_axis_letter;
+   EdContext.tri_axis_letters[2] = z_axis_letter;
 
    // load entity panel axis arrows
    auto x_arrow = new Entity();
@@ -661,14 +676,14 @@ void initialize()
    y_arrow->textures.push_back(Texture{green_tex, "texture_diffuse", "green.jpg", "green axis"});
    z_arrow->textures.push_back(Texture{pink_tex,  "texture_diffuse", "pink.jpg",  "pink axis"});
 
-   Context.entity_panel.x_arrow = x_arrow;
-   Context.entity_panel.y_arrow = y_arrow;
-   Context.entity_panel.z_arrow = z_arrow;
+   EdContext.entity_panel.x_arrow = x_arrow;
+   EdContext.entity_panel.y_arrow = y_arrow;
+   EdContext.entity_panel.z_arrow = z_arrow;
 
    // palette panel
-   initialize_palette(&Context.palette_panel);
+   initialize_palette(&EdContext.palette_panel);
 
-   Context.last_frame_scene = G_SCENE_INFO.scene_name;
+   EdContext.last_frame_scene = G_SCENE_INFO.scene_name;
 }
 
 
@@ -772,10 +787,10 @@ void render_text_overlay(Player* player)
    // ----------
    // SNAP MODE
    // ----------
-   if(Context.snap_mode)
+   if(EdContext.snap_mode)
    {
       string snap_cycle;
-      switch(Context.snap_cycle)
+      switch(EdContext.snap_cycle)
       {
          case 0:
             snap_cycle = "top";
@@ -789,7 +804,7 @@ void render_text_overlay(Player* player)
       }
 
       string snap_axis;
-      switch(Context.snap_axis)
+      switch(EdContext.snap_axis)
       {
          case 0:
             snap_axis = "X";
@@ -804,12 +819,12 @@ void render_text_overlay(Player* player)
 
       // if position is changed and not commited, render text yellow
       vec3 snap_mode_subtext_color;
-      if(Context.snap_reference == nullptr)
+      if(EdContext.snap_reference == nullptr)
          snap_mode_subtext_color = tool_text_color_yellow;
       else
       {
-         auto state = Context.undo_stack.check();
-         if(state.entity != nullptr && state.position != Context.entity_panel.entity->position)
+         auto state = EdContext.undo_stack.check();
+         if(state.entity != nullptr && state.position != EdContext.entity_panel.entity->position)
             snap_mode_subtext_color = tool_text_color_yellow;
          else
             snap_mode_subtext_color = tool_text_color_green;
@@ -817,7 +832,7 @@ void render_text_overlay(Player* player)
 
       // selects text based on situation of snap tool
       string sub_text;
-      if(Context.snap_reference == nullptr)
+      if(EdContext.snap_reference == nullptr)
          sub_text = "select another entity to snap to.";
       else
          sub_text = "press Enter to commit position. x/y/z to change axis.";
@@ -844,11 +859,11 @@ void render_text_overlay(Player* player)
    // -------------
    // MEASURE MODE
    // -------------
-   if(Context.measure_mode)
+   if(EdContext.measure_mode)
    {
       string axis = 
-         Context.measure_axis == 0 ? "x" :
-         Context.measure_axis == 1 ? "y" :
+         EdContext.measure_axis == 0 ? "x" :
+         EdContext.measure_axis == 1 ? "y" :
          "z";
 
       render_text(
@@ -860,12 +875,12 @@ void render_text_overlay(Player* player)
          "MEASURE MODE (" + axis + ")"
       );
 
-      if(Context.second_point_found)
+      if(EdContext.second_point_found)
       {
          float dist_ref = 
-            Context.measure_axis == 0 ? Context.measure_from.x :
-            Context.measure_axis == 1 ? Context.measure_from.y :
-                                        Context.measure_from.z ;
+            EdContext.measure_axis == 0 ? EdContext.measure_from.x :
+            EdContext.measure_axis == 1 ? EdContext.measure_from.y :
+                                        EdContext.measure_from.z ;
 
          render_text(
             font_center,
@@ -873,7 +888,7 @@ void render_text_overlay(Player* player)
             centered_text_height_small,
             vec3(0.8, 0.8, 0.2),
             true,
-            "(" + format_float_tostr(abs(Context.measure_to - dist_ref), 2) + " m)"
+            "(" + format_float_tostr(abs(EdContext.measure_to - dist_ref), 2) + " m)"
          ); 
       }
    }
@@ -881,10 +896,10 @@ void render_text_overlay(Player* player)
    // ----------
    // MOVE MODE
    // ----------
-   if(Context.move_mode)
+   if(EdContext.move_mode)
    {
       string move_axis;
-      switch(Context.move_axis)
+      switch(EdContext.move_axis)
       {
          case 0:
             move_axis = "XZ";
@@ -922,7 +937,7 @@ void render_text_overlay(Player* player)
    // ----------
    // PLACE MODE
    // ----------
-   if(Context.place_mode)
+   if(EdContext.place_mode)
    {
       render_text(
          font_center,
@@ -946,7 +961,7 @@ void render_text_overlay(Player* player)
    // -------------------
    // LOCATE COORDS MODE
    // -------------------
-   if(Context.locate_coords_mode)
+   if(EdContext.locate_coords_mode)
    {
       render_text(
          font_center,
@@ -958,16 +973,16 @@ void render_text_overlay(Player* player)
       );
 
       string locate_coords_subtext;
-      if(!Context.locate_coords_found_point)
+      if(!EdContext.locate_coords_found_point)
       {
          locate_coords_subtext = "Please select a world position to get coordinates.";
       }
       else
       {
          locate_coords_subtext = 
-            "(x: "  + format_float_tostr(Context.locate_coords_position[0], 2) +
-            ", y: " + format_float_tostr(Context.locate_coords_position[1], 2) +
-            ", z: " + format_float_tostr(Context.locate_coords_position[2], 2) + ")";
+            "(x: "  + format_float_tostr(EdContext.locate_coords_position[0], 2) +
+            ", y: " + format_float_tostr(EdContext.locate_coords_position[1], 2) +
+            ", z: " + format_float_tostr(EdContext.locate_coords_position[2], 2) + ")";
       }
 
       render_text(
@@ -983,7 +998,7 @@ void render_text_overlay(Player* player)
    // -------------
    // STRETCH MODE
    // -------------
-   if(Context.stretch_mode)
+   if(EdContext.stretch_mode)
    {
       render_text(
          font_center,
@@ -1035,9 +1050,9 @@ void render_world_cells(Camera* camera)
       auto cell = World.cells_in_use[i];
 
       vec3 color;
-      if(Context.world_panel.cell_coords.x == cell->i &&
-         Context.world_panel.cell_coords.y == cell->j &&
-         Context.world_panel.cell_coords.z == cell->k)
+      if(EdContext.world_panel.cell_coords.x == cell->i &&
+         EdContext.world_panel.cell_coords.y == cell->j &&
+         EdContext.world_panel.cell_coords.z == cell->k)
       {
          opts.line_width = 1.5;
          color = vec3(0.8, 0.4, 0.2);
@@ -1077,8 +1092,8 @@ void render_lightbulbs(Camera* camera)
    auto mesh = Geometry_Catalogue.find("lightbulb")->second;
    auto shader = Shader_Catalogue.find("color")->second;
 
-   auto selected_light = Context.lights_panel.selected_light;
-   auto selected_light_type = Context.lights_panel.selected_light_type;
+   auto selected_light = EdContext.lights_panel.selected_light;
+   auto selected_light_type = EdContext.lights_panel.selected_light_type;
 
    // point lights
    int point_c = 0;

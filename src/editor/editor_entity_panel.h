@@ -60,7 +60,7 @@ void render_entity_panel(EntityPanelContext* panel)
       float rotation = entity->rotation.y;
       if(ImGui::InputFloat("rot y", &rotation, 20))
       {
-         Context.entity_panel.entity->rotate_y(rotation - entity->rotation.y);
+         EdContext.entity_panel.entity->rotate_y(rotation - entity->rotation.y);
          used_rot = true;
       }
       track = track || ImGui::IsItemDeactivatedAfterEdit();
@@ -148,9 +148,9 @@ void render_entity_panel(EntityPanelContext* panel)
    }
 
    ImGui::SameLine();
-   if(ImGui::Checkbox("inside", &Context.snap_inside))
+   if(ImGui::Checkbox("inside", &EdContext.snap_inside))
    {
-      if(Context.snap_reference != nullptr)
+      if(EdContext.snap_reference != nullptr)
          snap_entity_to_reference(panel->entity);
    }
 
@@ -222,7 +222,7 @@ void render_entity_panel(EntityPanelContext* panel)
       if(ImGui::Button("Delete", ImVec2(82,18)))
       {
          deleted = true;         
-         Context.entity_panel.active = false;
+         EdContext.entity_panel.active = false;
          editor_erase_entity(entity);
       }
       ImGui::PopStyleColor(3);
@@ -234,7 +234,7 @@ void render_entity_panel(EntityPanelContext* panel)
 
    if(track)
    {
-      Context.undo_stack.track(entity);
+      EdContext.undo_stack.track(entity);
       panel->entity_tracked_state = get_entity_state(entity);
    }
 
@@ -268,9 +268,9 @@ void render_entity_control_arrows(EntityPanelContext* panel)
 
 void open_entity_panel(Entity* entity)
 {
-   Context.selected_entity = entity;
+   EdContext.selected_entity = entity;
 
-   auto &panel = Context.entity_panel;
+   auto &panel = EdContext.entity_panel;
    panel.active = true;
    panel.entity = entity;
    panel.reverse_scale_x = false;

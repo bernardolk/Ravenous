@@ -1,6 +1,6 @@
-// -------------
-// WORLD PANEL
-// -------------
+// ---------------
+// > WORLD PANEL
+// ---------------
 
 void render_world_panel(WorldPanelContext* panel, WorldStruct* world, Player* player)
 {

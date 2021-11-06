@@ -8,14 +8,14 @@ void compute_angles_from_direction(float& pitch, float& yaw, vec3 direction);
 
 void open_lights_panel(string type = "", int index = -1, bool focus_tab = false)
 {
-   Context.lights_panel.active = true;
+   EdContext.lights_panel.active = true;
    if(type != "" && index > -1)
    {
-      Context.lights_panel.selected_light = index;
-      Context.lights_panel.selected_light_type = type;
+      EdContext.lights_panel.selected_light = index;
+      EdContext.lights_panel.selected_light_type = type;
    }
    if(focus_tab)
-      Context.lights_panel.focus_tab = true;
+      EdContext.lights_panel.focus_tab = true;
 }
 
 

@@ -33,9 +33,9 @@ void render_player_panel(PlayerPanelContext* panel)
 
 void open_player_panel(Player* player)
 {
-   Context.selected_entity = player->entity_ptr;
+   EdContext.selected_entity = player->entity_ptr;
 
-   auto &panel = Context.player_panel;
+   auto &panel = EdContext.player_panel;
    panel.active = true;
    panel.player = player;
 }

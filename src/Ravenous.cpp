@@ -23,6 +23,11 @@
 #include <algorithm>
 #include <stdint.h>
 
+#include <dearIMGUI/imgui.h>
+#include <dearIMGUI/imgui_impl_glfw.h>
+#include <dearIMGUI/imgui_impl_opengl3.h>
+
+
 #include <rvn_types.h>
 
 
@@ -110,6 +115,7 @@ struct ProgramConfig {
 
 // SOURCE INCLUDES
 #include <colors.h>
+#include <in_flags.h>
 #include <cl_types.h>
 #include <mesh.h>
 #include <utils.h>
@@ -122,6 +128,7 @@ struct ProgramConfig {
 #include <parser.h>
 #include <cl_collider.h>
 #include <world.h>
+#include <input_recorder.h>
 #include <globals.h>
 #include <entity_manager.h>
 
@@ -132,10 +139,6 @@ EntityManager Entity_Manager;
 Camera* pCam;
 Camera* edCam;
 
-#include <dearIMGUI/imgui.h>
-#include <dearIMGUI/imgui_impl_glfw.h>
-#include <dearIMGUI/imgui_impl_opengl3.h>
-
 void toggle_program_modes(Player* player);
 void erase_entity(Scene* scene, Entity* entity);
 #include <editor/editor_im_macros.h>
@@ -145,7 +148,7 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <raycast.h>
 #include <render.h>
 #include <im_render.h>
-#include <in_flags.h>
+#include <in_phase.h>
 #include <cl_tests.h>
 #include <cl_entities.h>
 #include <p_state.h>
@@ -244,6 +247,12 @@ int main()
       // -------------
       // This needs to be first or dearImGUI will crash.
       auto input_flags = input_phase();
+
+      // Input recorder
+      if(Input_Recorder.is_recording)
+         Input_Recorder.record(input_flags);
+      else if(Input_Recorder.is_playing)
+         input_flags = Input_Recorder.play();
 
       // -------------
       // START FRAME

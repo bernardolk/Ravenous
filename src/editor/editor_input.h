@@ -10,8 +10,8 @@ void handle_input_flags(InputFlags flags, Player* &player)
    if(pressed(flags, KEY_LEFT_CTRL) && pressed_once(flags, KEY_Z))
    {
       // snap mode controls the undo stack while it is active.
-      if(!Context.snap_mode)
-         Context.undo_stack.undo();
+      if(!EdContext.snap_mode)
+         EdContext.undo_stack.undo();
       return;
    }
 
@@ -30,8 +30,8 @@ void handle_input_flags(InputFlags flags, Player* &player)
    if(pressed(flags, KEY_LEFT_CTRL) && pressed_once(flags, KEY_Y))
    {
       // snap mode controls the undo stack while it is active.
-      if(!Context.snap_mode)
-         Context.undo_stack.redo();
+      if(!EdContext.snap_mode)
+         EdContext.undo_stack.redo();
       return;
    }
 
@@ -39,12 +39,12 @@ void handle_input_flags(InputFlags flags, Player* &player)
    {
       if(check_modes_are_active())     
          deactivate_editor_modes();
-      else if(Context.entity_panel.active)  
-         Context.entity_panel.active = false;
-      else if(Context.world_panel.active)  
-         Context.world_panel.active = false;
-      else if(Context.lights_panel.active)  
-         Context.lights_panel.active = false;
+      else if(EdContext.entity_panel.active)  
+         EdContext.entity_panel.active = false;
+      else if(EdContext.world_panel.active)  
+         EdContext.world_panel.active = false;
+      else if(EdContext.lights_panel.active)  
+         EdContext.lights_panel.active = false;
       return;
    }
 
@@ -54,17 +54,17 @@ void handle_input_flags(InputFlags flags, Player* &player)
 
    if(pressed_once(flags, KEY_DELETE))
    {
-      if(Context.entity_panel.active && Context.entity_panel.focused)
+      if(EdContext.entity_panel.active && EdContext.entity_panel.focused)
       {
-         Context.entity_panel.active = false;
-         editor_erase_entity(Context.entity_panel.entity);
+         EdContext.entity_panel.active = false;
+         editor_erase_entity(EdContext.entity_panel.entity);
          return;
       }
-      else if(Context.lights_panel.active && Context.lights_panel.focused)
+      else if(EdContext.lights_panel.active && EdContext.lights_panel.focused)
       {
-         if(Context.lights_panel.selected_light > -1)
+         if(EdContext.lights_panel.selected_light > -1)
          {
-            editor_erase_light(Context.lights_panel.selected_light, Context.lights_panel.selected_light_type);
+            editor_erase_light(EdContext.lights_panel.selected_light, EdContext.lights_panel.selected_light_type);
          }
          return;
       }
@@ -77,7 +77,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
    // --------------------
    // SNAP MODE SHORTCUTS
    // --------------------
-   if(Context.snap_mode == true)
+   if(EdContext.snap_mode == true)
    {
       if(pressed_once(flags, KEY_ENTER))
       {
@@ -85,76 +85,76 @@ void handle_input_flags(InputFlags flags, Player* &player)
       }
       if(pressed_only(flags, KEY_X))
       {
-         if(Context.snap_axis == 0)
-            Context.snap_cycle = (Context.snap_cycle + 1) % 3;
+         if(EdContext.snap_axis == 0)
+            EdContext.snap_cycle = (EdContext.snap_cycle + 1) % 3;
          else
          {
-            apply_state(Context.snap_tracked_state);
-            Context.snap_cycle = 0;
-            Context.snap_axis = 0;
+            apply_state(EdContext.snap_tracked_state);
+            EdContext.snap_cycle = 0;
+            EdContext.snap_axis = 0;
          }
-         if(Context.snap_reference != nullptr)
-            snap_entity_to_reference(Context.entity_panel.entity);
+         if(EdContext.snap_reference != nullptr)
+            snap_entity_to_reference(EdContext.entity_panel.entity);
       }
       if(pressed_only(flags, KEY_Y))
       {
-         if(Context.snap_axis == 1)
-            Context.snap_cycle = (Context.snap_cycle + 1) % 3;
+         if(EdContext.snap_axis == 1)
+            EdContext.snap_cycle = (EdContext.snap_cycle + 1) % 3;
          else
          {
-            apply_state(Context.snap_tracked_state);
-            Context.snap_cycle = 0;
-            Context.snap_axis = 1;
+            apply_state(EdContext.snap_tracked_state);
+            EdContext.snap_cycle = 0;
+            EdContext.snap_axis = 1;
          }
-         if(Context.snap_reference != nullptr)
-            snap_entity_to_reference(Context.entity_panel.entity);
+         if(EdContext.snap_reference != nullptr)
+            snap_entity_to_reference(EdContext.entity_panel.entity);
       }
       if(pressed_only(flags, KEY_Z))
       {
-         if(Context.snap_axis == 2)
-            Context.snap_cycle = (Context.snap_cycle + 1) % 3;
+         if(EdContext.snap_axis == 2)
+            EdContext.snap_cycle = (EdContext.snap_cycle + 1) % 3;
          else
          {
-            apply_state(Context.snap_tracked_state);
-            Context.snap_cycle = 0;
-            Context.snap_axis = 2;
+            apply_state(EdContext.snap_tracked_state);
+            EdContext.snap_cycle = 0;
+            EdContext.snap_axis = 2;
          }
-         if(Context.snap_reference != nullptr)
-            snap_entity_to_reference(Context.entity_panel.entity);
+         if(EdContext.snap_reference != nullptr)
+            snap_entity_to_reference(EdContext.entity_panel.entity);
       }
       if(pressed_only(flags, KEY_I))
       {
-         Context.snap_inside = !Context.snap_inside;
-         if(Context.snap_reference != nullptr)
-            snap_entity_to_reference(Context.entity_panel.entity);
+         EdContext.snap_inside = !EdContext.snap_inside;
+         if(EdContext.snap_reference != nullptr)
+            snap_entity_to_reference(EdContext.entity_panel.entity);
       }
    }
 
    // --------------------
    // MOVE MODE SHORTCUTS
    // --------------------
-   if(Context.move_mode == true)
+   if(EdContext.move_mode == true)
    {
       if(pressed(flags, KEY_X) && pressed(flags, KEY_Z))
       {
-         Context.move_axis = 0;
+         EdContext.move_axis = 0;
       }
       if(pressed_only(flags, KEY_X))
       {
-         Context.move_axis = 1;
+         EdContext.move_axis = 1;
       }
       if(pressed_only(flags, KEY_Y))
       {
-         Context.move_axis = 2;
+         EdContext.move_axis = 2;
       }
       if(pressed_only(flags, KEY_Z))
       {
-         Context.move_axis = 3;
+         EdContext.move_axis = 3;
       }
       if(pressed_only(flags, KEY_M))
       {
-         Context.move_mode = false;
-         Context.place_mode = true;
+         EdContext.move_mode = false;
+         EdContext.place_mode = true;
          return;
       }
    }
@@ -162,12 +162,12 @@ void handle_input_flags(InputFlags flags, Player* &player)
    // ---------------------
    // PLACE MODE SHORTCUTS
    // ---------------------
-   if(Context.place_mode == true)
+   if(EdContext.place_mode == true)
    {
       if(pressed_only(flags, KEY_M))
       {
-         Context.place_mode = false;
-         Context.move_mode = true;
+         EdContext.place_mode = false;
+         EdContext.move_mode = true;
          return;
       }
    }
@@ -190,19 +190,19 @@ void handle_input_flags(InputFlags flags, Player* &player)
    {
       if(flags.key_press & KEY_LEFT_CTRL)
       {
-         if(Context.snap_mode)
+         if(EdContext.snap_mode)
          {
             check_selection_to_snap();
          }
-         else if(Context.measure_mode)
+         else if(EdContext.measure_mode)
          {
             check_selection_to_measure();
          }
-         else if(Context.locate_coords_mode)
+         else if(EdContext.locate_coords_mode)
          {
             check_selection_to_locate_coords();
          }
-         else if(Context.stretch_mode)
+         else if(EdContext.stretch_mode)
          {
             check_selection_to_stretch();
          }
@@ -218,7 +218,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
       else
       {
          // deselection
-         Context.mouse_click = true;
+         EdContext.mouse_click = true;
       }
    }
 

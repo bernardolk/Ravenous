@@ -1,29 +1,29 @@
 void deactivate_editor_modes()
 {
-   Context.move_mode = false;
-   Context.snap_mode = false;
-   Context.measure_mode = false;
-   Context.first_point_found = false;
-   Context.second_point_found = false;
-   Context.stretch_mode = false;
-   Context.locate_coords_mode = false;
-   Context.place_mode = false;
+   EdContext.move_mode = false;
+   EdContext.snap_mode = false;
+   EdContext.measure_mode = false;
+   EdContext.first_point_found = false;
+   EdContext.second_point_found = false;
+   EdContext.stretch_mode = false;
+   EdContext.locate_coords_mode = false;
+   EdContext.place_mode = false;
 }
 
 bool check_modes_are_active()
 {
    return 
-      Context.move_mode    || 
-      Context.snap_mode    ||
-      Context.measure_mode ||
-      Context.stretch_mode ||
-      Context.locate_coords_mode;
+      EdContext.move_mode    || 
+      EdContext.snap_mode    ||
+      EdContext.measure_mode ||
+      EdContext.stretch_mode ||
+      EdContext.locate_coords_mode;
 }
 
 void editor_erase_entity(Entity* entity)
 {
    Entity_Manager.mark_for_deletion(entity);
-   Context.undo_stack.deletion_log.add(entity);
+   EdContext.undo_stack.deletion_log.add(entity);
 }
 
 void editor_erase_light(int index, string type)
@@ -39,8 +39,8 @@ void editor_erase_light(int index, string type)
       spotlights->erase(spotlights->begin() + index);
    }
 
-   if(Context.lights_panel.selected_light == index)
-      Context.lights_panel.selected_light = -1;
+   if(EdContext.lights_panel.selected_light == index)
+      EdContext.lights_panel.selected_light = -1;
 }
 
 void unhide_entities()
@@ -61,34 +61,34 @@ void snap_commit();
 void activate_snap_mode(Entity* entity)
 {
    deactivate_editor_modes();
-   Context.snap_mode = true;
-   Context.snap_tracked_state = get_entity_state(entity);
-   Context.undo_stack.track(entity);
+   EdContext.snap_mode = true;
+   EdContext.snap_tracked_state = get_entity_state(entity);
+   EdContext.undo_stack.track(entity);
 }
 
 void snap_commit()
 {
-   auto entity = Context.entity_panel.entity;
-   Context.snap_tracked_state = get_entity_state(entity);
-   Context.undo_stack.track(entity);
+   auto entity = EdContext.entity_panel.entity;
+   EdContext.snap_tracked_state = get_entity_state(entity);
+   EdContext.undo_stack.track(entity);
 }
 
 void snap_entity_to_reference(Entity* entity)
 {
-   auto reference = Context.snap_reference;
+   auto reference = EdContext.snap_reference;
    float diff = 0;
    auto diff_vec = vec3(0.0f);
    auto [x0, x1, z0, z1]         = reference->get_rect_bounds();
    auto [e_x0, e_x1, e_z0, e_z1] = entity->get_rect_bounds();
 
-   switch(Context.snap_axis)
+   switch(EdContext.snap_axis)
    {
       case 0:  // x
-         if     (Context.snap_cycle == 0 && !Context.snap_inside) diff_vec.x = x1 - e_x0;
-         else if(Context.snap_cycle == 0 &&  Context.snap_inside) diff_vec.x = x1 - e_x0 - (e_x1 - e_x0);
-         else if(Context.snap_cycle == 2 && !Context.snap_inside) diff_vec.x = x0 - e_x1;
-         else if(Context.snap_cycle == 2 &&  Context.snap_inside) diff_vec.x = x0 - e_x1 + (e_x1 - e_x0);
-         else if(Context.snap_cycle == 1 ) diff_vec.x = x1 - e_x1 - (x1 - x0) / 2.0 + (e_x1 - e_x0) / 2.0;
+         if     (EdContext.snap_cycle == 0 && !EdContext.snap_inside) diff_vec.x = x1 - e_x0;
+         else if(EdContext.snap_cycle == 0 &&  EdContext.snap_inside) diff_vec.x = x1 - e_x0 - (e_x1 - e_x0);
+         else if(EdContext.snap_cycle == 2 && !EdContext.snap_inside) diff_vec.x = x0 - e_x1;
+         else if(EdContext.snap_cycle == 2 &&  EdContext.snap_inside) diff_vec.x = x0 - e_x1 + (e_x1 - e_x0);
+         else if(EdContext.snap_cycle == 1 ) diff_vec.x = x1 - e_x1 - (x1 - x0) / 2.0 + (e_x1 - e_x0) / 2.0;
          break;
       case 1:  // y
       {
@@ -98,19 +98,19 @@ void snap_entity_to_reference(Entity* entity)
          float current_bottom = entity->position.y;
          float current_top = current_bottom + entity->get_height();
 
-         if     (Context.snap_cycle == 0 && !Context.snap_inside) diff_vec.y = top - current_bottom;
-         else if(Context.snap_cycle == 0 &&  Context.snap_inside) diff_vec.y = top - current_top;
-         else if(Context.snap_cycle == 2 && !Context.snap_inside) diff_vec.y = bottom - current_top;
-         else if(Context.snap_cycle == 2 &&  Context.snap_inside) diff_vec.y = bottom - current_bottom;
-         else if(Context.snap_cycle == 1 && !Context.snap_inside) diff_vec.y = top - height / 2.0 - current_top;
+         if     (EdContext.snap_cycle == 0 && !EdContext.snap_inside) diff_vec.y = top - current_bottom;
+         else if(EdContext.snap_cycle == 0 &&  EdContext.snap_inside) diff_vec.y = top - current_top;
+         else if(EdContext.snap_cycle == 2 && !EdContext.snap_inside) diff_vec.y = bottom - current_top;
+         else if(EdContext.snap_cycle == 2 &&  EdContext.snap_inside) diff_vec.y = bottom - current_bottom;
+         else if(EdContext.snap_cycle == 1 && !EdContext.snap_inside) diff_vec.y = top - height / 2.0 - current_top;
          break;
       }
       case 2: // z
-         if     (Context.snap_cycle == 0 && !Context.snap_inside) diff_vec.z = z1 - e_z0;
-         else if(Context.snap_cycle == 0 &&  Context.snap_inside) diff_vec.z = z1 - e_z0 - (e_z1 - e_z0);
-         else if(Context.snap_cycle == 2 && !Context.snap_inside) diff_vec.z = z0 - e_z1;
-         else if(Context.snap_cycle == 2 &&  Context.snap_inside) diff_vec.z = z0 - e_z1 + (e_z1 - e_z0);
-         else if(Context.snap_cycle == 1 ) diff_vec.z = z1 - e_z1 - (z1 - z0) / 2.0 + (e_z1 - e_z0) / 2.0;
+         if     (EdContext.snap_cycle == 0 && !EdContext.snap_inside) diff_vec.z = z1 - e_z0;
+         else if(EdContext.snap_cycle == 0 &&  EdContext.snap_inside) diff_vec.z = z1 - e_z0 - (e_z1 - e_z0);
+         else if(EdContext.snap_cycle == 2 && !EdContext.snap_inside) diff_vec.z = z0 - e_z1;
+         else if(EdContext.snap_cycle == 2 &&  EdContext.snap_inside) diff_vec.z = z0 - e_z1 + (e_z1 - e_z0);
+         else if(EdContext.snap_cycle == 1 ) diff_vec.z = z1 - e_z1 - (z1 - z0) / 2.0 + (e_z1 - e_z0) / 2.0;
          break;
    }
 
@@ -124,8 +124,8 @@ void check_selection_to_snap()
    auto test = test_ray_against_scene(pickray);
    if(test.hit)
    {
-      Context.snap_reference = test.entity;
-      snap_entity_to_reference(Context.entity_panel.entity);
+      EdContext.snap_reference = test.entity;
+      snap_entity_to_reference(EdContext.entity_panel.entity);
    }
 }
 
@@ -141,14 +141,14 @@ void check_selection_to_stretch(EntityPanelContext* panel);
 void activate_stretch_mode(Entity* entity)
 {
    deactivate_editor_modes();
-   Context.stretch_mode = true;
-   Context.undo_stack.track(entity);
+   EdContext.stretch_mode = true;
+   EdContext.undo_stack.track(entity);
 }
 
 void stretch_commit()
 {
-   auto entity = Context.entity_panel.entity;
-   Context.undo_stack.track(entity);
+   auto entity = EdContext.entity_panel.entity;
+   EdContext.undo_stack.track(entity);
 }
 
 auto get_scale_and_position_change(float e_scale, float e_aligned, float e_opposite, float t, float n)
@@ -273,7 +273,7 @@ void check_selection_to_stretch()
    auto test = test_ray_against_scene(pickray);
    if(test.hit)
    {
-      stretch_entity_to_reference(Context.entity_panel.entity, test.t);
+      stretch_entity_to_reference(EdContext.entity_panel.entity, test.t);
       stretch_commit();
    }
 }
@@ -288,8 +288,8 @@ void check_selection_to_measure();
 void activate_measure_mode(u8 axis)
 {
    deactivate_editor_modes();
-   Context.measure_mode = true;
-   Context.measure_axis = axis;
+   EdContext.measure_mode = true;
+   EdContext.measure_axis = axis;
 }
 
 void check_selection_to_measure()
@@ -298,22 +298,22 @@ void check_selection_to_measure()
    auto test = test_ray_against_scene(pickray);
    if(test.hit)
    {
-      if(!Context.first_point_found || Context.second_point_found)
+      if(!EdContext.first_point_found || EdContext.second_point_found)
       {
-         if(Context.second_point_found) Context.second_point_found = false;
-         Context.first_point_found = true;
-         Context.measure_from = point_from_detection(pickray, test);
+         if(EdContext.second_point_found) EdContext.second_point_found = false;
+         EdContext.first_point_found = true;
+         EdContext.measure_from = point_from_detection(pickray, test);
       }
-      else if(!Context.second_point_found)
+      else if(!EdContext.second_point_found)
       {
-         Context.second_point_found = true;
+         EdContext.second_point_found = true;
          vec3 point = point_from_detection(pickray, test);
-         if(Context.measure_axis == 0)
-            Context.measure_to = point.x;
-         else if(Context.measure_axis == 1)
-            Context.measure_to = point.y;
-         else if(Context.measure_axis == 2)
-            Context.measure_to = point.z;
+         if(EdContext.measure_axis == 0)
+            EdContext.measure_to = point.x;
+         else if(EdContext.measure_axis == 1)
+            EdContext.measure_to = point.y;
+         else if(EdContext.measure_axis == 2)
+            EdContext.measure_to = point.z;
       }
    }
 }
@@ -327,8 +327,8 @@ void check_selection_to_locate_coords();
 void activate_locate_coords_mode()
 {
    deactivate_editor_modes();
-   Context.locate_coords_mode = true;
-   Context.locate_coords_found_point = false;
+   EdContext.locate_coords_mode = true;
+   EdContext.locate_coords_found_point = false;
 }
 
 void check_selection_to_locate_coords()
@@ -337,8 +337,8 @@ void check_selection_to_locate_coords()
    auto test = test_ray_against_scene(pickray);
    if(test.hit)
    {
-      Context.locate_coords_found_point = true;
-      Context.locate_coords_position = point_from_detection(pickray, test);
+      EdContext.locate_coords_found_point = true;
+      EdContext.locate_coords_position = point_from_detection(pickray, test);
    }
 }
 
@@ -351,9 +351,9 @@ void place_entity_with_mouse(Entity* entity);
 void activate_place_mode(Entity* entity)
 {
    deactivate_editor_modes();
-   Context.place_mode = true;
-   Context.selected_entity = entity;
-   Context.undo_stack.track(entity);
+   EdContext.place_mode = true;
+   EdContext.selected_entity = entity;
+   EdContext.undo_stack.track(entity);
 }
 
 
@@ -376,10 +376,10 @@ void place_entity(Entity* entity);
 void activate_move_mode(Entity* entity)
 {
    deactivate_editor_modes();
-   Context.move_mode = true;
-   Context.move_axis = 0;
-   Context.selected_entity = entity;
-   Context.undo_stack.track(entity);
+   EdContext.move_mode = true;
+   EdContext.move_axis = 0;
+   EdContext.selected_entity = entity;
+   EdContext.undo_stack.track(entity);
 }
 
 void move_entity_with_mouse(Entity* entity)
@@ -391,7 +391,7 @@ void move_entity_with_mouse(Entity* entity)
    Triangle t1, t2;
    float plane_size = 500.0f;
 
-   switch(Context.move_axis)
+   switch(EdContext.move_axis)
    {
       case 0:  // XZ 
       case 1:  // X
@@ -448,7 +448,7 @@ void move_entity_with_mouse(Entity* entity)
    }
 
    // places entity accordingly
-   switch(Context.move_axis)
+   switch(EdContext.move_axis)
    {
       case 0:  // XZ 
          entity->position.x = ray.origin.x + ray.direction.x * test.distance;
@@ -468,15 +468,15 @@ void move_entity_with_mouse(Entity* entity)
 
 void place_entity()
 {
-   Context.move_mode = false;
-   Context.place_mode = false;
+   EdContext.move_mode = false;
+   EdContext.place_mode = false;
    
-   auto update_cells = World.update_entity_world_cells(Context.selected_entity);
+   auto update_cells = World.update_entity_world_cells(EdContext.selected_entity);
    if(update_cells.status != OK)
       G_BUFFERS.rm_buffer->add(update_cells.message, 3500);
 
    World.update_cells_in_use_list();
-   Context.undo_stack.track(Context.selected_entity);
+   EdContext.undo_stack.track(EdContext.selected_entity);
 }
 
 
@@ -493,9 +493,9 @@ void place_light(string type, int index);
 void activate_move_light_mode(string type, int index)
 {
    deactivate_editor_modes();
-   Context.move_mode = true;
-   Context.selected_light = index;
-   Context.selected_light_type = type;
+   EdContext.move_mode = true;
+   EdContext.selected_light = index;
+   EdContext.selected_light_type = type;
 }
 
 void move_light_with_mouse(string type, int index)
@@ -515,7 +515,7 @@ void move_light_with_mouse(string type, int index)
    Triangle t1, t2;
    float plane_size = 500.0f;
 
-   switch(Context.move_axis)
+   switch(EdContext.move_axis)
    {
       case 0:  // XZ 
       case 1:  // X
@@ -572,7 +572,7 @@ void move_light_with_mouse(string type, int index)
    }
 
    // places entity accordingly
-   switch(Context.move_axis)
+   switch(EdContext.move_axis)
    {
       case 0:  // XZ 
          position.x = ray.origin.x + ray.direction.x * test.distance;
@@ -598,8 +598,8 @@ void move_light_with_mouse(string type, int index)
 
 void place_light()
 {
-   Context.move_mode = false;
-   Context.selected_light = -1;
+   EdContext.move_mode = false;
+   EdContext.selected_light = -1;
 }
 
 
