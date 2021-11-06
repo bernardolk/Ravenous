@@ -41,6 +41,7 @@ const string SCENES_FOLDER_PATH = PROJECT_PATH + "/scenes/";
 const string SHADERS_FILE_EXTENSION = ".shd";
 const string CONFIG_FILE_PATH = PROJECT_PATH + "/config.txt";
 const string SCENE_TEMPLATE_NAME = "scene_template";
+const string INPUT_RECORDINGS_FOLDER_PATH = PROJECT_PATH + "/recordings/";
 
 // PLAYER CYLINDER SETTINGS ... !!!
 // 1.75m of height
@@ -113,6 +114,12 @@ struct ProgramConfig {
    float ambient_intensity;
 } G_CONFIG;
 
+// should be conditional in the future to support multiple platforms and
+// we must abstract the function calls to a common layer which can interop
+// between platform layers depending on the underlying OS.
+#include <rvn_platform.h>
+
+
 // SOURCE INCLUDES
 #include <colors.h>
 #include <in_flags.h>
@@ -163,6 +170,7 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <console.h>
 #include <in_handlers.h>
 #include <editor/editor_main.h>
+
 
 #define glCheckError() glCheckError_(__FILE__, __LINE__) 
 
@@ -238,6 +246,9 @@ int main()
 
    // Pre-loop checks
    check_all_entities_have_shaders();
+
+   // load pre recorded input recordings
+   Input_Recorder.load();
 
 	// MAIN LOOP
 	while (!glfwWindowShouldClose(G_DISPLAY_INFO.window))

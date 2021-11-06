@@ -28,34 +28,43 @@ void render_input_recorder_panel(InputRecorderPanelContext* panel)
       ImGui::NewLine();
    }
 
-   if(ImGui::Button("Record", ImVec2(60,18)))
+   if(!(Input_Recorder.is_recording || Input_Recorder.is_playing))
    {
-      RENDER_MESSAGE("Input Recording Started", 2000);
-      Input_Recorder.start_recording();
+      ImGui::PushStyleColor(ImGuiCol_Button,        (ImVec4)ImColor::HSV(0.03f, 0.6f, 0.6f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.03f, 0.7f, 0.7f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonActive,  (ImVec4)ImColor::HSV(0.03f, 0.8f, 0.8f));
+      if(ImGui::Button("Record", ImVec2(60, 18)))
+      {
+         RENDER_MESSAGE("Input Recording Started", 2000);
+         Input_Recorder.start_recording();
+      }
+      ImGui::PopStyleColor(3);
    }
 
-   ImGui::SameLine();
    if(Input_Recorder.is_recording)
    {
-      if(ImGui::Button("Stop Rec", ImVec2(60,18)))
+      if(ImGui::Button("Stop Recording", ImVec2(100, 18)))
       {
          RENDER_MESSAGE("Input Recording Stoped", 2000);
          Input_Recorder.stop_recording();
       }
    }
 
-   if(Input_Recorder.recording_idx > 0)
+   if(Input_Recorder.recording_idx > 0 && !(Input_Recorder.is_recording || Input_Recorder.is_playing))
    {
+      ImGui::PushStyleColor(ImGuiCol_Button,        (ImVec4)ImColor::HSV(0.42f, 0.6f, 0.6f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.42f, 0.7f, 0.7f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonActive,  (ImVec4)ImColor::HSV(0.42f, 0.8f, 0.8f));
       if(ImGui::Button("Play", ImVec2(60,18)))
       {
          Input_Recorder.start_playing(panel->selected_recording);
       }
+      ImGui::PopStyleColor(3);
    }
 
-   ImGui::SameLine();
    if(Input_Recorder.is_playing)
    {
-      if(ImGui::Button("Stop", ImVec2(60,18)))
+      if(ImGui::Button("Stop Playing", ImVec2(100, 18)))
       {
         Input_Recorder.stop_playing();
       }

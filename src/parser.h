@@ -21,6 +21,7 @@ namespace Parser
 		float fToken;
 		char cToken;
 		unsigned int uiToken;
+      u64 u64Token;
       float vec3[3];
 	};
 };
@@ -210,6 +211,33 @@ inline Parse parse_uint(Parse toparse)
 		while (count > 0) 
       {
 			outparse.uiToken += (int_buf[count - 1] - '0') * ten_powers[rev_count];
+			rev_count++;
+			count--;
+		}
+		outparse.hasToken = 1;
+	}
+	return outparse;
+}
+
+inline Parse parse_u64(Parse toparse) 
+{
+	Parse outparse{ toparse.string, toparse.size, 0};
+	u64 ten_powers[16]{1, 10, 100, 1000, 10000,
+		100000, 1000000, 10000000, 100000000, 1000000000,
+      10000000000, 100000000000, 1000000000000, 10000000000000, 100000000000000, 1000000000000000};
+	char int_buf[15];
+	u16 count = 0;
+	u16 rev_count = 0;
+	if (isdigit(outparse.string[0]))
+   {
+		do {
+			int_buf[count++] = outparse.string[0];
+			outparse.string = &(outparse.string[1]);
+			outparse.size -= 1;
+		} while (isdigit(outparse.string[0]));
+		while (count > 0) 
+      {
+			outparse.u64Token += (int_buf[count - 1] - '0') * ten_powers[rev_count];
 			rev_count++;
 			count--;
 		}

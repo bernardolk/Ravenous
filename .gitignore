@@ -15,6 +15,7 @@ ravenous.sln
 assets/*
 imgui.ini
 scenes/*
+recordings/*
 !scenes/test.txt
 !scenes/world.txt
 camera.txt
