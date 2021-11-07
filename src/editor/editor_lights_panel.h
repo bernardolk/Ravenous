@@ -1,6 +1,7 @@
 // -------------
 // LIGHTS PANEL
 // -------------
+
 void open_lights_panel(string type, int index, bool focus_tab);
 vec3 compute_direction_from_angles(float pitch, float yaw);
 void compute_angles_from_direction(float& pitch, float& yaw, vec3 direction);

@@ -1,9 +1,9 @@
 // --------------------
 // COLLISION LOG PANEL
 // --------------------
+
 static void PushStyleCompact();
 static void PopStyleCompact();
-
 
 void render_collision_log_panel(CollisionLogPanelContext* panel)
 {

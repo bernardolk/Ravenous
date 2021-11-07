@@ -4,72 +4,14 @@
 
 namespace Editor
 {
+
 const static string EDITOR_ASSETS = PROJECT_PATH + "/assets/editor/";
 
 const static float TRIAXIS_SCREENPOS_X = -1.80;
 const static float TRIAXIS_SCREENPOS_Y = -1.80;
 
 #include <editor/editor_undo.h>
-
-struct InputRecorderPanelContext {
-   bool active = false;
-   int selected_recording = -1;
-};
-
-struct PalettePanelContext {
-   bool active = true;
-   unsigned int textures[15];
-   EntityAttributes entity_palette[15];
-   unsigned int count = 0;
-};
-
-struct EntityPanelContext {
-   bool active = false;
-   bool focused = false;
-   Entity* entity = nullptr;
-   vec3 original_position = vec3(0);
-   vec3 original_scale = vec3(0);
-   float original_rotation = 0;
-   char rename_buffer[100];
-   bool reverse_scale_x = false;
-   bool reverse_scale_y = false;
-   bool reverse_scale_z = false;
-   Entity* x_arrow;
-   Entity* y_arrow;
-   Entity* z_arrow;
-   EntityState entity_tracked_state;
-   bool show_normals       = false;
-   bool show_collider      = false;
-   bool show_bounding_box  = false;
-};
-
-struct PlayerPanelContext {
-   bool active = false;
-   bool focused = false;
-   Player* player;
-};
-
-struct WorldPanelContext {
-   bool active = false;
-   vec3 cell_coords = vec3{-1.0f};
-};
-
-struct LightsPanelContext {
-   bool active = false;
-   bool focused = false;
-   bool focus_tab = false;
-
-   // selected light
-   int selected_light = -1;
-   float selected_light_yaw;
-   float selected_light_pitch;
-   string selected_light_type;
-};
-
-struct CollisionLogPanelContext {
-   bool active = false;
-   bool focused = false;
-};
+#include <editor/editor_panel_contexts.h>
 
 struct EditorContext {
    ImGuiStyle* imStyle;
@@ -174,6 +116,10 @@ void terminate();
 #include <editor/editor_lights_panel.h>
 #include <editor/editor_collision_log_panel.h>
 #include <editor/editor_input_recorder_panel.h>
+
+//------------------
+// > UPDATE EDITOR
+//------------------
 
 void update()
 {
@@ -281,6 +227,11 @@ void update_editor_entities()
 		entity->matModel = model;
    }
 }
+
+
+//---------------------
+// > RENDER EDITOR UI
+//---------------------
 
 void render(Player* player, WorldStruct* world)
 {
@@ -443,6 +394,11 @@ void render(Player* player, WorldStruct* world)
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
+
+//------------------
+// > RENDER TOOLBAR
+//------------------
+
 void render_toolbar()
 {
    ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 230, 180), ImGuiCond_Appearing);
@@ -559,24 +515,13 @@ void render_toolbar()
    ImGui::End();
 }
 
-void start_dear_imgui_frame()
-{
-   ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
-}
-
-void end_dear_imgui_frame()
-{
-	ImGui::EndFrame();
-}
-
 void terminate()
 {
    ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 }
+
 
 void initialize()
 {
@@ -1238,6 +1183,19 @@ void check_selection_to_move_entity()
       activate_move_mode(test.entity);
    else if(test_light.hit)
       activate_move_light_mode(test_light.obj_hit_type, test_light.obj_hit_index);
+}
+
+void start_dear_imgui_frame()
+{
+   ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+}
+
+
+void end_dear_imgui_frame()
+{
+	ImGui::EndFrame();
 }
 
 }

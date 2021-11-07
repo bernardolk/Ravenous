@@ -1,6 +1,7 @@
 // -------------
 // PLAYER PANEL
 // -------------
+
 void render_player_panel(PlayerPanelContext* panel);
 void open_player_panel(Player* player);
 
