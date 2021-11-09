@@ -1,7 +1,6 @@
 void GP_move_player(Player* player);
 
 void GP_make_player_slide                       (Player* player, Entity* ramp, bool slide_fall = false);
-void GP_make_player_jump                        (Player* player);
 void GP_make_player_jump_from_slope             (Player* player);
 void GP_make_player_grab_ledge                  (Player* player, Entity* entity, vec2 normal_vec, vec3 final_position, float d);
 void GP_make_player_vault_over_obstacle         (Player* player, Entity* entity, vec2 normal_vec, vec3 final_position);
@@ -98,33 +97,6 @@ void GP_move_player(Player* player)
    player->prior_position           = player->entity_ptr->position;
    player->entity_ptr->position     += v * dt;
    return;
-}
-
-
-void GP_make_player_jump(Player* player)
-{
-   auto& v = player->entity_ptr->velocity;
-   auto& v_dir = player->v_dir;
-   bool no_move_command = v_dir.x == 0 && v_dir.z == 0;
-
-   if(no_move_command)
-      player->jumping_upwards = true;
-   else
-   {
-      // square_LE(v, player->jump_horz_thrust)
-      if(player->dashing)
-         v = v_dir * player->jump_horz_dash_thrust;
-      else
-         v = v_dir * player->jump_horz_thrust;
-   }
-   
-   player->player_state = PLAYER_STATE_JUMPING;
-   player->anim_state = P_ANIM_JUMPING;
-   player->height_before_fall = player->entity_ptr->position.y;
-   v.y = player->jump_initial_speed;
-
-   // TEMP - DELETE LATER
-   player->skip_collision_with_floor = player->standing_entity_ptr;
 }
 
 

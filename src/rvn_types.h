@@ -23,8 +23,8 @@ const float MIN_FLOAT = -MAX_FLOAT;
 
 // AXIS
 const vec3 UNIT_X = vec3(1,0,0);
-const vec3 UNIT_Y = vec3(1,0,0);
-const vec3 UNIT_Z = vec3(1,0,0);
+const vec3 UNIT_Y = vec3(0,1,0);
+const vec3 UNIT_Z = vec3(0,0,1);
 
 inline
 bool is_equal(vec2 vec1, vec2 vec2)

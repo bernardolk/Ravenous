@@ -203,7 +203,8 @@ struct GlobalImmediateDraw {
       _set_mesh(slot.index, vertex_vec, GL_LINES, opts);
    }
 
-   void add_line(size_t _hash, vec3 pointA, vec3 pointB, float line_width = 1.0, bool always_on_top = false, vec3 color = vec3(0))
+   void add_line(size_t _hash, vec3 pointA, vec3 pointB, float line_width = 1.0, 
+      bool always_on_top = false, vec3 color = vec3(0), float duration = 0)
    {
       IM_R_FIND_SLOT();
 
@@ -214,6 +215,13 @@ struct GlobalImmediateDraw {
       opts.always_on_top = always_on_top;
       opts.color = color;
       opts.dont_cull_face = true;
+
+      if(duration != 0 )
+      {
+         auto obj = &list[slot.index];
+         obj->hash = _hash;
+         obj->duration = duration;
+      }
 
       _set_mesh(slot.index, vertex_vec, GL_LINES, opts);
    }
