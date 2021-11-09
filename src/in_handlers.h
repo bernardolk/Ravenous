@@ -165,7 +165,7 @@ void IN_handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum
             player->action = true;
 
             if(pressed(flags, KEY_MOVE_UP))
-               GP_make_player_get_up_from_edge(player);
+               P_change_state(player, PLAYER_STATE_VAULTING);
          }
             
          break;

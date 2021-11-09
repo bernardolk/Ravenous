@@ -33,7 +33,7 @@ struct PlayerStateChangeArgs {
 void P_change_state(Player* player, PlayerStateEnum new_state, PlayerStateChangeArgs args = {})
 {
    if(new_state == PLAYER_STATE_GRABBING)
-      return 
+      return P_state_change_any_to_grabbing(player, args.entity, args.normal, args.final_position, args.penetration);
 
    switch(player->player_state)
    {

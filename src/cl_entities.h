@@ -356,6 +356,7 @@ RaycastTest CL_check_for_floor_below_player(Player* player)
       return RaycastTest{false};
 }
 
+
 EntitiesCollision CL_check_collision_horizontal(
    Player* player, 
    EntityBufferElement* entity_iterator,

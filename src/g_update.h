@@ -162,7 +162,7 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
          auto c_test = CL_get_horizontal_overlap_with_player(player->slope_player_was_ptr, player);
          if(!c_test.is_collided)
          {
-            player->slope_player_was_ptr        = NULL;
+            player->slope_player_was_ptr = NULL;
 
             if(player->standing_entity_ptr != NULL)
                player->player_state             = PLAYER_STATE_STANDING;

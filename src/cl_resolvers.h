@@ -57,7 +57,10 @@ void CL_resolve_collision(EntitiesCollision collision, Player* player)
       case JUMP_SLIDE:
       {
          trigger_check_was_player_hurt          = true;
-         GP_make_player_slide(player, collision.collided_entity_ptr);
+         PlayerStateChangeArgs ps_args;
+         ps_args.entity = collision.collided_entity_ptr;
+
+         P_change_state(player, PLAYER_STATE_SLIDING, ps_args);
          break;
       }
 
@@ -65,7 +68,10 @@ void CL_resolve_collision(EntitiesCollision collision, Player* player)
       case JUMP_SLIDE_HIGH_INCLINATION:
       {
          trigger_check_was_player_hurt          = true;
-         GP_make_player_slide(player, collision.collided_entity_ptr, true);
+         PlayerStateChangeArgs ps_args;
+         ps_args.entity = collision.collided_entity_ptr;
+
+         P_change_state(player, PLAYER_STATE_SLIDE_FALLING, ps_args);
          break;
       }
 

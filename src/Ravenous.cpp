@@ -275,10 +275,6 @@ int main()
       // ---------------
       // INPUT HANDLING
       // ---------------
-      IM_ED_toggle_btn(&IM_Values.btn, "Move");
-      if(IM_Values.btn)
-         input_flags.key_press = input_flags.key_press | KEY_LEFT;
-
       switch(PROGRAM_MODE.current)
       {
          case CONSOLE_MODE:

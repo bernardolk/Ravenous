@@ -65,7 +65,7 @@ void CL_new_resolve_collision(CL_Results results, Player* player)
       case PLAYER_STATE_FALLING:
          // collided_with_floor 
          auto dotp = dot(results.normal, UNIT_Y);
-         if(dotp > 0.3) // @todo - HACK: We will eventually have a navmesh system to replace this. For now, we use an arbitrary angle to select which faces count as walkable.
+         if(dotp > 0.1) // @todo - HACK: We will eventually have a navmesh system to replace this. For now, we use an arbitrary angle to select which faces count as walkable.
             P_state_change_falling_to_standing(player, results.entity);
          break;
    }

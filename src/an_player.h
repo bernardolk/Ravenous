@@ -38,7 +38,7 @@ void AN_animate_player(Player* player)
       case P_ANIM_VAULTING:
          interrupt                  = AN_p_anim_vaulting(player);
          if(interrupt)
-            GP_finish_vaulting(player);
+            P_change_state(player, PLAYER_STATE_STANDING);
          break;
    }
 
