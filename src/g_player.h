@@ -1,4 +1,4 @@
-void GP_move_player(Player* player);
+vec3 GP_player_next_position(Player* player);
 
 void GP_check_trigger_interaction               (Player* player);
 void GP_check_for_floor_transitions             (Player* player);
@@ -8,7 +8,7 @@ bool GP_check_for_sliding_slope_floor           (Player* player);
 
 
 
-void GP_move_player(Player* player)
+vec3 GP_player_next_position(Player* player)
 {
    // updates player position
    auto& v           = player->entity_ptr->velocity;
@@ -16,6 +16,9 @@ void GP_move_player(Player* player)
    auto& state       = player->player_state;
 
    bool no_move_command = v_dir.x == 0 && v_dir.z == 0;
+
+   if(v_dir.x != 0 || v_dir.y != 0 || v_dir.z != 0)
+      player->v_dir_historic = v_dir;
 
    if(player->speed < 0.f || no_move_command)
       player->speed = 0;
@@ -89,9 +92,9 @@ void GP_move_player(Player* player)
    }
 
    // update player position
-   player->prior_position           = player->entity_ptr->position;
-   player->entity_ptr->position     += v * dt;
-   return;
+   // player->prior_position           = player->entity_ptr->position;
+   // player->entity_ptr->position     += v * dt;
+   return player->entity_ptr->position + v * dt;
 }
 
 

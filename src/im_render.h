@@ -187,22 +187,7 @@ struct GlobalImmediateDraw {
    {
       add_line(_hash, pointA, pointB, 1.0, false, color);
    }
-
-   void add_line(size_t _hash, vec3 points[2], float line_width = 1.0, bool always_on_top = false, vec3 color = vec3(0))
-   {
-      IM_R_FIND_SLOT();
-
-      auto vertex_vec = vector<Vertex>{ Vertex{points[0]}, Vertex{points[1]} };
-
-      RenderOptions opts;
-      opts.line_width = line_width;
-      opts.always_on_top = always_on_top;
-      opts.color = color;
-      opts.dont_cull_face = true;
-
-      _set_mesh(slot.index, vertex_vec, GL_LINES, opts);
-   }
-
+   
    void add_line(size_t _hash, vec3 pointA, vec3 pointB, float line_width = 1.0, 
       bool always_on_top = false, vec3 color = vec3(0), float duration = 0)
    {
@@ -262,6 +247,12 @@ struct GlobalImmediateDraw {
 
       _set_mesh(slot.index, vertex_vec, GL_POINTS, opts);
    }
+
+   void add_point(size_t _hash, vec3 point, vec3 color = vec3(0))
+   {
+      add_point(_hash, point, 1.0, false, color);
+   }
+
 
    void add_triangle(size_t _hash, Triangle t, float line_width = 1.0, bool always_on_top = false, vec3 color = vec3{0.8, 0.2, 0.2})
    {

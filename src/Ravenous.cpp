@@ -300,15 +300,11 @@ int main()
       // -------------
 		update_scene_objects();
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player);
-      GP_check_player_events(player);
-      GP_move_player(player);
-      AN_animate_player(player);
-      CL_update_player_world_cells(player);
-      //@todo: unless this becomes a performance problem, its easier to recompute the buffer every frame
-      //       then to try placing this call everytime necessary
-      CL_recompute_collision_buffer_entities(player);
-      CL_run_iterative_collision_detection(player);
+      player->orientation = G_SCENE_INFO.views[FPS_CAM]->Front;
+      //GP_check_player_events(player);
+      //GP_move_player(player);
       GP_update_player_state(player, &World);
+      //AN_animate_player(player);
       
 
 

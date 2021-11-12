@@ -234,7 +234,8 @@ void handle_input_flags(InputFlags flags, Player* &player)
       auto test = test_ray_against_scene(pickray, true, player->entity_ptr->id);
       if(test.hit)
       {
-         player->entity_ptr->position = point_from_detection(pickray, test);
+         auto surface_point =  point_from_detection(pickray, test);
+         player->entity_ptr->position = surface_point + player->half_height;
          player->player_state = PLAYER_STATE_STANDING;
          player->standing_entity_ptr = test.entity;
          player->entity_ptr->velocity = vec3(0, 0, 0);

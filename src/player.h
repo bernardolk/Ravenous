@@ -50,9 +50,12 @@ struct Player {
    float radius;
    float half_height;
 
+   vec3 orientation;
+
    // movement variables
-   vec3 v_dir = vec3(0.f);          // intended movement direction
-   float speed = 0;                 // accumulated speed scalar
+   vec3 v_dir           = vec3(0.f);          // intended movement direction
+   vec3 v_dir_historic  = vec3(0.f);          // last non zero movement direction
+   float speed = 0;                           // accumulated speed scalar
 
    // movement constants
    float acceleration            = 7.5;

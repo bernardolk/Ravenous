@@ -5,6 +5,64 @@ struct CL_Results {
    vec3 normal;
 };
 
+// used, currently, to avoid detecting collision with colliders that are being used by player as a
+// floor platform / terrain
+struct CL_IgnoreColliders {
+   const static size_t size = 5;
+   Entity* list[size] = {};
+   size_t count = 0;
+
+   void add(Entity* entity)
+   {
+      if(count == size)
+      {
+         cout << "CL_IgnoreColliders is full\n";
+         assert(false);
+      }
+
+      for(int i = 0; i < count; i++)
+         if(list[i] == entity)
+            return;
+
+      list[count] = entity;
+      count++;
+   };
+
+   void empty()
+   {
+      for(int i = 0; i < size; i++)
+         list[i] = NULL;
+      
+      count = 0;
+   }
+
+   void remove(Entity* entity)
+   {
+      for(int i = 0; i < count; i++)
+         if(list[i] == entity)
+         {
+            list[i] = NULL;
+            for(int j = i; j < count - 1; j++)
+            {
+               list[j] = list[j + 1];
+               list[j + 1] = NULL;
+            }
+            count--;
+            return;
+         }
+   }
+
+   bool is_in_list(Entity* entity)
+   {
+      for(int i = 0; i < count; i++)
+         if(list[i] == entity)
+            return true;
+
+      return false;
+   }
+
+} CL_Ignore_Colliders;
+
 #include<cl_gjk.h>
 #include<cl_epa.h>
 #include<cl_resolvers_new.h>
@@ -63,6 +121,7 @@ CL_Results CL_run_collision_detection(
            entity_is_player_ground     = CL_player_qualifies_as_standing(player) && player->standing_entity_ptr == entity,
            checked                     = iterative && entity_iterator->collision_check,
            skip_it                     = skip_entity != NULL && skip_entity == entity;
+           skip_it                     = skip_it || CL_Ignore_Colliders.is_in_list(entity);
 
       if(entity_is_player || entity_is_player_ground || checked || skip_it)
       {

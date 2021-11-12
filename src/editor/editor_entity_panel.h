@@ -350,7 +350,6 @@ void render_entity_mesh_normals(EntityPanelContext* panel)
       
       IM_RENDER.add_point(IMHASH, f.center, 2.0, true);
 
-      vec3 points[] = {f.center, f.center + normal * 2.0f};
-      IM_RENDER.add_line(IMHASH, points, 2.5, true);
+      IM_RENDER.add_line(IMHASH, f.center, f.center + normal * 2.0f, 2.5, true);
    }
 }

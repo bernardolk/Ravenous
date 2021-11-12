@@ -32,6 +32,7 @@ RaycastTest test_ray_against_mesh(Ray ray, Mesh* mesh, glm::mat4 matModel);
 RaycastTest test_ray_against_triangle(Ray ray, Triangle triangle);
 Triangle get_triangle_for_indexed_mesh(Mesh* mesh, glm::mat4 matModel, int triangle_index);
 Triangle get_triangle_for_indexed_mesh(Entity* entity, int triangle_index);
+RaycastTest test_ray_against_collider(Ray ray, Mesh* collider);
 vec3 point_from_detection(Ray ray, RaycastTest result);
 vec3 get_triangle_normal(Triangle t);
 
@@ -121,6 +122,20 @@ RaycastTest test_ray_against_scene(Ray ray, u32 skip_id)
 }
 
 
+Triangle get_triangle_for_collider_indexed_mesh(Mesh* mesh, int triangle_index)
+{
+   auto a_ind = mesh->indices[3 * triangle_index + 0];
+   auto b_ind = mesh->indices[3 * triangle_index + 1];
+   auto c_ind = mesh->indices[3 * triangle_index + 2];
+
+   auto a = mesh->vertices[a_ind].position;
+   auto b = mesh->vertices[b_ind].position;
+   auto c = mesh->vertices[c_ind].position;
+
+   return Triangle{a, b, c};
+}
+
+
 Triangle get_triangle_for_indexed_mesh(Mesh* mesh, glm::mat4 matModel, int triangle_index)
 {
    auto a_ind = mesh->indices[3 * triangle_index + 0];
@@ -149,10 +164,33 @@ Triangle get_triangle_for_indexed_mesh(Entity* entity, int triangle_index)
 
 RaycastTest test_ray_against_entity(Ray ray, Entity* entity)
 {
-   Mesh* mesh = entity->mesh;
-   mat4 model = entity->matModel;
+   Mesh* collider = &entity->collider;
+   //Mesh* mesh = entity->mesh;
+   //mat4 model = entity->matModel;
 
-   return test_ray_against_mesh(ray, mesh, model);
+   return test_ray_against_collider(ray, collider);
+   //return test_ray_against_mesh(ray, mesh, model);
+}
+
+
+RaycastTest test_ray_against_collider(Ray ray, Mesh* collider)
+{
+   int triangles = collider->indices.size() / 3;
+   float min_distance = MAX_FLOAT;
+   RaycastTest min_hit_test{false, -1};
+   for(int i = 0; i < triangles; i++)
+   {
+      Triangle t = get_triangle_for_collider_indexed_mesh(collider, i);
+      auto test = test_ray_against_triangle(ray, t);
+      if(test.hit && test.distance < min_distance)
+      {
+         min_hit_test = test;
+         min_hit_test.t_index = i;
+         min_distance = test.distance;
+      }
+   }
+
+   return min_hit_test;
 }
 
 

@@ -1004,8 +1004,7 @@ void render_lightbulbs(Camera* camera)
 
          vec3 arrow_origin = light_position - vec3{0.0, 0.56, 0.0};
          vec3 arrow_end = arrow_origin + arrow_direction * 1.5f;
-         vec3 points[2]{ arrow_origin, arrow_end };
-         IM_RENDER.add_line(IMHASH, points, 1.5);
+         IM_RENDER.add_line(IMHASH, arrow_origin, arrow_end, 1.5);
       }
 
       // @todo: epic fail below (trying to rotate an arrow mesh according to a dir vector)
