@@ -32,6 +32,13 @@ struct PlayerStateChangeArgs {
 
 void P_change_state(Player* player, PlayerStateEnum new_state, PlayerStateChangeArgs args = {})
 {
+   /* This will change the player's state to the new state and do actions based on his current state.
+      Hopefuly we can achieve a state machine model where all transitions are mapped and, therefore, predictable.
+   */
+
+  // Player is...
+
+   // IN ANY STATE
    if(new_state == PLAYER_STATE_GRABBING)
       return P_state_change_any_to_grabbing(player, args.entity, args.normal, args.final_position, args.penetration);
 
