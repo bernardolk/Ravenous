@@ -17,114 +17,68 @@ void render_entity_panel(EntityPanelContext* panel)
    ImGui::Begin("Entity Panel", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
    panel->focused = ImGui::IsWindowFocused();
 
-   string entity_identification = entity->name + " (" + to_string(entity->id) + ")";
-   ImGui::Text(entity_identification.c_str());
+   ImGui::Text(("Name: " + entity->name).c_str());
+   ImGui::Text(("Id: " + to_string(entity->id)).c_str());
+   ImGui::Text(("Shader: " + entity->shader->name).c_str());
 
    // entity state tracking
    bool track = false;
-
-   // RENAME
-   ImGui::NewLine();
-   if(ImGui::InputText("rename", &panel->rename_buffer[0], 100))
-      entity->name = panel->rename_buffer;
-
-   // HIDE ENTITY
-   ImGui::Checkbox("Hide", &entity->wireframe);
-
-   ImGui::Text("Show");
-   ImGui::Checkbox("Normals", &panel->show_normals);
-   ImGui::SameLine();
-   ImGui::Checkbox("Collider", &panel->show_collider);
-   ImGui::SameLine();
-   ImGui::Checkbox("Bounding box", &panel->show_bounding_box);
 
    // POSITION
    ImGui::NewLine();
    bool used_pos = false;
    {
-      bool used_x = ImGui::DragFloat("x", &entity->position.x, 0.1);
+      float positions[]{ entity->position.x, entity->position.y, entity->position.z };
+      if(ImGui::DragFloat3("Position", positions, 0.1))
+      {
+         used_pos = true;
+         entity->position = vec3{positions[0], positions[1], positions[2]};
+      }
       track = track || ImGui::IsItemDeactivatedAfterEdit();
-
-      bool used_y = ImGui::DragFloat("y", &entity->position.y, 0.1);
-      track = track || ImGui::IsItemDeactivatedAfterEdit();
-
-      bool used_z = ImGui::DragFloat("z", &entity->position.z, 0.1);
-      track = track || ImGui::IsItemDeactivatedAfterEdit();
-
-      used_pos = used_x || used_y || used_z;
    }
 
    // ROTATION
    bool used_rot = false;
    {
-      float rotation = entity->rotation.y;
-      if(ImGui::InputFloat("rot y", &rotation, 20))
+      float rotations[]{ entity->rotation.x, entity->rotation.y, entity->rotation.z };
+      if(ImGui::DragFloat3("Rotation", rotations, 1, 0, 360))
       {
-         EdContext.entity_panel.entity->rotate_y(rotation - entity->rotation.y);
          used_rot = true;
+         entity->rotation = vec3{rotations[0], rotations[1], rotations[2]};
       }
       track = track || ImGui::IsItemDeactivatedAfterEdit();
    }
-
-   ImGui::NewLine();
 
    // SCALE
    bool used_scaling = false;
    {
-      auto scale = entity->scale;
-      auto rot = glm::rotate(mat4identity, glm::radians(entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
-      scale = rot * vec4(entity->scale, 1.0f);
-      auto ref_scale = scale;
+      float scaling[]{ entity->scale.x, entity->scale.y, entity->scale.z };
+      if(ImGui::DragFloat3("Scale", scaling, 0.05, 0, MAX_FLOAT, NULL))
+         used_scaling = true;
 
-      // when rotating from model to world position, scale vec gets signed
-      // here we make it abs for editing in the panel
-      bool flipped_x = false, flipped_z = false;
-      if(scale.x < 0) { scale.x *= -1; flipped_x = true;}
-      if(scale.z < 0) { scale.z *= -1; flipped_z = true;}
-
-      // scale in x
-      bool scaled_x = ImGui::DragFloat("scale x", &scale.x, 0.1);
       track = track || ImGui::IsItemDeactivatedAfterEdit();
-      ImGui::Checkbox("rev x", &panel->reverse_scale_x);
 
-      // scale in y    
-      bool scaled_y = ImGui::DragFloat("scale y", &scale.y, 0.1);
-      track = track || ImGui::IsItemDeactivatedAfterEdit();
-      ImGui::Checkbox("rev y", &panel->reverse_scale_y);
+      ImGui::SameLine();
+      ImGui::Checkbox("Reverse", &panel->reverse_scale);
 
-      // scale in z
-      bool scaled_z = ImGui::DragFloat("scale z", &scale.z, 0.1);
-      track = track || ImGui::IsItemDeactivatedAfterEdit();
-      ImGui::Checkbox("rev z", &panel->reverse_scale_z);
-
-      used_scaling = scaled_x || scaled_y || scaled_z;
-
-      // apply scalling
       if(used_scaling)
       {
-         float min_scale =  0.001;
-         scale.x = scale.x < min_scale ? min_scale : scale.x;
-         scale.y = scale.y < min_scale ? min_scale : scale.y;
-         scale.z = scale.z < min_scale ? min_scale : scale.z;
+         if(panel->reverse_scale)
+         {
+            auto rot_matrix = entity->get_rotation_matrix();
 
-         // set scale orientation to its signed value before doing reverse rotation and position operations 
-         if(flipped_x) scale.x *= -1;
-         if(flipped_z) scale.z *= -1;
+            if(scaling[0] != entity->scale.x)
+               entity->position -= toVec3(rot_matrix * vec4(scaling[0] - entity->scale.x, 0.f, 0.f, 1.f));
+            if(scaling[1] != entity->scale.y)
+               entity->position -= toVec3(rot_matrix * vec4(0.f, scaling[1] - entity->scale.y, 0.f, 1.f));
+            if(scaling[2] != entity->scale.z)
+               entity->position -= toVec3(rot_matrix * vec4(0.f, 0.f, scaling[2] - entity->scale.z, 1.f));
+         }
 
-          // if rev scaled, move entity in oposite direction to compensate scaling and fake rev scaling
-         if((panel->reverse_scale_x && !flipped_x) || (flipped_x && !panel->reverse_scale_x))
-            entity->position.x -= scale.x - ref_scale.x;
-         if(panel->reverse_scale_y)
-            entity->position.y -= scale.y - entity->scale.y;
-         if((panel->reverse_scale_z && !flipped_z) || (flipped_z && !panel->reverse_scale_z))
-            entity->position.z -= scale.z - ref_scale.z;
-
-         auto inv_rot = glm::rotate(mat4identity, glm::radians(-1.0f * entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
-         scale = inv_rot * vec4(scale, 1.0f);
-
-         entity->scale = scale;
+         entity->scale = vec3{scaling[0], scaling[1], scaling[2]};
       }
    }
+
 
    // SLIDE INDICATOR
    if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
@@ -186,9 +140,6 @@ void render_entity_panel(EntityPanelContext* panel)
       }   
    }
 
-   auto shader_text = "Shader: " + entity->shader->name;
-   ImGui::Text(shader_text.c_str());
-
    if(ImGui::CollapsingHeader("Textures"))
    {
       for(auto const& texture : Texture_Catalogue)
@@ -200,6 +151,32 @@ void render_entity_panel(EntityPanelContext* panel)
          }
       }
    }
+
+   // RENAME
+   ImGui::NewLine();
+   if(ImGui::CollapsingHeader("Rename Entity"))
+   {
+      ImGui::InputText("New name", &panel->rename_buffer[0], 100);
+      ImGui::SameLine();
+      if(ImGui::Button("Apply"))
+      {
+         if(panel->validate_rename_buffer_contents())
+         {
+            entity->name = panel->rename_buffer;
+            panel->empty_rename_buffer();
+         }
+      }
+   }
+
+   // HIDE ENTITY
+   ImGui::Checkbox("Hide", &entity->wireframe);
+   ImGui::SameLine();
+   ImGui::Text("Show");
+   ImGui::Checkbox("Normals", &panel->show_normals);
+   ImGui::SameLine();
+   ImGui::Checkbox("Collider", &panel->show_collider);
+   ImGui::SameLine();
+   ImGui::Checkbox("Bounding box", &panel->show_bounding_box);
 
 
    // ENTITY INSTANCE CONTROLS
@@ -239,18 +216,20 @@ void render_entity_panel(EntityPanelContext* panel)
    }
 
    // ----------------
-   // action happened
+   // Action happened
    // ----------------
    if(used_pos || used_rot || used_scaling || duplicated || deleted)
    {
       if(!(duplicated || deleted))
          deactivate_editor_modes();
-      entity->old_update_collision_geometry();                              // needs to be done here to prevent a bug
+
+      // needs to be done here to prevent a bug
+      entity->old_update_collision_geometry(); 
+
       auto update_cells = World.update_entity_world_cells(entity);
-      if(update_cells.status != OK)
-      {
+      if(update_cells.status != CellUpdate_OK)
          G_BUFFERS.rm_buffer->add(update_cells.message, 3500);
-      }
+
       World.update_cells_in_use_list();
    }
 
@@ -289,47 +268,31 @@ void update_entity_control_arrows(EntityPanelContext* panel)
 {
    auto entity = panel->entity;
 
-   // if(entity->collision_geometry_type != COLLISION_ALIGNED_BOX)
-   //    return;
-
    auto &x = panel->x_arrow;
    auto &y = panel->y_arrow;
    auto &z = panel->z_arrow;
-
-   auto collision = entity->collision_geometry;
 
    x->position = entity->position;
    y->position = entity->position;
    z->position = entity->position;
 
-   if(panel->reverse_scale_x) x->rotation.z = 90;
-   else x->rotation.z = 270;
+   if(panel->reverse_scale)
+   {
+      x->rotation   = vec3(0, 0, 90);
+      y->rotation   = vec3(0, 0, 180);
+      z->rotation   = vec3(270, 0 ,0);
+   }
+   else
+   {
+      x->rotation   = vec3(0, 0, 270);
+      y->rotation   = vec3(0, 0, 0);
+      z->rotation   = vec3(90, 0 ,0);
+   }
 
-   if(panel->reverse_scale_y) y->rotation.z = 180;
-   else y->rotation.z = 0;
-
-   if(panel->reverse_scale_z) z->rotation.x = 270;
-   else z->rotation.x = 90;
-
-
-   // change scale from local to world coordinates
-   auto rot = glm::rotate(mat4identity, glm::radians(entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
-   vec3 scale_w_coords = rot * vec4(entity->scale, 1.0f);
-
-   if(!panel->reverse_scale_x) x->position.x = max(x->position.x, x->position.x + scale_w_coords.x);
-   else                        x->position.x = min(x->position.x, x->position.x + scale_w_coords.x);
-   x->position.y += scale_w_coords.y / 2.0f;
-   x->position.z += scale_w_coords.z / 2.0f;
-
-   if(!panel->reverse_scale_y) y->position.y = max(y->position.y, y->position.y + scale_w_coords.y);
-   else                        y->position.y = min(y->position.y, y->position.y + scale_w_coords.y);
-   y->position.x += scale_w_coords.x / 2.0f;
-   y->position.z += scale_w_coords.z / 2.0f;
-
-   if(!panel->reverse_scale_z) z->position.z = max(z->position.z, z->position.z + scale_w_coords.z);
-   else                        z->position.z = min(z->position.z, z->position.z + scale_w_coords.z);
-   z->position.y += scale_w_coords.y / 2.0f;
-   z->position.x += scale_w_coords.x / 2.0f;
+   auto rot_matrix = entity->get_rotation_matrix();
+   x->rotation = toVec3(vec4(x->rotation, 1.f) * rot_matrix);
+   y->rotation = toVec3(vec4(y->rotation, 1.f) * rot_matrix);
+   z->rotation = toVec3(vec4(z->rotation, 1.f) * rot_matrix);
 
    x->update_model_matrix();
    y->update_model_matrix();

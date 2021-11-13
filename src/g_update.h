@@ -189,9 +189,11 @@ void GP_update_player_state_OLD(Player* &player, WorldStruct* world)
    }
 }
 
-float PLAYER_STEPOVER_LIMIT   = 0.1;
-float PLAYER_STEPOVER_DELTA  = 0.03;
+// ---------------------
+// NEW Movement System
+// ---------------------
 
+float PLAYER_STEPOVER_LIMIT   = 0.2;
 
 //@todo - Rethink the name and purpose of this function
 RaycastTest CL_do_c_vtrace(Player* player)

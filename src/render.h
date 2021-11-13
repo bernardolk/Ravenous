@@ -155,6 +155,7 @@ void render_entity(Entity* entity)
    glActiveTexture(GL_TEXTURE0);
 }
 
+
 void render_editor_entity(Entity* entity, Scene* scene, Camera* camera)
 {
    entity->shader->use();
@@ -165,9 +166,11 @@ void render_editor_entity(Entity* entity, Scene* scene, Camera* camera)
    entity->shader->setFloat3("viewPos", camera->Position);
    entity->shader->setFloat("shininess", scene->global_shininess);
    entity->shader->setMatrix4("model", entity->matModel);
+   entity->shader->setFloat3("entity_position", entity->position);
 
    render_entity(entity);
 }
+
 
 // -------------
 // RENDER SCENE

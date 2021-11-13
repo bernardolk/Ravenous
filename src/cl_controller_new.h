@@ -135,6 +135,8 @@ CL_Results CL_run_collision_detection(
 
       if(result.collision)
          return result;
+      
+      entity_iterator++;
    }
 
    return {};

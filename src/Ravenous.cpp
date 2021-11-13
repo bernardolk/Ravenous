@@ -640,8 +640,13 @@ void initialize_shaders()
    auto depth_cubemap_shader = create_shader_program(
       "depth_cubemap", "vertex_depth_cubemap", "geometry_depth_cubemap" ,"fragment_depth_cubemap"
    );
-
    Shader_Catalogue.insert({depth_cubemap_shader->name, depth_cubemap_shader});
+
+   // editor entity arrow shader
+   auto editor_arrow_shader = create_shader_program(
+      "ed_entity_arrow_shader", "vertex_model", "fragment_ed_entity_arrow"
+   );
+   Shader_Catalogue.insert({editor_arrow_shader->name, editor_arrow_shader});
 }
 
 

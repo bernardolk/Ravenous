@@ -9,7 +9,7 @@ bool CL_update_player_world_cells(Player* player)
    auto offset1               = vec3{-1.0f * player->radius, -1.0f * player->half_height, -1.0f * player->radius};
    auto offset2               = vec3{player->radius, 0, player->radius};
    auto update_cells          = World.update_entity_world_cells(player->entity_ptr, offset1, offset2);
-   if(update_cells.status == OK)
+   if(update_cells.status == CellUpdate_OK)
    {
       return update_cells.entity_changed_cell;
    }

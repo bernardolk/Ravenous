@@ -1,0 +1,77 @@
+#version 330 core
+
+in vec3 FragPos;
+in vec3 Normal;
+in vec2 TexCoords;
+in vec4 LightSpaceFragPos;
+
+out vec4 FragColor;
+
+struct PointLight{
+	vec3 position;
+
+	vec3 diffuse;
+	vec3 specular;
+
+	float constant;
+	float linear;
+	float quadratic;
+};
+
+uniform float shininess;
+uniform vec3 viewPos;
+
+uniform sampler2D texture_diffuse1;
+uniform sampler2D texture_specular1;
+
+uniform vec3 entity_position;
+
+vec3 norm;
+vec3 difTex;
+vec3 specTex;
+
+
+vec3 calcPointLight(PointLight pointLight)
+{	
+	vec3 lightToFrag = normalize(FragPos - pointLight.position);
+	float distance = length(FragPos - pointLight.position);
+	
+	// Diffuse
+	float diff_cos = max(dot(-lightToFrag, norm), 0.0);
+	vec3 diffuse = diff_cos * pointLight.diffuse * difTex;
+	
+	// Specular
+	vec3 specular_reflection = reflect(lightToFrag, norm);
+	vec3 fragToView = normalize(viewPos - FragPos);
+	float spec = pow(max(dot(fragToView, specular_reflection), 0.0), shininess);
+	vec3 specular = spec * pointLight.specular * specTex;
+	
+	// Decay	
+	float decay = 1 / (pointLight.constant + pointLight.linear * distance + pointLight.quadratic * (distance * distance));
+	vec3 result = (diffuse + specular) * decay;
+	return result;
+}
+
+
+void main()
+{
+	difTex = vec3(texture(texture_diffuse1, TexCoords));
+	specTex = vec3(texture(texture_specular1, TexCoords));
+	norm = normalize(Normal);
+	
+	vec3 lightpos = entity_position;
+	lightpos.y += 1.5;
+	
+	PointLight light = PointLight {
+		lightpos, vec3(1,1,1), vec3(1,1,1), 0.15, 0.3, 0.032
+	}; 
+	
+	vec3 color = vec3(0.0);
+	color += calcPointLight(light);
+
+	// ambient term
+    color += vec3(1,1,1) * 0.1 * difTex;
+	
+	
+	FragColor = vec4(color,1.0);
+}

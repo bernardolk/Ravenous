@@ -80,3 +80,12 @@ vec3 cross(vec3 a, vec3 b, vec3 c)
 {
    return glm::cross(glm::cross(a, b), c);
 }
+
+
+// VECTOR CONVERSIONS
+
+inline
+vec3 toVec3(vec4 vec)
+{
+   return vec3(vec.x, vec.y, vec.z);
+}

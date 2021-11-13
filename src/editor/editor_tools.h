@@ -472,7 +472,7 @@ void place_entity()
    EdContext.place_mode = false;
    
    auto update_cells = World.update_entity_world_cells(EdContext.selected_entity);
-   if(update_cells.status != OK)
+   if(update_cells.status != CellUpdate_OK)
       G_BUFFERS.rm_buffer->add(update_cells.message, 3500);
 
    World.update_cells_in_use_list();

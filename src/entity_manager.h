@@ -135,6 +135,7 @@ struct EntityManager
       new_entity->mesh                                = _mesh;
       new_entity->scale                               = scale;
       new_entity->collision_mesh                      = _collision_mesh;
+      new_entity->collider                            = *_collision_mesh;
       new_entity->collision_geometry_type             = collision;
       new_entity->textures.push_back(_texture);
       new_entity->old_update_collision_geometry();

@@ -252,6 +252,15 @@ struct Entity {
          default: return 0;
       }
    }
+
+   mat4 get_rotation_matrix()
+   {
+      mat4 rotation_matrix;		
+      rotation_matrix = rotate(mat4identity,    glm::radians(rotation.x), vec3(1.0f, 0.0f, 0.0f));
+		rotation_matrix = rotate(rotation_matrix, glm::radians(rotation.y), vec3(0.0f, 1.0f, 0.0f));
+		rotation_matrix = rotate(rotation_matrix, glm::radians(rotation.z), vec3(0.0f, 0.0f, 1.0f));
+      return rotation_matrix;
+   }
 };
 
 struct EntityState {

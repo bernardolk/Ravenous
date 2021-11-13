@@ -30,11 +30,11 @@ const static vec3 W_LOWER_BOUNDS_METERS = {
 };
 
 enum CellUpdateStatus {
-   OK,
-   ENTITY_TOO_BIG,
-   CELL_FULL,
-   OUT_OF_BOUNDS,
-   UNEXPECTED
+   CellUpdate_OK,
+   CellUpdate_ENTITY_TOO_BIG,
+   CellUpdate_CELL_FULL,
+   CellUpdate_OUT_OF_BOUNDS,
+   CellUpdate_UNEXPECTED
 };
 
 struct CellUpdate {
@@ -103,7 +103,7 @@ struct WorldCell {
       if(count == WORLD_CELL_CAPACITY)
       {
          string message = "World cell '" + coords_str() + "' is full.";
-         return CellUpdate{ CELL_FULL, message };
+         return CellUpdate{ CellUpdate_CELL_FULL, message };
       }
 
       for(int i = 0; i < WORLD_CELL_CAPACITY; i++)
@@ -111,10 +111,10 @@ struct WorldCell {
          {
             entities[i] = entity;
             count++;
-            return CellUpdate{ OK };
+            return CellUpdate{ CellUpdate_OK };
          }
 
-      return CellUpdate{ UNEXPECTED, "world cell add method returned weirdly." };
+      return CellUpdate{ CellUpdate_UNEXPECTED, "world cell add method returned weirdly." };
    }
 
    void defrag()
@@ -288,7 +288,7 @@ struct WorldStruct {
       if (i0 == -1 || i1 == -1)
       {
         message = "Entity '" + entity->name + "' is located out of current world bounds.";
-         return CellUpdate{OUT_OF_BOUNDS, message};
+         return CellUpdate{CellUpdate_OUT_OF_BOUNDS, message};
       }
 
       vector<WorldCell*> new_cells;
@@ -302,7 +302,7 @@ struct WorldStruct {
       {
          message = "Entity '" + entity->name + "' is too large and it occupies more than " +
             "the limit of " + to_string(ENTITY_WOLRD_CELL_OCCUPATION_LIMIT) + " world cells at a time.";
-         return CellUpdate{ENTITY_TOO_BIG, message};
+         return CellUpdate{CellUpdate_ENTITY_TOO_BIG, message};
       }
 
       // checks the diff between new and old and stores the ones that are no longer
@@ -355,7 +355,7 @@ struct WorldStruct {
       {
          auto cell = cells_to_add_to[i];
          auto cell_update = cell->add(entity);
-         if(cell_update.status != OK)
+         if(cell_update.status != CellUpdate_OK)
          {
             return cell_update;
          }
@@ -372,7 +372,7 @@ struct WorldStruct {
       entity->world_cells_count = new_cells_count;
 
       bool changed_cells = cells_to_add_to.size() > 0 || cells_to_remove_from.size() > 0;
-      return CellUpdate{OK, "", changed_cells};
+      return CellUpdate{CellUpdate_OK, "", changed_cells};
    }
 };
 

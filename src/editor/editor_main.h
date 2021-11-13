@@ -484,18 +484,18 @@ void initialize()
    y_arrow->mesh = axis_mesh;
    z_arrow->mesh = axis_mesh;
 
-   auto model_shader = Shader_Catalogue.find("model")->second;
-   x_arrow->shader = model_shader;
-   x_arrow->scale = vec3{0.5,0.5,0.5};
-   x_arrow->rotation = vec3{0,0,270};
+   auto arrow_shader = Shader_Catalogue.find("ed_entity_arrow_shader")->second;
+   x_arrow->shader = arrow_shader;
+   x_arrow->scale = vec3(0.5,0.5,0.5);
+   x_arrow->rotation = vec3(0);
 
-   y_arrow->shader = model_shader;
-   y_arrow->scale = vec3{0.5,0.5,0.5};
-   y_arrow->rotation = vec3{0,0,0};
+   y_arrow->shader = arrow_shader;
+   y_arrow->scale = vec3(0.5,0.5,0.5);
+   y_arrow->rotation = vec3(0);
 
-   z_arrow->shader = model_shader;
-   z_arrow->scale = vec3{0.5,0.5,0.5};
-   z_arrow->rotation = vec3{90,0,0};
+   z_arrow->shader = arrow_shader;
+   z_arrow->scale = vec3(0.5,0.5,0.5);
+   z_arrow->rotation = vec3(0);
 
    x_arrow->textures.push_back(Texture{blue_tex,  "texture_diffuse", "blue.jpg",  "blue axis"});
    y_arrow->textures.push_back(Texture{green_tex, "texture_diffuse", "green.jpg", "green axis"});
@@ -1038,9 +1038,9 @@ void render_lightbulbs(Camera* camera)
 
 void check_selection_to_open_panel(Player* player)
 {
-   auto pickray = cast_pickray();
-   auto test = test_ray_against_scene(pickray, true);
-   auto test_light = test_ray_against_lights(pickray);
+   auto pickray      = cast_pickray();
+   auto test         = test_ray_against_scene(pickray, true);
+   auto test_light   = test_ray_against_lights(pickray);
    if(test.hit && (!test_light.hit || test_light.distance > test.distance))
    {
       if(test.entity->name == PLAYER_NAME)

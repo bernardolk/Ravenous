@@ -18,7 +18,12 @@ struct EntityPanelContext {
    vec3 original_position = vec3(0);
    vec3 original_scale = vec3(0);
    float original_rotation = 0;
-   char rename_buffer[100];
+   
+   //rename buffer
+   const static size_t _rename_buff_size = 100;
+   char rename_buffer[_rename_buff_size];
+
+   bool reverse_scale   = false;
    bool reverse_scale_x = false;
    bool reverse_scale_y = false;
    bool reverse_scale_z = false;
@@ -29,6 +34,28 @@ struct EntityPanelContext {
    bool show_normals       = false;
    bool show_collider      = false;
    bool show_bounding_box  = false;
+
+   void empty_rename_buffer()
+   {
+      for(int i = 0; i < _rename_buff_size; i++)
+         rename_buffer[i] = 0;
+   }
+
+   bool validate_rename_buffer_contents()
+   {
+      for(int i = 0; i < _rename_buff_size; i++)
+      {
+         auto cursor = rename_buffer[i];
+         if(cursor == '\0')
+            return true;
+         if(cursor == ' ' || cursor == 0)
+            return false;
+      }
+
+      cout << "Invalid c-string in rename buffer.\n";
+      assert(false);
+      return false;
+   }
 };
 
 struct PlayerPanelContext {
