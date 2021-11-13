@@ -432,9 +432,9 @@ void initialize()
    auto green_tex = load_texture_from_file("green.jpg",  TEXTURES_PATH);
    auto red_tex  = load_texture_from_file("red.jpg",   TEXTURES_PATH);
 
-   x_axis->textures.push_back(Texture{blue_tex,  "texture_diffuse", "blue.jpg",  "blue axis"});
+   x_axis->textures.push_back(Texture{red_tex,  "texture_diffuse", "red.jpg",  "red axis"});
    y_axis->textures.push_back(Texture{green_tex, "texture_diffuse", "green.jpg", "green axis"});
-   z_axis->textures.push_back(Texture{red_tex,  "texture_diffuse", "red.jpg",  "red axis"});
+   z_axis->textures.push_back(Texture{blue_tex,  "texture_diffuse", "blue.jpg",  "blue axis"});
 
    auto shader = Shader_Catalogue.find("ortho_gui")->second;
    x_axis->shader = shader;
@@ -476,9 +476,9 @@ void initialize()
    z_arrow->scale = vec3(0.5,0.5,0.5);
    z_arrow->rotation = vec3(0);
 
-   x_arrow->textures.push_back(Texture{blue_tex,  "texture_diffuse", "blue.jpg",  "blue axis"});
+   x_arrow->textures.push_back(Texture{red_tex,  "texture_diffuse", "red.jpg",  "red axis"});
    y_arrow->textures.push_back(Texture{green_tex, "texture_diffuse", "green.jpg", "green axis"});
-   z_arrow->textures.push_back(Texture{red_tex,  "texture_diffuse", "red.jpg",  "red axis"});
+   z_arrow->textures.push_back(Texture{blue_tex,  "texture_diffuse", "blue.jpg",  "blue axis"});
 
    EdContext.entity_panel.x_arrow = x_arrow;
    EdContext.entity_panel.y_arrow = y_arrow;
@@ -1029,7 +1029,7 @@ void update_entity_control_arrows(EntityPanelContext* panel)
 {
    // arrow positioning settings
    float    angles[3]   = {270, 0, 90};
-   vec3     rot_axis[3] = {UNIT_Z, UNIT_Y, UNIT_X};
+   vec3     rot_axis[3] = {UNIT_Z, UNIT_X, UNIT_X};
    Entity*  arrows[3]   = {panel->x_arrow, panel->y_arrow, panel->z_arrow};
    
    auto  entity = panel->entity;

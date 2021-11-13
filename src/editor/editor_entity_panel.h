@@ -21,11 +21,46 @@ void render_entity_panel(EntityPanelContext* panel)
    ImGui::Text(("Id: " + to_string(entity->id)).c_str());
    ImGui::Text(("Shader: " + entity->shader->name).c_str());
 
+   // RENAME
+   ImGui::NewLine();
+   if(!panel->rename_option_active)
+   {
+      if(ImGui::Button("Rename Entity", ImVec2(120, 18)))
+         panel->rename_option_active = true;
+   }
+   else
+   {
+      ImGui::InputText("New name", &panel->rename_buffer[0], 100);
+      if(ImGui::Button("Apply", ImVec2(64, 18)))
+      {
+         if(panel->validate_rename_buffer_contents())
+         {
+            entity->name = panel->rename_buffer;
+            panel->empty_rename_buffer();
+            panel->rename_option_active = false;
+         }
+      }
+      ImGui::SameLine();
+      if(ImGui::Button("Cancel", ImVec2(64, 18)))
+      {
+         panel->rename_option_active = false;
+      }
+   }
+
+   // HIDE ENTITY
+   ImGui::SameLine();
+   ImGui::Checkbox("Hide Entity", &entity->wireframe);
+
+   // MODEL PROPERTIES
+   ImGui::NewLine();
+   ImGui::Text("Model properties:");
+   ImGui::NewLine();
+
    // entity state tracking
    bool track = false;
 
+
    // POSITION
-   ImGui::NewLine();
    bool used_pos = false;
    {
       float positions[]{ entity->position.x, entity->position.y, entity->position.z };
@@ -79,6 +114,16 @@ void render_entity_panel(EntityPanelContext* panel)
       }
    }
 
+   ImGui::NewLine();
+
+   if(ImGui::Button("Place", ImVec2(82,18)))
+   {
+      activate_place_mode(entity);
+   }
+
+
+   ImGui::NewLine();
+
 
    // SLIDE INDICATOR
    if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
@@ -108,16 +153,13 @@ void render_entity_panel(EntityPanelContext* panel)
          snap_entity_to_reference(panel->entity);
    }
 
-   ImGui::SameLine();
    if(ImGui::Button("Stretch", ImVec2(82,18)))
    {
       activate_stretch_mode(entity);
    }
 
-   if(ImGui::Button("Place", ImVec2(82,18)))
-   {
-      activate_place_mode(entity);
-   }
+   ImGui::NewLine();
+
 
    // TABS
 
@@ -152,26 +194,11 @@ void render_entity_panel(EntityPanelContext* panel)
       }
    }
 
-   // RENAME
    ImGui::NewLine();
-   if(ImGui::CollapsingHeader("Rename Entity"))
-   {
-      ImGui::InputText("New name", &panel->rename_buffer[0], 100);
-      ImGui::SameLine();
-      if(ImGui::Button("Apply"))
-      {
-         if(panel->validate_rename_buffer_contents())
-         {
-            entity->name = panel->rename_buffer;
-            panel->empty_rename_buffer();
-         }
-      }
-   }
+   ImGui::NewLine();
 
-   // HIDE ENTITY
-   ImGui::Checkbox("Hide", &entity->wireframe);
-   ImGui::SameLine();
-   ImGui::Text("Show");
+   // SHOW GEOMETRIC PROPERTIES
+   ImGui::Text("Show:");
    ImGui::Checkbox("Normals", &panel->show_normals);
    ImGui::SameLine();
    ImGui::Checkbox("Collider", &panel->show_collider);
@@ -241,17 +268,16 @@ void open_entity_panel(Entity* entity)
 {
    EdContext.selected_entity = entity;
 
-   auto &panel = EdContext.entity_panel;
-   panel.active = true;
-   panel.entity = entity;
-   panel.reverse_scale_x = false;
-   panel.reverse_scale_y = false;
-   panel.reverse_scale_z = false;
-   // panel.x_arrow->rotation = vec3{0,0,270};
-   // panel.y_arrow->rotation = vec3{0,0,0};
-   // panel.z_arrow->rotation = vec3{90,0,0};
-   panel.show_normals = false;
-   panel.show_collider = false;
-   panel.show_bounding_box = false;
-   panel.entity_tracked_state = get_entity_state(entity);
+   auto &panel                   = EdContext.entity_panel;
+   panel.active                  = true;
+   panel.entity                  = entity;
+   panel.reverse_scale_x         = false;
+   panel.reverse_scale_y         = false;
+   panel.reverse_scale_z         = false;
+   panel.show_normals            = false;
+   panel.show_collider           = false;
+   panel.show_bounding_box       = false;
+   panel.rename_option_active    = false;
+   panel.entity_tracked_state    = get_entity_state(entity);
+   panel.empty_rename_buffer();
 }

@@ -20,6 +20,7 @@ struct EntityPanelContext {
    float original_rotation = 0;
    
    //rename buffer
+   bool rename_option_active = false;
    const static size_t _rename_buff_size = 100;
    char rename_buffer[_rename_buff_size];
 
