@@ -243,7 +243,6 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
    {
       case PLAYER_STATE_STANDING:
       {
-
          /* NOTES
           1. If we move towards a steppable collider with an angle where the cylinder hits
              it at a different point than the movement direction, the fwd raycast wont it the collider
@@ -317,12 +316,63 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
          }
          else
          {
-            // 1. compute direction of fall using player's momentum
 
-            // 2. compute terminal position after sliding player towards the fall
-               // ( maybe by testing collision repeatedly until no collision, with a stop point)
-            // 3. if player cant fall, DO NOT update players height (he will kinda float above the hole)
-            // 4. if he can fall, then do P_change_state(player, PLAYER_STATE_FALLING);
+            if(CL_Ignore_Colliders.count > 0)
+            {
+               // configs
+               vec3 grav  = vec3(0, -9.0, 0);          // m/s^2
+               float d_frame = 0.01;
+
+               //auto vel_0     = player->entity_ptr->velocity;
+               vec3 vel       = vec3(-2.0, 0, 0);
+               auto pos_0     = player->entity_ptr->position;
+
+               float max_iterations = 2000;
+
+               IM_RENDER.add_point(IMHASH, player->entity_ptr->position, 2.0, false, COLOR_GREEN_1, 1);
+
+               int iteration = 0;
+               while(true)
+               {
+                  //player->entity_ptr->velocity   += d_frame * grav;
+                  vel += d_frame * grav; 
+                  //player->entity_ptr->position   += player->entity_ptr->velocity * d_frame;
+                  player->entity_ptr->position   += vel * d_frame;
+                  IM_RENDER.add_point(IM_ITERHASH(iteration), player->entity_ptr->position, 2.0, false, COLOR_GREEN_1, 1);
+
+                  player->entity_ptr->update();
+
+                  int uncollided_count = 0;
+                  for(int i = 0; i < CL_Ignore_Colliders.count; i++)
+                  {
+                     auto entity = CL_Ignore_Colliders.list[i];
+                     auto result = CL_test_player_vs_entity(entity, player);
+                     if(result.collision) break;
+
+                     uncollided_count++;
+                  }
+
+                  if(uncollided_count == CL_Ignore_Colliders.count)
+                     break;
+
+                  iteration++;
+                  if(iteration > max_iterations) assert(false);
+               }
+
+               // final player position after falling from the edge (when he stops touching anything)
+               vec3 terminal_position = player->entity_ptr->position;
+               IM_RENDER.add_mesh(IMHASH, &player->entity_ptr->collider);
+
+
+               player->entity_ptr->position = pos_0;
+               //player->entity_ptr->velocity = vel_0;
+
+               player->entity_ptr->update();
+
+
+               // 3. if player cant fall, DO NOT update players height (he will kinda float above the hole)
+               // 4. if he can fall, then do P_change_state(player, PLAYER_STATE_FALLING);
+            }
          }
 
          CL_run_iterative_collision_detection(player);

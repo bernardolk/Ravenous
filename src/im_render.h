@@ -46,7 +46,7 @@ struct ImmediateDrawElementSlot {
 };
 
 struct GlobalImmediateDraw {
-   const static int IM_BUFFER_SIZE = 100;
+   const static int IM_BUFFER_SIZE = 200;
    ImmediateDrawElement* list;
 
    void init()

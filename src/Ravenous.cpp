@@ -306,7 +306,7 @@ int main()
       GP_update_player_state(player, &World);
       //AN_animate_player(player);
 
-      simulate_gravity_trajectory();      
+      // simulate_gravity_trajectory();      
 
 
       // -------------

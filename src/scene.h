@@ -818,6 +818,7 @@ Entity* create_player_entity()
       };
    entity->mesh = cylinder_mesh;
    entity->collision_mesh = cylinder_mesh;
+   entity->collider       = *cylinder_mesh;
 
    // player collision geometry
    auto cgac = new CollisionGeometryAlignedCylinder { P_HALF_HEIGHT, P_RADIUS };
