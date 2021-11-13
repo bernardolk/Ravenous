@@ -300,7 +300,6 @@ int main()
       // -------------
 		update_scene_objects();
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player);
-      player->orientation = G_SCENE_INFO.views[FPS_CAM]->Front;
       //GP_check_player_events(player);
       //GP_move_player(player);
       GP_update_player_state(player, &World);

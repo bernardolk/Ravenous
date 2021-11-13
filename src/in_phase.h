@@ -423,6 +423,7 @@ void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
          G_INPUT_INFO.mouse_coords.last_x = xpos;
          G_INPUT_INFO.mouse_coords.last_y = ypos;
          G_INPUT_INFO.forget_last_mouse_coords = false;
+         return;
       }
 
       // calculates offsets and updates last x and y pos

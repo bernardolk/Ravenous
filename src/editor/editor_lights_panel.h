@@ -4,8 +4,6 @@
 
 void open_lights_panel(string type, int index, bool focus_tab);
 vec3 compute_direction_from_angles(float pitch, float yaw);
-void compute_angles_from_direction(float& pitch, float& yaw, vec3 direction);
-
 
 void open_lights_panel(string type = "", int index = -1, bool focus_tab = false)
 {
@@ -28,18 +26,6 @@ vec3 compute_direction_from_angles(float pitch, float yaw)
    arrow_direction.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
    arrow_direction = glm::normalize(arrow_direction);
    return arrow_direction;
-}
-
-
-void compute_angles_from_direction(float& pitch, float& yaw, vec3 direction)
-{
-   pitch = glm::degrees(glm::asin(direction.y));
-   yaw = glm::degrees(atan2(direction.x, -1 * direction.z) - 3.141592 / 2);
-   if (pitch > 89.0f)  pitch = 89.0f;
-   if (pitch < -89.0f) pitch = -89.0f;
-   if (yaw > 360.0f)   yaw -= 360.0f;
-   if (yaw < -360.0f)  yaw += 360.0f;
-   return;
 }
 
 

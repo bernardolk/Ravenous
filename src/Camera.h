@@ -16,15 +16,16 @@ struct Camera {
 	vec3 Position = vec3(0.0f);
 	vec3 Front = vec3(1.0f, 0.0f, 0.0f);
 	vec3 Up = vec3(0.0f, 1.0f, 0.0f);
+
 	float Acceleration = 3.5f;
 	float FOVy = 45.0f;
 	float FarPlane = 300.0f;
 	float NearPlane = 0.1f;
 	float Sensitivity = 0.1f;
-	float Yaw = 0.0f;
-	float Pitch = 0.0f;
+
 	glm::mat4 View4x4;
 	glm::mat4 Projection4x4;
+   
    CameraType type = FREE_ROAM;
    float orbital_angle = 0;
 };
@@ -36,13 +37,12 @@ u8 FPS_CAM = 1;
 // Prototypes
 void camera_update(Camera* camera, float viewportWidth, float viewportHeight, Player* player);
 void camera_change_direction(Camera* camera, float yawOffset, float pitchOffset);
-// Make camera look at a place in world coordinates to look at. If isPosition is set to true, then
-// a position is expected, if else, then a direction is expected.
 void camera_look_at(Camera* camera, vec3 ref, bool isPosition);
 void save_camera_settings_to_file(string path, vec3 position, vec3 direction);
 float* load_camera_settings(string path);
 void set_camera_to_free_roam(Camera* camera);
 void set_camera_to_third_person(Camera* camera, Player* player);
+void compute_angles_from_direction(float& pitch, float& yaw, vec3 direction);
 
 // Functions
 void set_camera_to_free_roam(Camera* camera)
@@ -92,24 +92,24 @@ void camera_update(Camera* camera, float viewportWidth, float viewportHeight, Pl
 
 void camera_change_direction(Camera* camera, float yawOffset, float pitchOffset)
 {
-	float newPitch = camera->Pitch += pitchOffset;
-	float newYaw = camera->Yaw += yawOffset;
-	camera->Front.x = cos(glm::radians(newPitch)) * cos(glm::radians(newYaw));
-	camera->Front.y = sin(glm::radians(newPitch));
-	camera->Front.z = cos(glm::radians(newPitch)) * sin(glm::radians(newYaw));
-	camera->Front = glm::normalize(camera->Front);
+   float pitch, yaw;
+   compute_angles_from_direction(pitch, yaw, camera->Front);
 
-    // Unallows camera to perform a flip
-   if (camera->Pitch > 89.0f)
-     camera->Pitch = 89.0f;
-   if (camera->Pitch < -89.0f)
-      camera->Pitch = -89.0f;
+	pitch     += pitchOffset;
+	yaw       += yawOffset;
+
+   // Unallows camera to perform a flip
+   if (pitch > 89.0f)  pitch = 89.0f;
+   if (pitch < -89.0f) pitch = -89.0f;
 
    // Make sure we don't overflow floats when camera is spinning indefinetely
-   if (camera->Yaw > 360.0f)
-      camera->Yaw -= 360.0f;
-   if (camera->Yaw < -360.0f)
-      camera->Yaw += 360.0f;
+   if (yaw > 360.0f)  yaw -= 360.0f;
+   if (yaw < -360.0f) yaw += 360.0f;
+
+	camera->Front.x   = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+	camera->Front.y   = sin(glm::radians(pitch));
+	camera->Front.z   = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+	camera->Front     = glm::normalize(camera->Front);
 }
 
 
@@ -117,15 +117,16 @@ void camera_look_at(Camera* camera, vec3 ref, bool isPosition)
 {
    // vec3 ref -> either a position or a direction vector (no need to be normalised)
 	vec3 look_vec = ref;
-	if (isPosition) look_vec = ref - vec3(camera->Position.x, camera->Position.y, camera->Position.z);
+	if (isPosition) 
+      look_vec = ref - vec3(camera->Position.x, camera->Position.y, camera->Position.z);
 	look_vec = glm::normalize(look_vec);
 
-	camera->Pitch = glm::degrees(glm::asin(look_vec.y));
-	camera->Yaw = glm::degrees(atan2(look_vec.x, -1 * look_vec.z) - 3.141592 / 2);
+	float pitch = glm::degrees(glm::asin(look_vec.y));
+	float yaw   = glm::degrees(atan2(look_vec.x, -1 * look_vec.z) - 3.141592 / 2);
 
-	camera->Front.x = cos(glm::radians(camera->Pitch)) * cos(glm::radians(camera->Yaw));
-	camera->Front.y = sin(glm::radians(camera->Pitch));
-	camera->Front.z = cos(glm::radians(camera->Pitch)) * sin(glm::radians(camera->Yaw));
+	camera->Front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+	camera->Front.y = sin(glm::radians(pitch));
+	camera->Front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
 	camera->Front = glm::normalize(camera->Front);
 }
 
@@ -197,4 +198,15 @@ void save_camera_settings_to_file(string path, vec3 position, vec3 direction)
    ofs << direction.y << " ";
    ofs << direction.z;
    ofs.close();
+}
+
+void compute_angles_from_direction(float& pitch, float& yaw, vec3 direction)
+{
+   pitch = glm::degrees(glm::asin(direction.y));
+   yaw = glm::degrees(atan2(direction.x, -1 * direction.z) - 3.141592 / 2);
+   if (pitch > 89.0f)  pitch = 89.0f;
+   if (pitch < -89.0f) pitch = -89.0f;
+   if (yaw > 360.0f)   yaw -= 360.0f;
+   if (yaw < -360.0f)  yaw += 360.0f;
+   return;
 }
