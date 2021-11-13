@@ -216,15 +216,7 @@ RaycastTest CL_do_c_vtrace(Player* player)
 
 
 void GP_update_player_state(Player* &player, WorldStruct* world)
-{
-   // UPDATE COLLISION BUFFERS 
-   {
-      CL_update_player_world_cells(player);
-      /*@todo: unless this becomes a performance problem, its easier to recompute the buffer every frame
-               then to try placing this call everytime necessary */
-      CL_recompute_collision_buffer_entities(player);
-   }
-   
+{   
    // compute player next position
    auto next_position = GP_player_next_position(player);
 
@@ -316,29 +308,36 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
          }
          else
          {
+            /* If player was standing on something and we added the collider to the ignored colliders for collision,
+               then, run a simulation, moving player like gravity would, testing for collision in each step and
+               once we are not colliding with the terrain colliders anymore, check if player fits without colliding with
+               anything in that position and then allow him to fall through.
+               If he doesn't fit, then ignore the hole and let player walk through it.
+            */
 
             if(CL_Ignore_Colliders.count > 0)
             {
                // configs
-               vec3 grav  = vec3(0, -9.0, 0);          // m/s^2
-               float d_frame = 0.01;
+               float d_frame = 0.014;
 
-               //auto vel_0     = player->entity_ptr->velocity;
-               vec3 vel       = vec3(-2.0, 0, 0);
+               vec3 vel       = player->entity_ptr->velocity;
                auto pos_0     = player->entity_ptr->position;
 
-               float max_iterations = 2000;
+               // Give player a 'push'
+               if(abs(vel.x) < player->fall_from_edge_push_speed && abs(vel.z) < player->fall_from_edge_push_speed)
+                  vel = player->v_dir_historic * player->fall_from_edge_push_speed;
 
-               IM_RENDER.add_point(IMHASH, player->entity_ptr->position, 2.0, false, COLOR_GREEN_1, 1);
+               float max_iterations = 120;
+
+               //IM_RENDER.add_point(IMHASH, player->entity_ptr->position, 2.0, false, COLOR_GREEN_1, 1);
 
                int iteration = 0;
+               bool can_fall = true;
                while(true)
                {
-                  //player->entity_ptr->velocity   += d_frame * grav;
-                  vel += d_frame * grav; 
-                  //player->entity_ptr->position   += player->entity_ptr->velocity * d_frame;
-                  player->entity_ptr->position   += vel * d_frame;
-                  IM_RENDER.add_point(IM_ITERHASH(iteration), player->entity_ptr->position, 2.0, false, COLOR_GREEN_1, 1);
+                  vel += d_frame * player->gravity; 
+                  player->entity_ptr->position += vel * d_frame;
+                  //IM_RENDER.add_point(IM_ITERHASH(iteration), player->entity_ptr->position, 2.0, true, COLOR_GREEN_1, 1);
 
                   player->entity_ptr->update();
 
@@ -356,24 +355,48 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
                      break;
 
                   iteration++;
-                  if(iteration > max_iterations) assert(false);
+                  if(iteration == max_iterations)
+                  {
+                     // we couldn't unstuck the player in max_iterations * d_frame seconds of falling towards
+                     // player movement direction, so he can't fall there
+                     can_fall = false;
+                     break;
+                  }
                }
 
-               // final player position after falling from the edge (when he stops touching anything)
-               vec3 terminal_position = player->entity_ptr->position;
-               IM_RENDER.add_mesh(IMHASH, &player->entity_ptr->collider);
+               if(can_fall)
+               {
+                  // final player position after falling from the edge (when he stops touching anything)
+                  vec3 terminal_position = player->entity_ptr->position;
+                  //IM_RENDER.add_mesh(IMHASH, &player->entity_ptr->collider);
 
+                  auto& vel = player->entity_ptr->velocity;
+                  if(abs(vel.x) < player->fall_from_edge_push_speed && abs(vel.z) < player->fall_from_edge_push_speed)
+                     vel = player->v_dir_historic * player->fall_from_edge_push_speed;
+
+                  P_change_state(player, PLAYER_STATE_FALLING);
+               }
+               else
+               {
+                  RENDER_MESSAGE("Player won't fit if he falls here.", 1000);
+               }
 
                player->entity_ptr->position = pos_0;
-               //player->entity_ptr->velocity = vel_0;
-
                player->entity_ptr->update();
-
 
                // 3. if player cant fall, DO NOT update players height (he will kinda float above the hole)
                // 4. if he can fall, then do P_change_state(player, PLAYER_STATE_FALLING);
             }
          }
+
+         // UPDATE COLLISION BUFFERS 
+         {
+            CL_update_player_world_cells(player);
+            /*@todo: unless this becomes a performance problem, its easier to recompute the buffer every frame
+                     then to try placing this call everytime necessary */
+            CL_recompute_collision_buffer_entities(player);
+         }
+         player->entity_ptr->update();
 
          CL_run_iterative_collision_detection(player);
 
@@ -381,6 +404,22 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
       }
       case PLAYER_STATE_FALLING:
       {
+         player->entity_ptr->velocity += G_FRAME_INFO.duration * player->gravity; 
+         player->entity_ptr->position += player->entity_ptr->velocity * G_FRAME_INFO.duration;
+         player->entity_ptr->update();
+
+         // UPDATE COLLISION BUFFERS 
+         {
+            CL_update_player_world_cells(player);
+            /*@todo: unless this becomes a performance problem, its easier to recompute the buffer every frame
+                     then to try placing this call everytime necessary */
+            CL_recompute_collision_buffer_entities(player);
+         }
+
+         player->entity_ptr->update();
+
+         CL_run_iterative_collision_detection(player);
+
          break;
       }
       case PLAYER_STATE_JUMPING:

@@ -20,7 +20,7 @@ void render_toolbar()
       bool track = false;
 
       ImGui::Text("Cam speed");
-      ImGui::DragFloat("##camspeed", &G_SCENE_INFO.camera->Acceleration, 0.5, 1, MAX_FLOAT);
+      ImGui::DragFloat("##camspeed", &G_SCENE_INFO.camera->Acceleration, 0.1, 0.2, MAX_FLOAT);
       track = track || ImGui::IsItemDeactivatedAfterEdit();
       
       // Ambient light control

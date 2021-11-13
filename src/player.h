@@ -68,6 +68,8 @@ struct Player {
    float jump_horz_dash_thrust   = 5.0;
    float slide_jump_speed        = 6.7;
    float slide_speed             = 2.0;
+   float fall_from_edge_push_speed = 1.5;
+   vec3 gravity                 = vec3(0, -9.0, 0);
 
    
    // movement states
