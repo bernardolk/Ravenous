@@ -227,15 +227,13 @@ void handle_input_flags(InputFlags flags, Player* &player)
    // -------------------------------
    if(pressed_once(flags, KEY_C))
    {
-      // moves player to camera position
-      // player->entity_ptr->position = G_SCENE_INFO.camera->Position + G_SCENE_INFO.camera->Front * 8.0f;
-      // camera_look_at(G_SCENE_INFO.views[1], G_SCENE_INFO.camera->Front, false);
       auto pickray = cast_pickray();
       auto test = test_ray_against_scene(pickray, true, player->entity_ptr->id);
       if(test.hit)
       {
          auto surface_point =  point_from_detection(pickray, test);
-         player->entity_ptr->position = surface_point + player->half_height;
+         player->entity_ptr->position = surface_point;
+         player->entity_ptr->position.y += player->half_height;
          player->player_state = PLAYER_STATE_STANDING;
          player->standing_entity_ptr = test.entity;
          player->entity_ptr->velocity = vec3(0, 0, 0);
