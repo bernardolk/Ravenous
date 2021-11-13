@@ -229,7 +229,15 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
    auto next_position = GP_player_next_position(player);
 
 
-   CL_Ignore_Colliders.empty();
+   // Remove entities added to the 'ignored for collision test' list if they aren't colliding with player anymore
+   for(int i = 0; i < CL_Ignore_Colliders.count; i++)
+   {
+      auto entity = CL_Ignore_Colliders.list[i];
+      auto result = CL_test_player_vs_entity(entity, player);
+
+      if(!result.collision)
+         CL_Ignore_Colliders.remove(entity);
+   }
 
    switch(player->player_state)
    {
@@ -310,6 +318,7 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
          else
          {
             // 1. compute direction of fall using player's momentum
+
             // 2. compute terminal position after sliding player towards the fall
                // ( maybe by testing collision repeatedly until no collision, with a stop point)
             // 3. if player cant fall, DO NOT update players height (he will kinda float above the hole)

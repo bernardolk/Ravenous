@@ -190,6 +190,7 @@ GLenum glCheckError_(const char* file, int line);
 void start_frame();
 void check_all_entities_have_shaders();
 void setup_gl();
+void simulate_gravity_trajectory();
 
 
 
@@ -304,7 +305,8 @@ int main()
       //GP_move_player(player);
       GP_update_player_state(player, &World);
       //AN_animate_player(player);
-      
+
+      simulate_gravity_trajectory();      
 
 
       // -------------
@@ -346,6 +348,33 @@ int main()
 	glfwTerminate();
 	return 0;
 }
+
+//    ----------------------------------------------------------------
+void simulate_gravity_trajectory()
+{
+   // configs
+   vec3 initial_pos   = vec3(2.0, 1.5, 6.5);
+   vec3 v_direction  = -UNIT_X;
+   float v_magnitude = 3;
+   vec3 grav  = vec3(0, -9.0, 0);          // m/s^2
+   int  iterations = 20;
+   float d_frame = 0.02;
+
+   // state
+   vec3 vel     = v_direction * v_magnitude;
+   vec3 pos     = initial_pos;
+
+
+   for(int i = 0; i < iterations; i++)
+   {
+      vel += d_frame * grav;
+      pos += vel * d_frame;
+      IM_RENDER.add_point(IM_ITERHASH(i), pos, 2.0, false, COLOR_GREEN_1, 1);
+   }
+}
+
+//    ----------------------------------------------------------------
+
 
 void start_frame()
 {
