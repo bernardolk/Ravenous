@@ -96,12 +96,14 @@ void update();
 void render(Player* player, WorldStruct* world);
 void terminate();
 
-void update_editor_entities();
+void update_triaxis_gizmo();
 void check_selection_to_open_panel(Player* player);
 void check_selection_to_move_entity();
 
 void render_text_overlay(Player* player);
 void render_event_triggers(Camera* camera);
+void render_entity_control_arrows(EntityPanelContext* panel);
+void render_entity_mesh_normals(EntityPanelContext* panel);
 void render_world_cells(Camera* camera);
 void render_lightbulbs(Camera* camera);
 void start_dear_imgui_frame();
@@ -134,7 +136,7 @@ void update()
 
    // check for asset changes
    check_for_asset_changes();
-   update_editor_entities();
+   update_triaxis_gizmo();
 
    // ENTITY PANEL
    if(EdContext.entity_panel.active)
@@ -215,7 +217,7 @@ void update()
    EdContext.mouse_click = false;
 }
 
-void update_editor_entities()
+void update_triaxis_gizmo()
 {
    for(int i=0; i < 3; i++)
    {
@@ -428,11 +430,11 @@ void initialize()
 
    auto blue_tex  = load_texture_from_file("blue.jpg",   TEXTURES_PATH);
    auto green_tex = load_texture_from_file("green.jpg",  TEXTURES_PATH);
-   auto pink_tex  = load_texture_from_file("pink.jpg",   TEXTURES_PATH);
+   auto red_tex  = load_texture_from_file("red.jpg",   TEXTURES_PATH);
 
    x_axis->textures.push_back(Texture{blue_tex,  "texture_diffuse", "blue.jpg",  "blue axis"});
    y_axis->textures.push_back(Texture{green_tex, "texture_diffuse", "green.jpg", "green axis"});
-   z_axis->textures.push_back(Texture{pink_tex,  "texture_diffuse", "pink.jpg",  "pink axis"});
+   z_axis->textures.push_back(Texture{red_tex,  "texture_diffuse", "red.jpg",  "red axis"});
 
    auto shader = Shader_Catalogue.find("ortho_gui")->second;
    x_axis->shader = shader;
@@ -451,29 +453,6 @@ void initialize()
    EdContext.tri_axis[1] = y_axis;
    EdContext.tri_axis[2] = z_axis;
 
-   auto letter_x_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, "letter_x");
-   auto x_axis_letter = new Entity();
-   x_axis_letter->mesh = letter_x_mesh;
-   x_axis_letter->textures.push_back(Texture{blue_tex,  "texture_diffuse", "blue.jpg",  "blue axis"});
-   x_axis_letter->shader = shader;
-   x_axis_letter->scale = vec3{0.1, 0.1, 0.1};
-   EdContext.tri_axis_letters[0] = x_axis_letter;
-
-   auto letter_y_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, "letter_y");
-   auto y_axis_letter = new Entity();
-   y_axis_letter->mesh = letter_y_mesh;
-   y_axis_letter->textures.push_back(Texture{blue_tex,  "texture_diffuse", "green.jpg",  "green axis"});
-   y_axis_letter->shader = shader;
-   y_axis_letter->scale = vec3{0.1, 0.1, 0.1};
-   EdContext.tri_axis_letters[1] = y_axis_letter;
-
-   auto letter_z_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, "letter_z");
-   auto z_axis_letter = new Entity();
-   z_axis_letter->mesh = letter_z_mesh;
-   z_axis_letter->textures.push_back(Texture{blue_tex,  "texture_diffuse", "pink.jpg",  "pink axis"});
-   z_axis_letter->shader = shader;
-   z_axis_letter->scale = vec3{0.1, 0.1, 0.1};
-   EdContext.tri_axis_letters[2] = z_axis_letter;
 
    // load entity panel axis arrows
    auto x_arrow = new Entity();
@@ -499,7 +478,7 @@ void initialize()
 
    x_arrow->textures.push_back(Texture{blue_tex,  "texture_diffuse", "blue.jpg",  "blue axis"});
    y_arrow->textures.push_back(Texture{green_tex, "texture_diffuse", "green.jpg", "green axis"});
-   z_arrow->textures.push_back(Texture{pink_tex,  "texture_diffuse", "pink.jpg",  "pink axis"});
+   z_arrow->textures.push_back(Texture{red_tex,  "texture_diffuse", "red.jpg",  "red axis"});
 
    EdContext.entity_panel.x_arrow = x_arrow;
    EdContext.entity_panel.y_arrow = y_arrow;
@@ -1033,6 +1012,75 @@ void render_lightbulbs(Camera* camera)
       // shader->setMatrix4("view", camera->View4x4);
       // shader->setMatrix4("projection", camera->Projection4x4);
       // render_mesh(arrow_mesh, RenderOptions{});
+   }
+}
+
+
+void render_entity_control_arrows(EntityPanelContext* panel)
+{
+   glDepthFunc(GL_ALWAYS);
+   render_editor_entity(panel->x_arrow, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
+   render_editor_entity(panel->y_arrow, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
+   render_editor_entity(panel->z_arrow, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
+   glDepthFunc(GL_LESS);
+}
+
+void update_entity_control_arrows(EntityPanelContext* panel)
+{
+   // arrow positioning settings
+   float    angles[3]   = {270, 0, 90};
+   vec3     rot_axis[3] = {UNIT_Z, UNIT_Y, UNIT_X};
+   Entity*  arrows[3]   = {panel->x_arrow, panel->y_arrow, panel->z_arrow};
+   
+   auto  entity = panel->entity;
+
+   if(panel->reverse_scale)
+   {
+      for(int i = 0; i < 3; i++)
+         angles[i] += 180;
+   }
+
+   // update arrow mat models doing correct matrix multiplication order
+   auto starting_model = translate(mat4identity, entity->position);
+   starting_model = rotate(starting_model, glm::radians(entity->rotation.x), UNIT_X);
+   starting_model = rotate(starting_model, glm::radians(entity->rotation.y), UNIT_Y);
+   starting_model = rotate(starting_model, glm::radians(entity->rotation.z), UNIT_Z);
+
+   float scale_value = 0.5;
+   if(0.5 > entity->scale.x / 2 || 0.5 > entity->scale.y / 2 || 0.5 > entity->scale.z / 2)
+   {
+      float smallest = entity->scale.x;
+      if(smallest > entity->scale.y) smallest = entity->scale.y;
+      if(smallest > entity->scale.z) smallest = entity->scale.z;
+      scale_value = smallest * 0.6;
+      if(scale_value < 0.3)
+         scale_value = 0.3;
+   }
+
+   for(int i = 0; i < 3; i++)
+   {
+      auto model = rotate(starting_model, glm::radians(angles[i]), rot_axis[i]);
+      model = scale(model, vec3(scale_value));
+      arrows[i]->matModel = model;
+   }
+}
+
+
+void render_entity_mesh_normals(EntityPanelContext* panel)
+{
+   // only for aabb
+   auto entity = panel->entity;
+
+   int triangles = entity->mesh->indices.size() / 3;
+   for(int i = 0; i < triangles; i++)
+   {
+      Triangle _t = get_triangle_for_indexed_mesh(entity, i);
+      vec3 normal = glm::triangleNormal(_t.a, _t.b, _t.c);
+      Face f = face_from_axis_aligned_triangle(_t);
+      
+      IM_RENDER.add_point(IMHASH, f.center, 2.0, true);
+
+      IM_RENDER.add_line(IMHASH, f.center, f.center + normal * 2.0f, 2.5, true);
    }
 }
 

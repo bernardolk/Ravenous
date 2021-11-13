@@ -64,7 +64,7 @@ void main()
 	
 	struct PointLight light;
 	light.position = lightpos;
-	light.diffuse = vec3(1,1,1);
+	light.diffuse = vec3(0);
 	light.specular = vec3(1,1,1);
 	light.constant = 1.75;
 	light.linear = 0.6;

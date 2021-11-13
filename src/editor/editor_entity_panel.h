@@ -236,14 +236,6 @@ void render_entity_panel(EntityPanelContext* panel)
    ImGui::End();
 }
 
-void render_entity_control_arrows(EntityPanelContext* panel)
-{
-   glDepthFunc(GL_ALWAYS);
-   render_editor_entity(panel->x_arrow, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
-   render_editor_entity(panel->y_arrow, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
-   render_editor_entity(panel->z_arrow, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
-   glDepthFunc(GL_LESS);
-}
 
 void open_entity_panel(Entity* entity)
 {
@@ -255,64 +247,11 @@ void open_entity_panel(Entity* entity)
    panel.reverse_scale_x = false;
    panel.reverse_scale_y = false;
    panel.reverse_scale_z = false;
-   panel.x_arrow->rotation = vec3{0,0,270};
-   panel.y_arrow->rotation = vec3{0,0,0};
-   panel.z_arrow->rotation = vec3{90,0,0};
+   // panel.x_arrow->rotation = vec3{0,0,270};
+   // panel.y_arrow->rotation = vec3{0,0,0};
+   // panel.z_arrow->rotation = vec3{90,0,0};
    panel.show_normals = false;
    panel.show_collider = false;
    panel.show_bounding_box = false;
    panel.entity_tracked_state = get_entity_state(entity);
-}
-
-void update_entity_control_arrows(EntityPanelContext* panel)
-{
-   auto entity = panel->entity;
-
-   auto &x = panel->x_arrow;
-   auto &y = panel->y_arrow;
-   auto &z = panel->z_arrow;
-
-   x->position = entity->position;
-   y->position = entity->position;
-   z->position = entity->position;
-
-   if(panel->reverse_scale)
-   {
-      x->rotation   = vec3(0, 0, 90);
-      y->rotation   = vec3(0, 0, 180);
-      z->rotation   = vec3(270, 0 ,0);
-   }
-   else
-   {
-      x->rotation   = vec3(0, 0, 270);
-      y->rotation   = vec3(0, 0, 0);
-      z->rotation   = vec3(90, 0 ,0);
-   }
-
-   auto rot_matrix = entity->get_rotation_matrix();
-   x->rotation = toVec3(vec4(x->rotation, 1.f) * rot_matrix);
-   y->rotation = toVec3(vec4(y->rotation, 1.f) * rot_matrix);
-   z->rotation = toVec3(vec4(z->rotation, 1.f) * rot_matrix);
-
-   x->update_model_matrix();
-   y->update_model_matrix();
-   z->update_model_matrix();
-}
-
-void render_entity_mesh_normals(EntityPanelContext* panel)
-{
-   // only for aabb
-   auto entity = panel->entity;
-
-   int triangles = entity->mesh->indices.size() / 3;
-   for(int i = 0; i < triangles; i++)
-   {
-      Triangle _t = get_triangle_for_indexed_mesh(entity, i);
-      vec3 normal = glm::triangleNormal(_t.a, _t.b, _t.c);
-      Face f = face_from_axis_aligned_triangle(_t);
-      
-      IM_RENDER.add_point(IMHASH, f.center, 2.0, true);
-
-      IM_RENDER.add_line(IMHASH, f.center, f.center + normal * 2.0f, 2.5, true);
-   }
 }
