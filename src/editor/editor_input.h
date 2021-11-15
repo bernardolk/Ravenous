@@ -228,7 +228,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
    if(pressed_once(flags, KEY_C))
    {
       auto pickray = cast_pickray();
-      auto test = test_ray_against_scene(pickray, true, player->entity_ptr->id);
+      auto test = test_ray_against_scene(pickray, player->entity_ptr);
       if(test.hit)
       {
          auto surface_point =  point_from_detection(pickray, test);
@@ -243,7 +243,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
    // --------------------------------------------
    // CONTROL KEY USAGE BLOCKED FROM HERE ONWARDS
    // --------------------------------------------
-   if(pressed(flags, KEY_LEFT_CTRL))
+   if(pressed(flags, KEY_LEFT_CTRL))         // this doesn't solve the full problem.
       return;
 
    // -------------------------
@@ -272,7 +272,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
       else if(G_SCENE_INFO.camera->type == THIRD_PERSON)
          G_SCENE_INFO.camera->orbital_angle -= 0.025;
    }
-   if(flags.key_press & KEY_S)
+   if(pressed(flags, KEY_S))
    {
       G_SCENE_INFO.camera->Position -= camera_speed * G_SCENE_INFO.camera->Front;
    }

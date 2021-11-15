@@ -1087,7 +1087,7 @@ void render_entity_mesh_normals(EntityPanelContext* panel)
 void check_selection_to_open_panel(Player* player)
 {
    auto pickray      = cast_pickray();
-   auto test         = test_ray_against_scene(pickray, true);
+   auto test         = test_ray_against_scene(pickray, RayCast_TestOnlyVisibleEntities);
    auto test_light   = test_ray_against_lights(pickray);
    if(test.hit && (!test_light.hit || test_light.distance > test.distance))
    {
@@ -1104,7 +1104,7 @@ void check_selection_to_open_panel(Player* player)
 void check_selection_to_move_entity()
 {
    auto pickray = cast_pickray();
-   auto test = test_ray_against_scene(pickray, true);
+   auto test = test_ray_against_scene(pickray, RayCast_TestOnlyVisibleEntities);
    auto test_light = test_ray_against_lights(pickray);
    if(test.hit && (!test_light.hit || test_light.distance > test.distance))
       activate_move_mode(test.entity);

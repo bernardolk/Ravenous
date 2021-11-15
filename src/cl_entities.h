@@ -340,7 +340,7 @@ RaycastTest CL_check_for_floor_below_player(Player* player)
    float tunneling_tolerance = 0.03;
 
    auto downward_ray    = Ray{player->feet() + vec3{0.0f, tunneling_tolerance, 0.0f}, -UNIT_Y};
-   RaycastTest raytest  = test_ray_against_scene(downward_ray, player->entity_ptr->id);
+   RaycastTest raytest  = test_ray_against_scene(downward_ray, RayCast_TestOnlyFromOutsideIn, player->entity_ptr);
 
    if(!raytest.hit) return RaycastTest{false};
 

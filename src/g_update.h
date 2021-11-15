@@ -199,7 +199,7 @@ float PLAYER_STEPOVER_LIMIT   = 0.2;
 RaycastTest CL_do_c_vtrace(Player* player)
 {
    auto downward_ray    = Ray{player->feet() + vec3{0.0f, PLAYER_STEPOVER_LIMIT, 0.0f}, -UNIT_Y};
-   RaycastTest raytest  = test_ray_against_scene(downward_ray, player->entity_ptr->id);
+   RaycastTest raytest  = test_ray_against_scene(downward_ray, RayCast_TestOnlyFromOutsideIn, player->entity_ptr);
 
    if(!raytest.hit) return RaycastTest{false};
 
