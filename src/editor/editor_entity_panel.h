@@ -76,7 +76,7 @@ void render_entity_panel(EntityPanelContext* panel)
    bool used_rot = false;
    {
       float rotations[]{ entity->rotation.x, entity->rotation.y, entity->rotation.z };
-      if(ImGui::DragFloat3("Rotation", rotations, 1, 0, 360))
+      if(ImGui::DragFloat3("Rotation", rotations, 1, -360, 360))
       {
          used_rot = true;
          entity->rotation = vec3{rotations[0], rotations[1], rotations[2]};

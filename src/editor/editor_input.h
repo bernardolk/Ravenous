@@ -237,6 +237,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
          player->player_state = PLAYER_STATE_STANDING;
          player->standing_entity_ptr = test.entity;
          player->entity_ptr->velocity = vec3(0, 0, 0);
+         player->update();
       }
    }
 

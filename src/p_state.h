@@ -161,20 +161,24 @@ void P_state_change_standing_to_falling(Player* player)
 }
 
 
-void P_state_change_falling_to_standing(Player* player, Entity* new_floor)
+void P_state_change_falling_to_standing(Player* player, Entity* terrain)
 {
-   // move player to surface, stop player and set him to standing
-   player->standing_entity_ptr            = new_floor;
-   auto height_check                      = CL_get_terrain_height_at_player(player->entity_ptr, player->standing_entity_ptr);
-   player->entity_ptr->position.y         = height_check.overlap + player->half_height; 
-   player->entity_ptr->velocity           = vec3(0);
-   player->player_state                   = PLAYER_STATE_STANDING;
+   // @todo OLD
+   player->standing_entity_ptr = terrain;
+
+   player->entity_ptr->velocity.y = 0;
+
+   // take momentum hit from hitting the ground
+   // player->entity_ptr->velocity.x *= 0.5;
+   // player->entity_ptr->velocity.z *= 0.5;
+
+   player->player_state = PLAYER_STATE_STANDING;
 
    // conditional animation: if falling from jump, land, else, land from fall
    if(player->half_height < P_HALF_HEIGHT)
-      player->anim_state                  = P_ANIM_LANDING;
+      player->anim_state = P_ANIM_LANDING;
    else
-      player->anim_state                  = P_ANIM_LANDING_FALL;
+      player->anim_state = P_ANIM_LANDING_FALL;
 
    player->maybe_hurt_from_fall();
 }

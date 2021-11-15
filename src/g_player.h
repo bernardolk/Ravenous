@@ -17,12 +17,6 @@ vec3 GP_player_next_position(Player* player)
 
    bool no_move_command = v_dir.x == 0 && v_dir.z == 0;
 
-   if(v_dir.x != 0 || v_dir.y != 0 || v_dir.z != 0)
-      player->v_dir_historic = v_dir;
-
-   if(player->speed < 0.f || no_move_command)
-      player->speed = 0;
-
    auto dt = G_FRAME_INFO.duration;
 
 
@@ -30,27 +24,37 @@ vec3 GP_player_next_position(Player* player)
    {
       case PLAYER_STATE_STANDING:
       {
+         if(v_dir.x != 0 || v_dir.y != 0 || v_dir.z != 0)
+            player->v_dir_historic = v_dir;
+
+         if(player->speed < 0.f || no_move_command)
+            player->speed = 0;
+
          auto& speed    = player->speed;
          float d_speed  = player->acceleration * dt;
 
-         // deacceleration
          bool stopped                         = (speed > 0 && no_move_command);
-         bool moving_contrary_to_momentum     = !comp_sign(v_dir.x, v.x) || !comp_sign(v_dir.z, v.z);
-         bool stopped_dashing                 = !player->dashing && square_GT(v + d_speed, player->run_speed);
-         bool started_walking_while_fast      = player->walking  && square_GT(v + d_speed, player->walk_speed);
-         bool cap_speed_dashing               = player->dashing  && square_GE(v + d_speed, player->dash_speed);
-         bool cap_speed_walking               = player->walking  && square_GE(v + d_speed, player->walk_speed);
-         bool cap_speed_running               = !(player->dashing || player->walking)  && square_GE(v + d_speed, player->run_speed);
 
-         // if(stopped || stopped_dashing || started_walking_while_fast || moving_contrary_to_momentum)
-         // { d_speed   *= -1; }            
+         float speed_limit;
+         if(player->dashing)
+            speed_limit = player->dash_speed;
+         else if(player->walking)
+            speed_limit = player->walk_speed;
+         else
+            speed_limit = player->run_speed;
+
         
          if(stopped)
-         { speed = 0; d_speed = 0; }
-         else if(cap_speed_dashing || cap_speed_walking || cap_speed_running)  
-         { d_speed   = 0; }
-
+         { 
+            speed = 0;
+            d_speed = 0;
+         }
+   
          speed += d_speed;
+
+         if(speed > speed_limit)
+            speed = speed_limit;
+
          v = speed * v_dir;     // if no movement command is issued, v_dir = 0,0,
 
          break;
