@@ -414,6 +414,9 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
          player->entity_ptr->position += player->entity_ptr->velocity * G_FRAME_INFO.duration;
          player->update();
 
+         if (player->entity_ptr->velocity.y <= 0)
+            P_change_state(player, PLAYER_STATE_FALLING);
+
          CL_run_iterative_collision_detection(player);
 
          break;
