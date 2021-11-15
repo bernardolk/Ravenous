@@ -20,7 +20,7 @@ struct EntitiesCollision {
 
 #include <algorithm>
 #include <math.h>
-#include <cl_log.h>
+//#include <cl_log.h>
 
 
 struct SlopeHeightsPlayer

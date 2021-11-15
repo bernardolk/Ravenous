@@ -161,7 +161,7 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <p_state.h>
 #include <g_player.h>
 #include <an_player.h>
-#include <cl_controller.h>
+// #include <cl_controller.h>
 #include <cl_resolvers.h>
 #include <cl_buffers.h>
 #include <cl_controller_new.h>

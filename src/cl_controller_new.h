@@ -63,9 +63,10 @@ struct CL_IgnoreColliders {
 
 } CL_Ignore_Colliders;
 
-#include<cl_gjk.h>
-#include<cl_epa.h>
-#include<cl_resolvers_new.h>
+#include <cl_gjk.h>
+#include <cl_epa.h>
+#include <cl_log.h>
+#include <cl_resolvers_new.h>
 
 // prototypes
 void CL_run_iterative_collision_detection(Player* player);
@@ -97,7 +98,7 @@ void CL_run_iterative_collision_detection(Player* player)
       if(result.collision)
       {
          CL_mark_entity_checked(result.entity);
-         // CL_log_collision(result, c);
+         CL_log_collision(result, c);
          CL_new_resolve_collision(result, player);
       }
       else break;
@@ -157,7 +158,7 @@ CL_Results CL_test_player_vs_entity(Entity* entity, Player* player)
    
    if(box_gjk_test.collision)
    {
-      RENDER_MESSAGE("GJK COLLISION");
+      RENDER_MESSAGE("GJK COLLISION", 1000);
       EPA_Result epa = CL_run_EPA(box_gjk_test.simplex, entity_collider, player_collider);
       
       if(epa.collision)

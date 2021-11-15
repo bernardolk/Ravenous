@@ -35,10 +35,10 @@ void render_collision_log_panel(CollisionLogPanelContext* panel)
    if (ImGui::BeginTable("table_scrolly", 4, flags, outer_size))
    {
       ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
-      ImGui::TableSetupColumn(".",         ImGuiTableColumnFlags_None);
-      ImGui::TableSetupColumn("Entity",    ImGuiTableColumnFlags_None);
-      ImGui::TableSetupColumn("Outcome",   ImGuiTableColumnFlags_None);
-      ImGui::TableSetupColumn("Iteration", ImGuiTableColumnFlags_None);
+      ImGui::TableSetupColumn(".",              ImGuiTableColumnFlags_None);
+      ImGui::TableSetupColumn("Entity",         ImGuiTableColumnFlags_None);
+      ImGui::TableSetupColumn("Penetration",    ImGuiTableColumnFlags_None);
+      ImGui::TableSetupColumn("Normal",         ImGuiTableColumnFlags_None);
       ImGui::TableHeadersRow();
 
       ImGuiListClipper clipper;
@@ -57,23 +57,13 @@ void render_collision_log_panel(CollisionLogPanelContext* panel)
             ImGui::TableSetColumnIndex(1);
             ImGui::Text(entry->entity->name.c_str());
             ImGui::TableSetColumnIndex(2);
-            ImGui::Text(to_string(entry->outcome).c_str());
+            ImGui::Text(to_string(entry->penetration).c_str());
             ImGui::TableSetColumnIndex(3);
-            ImGui::Text(to_string(entry->iteration).c_str());
+            ImGui::Text(to_string(entry->normal).c_str());
          }
       }
       ImGui::EndTable();
    }
-
-   ImGui::NewLine();
-   ImGui::Text("0 = JUMP_SUCCESS");
-   ImGui::Text("2 = JUMP_FACE_FLAT");
-   ImGui::Text("3 = JUMP_SLIDE");
-   ImGui::Text("4 = JUMP_SLIDE_HIGH_INCLINATION");
-   ImGui::Text("5 = JUMP_CEILING");
-   ImGui::Text("6 = STEPPED_SLOPE");
-   ImGui::Text("7 = BLOCKED_BY_WALL");
-
 
    ImGui::End();
 }

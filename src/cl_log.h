@@ -9,8 +9,8 @@
 
 struct CollisionLogEntry {
    Entity* entity;
-   CollisionOutcomeEnum outcome;
-   int iteration;
+   float penetration;
+   vec3 normal;
 };
 
 
@@ -27,7 +27,7 @@ struct CollisionLog {
 CollisionLog* COLLISION_LOG;
 
 
-void CL_log_collision(EntitiesCollision data, int iteration)
+void CL_log_collision(CL_Results data, int iteration)
 {    
    auto& log = COLLISION_LOG;
    if(log->write_count == COLLISION_LOG_CAPACITY)
@@ -49,9 +49,9 @@ void CL_log_collision(EntitiesCollision data, int iteration)
    }
 
    CollisionLogEntry entry;
-   entry.entity         = data.collided_entity_ptr;
-   entry.outcome        = data.collision_outcome;
-   entry.iteration      = iteration;
+   entry.entity         = data.entity;
+   entry.penetration    = data.penetration;
+   entry.normal         = data.normal;
    log->write[log->write_count++] = entry;
 }
 
