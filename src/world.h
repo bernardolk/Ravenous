@@ -305,8 +305,7 @@ struct WorldStruct {
          return CellUpdate{CellUpdate_ENTITY_TOO_BIG, message};
       }
 
-      // checks the diff between new and old and stores the ones that are no longer
-      // entities world cells
+      // computes outdated world cells to remove the entity from
       vector<WorldCell*> cells_to_remove_from;
       for(int i = 0; i < entity->world_cells_count; i++)
       {
@@ -324,6 +323,7 @@ struct WorldStruct {
             cells_to_remove_from.push_back(entity_world_cell);
       }
 
+      // computes the cells to add entity to
       vector<WorldCell*> cells_to_add_to;
       for(int i = 0; i < new_cells.size(); i++)
       {

@@ -5,19 +5,25 @@
 
 bool CL_update_player_world_cells(Player* player)
 {
-   // update player world cells
-   auto offset1               = vec3{-1.0f * player->radius, -1.0f * player->half_height, -1.0f * player->radius};
-   auto offset2               = vec3{player->radius, 0, player->radius};
-   auto update_cells          = World.update_entity_world_cells(player->entity_ptr, offset1, offset2);
-   if(update_cells.status == CellUpdate_OK)
+   /* Updates the player's world cells
+      Returns whether there were changes or not to the cell list
+      @todo - the procedures invoked here seem to do more work than necessary. Keep this in mind.
+   */ 
+   auto offset1 = vec3(
+      -player->radius, 
+      -player->half_height, 
+      -player->radius
+   );
+   auto offset2 = vec3(player->radius, player->half_height, player->radius);
+
+   auto update_cells = World.update_entity_world_cells(player->entity_ptr, offset1, offset2);
+   if(!update_cells.status == CellUpdate_OK)
    {
-      return update_cells.entity_changed_cell;
-   }
-   else
-   { 
       cout << update_cells.message << "\n";
       return false;
    }
+
+   return update_cells.entity_changed_cell;
 }
 
 

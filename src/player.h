@@ -36,6 +36,9 @@ float P_ANIM_DURATION[] = {
 // forward declarations
 struct Player;
 void AN_p_anim_force_interrupt(Player* player);
+bool CL_update_player_world_cells(Player* player);
+void CL_recompute_collision_buffer_entities(Player* player);
+void RENDER_MESSAGE(string msg, float duration, vec3 color);
 
 struct Player {
    Entity* entity_ptr;
@@ -109,6 +112,18 @@ struct Player {
    vec3 anim_final_dir  = vec3(0);                           // final player orientation
    vec3 anim_orig_dir   = vec3(0);                           // original player orientation
    bool anim_finished_turning = false;                       // player has finished turning his camera
+
+   void update()
+   {
+      // perform updates to bounding boxes, colliders etc
+      entity_ptr->update();
+      bool cells_updated = CL_update_player_world_cells(this);
+      if(cells_updated) 
+      {
+         CL_recompute_collision_buffer_entities(this);
+         RENDER_MESSAGE("Recomputed World Cells for Player.", 2000, COLOR_PURPLE_1);
+      }
+   }
 
    vec3 feet()
    {

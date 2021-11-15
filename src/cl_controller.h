@@ -3,7 +3,6 @@ void CL_run_collision_checks_standing              (Player* player);
 void CL_run_collision_checks_falling               (Player* player);
 void CL_resolve_collision                          (EntitiesCollision collision, Player* player);
 bool CL_update_player_world_cells                  (Player* player);
-void CL_recompute_collision_buffer_entities        (Player* player);
 void CL_mark_entity_checked                        (Entity* entity);
 void CL_reset_collision_buffer_checks              ();
 

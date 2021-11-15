@@ -305,6 +305,7 @@ int main()
       //GP_move_player(player);
       GP_update_player_state(player, &World);
       //AN_animate_player(player);
+      CL_reset_collision_buffer_checks();
 
       // simulate_gravity_trajectory();      
 

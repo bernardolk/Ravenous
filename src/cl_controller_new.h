@@ -135,7 +135,12 @@ CL_Results CL_run_collision_detection(
       auto result = CL_test_player_vs_entity(entity, player);
 
       if(result.collision)
+      {
+         // unstuck player
+         player->entity_ptr->position += result.normal * result.penetration;
+         player->entity_ptr->update();
          return result;
+      }
       
       entity_iterator++;
    }
@@ -163,12 +168,9 @@ CL_Results CL_test_player_vs_entity(Entity* entity, Player* player)
       
       if(epa.collision)
       {
-         // unstuck player
-         player_entity->position += epa.direction * epa.penetration;
-
-         cl_results.penetration = epa.penetration;
-         cl_results.normal = epa.direction;
-         cl_results.collision = true;
+         cl_results.penetration  = epa.penetration;
+         cl_results.normal       = epa.direction;
+         cl_results.collision    = true;
       }
    }
 

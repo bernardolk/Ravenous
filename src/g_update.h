@@ -388,21 +388,11 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
                }
 
                player->entity_ptr->position = pos_0;
-               player->entity_ptr->update();
 
-               // 3. if player cant fall, DO NOT update players height (he will kinda float above the hole)
-               // 4. if he can fall, then do P_change_state(player, PLAYER_STATE_FALLING);
             }
          }
 
-         // UPDATE COLLISION BUFFERS 
-         {
-            CL_update_player_world_cells(player);
-            /*@todo: unless this becomes a performance problem, its easier to recompute the buffer every frame
-                     then to try placing this call everytime necessary */
-            CL_recompute_collision_buffer_entities(player);
-         }
-         player->entity_ptr->update();
+         player->update();
 
          CL_run_iterative_collision_detection(player);
 
@@ -412,15 +402,7 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
       {
          player->entity_ptr->velocity += G_FRAME_INFO.duration * player->gravity; 
          player->entity_ptr->position += player->entity_ptr->velocity * G_FRAME_INFO.duration;
-         player->entity_ptr->update();
-
-         // UPDATE COLLISION BUFFERS 
-         {
-            CL_update_player_world_cells(player);
-            /*@todo: unless this becomes a performance problem, its easier to recompute the buffer every frame
-                     then to try placing this call everytime necessary */
-            CL_recompute_collision_buffer_entities(player);
-         }
+         player->update();
 
          CL_run_iterative_collision_detection(player);
 
@@ -428,6 +410,12 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
       }
       case PLAYER_STATE_JUMPING:
       {
+         player->entity_ptr->velocity += G_FRAME_INFO.duration * player->gravity; 
+         player->entity_ptr->position += player->entity_ptr->velocity * G_FRAME_INFO.duration;
+         player->update();
+
+         CL_run_iterative_collision_detection(player);
+
          break;
       }
    }

@@ -4,6 +4,9 @@ struct Triangle {
    vec3 c;
 };
 
+// -----------------------
+// > TRIANGLE OPERATIONS
+// -----------------------
 vec3 get_triangle_normal(Triangle t)
 {
    return glm::triangleNormal(t.a, t.b, t.c);
