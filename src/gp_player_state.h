@@ -81,7 +81,7 @@ void GP_change_player_state(Player* player, PlayerStateEnum new_state, PlayerSta
          switch(new_state)
          {
             case PLAYER_STATE_STANDING:
-               //GP_player_state_change_falling_to_standing(player);
+               GP_player_state_change_falling_to_standing(player);
                break;
          }
          break;
@@ -130,10 +130,12 @@ void GP_player_state_change_standing_to_jumping(Player* player)
    bool no_move_command = v_dir.x == 0 && v_dir.z == 0;
 
    if(no_move_command)
+   {
       player->jumping_upwards = true;
+      player->speed = 0;
+   }
    else
    {
-      // square_LE(v, player->jump_horz_thrust)
       if(player->dashing)
          v = v_dir * player->jump_horz_dash_thrust;
       else
@@ -144,10 +146,6 @@ void GP_player_state_change_standing_to_jumping(Player* player)
    player->anim_state = P_ANIM_JUMPING;
    player->height_before_fall = player->entity_ptr->position.y;
    v.y = player->jump_initial_speed;
-
-   // TEMP - DELETE LATER
-   player->skip_collision_with_floor = player->standing_entity_ptr;
-   player->standing_entity_ptr = nullptr;
 }
 
 
@@ -161,12 +159,10 @@ void GP_player_state_change_standing_to_falling(Player* player)
 }
 
 
-void GP_player_state_change_falling_to_standing(Player* player, Entity* terrain)
+void GP_player_state_change_falling_to_standing(Player* player)
 {
-   // @todo OLD
-   player->standing_entity_ptr = terrain;
-
    player->entity_ptr->velocity.y = 0;
+   player->speed *= 0.5;
 
    // take momentum hit from hitting the ground
    // player->entity_ptr->velocity.x *= 0.5;

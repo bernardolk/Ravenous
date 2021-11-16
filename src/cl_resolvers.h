@@ -2,9 +2,16 @@
 void CL_resolve_collision(CL_Results results, Player* player);
 void CL_wall_slide_player(Player* player, vec3 wall_normal);
 
+// fwd decl.
+RaycastTest CL_do_c_vtrace                      (Player* player);
+bool GP_simulate_player_collision_in_falling_trajectory(Player* player);
+
 // ---------------------
 // > RESOLVE COLLISION
 // ---------------------
+// @NOTE: I am pretty much not convinced that this is the right way to handle post-collision player state changes
+//    in terms of project module divisions. This code should be somewhere in the GP update module.
+
 void CL_resolve_collision(CL_Results results, Player* player)
 {
    bool collided_with_terrain = dot(results.normal, UNIT_Y) > 0.1;
@@ -15,6 +22,9 @@ void CL_resolve_collision(CL_Results results, Player* player)
    switch(player->player_state)
    {
       case PLAYER_STATE_JUMPING:
+         // @todo - need to include case that player touches inclined terrain
+         //          in that case it should also stand (or fall from edge) and not
+         //          directly fall.
          GP_change_player_state(player, PLAYER_STATE_FALLING);
          break;
       case PLAYER_STATE_FALLING:
@@ -25,7 +35,38 @@ void CL_resolve_collision(CL_Results results, Player* player)
             CL_Ignore_Colliders.add(results.entity);
             auto args = PlayerStateChangeArgs();
             args.entity = results.entity;
-            GP_change_player_state(player, PLAYER_STATE_STANDING, args);
+               
+            // check if player stepped correctly into floor (his center lies on top of floor)
+            auto c_vtrace = CL_do_c_vtrace(player);
+            if(c_vtrace.hit)
+            {
+               GP_change_player_state(player, PLAYER_STATE_STANDING, args);
+            }
+            else
+            {
+               bool can_fall = GP_simulate_player_collision_in_falling_trajectory(player);
+               if(can_fall)
+               {
+                  // @TODO - This here is not working properly yet
+                  
+                   // final player position after falling from the edge (when he stops touching anything)
+                  vec3 terminal_position = player->entity_ptr->position;
+                  //IM_RENDER.add_mesh(IMHASH, &player->entity_ptr->collider);
+
+                  auto& vel = player->entity_ptr->velocity;
+                  if(abs(vel.x) < player->fall_from_edge_push_speed && abs(vel.z) < player->fall_from_edge_push_speed)
+                     vel = -player->v_dir_historic * player->fall_from_edge_push_speed;
+
+                  GP_change_player_state(player, PLAYER_STATE_FALLING);
+               }
+               else
+               {
+                  // @todo - still undefined
+                  GP_change_player_state(player, PLAYER_STATE_STANDING, args);
+               }
+            }
+
+            
          }
          break;
    }

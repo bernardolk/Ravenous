@@ -42,12 +42,13 @@ void RENDER_MESSAGE(string msg, float duration, vec3 color);
 
 struct Player {
    Entity* entity_ptr;
+
+   // [start] DROP ALL THESE
    Entity* standing_entity_ptr;
    Entity* slope_player_was_ptr;
    Entity* vaulting_entity_ptr;
-
-   // TEMP - DELETE LATER
    Entity* skip_collision_with_floor = NULL;
+   // [end]
 
    // geometry
    float radius;
@@ -66,6 +67,7 @@ struct Player {
    float walk_speed              = 0.92;
    float fall_speed              = 0.01;
    float fall_acceleration       = 0.2;
+   float air_speed               = 1.00;
    float jump_initial_speed      = 5.0;
    float jump_horz_thrust        = 3.0;
    float jump_horz_dash_thrust   = 5.0;

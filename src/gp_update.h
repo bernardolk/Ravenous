@@ -5,15 +5,13 @@ void GP_check_trigger_interaction               (Player* player);
 bool GP_check_player_grabbed_ledge              (Player* player, Entity* entity);
 bool GP_check_player_vaulting                   (Player* player);
 RaycastTest CL_do_c_vtrace                      (Player* player);
+bool GP_simulate_player_collision_in_falling_trajectory(Player* player);
+
 
 float PLAYER_STEPOVER_LIMIT   = 0.21;
 
 void GP_update_player_state(Player* &player, WorldStruct* world)
 {   
-   // compute player next position
-   auto next_position = GP_get_player_next_position_when_standing(player);
-
-
    // Remove entities added to the 'ignored for collision test' list if they aren't colliding with player anymore
    for(int i = 0; i < CL_Ignore_Colliders.count; i++)
    {
@@ -40,6 +38,9 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
              I can then tweak it to achieve the best resistance / movement fluidity tradeoff.
              I am unsure at the moment if we need to do that both to fwd and bwd traces or just for fwd.
          */
+
+         // compute player next position
+         auto next_position = GP_get_player_next_position_when_standing(player);
 
          // RAYCAST FORWARD TO DISABLE COLLISION IF FLOOR DETECTED
          auto p_next_pos_fwd_periphery = next_position + player->v_dir_historic * player->radius;
@@ -110,58 +111,8 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
 
             if(CL_Ignore_Colliders.count > 0)
             {
-               // configs
-               float d_frame = 0.014;
-
-               vec3 vel       = player->entity_ptr->velocity;
                auto pos_0     = player->entity_ptr->position;
-
-               // Give player a 'push'
-               if(abs(vel.x) < player->fall_from_edge_push_speed && abs(vel.z) < player->fall_from_edge_push_speed)
-                  vel = player->v_dir_historic * player->fall_from_edge_push_speed;
-
-               float max_iterations = 120;
-
-               //IM_RENDER.add_point(IMHASH, player->entity_ptr->position, 2.0, false, COLOR_GREEN_1, 1);
-
-               int iteration = 0;
-               bool can_fall = true;
-               while(true)
-               {
-                  vel += d_frame * player->gravity; 
-                  player->entity_ptr->position += vel * d_frame;
-                  //IM_RENDER.add_point(IM_ITERHASH(iteration), player->entity_ptr->position, 2.0, true, COLOR_GREEN_1, 1);
-
-                  // @todo - Note: this will probably have a bug because we are not updating player's world cells
-                  // so if player is going to fall from one world cell into another, we wouldn't test
-                  // collisions for entities in the next world cell.
-                  // So, for tests where we don't use current player position, we need to figure out
-                  // how to consider the relevant entities, maybe test for entities in collision buffer
-                  // plus entities in nearby world cells?
-                  player->entity_ptr->update();
-
-                  int uncollided_count = 0;
-                  for(int i = 0; i < CL_Ignore_Colliders.count; i++)
-                  {
-                     auto entity = CL_Ignore_Colliders.list[i];
-                     auto result = CL_test_player_vs_entity(entity, player);
-                     if(result.collision) break;
-
-                     uncollided_count++;
-                  }
-
-                  if(uncollided_count == CL_Ignore_Colliders.count)
-                     break;
-
-                  iteration++;
-                  if(iteration == max_iterations)
-                  {
-                     // we couldn't unstuck the player in max_iterations * d_frame seconds of falling towards
-                     // player movement direction, so he can't fall there
-                     can_fall = false;
-                     break;
-                  }
-               }
+               bool can_fall = GP_simulate_player_collision_in_falling_trajectory(player);
 
                if(can_fall)
                {
@@ -203,7 +154,19 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
       }
       case PLAYER_STATE_JUMPING:
       {
-         player->entity_ptr->velocity += G_FRAME_INFO.duration * player->gravity; 
+         auto& v = player->entity_ptr->velocity;
+
+         bool no_move_command = player->v_dir.x == 0 && player->v_dir.z == 0;
+         if(player->jumping_upwards && !no_move_command)
+         {
+            if(player->speed < player->air_speed)
+            {
+               player->speed += player->air_delta_speed;
+               v += player->v_dir * player->air_delta_speed;
+            }
+         }
+
+         v += G_FRAME_INFO.duration * player->gravity; 
          player->entity_ptr->position += player->entity_ptr->velocity * G_FRAME_INFO.duration;
          player->update();
 
@@ -218,9 +181,70 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
    
 }
 
+bool GP_simulate_player_collision_in_falling_trajectory(Player* player)
+{
+   /*
+      WARNING: this will mutate player's position
+   */
+
+   // configs
+   float d_frame = 0.014;
+
+   vec3 vel       = player->entity_ptr->velocity;
+
+   // Give player a 'push'
+   if(abs(vel.x) < player->fall_from_edge_push_speed && abs(vel.z) < player->fall_from_edge_push_speed)
+      vel = player->v_dir_historic * player->fall_from_edge_push_speed;
+
+   float max_iterations = 120;
+
+   //IM_RENDER.add_point(IMHASH, player->entity_ptr->position, 2.0, false, COLOR_GREEN_1, 1);
+
+   int iteration = 0;
+   while(true)
+   {
+      vel += d_frame * player->gravity; 
+      player->entity_ptr->position += vel * d_frame;
+      //IM_RENDER.add_point(IM_ITERHASH(iteration), player->entity_ptr->position, 2.0, true, COLOR_GREEN_1, 1);
+
+      // @todo - Note: this will probably have a bug because we are not updating player's world cells
+      // so if player is going to fall from one world cell into another, we wouldn't test
+      // collisions for entities in the next world cell.
+      // So, for tests where we don't use current player position, we need to figure out
+      // how to consider the relevant entities, maybe test for entities in collision buffer
+      // plus entities in nearby world cells?
+      player->entity_ptr->update();
+
+      int uncollided_count = 0;
+      for(int i = 0; i < CL_Ignore_Colliders.count; i++)
+      {
+         auto entity = CL_Ignore_Colliders.list[i];
+         auto result = CL_test_player_vs_entity(entity, player);
+         if(result.collision) break;
+
+         uncollided_count++;
+      }
+
+      if(uncollided_count == CL_Ignore_Colliders.count)
+         break;
+
+      iteration++;
+      if(iteration == max_iterations)
+      {
+         // we couldn't unstuck the player in max_iterations * d_frame seconds of falling towards
+         // player movement direction, so he can't fall there
+         return false;
+      }
+   }
+
+   return true;
+}
+
 //@todo - Rethink the name and purpose of this function
 RaycastTest CL_do_c_vtrace(Player* player)
 {
+   // stands for Central Vertical Trace, basically, look below player's center for something steppable (terrain)
+
    auto downward_ray    = Ray{player->feet() + vec3{0.0f, PLAYER_STEPOVER_LIMIT, 0.0f}, -UNIT_Y};
    RaycastTest raytest  = test_ray_against_scene(downward_ray, RayCast_TestOnlyFromOutsideIn, player->entity_ptr);
 
