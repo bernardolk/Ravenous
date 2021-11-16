@@ -184,12 +184,9 @@ void P_state_change_falling_to_standing(Player* player, Entity* terrain)
 }
 
 
-// @TODO REFACTOR -> Refactor the CL
 void P_state_change_standing_to_sliding(Player* player, Entity* ramp)
 {
    player->standing_entity_ptr         = ramp;
-   auto height_check                   = CL_get_terrain_height_at_player(player->entity_ptr, ramp);
-   player->entity_ptr->position.y      = height_check.overlap + player->half_height;
 
    // make player 'snap' to slope velocity-wise
    player->entity_ptr->velocity = player->slide_speed * ramp->collision_geometry.slope.tangent;
@@ -198,12 +195,9 @@ void P_state_change_standing_to_sliding(Player* player, Entity* ramp)
 }
 
 
-// @TODO REFACTOR -> Refactor the CL
 void P_state_change_standing_to_slide_falling(Player* player, Entity* ramp)
 {
    player->standing_entity_ptr         = ramp;
-   auto height_check                   = CL_get_terrain_height_at_player(player->entity_ptr, ramp);
-   player->entity_ptr->position.y      = height_check.overlap + player->half_height;
 
    // make player 'snap' to slope velocity-wise
    player->entity_ptr->velocity = player->slide_speed * ramp->collision_geometry.slope.tangent;
@@ -219,7 +213,7 @@ void P_state_change_any_to_grabbing(Player* player, Entity* entity, vec2 normal_
    // this will be an animation in the future
    float turn_angle = glm::degrees(vector_angle_signed(to2d_xz(pCam->Front), normal_vec)) - 180;
    camera_change_direction(pCam, turn_angle, 0.f);
-   CL_snap_player(player, normal_vec, penetration);
+   // CL_snap_player(player, normal_vec, penetration);
 
    player->player_state          = PLAYER_STATE_GRABBING;
    player->grabbing_entity       = entity;

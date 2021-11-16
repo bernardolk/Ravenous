@@ -126,19 +126,19 @@ void render_entity_panel(EntityPanelContext* panel)
 
 
    // SLIDE INDICATOR
-   if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
-   {
-      string slide_type;
-      auto inclination = entity->collision_geometry.slope.inclination;
-      if(inclination > SLIDE_MAX_ANGLE)
-         slide_type = "Player will: slide fall";
-      else if(inclination > SLIDE_MIN_ANGLE)
-         slide_type = "Player will: slide";
-      else
-         slide_type = "Player will: stand";
+   // if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
+   // {
+   //    string slide_type;
+   //    auto inclination = entity->collision_geometry.slope.inclination;
+   //    if(inclination > SLIDE_MAX_ANGLE)
+   //       slide_type = "Player will: slide fall";
+   //    else if(inclination > SLIDE_MIN_ANGLE)
+   //       slide_type = "Player will: slide";
+   //    else
+   //       slide_type = "Player will: stand";
 
-      ImGui::Text(slide_type.c_str());
-   }
+   //    ImGui::Text(slide_type.c_str());
+   // }
 
    // ENTITY POSITIONING TOOLS
    if(ImGui::Button("Snap", ImVec2(82,18)))

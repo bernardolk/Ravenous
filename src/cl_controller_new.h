@@ -119,12 +119,11 @@ CL_Results CL_run_collision_detection(
 	   Entity* &entity = entity_iterator->entity;
 
       bool entity_is_player            = entity->name == "Player",
-           entity_is_player_ground     = CL_player_qualifies_as_standing(player) && player->standing_entity_ptr == entity,
            checked                     = iterative && entity_iterator->collision_check,
            skip_it                     = skip_entity != NULL && skip_entity == entity;
            skip_it                     = skip_it || CL_Ignore_Colliders.is_in_list(entity);
 
-      if(entity_is_player || entity_is_player_ground || checked || skip_it)
+      if(entity_is_player || checked || skip_it)
       {
          entity_iterator++;
          continue;
