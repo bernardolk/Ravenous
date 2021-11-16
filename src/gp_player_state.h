@@ -6,16 +6,16 @@
    Work in progress state machine-like modelling of player state 
 */
 
-void P_state_change_jumping_to_falling    (Player* player);
-void P_state_change_standing_to_falling   (Player* player);
-void P_state_change_falling_to_standing   (Player* player);
-void P_state_change_standing_to_jumping   (Player* player);
-void P_state_change_standing_to_sliding   (Player* player, Entity* ramp);
-void P_state_change_any_to_grabbing       (Player* player, Entity* entity, vec2 normal_vec, vec3 final_position, float d);
-void P_state_change_grabbing_to_vaulting  (Player* player);
-void P_state_change_standing_to_vaulting  (Player* player, Entity* entity, vec2 normal_vec, vec3 final_position);
-void P_state_change_vaulting_to_standing  (Player* player);
-void P_state_change_standing_to_slide_falling   (Player* player, Entity* ramp);
+void GP_player_state_change_jumping_to_falling    (Player* player);
+void GP_player_state_change_standing_to_falling   (Player* player);
+void GP_player_state_change_falling_to_standing   (Player* player);
+void GP_player_state_change_standing_to_jumping   (Player* player);
+void GP_player_state_change_standing_to_sliding   (Player* player, Entity* ramp);
+void GP_player_state_change_any_to_grabbing       (Player* player, Entity* entity, vec2 normal_vec, vec3 final_position, float d);
+void GP_player_state_change_grabbing_to_vaulting  (Player* player);
+void GP_player_state_change_standing_to_vaulting  (Player* player, Entity* entity, vec2 normal_vec, vec3 final_position);
+void GP_player_state_change_vaulting_to_standing  (Player* player);
+void GP_player_state_change_standing_to_slide_falling   (Player* player, Entity* ramp);
 
 
 struct PlayerStateChangeArgs {
@@ -30,7 +30,7 @@ struct PlayerStateChangeArgs {
 
 };
 
-void P_change_state(Player* player, PlayerStateEnum new_state, PlayerStateChangeArgs args = {})
+void GP_change_player_state(Player* player, PlayerStateEnum new_state, PlayerStateChangeArgs args = {})
 {
    /* This will change the player's state to the new state and do actions based on his current state.
       Hopefuly we can achieve a state machine model where all transitions are mapped and, therefore, predictable.
@@ -40,7 +40,7 @@ void P_change_state(Player* player, PlayerStateEnum new_state, PlayerStateChange
 
    // IN ANY STATE
    if(new_state == PLAYER_STATE_GRABBING)
-      return P_state_change_any_to_grabbing(player, args.entity, args.normal, args.final_position, args.penetration);
+      return GP_player_state_change_any_to_grabbing(player, args.entity, args.normal, args.final_position, args.penetration);
 
    switch(player->player_state)
    {
@@ -49,19 +49,19 @@ void P_change_state(Player* player, PlayerStateEnum new_state, PlayerStateChange
          switch(new_state)
          {
             case PLAYER_STATE_FALLING:
-               P_state_change_standing_to_falling(player);
+               GP_player_state_change_standing_to_falling(player);
                break;
             case PLAYER_STATE_JUMPING:
-               P_state_change_standing_to_jumping(player);
+               GP_player_state_change_standing_to_jumping(player);
                break;
             case PLAYER_STATE_SLIDING:
-               P_state_change_standing_to_sliding(player, args.entity);
+               GP_player_state_change_standing_to_sliding(player, args.entity);
                break;
             case PLAYER_STATE_SLIDE_FALLING:
-               P_state_change_standing_to_slide_falling(player, args.entity);
+               GP_player_state_change_standing_to_slide_falling(player, args.entity);
                break;
             case PLAYER_STATE_VAULTING:
-               P_state_change_standing_to_vaulting(player, args.entity, args.normal, args.final_position);
+               GP_player_state_change_standing_to_vaulting(player, args.entity, args.normal, args.final_position);
                break;
          }
          break;
@@ -71,7 +71,7 @@ void P_change_state(Player* player, PlayerStateEnum new_state, PlayerStateChange
          switch(new_state)
          {
             case PLAYER_STATE_FALLING:
-               P_state_change_jumping_to_falling(player);
+               GP_player_state_change_jumping_to_falling(player);
                break;
          }
          break;
@@ -81,7 +81,7 @@ void P_change_state(Player* player, PlayerStateEnum new_state, PlayerStateChange
          switch(new_state)
          {
             case PLAYER_STATE_STANDING:
-               //P_state_change_falling_to_standing(player);
+               //GP_player_state_change_falling_to_standing(player);
                break;
          }
          break;
@@ -91,7 +91,7 @@ void P_change_state(Player* player, PlayerStateEnum new_state, PlayerStateChange
          switch(new_state)
          {
             case PLAYER_STATE_VAULTING:
-               P_state_change_grabbing_to_vaulting(player);
+               GP_player_state_change_grabbing_to_vaulting(player);
                break;
          }
          break;
@@ -101,7 +101,7 @@ void P_change_state(Player* player, PlayerStateEnum new_state, PlayerStateChange
          switch(new_state)
          {
             case PLAYER_STATE_STANDING:
-               P_state_change_vaulting_to_standing(player);
+               GP_player_state_change_vaulting_to_standing(player);
                break;
          }
          break;
@@ -112,7 +112,7 @@ void P_change_state(Player* player, PlayerStateEnum new_state, PlayerStateChange
 }
 
 
-void P_state_change_jumping_to_falling(Player* player)
+void GP_player_state_change_jumping_to_falling(Player* player)
 {
    player->player_state                = PLAYER_STATE_FALLING;
    player->entity_ptr->velocity.y      = 0;
@@ -123,7 +123,7 @@ void P_state_change_jumping_to_falling(Player* player)
 }
 
 
-void P_state_change_standing_to_jumping(Player* player)
+void GP_player_state_change_standing_to_jumping(Player* player)
 {
    auto& v = player->entity_ptr->velocity;
    auto& v_dir = player->v_dir;
@@ -151,7 +151,7 @@ void P_state_change_standing_to_jumping(Player* player)
 }
 
 
-void P_state_change_standing_to_falling(Player* player)
+void GP_player_state_change_standing_to_falling(Player* player)
 {
    player->player_state                   = PLAYER_STATE_FALLING;
    player->entity_ptr->velocity.y         = -1 * player->fall_speed;
@@ -161,7 +161,7 @@ void P_state_change_standing_to_falling(Player* player)
 }
 
 
-void P_state_change_falling_to_standing(Player* player, Entity* terrain)
+void GP_player_state_change_falling_to_standing(Player* player, Entity* terrain)
 {
    // @todo OLD
    player->standing_entity_ptr = terrain;
@@ -184,7 +184,7 @@ void P_state_change_falling_to_standing(Player* player, Entity* terrain)
 }
 
 
-void P_state_change_standing_to_sliding(Player* player, Entity* ramp)
+void GP_player_state_change_standing_to_sliding(Player* player, Entity* ramp)
 {
    player->standing_entity_ptr         = ramp;
 
@@ -195,7 +195,7 @@ void P_state_change_standing_to_sliding(Player* player, Entity* ramp)
 }
 
 
-void P_state_change_standing_to_slide_falling(Player* player, Entity* ramp)
+void GP_player_state_change_standing_to_slide_falling(Player* player, Entity* ramp)
 {
    player->standing_entity_ptr         = ramp;
 
@@ -206,7 +206,7 @@ void P_state_change_standing_to_slide_falling(Player* player, Entity* ramp)
 }
 
 // @TODO REFACTOR -> From aabb and 2d normals to full 3d
-void P_state_change_any_to_grabbing(Player* player, Entity* entity, vec2 normal_vec, vec3 final_position, float penetration)
+void GP_player_state_change_any_to_grabbing(Player* player, Entity* entity, vec2 normal_vec, vec3 final_position, float penetration)
 {
    vec3 rev_normal = rev_2Dnormal(normal_vec);
 
@@ -229,7 +229,7 @@ void P_state_change_any_to_grabbing(Player* player, Entity* entity, vec2 normal_
 }
 
 // DONE
-void P_state_change_grabbing_to_vaulting(Player* player)
+void GP_player_state_change_grabbing_to_vaulting(Player* player)
 {
    player->player_state          = PLAYER_STATE_VAULTING;
    player->anim_state            = P_ANIM_VAULTING;
@@ -238,7 +238,7 @@ void P_state_change_grabbing_to_vaulting(Player* player)
 }
 
 // @TODO REFACTOR - 2d normal to 3D
-void P_state_change_standing_to_vaulting(Player* player, Entity* entity, vec2 normal_vec, vec3 final_position)
+void GP_player_state_change_standing_to_vaulting(Player* player, Entity* entity, vec2 normal_vec, vec3 final_position)
 {
    vec3 rev_normal = rev_2Dnormal(normal_vec);
 
@@ -253,7 +253,7 @@ void P_state_change_standing_to_vaulting(Player* player, Entity* entity, vec2 no
 }
 
 // DONE
-void P_state_change_vaulting_to_standing(Player* player)
+void GP_player_state_change_vaulting_to_standing(Player* player)
 {
    G_INPUT_INFO.forget_last_mouse_coords  = true;
    G_INPUT_INFO.block_mouse_move          = false;

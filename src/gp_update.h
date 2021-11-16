@@ -173,7 +173,7 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
                   if(abs(vel.x) < player->fall_from_edge_push_speed && abs(vel.z) < player->fall_from_edge_push_speed)
                      vel = player->v_dir_historic * player->fall_from_edge_push_speed;
 
-                  P_change_state(player, PLAYER_STATE_FALLING);
+                  GP_change_player_state(player, PLAYER_STATE_FALLING);
                }
                else
                {
@@ -208,7 +208,7 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
          player->update();
 
          if (player->entity_ptr->velocity.y <= 0)
-            P_change_state(player, PLAYER_STATE_FALLING);
+            GP_change_player_state(player, PLAYER_STATE_FALLING);
 
          CL_run_iterative_collision_detection(player);
 
@@ -363,7 +363,7 @@ void GP_check_trigger_interaction(Player* player)
 //             ps_args.final_position = future_pos;
 //             ps_args.penetration = dr - test.overlap;
 
-//             P_change_state(player, PLAYER_STATE_GRABBING, ps_args);
+//             GP_change_player_state(player, PLAYER_STATE_GRABBING, ps_args);
 //             return;
 //          }
 //       }
@@ -406,7 +406,7 @@ void GP_check_trigger_interaction(Player* player)
 //             ps_args.final_position = future_pos;
 //             ps_args.penetration = dr - test.overlap;
 
-//             P_change_state(player, PLAYER_STATE_GRABBING, ps_args);
+//             GP_change_player_state(player, PLAYER_STATE_GRABBING, ps_args);
 //             return;
 //          }
 //       }
@@ -476,7 +476,7 @@ void GP_check_trigger_interaction(Player* player)
 //          ps_args.final_position = future_pos;
 //          ps_args.penetration = dr - test.overlap;
 
-//          P_change_state(player, PLAYER_STATE_VAULTING, ps_args);
+//          GP_change_player_state(player, PLAYER_STATE_VAULTING, ps_args);
 //          return true;
 //       }
 //    }

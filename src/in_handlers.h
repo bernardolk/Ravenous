@@ -85,7 +85,7 @@ void IN_handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum
          
          // JUMP
          if (flags.key_press & KEY_SPACE) 
-            P_change_state(player, PLAYER_STATE_JUMPING);
+            GP_change_player_state(player, PLAYER_STATE_JUMPING);
 
          // FREE RUN
          if(pressed(flags, KEY_MOVE_UP) && pressed(flags, KEY_DASH))
@@ -165,7 +165,7 @@ void IN_handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum
             player->action = true;
 
             if(pressed(flags, KEY_MOVE_UP))
-               P_change_state(player, PLAYER_STATE_VAULTING);
+               GP_change_player_state(player, PLAYER_STATE_VAULTING);
          }
             
          break;

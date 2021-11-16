@@ -15,7 +15,7 @@ void CL_resolve_collision(CL_Results results, Player* player)
    switch(player->player_state)
    {
       case PLAYER_STATE_JUMPING:
-         P_change_state(player, PLAYER_STATE_FALLING);
+         GP_change_player_state(player, PLAYER_STATE_FALLING);
          break;
       case PLAYER_STATE_FALLING:
          // collided_with_floor 
@@ -23,7 +23,9 @@ void CL_resolve_collision(CL_Results results, Player* player)
          {
             // Add terrain to ignored collision list
             CL_Ignore_Colliders.add(results.entity);
-            P_state_change_falling_to_standing(player, results.entity);
+            auto args = PlayerStateChangeArgs();
+            args.entity = results.entity;
+            GP_change_player_state(player, PLAYER_STATE_STANDING, args);
          }
          break;
    }
