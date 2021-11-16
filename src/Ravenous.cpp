@@ -1,3 +1,11 @@
+
+/* ==========================================
+                     RAVENOUS
+   ==========================================
+     By Bernardo L. Knackfuss - 2020 - 2021 
+   ========================================== */
+
+
 // DEPENDENCY INCLUDES
 #include <windows.h>
 #include <glad/glad.h>
