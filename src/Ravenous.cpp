@@ -157,13 +157,11 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <im_render.h>
 #include <in_phase.h>
 #include <cl_tests.h>
-// #include <cl_entities.h>
 #include <p_state.h>
-#include <g_player.h>
 #include <an_player.h>
 #include <cl_buffers.h>
-#include <cl_controller_new.h>
-#include <g_update.h>
+#include <cl_controller.h>
+#include <gp_update.h>
 #include <scene.h>
 #include <console.h>
 #include <in_handlers.h>
@@ -299,12 +297,10 @@ int main()
       // -------------
 		update_scene_objects();
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player);
-      //GP_check_player_events(player);
-      //GP_move_player(player);
+      // @todo - check player events
       GP_update_player_state(player, &World);
       //AN_animate_player(player);
       CL_reset_collision_buffer_checks();
-
       // simulate_gravity_trajectory();      
 
 

@@ -1,3 +1,7 @@
+
+// --------------
+// > CL_Results
+// --------------
 struct CL_Results {
    bool collision = false;
    Entity* entity;
@@ -5,8 +9,13 @@ struct CL_Results {
    vec3 normal;
 };
 
-// used, currently, to avoid detecting collision with colliders that are being used by player as a
-// floor platform / terrain
+
+// ----------------------
+// > CL_IgnoreColliders
+// ----------------------
+/* used, currently, to avoid detecting collision with colliders that are 
+    being used by player as a floor platform / terrain
+*/
 struct CL_IgnoreColliders {
    const static size_t size = 5;
    Entity* list[size] = {};
@@ -66,9 +75,9 @@ struct CL_IgnoreColliders {
 #include <cl_gjk.h>
 #include <cl_epa.h>
 #include <cl_log.h>
-#include <cl_resolvers_new.h>
+#include <cl_resolvers.h>
 
-// prototypes
+// PROTOTYPES
 void CL_run_iterative_collision_detection(Player* player);
 CL_Results CL_run_collision_detection(
    Player* player,
@@ -78,10 +87,12 @@ CL_Results CL_run_collision_detection(
    Entity* skip_entity
 );
 CL_Results CL_test_player_vs_entity(Entity* entity, Player* player);
-void CL_new_resolve_collision(CL_Results results, Player* player);
+void CL_resolve_collision(CL_Results results, Player* player);
 
 
-// functions
+// --------------------------------------
+// > RUN INTERATIVE COLLISION DETECTION
+// --------------------------------------
 
 void CL_run_iterative_collision_detection(Player* player)
 {
@@ -91,20 +102,23 @@ void CL_run_iterative_collision_detection(Player* player)
    while(true)
    {
       c++;
-      auto buffer = entity_buffer->buffer;            // places pointer back to start
-      // TEMP - DELETE LATER
+      // places pointer back to start
+      auto buffer = entity_buffer->buffer;
       auto result = CL_run_collision_detection(player, buffer, entity_buffer->size, true, player->skip_collision_with_floor);
 
       if(result.collision)
       {
          CL_mark_entity_checked(result.entity);
          CL_log_collision(result, c);
-         CL_new_resolve_collision(result, player);
+         CL_resolve_collision(result, player);
       }
       else break;
    }
 }
 
+// ---------------------------
+// > RUN COLLISION DETECTION
+// ---------------------------
 
 CL_Results CL_run_collision_detection(
    Player* player,
@@ -129,7 +143,8 @@ CL_Results CL_run_collision_detection(
          continue;
       }
 
-      // here should test for bounding box collision (or any geometric first pass test) FIRST, then do the call below
+      // @todo - here should test for bounding box collision (or any geometric first pass test) 
+      //          FIRST, then do the call below
 
       auto result = CL_test_player_vs_entity(entity, player);
 
@@ -147,6 +162,9 @@ CL_Results CL_run_collision_detection(
    return {};
 }
 
+// -------------------------
+// > TEST PLAYER VS ENTITY
+// -------------------------
 
 CL_Results CL_test_player_vs_entity(Entity* entity, Player* player)
 {
