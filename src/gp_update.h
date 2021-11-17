@@ -6,6 +6,8 @@ bool GP_check_player_grabbed_ledge              (Player* player, Entity* entity)
 bool GP_check_player_vaulting                   (Player* player);
 RaycastTest CL_do_c_vtrace                      (Player* player);
 bool GP_simulate_player_collision_in_falling_trajectory(Player* player, vec2 xz_velocity);
+bool GP_scan_for_terrain(vec3 center, float radius, vec2 orientation0, float angle, int subdivisions);
+bool GP_do_vtrace_for_terrain(vec3 vtrace_origin, float terrain_baseline_height, vec3 debug_color);
 
 
 float PLAYER_STEPOVER_LIMIT   = 0.21;
@@ -42,28 +44,39 @@ void GP_update_player_state(Player* &player)
          // compute player next position
          auto next_position = GP_get_player_next_position_when_standing(player);
 
-         // RAYCAST FORWARD TO DISABLE COLLISION IF FLOOR DETECTED
-         auto p_next_pos_fwd_periphery = next_position + player->v_dir_historic * player->radius;
-         auto f_vtrace_pos = vec3(p_next_pos_fwd_periphery.x, player->top().y + 1, p_next_pos_fwd_periphery.z);
+         // // RAYCAST FORWARD TO DISABLE COLLISION IF FLOOR DETECTED
+         // auto p_next_pos_fwd_periphery = next_position + player->v_dir_historic * player->radius;
+         // auto f_vtrace_pos = vec3(p_next_pos_fwd_periphery.x, player->top().y + 1, p_next_pos_fwd_periphery.z);
 
-         auto v_trace_fwd_ray = Ray{f_vtrace_pos, -UNIT_Y};
-         RaycastTest fwd_vtrace = test_ray_against_scene(v_trace_fwd_ray);
-         bool fwd_hit_terrain = false;
-         if(fwd_vtrace.hit)
-         {
-            auto hitpoint = point_from_detection(v_trace_fwd_ray, fwd_vtrace);
-            // draw arrow
-            IM_RENDER.add_line(IMHASH, hitpoint, hitpoint + UNIT_Y * 3.f, COLOR_RED_1);
-            IM_RENDER.add_point(IMHASH, hitpoint, COLOR_RED_3);
+         // auto v_trace_fwd_ray = Ray{f_vtrace_pos, -UNIT_Y};
+         // RaycastTest fwd_vtrace = test_ray_against_scene(v_trace_fwd_ray);
+         // bool fwd_hit_terrain = false;
+         // if(fwd_vtrace.hit)
+         // {
+         //    auto hitpoint = point_from_detection(v_trace_fwd_ray, fwd_vtrace);
+         //    // draw arrow
+         //    IM_RENDER.add_line(IMHASH, hitpoint, hitpoint + UNIT_Y * 3.f, COLOR_RED_1);
+         //    IM_RENDER.add_point(IMHASH, hitpoint, COLOR_RED_3);
 
-            float delta_y = abs(player->feet().y - hitpoint.y);
-            if(delta_y <= PLAYER_STEPOVER_LIMIT)
-            {
-               // disable collision with potential floor / terrain
-               CL_Ignore_Colliders.add(fwd_vtrace.entity);
-               fwd_hit_terrain = true;
-            }
-         }
+         //    float delta_y = abs(player->feet().y - hitpoint.y);
+         //    if(delta_y <= PLAYER_STEPOVER_LIMIT)
+         //    {
+         //       // disable collision with potential floor / terrain
+         //       CL_Ignore_Colliders.add(fwd_vtrace.entity);
+         //       fwd_hit_terrain = true;
+         //    }
+         // }
+
+         /* Do a raycast (vertical trace) to find prospect of terrain according to the thresholds of steppable heights*/
+
+         float v_trace_array_angle = 100;
+         float v_trace_array_subdivisions = 30;
+         vec2  v_trace_orientation = to2d_xz(rotate(player->v_dir_historic, -glm::radians(v_trace_array_angle / 2), UNIT_Y));
+
+         auto f_vtrace_pos = vec3(next_position.x, player->feet().y, next_position.z);         
+         bool fwd_hit_terrain = GP_scan_for_terrain(
+            f_vtrace_pos, player->radius, v_trace_orientation, v_trace_array_angle, v_trace_array_subdivisions
+         );
 
          // RAYCAST BACKWARD TO DISABLE COLLISION IF FLOOR DETECTED
          auto p_pos_bwd_periphery = player->entity_ptr->position - player->v_dir_historic * player->radius;
@@ -186,6 +199,69 @@ void GP_update_player_state(Player* &player)
    }
    
 }
+
+
+bool GP_scan_for_terrain(vec3 center, float radius, vec2 orientation0, float angle, int subdivisions)
+{
+   /* Does a circular array of raycasts according to parameters.
+      The circle will be considered to be 'touching the ground', hence limits for stepping up or down are applied
+      from the "center" arg y component.
+  
+      center: circle's center
+      radius: circle radius
+      orientation0: reference direction for first ray
+      angle: angle span from 0 to 360
+      subdivisions: controls how many rays to shoot
+   */
+
+      bool hit_terrain = false;
+      vec3 orientation = normalize(to3d_xz(orientation0));
+      float delta_angle = angle / subdivisions;
+      float current_angle = 0;
+      while(current_angle <= angle)
+      {
+         orientation = rotate(orientation, glm::radians(delta_angle), UNIT_Y);
+         vec3 ray_origin = center + orientation * radius;
+         // moves ray up a bit
+         ray_origin.y = center.y + 1;
+
+         vec3 color = COLOR_RED_1;
+         if(current_angle <= angle / 2)
+            color = COLOR_RED_2;
+
+         bool hit = GP_do_vtrace_for_terrain(ray_origin, center.y, color);
+         hit_terrain = hit_terrain || hit;
+
+         current_angle += delta_angle;
+      }
+
+      return hit_terrain;
+}
+
+
+bool GP_do_vtrace_for_terrain(vec3 vtrace_origin, float terrain_baseline_height, vec3 debug_color = COLOR_RED_1)
+{
+   auto vtrace_ray = Ray{ vtrace_origin, -UNIT_Y };
+   RaycastTest vtrace = test_ray_against_scene(vtrace_ray);
+   if(vtrace.hit)
+   {
+      auto hitpoint = point_from_detection(vtrace_ray, vtrace);
+      // draw arrow
+      IM_RENDER.add_line (IMCUSTOMHASH(to_string(vtrace_origin)), hitpoint, vtrace_origin, debug_color);
+      IM_RENDER.add_point(IMCUSTOMHASH(to_string(vtrace_origin)), hitpoint, debug_color);
+
+      float delta_y = abs(terrain_baseline_height - hitpoint.y);
+      if(delta_y <= PLAYER_STEPOVER_LIMIT)
+      {
+         // disable collision with potential floor / terrain
+         CL_Ignore_Colliders.add(vtrace.entity);
+         return true;
+      }
+   }
+
+   return false;
+}
+
 
 bool GP_simulate_player_collision_in_falling_trajectory(Player* player, vec2 xz_velocity)
 {

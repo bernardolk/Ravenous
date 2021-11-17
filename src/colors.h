@@ -26,4 +26,6 @@ const vec3 COLOR_PURPLE_3     = vec3(0.737, 0.219, 1);
 
 const vec3 COLOR_PINK_1       = vec3(0.929, 0.192, 0.839);
 
+const vec3 COLOR_BLACK        = vec3(0);
+
 
