@@ -1,16 +1,16 @@
 
-void GP_update_player_state(Player* &player, WorldStruct* world);
+void GP_update_player_state                     (Player* &player);
 vec3 GP_get_player_next_position_when_standing  (Player* player);
 void GP_check_trigger_interaction               (Player* player);
 bool GP_check_player_grabbed_ledge              (Player* player, Entity* entity);
 bool GP_check_player_vaulting                   (Player* player);
 RaycastTest CL_do_c_vtrace                      (Player* player);
-bool GP_simulate_player_collision_in_falling_trajectory(Player* player);
+bool GP_simulate_player_collision_in_falling_trajectory(Player* player, vec2 xz_velocity);
 
 
 float PLAYER_STEPOVER_LIMIT   = 0.21;
 
-void GP_update_player_state(Player* &player, WorldStruct* world)
+void GP_update_player_state(Player* &player)
 {   
    // Remove entities added to the 'ignored for collision test' list if they aren't colliding with player anymore
    for(int i = 0; i < CL_Ignore_Colliders.count; i++)
@@ -48,6 +48,7 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
 
          auto v_trace_fwd_ray = Ray{f_vtrace_pos, -UNIT_Y};
          RaycastTest fwd_vtrace = test_ray_against_scene(v_trace_fwd_ray);
+         bool fwd_hit_terrain = false;
          if(fwd_vtrace.hit)
          {
             auto hitpoint = point_from_detection(v_trace_fwd_ray, fwd_vtrace);
@@ -60,6 +61,7 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
             {
                // disable collision with potential floor / terrain
                CL_Ignore_Colliders.add(fwd_vtrace.entity);
+               fwd_hit_terrain = true;
             }
          }
 
@@ -69,6 +71,7 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
 
          auto v_trace_bwd_ray = Ray{b_vtrace_pos, -UNIT_Y};
          RaycastTest bwd_vtrace = test_ray_against_scene(v_trace_bwd_ray);
+         bool bwd_hit_terrain = false;
          if(bwd_vtrace.hit)
          {
             auto hitpoint = point_from_detection(v_trace_bwd_ray, bwd_vtrace);
@@ -81,6 +84,7 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
             {
                // disable collision with current / previous floor
                CL_Ignore_Colliders.add(bwd_vtrace.entity);
+               bwd_hit_terrain = true;
             }
          }
 
@@ -109,20 +113,25 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
                If he doesn't fit, then ignore the hole and let player walk through it.
             */
 
-            if(CL_Ignore_Colliders.count > 0)
+            if(!(bwd_hit_terrain && fwd_hit_terrain) && CL_Ignore_Colliders.count > 0)
             {
-               auto pos_0     = player->entity_ptr->position;
-               bool can_fall = GP_simulate_player_collision_in_falling_trajectory(player);
+               // give player a push if necessary
+               float fall_momentum_intensity = player->speed;
+               if(fall_momentum_intensity < player->fall_from_edge_push_speed)
+                  fall_momentum_intensity = player->fall_from_edge_push_speed;
+
+
+               vec2 fall_momentum_dir;
+               if(fwd_hit_terrain) fall_momentum_dir = -to2d_xz(player->v_dir_historic);
+               else                fall_momentum_dir =  to2d_xz(player->v_dir_historic);
+
+               vec2 fall_momentum = fall_momentum_dir * fall_momentum_intensity;
+
+               bool can_fall = GP_simulate_player_collision_in_falling_trajectory(player, fall_momentum);
 
                if(can_fall)
                {
-                  // final player position after falling from the edge (when he stops touching anything)
-                  vec3 terminal_position = player->entity_ptr->position;
-                  //IM_RENDER.add_mesh(IMHASH, &player->entity_ptr->collider);
-
-                  auto& vel = player->entity_ptr->velocity;
-                  if(abs(vel.x) < player->fall_from_edge_push_speed && abs(vel.z) < player->fall_from_edge_push_speed)
-                     vel = player->v_dir_historic * player->fall_from_edge_push_speed;
+                  player->entity_ptr->velocity = to3d_xz(fall_momentum);
 
                   GP_change_player_state(player, PLAYER_STATE_FALLING);
                }
@@ -130,15 +139,12 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
                {
                   RENDER_MESSAGE("Player won't fit if he falls here.", 1000);
                }
-
-               player->entity_ptr->position = pos_0;
-
             }
          }
 
          player->update();
 
-         CL_run_iterative_collision_detection(player);
+         CL_test_and_resolve_collisions(player);
 
          break;
       }
@@ -148,7 +154,7 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
          player->entity_ptr->position += player->entity_ptr->velocity * G_FRAME_INFO.duration;
          player->update();
 
-         CL_run_iterative_collision_detection(player);
+         CL_test_and_resolve_collisions(player);
 
          break;
       }
@@ -173,7 +179,7 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
          if (player->entity_ptr->velocity.y <= 0)
             GP_change_player_state(player, PLAYER_STATE_FALLING);
 
-         CL_run_iterative_collision_detection(player);
+         CL_test_and_resolve_collisions(player);
 
          break;
       }
@@ -181,38 +187,32 @@ void GP_update_player_state(Player* &player, WorldStruct* world)
    
 }
 
-bool GP_simulate_player_collision_in_falling_trajectory(Player* player)
+bool GP_simulate_player_collision_in_falling_trajectory(Player* player, vec2 xz_velocity)
 {
-   /*
-      WARNING: this will mutate player's position
+   /*    Simulates how it would be if player fell following the xz_velocity vector.
+         If player can get in a position where he is not stuck, we allow him to fall. 
    */
 
    // configs
    float d_frame = 0.014;
 
-   vec3 vel       = player->entity_ptr->velocity;
-
-   // Give player a 'push'
-   if(abs(vel.x) < player->fall_from_edge_push_speed && abs(vel.z) < player->fall_from_edge_push_speed)
-      vel = player->v_dir_historic * player->fall_from_edge_push_speed;
+   auto pos_0     = player->entity_ptr->position;
+   vec3 vel       = to3d_xz(xz_velocity);
 
    float max_iterations = 120;
 
-   //IM_RENDER.add_point(IMHASH, player->entity_ptr->position, 2.0, false, COLOR_GREEN_1, 1);
+   IM_RENDER.add_point(IMHASH, player->entity_ptr->position, 2.0, false, COLOR_GREEN_1, 1);
 
    int iteration = 0;
    while(true)
    {
       vel += d_frame * player->gravity; 
       player->entity_ptr->position += vel * d_frame;
-      //IM_RENDER.add_point(IM_ITERHASH(iteration), player->entity_ptr->position, 2.0, true, COLOR_GREEN_1, 1);
+      IM_RENDER.add_point(IM_ITERHASH(iteration), player->entity_ptr->position, 2.0, true, COLOR_GREEN_1, 1);
 
-      // @todo - Note: this will probably have a bug because we are not updating player's world cells
-      // so if player is going to fall from one world cell into another, we wouldn't test
-      // collisions for entities in the next world cell.
-      // So, for tests where we don't use current player position, we need to figure out
-      // how to consider the relevant entities, maybe test for entities in collision buffer
-      // plus entities in nearby world cells?
+      // @todo: This test is completely meaningless
+      //        It is only valid for avoiding falling into holes in the ground but it doesn't properly test for
+      //        more complicated siutations where player would fall and not have space to fit it
       player->entity_ptr->update();
 
       int uncollided_count = 0;
@@ -231,12 +231,16 @@ bool GP_simulate_player_collision_in_falling_trajectory(Player* player)
       iteration++;
       if(iteration == max_iterations)
       {
-         // we couldn't unstuck the player in max_iterations * d_frame seconds of falling towards
+         // if enterede here, then we couldn't unstuck the player in max_iterations * d_frame seconds of falling towards
          // player movement direction, so he can't fall there
+         player->entity_ptr->position = pos_0;
+         player->entity_ptr->update();
          return false;
       }
    }
 
+   player->entity_ptr->position = pos_0;
+   player->entity_ptr->update();
    return true;
 }
 
@@ -276,6 +280,8 @@ vec3 GP_get_player_next_position_when_standing(Player* player)
 
    if(v_dir.x != 0 || v_dir.y != 0 || v_dir.z != 0)
       player->v_dir_historic = v_dir;
+   else if(player->v_dir_historic == vec3(0))
+      player->v_dir_historic = normalize(to_xz(G_SCENE_INFO.views[FPS_CAM]->Front));
 
    if(player->speed < 0.f || no_move_command)
       player->speed = 0;
@@ -283,7 +289,6 @@ vec3 GP_get_player_next_position_when_standing(Player* player)
    auto& speed    = player->speed;
    float d_speed  = player->acceleration * dt;
 
-   bool stopped                         = (speed > 0 && no_move_command);
 
    float speed_limit;
    if(player->dashing)
@@ -293,6 +298,7 @@ vec3 GP_get_player_next_position_when_standing(Player* player)
    else
       speed_limit = player->run_speed;
    
+   bool stopped = (speed > 0 && no_move_command);
    if(stopped)
    { 
       speed = 0;

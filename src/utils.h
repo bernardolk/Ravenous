@@ -173,6 +173,7 @@ vec3 to3d_xz(vec2 vector)
    return vec3(vector.x, 0, vector.y);
 }
 
+// VECTOR OPERATIONS
 inline
 vec3 nrmlz(vec3 vec)
 {

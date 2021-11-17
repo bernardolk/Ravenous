@@ -78,23 +78,32 @@ struct CL_IgnoreColliders {
 #include <cl_resolvers.h>
 
 // PROTOTYPES
-void CL_run_iterative_collision_detection(Player* player);
-CL_Results CL_run_collision_detection(
+void CL_test_and_resolve_collisions(Player* player);
+CL_Results CL_test_collision_buffer_entitites(
    Player* player,
    EntityBufferElement* entity_iterator,
    int entity_list_size,
-   bool iterative ,
-   Entity* skip_entity
+   bool iterative
 );
 CL_Results CL_test_player_vs_entity(Entity* entity, Player* player);
 void CL_resolve_collision(CL_Results results, Player* player);
+bool CL_test_collisions(Player* player);
 
 
 // --------------------------------------
 // > RUN INTERATIVE COLLISION DETECTION
 // --------------------------------------
+/* Current strategy looks like this:
+   - We have a collision buffer which holds all entities currently residing inside player's current world cells.
+   - We iterate over these entities and test them one by one, if we encounter a collision, we resolve it and
+      mark that entity as checked for this run.
+   - Player state is changed accordingly, in this step. Not sure if that is a good idea or not. Probably not.
+      Would be simpler to just unstuck player and update and then change player state as a final step.
+   - We then run the tests again, so to find new collisions at the player's new position.
+   - Once we don't have more collisions, we stop checking.
+*/
 
-void CL_run_iterative_collision_detection(Player* player)
+void CL_test_and_resolve_collisions(Player* player)
 {
    // iterative collision detection
    auto entity_buffer = G_BUFFERS.entity_buffer;
@@ -104,7 +113,7 @@ void CL_run_iterative_collision_detection(Player* player)
       c++;
       // places pointer back to start
       auto buffer = entity_buffer->buffer;
-      auto result = CL_run_collision_detection(player, buffer, entity_buffer->size, true, player->skip_collision_with_floor);
+      auto result = CL_test_collision_buffer_entitites(player, buffer, entity_buffer->size, true);
 
       if(result.collision)
       {
@@ -114,18 +123,43 @@ void CL_run_iterative_collision_detection(Player* player)
       }
       else break;
    }
+   CL_reset_collision_buffer_checks();
+}
+
+
+bool CL_test_collisions(Player* player)
+{
+   // iterative collision detection
+   bool any_collision = false;
+   auto entity_buffer = G_BUFFERS.entity_buffer;
+   while(true)
+   {
+      // places pointer back to start
+      auto buffer = entity_buffer->buffer;
+      auto result = CL_test_collision_buffer_entitites(player, buffer, entity_buffer->size, true);
+
+      if(result.collision)
+      {
+         CL_mark_entity_checked(result.entity);
+         any_collision = true;
+      }
+      else 
+         break;
+   }
+   CL_reset_collision_buffer_checks();
+
+   return any_collision;
 }
 
 // ---------------------------
 // > RUN COLLISION DETECTION
 // ---------------------------
 
-CL_Results CL_run_collision_detection(
+CL_Results CL_test_collision_buffer_entitites(
    Player* player,
    EntityBufferElement* entity_iterator,
    int entity_list_size,
-   bool iterative = true,
-   Entity* skip_entity = NULL)
+   bool iterative = true)
 {
 
    for (int i = 0; i < entity_list_size; i++)
@@ -134,8 +168,7 @@ CL_Results CL_run_collision_detection(
 
       bool entity_is_player            = entity->name == "Player",
            checked                     = iterative && entity_iterator->collision_check,
-           skip_it                     = skip_entity != NULL && skip_entity == entity;
-           skip_it                     = skip_it || CL_Ignore_Colliders.is_in_list(entity);
+           skip_it                     = CL_Ignore_Colliders.is_in_list(entity);
 
       if(entity_is_player || checked || skip_it)
       {
@@ -149,12 +182,7 @@ CL_Results CL_run_collision_detection(
       auto result = CL_test_player_vs_entity(entity, player);
 
       if(result.collision)
-      {
-         // unstuck player
-         player->entity_ptr->position += result.normal * result.penetration;
-         player->entity_ptr->update();
          return result;
-      }
       
       entity_iterator++;
    }
