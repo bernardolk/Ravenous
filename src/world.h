@@ -275,7 +275,7 @@ struct WorldStruct {
       }
    }
 
-   CellUpdate update_entity_world_cells(Entity* entity, vec3 pos_offset1 = vec3{0}, vec3 pos_offset2 = vec3{0})
+   CellUpdate update_entity_world_cells(Entity* entity)
    {
       string message;
 

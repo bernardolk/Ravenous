@@ -120,41 +120,41 @@ void IN_handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum
       
       case PLAYER_STATE_SLIDING:
       {
-         auto collision_geom = player->standing_entity_ptr->collision_geometry.slope;
-         v_dir = player->slide_speed * collision_geom.tangent;
+         // auto collision_geom = player->standing_entity_ptr->collision_geometry.slope;
+         // v_dir = player->slide_speed * collision_geom.tangent;
 
-         if (flags.key_press & KEY_MOVE_LEFT)
-         {
-            float dot_product = glm::dot(collision_geom.tangent, G_SCENE_INFO.camera->Front);
-            float angle = -12.0f;
-            if (dot_product < 0)
-               angle *= -1;
+         // if (flags.key_press & KEY_MOVE_LEFT)
+         // {
+         //    float dot_product = glm::dot(collision_geom.tangent, G_SCENE_INFO.camera->Front);
+         //    float angle = -12.0f;
+         //    if (dot_product < 0)
+         //       angle *= -1;
 
-            auto bitangent = glm::cross(collision_geom.tangent, G_SCENE_INFO.camera->Up);
-            auto normal = glm::cross(bitangent, collision_geom.tangent);
-            auto temp_vec = glm::rotate(v_dir, angle, normal);
-            v_dir.x = temp_vec.x;
-            v_dir.z = temp_vec.z;
-         }
-         if (flags.key_press & KEY_MOVE_RIGHT)
-         {
-            float dot_product = glm::dot(collision_geom.tangent, G_SCENE_INFO.camera->Front);
-            float angle = 12.0f;
-            if (dot_product < 0)
-               angle *= -1;
+         //    auto bitangent = glm::cross(collision_geom.tangent, G_SCENE_INFO.camera->Up);
+         //    auto normal = glm::cross(bitangent, collision_geom.tangent);
+         //    auto temp_vec = glm::rotate(v_dir, angle, normal);
+         //    v_dir.x = temp_vec.x;
+         //    v_dir.z = temp_vec.z;
+         // }
+         // if (flags.key_press & KEY_MOVE_RIGHT)
+         // {
+         //    float dot_product = glm::dot(collision_geom.tangent, G_SCENE_INFO.camera->Front);
+         //    float angle = 12.0f;
+         //    if (dot_product < 0)
+         //       angle *= -1;
 
-            auto bitangent = glm::cross(collision_geom.tangent, G_SCENE_INFO.camera->Up);
-            auto normal = glm::cross(bitangent, collision_geom.tangent);
-            auto temp_vec = glm::rotate(v_dir, angle, normal);
-            v_dir.x = temp_vec.x;
-            v_dir.z = temp_vec.z;
-         }
-         if (flags.key_press & KEY_SPACE)
-         {
-            vec3 n = player->standing_entity_ptr->collision_geometry.slope.normal;
-            player->jumping_from_slope = true;
-            v_dir = glm::normalize(vec3(n.x, 1, n.z));
-         }
+         //    auto bitangent = glm::cross(collision_geom.tangent, G_SCENE_INFO.camera->Up);
+         //    auto normal = glm::cross(bitangent, collision_geom.tangent);
+         //    auto temp_vec = glm::rotate(v_dir, angle, normal);
+         //    v_dir.x = temp_vec.x;
+         //    v_dir.z = temp_vec.z;
+         // }
+         // if (flags.key_press & KEY_SPACE)
+         // {
+         //    vec3 n = player->standing_entity_ptr->collision_geometry.slope.normal;
+         //    player->jumping_from_slope = true;
+         //    v_dir = glm::normalize(vec3(n.x, 1, n.z));
+         // }
 
          break;
       }

@@ -147,6 +147,8 @@ inline Parse parse_token_char(Parse toparse)
 
 inline Parse parse_token(Parse toparse)
 {
+   //@todo : this procedure doesn't adhere to the 'outparse' contract
+   //          its using the toparse as outparse.
    char string_buffer[50];
    size_t sb_size = 0;
 	do{
@@ -154,6 +156,8 @@ inline Parse parse_token(Parse toparse)
       if(toparse.hasToken) string_buffer[sb_size++] = toparse.cToken;
    } while(toparse.hasToken);
    string_buffer[sb_size] = '\0';
+   if(sb_size > 0)
+      toparse.hasToken = 1;
    strcpy(&toparse.string_buffer[0], &string_buffer[0]);
 	return toparse;
 }

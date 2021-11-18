@@ -127,11 +127,13 @@ Mesh* load_wavefront_obj_as_mesh(string path, string name, bool setup_gl_data = 
 		size_t size = line.size();
 
 		Parser::Parse p{ cline, size };
-		p = parse_letter(p);
-		if (p.hasToken && p.cToken == 'm') {
+		p = parse_token(p);
+      string attr = p.string_buffer;
+		if (p.hasToken && attr == "m") {
 
 		}
-		if (p.hasToken && p.cToken == 'v') {
+
+		if (p.hasToken && attr == "v") {
 		Vertex vert;
 		  do {
 		    p = parse_whitespace(p);
@@ -154,7 +156,7 @@ Mesh* load_wavefront_obj_as_mesh(string path, string name, bool setup_gl_data = 
 		  mesh->vertices.push_back(vert);
 		}
 
-		if (p.hasToken && p.cToken == 'f') {
+		if (p.hasToken && attr == "f") {
 		  do {
 		    p = parse_whitespace(p);
 		  } while (p.hasToken);

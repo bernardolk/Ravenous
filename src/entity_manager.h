@@ -4,7 +4,6 @@ struct EntityAttributes {
    string shader;
    string texture;
    string collision_mesh;
-   CollisionGeometryEnum collision;
    EntityType type;
    vec3 scale = vec3{1.0f};
 };
@@ -109,6 +108,7 @@ struct EntityManager
    void register_in_world_and_scene(Entity* entity)
    {
       G_SCENE_INFO.active_scene->entities.push_back(entity);
+      entity->update();
       World.update_entity_world_cells(entity);
    }
 
@@ -123,7 +123,6 @@ struct EntityManager
       string shader,
       string texture,
       string collision_mesh,
-      CollisionGeometryEnum collision = COLLISION_ALIGNED_BOX,
       vec3 scale = vec3{1.0f})
    {
       auto [_texture, _mesh, _collision_mesh, _shader] = _find_entity_assets_in_catalogue(mesh, collision_mesh, shader, texture);
@@ -136,9 +135,7 @@ struct EntityManager
       new_entity->scale                               = scale;
       new_entity->collision_mesh                      = _collision_mesh;
       new_entity->collider                            = *_collision_mesh;
-      new_entity->collision_geometry_type             = collision;
       new_entity->textures.push_back(_texture);
-      new_entity->old_update_collision_geometry();
 
       register_in_world_and_scene(new_entity);
       return new_entity;
@@ -155,7 +152,6 @@ struct EntityManager
          attrs->shader,
          attrs->texture,
          attrs->collision_mesh,
-         attrs->collision,
          attrs->scale
       );
 
@@ -189,10 +185,8 @@ struct EntityManager
          new_entity->shader                  = default_shader;
          new_entity->mesh                    = default_mesh;
          new_entity->collision_mesh          = default_mesh;
-         new_entity->collision_geometry_type = COLLISION_ALIGNED_BOX;
+         register_in_world_and_scene(new_entity);
       }
-      register_in_world_and_scene(new_entity);
-      new_entity->old_update_collision_geometry();
       return new_entity;  
    }
 

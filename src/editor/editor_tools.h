@@ -60,73 +60,73 @@ void snap_commit();
 
 void activate_snap_mode(Entity* entity)
 {
-   deactivate_editor_modes();
-   EdContext.snap_mode = true;
-   EdContext.snap_tracked_state = get_entity_state(entity);
-   EdContext.undo_stack.track(entity);
+   // deactivate_editor_modes();
+   // EdContext.snap_mode = true;
+   // EdContext.snap_tracked_state = get_entity_state(entity);
+   // EdContext.undo_stack.track(entity);
 }
 
 void snap_commit()
 {
-   auto entity = EdContext.entity_panel.entity;
-   EdContext.snap_tracked_state = get_entity_state(entity);
-   EdContext.undo_stack.track(entity);
+   // auto entity = EdContext.entity_panel.entity;
+   // EdContext.snap_tracked_state = get_entity_state(entity);
+   // EdContext.undo_stack.track(entity);
 }
 
 void snap_entity_to_reference(Entity* entity)
 {
-   auto reference = EdContext.snap_reference;
-   float diff = 0;
-   auto diff_vec = vec3(0.0f);
-   auto [x0, x1, z0, z1]         = reference->get_rect_bounds();
-   auto [e_x0, e_x1, e_z0, e_z1] = entity->get_rect_bounds();
+   // auto reference = EdContext.snap_reference;
+   // float diff = 0;
+   // auto diff_vec = vec3(0.0f);
+   // auto [x0, x1, z0, z1]         = reference->get_rect_bounds();
+   // auto [e_x0, e_x1, e_z0, e_z1] = entity->get_rect_bounds();
 
-   switch(EdContext.snap_axis)
-   {
-      case 0:  // x
-         if     (EdContext.snap_cycle == 0 && !EdContext.snap_inside) diff_vec.x = x1 - e_x0;
-         else if(EdContext.snap_cycle == 0 &&  EdContext.snap_inside) diff_vec.x = x1 - e_x0 - (e_x1 - e_x0);
-         else if(EdContext.snap_cycle == 2 && !EdContext.snap_inside) diff_vec.x = x0 - e_x1;
-         else if(EdContext.snap_cycle == 2 &&  EdContext.snap_inside) diff_vec.x = x0 - e_x1 + (e_x1 - e_x0);
-         else if(EdContext.snap_cycle == 1 ) diff_vec.x = x1 - e_x1 - (x1 - x0) / 2.0 + (e_x1 - e_x0) / 2.0;
-         break;
-      case 1:  // y
-      {
-         float bottom = reference->position.y;
-         float height = reference->get_height();
-         float top = bottom + height;
-         float current_bottom = entity->position.y;
-         float current_top = current_bottom + entity->get_height();
+   // switch(EdContext.snap_axis)
+   // {
+   //    case 0:  // x
+   //       if     (EdContext.snap_cycle == 0 && !EdContext.snap_inside) diff_vec.x = x1 - e_x0;
+   //       else if(EdContext.snap_cycle == 0 &&  EdContext.snap_inside) diff_vec.x = x1 - e_x0 - (e_x1 - e_x0);
+   //       else if(EdContext.snap_cycle == 2 && !EdContext.snap_inside) diff_vec.x = x0 - e_x1;
+   //       else if(EdContext.snap_cycle == 2 &&  EdContext.snap_inside) diff_vec.x = x0 - e_x1 + (e_x1 - e_x0);
+   //       else if(EdContext.snap_cycle == 1 ) diff_vec.x = x1 - e_x1 - (x1 - x0) / 2.0 + (e_x1 - e_x0) / 2.0;
+   //       break;
+   //    case 1:  // y
+   //    {
+   //       float bottom = reference->position.y;
+   //       float height = reference->get_height();
+   //       float top = bottom + height;
+   //       float current_bottom = entity->position.y;
+   //       float current_top = current_bottom + entity->get_height();
 
-         if     (EdContext.snap_cycle == 0 && !EdContext.snap_inside) diff_vec.y = top - current_bottom;
-         else if(EdContext.snap_cycle == 0 &&  EdContext.snap_inside) diff_vec.y = top - current_top;
-         else if(EdContext.snap_cycle == 2 && !EdContext.snap_inside) diff_vec.y = bottom - current_top;
-         else if(EdContext.snap_cycle == 2 &&  EdContext.snap_inside) diff_vec.y = bottom - current_bottom;
-         else if(EdContext.snap_cycle == 1 && !EdContext.snap_inside) diff_vec.y = top - height / 2.0 - current_top;
-         break;
-      }
-      case 2: // z
-         if     (EdContext.snap_cycle == 0 && !EdContext.snap_inside) diff_vec.z = z1 - e_z0;
-         else if(EdContext.snap_cycle == 0 &&  EdContext.snap_inside) diff_vec.z = z1 - e_z0 - (e_z1 - e_z0);
-         else if(EdContext.snap_cycle == 2 && !EdContext.snap_inside) diff_vec.z = z0 - e_z1;
-         else if(EdContext.snap_cycle == 2 &&  EdContext.snap_inside) diff_vec.z = z0 - e_z1 + (e_z1 - e_z0);
-         else if(EdContext.snap_cycle == 1 ) diff_vec.z = z1 - e_z1 - (z1 - z0) / 2.0 + (e_z1 - e_z0) / 2.0;
-         break;
-   }
+   //       if     (EdContext.snap_cycle == 0 && !EdContext.snap_inside) diff_vec.y = top - current_bottom;
+   //       else if(EdContext.snap_cycle == 0 &&  EdContext.snap_inside) diff_vec.y = top - current_top;
+   //       else if(EdContext.snap_cycle == 2 && !EdContext.snap_inside) diff_vec.y = bottom - current_top;
+   //       else if(EdContext.snap_cycle == 2 &&  EdContext.snap_inside) diff_vec.y = bottom - current_bottom;
+   //       else if(EdContext.snap_cycle == 1 && !EdContext.snap_inside) diff_vec.y = top - height / 2.0 - current_top;
+   //       break;
+   //    }
+   //    case 2: // z
+   //       if     (EdContext.snap_cycle == 0 && !EdContext.snap_inside) diff_vec.z = z1 - e_z0;
+   //       else if(EdContext.snap_cycle == 0 &&  EdContext.snap_inside) diff_vec.z = z1 - e_z0 - (e_z1 - e_z0);
+   //       else if(EdContext.snap_cycle == 2 && !EdContext.snap_inside) diff_vec.z = z0 - e_z1;
+   //       else if(EdContext.snap_cycle == 2 &&  EdContext.snap_inside) diff_vec.z = z0 - e_z1 + (e_z1 - e_z0);
+   //       else if(EdContext.snap_cycle == 1 ) diff_vec.z = z1 - e_z1 - (z1 - z0) / 2.0 + (e_z1 - e_z0) / 2.0;
+   //       break;
+   // }
 
-   entity->position += diff_vec;
+   // entity->position += diff_vec;
 }
 
 
 void check_selection_to_snap()
 {
-   auto pickray = cast_pickray();
-   auto test = test_ray_against_scene(pickray);
-   if(test.hit)
-   {
-      EdContext.snap_reference = test.entity;
-      snap_entity_to_reference(EdContext.entity_panel.entity);
-   }
+   // auto pickray = cast_pickray();
+   // auto test = test_ray_against_scene(pickray);
+   // if(test.hit)
+   // {
+   //    EdContext.snap_reference = test.entity;
+   //    snap_entity_to_reference(EdContext.entity_panel.entity);
+   // }
 }
 
 // -------------
@@ -140,24 +140,24 @@ void check_selection_to_stretch(EntityPanelContext* panel);
 
 void activate_stretch_mode(Entity* entity)
 {
-   deactivate_editor_modes();
-   EdContext.stretch_mode = true;
-   EdContext.undo_stack.track(entity);
+   // deactivate_editor_modes();
+   // EdContext.stretch_mode = true;
+   // EdContext.undo_stack.track(entity);
 }
 
 void stretch_commit()
 {
-   auto entity = EdContext.entity_panel.entity;
-   EdContext.undo_stack.track(entity);
+   // auto entity = EdContext.entity_panel.entity;
+   // EdContext.undo_stack.track(entity);
 }
 
 auto get_scale_and_position_change(float e_scale, float e_aligned, float e_opposite, float t, float n)
 {
-   // e_aligned -> entity mesh triangle pos in axis with normal aligned with selected t triangle normal
-   // e_opposite -> entity mesh triangle pos in axis with normal in same direction but opposite sense with selected t triangle normal
-   // e_scale -> entity scale in axis
-   // t -> pos of selected triangle in axis
-   // n -> axis component of t normal (sign)
+   /* e_aligned -> entity mesh triangle pos in axis with normal aligned with selected t triangle normal
+      e_opposite -> entity mesh triangle pos in axis with normal in same direction but opposite sense with selected t triangle normal
+      e_scale -> entity scale in axis
+      t -> pos of selected triangle in axis
+      n -> axis component of t normal (sign) */
 
    struct {
       float scale_f; 
@@ -191,91 +191,91 @@ auto get_scale_and_position_change(float e_scale, float e_aligned, float e_oppos
 
 void stretch_entity_to_reference(Entity* entity, Triangle t)
 {
-   // In this function, we are, obviously, considering that
-   // the triangle is axis aligned
-   assert(is_valid(t));
+   // // In this function, we are, obviously, considering that
+   // // the triangle is axis aligned
+   // assert(is_valid(t));
 
-   vec3 normal = glm::triangleNormal(t.a, t.b, t.c);
+   // vec3 normal = glm::triangleNormal(t.a, t.b, t.c);
 
-   // assert triangles are axis aligned always
-   if(abs(normal.x) != 1 && abs(normal.y) != 1 && abs(normal.z) != 1) 
-   {
-      G_BUFFERS.rm_buffer->add("Stretch failed", 1200);
-      return;
-   }
+   // // assert triangles are axis aligned always
+   // if(abs(normal.x) != 1 && abs(normal.y) != 1 && abs(normal.z) != 1) 
+   // {
+   //    G_BUFFERS.rm_buffer->add("Stretch failed", 1200);
+   //    return;
+   // }
 
-   // test each triangle from entity mesh until finding face
-   // which normal is equivalent to the reference triangle
-   // normal vector
-   // Note: we find 2 triangles per normal thats why we have the bools
-   Triangle e_aligned, e_opposite;
-   bool aligned = false;
-   bool opposite = false;
-   int triangles = entity->mesh->indices.size() / 3;
-   for(int i = 0; i < triangles; i++)
-   {
-      Triangle _t = get_triangle_for_indexed_mesh(entity, i);
-      vec3 _normal = glm::triangleNormal(_t.a, _t.b, _t.c);
+   // // test each triangle from entity mesh until finding face
+   // // which normal is equivalent to the reference triangle
+   // // normal vector
+   // // Note: we find 2 triangles per normal thats why we have the bools
+   // Triangle e_aligned, e_opposite;
+   // bool aligned = false;
+   // bool opposite = false;
+   // int triangles = entity->mesh->indices.size() / 3;
+   // for(int i = 0; i < triangles; i++)
+   // {
+   //    Triangle _t = get_triangle_for_indexed_mesh(entity, i);
+   //    vec3 _normal = glm::triangleNormal(_t.a, _t.b, _t.c);
 
-      if(is_equal(normal, _normal) && !aligned)
-      {
-         e_aligned = _t;
-         aligned = true;
-      }
-      else if(is_equal(normal, -1.f * _normal) && !opposite)
-      {
-         e_opposite = _t;
-         opposite = true;
-      }
+   //    if(is_equal(normal, _normal) && !aligned)
+   //    {
+   //       e_aligned = _t;
+   //       aligned = true;
+   //    }
+   //    else if(is_equal(normal, -1.f * _normal) && !opposite)
+   //    {
+   //       e_opposite = _t;
+   //       opposite = true;
+   //    }
 
-      if(aligned && opposite)
-         break;
-   }
+   //    if(aligned && opposite)
+   //       break;
+   // }
 
-   // if this breaks, check normal comparisons in loop above or if entities have right-hand convention
-   // in vertices definitions in geometry
-   assert(aligned && opposite);
+   // // if this breaks, check normal comparisons in loop above or if entities have right-hand convention
+   // // in vertices definitions in geometry
+   // assert(aligned && opposite);
 
-   // note: since triangles are axis aligned, it doesn't matter from
-   // which vertice (a, b, c) we take the coordinates.
-   int axis_count = 0;
-   if(!is_zero(normal.x))
-   {
-      auto [s, p] = get_scale_and_position_change(entity->scale.x, e_aligned.a.x, e_opposite.a.x, t.a.x, normal.x);
-      entity->scale.x += s;
-      entity->position.x += p;
-      axis_count++;
-   }
-   if(!is_zero(normal.y))
-   {
-      auto [s, p] = get_scale_and_position_change(entity->scale.y, e_aligned.a.y, e_opposite.a.y, t.a.y, normal.y);
-      entity->scale.y += s;
-      entity->position.y += p;
-      axis_count++;
-   }
-   if(!is_zero(normal.z))
-   {
-      auto [s, p] = get_scale_and_position_change(entity->scale.z, e_aligned.a.z, e_opposite.a.z, t.a.z, normal.z);
-      entity->scale.z += s;
-      entity->position.z += p;
-      axis_count++;
-   }
+   // // note: since triangles are axis aligned, it doesn't matter from
+   // // which vertice (a, b, c) we take the coordinates.
+   // int axis_count = 0;
+   // if(!is_zero(normal.x))
+   // {
+   //    auto [s, p] = get_scale_and_position_change(entity->scale.x, e_aligned.a.x, e_opposite.a.x, t.a.x, normal.x);
+   //    entity->scale.x += s;
+   //    entity->position.x += p;
+   //    axis_count++;
+   // }
+   // if(!is_zero(normal.y))
+   // {
+   //    auto [s, p] = get_scale_and_position_change(entity->scale.y, e_aligned.a.y, e_opposite.a.y, t.a.y, normal.y);
+   //    entity->scale.y += s;
+   //    entity->position.y += p;
+   //    axis_count++;
+   // }
+   // if(!is_zero(normal.z))
+   // {
+   //    auto [s, p] = get_scale_and_position_change(entity->scale.z, e_aligned.a.z, e_opposite.a.z, t.a.z, normal.z);
+   //    entity->scale.z += s;
+   //    entity->position.z += p;
+   //    axis_count++;
+   // }
 
-   assert(axis_count == 1);
-   return;
+   // assert(axis_count == 1);
+   // return;
 }
 
 
 
 void check_selection_to_stretch()
 {
-   auto pickray = cast_pickray();
-   auto test = test_ray_against_scene(pickray);
-   if(test.hit)
-   {
-      stretch_entity_to_reference(EdContext.entity_panel.entity, test.t);
-      stretch_commit();
-   }
+   // auto pickray = cast_pickray();
+   // auto test = test_ray_against_scene(pickray);
+   // if(test.hit)
+   // {
+   //    stretch_entity_to_reference(EdContext.entity_panel.entity, test.t);
+   //    stretch_commit();
+   // }
 }
 
 
@@ -652,22 +652,22 @@ void check_for_asset_changes()
 
 void render_aabb_boundaries(Entity* entity)
 {
-   auto bounds = entity->collision_geometry.aabb;
-   IM_RENDER.add(
-      IMHASH,
-      vector<Vertex>{
-         Vertex{vec3(bounds.x0,entity->position.y, bounds.z0)},
-         Vertex{vec3(bounds.x0,entity->position.y + bounds.height, bounds.z0)},
+   // auto bounds = entity->collision_geometry.aabb;
+   // IM_RENDER.add(
+   //    IMHASH,
+   //    vector<Vertex>{
+   //       Vertex{vec3(bounds.x0,entity->position.y, bounds.z0)},
+   //       Vertex{vec3(bounds.x0,entity->position.y + bounds.height, bounds.z0)},
 
-         Vertex{vec3(bounds.x0,entity->position.y, bounds.z1)},
-         Vertex{vec3(bounds.x0,entity->position.y + bounds.height, bounds.z1)},
+   //       Vertex{vec3(bounds.x0,entity->position.y, bounds.z1)},
+   //       Vertex{vec3(bounds.x0,entity->position.y + bounds.height, bounds.z1)},
 
-         Vertex{vec3(bounds.x1,entity->position.y, bounds.z1)},
-         Vertex{vec3(bounds.x1,entity->position.y + bounds.height, bounds.z1)},
+   //       Vertex{vec3(bounds.x1,entity->position.y, bounds.z1)},
+   //       Vertex{vec3(bounds.x1,entity->position.y + bounds.height, bounds.z1)},
 
-         Vertex{vec3(bounds.x1,entity->position.y, bounds.z0)},
-         Vertex{vec3(bounds.x1,entity->position.y + bounds.height, bounds.z0)},
-      },
-      GL_POINTS
-   );
+   //       Vertex{vec3(bounds.x1,entity->position.y, bounds.z0)},
+   //       Vertex{vec3(bounds.x1,entity->position.y + bounds.height, bounds.z0)},
+   //    },
+   //    GL_POINTS
+   // );
 }

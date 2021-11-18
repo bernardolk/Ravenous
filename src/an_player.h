@@ -58,7 +58,9 @@ bool AN_p_anim_jumping_update(Player* player)
    float h_diff            = player->half_height - new_half_height;
 
    player->half_height = new_half_height;
-   player->entity_ptr->collision_geometry.cylinder.half_length = new_half_height;
+
+   // @todo: should modify collider here
+   // player->entity_ptr->collision_geometry.cylinder.half_length = new_half_height;
    player->entity_ptr->scale.y -= h_diff;
    // compensates player shrinkage so he appears to be lifting the legs up
    player->entity_ptr->position.y += h_diff * 2;
@@ -81,7 +83,9 @@ bool AN_p_anim_landing_update(Player* player)
    }
 
    player->half_height = new_half_height;
-   player->entity_ptr->collision_geometry.cylinder.half_length = new_half_height;
+
+   // @todo: should modify collider here
+   // player->entity_ptr->collision_geometry.cylinder.half_length = new_half_height;
    player->entity_ptr->scale.y += a_step;
 
    return interrupt;
@@ -103,7 +107,9 @@ bool AN_p_anim_landing_fall_update(Player* player)
       float h_diff = player->half_height - new_half_height;
 
       player->half_height = new_half_height;
-      player->entity_ptr->collision_geometry.cylinder.half_length = new_half_height;
+
+      // @todo: should modify collider here
+      // player->entity_ptr->collision_geometry.cylinder.half_length = new_half_height;
       player->entity_ptr->scale.y -= h_diff;
    }
    // standing part
@@ -119,7 +125,9 @@ bool AN_p_anim_landing_fall_update(Player* player)
       }
 
       player->half_height = new_half_height;
-      player->entity_ptr->collision_geometry.cylinder.half_length = new_half_height;
+
+      // @todo: should modify collider here
+      // player->entity_ptr->collision_geometry.cylinder.half_length = new_half_height;
       player->entity_ptr->scale.y += a_step;
    }
 
@@ -215,5 +223,7 @@ void AN_p_anim_force_interrupt(Player* player)
    player->anim_t = 0;
    player->half_height = P_HALF_HEIGHT;
    player->entity_ptr->scale.y = P_HALF_HEIGHT;
-   player->entity_ptr->collision_geometry.cylinder.half_length = P_HALF_HEIGHT;
+
+   // @todo: should modify collider here
+   // player->entity_ptr->collision_geometry.cylinder.half_length = P_HALF_HEIGHT;
 }

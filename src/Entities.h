@@ -3,38 +3,6 @@
 // forward declarations
 struct WorldCell;
 
-// [START] OLD TYPES - I HOPE TO GET RID OF THEM SOON D:
-enum CollisionGeometryEnum {
-   COLLISION_ALIGNED_CYLINDER,
-   COLLISION_ALIGNED_BOX,
-   COLLISION_ALIGNED_SLOPE,
-};
-
-struct CollisionGeometryAlignedCylinder {
-   float half_length;
-   float radius;
-};
-
-struct CollisionGeometryAlignedBox {
-   float height;
-   float x0;
-   float x1;
-   float z0;
-   float z1;
-};
-
-struct CollisionGeometrySlope {
-   float height;
-   float x0;
-   float x1;
-   float z0;
-   float z1;
-   float inclination;
-   vec3 tangent;
-   vec3 normal;
-};
-
-// [END] OLD TYPES
 
 enum EntityType {
    STATIC            = 0,
@@ -62,14 +30,6 @@ struct Entity {
 	vec3 scale           = vec3(1.0f);
    vec3 velocity        = vec3(0.0f);
 
-   // collision simulation data
-   CollisionGeometryEnum collision_geometry_type;
-   union CollisionGeometry{
-      CollisionGeometrySlope slope;
-      CollisionGeometryAlignedCylinder cylinder;
-      CollisionGeometryAlignedBox aabb;
-   } collision_geometry;
-
    Mesh* collision_mesh;         // static collision mesh vertex data
    Mesh  collider;               // dynamic collision mesh, obtained by multiplying static collision mesh with model matrix
    BoundingBox bounding_box;     // computed using the collider mesh, used for fast first pass collision tests
@@ -88,40 +48,6 @@ struct Entity {
    // > METHODS
    // ----------
 
-   auto get_rect_bounds()
-   {
-      struct rect_bounds{
-         float x0, x1, z0, z1;
-      } bounds;
-
-      switch(collision_geometry_type)
-      {
-         case COLLISION_ALIGNED_BOX:
-         {
-            auto aabb = collision_geometry.aabb;
-            bounds.x0 = aabb.x0; bounds.x1 = aabb.x1; 
-            bounds.z0 = aabb.z0; bounds.z1 = aabb.z1;
-            break;
-         }
-         case COLLISION_ALIGNED_SLOPE:
-         {
-            auto slope = collision_geometry.slope;
-            bounds.x0 = slope.x0; bounds.x1 = slope.x1; 
-            bounds.z0 = slope.z0; bounds.z1 = slope.z1;
-            break;
-         }
-         case COLLISION_ALIGNED_CYLINDER:
-         {
-            auto cyl = collision_geometry.cylinder;
-            bounds.x0 = position.x - cyl.radius ; bounds.x1 = position.x + cyl.radius;
-            bounds.z0 = position.z - cyl.radius ; bounds.z1 = position.z + cyl.radius;
-            break;
-         }
-      }
-      return bounds;
-   }
-
-
    void update()
    {
       // @todo WE DON'T NEED TO RUN THIS EVERY TICK!
@@ -131,7 +57,6 @@ struct Entity {
       update_model_matrix();
       update_collider();
       update_bounding_box();
-      old_update_collision_geometry();
       update_trigger();
    }
 
@@ -164,61 +89,20 @@ struct Entity {
       bounding_box = collider.compute_bounding_box();
    }
 
-
-   void old_update_collision_geometry()
-   {
-      // OLD CODE - HOPE TO GET RID OF IT SOON D:
-      mat4 rot = glm::rotate(mat4identity, glm::radians(rotation.y), vec3(0.0f, 1.0f, 0.0f));
-      vec3 s_world = rot * vec4(scale, 1.0);
-
-      switch(collision_geometry_type)
-      {
-         case COLLISION_ALIGNED_BOX:
-         {
-            auto &bounds = collision_geometry.aabb;
-            // Essentially, we change the lengths from local to world coordinates
-            // and calculate the bounds in world coordinates in order, axis-aligned
-            bounds.x0 = min(position.x, position.x + s_world.x);
-            bounds.x1 = max(position.x, position.x + s_world.x);
-            bounds.z0 = min(position.z, position.z + s_world.z);
-            bounds.z1 = max(position.z, position.z + s_world.z);
-            bounds.height = scale.y;
-            break;
-         }
-         case COLLISION_ALIGNED_SLOPE:
-         {
-            auto &bounds = collision_geometry.slope;
-            bounds.x0 = min(position.x, position.x + s_world.x);
-            bounds.x1 = max(position.x, position.x + s_world.x);
-            bounds.z0 = min(position.z, position.z + s_world.z);
-            bounds.z1 = max(position.z, position.z + s_world.z);
-            bounds.height = scale.y;
-
-            auto& slope = collision_geometry.slope;
-            // rotates slope tangent to match entity rotation
-            // slope geometry is defined as default (rotation = 0) being going down along +x
-            // here we set the tangent vector to the slope, so the player falls along it when sliding
-            slope.inclination = scale.y / scale.x;
-            float slope_angle = atan(slope.inclination);
-            slope.tangent = rot * vec4(1.0f, -1 * sin(slope_angle), 0.0f, 1.0f);
-            slope.normal  = rot * vec4(1.0f, sin(slope_angle), 0.0f, 1.0f);
-            break;
-         }
-      }
-   }
-
    void update_trigger()
    {
-      auto [x0, x1, z0, z1] = get_rect_bounds();
-      trigger_pos = position + vec3{(x1 - x0) / 2.0f, trigger_scale.y, (z1 - z0) / 2.0f};
-      glm::mat4 model = translate(mat4identity, trigger_pos);
-		model = rotate(model, glm::radians(rotation.x), vec3(1.0f, 0.0f, 0.0f));
-		model = rotate(model, glm::radians(rotation.y), vec3(0.0f, 1.0f, 0.0f));
-		model = rotate(model, glm::radians(rotation.z), vec3(0.0f, 0.0f, 1.0f));
-      // to avoid elipsoids
-      trigger_scale.z = trigger_scale.x;
-		model = glm::scale(model, trigger_scale);
-		trigger_model = model;
+      // auto [x0, x1, z0, z1] = get_rect_bounds();
+      // trigger_pos = position + vec3{(x1 - x0) / 2.0f, trigger_scale.y, (z1 - z0) / 2.0f};
+      // glm::mat4 model = translate(mat4identity, trigger_pos);
+		// model = rotate(model, glm::radians(rotation.x), vec3(1.0f, 0.0f, 0.0f));
+		// model = rotate(model, glm::radians(rotation.y), vec3(0.0f, 1.0f, 0.0f));
+		// model = rotate(model, glm::radians(rotation.z), vec3(0.0f, 0.0f, 1.0f));
+      // // to avoid elipsoids
+      // trigger_scale.z = trigger_scale.x;
+		// model = glm::scale(model, trigger_scale);
+		// trigger_model = model;
+
+      // ???
    }
 
 
@@ -228,29 +112,6 @@ struct Entity {
       rotation.y = (int) rotation.y % 360;
       if(rotation.y < 0)
          rotation.y = 360 + rotation.y;
-   }
-
-   float get_height()
-   {
-       switch(collision_geometry_type)
-      {
-         case COLLISION_ALIGNED_BOX:
-         {
-            auto aabb = collision_geometry.aabb;
-            return aabb.height;
-         }
-         case COLLISION_ALIGNED_SLOPE:
-         {
-            auto slope = collision_geometry.slope;
-            return slope.height;
-         }
-         case COLLISION_ALIGNED_CYLINDER:
-         {
-            auto cylinder = collision_geometry.cylinder;
-            return cylinder.half_length;
-         }
-         default: return 0;
-      }
    }
 
    mat4 get_rotation_matrix()
@@ -338,15 +199,3 @@ struct Scene {
       ambient_intensity = configs.ambient_intensity;
    }
 };
-
-inline
-vec2 get_slope_normal(Entity* slope)
-{
-   auto col_geometry = slope->collision_geometry.slope;
-   auto nrml = glm::normalize(vec2(col_geometry.tangent.x, col_geometry.tangent.z));
-   return nrml;
-}
-
-
-
-

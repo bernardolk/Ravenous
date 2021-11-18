@@ -251,8 +251,7 @@ void render_entity_panel(EntityPanelContext* panel)
          deactivate_editor_modes();
 
       // needs to be done here to prevent a bug
-      entity->old_update_collision_geometry(); 
-
+      entity->update();
       auto update_cells = World.update_entity_world_cells(entity);
       if(update_cells.status != CellUpdate_OK)
          G_BUFFERS.rm_buffer->add(update_cells.message, 3500);

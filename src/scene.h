@@ -69,11 +69,8 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
          new_entity->collider.name = new_entity->name + "-collider";
          new_entity->collider.setup_gl_data();
 
-         // creates the entity bounding box (so world cells for it get calculated correctly)
-         new_entity->update_model_matrix();
-         new_entity->update_collider();
-         new_entity->update_bounding_box();
-         world->update_entity_world_cells(new_entity);
+         // puts entity into entities list and update geometric properties
+         Entity_Manager.register_in_world_and_scene(new_entity);
       }
       else if(p.cToken == '@')
       {
@@ -303,14 +300,6 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
                   << texture.path << "\n";
       }
 
-      writer << "collision ";
-      if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX)
-         writer << "aabb\n";
-      else if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
-         writer << "slope\n";
-      else
-         assert(false);
-      
       if(entity->wireframe)
          writer << "hidden\n";
 
@@ -455,9 +444,8 @@ void parse_and_load_player_attribute(Parser::Parse p, ifstream* reader, int& lin
 Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, std::string path)
 {
    std::string line;
-   bool is_collision_parsed = false;
 
-   auto new_entity = Entity_Manager.create_entity(false);
+   auto new_entity = Entity_Manager.create_entity();
    p = parse_name(p);
    new_entity->name = p.string_buffer;
 
@@ -466,32 +454,30 @@ Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count
       line_count ++;
       p = parse_token(p);
       const std::string property = p.string_buffer;
+
       if(property == "position")
       {
-            p = parse_float_vector(p);
-            new_entity->position = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+         p = parse_float_vector(p);
+         new_entity->position = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
       }
+
       else if(property == "rotation")
       {
-            p = parse_float_vector(p);
-            new_entity->rotation = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+         p = parse_float_vector(p);
+         new_entity->rotation = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
       }
+
       else if(property == "scale")
       {
-            if(is_collision_parsed)
-            {
-               std::cout << "FATAL: COLLISION SHOULD BE DEFINED AFTER SCALE PROPERTY FOR ENTITY. AT '" << path 
-                         << "' LINE NUMBER " << line_count << "\n";
-               assert(false);
-            }
-            p = parse_float_vector(p);
-            if(p.vec3[0] < 0 || p.vec3[1] < 0 || p.vec3[2] < 0)
-            {
-               std::cout << "FATAL: ENTITY SCALE PROPERTY CANNOT BE NEGATIVE. AT '" << path
-                         << "' LINE NUMBER " << line_count << "\n";
-            }
-            new_entity->scale = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+         p = parse_float_vector(p);
+         if(p.vec3[0] < 0 || p.vec3[1] < 0 || p.vec3[2] < 0)
+         {
+            std::cout << "FATAL: ENTITY SCALE PROPERTY CANNOT BE NEGATIVE. AT '" << path
+                        << "' LINE NUMBER " << line_count << "\n";
+         }
+         new_entity->scale = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
       }
+
       else if(property == "shader")
       {
          std::string shader_name;
@@ -510,6 +496,7 @@ Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count
             assert(false);
          }   
       }
+
       else if(property == "mesh")
       {
          std::string model_name;
@@ -527,6 +514,7 @@ Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count
          // @TODO when we get REAL about this, collision mesh should be a separate mesh (of course).
          new_entity->collision_mesh = new_entity->mesh;
       }
+      
       else if(property == "texture")
       {
          std::string texture_type, texture_name, texture_filename;
@@ -573,38 +561,12 @@ Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count
             new_entity->textures.push_back(new_texture);
          }   
       }
-      else if(property == "collision")
-      {
-         // check so we make sure scale is defined before collision (we use it to define the aabb lengths)
-         is_collision_parsed = true;
 
-         p = parse_all_whitespace(p);
-         p = parse_token(p);
-         string collision_type = p.string_buffer;
-
-         if(collision_type != "aabb" && collision_type != "slope")
-         {
-            std::cout << "UNRECOGNIZED COLLISION TYPE '" << collision_type 
-                        << "' AT SCENE DESCRIPTION FILE ('" 
-                        << path << "') LINE NUMBER " << line_count << "\n";
-            assert(false);
-         }
-
-         if(collision_type == "aabb")
-         {
-            new_entity->collision_geometry_type = COLLISION_ALIGNED_BOX;
-         }
-         else if(collision_type == "slope")
-         {
-            new_entity->collision_geometry_type = COLLISION_ALIGNED_SLOPE;
-         }
-         
-         new_entity->old_update_collision_geometry();
-      }
       else if(property == "hidden")
       {
          new_entity->wireframe = true;
       }
+
       else if(property == "type")
       {
          p = parse_all_whitespace(p);
@@ -613,11 +575,13 @@ Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count
          auto type_enum = (EntityType) entity_type;
          Entity_Manager.set_type(new_entity, type_enum);
       }
+
       else if(property == "trigger")
       {
          p = parse_float_vector(p);
          new_entity->trigger_scale = vec3{p.vec3[0], p.vec3[1], p.vec3[2]};
       }
+
       else
       {
          break;
@@ -793,41 +757,8 @@ bool save_player_position_to_file(string scene_name, Player* player)
 
 Entity* create_player_entity()
 {
-   // cylinder
-   auto find1 = Shader_Catalogue.find("model");
-   auto model_shader = find1->second;
-
-   auto find2 = Geometry_Catalogue.find("quad");
-   auto quad_mesh = find2->second;
-
-   auto find_cylinder = Geometry_Catalogue.find("cylinder");
-   auto cylinder_mesh = find_cylinder->second;
-
-   auto entity = Entity_Manager.create_entity();
-   entity->name = PLAYER_NAME;
-   entity->shader = model_shader;
-
-   unsigned int pink_texture = load_texture_from_file("pink.jpg", TEXTURES_PATH);
-   entity->textures = 
-      std::vector<Texture> {
-         Texture {
-            pink_texture,
-            "texture_diffuse",
-            "whatever"
-         }
-      };
-   entity->mesh = cylinder_mesh;
-   entity->collision_mesh = cylinder_mesh;
-   entity->collider       = *cylinder_mesh;
-
-   // player collision geometry
-   auto cgac = new CollisionGeometryAlignedCylinder { P_HALF_HEIGHT, P_RADIUS };
-   entity->collision_geometry_type = COLLISION_ALIGNED_CYLINDER;
-   entity->collision_geometry.cylinder = *cgac;
-
-   // player scale
-   entity->scale = vec3{P_RADIUS, P_HALF_HEIGHT, P_RADIUS};
-
+   auto scale = vec3{P_RADIUS, P_HALF_HEIGHT, P_RADIUS};
+   auto entity = Entity_Manager.create_entity(PLAYER_NAME, "capsule", "model", "pink", "capsule", scale);
    return entity;
 }
 

@@ -185,7 +185,7 @@ void GP_player_state_change_standing_to_sliding(Player* player, Entity* ramp)
    player->standing_entity_ptr         = ramp;
 
    // make player 'snap' to slope velocity-wise
-   player->entity_ptr->velocity = player->slide_speed * ramp->collision_geometry.slope.tangent;
+   // player->entity_ptr->velocity = player->slide_speed * ramp->collision_geometry.slope.tangent;
 
    player->player_state = PLAYER_STATE_SLIDING;
 }
@@ -196,7 +196,7 @@ void GP_player_state_change_standing_to_slide_falling(Player* player, Entity* ra
    player->standing_entity_ptr         = ramp;
 
    // make player 'snap' to slope velocity-wise
-   player->entity_ptr->velocity = player->slide_speed * ramp->collision_geometry.slope.tangent;
+   // player->entity_ptr->velocity = player->slide_speed * ramp->collision_geometry.slope.tangent;
 
    player->player_state = PLAYER_STATE_SLIDE_FALLING;
 }

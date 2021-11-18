@@ -51,7 +51,7 @@ const string CONFIG_FILE_PATH = PROJECT_PATH + "/config.txt";
 const string SCENE_TEMPLATE_NAME = "scene_template";
 const string INPUT_RECORDINGS_FOLDER_PATH = PROJECT_PATH + "/recordings/";
 
-// PLAYER CYLINDER SETTINGS ... !!!
+// PLAYER CAPSULE SETTINGS ... !!!
 // 1.75m of height
 float P_HALF_HEIGHT = 0.875; 
 float P_RADIUS = 0.20f;
@@ -603,23 +603,11 @@ void create_boilerplate_geometry()
    Geometry_Catalogue.insert({quad_horizontal_mesh->name, quad_horizontal_mesh});
 
    // TRIGGER
-   //auto trigger_mesh = new Mesh();
-   // auto trigger_vertices = construct_cylinder(1.0, 1.0, 24);
-   // trigger_mesh->name = "trigger";
-   // trigger_mesh->vertices = trigger_vertices;
-   // trigger_mesh->render_method = GL_TRIANGLE_STRIP;
-   // trigger_mesh->setup_gl_data();
    auto trigger_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, "player_cylinder");
    Geometry_Catalogue.insert({trigger_mesh->name, trigger_mesh});
 
-   // PLAYER CYLINDER
-   // Mesh* cylinder_mesh = new Mesh();
-   // cylinder_mesh->name = "player_cylinder";
-   //cylinder_mesh->vertices = construct_cylinder(1.0, 1.0, 24);
-   // cylinder_mesh->render_method = GL_TRIANGLE_STRIP;
-   // cylinder_mesh->setup_gl_data();
-   // Geometry_Catalogue.insert({cylinder_mesh->name, cylinder_mesh});
-   load_wavefront_obj_as_mesh(MODELS_PATH, "cylinder");
+   // PLAYER CAPSULE
+   load_wavefront_obj_as_mesh(MODELS_PATH, "capsule");
 
    // LIGHTBULB
    auto lightbulb_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, "lightbulb");
