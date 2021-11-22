@@ -9,13 +9,7 @@ bool CL_update_player_world_cells(Player* player)
       Returns whether there were changes or not to the cell list
       @todo - the procedures invoked here seem to do more work than necessary. Keep this in mind.
    */ 
-   // auto offset1 = vec3(
-   //    -player->radius, 
-   //    -player->half_height, 
-   //    -player->radius
-   // );
-   // auto offset2 = vec3(player->radius, player->half_height, player->radius);
-
+  
    auto update_cells = World.update_entity_world_cells(player->entity_ptr);
    if(!update_cells.status == CellUpdate_OK)
    {

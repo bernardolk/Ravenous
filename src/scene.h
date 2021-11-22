@@ -757,7 +757,7 @@ bool save_player_position_to_file(string scene_name, Player* player)
 
 Entity* create_player_entity()
 {
-   auto scale = vec3{P_RADIUS, P_HALF_HEIGHT, P_RADIUS};
+   auto scale = vec3(1);
    auto entity = Entity_Manager.create_entity(PLAYER_NAME, "capsule", "model", "pink", "capsule", scale);
    return entity;
 }
@@ -766,8 +766,6 @@ Player* create_player(Entity* player_entity)
 {
    auto player = new Player();
    player->entity_ptr   = player_entity;
-   player->half_height  = P_HALF_HEIGHT;
-   player->radius       = P_RADIUS;
    return player;
 }
 

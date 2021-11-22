@@ -44,62 +44,39 @@ void GP_update_player_state(Player* &player)
          // compute player next position
          auto next_position = GP_get_player_next_position_when_standing(player);
 
-         // // RAYCAST FORWARD TO DISABLE COLLISION IF FLOOR DETECTED
-         // auto p_next_pos_fwd_periphery = next_position + player->v_dir_historic * player->radius;
-         // auto f_vtrace_pos = vec3(p_next_pos_fwd_periphery.x, player->top().y + 1, p_next_pos_fwd_periphery.z);
+         /* Do a raycast (vertical trace) to find prospect of terrain according to the thresholds of steppable heights*/
 
-         // auto v_trace_fwd_ray = Ray{f_vtrace_pos, -UNIT_Y};
-         // RaycastTest fwd_vtrace = test_ray_against_scene(v_trace_fwd_ray);
-         // bool fwd_hit_terrain = false;
-         // if(fwd_vtrace.hit)
+         // float v_trace_array_angle = 100;
+         // float v_trace_array_subdivisions = 30;
+         // vec2  v_trace_orientation = to2d_xz(rotate(player->v_dir_historic, -glm::radians(v_trace_array_angle / 2), UNIT_Y));
+
+         // auto f_vtrace_pos = vec3(next_position.x, player->feet().y, next_position.z);         
+         // bool fwd_hit_terrain = GP_scan_for_terrain(
+         //    f_vtrace_pos, player->radius, v_trace_orientation, v_trace_array_angle, v_trace_array_subdivisions
+         // );
+
+         // // RAYCAST BACKWARD TO DISABLE COLLISION IF FLOOR DETECTED
+         // auto p_pos_bwd_periphery = player->entity_ptr->position - player->v_dir_historic * player->radius;
+         // auto b_vtrace_pos = vec3(p_pos_bwd_periphery.x, player->top().y + 1, p_pos_bwd_periphery.z);
+
+         // auto v_trace_bwd_ray = Ray{b_vtrace_pos, -UNIT_Y};
+         // RaycastTest bwd_vtrace = test_ray_against_scene(v_trace_bwd_ray);
+         // bool bwd_hit_terrain = false;
+         // if(bwd_vtrace.hit)
          // {
-         //    auto hitpoint = point_from_detection(v_trace_fwd_ray, fwd_vtrace);
+         //    auto hitpoint = point_from_detection(v_trace_bwd_ray, bwd_vtrace);
          //    // draw arrow
-         //    IM_RENDER.add_line(IMHASH, hitpoint, hitpoint + UNIT_Y * 3.f, COLOR_RED_1);
-         //    IM_RENDER.add_point(IMHASH, hitpoint, COLOR_RED_3);
+         //    IM_RENDER.add_line(IMHASH, hitpoint, hitpoint + UNIT_Y * 3.f, COLOR_YELLOW_1);
+         //    IM_RENDER.add_point(IMHASH, hitpoint, COLOR_YELLOW_3);
 
          //    float delta_y = abs(player->feet().y - hitpoint.y);
          //    if(delta_y <= PLAYER_STEPOVER_LIMIT)
          //    {
-         //       // disable collision with potential floor / terrain
-         //       CL_Ignore_Colliders.add(fwd_vtrace.entity);
-         //       fwd_hit_terrain = true;
+         //       // disable collision with current / previous floor
+         //       CL_Ignore_Colliders.add(bwd_vtrace.entity);
+         //       bwd_hit_terrain = true;
          //    }
          // }
-
-         /* Do a raycast (vertical trace) to find prospect of terrain according to the thresholds of steppable heights*/
-
-         float v_trace_array_angle = 100;
-         float v_trace_array_subdivisions = 30;
-         vec2  v_trace_orientation = to2d_xz(rotate(player->v_dir_historic, -glm::radians(v_trace_array_angle / 2), UNIT_Y));
-
-         auto f_vtrace_pos = vec3(next_position.x, player->feet().y, next_position.z);         
-         bool fwd_hit_terrain = GP_scan_for_terrain(
-            f_vtrace_pos, player->radius, v_trace_orientation, v_trace_array_angle, v_trace_array_subdivisions
-         );
-
-         // RAYCAST BACKWARD TO DISABLE COLLISION IF FLOOR DETECTED
-         auto p_pos_bwd_periphery = player->entity_ptr->position - player->v_dir_historic * player->radius;
-         auto b_vtrace_pos = vec3(p_pos_bwd_periphery.x, player->top().y + 1, p_pos_bwd_periphery.z);
-
-         auto v_trace_bwd_ray = Ray{b_vtrace_pos, -UNIT_Y};
-         RaycastTest bwd_vtrace = test_ray_against_scene(v_trace_bwd_ray);
-         bool bwd_hit_terrain = false;
-         if(bwd_vtrace.hit)
-         {
-            auto hitpoint = point_from_detection(v_trace_bwd_ray, bwd_vtrace);
-            // draw arrow
-            IM_RENDER.add_line(IMHASH, hitpoint, hitpoint + UNIT_Y * 3.f, COLOR_YELLOW_1);
-            IM_RENDER.add_point(IMHASH, hitpoint, COLOR_YELLOW_3);
-
-            float delta_y = abs(player->feet().y - hitpoint.y);
-            if(delta_y <= PLAYER_STEPOVER_LIMIT)
-            {
-               // disable collision with current / previous floor
-               CL_Ignore_Colliders.add(bwd_vtrace.entity);
-               bwd_hit_terrain = true;
-            }
-         }
 
          // MOVE PLAYER FORWARD
          player->entity_ptr->position = next_position;

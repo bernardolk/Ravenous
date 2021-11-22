@@ -171,7 +171,7 @@ void GP_player_state_change_falling_to_standing(Player* player)
    player->player_state = PLAYER_STATE_STANDING;
 
    // conditional animation: if falling from jump, land, else, land from fall
-   if(player->half_height < P_HALF_HEIGHT)
+   if(player->height < player->height)
       player->anim_state = P_ANIM_LANDING;
    else
       player->anim_state = P_ANIM_LANDING_FALL;

@@ -51,8 +51,8 @@ struct Player {
    // [end]
 
    // geometry
-   float radius;
-   float half_height;
+   float radius            = 0.4;
+   float height            = 1.75;
 
    // movement variables
    vec3 v_dir           = vec3(0.f);          // intended movement direction
@@ -129,12 +129,17 @@ struct Player {
 
    vec3 feet()
    {
-      return entity_ptr->position - vec3(0.0f, half_height, 0.0f);
+      return entity_ptr->position;
    }
 
    vec3 top()
    {
-      return entity_ptr->position + vec3(0.0f, half_height, 0.0f);
+      return entity_ptr->position + vec3(0.0f, height, 0.0f);
+   }
+
+   vec3 eye()
+   {
+      return entity_ptr->position + vec3(0, height - 0.1, 0);
    }
 
    bool maybe_hurt_from_fall()

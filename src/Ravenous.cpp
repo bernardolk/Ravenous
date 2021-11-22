@@ -51,11 +51,6 @@ const string CONFIG_FILE_PATH = PROJECT_PATH + "/config.txt";
 const string SCENE_TEMPLATE_NAME = "scene_template";
 const string INPUT_RECORDINGS_FOLDER_PATH = PROJECT_PATH + "/recordings/";
 
-// PLAYER CAPSULE SETTINGS ... !!!
-// 1.75m of height
-float P_HALF_HEIGHT = 0.875; 
-float P_RADIUS = 0.20f;
-
 const glm::mat4 mat4identity(
 	1.0f, 0.0f, 0.0f, 0.0f,
 	0.0f, 1.0f, 0.0f, 0.0f,
