@@ -84,6 +84,12 @@ RaycastTest test_ray_against_scene(Ray ray, Entity* skip)
 // --------------------------
 RaycastTest test_ray_against_entity(Ray ray, Entity* entity, RayCastType test_type = RayCast_TestOnlyFromOutsideIn)
 {
+   // @TODO: when testing against player, we could:
+   //      a) find the closest point between player's column and the ray
+   //      b) do a sphere vs ray test 
+   //      instead of testing the collider
+
+
    // first check collision with bounding box
    if(CL_test_ray_vs_aabb(ray, entity->bounding_box))
       return test_ray_against_collider(ray, &entity->collider, test_type);

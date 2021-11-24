@@ -4,61 +4,61 @@
 /* used, currently, to avoid detecting collision with colliders that are 
     being used by player as a floor platform / terrain
 */
-struct CL_IgnoreColliders {
-   const static size_t size = 5;
-   Entity* list[size] = {};
-   size_t count = 0;
+// struct CL_IgnoreColliders {
+//    const static size_t size = 5;
+//    Entity* list[size] = {};
+//    size_t count = 0;
 
-   void add(Entity* entity)
-   {
-      if(count == size)
-      {
-         cout << "CL_IgnoreColliders is full\n";
-         assert(false);
-      }
+//    void add(Entity* entity)
+//    {
+//       if(count == size)
+//       {
+//          cout << "CL_IgnoreColliders is full\n";
+//          assert(false);
+//       }
 
-      for(int i = 0; i < count; i++)
-         if(list[i] == entity)
-            return;
+//       for(int i = 0; i < count; i++)
+//          if(list[i] == entity)
+//             return;
 
-      list[count] = entity;
-      count++;
-   };
+//       list[count] = entity;
+//       count++;
+//    };
 
-   void empty()
-   {
-      for(int i = 0; i < size; i++)
-         list[i] = NULL;
+//    void empty()
+//    {
+//       for(int i = 0; i < size; i++)
+//          list[i] = NULL;
       
-      count = 0;
-   }
+//       count = 0;
+//    }
 
-   void remove(Entity* entity)
-   {
-      for(int i = 0; i < count; i++)
-         if(list[i] == entity)
-         {
-            list[i] = NULL;
-            for(int j = i; j < count - 1; j++)
-            {
-               list[j] = list[j + 1];
-               list[j + 1] = NULL;
-            }
-            count--;
-            return;
-         }
-   }
+//    void remove(Entity* entity)
+//    {
+//       for(int i = 0; i < count; i++)
+//          if(list[i] == entity)
+//          {
+//             list[i] = NULL;
+//             for(int j = i; j < count - 1; j++)
+//             {
+//                list[j] = list[j + 1];
+//                list[j + 1] = NULL;
+//             }
+//             count--;
+//             return;
+//          }
+//    }
 
-   bool is_in_list(Entity* entity)
-   {
-      for(int i = 0; i < count; i++)
-         if(list[i] == entity)
-            return true;
+//    bool is_in_list(Entity* entity)
+//    {
+//       for(int i = 0; i < count; i++)
+//          if(list[i] == entity)
+//             return true;
 
-      return false;
-   }
+//       return false;
+//    }
 
-} CL_Ignore_Colliders;
+// } CL_Ignore_Colliders;
 
 #include <cl_gjk.h>
 #include <cl_epa.h>
@@ -155,10 +155,9 @@ CL_Results CL_test_collision_buffer_entitites(
 	   Entity* &entity = entity_iterator->entity;
 
       bool entity_is_player            = entity->name == "Player",
-           checked                     = iterative && entity_iterator->collision_check,
-           skip_it                     = CL_Ignore_Colliders.is_in_list(entity);
+           checked                     = iterative && entity_iterator->collision_check;
 
-      if(entity_is_player || checked || skip_it)
+      if(entity_is_player || checked)
       {
          entity_iterator++;
          continue;
