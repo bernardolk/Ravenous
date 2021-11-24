@@ -155,11 +155,11 @@ void erase_entity(Scene* scene, Entity* entity);
 
 
 #include <loaders.h>
+#include <cl_tests.h>
 #include <raycast.h>
 #include <render.h>
 #include <im_render.h>
 #include <in_phase.h>
-#include <cl_tests.h>
 #include <gp_player_state.h>
 #include <an_player.h>
 #include <cl_buffers.h>

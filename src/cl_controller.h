@@ -1,15 +1,3 @@
-
-// --------------
-// > CL_Results
-// --------------
-struct CL_Results {
-   bool collision = false;
-   Entity* entity;
-   float penetration;
-   vec3 normal;
-};
-
-
 // ----------------------
 // > CL_IgnoreColliders
 // ----------------------

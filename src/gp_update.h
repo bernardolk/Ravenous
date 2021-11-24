@@ -103,7 +103,8 @@ void GP_update_player_state(Player* &player)
                If he doesn't fit, then ignore the hole and let player walk through it.
             */
 
-            if(!(bwd_hit_terrain && fwd_hit_terrain) && CL_Ignore_Colliders.count > 0)
+            // if(!(bwd_hit_terrain && fwd_hit_terrain) && CL_Ignore_Colliders.count > 0)
+            if(CL_Ignore_Colliders.count > 0)
             {
                // give player a push if necessary
                float fall_momentum_intensity = player->speed;
@@ -112,8 +113,10 @@ void GP_update_player_state(Player* &player)
 
 
                vec2 fall_momentum_dir;
-               if(fwd_hit_terrain) fall_momentum_dir = -to2d_xz(player->v_dir_historic);
-               else                fall_momentum_dir =  to2d_xz(player->v_dir_historic);
+               // if(fwd_hit_terrain) fall_momentum_dir = -to2d_xz(player->v_dir_historic);
+               // else                fall_momentum_dir =  to2d_xz(player->v_dir_historic);
+               fall_momentum_dir = -to2d_xz(player->v_dir_historic);
+
 
                vec2 fall_momentum = fall_momentum_dir * fall_momentum_intensity;
 
