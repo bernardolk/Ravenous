@@ -1,3 +1,7 @@
+
+// --------------
+// > Vertex
+// --------------
 struct Vertex {
     vec3 position;
     vec3 normal;
@@ -30,6 +34,10 @@ struct Vertex {
     };
 };
 
+
+// --------------
+// > BoundingBox
+// --------------
 struct BoundingBox {
    float minx;
    float maxx;
@@ -74,12 +82,28 @@ struct BoundingBox {
 };
 
 
-bool CL_test_bounding_boxes(BoundingBox a, BoundingBox b)
-{
-   // Exit with no intersection if separated along an axis
-   if (a.maxx < b.minx || a.minx > b.maxx) return false;
-   if (a.maxy < b.miny || a.miny > b.maxy) return false;
-   if (a.maxz < b.minz || a.minz > b.maxz) return false;
-   // Overlapping on all axes means AABBs are intersecting
-   return true;
-}
+// --------------
+// > Ray
+// --------------
+struct Ray {
+   vec3 origin;
+   vec3 direction;
+
+   vec3 get_inv()
+   {
+      return vec3(1.0 / direction.x, 1.0 / direction.y, 1.0 / direction.z);
+   }
+};
+
+
+// --------------
+// > CL_Results
+// --------------
+struct Entity;
+
+struct CL_Results {
+   bool collision = false;
+   Entity* entity;
+   float penetration;
+   vec3 normal;
+};

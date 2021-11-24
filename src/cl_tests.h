@@ -1,32 +1,37 @@
-const float COLLISION_EPSILON = 0.0001f;
-
-struct PrimitivesCollision {
-   bool is_collided  = false;
-   float overlap     = 0;
-   vec2 normal_vec   = vec2(0.0f);
-   bool is_inside    = false;
-};
 
 
-PrimitivesCollision CL_circle_vs_square(float cx, float cz, float cr, float x0, float x1, float z0, float z1)
+bool CL_test_ray_vs_aabb(Ray ray, BoundingBox box)
 {
-   // player is inside rect bounds
-   if (x0 <= cx && x1 >= cx && z0 <= cz && z1 >= cz) 
-   {
-     PrimitivesCollision check;
-     check.is_inside       = true;
-     check.is_collided     = true;
-     return check;  
-   }  
+   vec3 ray_inv = ray.get_inv();
 
-   // n_vec = surface-normal vector from circle center to nearest point in rectangle surface
-   float nx                = std::max(x0, std::min(x1, cx));
-   float nz                = std::max(z0, std::min(z1, cz));
-   vec2 n_vec              = vec2(cx, cz) - vec2(nx, nz);
-   float distance          = glm::length(n_vec);
-   float overlap           = cr - distance;
+   float tx1 = (box.minx - ray.origin.x) * ray_inv.x;
+   float tx2 = (box.maxx - ray.origin.x) * ray_inv.x;
 
-   return overlap > COLLISION_EPSILON ?
-      PrimitivesCollision{true, overlap, glm::normalize(n_vec), false} :
-      PrimitivesCollision{false};
+   float tmin = min(tx1, tx2);
+   float tmax = max(tx1, tx2);
+
+   float ty1 = (box.miny - ray.origin.y) * ray_inv.y;
+   float ty2 = (box.maxy - ray.origin.y) * ray_inv.y;
+
+   tmin = max(tmin, min(ty1, ty2));
+   tmax = min(tmax, max(ty1, ty2));
+
+   float tz1 = (box.minz - ray.origin.z) * ray_inv.z;
+   float tz2 = (box.maxz - ray.origin.z) * ray_inv.z;
+
+   tmin = max(tmin, min(tz1, tz2));
+   tmax = min(tmax, max(tz1, tz2));
+
+   return tmax >= tmin;
+}
+
+
+bool CL_test_bounding_boxes(BoundingBox a, BoundingBox b)
+{
+   // Exit with no intersection if separated along an axis
+   if (a.maxx < b.minx || a.minx > b.maxx) return false;
+   if (a.maxy < b.miny || a.miny > b.maxy) return false;
+   if (a.maxz < b.minz || a.minz > b.maxz) return false;
+   // Overlapping on all axes means AABBs are intersecting
+   return true;
 }

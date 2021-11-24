@@ -2,10 +2,10 @@
 #include <face.h>
 
 struct RaycastTest {
-   bool hit = false;
+   bool hit             = false;
    float distance;
-   Entity* entity = NULL;
-   int obj_hit_index = -1;
+   Entity* entity       = NULL;
+   int obj_hit_index    = -1;
    string obj_hit_type;
    Triangle t;
    u16 t_index;
@@ -15,11 +15,6 @@ enum RayCastType {
    RayCast_TestOnlyFromOutsideIn       = 0,
    RayCast_TestBothSidesOfTriangle     = 1,
    RayCast_TestOnlyVisibleEntities     = 2
-};
-
-struct Ray {
-   vec3 origin;
-   vec3 direction;
 };
 
 // Prototypes
@@ -89,7 +84,11 @@ RaycastTest test_ray_against_scene(Ray ray, Entity* skip)
 // --------------------------
 RaycastTest test_ray_against_entity(Ray ray, Entity* entity, RayCastType test_type = RayCast_TestOnlyFromOutsideIn)
 {
-   return test_ray_against_collider(ray, &entity->collider, test_type);
+   // first check collision with bounding box
+   if(CL_test_ray_vs_aabb(ray, entity->bounding_box))
+      return test_ray_against_collider(ray, &entity->collider, test_type);
+   else
+      return RaycastTest{false};
 }
 
 // ---------------------------
