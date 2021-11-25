@@ -66,7 +66,7 @@
 #include <cl_resolvers.h>
 
 // PROTOTYPES
-void CL_test_and_resolve_collisions(Player* player);
+CL_ResultsArray CL_test_and_resolve_collisions(Player* player);
 CL_Results CL_test_collision_buffer_entitites(
    Player* player,
    EntityBufferElement* entity_iterator,
@@ -91,9 +91,10 @@ bool CL_test_collisions(Player* player);
    - Once we don't have more collisions, we stop checking.
 */
 
-void CL_test_and_resolve_collisions(Player* player)
+CL_ResultsArray CL_test_and_resolve_collisions(Player* player)
 {
    // iterative collision detection
+   auto results_array = CL_ResultsArray();
    auto entity_buffer = G_BUFFERS.entity_buffer;
    int c = -1;
    while(true)
@@ -108,10 +109,13 @@ void CL_test_and_resolve_collisions(Player* player)
          CL_mark_entity_checked(result.entity);
          CL_log_collision(result, c);
          CL_resolve_collision(result, player);
+         results_array.results[results_array.count++] = result;
       }
       else break;
    }
    CL_reset_collision_buffer_checks();
+
+   return results_array;
 }
 
 

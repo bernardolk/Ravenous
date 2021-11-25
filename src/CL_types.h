@@ -107,3 +107,8 @@ struct CL_Results {
    float penetration;
    vec3 normal;
 };
+
+struct CL_ResultsArray {
+   CL_Results results[10];
+   int count = 0;
+};

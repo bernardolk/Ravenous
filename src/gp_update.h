@@ -12,8 +12,6 @@ bool GP_simulate_player_collision_in_falling_trajectory(Player* player, vec2 xz_
 
 void GP_update_player_state(Player* &player)
 {   
-   player->entity_ptr->position += G_FRAME_INFO.duration * player->gravity;
-
    switch(player->player_state)
    {
       case PLAYER_STATE_STANDING:
@@ -25,7 +23,64 @@ void GP_update_player_state(Player* &player)
          player->entity_ptr->position = next_position;
          player->update();
 
-         CL_test_and_resolve_collisions(player);
+         auto results = CL_test_and_resolve_collisions(player);
+
+         bool collided_with_terrain = false;
+         for (int i = 0; i < results.count; i ++)
+         {
+            auto result = results.results[i];
+            collided_with_terrain = dot(result.normal, UNIT_Y) > 0;
+            if(!collided_with_terrain)
+               CL_wall_slide_player(player, result.normal);
+         }
+      
+
+         // DO PLAYER CENTER VTRACE IN NEXT POSITION
+         auto c_vtrace = CL_do_c_vtrace(player);
+
+         if(player->v_dir != vec3(0) && c_vtrace.hit && !collided_with_terrain)
+         {
+
+            if(c_vtrace.distance > 0.0002)
+            {
+               RENDER_MESSAGE("c_vtrace.distance: " + format_float_tostr(c_vtrace.distance, 10));
+               player->entity_ptr->position.y -= c_vtrace.distance;
+               player->entity_ptr->position -= player->v_dir * (G_FRAME_INFO.duration * 1);
+               player->update();
+               CL_test_and_resolve_collisions(player);
+            }
+         }
+         else if (!c_vtrace.hit)
+         {
+            /* If player was standing on something and we added the collider to the ignored colliders for collision,
+               then, run a simulation, moving player like gravity would, testing for collision in each step and
+               once we are not colliding with the terrain colliders anymore, check if player fits without colliding with
+               anything in that position and then allow him to fall through.
+               If he doesn't fit, then ignore the hole and let player walk through it.
+            */
+
+            // give player a push if necessary
+            float fall_momentum_intensity = player->speed;
+            if(fall_momentum_intensity < player->fall_from_edge_push_speed)
+               fall_momentum_intensity = player->fall_from_edge_push_speed;
+
+
+            vec2 fall_momentum_dir;
+            fall_momentum_dir = to2d_xz(player->v_dir_historic);
+            vec2 fall_momentum = fall_momentum_dir * fall_momentum_intensity;
+
+            bool can_fall = GP_simulate_player_collision_in_falling_trajectory(player, fall_momentum);
+
+            if(can_fall)
+            {
+               player->entity_ptr->velocity = to3d_xz(fall_momentum);
+               GP_change_player_state(player, PLAYER_STATE_FALLING);
+               player->update();
+            }
+            else
+               RENDER_MESSAGE("Player won't fit if he falls here.", 1000);
+         }
+         
 
          break;
       }
@@ -35,7 +90,17 @@ void GP_update_player_state(Player* &player)
          player->entity_ptr->position += player->entity_ptr->velocity * G_FRAME_INFO.duration;
          player->update();
 
-         CL_test_and_resolve_collisions(player);
+         auto results = CL_test_and_resolve_collisions(player);
+
+         for (int i = 0; i < results.count; i ++)
+         {
+            auto result = results.results[i];
+            bool collided_with_terrain = dot(result.normal, UNIT_Y) > 0;
+            if(!collided_with_terrain)
+               CL_wall_slide_player(player, result.normal);
+            else
+               GP_change_player_state(player, PLAYER_STATE_STANDING);
+         }
 
          break;
       }
@@ -57,10 +122,24 @@ void GP_update_player_state(Player* &player)
          player->entity_ptr->position += player->entity_ptr->velocity * G_FRAME_INFO.duration;
          player->update();
 
-         if (player->entity_ptr->velocity.y <= 0)
+         auto results = CL_test_and_resolve_collisions(player);
+
+         for (int i = 0; i < results.count; i ++)
+         {
+            auto result = results.results[i];
+            bool collided_with_terrain = dot(result.normal, UNIT_Y) > 0;
+            if(!collided_with_terrain)
+               CL_wall_slide_player(player, result.normal);
+         }
+
+         // @todo - need to include case that player touches inclined terrain
+         //          in that case it should also stand (or fall from edge) and not
+         //          directly fall.
+         if(results.count > 0)
             GP_change_player_state(player, PLAYER_STATE_FALLING);
 
-         CL_test_and_resolve_collisions(player);
+         else if (player->entity_ptr->velocity.y <= 0)
+            GP_change_player_state(player, PLAYER_STATE_FALLING);
 
          break;
       }
