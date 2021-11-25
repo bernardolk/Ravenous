@@ -109,7 +109,8 @@ CL_ResultsArray CL_test_and_resolve_collisions(Player* player)
          CL_mark_entity_checked(result.entity);
          CL_log_collision(result, c);
          CL_resolve_collision(result, player);
-         results_array.results[results_array.count++] = result;
+         results_array.results[results_array.count] = result;
+         results_array.count++;
       }
       else break;
    }
@@ -197,18 +198,26 @@ CL_Results CL_test_player_vs_entity(Entity* entity, Player* player)
 
    GJK_Result box_gjk_test = CL_run_GJK(entity_collider, player_collider);
    
+   bool b_gjk = false;
+   bool b_epa = false;
    if(box_gjk_test.collision)
    {
-      RENDER_MESSAGE("GJK COLLISION", 1000);
+      b_gjk = true;
       EPA_Result epa = CL_run_EPA(box_gjk_test.simplex, entity_collider, player_collider);
       
       if(epa.collision)
       {
+         b_epa = true;
          cl_results.penetration  = epa.penetration;
          cl_results.normal       = epa.direction;
          cl_results.collision    = true;
       }
    }
+
+   if(b_gjk && b_epa)
+      RENDER_MESSAGE("COMPLETE COLLISION", 1000);
+   else if (b_gjk)
+      RENDER_MESSAGE("EPA UNRESOLVED COLLISION", 1000);
 
    return cl_results;
 }

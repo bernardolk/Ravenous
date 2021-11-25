@@ -51,7 +51,7 @@ struct Player {
    // [end]
 
    // geometry
-   float radius            = 0.4;
+   float radius            = 0.2;
    float height            = 1.75;
 
    // movement variables
@@ -93,6 +93,8 @@ struct Player {
 
    vec3 prior_position = vec3(0);
    vec3 initial_velocity = vec3(0);
+
+   vec3 last_terrain_contact_normal = vec3(0, 1.f, 0);
 
    // health and hurting
    int initial_lives             = 2;
@@ -140,6 +142,12 @@ struct Player {
    vec3 eye()
    {
       return entity_ptr->position + vec3(0, height - 0.1, 0);
+   }
+
+   vec3 last_terrain_contact_point()
+   {
+      vec3 player_btm_sphere_center = entity_ptr->position + vec3(0, radius, 0);
+      return player_btm_sphere_center + -last_terrain_contact_normal * radius;
    }
 
    bool maybe_hurt_from_fall()

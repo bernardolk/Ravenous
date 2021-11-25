@@ -30,7 +30,7 @@ RaycastTest CL_do_c_vtrace(Player* player)
 {
    // stands for Central Vertical Trace, basically, look below player's center for something steppable (terrain)
 
-   auto downward_ray    = Ray{player->feet() + vec3{0.0f, PLAYER_STEPOVER_LIMIT, 0.0f}, -UNIT_Y};
+   auto downward_ray    = Ray{player->last_terrain_contact_point() + vec3(0, PLAYER_STEPOVER_LIMIT, 0), -UNIT_Y};
    RaycastTest raytest  = test_ray_against_scene(downward_ray, RayCast_TestOnlyFromOutsideIn, player->entity_ptr);
 
    if(!raytest.hit) return RaycastTest{false};

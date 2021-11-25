@@ -250,6 +250,9 @@ int main()
    // load pre recorded input recordings
    Input_Recorder.load();
 
+   //@TODO: for debugging
+   player->entity_ptr->wireframe = true;
+
 	// MAIN LOOP
 	while (!glfwWindowShouldClose(G_DISPLAY_INFO.window))
 	{
