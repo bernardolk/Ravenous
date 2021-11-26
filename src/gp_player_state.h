@@ -10,12 +10,14 @@ void GP_player_state_change_jumping_to_falling    (Player* player);
 void GP_player_state_change_standing_to_falling   (Player* player);
 void GP_player_state_change_falling_to_standing   (Player* player);
 void GP_player_state_change_standing_to_jumping   (Player* player);
-void GP_player_state_change_standing_to_sliding   (Player* player, vec3 normal);
+void GP_player_state_change_any_to_sliding        (Player* player, vec3 normal);
 void GP_player_state_change_any_to_grabbing       (Player* player, Entity* entity, vec2 normal_vec, vec3 final_position, float d);
 void GP_player_state_change_grabbing_to_vaulting  (Player* player);
 void GP_player_state_change_standing_to_vaulting  (Player* player, Entity* entity, vec2 normal_vec, vec3 final_position);
 void GP_player_state_change_vaulting_to_standing  (Player* player);
 void GP_player_state_change_standing_to_slide_falling   (Player* player, Entity* ramp);
+void GP_player_state_change_sliding_to_standing   (Player* player);
+
 
 
 struct PlayerStateChangeArgs {
@@ -39,8 +41,14 @@ void GP_change_player_state(Player* player, PlayerStateEnum new_state, PlayerSta
   // Player is...
 
    // IN ANY STATE
-   if(new_state == PLAYER_STATE_GRABBING)
-      return GP_player_state_change_any_to_grabbing(player, args.entity, args.normal, args.final_position, args.penetration);
+   switch(new_state)
+   {
+      case PLAYER_STATE_GRABBING:
+         return GP_player_state_change_any_to_grabbing(player, args.entity, args.normal, args.final_position, args.penetration);
+      
+      case PLAYER_STATE_SLIDING:
+         return GP_player_state_change_any_to_sliding(player, args.normal);
+   }
 
    switch(player->player_state)
    {
@@ -49,65 +57,61 @@ void GP_change_player_state(Player* player, PlayerStateEnum new_state, PlayerSta
          switch(new_state)
          {
             case PLAYER_STATE_FALLING:
-               GP_player_state_change_standing_to_falling(player);
-               break;
+               return GP_player_state_change_standing_to_falling(player);
+
             case PLAYER_STATE_JUMPING:
-               GP_player_state_change_standing_to_jumping(player);
-               break;
-            case PLAYER_STATE_SLIDING:
-               GP_player_state_change_standing_to_sliding(player, args.normal);
-               break;
+               return GP_player_state_change_standing_to_jumping(player);
+
             case PLAYER_STATE_SLIDE_FALLING:
-               GP_player_state_change_standing_to_slide_falling(player, args.entity);
-               break;
+               return GP_player_state_change_standing_to_slide_falling(player, args.entity);
+
             case PLAYER_STATE_VAULTING:
-               GP_player_state_change_standing_to_vaulting(player, args.entity, args.normal, args.final_position);
-               break;
+               return GP_player_state_change_standing_to_vaulting(player, args.entity, args.normal, args.final_position);
          }
-         break;
 
       // JUMPING
       case PLAYER_STATE_JUMPING:
          switch(new_state)
          {
             case PLAYER_STATE_FALLING:
-               GP_player_state_change_jumping_to_falling(player);
-               break;
+               return GP_player_state_change_jumping_to_falling(player);
          }
-         break;
 
       // FALLING
       case PLAYER_STATE_FALLING:
          switch(new_state)
          {
             case PLAYER_STATE_STANDING:
-               GP_player_state_change_falling_to_standing(player);
-               break;
+               return GP_player_state_change_falling_to_standing(player);
          }
-         break;
 
       // GRABBING
       case PLAYER_STATE_GRABBING:
          switch(new_state)
          {
             case PLAYER_STATE_VAULTING:
-               GP_player_state_change_grabbing_to_vaulting(player);
-               break;
+              return GP_player_state_change_grabbing_to_vaulting(player);
          }
-         break;
 
       // VAULTING
       case PLAYER_STATE_VAULTING:
          switch(new_state)
          {
             case PLAYER_STATE_STANDING:
-               GP_player_state_change_vaulting_to_standing(player);
-               break;
+               return GP_player_state_change_vaulting_to_standing(player);
          }
-         break;
+
+      // SLIDING
+      case PLAYER_STATE_SLIDING:
+         switch(new_state)
+         {
+            case PLAYER_STATE_STANDING:
+               return GP_player_state_change_sliding_to_standing(player);
+         }
 
       default:
          assert(false);
+         return;
    }
 }
 
@@ -180,7 +184,7 @@ void GP_player_state_change_falling_to_standing(Player* player)
 }
 
 
-void GP_player_state_change_standing_to_sliding(Player* player, vec3 normal)
+void GP_player_state_change_any_to_sliding(Player* player, vec3 normal)
 {
    /* Parameters:
       - vec3 normal : the normal of the slope (collider triangle) player is currently sliding
@@ -189,7 +193,7 @@ void GP_player_state_change_standing_to_sliding(Player* player, vec3 normal)
    player->player_state = PLAYER_STATE_SLIDING;
 
    auto down_vec_into_n = project_vec_into_ref(-UNIT_Y, normal);
-   auto sliding_direction = -UNIT_Y - down_vec_into_n;
+   auto sliding_direction = normalize(-UNIT_Y - down_vec_into_n);
    player->sliding_direction = sliding_direction;
 
 }
@@ -262,4 +266,11 @@ void GP_player_state_change_vaulting_to_standing(Player* player)
    player->standing_entity_ptr            = player->vaulting_entity_ptr;
    player->vaulting_entity_ptr            = NULL;
    player->anim_finished_turning          = false;
+}
+
+
+void GP_player_state_change_sliding_to_standing(Player* player)
+{
+   player->sliding_direction = vec3(0);
+   player->player_state = PLAYER_STATE_STANDING;
 }

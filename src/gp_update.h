@@ -1,6 +1,6 @@
 
 void GP_update_player_state                     (Player* &player);
-vec3 GP_get_player_next_position_when_standing  (Player* player);
+vec3 GP_PlayerStanging_get_next_position  (Player* player);
 void GP_check_trigger_interaction               (Player* player);
 bool GP_check_player_grabbed_ledge              (Player* player, Entity* entity);
 bool GP_check_player_vaulting                   (Player* player);
@@ -19,7 +19,7 @@ void GP_update_player_state(Player* &player)
       case PLAYER_STATE_STANDING:
       {
          // compute player next position
-         auto next_position = GP_get_player_next_position_when_standing(player);
+         auto next_position = GP_PlayerStanging_get_next_position(player);
 
          // MOVE PLAYER FORWARD
          player->entity_ptr->position = next_position;
@@ -105,15 +105,36 @@ void GP_update_player_state(Player* &player)
          player->update();
 
          auto results = CL_test_and_resolve_collisions(player);
-
          for (int i = 0; i < results.count; i ++)
          {
             auto result = results.results[i];
-            bool collided_with_terrain = dot(result.normal, UNIT_Y) > 0;
-            if(!collided_with_terrain)
+
+            // slope collision
+            {
+               bool collided_with_slope = dot(result.normal, UNIT_Y) >= SLOPE_MIN_ANGLE;
+               if(collided_with_slope && result.entity->slidable)
+               {
+                  PlayerStateChangeArgs args;
+                  args.normal = result.normal;
+                  GP_change_player_state(player, PLAYER_STATE_SLIDING, args);
+                  return;
+               }
+            }
+
+            // floor collision
+            {
+               bool collided_with_terrain = dot(result.normal, UNIT_Y) > 0;
+               if(collided_with_terrain)
+               {
+                  GP_change_player_state(player, PLAYER_STATE_STANDING);
+                  return;
+               }
+            }
+
+            // else
+            {
                CL_wall_slide_player(player, result.normal);
-            else
-               GP_change_player_state(player, PLAYER_STATE_STANDING);
+            }
          }
 
          break;
@@ -139,13 +160,37 @@ void GP_update_player_state(Player* &player)
          player->update();
 
          auto results = CL_test_and_resolve_collisions(player);
-
          for (int i = 0; i < results.count; i ++)
          {
             auto result = results.results[i];
-            bool collided_with_terrain = dot(result.normal, UNIT_Y) > 0;
-            if(!collided_with_terrain)
+
+            // collision with terrain while jumping should be super rare I guess ...
+            // slope collision
+            {
+               bool collided_with_slope = dot(result.normal, UNIT_Y) >= SLOPE_MIN_ANGLE;
+               if(collided_with_slope && result.entity->slidable)
+               {
+                  PlayerStateChangeArgs args;
+                  args.normal = result.normal;
+                  GP_change_player_state(player, PLAYER_STATE_SLIDING, args);
+                  return;
+               }
+            }
+
+            // floor collision 
+            {
+               bool collided_with_terrain = dot(result.normal, UNIT_Y) > 0;
+               if(collided_with_terrain)
+               {
+                  GP_change_player_state(player, PLAYER_STATE_STANDING);
+                  return;
+               }
+            }
+
+            // else
+            {
                CL_wall_slide_player(player, result.normal);
+            }
          }
 
          // @todo - need to include case that player touches inclined terrain
@@ -163,8 +208,33 @@ void GP_update_player_state(Player* &player)
 
       case PLAYER_STATE_SLIDING:
       {
-
          IM_RENDER.add_line(IMHASH, player->entity_ptr->position, player->entity_ptr->position + 1.f * player->sliding_direction, COLOR_RED_2);
+
+         // we just need to do this once in the change state phase I think, but I left this here for clarity.
+         player->v_dir = player->sliding_direction;
+         player->entity_ptr->velocity = player->v_dir * player->slide_speed;
+
+         player->entity_ptr->position += player->entity_ptr->velocity * G_FRAME_INFO.duration;
+         player->update();
+
+
+         // RESOLVE COLLISIONS AND CHECK FOR TERRAIN CONTACT
+         auto results = CL_test_and_resolve_collisions(player);
+
+         bool collided_with_terrain = false;
+         for (int i = 0; i < results.count; i ++)
+         {
+            // iterate on collision results
+            auto result = results.results[i];
+            collided_with_terrain = dot(result.normal, UNIT_Y) > 0;
+            if(collided_with_terrain)
+               player->last_terrain_contact_normal = result.normal;
+         }
+
+         if(collided_with_terrain)
+         {
+            GP_change_player_state(player, PLAYER_STATE_STANDING);
+         }
 
          break;
       }
@@ -235,7 +305,7 @@ void GP_update_player_state(Player* &player)
 // }
 
 
-vec3 GP_get_player_next_position_when_standing(Player* player)
+vec3 GP_PlayerStanging_get_next_position(Player* player)
 {
    // updates player position
    auto& v           = player->entity_ptr->velocity;
