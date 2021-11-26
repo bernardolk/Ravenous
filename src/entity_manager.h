@@ -203,6 +203,8 @@ struct EntityManager
       auto new_entity = new Entity();
       *new_entity     = *entity;
       new_entity->id  = ++count;
+      new_entity->collider    = *new_entity->collision_mesh;
+      new_entity->collider.setup_gl_data();
       // tries new name with copy
       string new_name = new_entity->name;
       if(new_name != "NONAME")
