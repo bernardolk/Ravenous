@@ -110,6 +110,7 @@ struct EntityManager
       G_SCENE_INFO.active_scene->entities.push_back(entity);
       entity->update();
       World.update_entity_world_cells(entity);
+      World.update_cells_in_use_list();
    }
 
    // -----------------
@@ -135,6 +136,8 @@ struct EntityManager
       new_entity->scale                               = scale;
       new_entity->collision_mesh                      = _collision_mesh;
       new_entity->collider                            = *_collision_mesh;
+      new_entity->collider.name                       = name + "-collider";
+      new_entity->collider.setup_gl_data();
       new_entity->textures.push_back(_texture);
 
       register_in_world_and_scene(new_entity);

@@ -197,6 +197,12 @@ void render_entity_panel(EntityPanelContext* panel)
    ImGui::NewLine();
    ImGui::NewLine();
 
+   // COLLIDER PROPERTIES
+   ImGui::Text("Collider Properties:");
+   ImGui::Checkbox("Slidable", &entity->slidable);
+
+   ImGui::NewLine();
+
    // SHOW GEOMETRIC PROPERTIES
    ImGui::Text("Show:");
    ImGui::Checkbox("Normals", &panel->show_normals);

@@ -471,12 +471,9 @@ void place_entity()
    EdContext.move_mode = false;
    EdContext.place_mode = false;
    
-   auto update_cells = World.update_entity_world_cells(EdContext.selected_entity);
-   if(update_cells.status != CellUpdate_OK)
-      G_BUFFERS.rm_buffer->add(update_cells.message, 3500);
-
-   World.update_cells_in_use_list();
-   EdContext.undo_stack.track(EdContext.selected_entity);
+   CL_recompute_collision_buffer_entities(G_SCENE_INFO.player);
+   auto& entity = EdContext.selected_entity;
+   EdContext.undo_stack.track(entity);
 }
 
 
