@@ -9,6 +9,8 @@ bool GP_simulate_player_collision_in_falling_trajectory(Player* player, vec2 xz_
 // bool GP_scan_for_terrain(vec3 center, float radius, vec2 orientation0, float angle, int subdivisions);
 // bool GP_do_vtrace_for_terrain(vec3 vtrace_origin, float terrain_baseline_height, vec3 debug_color);
 
+float SLOPE_MIN_ANGLE = 0.4;
+
 
 void GP_update_player_state(Player* &player)
 {   
@@ -23,20 +25,6 @@ void GP_update_player_state(Player* &player)
          player->entity_ptr->position = next_position;
          player->update();
 
-         auto results = CL_test_and_resolve_collisions(player);
-
-         bool collided_with_terrain = false;
-         for (int i = 0; i < results.count; i ++)
-         {
-            auto result = results.results[i];
-            collided_with_terrain = dot(result.normal, UNIT_Y) > 0;
-            if(!collided_with_terrain)
-               CL_wall_slide_player(player, result.normal);
-            else
-               player->last_terrain_contact_normal = result.normal;
-         }
-      
-
          // DO PLAYER VTRACE IN NEXT POSITION USING LAST REGISTERED CONTACT POINT
          vec3 player_btm_sphere_center = player->entity_ptr->position + vec3(0, player->radius, 0);
          vec3 contact_point =  player_btm_sphere_center + -player->last_terrain_contact_normal * player->radius;
@@ -44,33 +32,31 @@ void GP_update_player_state(Player* &player)
 
          auto c_vtrace = CL_do_c_vtrace(player);
 
-         if(player->v_dir != vec3(0) && c_vtrace.hit && !collided_with_terrain)
+         // SNAP PLAYER TO TERRAIN USING LAST CONTACT POINT
+         if(c_vtrace.hit && c_vtrace.distance > 0.0002)
          {
-            if(c_vtrace.distance > 0.0002)
-            {
-               RENDER_MESSAGE("c_vtrace.distance: " + format_float_tostr(c_vtrace.distance, 10));
-               player->entity_ptr->position.y -= c_vtrace.distance;
-               player->update();
-               results = CL_test_and_resolve_collisions(player);
-
-               collided_with_terrain = false;
-               for (int i = 0; i < results.count; i ++)
-               {
-                  auto result = results.results[i];
-                  collided_with_terrain = dot(result.normal, UNIT_Y) > 0;
-                  if(collided_with_terrain)
-                     player->last_terrain_contact_normal = result.normal;
-               }
-            }
+            RENDER_MESSAGE("c_vtrace.distance: " + format_float_tostr(c_vtrace.distance, 10));
+            player->entity_ptr->position.y -= c_vtrace.distance;
+            player->update();
          }
-         else if (!c_vtrace.hit)
+         
+         // RESOLVE COLLISIONS AND CHECK FOR TERRAIN CONTACT
+         auto results = CL_test_and_resolve_collisions(player);
+
+         bool collided_with_terrain = false;
+         for (int i = 0; i < results.count; i ++)
          {
-            /* If player was standing on something and we added the collider to the ignored colliders for collision,
-               then, run a simulation, moving player like gravity would, testing for collision in each step and
-               once we are not colliding with the terrain colliders anymore, check if player fits without colliding with
-               anything in that position and then allow him to fall through.
-               If he doesn't fit, then ignore the hole and let player walk through it.
-            */
+            auto result = results.results[i];
+            collided_with_terrain = dot(result.normal, UNIT_Y) > 0;
+            if(collided_with_terrain)
+               player->last_terrain_contact_normal = result.normal;
+         }
+         
+         // IF FLOOR IS NO LONGER BENEATH PLAYER'S FEET
+         if (!c_vtrace.hit)
+         {
+            /* Here we do a simulation to check if player would fit going through the abyss.
+               If he doesn't fit, then ignore the hole and let player walk through it. */
 
             // give player a push if necessary
             float fall_momentum_intensity = player->speed;
@@ -89,11 +75,16 @@ void GP_update_player_state(Player* &player)
                player->entity_ptr->velocity = to3d_xz(fall_momentum);
                GP_change_player_state(player, PLAYER_STATE_FALLING);
                player->update();
+               break;
             }
             else
                RENDER_MESSAGE("Player won't fit if he falls here.", 1000);
          }
-         
+
+         // if(collided_with_slope)
+         // {
+         //    GP_change_player_state(player, PLAYER_STATE_SLIDING);
+         // }
 
          break;
       }
@@ -155,6 +146,10 @@ void GP_update_player_state(Player* &player)
             GP_change_player_state(player, PLAYER_STATE_FALLING);
 
          break;
+      }
+      case PLAYER_STATE_SLIDING:
+      {
+
       }
    }
    

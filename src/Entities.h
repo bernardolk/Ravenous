@@ -34,6 +34,9 @@ struct Entity {
    Mesh  collider;               // dynamic collision mesh, obtained by multiplying static collision mesh with model matrix
    BoundingBox bounding_box;     // computed using the collider mesh, used for fast first pass collision tests
 
+   // collider settings
+   bool slidable = false;
+
    WorldCell* world_cells[ENTITY_WOLRD_CELL_OCCUPATION_LIMIT];
    int world_cells_count = 0;
 
