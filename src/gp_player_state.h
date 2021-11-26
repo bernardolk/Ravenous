@@ -10,7 +10,7 @@ void GP_player_state_change_jumping_to_falling    (Player* player);
 void GP_player_state_change_standing_to_falling   (Player* player);
 void GP_player_state_change_falling_to_standing   (Player* player);
 void GP_player_state_change_standing_to_jumping   (Player* player);
-void GP_player_state_change_standing_to_sliding   (Player* player, Entity* ramp);
+void GP_player_state_change_standing_to_sliding   (Player* player, vec3 normal);
 void GP_player_state_change_any_to_grabbing       (Player* player, Entity* entity, vec2 normal_vec, vec3 final_position, float d);
 void GP_player_state_change_grabbing_to_vaulting  (Player* player);
 void GP_player_state_change_standing_to_vaulting  (Player* player, Entity* entity, vec2 normal_vec, vec3 final_position);
@@ -55,7 +55,7 @@ void GP_change_player_state(Player* player, PlayerStateEnum new_state, PlayerSta
                GP_player_state_change_standing_to_jumping(player);
                break;
             case PLAYER_STATE_SLIDING:
-               GP_player_state_change_standing_to_sliding(player, args.entity);
+               GP_player_state_change_standing_to_sliding(player, args.normal);
                break;
             case PLAYER_STATE_SLIDE_FALLING:
                GP_player_state_change_standing_to_slide_falling(player, args.entity);
@@ -180,14 +180,18 @@ void GP_player_state_change_falling_to_standing(Player* player)
 }
 
 
-void GP_player_state_change_standing_to_sliding(Player* player, Entity* ramp)
+void GP_player_state_change_standing_to_sliding(Player* player, vec3 normal)
 {
-   player->standing_entity_ptr         = ramp;
-
-   // make player 'snap' to slope velocity-wise
-   // player->entity_ptr->velocity = player->slide_speed * ramp->collision_geometry.slope.tangent;
+   /* Parameters:
+      - vec3 normal : the normal of the slope (collider triangle) player is currently sliding
+   */
 
    player->player_state = PLAYER_STATE_SLIDING;
+
+   auto down_vec_into_n = project_vec_into_ref(-UNIT_Y, normal);
+   auto sliding_direction = -UNIT_Y - down_vec_into_n;
+   player->sliding_direction = sliding_direction;
+
 }
 
 
@@ -200,6 +204,7 @@ void GP_player_state_change_standing_to_slide_falling(Player* player, Entity* ra
 
    player->player_state = PLAYER_STATE_SLIDE_FALLING;
 }
+
 
 // @TODO REFACTOR -> From aabb and 2d normals to full 3d
 void GP_player_state_change_any_to_grabbing(Player* player, Entity* entity, vec2 normal_vec, vec3 final_position, float penetration)

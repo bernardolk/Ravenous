@@ -86,15 +86,18 @@ struct Player {
    bool action                   = false;
    bool free_running             = false;
 
-   Entity* grabbing_entity = nullptr;
-
    PlayerStateEnum player_state;
    PlayerStateEnum initial_player_state;
 
    vec3 prior_position = vec3(0);
    vec3 initial_velocity = vec3(0);
 
+   // gameplay system varibles
    vec3 last_terrain_contact_normal = vec3(0, 1.f, 0);
+   Entity* grabbing_entity = nullptr;
+
+   vec3 sliding_direction  = vec3(0);
+
 
    // health and hurting
    int initial_lives             = 2;

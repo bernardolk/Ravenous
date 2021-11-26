@@ -33,7 +33,7 @@ void GP_update_player_state(Player* &player)
          auto c_vtrace = CL_do_c_vtrace(player);
 
          // SNAP PLAYER TO TERRAIN USING LAST CONTACT POINT
-         if(c_vtrace.hit && c_vtrace.distance > 0.0002)
+         if(c_vtrace.hit && c_vtrace.distance > 0.0004)
          {
             RENDER_MESSAGE("c_vtrace.distance: " + format_float_tostr(c_vtrace.distance, 10));
             player->entity_ptr->position.y -= c_vtrace.distance;
@@ -44,12 +44,18 @@ void GP_update_player_state(Player* &player)
          auto results = CL_test_and_resolve_collisions(player);
 
          bool collided_with_terrain = false;
+         CL_Results slope;
          for (int i = 0; i < results.count; i ++)
          {
+            // iterate on collision results
             auto result = results.results[i];
             collided_with_terrain = dot(result.normal, UNIT_Y) > 0;
             if(collided_with_terrain)
                player->last_terrain_contact_normal = result.normal;
+
+            bool collided_with_slope = dot(result.normal, UNIT_Y) >= SLOPE_MIN_ANGLE;
+            if(collided_with_slope && result.entity->slidable)
+               slope = result;
          }
          
          // IF FLOOR IS NO LONGER BENEATH PLAYER'S FEET
@@ -81,13 +87,17 @@ void GP_update_player_state(Player* &player)
                RENDER_MESSAGE("Player won't fit if he falls here.", 1000);
          }
 
-         // if(collided_with_slope)
-         // {
-         //    GP_change_player_state(player, PLAYER_STATE_SLIDING);
-         // }
+         if(slope.collision)
+         {
+            PlayerStateChangeArgs args;
+            args.normal = slope.normal;
+            GP_change_player_state(player, PLAYER_STATE_SLIDING, args);
+         }
 
          break;
       }
+
+
       case PLAYER_STATE_FALLING:
       {
          player->entity_ptr->velocity += G_FRAME_INFO.duration * player->gravity; 
@@ -108,6 +118,8 @@ void GP_update_player_state(Player* &player)
 
          break;
       }
+
+
       case PLAYER_STATE_JUMPING:
       {
          auto& v = player->entity_ptr->velocity;
@@ -147,9 +159,14 @@ void GP_update_player_state(Player* &player)
 
          break;
       }
+
+
       case PLAYER_STATE_SLIDING:
       {
 
+         IM_RENDER.add_line(IMHASH, player->entity_ptr->position, player->entity_ptr->position + 1.f * player->sliding_direction, COLOR_RED_2);
+
+         break;
       }
    }
    

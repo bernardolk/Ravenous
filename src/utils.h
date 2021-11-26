@@ -102,6 +102,12 @@ bool square_GE(vec3 v, float n)
    return v.x * v.x + v.y * v.y + v.z * v.z >= n * n; 
 }
 
+inline
+float abs(vec3 v)
+{
+   return glm::length(v);
+}
+
 // VECTOR ANGLE
 
 inline
@@ -197,6 +203,16 @@ vec3 rev_2Dnormal(vec2 normal)
 {
    return vec3(normal.x == 0 ? 0 : -1.0 * normal.x, 0, normal.y == 0 ? 0 : -1.0 * normal.y);
 }
+
+inline
+vec3 project_vec_into_ref(vec3 vec, vec3 ref)
+{
+   auto proj = dot(vec, ref) / (abs(ref) * abs(ref)) * ref;
+   return proj;
+}
+
+
+// OTHER
 
 inline
 int get_random_int(int min, int max)
