@@ -30,13 +30,19 @@ void GP_update_player_state(Player* &player)
          vec3 contact_point =  player_btm_sphere_center + -player->last_terrain_contact_normal * player->radius;
          IM_RENDER.add_line(IMHASH, player_btm_sphere_center, contact_point, COLOR_YELLOW_1);
 
-         auto c_vtrace = CL_do_c_vtrace(player);
+         auto vtrace = CL_do_c_vtrace(player);
 
          // SNAP PLAYER TO TERRAIN USING LAST CONTACT POINT
-         if(c_vtrace.hit && c_vtrace.distance > 0.0004)
+         if(vtrace.hit)
          {
-            RENDER_MESSAGE("c_vtrace.distance: " + format_float_tostr(c_vtrace.distance, 10));
-            player->entity_ptr->position.y -= c_vtrace.distance;
+            /* NOTE: OK, so we removed the vtrace.distance > 0.0004 condition here so
+               the player can step on small obstacles more easily and naturally, but the
+               problem now is that for high angled terrain the player starts to slowly
+               slide down. Not sure how to solve this now *without* doing collision checks
+               twice in this frame.
+            */
+            RENDER_MESSAGE("vtrace.distance: " + format_float_tostr(vtrace.distance, 10));
+            player->entity_ptr->position.y -= vtrace.distance;
             player->update();
          }
          
@@ -59,32 +65,48 @@ void GP_update_player_state(Player* &player)
          }
          
          // IF FLOOR IS NO LONGER BENEATH PLAYER'S FEET
-         if (!c_vtrace.hit)
+         if (!vtrace.hit)
          {
             /* Here we do a simulation to check if player would fit going through the abyss.
                If he doesn't fit, then ignore the hole and let player walk through it. */
 
-            // give player a push if necessary
-            float fall_momentum_intensity = player->speed;
-            if(fall_momentum_intensity < player->fall_from_edge_push_speed)
-               fall_momentum_intensity = player->fall_from_edge_push_speed;
+            // first pass test to see if player fits in hole
+            auto p_pos0 = player->entity_ptr->position;
+            player->entity_ptr->position += player->v_dir_historic * player->radius;
+            player->update();
+            bool collided = CL_run_tests_for_fall_simulation(player);
 
+            player->entity_ptr->position = p_pos0;
+            player->update();
 
-            vec2 fall_momentum_dir;
-            fall_momentum_dir = to2d_xz(player->v_dir_historic);
-            vec2 fall_momentum = fall_momentum_dir * fall_momentum_intensity;
-
-            bool can_fall = GP_simulate_player_collision_in_falling_trajectory(player, fall_momentum);
-
-            if(can_fall)
+            if(!collided)
             {
-               player->entity_ptr->velocity = to3d_xz(fall_momentum);
-               GP_change_player_state(player, PLAYER_STATE_FALLING);
-               player->update();
-               break;
+               // do a complete simulation of the fall (maybe unncessary... )
+
+               // give player a push if necessary
+               float fall_momentum_intensity = player->speed;
+               if(fall_momentum_intensity < player->fall_from_edge_push_speed)
+                  fall_momentum_intensity = player->fall_from_edge_push_speed;
+
+
+               vec2 fall_momentum_dir;
+               fall_momentum_dir = to2d_xz(player->v_dir_historic);
+               vec2 fall_momentum = fall_momentum_dir * fall_momentum_intensity;
+
+               bool can_fall = GP_simulate_player_collision_in_falling_trajectory(player, fall_momentum);
+
+               if(can_fall)
+               {
+                  player->entity_ptr->velocity = to3d_xz(fall_momentum);
+                  GP_change_player_state(player, PLAYER_STATE_FALLING);
+                  player->update();
+                  break;
+               }
+               else
+                  RENDER_MESSAGE("Player won't fit if he falls here.", 1000);
             }
             else
-               RENDER_MESSAGE("Player won't fit if he falls here.", 1000);
+                  RENDER_MESSAGE("We could fall but we are smarts", 1000);
          }
 
          if(slope.collision)

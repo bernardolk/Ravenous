@@ -120,13 +120,7 @@ void CL_wall_slide_player(Player* player, vec3 wall_normal)
 // --------------------------------------
 bool CL_run_tests_for_fall_simulation(Player* player)
 { 
-   /* This will test collision against entities in collision buffer and
-      check whether the collided entity is present in the CL_IgnoredColliders list.
-      We will keep testing until we have no collisions or we collide with an entity
-      that is NOT in the list. This way we know the play can either fall or not.
-      (he was able to leave the terrain and either be free or collided with something
-      else before being free, leaving him stuck inside the terrain)
-   */
+   /* It basically the usual test but without collision resolving. */
 
    auto entity_buffer = G_BUFFERS.entity_buffer;
    auto buffer = entity_buffer->buffer;
