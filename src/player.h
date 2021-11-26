@@ -207,4 +207,26 @@ struct Player {
    {
 
    }
+
+
+   // // pass through methods
+   // vec3 position()
+   // {
+   //    return entity_ptr->position;
+   // }
+
+   // vec3 rotation()
+   // {
+   //    return entity_ptr->rotation;
+   // }
+
+   // vec3 scale()
+   // {
+   //    return entity_ptr->scale;
+   // }
+
+   // vec3 velocity()
+   // {
+   //    return entity_ptr->velocity;
+   // }
 };

@@ -4,7 +4,6 @@ vec3 GP_PlayerStanging_get_next_position  (Player* player);
 void GP_check_trigger_interaction               (Player* player);
 bool GP_check_player_grabbed_ledge              (Player* player, Entity* entity);
 bool GP_check_player_vaulting                   (Player* player);
-RaycastTest CL_do_c_vtrace                      (Player* player);
 bool GP_simulate_player_collision_in_falling_trajectory(Player* player, vec2 xz_velocity);
 // bool GP_scan_for_terrain(vec3 center, float radius, vec2 orientation0, float angle, int subdivisions);
 // bool GP_do_vtrace_for_terrain(vec3 vtrace_origin, float terrain_baseline_height, vec3 debug_color);
@@ -30,10 +29,11 @@ void GP_update_player_state(Player* &player)
          vec3 contact_point =  player_btm_sphere_center + -player->last_terrain_contact_normal * player->radius;
          IM_RENDER.add_line(IMHASH, player_btm_sphere_center, contact_point, COLOR_YELLOW_1);
 
+         auto tmp = player->last_terrain_contact_normal;
          auto vtrace = CL_do_c_vtrace(player);
 
          // SNAP PLAYER TO TERRAIN USING LAST CONTACT POINT
-         if(vtrace.hit)
+         if(vtrace.hit && (vtrace.delta_y > 0.0004 || vtrace.delta_y < 0))
          {
             /* NOTE: OK, so we removed the vtrace.distance > 0.0004 condition here so
                the player can step on small obstacles more easily and naturally, but the
@@ -41,8 +41,7 @@ void GP_update_player_state(Player* &player)
                slide down. Not sure how to solve this now *without* doing collision checks
                twice in this frame.
             */
-            RENDER_MESSAGE("vtrace.distance: " + format_float_tostr(vtrace.distance, 10));
-            player->entity_ptr->position.y -= vtrace.distance;
+            player->entity_ptr->position.y -= vtrace.delta_y;
             player->update();
          }
          
@@ -55,7 +54,20 @@ void GP_update_player_state(Player* &player)
          {
             // iterate on collision results
             auto result = results.results[i];
+
+            // terrain test
+            // is it 'flat'?
             collided_with_terrain = dot(result.normal, UNIT_Y) > 0;
+
+            // do we have space on top of it?
+            // vec3 collision_contact_point =  player_btm_sphere_center + -result.normal * player->radius;
+            // auto upward_ray = Ray{ collision_contact_point + vec3(0, 0.1, 0), UNIT_Y };
+            // auto upward_test  = test_ray_against_scene(upward_ray, RayCast_TestBothSidesOfTriangle, player->entity_ptr);
+
+            /* @TODO: Here we need to do a proper collision test. Raycasting wont do because the ray could just "live"
+               inside a big tall entity and then hit way above where the entity has a ceiling and it would pass. We need
+               to place the player on the sampled height and check if he collides. Need to think more about this. */
+
             if(collided_with_terrain)
                player->last_terrain_contact_normal = result.normal;
 
@@ -63,7 +75,7 @@ void GP_update_player_state(Player* &player)
             if(collided_with_slope && result.entity->slidable)
                slope = result;
          }
-         
+
          // IF FLOOR IS NO LONGER BENEATH PLAYER'S FEET
          if (!vtrace.hit)
          {

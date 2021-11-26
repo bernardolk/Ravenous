@@ -2,7 +2,6 @@
 void CL_resolve_collision(CL_Results results, Player* player);
 void CL_wall_slide_player(Player* player, vec3 wall_normal);
 bool GP_simulate_player_collision_in_falling_trajectory(Player* player, vec2 xz_velocity);
-RaycastTest CL_do_c_vtrace(Player* player);
 bool CL_run_tests_for_fall_simulation(Player* player);
 
 // fwd decl.
@@ -23,27 +22,47 @@ void CL_resolve_collision(CL_Results results, Player* player)
    player->entity_ptr->update();
 }
 
-
+struct CL_VtraceResult {
+   bool hit = false;
+   float delta_y;
+   Entity* entity;
+};
 
 //@todo - Rethink the name and purpose of this function
-RaycastTest CL_do_c_vtrace(Player* player)
+CL_VtraceResult CL_do_c_vtrace(Player* player)
 {
    // stands for Central Vertical Trace, basically, look below player's center for something steppable (terrain)
 
-   auto downward_ray    = Ray{player->last_terrain_contact_point() + vec3(0, PLAYER_STEPOVER_LIMIT, 0), -UNIT_Y};
+   float origin_y       = 0.5;
+   auto downward_ray    = Ray{player->last_terrain_contact_point() + vec3(0, origin_y, 0), -UNIT_Y};
    RaycastTest raytest  = test_ray_against_scene(downward_ray, RayCast_TestOnlyFromOutsideIn, player->entity_ptr);
 
-   if(!raytest.hit) return RaycastTest{false};
+   if(!raytest.hit) 
+      return CL_VtraceResult{ false };
 
     // draw arrow
    auto hitpoint = point_from_detection(downward_ray, raytest);
-   IM_RENDER.add_line(IMHASH, hitpoint, hitpoint + UNIT_Y * 3.f, 1.0, true, COLOR_GREEN_1);
+   IM_RENDER.add_line(IMHASH, hitpoint, hitpoint + UNIT_Y * origin_y, 1.0, true, COLOR_GREEN_1);
    IM_RENDER.add_point(IMHASH, hitpoint, 1.0, true, COLOR_GREEN_3);
 
-   if(abs(raytest.distance - PLAYER_STEPOVER_LIMIT) <= PLAYER_STEPOVER_LIMIT)
-      return RaycastTest{true, raytest.distance - PLAYER_STEPOVER_LIMIT, raytest.entity};
-   else
-      return RaycastTest{false};
+   if(abs(player->entity_ptr->position - hitpoint) <= PLAYER_STEPOVER_LIMIT)
+   {
+      // I Dont know if the block below is really necessary.
+      /*
+      //  we hit something. Now lets test a ray upwards to see if there is space for the player to step in.
+      auto upward_ray = Ray{ hitpoint + vec3(0, 0.1, 0), UNIT_Y };
+      auto raytestb  = test_ray_against_scene(upward_ray, RayCast_TestBothSidesOfTriangle, player->entity_ptr);
+
+      auto hitpointb = point_from_detection(upward_ray, raytest);
+      IM_RENDER.add_line(IMHASH, hitpoint + vec3(0, 0.1, 0), hitpoint + vec3(0, 0.1, 0) + UNIT_Y * player->height, 1.0, true, COLOR_BLUE_1);
+      IM_RENDER.add_point(IMHASH, hitpoint + vec3(0, 0.1, 0) + UNIT_Y * player->height, 1.0, true, COLOR_BLUE_3);
+      
+
+      if(!raytestb.hit || (raytest.hit && raytestb.distance > player->height)) */
+      return CL_VtraceResult{ true, (player->entity_ptr->position - hitpoint).y, raytest.entity };
+   }
+
+   return CL_VtraceResult{ false };
 }
 
 
