@@ -311,6 +311,10 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
             << entity->trigger_scale.y << " "
             << entity->trigger_scale.z << "\n";
       }
+      if(entity->slidable)
+      {
+         writer << "slidable \n";
+      }
    }
 
    // Write things that need to be written after all entities are saved
@@ -580,6 +584,11 @@ Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count
       {
          p = parse_float_vector(p);
          new_entity->trigger_scale = vec3{p.vec3[0], p.vec3[1], p.vec3[2]};
+      }
+
+      else if(property == "slidable")
+      {
+         new_entity->slidable = true;
       }
 
       else
