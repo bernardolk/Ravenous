@@ -17,6 +17,8 @@ void GP_player_state_change_standing_to_vaulting  (Player* player, Entity* entit
 void GP_player_state_change_vaulting_to_standing  (Player* player);
 void GP_player_state_change_standing_to_slide_falling   (Player* player, Entity* ramp);
 void GP_player_state_change_sliding_to_standing   (Player* player);
+void GP_player_state_change_sliding_to_jumping(Player* player);
+void GP_player_state_change_sliding_to_falling(Player* player);
 
 
 
@@ -107,6 +109,12 @@ void GP_change_player_state(Player* player, PlayerStateEnum new_state, PlayerSta
          {
             case PLAYER_STATE_STANDING:
                return GP_player_state_change_sliding_to_standing(player);
+            
+            case PLAYER_STATE_JUMPING:
+               return GP_player_state_change_sliding_to_jumping(player);
+
+            case PLAYER_STATE_FALLING:
+               return GP_player_state_change_sliding_to_falling(player);
          }
 
       default:
@@ -145,11 +153,11 @@ void GP_player_state_change_standing_to_jumping(Player* player)
       else
          v = v_dir * player->jump_horz_thrust;
    }
-   
+
+   v.y = player->jump_initial_speed;   
    player->player_state = PLAYER_STATE_JUMPING;
    player->anim_state = P_ANIM_JUMPING;
    player->height_before_fall = player->entity_ptr->position.y;
-   v.y = player->jump_initial_speed;
 }
 
 
@@ -195,6 +203,7 @@ void GP_player_state_change_any_to_sliding(Player* player, vec3 normal)
    auto down_vec_into_n = project_vec_into_ref(-UNIT_Y, normal);
    auto sliding_direction = normalize(-UNIT_Y - down_vec_into_n);
    player->sliding_direction = sliding_direction;
+   player->sliding_normal = normal;
 
 }
 
@@ -271,6 +280,29 @@ void GP_player_state_change_vaulting_to_standing(Player* player)
 
 void GP_player_state_change_sliding_to_standing(Player* player)
 {
-   player->sliding_direction = vec3(0);
+   player->sliding_direction  = vec3(0);
+   player->sliding_normal     = vec3(0);
    player->player_state = PLAYER_STATE_STANDING;
+}
+
+
+void GP_player_state_change_sliding_to_jumping(Player* player)
+{
+   player->v_dir = player->sliding_normal;
+   player->sliding_normal = vec3(0);
+
+   player->entity_ptr->velocity = player->v_dir * player->jump_horz_thrust;
+   player->entity_ptr->velocity.y = player->jump_initial_speed;
+   
+   player->player_state = PLAYER_STATE_JUMPING;
+   player->anim_state = P_ANIM_JUMPING;
+   player->height_before_fall = player->entity_ptr->position.y;
+}
+
+
+void GP_player_state_change_sliding_to_falling(Player* player)
+{
+   player->player_state                   = PLAYER_STATE_FALLING;
+   player->entity_ptr->velocity.y         = -player->fall_speed;
+   player->height_before_fall             = player->entity_ptr->position.y;
 }

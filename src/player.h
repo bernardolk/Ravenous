@@ -96,8 +96,9 @@ struct Player {
    vec3 last_terrain_contact_normal = vec3(0, 1.f, 0);
    Entity* grabbing_entity = nullptr;
 
+   // sliding
    vec3 sliding_direction  = vec3(0);
-
+   vec3 sliding_normal     = vec3(0);
 
    // health and hurting
    int initial_lives             = 2;

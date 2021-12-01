@@ -15,18 +15,6 @@ void print_vertex_array_position(Vertex* vertex, size_t length, std::string titl
    }
 }
 
-void print_vec_every_3rd_frame(vec3 vec, std::string prefix)
-{
-   if(G_FRAME_INFO.frame_counter_3 == 0)
-      print_vec(vec, prefix);
-}
-
-void print_every_3rd_frame(std::string thing, std::string prefix)
-{
-   if(G_FRAME_INFO.frame_counter_3 == 0)
-      std::cout << prefix << ": " << thing << "\n";
-}
-
 inline
 string format_float_tostr(float num, int precision = 3)   
 {

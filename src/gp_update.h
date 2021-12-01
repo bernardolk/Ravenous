@@ -41,6 +41,24 @@ void GP_update_player_state(Player* &player)
                slide down. Not sure how to solve this now *without* doing collision checks
                twice in this frame.
             */
+           
+            // auto p0 = player->entity_ptr->position;
+            // player->entity_ptr->position.y -= vtrace.delta_y;
+
+            // auto p1 = player->entity_ptr->position;
+            // player->entity_ptr->position   += player->v_dir_historic * player->radius;
+            // IM_RENDER.add_mesh(IMHASH, player->entity_ptr);
+            // player->update();
+
+            // if(CL_test_collisions(player))
+            // {
+            //    player->entity_ptr->position = p0;
+            //    RENDER_MESSAGE("Collided Detect");
+            // }
+            // else
+            //    player->entity_ptr->position = p1;
+            
+
             player->entity_ptr->position.y -= vtrace.delta_y;
             player->update();
          }
@@ -244,8 +262,6 @@ void GP_update_player_state(Player* &player)
       {
          IM_RENDER.add_line(IMHASH, player->entity_ptr->position, player->entity_ptr->position + 1.f * player->sliding_direction, COLOR_RED_2);
 
-         // we just need to do this once in the change state phase I think, but I left this here for clarity.
-         player->v_dir = player->sliding_direction;
          player->entity_ptr->velocity = player->v_dir * player->slide_speed;
 
          player->entity_ptr->position += player->entity_ptr->velocity * G_FRAME_INFO.duration;
@@ -268,6 +284,13 @@ void GP_update_player_state(Player* &player)
          if(collided_with_terrain)
          {
             GP_change_player_state(player, PLAYER_STATE_STANDING);
+            break;
+         }
+
+         auto vtrace = CL_do_c_vtrace(player);
+         if(!vtrace.hit)
+         {
+            GP_change_player_state(player, PLAYER_STATE_FALLING);
          }
 
          break;

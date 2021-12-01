@@ -103,10 +103,9 @@ struct GlobalFrameInfo {
    float duration;
    float real_duration;
    float last_frame_time;
-   int frame_counter;
-   float current_fps;
-   u16 frame_counter_3 = 0;
-   u16 frame_counter_10 = 0;
+   int   fps;
+   int   fps_counter;
+   float sub_second_counter;
    float time_step = 1;
 } G_FRAME_INFO;
 
@@ -382,14 +381,21 @@ void start_frame()
    G_FRAME_INFO.real_duration = current_frame_time - G_FRAME_INFO.last_frame_time;
    G_FRAME_INFO.duration = G_FRAME_INFO.real_duration * G_FRAME_INFO.time_step;
    G_FRAME_INFO.last_frame_time = current_frame_time;
+
+   // forces framerate for simulation to be small
    if(G_FRAME_INFO.duration > 0.02)
    {
       G_FRAME_INFO.duration = 0.02;
-      //std::cout << "delta time exceeded.\n";
    } 
-   G_FRAME_INFO.current_fps = 1.0f / G_FRAME_INFO.duration;
-   G_FRAME_INFO.frame_counter_3 = ++G_FRAME_INFO.frame_counter_3 % 3;
-   G_FRAME_INFO.frame_counter_10 = ++G_FRAME_INFO.frame_counter_10 % 10;
+
+   G_FRAME_INFO.sub_second_counter += G_FRAME_INFO.real_duration;
+   G_FRAME_INFO.fps_counter        += 1;
+   if(G_FRAME_INFO.sub_second_counter > 1)
+   {
+      G_FRAME_INFO.fps                 = G_FRAME_INFO.fps_counter;
+      G_FRAME_INFO.fps_counter         = 0;
+      G_FRAME_INFO.sub_second_counter -= 1;
+   }
 }
 
 void check_all_entities_have_shaders()

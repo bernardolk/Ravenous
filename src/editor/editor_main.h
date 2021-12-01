@@ -496,7 +496,7 @@ void render_text_overlay(Player* player)
    float GUI_y = G_DISPLAY_INFO.VIEWPORT_HEIGHT - 60;
    float SCREEN_HEIGHT = G_DISPLAY_INFO.VIEWPORT_HEIGHT;
 
-   string font = "consola14";
+   string font = "consola18";
    string font_center = "swanseait38";
    string font_center_small = "swanseait20";
    float centered_text_height = SCREEN_HEIGHT - 120;
@@ -581,9 +581,9 @@ void render_text_overlay(Player* player)
 
 
    // FPS
-   string fps = to_string(G_FRAME_INFO.current_fps);
-   string fps_gui = "FPS: " + fps.substr(0, fps.find('.', 0) + 2);
-   render_text(font, G_DISPLAY_INFO.VIEWPORT_WIDTH - 120, 30, fps_gui);
+   string fps = to_string(G_FRAME_INFO.fps);
+   string fps_gui = "FPS: " + fps;
+   render_text(font, G_DISPLAY_INFO.VIEWPORT_WIDTH - 110, 40, fps_gui);
 
 
    // EDITOR TOOLS INDICATORS

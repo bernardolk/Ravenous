@@ -33,8 +33,8 @@ CL_VtraceResult CL_do_c_vtrace(Player* player)
 {
    // stands for Central Vertical Trace, basically, look below player's center for something steppable (terrain)
 
-   float origin_y       = 0.5;
-   auto downward_ray    = Ray{player->last_terrain_contact_point() + vec3(0, origin_y, 0), -UNIT_Y};
+   vec3 ray_origin     = player->last_terrain_contact_point() + vec3(0, 0.21, 0);
+   auto downward_ray    = Ray{ ray_origin, -UNIT_Y };
    RaycastTest raytest  = test_ray_against_scene(downward_ray, RayCast_TestOnlyFromOutsideIn, player->entity_ptr);
 
    if(!raytest.hit) 
@@ -42,10 +42,10 @@ CL_VtraceResult CL_do_c_vtrace(Player* player)
 
     // draw arrow
    auto hitpoint = point_from_detection(downward_ray, raytest);
-   IM_RENDER.add_line(IMHASH, hitpoint, hitpoint + UNIT_Y * origin_y, 1.0, true, COLOR_GREEN_1);
+   IM_RENDER.add_line(IMHASH, hitpoint, ray_origin, 1.0, true, COLOR_GREEN_1);
    IM_RENDER.add_point(IMHASH, hitpoint, 1.0, true, COLOR_GREEN_3);
 
-   if(abs(player->entity_ptr->position - hitpoint) <= PLAYER_STEPOVER_LIMIT)
+   if(abs(player->entity_ptr->position.y - hitpoint.y) <= PLAYER_STEPOVER_LIMIT)
    {
       // I Dont know if the block below is really necessary.
       /*
@@ -59,7 +59,7 @@ CL_VtraceResult CL_do_c_vtrace(Player* player)
       
 
       if(!raytestb.hit || (raytest.hit && raytestb.distance > player->height)) */
-      return CL_VtraceResult{ true, (player->entity_ptr->position - hitpoint).y, raytest.entity };
+      return CL_VtraceResult{ true, player->last_terrain_contact_point().y - hitpoint.y, raytest.entity };
    }
 
    return CL_VtraceResult{ false };
