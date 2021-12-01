@@ -28,12 +28,14 @@ struct CL_VtraceResult {
    Entity* entity;
 };
 
-//@todo - Rethink the name and purpose of this function
-CL_VtraceResult CL_do_c_vtrace(Player* player)
-{
-   // stands for Central Vertical Trace, basically, look below player's center for something steppable (terrain)
 
-   vec3 ray_origin     = player->last_terrain_contact_point() + vec3(0, 0.21, 0);
+CL_VtraceResult CL_do_stepover_vtrace(Player* player)
+{
+   /* Cast a ray at player's last point of contact with terrain to look for something steppable (terrain).
+      Will cull out any results that are to be considered too high (is a wall) or too low (is a hole) considering
+      player's current height. */
+
+   vec3 ray_origin      = player->last_terrain_contact_point() + vec3(0, 0.21, 0);
    auto downward_ray    = Ray{ ray_origin, -UNIT_Y };
    RaycastTest raytest  = test_ray_against_scene(downward_ray, RayCast_TestOnlyFromOutsideIn, player->entity_ptr);
 
@@ -46,21 +48,7 @@ CL_VtraceResult CL_do_c_vtrace(Player* player)
    IM_RENDER.add_point(IMHASH, hitpoint, 1.0, true, COLOR_GREEN_3);
 
    if(abs(player->entity_ptr->position.y - hitpoint.y) <= PLAYER_STEPOVER_LIMIT)
-   {
-      // I Dont know if the block below is really necessary.
-      /*
-      //  we hit something. Now lets test a ray upwards to see if there is space for the player to step in.
-      auto upward_ray = Ray{ hitpoint + vec3(0, 0.1, 0), UNIT_Y };
-      auto raytestb  = test_ray_against_scene(upward_ray, RayCast_TestBothSidesOfTriangle, player->entity_ptr);
-
-      auto hitpointb = point_from_detection(upward_ray, raytest);
-      IM_RENDER.add_line(IMHASH, hitpoint + vec3(0, 0.1, 0), hitpoint + vec3(0, 0.1, 0) + UNIT_Y * player->height, 1.0, true, COLOR_BLUE_1);
-      IM_RENDER.add_point(IMHASH, hitpoint + vec3(0, 0.1, 0) + UNIT_Y * player->height, 1.0, true, COLOR_BLUE_3);
-      
-
-      if(!raytestb.hit || (raytest.hit && raytestb.distance > player->height)) */
       return CL_VtraceResult{ true, player->last_terrain_contact_point().y - hitpoint.y, raytest.entity };
-   }
 
    return CL_VtraceResult{ false };
 }

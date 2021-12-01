@@ -154,35 +154,34 @@ RaycastTest test_ray_against_mesh(Ray ray, Mesh* mesh, glm::mat4 matModel, RayCa
 // ----------------------------
 RaycastTest test_ray_against_triangle(Ray ray, Triangle triangle, bool test_both_sides = true)
 {
-   auto &A = triangle.a;
-   auto &B = triangle.b;
-   auto &C = triangle.c;
-
-	vec3 E1 = B - A;
-	vec3 E2 = C - A;
-	vec3 N = glm::cross(E1, E2);
-	float det = -glm::dot(ray.direction, N);
-	float invdet = 1.0 / det;
-	vec3 AO = ray.origin - A;
+   auto &A        = triangle.a;
+   auto &B        = triangle.b;
+   auto &C        = triangle.c;
+	vec3 E1        = B - A;
+	vec3 E2        = C - A;
+	vec3 AO        = ray.origin - A;
 
    // check hit with one side of triangle
-	vec3 DAO = glm::cross(AO, ray.direction);
-	float u = glm::dot(E2, DAO) * invdet;
-	float v = -glm::dot(E1, DAO) * invdet;
-	float t = glm::dot(AO, N) * invdet;
-	bool test = (det >= 1e-6 && t >= 0.0 && u >= 0.0 && v >= 0.0 && (u + v) <= 1.0);
+   vec3 N         = cross(E1, E2);
+	float det      = -dot(ray.direction, N);
+	float invdet   = 1.0 / det;
+	vec3 DAO       = cross(AO, ray.direction);
+	float u        = dot(E2, DAO) * invdet;
+	float v        = -dot(E1, DAO) * invdet;
+	float t        = dot(AO, N) * invdet;
+	bool test      = (det >= 1e-6 && t >= 0.0 && u >= 0.0 && v >= 0.0 && (u + v) <= 1.0);
 
    if(!test && test_both_sides)
    {
       // check other side
-       N = glm::cross(E2, E1);
-      det = -glm::dot(ray.direction, N);
-      invdet = 1.0 / det;
-      DAO = glm::cross(ray.direction, AO);
-      u = glm::dot(E2, DAO) * invdet;
-      v = -glm::dot(E1, DAO) * invdet;
-      t = glm::dot(AO, N) * invdet;
-      test = (det >= 1e-6 && t >= 0.0 && u >= 0.0 && v >= 0.0 && (u + v) <= 1.0);
+      N        = cross(E2, E1);
+      det      = -dot(ray.direction, N);
+      invdet   = 1.0 / det;
+      DAO      = cross(ray.direction, AO);
+      u        = dot(E2, DAO) * invdet;
+      v        = -dot(E1, DAO) * invdet;
+      t        = dot(AO, N) * invdet;
+      test     = (det >= 1e-6 && t >= 0.0 && u >= 0.0 && v >= 0.0 && (u + v) <= 1.0);
    }
 
    if (test)
