@@ -139,9 +139,10 @@ struct ProgramConfig {
 #include <world.h>
 #include <input_recorder.h>
 #include <globals.h>
+#include <entity_pool.h>
 #include <entity_manager.h>
 
-// entity manager
+// entity manager and entity pool
 EntityManager Entity_Manager;
 
 // camera handles
@@ -216,6 +217,8 @@ int main()
    G_BUFFERS.rm_buffer     = allocate_render_message_buffer();
    COLLISION_LOG           = CL_allocate_collision_log();
    initialize_console_buffers();
+
+   Entity_Manager.pool.init();
 
    // Initialises immediate draw
    IM_RENDER.init();

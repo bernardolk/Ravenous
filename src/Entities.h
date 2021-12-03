@@ -11,10 +11,15 @@ enum EntityType {
 
 const static size_t ENTITY_WOLRD_CELL_OCCUPATION_LIMIT = 50;
 
+enum EntityFlags {
+   EntityFlags_EmptyEntity    = (1 << 0)
+};
+
 struct Entity {
    u32 id;
    string name       = "NONAME";
    EntityType type   = STATIC;
+   u32 flags;
 
    // render data
 	Shader* shader;

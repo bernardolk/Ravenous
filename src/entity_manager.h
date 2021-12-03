@@ -12,11 +12,14 @@ struct EntityManager
 {
    // ------------------
    // > ENTITY MANAGER
-   // ------------------
+   // ------------------ 
    unsigned int count = 0;
+   EntityPool pool = EntityPool(200);
+
    Shader* default_shader;
    Mesh* default_mesh;
    Texture default_texture;
+
    vector<Entity*> deletion_stack;
    vector<Entity*>* entity_registry;
    vector<Entity*>* checkpoints_registry;
@@ -128,7 +131,7 @@ struct EntityManager
    {
       auto [_texture, _mesh, _collision_mesh, _shader] = _find_entity_assets_in_catalogue(mesh, collision_mesh, shader, texture);
 
-      auto new_entity                                 = new Entity();
+      Entity* new_entity                              = pool.get_next();
       new_entity->id                                  = ++count;
       new_entity->name                                = name;
       new_entity->shader                              = _shader;
@@ -180,7 +183,7 @@ struct EntityManager
    // ------------------------------------
    Entity* create_entity(bool load_defaults = false)
    {
-      auto new_entity = new Entity();
+      auto new_entity = pool.get_next();
       new_entity->id = ++count;
       if(load_defaults)
       {
@@ -200,7 +203,7 @@ struct EntityManager
    Entity* copy_entity(Entity* entity)
    {
       // allocate entity with new id
-      auto new_entity = new Entity();
+      auto new_entity = pool.get_next();
       *new_entity     = *entity;
       new_entity->id  = ++count;
       new_entity->collider    = *new_entity->collision_mesh;

@@ -317,11 +317,6 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
       }
    }
 
-   // Write things that need to be written after all entities are saved
-   writer << "\n";
-   if(player->player_state == PLAYER_STATE_STANDING)
-      writer << "@player_standing_entity = " << player->standing_entity_ptr->name << "\n";
-
    writer.close();
 
    if(do_copy)
@@ -399,23 +394,6 @@ void parse_and_load_player_attribute(Parser::Parse p, ifstream* reader, int& lin
       player->initial_velocity = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
       player->entity_ptr->velocity = player->initial_velocity;
    }
-   else if(attribute == "player_standing_entity")
-   {
-      std::string entity_name;
-      p = parse_all_whitespace(p);
-      p = parse_token(p);
-      entity_name = p.string_buffer;
-
-      auto entity_ptr = G_SCENE_INFO.active_scene->find_entity(entity_name);
-      if(entity_ptr != NULL)
-         player->standing_entity_ptr = entity_ptr;
-      else
-      {
-         cout << "COULDN'T FIND PLAYER_STANDING_ENTITY IN SCENE ENTITIES." << 
-            "MAKE SURE THIS ATTRIBUTE IS LOADED AFTER ALL ENTITIES ARE LOADED\n";
-         assert(false);
-      }
-   }
    else if(attribute == "player_state")
    {
       p = parse_all_whitespace(p);
@@ -440,7 +418,6 @@ void parse_and_load_player_attribute(Parser::Parse p, ifstream* reader, int& lin
    else
    {
       std::cout << "UNRECOGNIZED ATTRIBUTE AT SCENE DESCRIPTION FILE ('" << path << "') LINE NUMBER " << line_count << "\n";
-      assert(false);
    }
 }
 
