@@ -5,10 +5,14 @@ struct RaycastTest {
    bool hit             = false;
    float distance;
    Entity* entity       = NULL;
+
    int obj_hit_index    = -1;
    string obj_hit_type;
+   
    Triangle t;
    u16 t_index;
+
+   Ray ray;
 };
 
 enum RayCastType {
@@ -190,6 +194,7 @@ RaycastTest test_ray_against_triangle(Ray ray, Triangle triangle, bool test_both
       result.hit = true;
       result.distance = t;
       result.t = triangle;
+      result.ray = ray;
       return result;
    }
 

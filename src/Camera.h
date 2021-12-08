@@ -67,7 +67,8 @@ void camera_update(Camera* camera, float viewportWidth, float viewportHeight, Pl
    switch(PROGRAM_MODE.current)
    {
       case GAME_MODE:
-         camera->Position    = player->eye(); 
+         camera->Position    = player->eye();
+         player->orientation = camera->Front;
          break;
       case EDITOR_MODE:
          if(camera->type == THIRD_PERSON)

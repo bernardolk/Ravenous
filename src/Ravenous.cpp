@@ -309,6 +309,8 @@ int main()
       GP_update_player_state(player);
       //AN_animate_player(player);
       // simulate_gravity_trajectory();      
+      auto orientation_xz = to3d_xz(player->orientation);
+      CL_get_top_hit_from_multiple_raycasts(Ray{player->entity_ptr->position, orientation_xz}, 20, 0.1);
 
 
       // -------------

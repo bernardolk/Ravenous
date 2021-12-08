@@ -6,7 +6,7 @@ bool save_player_position_to_file(string scene_name, Player* player);
 bool save_scene_to_file(string scene_name, Player* player, bool do_copy);
 void parse_and_load_light_source(Parser::Parse p, ifstream* reader, int& line_count, string path);
 void parse_and_load_camera_settings(Parser::Parse p, ifstream* reader, int& line_count, std::string path);
-void parse_and_load_player_orientation(Parser::Parse p, ifstream* reader, int& line_count, std::string path);
+void parse_and_load_player_orientation(Parser::Parse p, ifstream* reader, int& line_count, std::string path, Player* player);
 bool load_player_attributes_from_file();
 bool check_if_scene_exists();
 Entity* create_player_entity();
@@ -86,7 +86,7 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
       }
       else if(p.cToken == '&')
       {
-         parse_and_load_player_orientation(p, &reader, line_count, path);
+         parse_and_load_player_orientation(p, &reader, line_count, path, player);
       }
    }
    
@@ -344,7 +344,7 @@ void parse_and_load_camera_settings(Parser::Parse p, ifstream* reader, int& line
       camera_look_at(G_SCENE_INFO.camera, vec3{p.vec3[0], p.vec3[1], p.vec3[2]}, false);
 }
 
-void parse_and_load_player_orientation(Parser::Parse p, ifstream* reader, int& line_count, std::string path)
+void parse_and_load_player_orientation(Parser::Parse p, ifstream* reader, int& line_count, std::string path, Player* player)
 {
    p = parse_token(p);
    std::string attribute = p.string_buffer;
@@ -363,6 +363,7 @@ void parse_and_load_player_orientation(Parser::Parse p, ifstream* reader, int& l
       p = parse_float_vector(p);
       auto orientation = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
       G_SCENE_INFO.views[FPS_CAM]->Front = orientation;
+      player->orientation = orientation;
    }
 }
 

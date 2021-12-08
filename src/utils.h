@@ -231,3 +231,8 @@ vec3 get_random_color()
    );
 }
 
+
+// macros
+
+#define for_less(x) for (int i = 0; i < x; i ++)
+#define for_less_equal(x) for (int i = 0; i <+ x; i ++)

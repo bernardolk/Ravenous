@@ -64,6 +64,7 @@
 #include <cl_epa.h>
 #include <cl_log.h>
 #include <cl_resolvers.h>
+#include <cl_edge_detection.h>
 
 // PROTOTYPES
 CL_ResultsArray CL_test_and_resolve_collisions(Player* player);
