@@ -303,6 +303,7 @@ int main()
       // -------------
 		//	UPDATE PHASE
       // -------------
+      Frame_Ray_Collider_Count = 0;
 		update_scene_objects();
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player);
       // @todo - check player events
@@ -312,6 +313,7 @@ int main()
       auto orientation_xz = to3d_xz(player->orientation);
       CL_get_top_hit_from_multiple_raycasts(Ray{player->entity_ptr->position, orientation_xz}, 20, 0.1);
 
+      RENDER_MESSAGE("Frame_Ray_Collider_Count: " + to_string(Frame_Ray_Collider_Count));
 
       // -------------
 		//	RENDER PHASE

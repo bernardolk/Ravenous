@@ -23,9 +23,8 @@ enum RayCastType {
 
 // Prototypes
 Ray cast_pickray();
-RaycastTest test_ray_against_scene                 (Ray ray, RayCastType test_type, Entity* skip);
-RaycastTest test_ray_against_scene                 (Ray ray, RayCastType, Entity* skip);
-RaycastTest test_ray_against_entity                (Ray ray, Entity* entity, RayCastType test_type);
+RaycastTest test_ray_against_scene                 (Ray ray, RayCastType test_type, Entity* skip, float max_distance);
+RaycastTest test_ray_against_entity                (Ray ray, Entity* entity, RayCastType test_type, float max_distance);
 RaycastTest test_ray_against_mesh                  (Ray ray, Mesh* mesh, glm::mat4 matModel, RayCastType test_type);
 RaycastTest test_ray_against_triangle              (Ray ray, Triangle triangle, bool test_both_sides);
 Triangle get_triangle_for_indexed_mesh             (Mesh* mesh, glm::mat4 matModel, int triangle_index);
@@ -39,7 +38,8 @@ vec3 get_triangle_normal                           (Triangle t);
 // > TEST RAY AGASINT SCENE
 // -------------------------
 
-RaycastTest test_ray_against_scene(Ray ray, RayCastType test_type = RayCast_TestOnlyFromOutsideIn, Entity* skip = nullptr)
+RaycastTest test_ray_against_scene(Ray ray, RayCastType test_type = RayCast_TestOnlyFromOutsideIn, 
+   Entity* skip = nullptr, float max_distance = MAX_FLOAT)
 {
    /* This will test a ray agains the scene
       @todo - This should first test ray against world cells, then get the list of entities from these world cells to
@@ -65,7 +65,7 @@ RaycastTest test_ray_against_scene(Ray ray, RayCastType test_type = RayCast_Test
       if(skip != nullptr && entity->id == skip->id)
          continue;
          
-      auto test = test_ray_against_entity(ray, entity, test_type);
+      auto test = test_ray_against_entity(ray, entity, test_type, max_distance);
 
       if(test.hit && test.distance < min_distance)
       {
@@ -86,7 +86,8 @@ RaycastTest test_ray_against_scene(Ray ray, Entity* skip)
 // --------------------------
 // > TEST RAY AGAINST ENTITY
 // --------------------------
-RaycastTest test_ray_against_entity(Ray ray, Entity* entity, RayCastType test_type = RayCast_TestOnlyFromOutsideIn)
+RaycastTest test_ray_against_entity(Ray ray, Entity* entity, RayCastType test_type = RayCast_TestOnlyFromOutsideIn,
+   float max_distance = MAX_FLOAT)
 {
    // @TODO: when testing against player, we could:
    //      a) find the closest point between player's column and the ray
@@ -95,10 +96,32 @@ RaycastTest test_ray_against_entity(Ray ray, Entity* entity, RayCastType test_ty
 
 
    // first check collision with bounding box
-   if(CL_test_ray_vs_aabb(ray, entity->bounding_box))
-      return test_ray_against_collider(ray, &entity->collider, test_type);
-   else
+   auto [hit, tmin, tmax] = CL_test_ray_vs_aabb(ray, entity->bounding_box);
+   if(!hit)
+   {
       return RaycastTest{false};
+   }
+
+   else if(hit)
+   {
+      if(test_type == RayCast_TestOnlyFromOutsideIn && tmin > 0)
+      {
+         // If tmin < 0 it means we are coming from inside the box
+         if(tmin < max_distance)
+            return test_ray_against_collider(ray, &entity->collider, test_type);
+      }
+      else
+      {
+         float t = tmin;
+         if(tmin < 0)
+            t = tmax;
+         
+         if(t < max_distance)
+            return test_ray_against_collider(ray, &entity->collider, test_type);
+      }
+   }  
+
+   return RaycastTest{false};
 }
 
 // ---------------------------
@@ -106,8 +129,12 @@ RaycastTest test_ray_against_entity(Ray ray, Entity* entity, RayCastType test_ty
 // ---------------------------
 // This doesn't take a matModel
 
+int Frame_Ray_Collider_Count;
+
 RaycastTest test_ray_against_collider(Ray ray, Mesh* collider, RayCastType test_type)
 {
+   Frame_Ray_Collider_Count++;
+
    int triangles = collider->indices.size() / 3;
    float min_distance = MAX_FLOAT;
    RaycastTest min_hit_test{false, -1};

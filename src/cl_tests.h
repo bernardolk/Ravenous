@@ -1,7 +1,13 @@
 
 
-bool CL_test_ray_vs_aabb(Ray ray, BoundingBox box)
+auto CL_test_ray_vs_aabb(Ray ray, BoundingBox box)
 {
+   struct {
+      bool hit;
+      float tmin;
+      float tmax;
+   } result;
+
    vec3 ray_inv = ray.get_inv();
 
    float tx1 = (box.minx - ray.origin.x) * ray_inv.x;
@@ -22,7 +28,10 @@ bool CL_test_ray_vs_aabb(Ray ray, BoundingBox box)
    tmin = max(tmin, min(tz1, tz2));
    tmax = min(tmax, max(tz1, tz2));
 
-   return tmax >= tmin;
+   result.hit  = tmax >= tmin;
+   result.tmin = tmin; 
+   result.tmax = tmax;
+   return result;
 }
 
 
