@@ -7,16 +7,19 @@ struct Triangle {
 // -----------------------
 // > TRIANGLE OPERATIONS
 // -----------------------
+inline
 vec3 get_triangle_normal(Triangle t)
 {
    return glm::triangleNormal(t.a, t.b, t.c);
 }
 
+inline
 bool is_equal(Triangle t1, Triangle t2)
 {
    return t1.a == t2.a && t1.b == t2.b && t1.c == t2.c;
 }
 
+inline
 bool is_valid(Triangle t)
 {
    // checks if vertices are not in a single point

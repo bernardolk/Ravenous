@@ -66,6 +66,42 @@ void CL_perform_edge_detection(Player* player)
 
          IM_RENDER.add_line(IMHASH, top_ray.origin, frontal_hitpoint, 1.2, false, COLOR_PURPLE_1);
          IM_RENDER.add_point(IMHASH, top_hitpoint, 2.0, true, COLOR_PURPLE_1);
+
+         // test edges
+         vec3 edge1, edge2, edge3;
+         edge1 = top_test.t.b - top_test.t.a; // 1
+         edge2 = top_test.t.c - top_test.t.b; // 2
+         edge3 = top_test.t.a - top_test.t.c; // 3
+
+         vec3 front_face_n = get_triangle_normal(front_test.t);
+
+         float dot_edge1 = dot(edge1, front_face_n);
+         float dot_edge2 = dot(edge2, front_face_n);
+         float dot_edge3 = dot(edge3, front_face_n);
+
+         vec3 final_edge = vec3(0);
+
+         if(abs(dot_edge1) < 0.0001)
+         {
+            IM_RENDER.add_line(IMHASH, top_test.t.a, top_test.t.a + edge1, 2.0, true, COLOR_YELLOW_1);
+            IM_RENDER.add_point(IMHASH, top_test.t.a, 2.0, false, COLOR_YELLOW_1);
+            IM_RENDER.add_point(IMHASH, top_test.t.b, 2.0, false, COLOR_YELLOW_1);
+         }
+         else if(abs(dot_edge2) < 0.0001)
+         {
+            IM_RENDER.add_line(IMHASH, top_test.t.b, top_test.t.b + edge2, 2.0, true, COLOR_YELLOW_1);
+            IM_RENDER.add_point(IMHASH, top_test.t.b, 2.0, false, COLOR_YELLOW_1);
+            IM_RENDER.add_point(IMHASH, top_test.t.c, 2.0, false, COLOR_YELLOW_1);
+         }
+         else if(abs(dot_edge3) < 0.0001)
+         {
+            IM_RENDER.add_line(IMHASH, top_test.t.c, top_test.t.c + edge3, 2.0, true, COLOR_YELLOW_1);
+            IM_RENDER.add_point(IMHASH, top_test.t.c, 2.0, false, COLOR_YELLOW_1);
+            IM_RENDER.add_point(IMHASH, top_test.t.a, 2.0, false, COLOR_YELLOW_1);
+         }
+         else
+            RENDER_MESSAGE("No edge found! Strange isn't it?");
+
       }
 
    }
