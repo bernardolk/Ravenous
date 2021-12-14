@@ -44,12 +44,6 @@ RaycastTest test_ray_against_scene(Ray ray, RayCastType test_type = RayCast_Test
    /* This will test a ray agains the scene
       @todo - This should first test ray against world cells, then get the list of entities from these world cells to
                test against 
-   
-   Parameters: 
-      - only_test_visible_entities: refers to the option "hide entity" in editor's entity panel
-      - skip_id: will skip testing entity with this id
-      - test_both_sides: refers to the sides of the triangles in the mesh
-   
    */
 
    float min_distance = MAX_FLOAT;
@@ -67,7 +61,7 @@ RaycastTest test_ray_against_scene(Ray ray, RayCastType test_type = RayCast_Test
          
       auto test = test_ray_against_entity(ray, entity, test_type, max_distance);
 
-      if(test.hit && test.distance < min_distance)
+      if(test.hit && test.distance < min_distance && test.distance < max_distance)
       {
          closest_hit = test;
          closest_hit.entity = entity;
@@ -104,21 +98,7 @@ RaycastTest test_ray_against_entity(Ray ray, Entity* entity, RayCastType test_ty
 
    else if(hit)
    {
-      if(test_type == RayCast_TestOnlyFromOutsideIn && tmin > 0)
-      {
-         // If tmin < 0 it means we are coming from inside the box
-         if(tmin < max_distance)
-            return test_ray_against_collider(ray, &entity->collider, test_type);
-      }
-      else
-      {
-         float t = tmin;
-         if(tmin < 0)
-            t = tmax;
-         
-         if(t < max_distance)
-            return test_ray_against_collider(ray, &entity->collider, test_type);
-      }
+      return test_ray_against_collider(ray, &entity->collider, test_type);
    }  
 
    return RaycastTest{false};

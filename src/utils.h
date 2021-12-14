@@ -40,10 +40,20 @@ string to_string(vec2 vec)
    return "(" + to_string(vec.x) + ", " + to_string(vec.y) + ")";
 }
 
+
+enum FloatTolerance {
+   FloatTolerance_3_001       = 0,
+   FloatTolerance_4_0001      = 1,
+   FloatTolerance_5_00001     = 2,
+   FloatTolerance_6_000001    = 3,
+};
+
 inline 
-bool is_zero(float x)
+bool are_equal_floats(float x, float y, FloatTolerance tolerance = FloatTolerance_5_00001)
 {
-   return abs(x) < 0.0001;
+   /* checks if two floats are equal within a certain tolerance level */
+   float tolerances[] = {0.001f, 0.0001f, 0.00001f, 0.000001f};
+   return abs(x - y) < tolerances[tolerance];
 }
 
 // SIGN COMPARISON

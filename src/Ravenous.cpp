@@ -310,8 +310,12 @@ int main()
       GP_update_player_state(player);
       //AN_animate_player(player);
       // simulate_gravity_trajectory();      
-      auto orientation_xz = to3d_xz(player->orientation);
-      CL_get_top_hit_from_multiple_raycasts(Ray{player->entity_ptr->position, orientation_xz}, 20, 0.1);
+
+      auto orientation_xz = to_xz(player->orientation);
+      auto first_ray = Ray{player->entity_ptr->position + vec3(0,1.f,0), orientation_xz};
+      CL_get_top_hit_from_multiple_raycasts(first_ray, 20, 0.05);
+
+      IM_RENDER.add_line(IMHASH, player->eye(), player->eye() + player->orientation * 1.f, 1, false, COLOR_BLUE_1);
 
       RENDER_MESSAGE("Frame_Ray_Collider_Count: " + to_string(Frame_Ray_Collider_Count));
 

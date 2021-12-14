@@ -10,18 +10,18 @@ RaycastTest CL_get_top_hit_from_multiple_raycasts(Ray first_ray, int qty, float 
    Ray ray = first_ray;
    float highest_y  = MIN_FLOAT;
    float shortest_z = MAX_FLOAT;
-   RaycastTest best_hit;
+   RaycastTest best_hit_results;
 
    for_less(qty)
    {
       auto test = test_ray_against_scene(ray, RayCast_TestOnlyFromOutsideIn, G_SCENE_INFO.player->entity_ptr, GRAB_REACH);
       if(test.hit)
       {
-         if(test.distance < shortest_z || (test.distance == shortest_z && highest_y < ray.origin.y))
+         if(test.distance < shortest_z || (are_equal_floats(test.distance, shortest_z) && highest_y < ray.origin.y))
          {
-            highest_y = ray.origin.y;
-            shortest_z = test.distance;
-            best_hit = test;
+            highest_y         = ray.origin.y;
+            shortest_z        = test.distance;
+            best_hit_results  = test;
          }
       }
 
@@ -30,13 +30,13 @@ RaycastTest CL_get_top_hit_from_multiple_raycasts(Ray first_ray, int qty, float 
       ray = Ray{ ray.origin + UNIT_Y * spacing, ray.direction };
    }
 
-   if(best_hit.hit)
+   if(best_hit_results.hit)
    {
-      vec3 hitpoint = point_from_detection(best_hit.ray, best_hit);
+      vec3 hitpoint = point_from_detection(best_hit_results.ray, best_hit_results);
       IM_RENDER.add_point(IMHASH, hitpoint, 2.0, true, COLOR_RED_1);
    }
 
-   return best_hit;
+   return best_hit_results;
 }
 
 
