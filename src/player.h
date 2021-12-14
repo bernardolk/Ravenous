@@ -97,6 +97,7 @@ struct Player {
    // gameplay system varibles
    vec3 last_terrain_contact_normal = vec3(0, 1.f, 0);
    Entity* grabbing_entity = nullptr;
+   float grab_reach        = 0.9;         // radius + arms reach, 0.5 + 0.4  
 
    // sliding
    vec3 sliding_direction  = vec3(0);
