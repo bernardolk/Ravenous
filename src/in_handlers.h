@@ -61,8 +61,8 @@ void IN_handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum
    // reset player movement intention state
    player->dashing         = false;
    player->walking         = false;
-   player->free_running    = false;
    player->action          = false;
+   player->want_to_grab    = false;
    auto& v_dir             = player->v_dir;
    v_dir                   = vec3(0);
 
@@ -84,12 +84,12 @@ void IN_handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum
             player->walking = true;
          
          // JUMP
-         if (flags.key_press & KEY_SPACE) 
+         if(flags.key_press & KEY_SPACE) 
             GP_change_player_state(player, PLAYER_STATE_JUMPING);
 
-         // FREE RUN
-         if(pressed(flags, KEY_MOVE_UP) && pressed(flags, KEY_DASH))
-            player->free_running = true;
+         // VAULT
+         if(pressed(flags, KEY_LEFT_SHIFT) && G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK)
+            player->want_to_grab = true;
 
          // INTERACT
          if(pressed(flags, KEY_ACTION))

@@ -1,9 +1,26 @@
 
+// -------------------
+// > LEDGE
+// -------------------
+// Definition: A geometric edge that the player can grab/use to stand on an horizontal surface
+//    it must not be blocked above it. Meaning that the division between two stacked blocks, for instance, do not
+//    contain a ledge (but it does contain an edge).
+
+struct Ledge {
+   bool empty = false;
+   vec3 a;                       
+   vec3 b;
+
+   vec3 detection_direction;     // The direction of the ray / rays that detected the ledge
+   vec3 surface_point;           // The point in the horizontal surface that proves this is an actual ledge
+};
 
 RaycastTest CL_get_top_hit_from_multiple_raycasts(Ray first_ray, int qty, float spacing, Player* player)
 {
-   /* Casts multiple ray towards the first_ray direction, with dir pointing upwards,
-      qty says how many rays to shoot and spacing, well, the spacing between each ray. */
+   /* 
+      Casts multiple ray towards the first_ray direction, with dir pointing upwards,
+      qty says how many rays to shoot and spacing, well, the spacing between each ray.
+   */
 
    Ray ray = first_ray;
    float highest_y  = MIN_FLOAT;
@@ -38,10 +55,16 @@ RaycastTest CL_get_top_hit_from_multiple_raycasts(Ray first_ray, int qty, float 
 }
 
 
-void CL_perform_edge_detection(Player* player)
+Ledge CL_perform_ledge_detection(Player* player)
 {
+   // concepts: front face - where the horizontal rays are going to hit
+   //           top face - where the vertical ray (up towards down) is going to hit
+   Ledge ledge;
+
    auto orientation_xz = to_xz(player->orientation);
    auto first_ray = Ray{player->eye() - UNIT_Y * 0.2f, orientation_xz};
+   ledge.detection_direction = first_ray.direction;
+
    const float _front_ray_spacing   = 0.03;
    const float _front_ray_qty       = 10;
 
@@ -59,54 +82,71 @@ void CL_perform_edge_detection(Player* player)
 
       if(top_test.hit)
       {
-         vec3 top_hitpoint = point_from_detection(top_test.ray, top_test);
+         vec3 top_hitpoint    = point_from_detection(top_test.ray, top_test);
+         ledge.surface_point  = top_hitpoint;
 
          if(top_test.distance <= player->height || top_hitpoint.y - frontal_hitpoint.y > _front_ray_spacing)
-            return;
+         {
+            ledge.empty = true;
+            return ledge;
+         }
 
          IM_RENDER.add_line(IMHASH, top_ray.origin, frontal_hitpoint, 1.2, false, COLOR_PURPLE_1);
          IM_RENDER.add_point(IMHASH, top_hitpoint, 2.0, true, COLOR_PURPLE_1);
 
          // test edges
-         vec3 edge1, edge2, edge3;
-         edge1 = top_test.t.b - top_test.t.a; // 1
-         edge2 = top_test.t.c - top_test.t.b; // 2
-         edge3 = top_test.t.a - top_test.t.c; // 3
+         vec3 edge1 = top_test.t.b - top_test.t.a; // 1
+         vec3 edge2 = top_test.t.c - top_test.t.b; // 2
+         vec3 edge3 = top_test.t.a - top_test.t.c; // 3
 
          vec3 front_face_n = get_triangle_normal(front_test.t);
 
-         float dot_edge1 = dot(edge1, front_face_n);
-         float dot_edge2 = dot(edge2, front_face_n);
-         float dot_edge3 = dot(edge3, front_face_n);
-
-         vec3 final_edge = vec3(0);
-
-         if(abs(dot_edge1) < 0.0001)
+         if(abs(dot(edge1, front_face_n)) < 0.0001)
          {
             IM_RENDER.add_line(IMHASH, top_test.t.a, top_test.t.a + edge1, 2.0, true, COLOR_YELLOW_1);
             IM_RENDER.add_point(IMHASH, top_test.t.a, 2.0, false, COLOR_YELLOW_1);
             IM_RENDER.add_point(IMHASH, top_test.t.b, 2.0, false, COLOR_YELLOW_1);
+
+            ledge.a = top_test.t.a;
+            ledge.b = top_test.t.b;
+            return ledge;
          }
-         else if(abs(dot_edge2) < 0.0001)
+         else if(abs(dot(edge2, front_face_n)) < 0.0001)
          {
             IM_RENDER.add_line(IMHASH, top_test.t.b, top_test.t.b + edge2, 2.0, true, COLOR_YELLOW_1);
             IM_RENDER.add_point(IMHASH, top_test.t.b, 2.0, false, COLOR_YELLOW_1);
             IM_RENDER.add_point(IMHASH, top_test.t.c, 2.0, false, COLOR_YELLOW_1);
+
+            ledge.a = top_test.t.b;
+            ledge.b = top_test.t.c;
+            return ledge;
          }
-         else if(abs(dot_edge3) < 0.0001)
+         else if(abs(dot(edge3, front_face_n)) < 0.0001)
          {
             IM_RENDER.add_line(IMHASH, top_test.t.c, top_test.t.c + edge3, 2.0, true, COLOR_YELLOW_1);
             IM_RENDER.add_point(IMHASH, top_test.t.c, 2.0, false, COLOR_YELLOW_1);
             IM_RENDER.add_point(IMHASH, top_test.t.a, 2.0, false, COLOR_YELLOW_1);
+
+            ledge.a = top_test.t.c;
+            ledge.b = top_test.t.a;
+            return ledge;
          }
          else
-            RENDER_MESSAGE("No edge found! Strange isn't it?");
-
+            RENDER_MESSAGE("No ledge found! Strange isn't it?");
       }
-
    }
 
+   ledge.empty = true;
+   return ledge;
 }
+
+vec3 CL_get_final_position_ledge_vaulting(Player* player, Ledge ledge)
+{
+   /* Returns the player's position after finishing vaulting across the given ledge */
+   vec3 inward_normal = normalize(cross(ledge.a - ledge.b, UNIT_Y));
+   return ledge.surface_point + inward_normal * player->radius * 2.f;
+}
+
 
 
 

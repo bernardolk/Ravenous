@@ -2,7 +2,7 @@
 void GP_update_player_state                     (Player* &player);
 vec3 GP_player_standing_get_next_position  (Player* player);
 void GP_check_trigger_interaction               (Player* player);
-bool GP_check_player_grabbed_ledge              (Player* player, Entity* entity);
+void GP_check_player_grabbed_ledge              (Player* player);
 bool GP_check_player_vaulting                   (Player* player);
 bool GP_simulate_player_collision_in_falling_trajectory(Player* player, vec2 xz_velocity);
 // bool GP_scan_for_terrain(vec3 center, float radius, vec2 orientation0, float angle, int subdivisions);
@@ -128,6 +128,12 @@ void GP_update_player_state(Player* &player)
             }
          }
 
+         // Check interactions
+         if(player->want_to_grab){
+            GP_check_player_grabbed_ledge(player);
+            RENDER_UNIQUE_MESSAGE("Ran check player grabbed ledge", 1000);
+         }
+
          break;
       }
 
@@ -228,7 +234,7 @@ void GP_update_player_state(Player* &player)
          }
 
          // @todo - need to include case that player touches inclined terrain
-         //          in that case it should also stand (or fall from edge) and not
+         //          in that case it should also stand (or fall from ledge) and not
          //          directly fall.
          if(results.count > 0)
             GP_change_player_state(player, PLAYER_STATE_FALLING);
@@ -418,6 +424,16 @@ void GP_check_trigger_interaction(Player* player)
 // -------------------
 // > LEDGE GRABBING
 // -------------------
+
+void GP_check_player_grabbed_ledge(Player* player)
+{
+   Ledge ledge = CL_perform_ledge_detection(player);
+   if(ledge.empty)
+      return;
+   vec3 position = CL_get_final_position_ledge_vaulting(player, ledge);
+   player->entity_ptr->position = position;
+   player->update();
+}
 
 // void GP_check_player_grabbed_ledge(Player* player)
 // {

@@ -84,7 +84,7 @@ struct Player {
    bool landing                  = false;
    bool jumping_from_slope       = false;
    bool action                   = false;
-   bool free_running             = false;
+   bool want_to_grab             = false;
 
    PlayerStateEnum player_state;
    PlayerStateEnum initial_player_state;

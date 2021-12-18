@@ -311,12 +311,6 @@ int main()
       //AN_animate_player(player);
       // simulate_gravity_trajectory();      
 
-      CL_perform_edge_detection(player);
-
-      IM_RENDER.add_line(IMHASH, player->eye(), player->eye() + player->orientation * 1.f, 1, false, COLOR_BLUE_1);
-
-      RENDER_MESSAGE("Frame_Ray_Collider_Count: " + to_string(Frame_Ray_Collider_Count));
-
       // -------------
 		//	RENDER PHASE
       // -------------
@@ -491,19 +485,19 @@ void create_boilerplate_geometry()
       4, 5, 6, 6, 7, 4           // top face
    };
 
-   auto aabb_mesh = new Mesh();
-   aabb_mesh->name = "aabb";
-   aabb_mesh->vertices = aabb_vertex_vec;
-   aabb_mesh->indices = aabb_vertex_indices;
-   aabb_mesh->render_method = GL_TRIANGLES;
+   auto aabb_mesh                = new Mesh();
+   aabb_mesh->name               = "aabb";
+   aabb_mesh->vertices           = aabb_vertex_vec;
+   aabb_mesh->indices            = aabb_vertex_indices;
+   aabb_mesh->render_method      = GL_TRIANGLES;
    aabb_mesh->setup_gl_data();
    Geometry_Catalogue.insert({aabb_mesh->name, aabb_mesh});
 
-   auto world_cell_mesh = new Mesh();
-   world_cell_mesh->name = "world cell";
-   world_cell_mesh->vertices = aabb_vertex_vec;
-   world_cell_mesh->indices = aabb_vertex_indices;
-   world_cell_mesh->render_method = GL_TRIANGLES;
+   auto world_cell_mesh             = new Mesh();
+   world_cell_mesh->name            = "world cell";
+   world_cell_mesh->vertices        = aabb_vertex_vec;
+   world_cell_mesh->indices         = aabb_vertex_indices;
+   world_cell_mesh->render_method   = GL_TRIANGLES;
    world_cell_mesh->setup_gl_data();
    Geometry_Catalogue.insert({world_cell_mesh->name, world_cell_mesh});
 
@@ -544,11 +538,11 @@ void create_boilerplate_geometry()
       4, 5, 6, 6, 7, 4           // right face (slope)
    };
 
-   auto slope_mesh = new Mesh();
-   slope_mesh->name = "slope";
-   slope_mesh->vertices = slope_vertex_vec;
-   slope_mesh->indices = slope_vertex_indices;
-   slope_mesh->render_method = GL_TRIANGLES;
+   auto slope_mesh               = new Mesh();
+   slope_mesh->name              = "slope";
+   slope_mesh->vertices          = slope_vertex_vec;
+   slope_mesh->indices           = slope_vertex_indices;
+   slope_mesh->render_method     = GL_TRIANGLES;
    slope_mesh->setup_gl_data();
    Geometry_Catalogue.insert({slope_mesh->name, slope_mesh});
 
@@ -563,11 +557,11 @@ void create_boilerplate_geometry()
       Vertex{vec3{-25.0f, -0.5f, -25.0f}, vec3{0.0f, 1.0f, 0.0f},  vec2{ 0.0f, 25.0f}},
       Vertex{vec3{25.0f, -0.5f, -25.0f},  vec3{0.0f, 1.0f, 0.0f},  vec2{25.0f, 10.0f}}
    };
-   auto plane_mesh = new Mesh();
-   plane_mesh->name = "plane";
-   plane_mesh->vertices = planeVertices;
-   plane_mesh->indices = {0, 1, 2, 3, 4, 5};
-   plane_mesh->render_method = GL_TRIANGLES;
+   auto plane_mesh               = new Mesh();
+   plane_mesh->name              = "plane";
+   plane_mesh->vertices          = planeVertices;
+   plane_mesh->indices           = {0, 1, 2, 3, 4, 5};
+   plane_mesh->render_method     = GL_TRIANGLES;
    plane_mesh->setup_gl_data();
    Geometry_Catalogue.insert({plane_mesh->name, plane_mesh});
 
@@ -591,11 +585,11 @@ void create_boilerplate_geometry()
          Vertex{vec3(0, 1, 0)}
    };*/
 
-   Mesh* quad_mesh = new Mesh();
-   quad_mesh->name = "quad";
-   quad_mesh->vertices = quad_vertex_vec;
-   quad_mesh->indices = quad_vertex_indices;
-   quad_mesh->render_method = GL_TRIANGLES;
+   Mesh* quad_mesh            = new Mesh();
+   quad_mesh->name            = "quad";
+   quad_mesh->vertices        = quad_vertex_vec;
+   quad_mesh->indices         = quad_vertex_indices;
+   quad_mesh->render_method   = GL_TRIANGLES;
    quad_mesh->setup_gl_data();
    Geometry_Catalogue.insert({quad_mesh->name, quad_mesh});
 
@@ -607,11 +601,11 @@ void create_boilerplate_geometry()
       Vertex{vec3(0.0f, 0.0f, 1.0f),vec3(0.0f, 0.0f, 1.0f),vec2(0.0f, 1.0f)}
    };
 
-   Mesh* quad_horizontal_mesh = new Mesh();
-   quad_horizontal_mesh->name = "quad_horizontal";
-   quad_horizontal_mesh->vertices = quad_horizontal_vertex_vec;
-   quad_horizontal_mesh->indices = quad_vertex_indices;
-   quad_horizontal_mesh->render_method = GL_TRIANGLES;
+   Mesh* quad_horizontal_mesh             = new Mesh();
+   quad_horizontal_mesh->name             = "quad_horizontal";
+   quad_horizontal_mesh->vertices         = quad_horizontal_vertex_vec;
+   quad_horizontal_mesh->indices          = quad_vertex_indices;
+   quad_horizontal_mesh->render_method    = GL_TRIANGLES;
    quad_horizontal_mesh->setup_gl_data();
    Geometry_Catalogue.insert({quad_horizontal_mesh->name, quad_horizontal_mesh});
 

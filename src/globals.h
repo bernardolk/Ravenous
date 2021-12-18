@@ -118,6 +118,34 @@ struct RenderMessageBuffer {
          return false;
       }
    }
+
+   bool add_unique(string msg, float duration, vec3 color = vec3(-1))
+   {
+      if(count < size)
+      {
+         auto item = buffer;
+         for(int i = 0; i < size; i++)
+         {
+            if(item->message == "")
+            {
+               item->message = msg;
+               item->elapsed = 0;
+               item->duration = duration;
+               item->color = color;
+               count++;
+               break;
+            }
+            item++;
+         }
+         return true;
+      }
+      else
+      {
+         cout << "WARNING: message has not been addded to message buffer"
+         << "because it is FULL. Message was: " << msg << "\n";
+         return false;
+      }
+   }
 };
 
 void expire_render_messages_from_buffer()
@@ -194,4 +222,11 @@ RenderMessageBuffer* allocate_render_message_buffer()
 void RENDER_MESSAGE(string msg, float duration = 0, vec3 color = vec3(-1))
 {
    G_BUFFERS.rm_buffer->add(msg, duration, color);
+}
+
+void RENDER_UNIQUE_MESSAGE(string msg, float duration = 0, vec3 color = vec3(-1))
+{
+   // same as above, but in this case we don't update the message if already present 
+   // (good for counting num of times for things that happen not that many times)
+   G_BUFFERS.rm_buffer->add_unique(msg, duration, color);
 }
