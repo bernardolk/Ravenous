@@ -399,7 +399,7 @@ void parse_and_load_player_attribute(Parser::Parse p, ifstream* reader, int& lin
    {
       p = parse_all_whitespace(p);
       p = parse_int(p);
-      player->initial_player_state = (PlayerStateEnum) p.iToken;
+      player->initial_player_state = (PlayerState) p.iToken;
       player->player_state = player->initial_player_state;
    }
    else if(attribute == "player_fall_speed")

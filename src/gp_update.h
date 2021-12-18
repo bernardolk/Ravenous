@@ -431,8 +431,11 @@ void GP_check_player_grabbed_ledge(Player* player)
    if(ledge.empty)
       return;
    vec3 position = CL_get_final_position_ledge_vaulting(player, ledge);
-   player->entity_ptr->position = position;
-   player->update();
+
+   PlayerStateChangeArgs args;
+   args.ledge = ledge;
+   args.final_position = position;
+   GP_change_player_state(player, PLAYER_STATE_VAULTING, args);
 }
 
 // void GP_check_player_grabbed_ledge(Player* player)

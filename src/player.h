@@ -1,4 +1,4 @@
-enum PlayerStateEnum {
+enum PlayerState {
    PLAYER_STATE_FALLING,
    PLAYER_STATE_STANDING,
    PLAYER_STATE_WALKING,
@@ -19,14 +19,14 @@ string PLAYER_NAME = "Player";
 // Animation
 // ----------
 enum PlayerAnimationState {
-   P_ANIM_NO_ANIM          = 999,
-   P_ANIM_JUMPING          = 0,
-   P_ANIM_LANDING          = 1,
-   P_ANIM_LANDING_FALL     = 2,
-   P_ANIM_VAULTING         = 3
+   PlayerAnimationState_NoAnimation    = 999,
+   PlayerAnimationState_Jumping        = 0,
+   PlayerAnimationState_Landing        = 1,
+   PlayerAnimationState_LandingFall    = 2,
+   PlayerAnimationState_Vaulting       = 3
 };
 
-float P_ANIM_DURATION[] = {
+float PLAYER_ANIMATION_DURATIONS[] = {
    400,                          // 0 - jumping
    200,                          // 1 - landing                  
    400,                          // 2 - landing fall   
@@ -86,8 +86,8 @@ struct Player {
    bool action                   = false;
    bool want_to_grab             = false;
 
-   PlayerStateEnum player_state;
-   PlayerStateEnum initial_player_state;
+   PlayerState player_state;
+   PlayerState initial_player_state;
 
    vec3 prior_position = vec3(0);
    vec3 initial_velocity = vec3(0);
@@ -117,7 +117,7 @@ struct Player {
 
    // animation
    float anim_t = 0;                                         // animation timer
-   PlayerAnimationState anim_state = P_ANIM_NO_ANIM;         // animation state
+   PlayerAnimationState anim_state = PlayerAnimationState_NoAnimation;         // animation state
    vec3 anim_final_pos  = vec3(0);                           // final position after translation animation
    vec3 anim_orig_pos   = vec3(0);                           // original position
    vec3 anim_final_dir  = vec3(0);                           // final player orientation

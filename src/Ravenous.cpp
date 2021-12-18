@@ -308,7 +308,7 @@ int main()
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player);
       // @todo - check player events
       GP_update_player_state(player);
-      //AN_animate_player(player);
+      AN_animate_player(player);
       // simulate_gravity_trajectory();      
 
       // -------------

@@ -197,12 +197,6 @@ vec3 cross(vec3 A, vec3 B)
 }
 
 inline
-vec3 rev_2Dnormal(vec2 normal)
-{
-   return vec3(normal.x == 0 ? 0 : -1.0 * normal.x, 0, normal.y == 0 ? 0 : -1.0 * normal.y);
-}
-
-inline
 vec3 project_vec_into_ref(vec3 vec, vec3 ref)
 {
    auto proj = dot(vec, ref) / (abs(ref) * abs(ref)) * ref;

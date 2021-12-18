@@ -6,6 +6,8 @@
    Work in progress state machine-like modelling of player state 
 */
 
+#include <ledge.h>
+
 void GP_player_state_change_jumping_to_falling    (Player* player);
 void GP_player_state_change_standing_to_falling   (Player* player);
 void GP_player_state_change_falling_to_standing   (Player* player);
@@ -13,7 +15,7 @@ void GP_player_state_change_standing_to_jumping   (Player* player);
 void GP_player_state_change_any_to_sliding        (Player* player, vec3 normal);
 void GP_player_state_change_any_to_grabbing       (Player* player, Entity* entity, vec2 normal_vec, vec3 final_position, float d);
 void GP_player_state_change_grabbing_to_vaulting  (Player* player);
-void GP_player_state_change_standing_to_vaulting  (Player* player, Entity* entity, vec2 normal_vec, vec3 final_position);
+void GP_player_state_change_standing_to_vaulting  (Player* player, Ledge ledge, vec3 final_position);
 void GP_player_state_change_vaulting_to_standing  (Player* player);
 void GP_player_state_change_standing_to_slide_falling   (Player* player, Entity* ramp);
 void GP_player_state_change_sliding_to_standing   (Player* player);
@@ -31,10 +33,10 @@ struct PlayerStateChangeArgs {
 
    // grabbing info
    vec3 final_position  = vec3(0);
-
+   Ledge ledge;
 };
 
-void GP_change_player_state(Player* player, PlayerStateEnum new_state, PlayerStateChangeArgs args = {})
+void GP_change_player_state(Player* player, PlayerState new_state, PlayerStateChangeArgs args = {})
 {
    /* This will change the player's state to the new state and do actions based on his current state.
       Hopefuly we can achieve a state machine model where all transitions are mapped and, therefore, predictable.
@@ -68,7 +70,7 @@ void GP_change_player_state(Player* player, PlayerStateEnum new_state, PlayerSta
                return GP_player_state_change_standing_to_slide_falling(player, args.entity);
 
             case PLAYER_STATE_VAULTING:
-               return GP_player_state_change_standing_to_vaulting(player, args.entity, args.normal, args.final_position);
+               return GP_player_state_change_standing_to_vaulting(player, args.ledge, args.final_position);
          }
 
       // JUMPING
@@ -156,7 +158,7 @@ void GP_player_state_change_standing_to_jumping(Player* player)
 
    v.y = player->jump_initial_speed;   
    player->player_state = PLAYER_STATE_JUMPING;
-   player->anim_state = P_ANIM_JUMPING;
+   player->anim_state = PlayerAnimationState_Jumping;
    player->height_before_fall = player->entity_ptr->position.y;
 }
 
@@ -184,9 +186,9 @@ void GP_player_state_change_falling_to_standing(Player* player)
 
    // conditional animation: if falling from jump, land, else, land from fall
    if(player->height < player->height)
-      player->anim_state = P_ANIM_LANDING;
+      player->anim_state = PlayerAnimationState_Landing;
    else
-      player->anim_state = P_ANIM_LANDING_FALL;
+      player->anim_state = PlayerAnimationState_LandingFall;
 
    player->maybe_hurt_from_fall();
 }
@@ -222,48 +224,49 @@ void GP_player_state_change_standing_to_slide_falling(Player* player, Entity* ra
 // @TODO REFACTOR -> From aabb and 2d normals to full 3d
 void GP_player_state_change_any_to_grabbing(Player* player, Entity* entity, vec2 normal_vec, vec3 final_position, float penetration)
 {
-   vec3 rev_normal = rev_2Dnormal(normal_vec);
+   // vec3 rev_normal = rev_2Dnormal(normal_vec);
 
-   // this will be an animation in the future
-   float turn_angle = glm::degrees(vector_angle_signed(to2d_xz(pCam->Front), normal_vec)) - 180;
-   camera_change_direction(pCam, turn_angle, 0.f);
-   // CL_snap_player(player, normal_vec, penetration);
+   // // this will be an animation in the future
+   // float turn_angle = glm::degrees(vector_angle_signed(to2d_xz(pCam->Front), normal_vec)) - 180;
+   // camera_change_direction(pCam, turn_angle, 0.f);
+   // // CL_snap_player(player, normal_vec, penetration);
 
-   player->player_state          = PLAYER_STATE_GRABBING;
-   player->grabbing_entity       = entity;
-   player->entity_ptr->velocity  = vec3(0);
-   // after we are able to move while grabbing the ledge, this should move away from here
-   {
-      player->anim_final_dir        = rev_normal;
-      player->anim_final_pos        = final_position;
-      player->anim_orig_pos         = player->entity_ptr->position;
-      player->anim_orig_dir         = normalize(to_xz(pCam->Front));
-      player->entity_ptr->velocity  = vec3(0);
-   }
+   // player->player_state          = PLAYER_STATE_GRABBING;
+   // player->grabbing_entity       = entity;
+   // player->entity_ptr->velocity  = vec3(0);
+   // // after we are able to move while grabbing the ledge, this should move away from here
+   // {
+   //    player->anim_final_dir        = rev_normal;
+   //    player->anim_final_pos        = final_position;
+   //    player->anim_orig_pos         = player->entity_ptr->position;
+   //    player->anim_orig_dir         = normalize(to_xz(pCam->Front));
+   //    player->entity_ptr->velocity  = vec3(0);
+   // }
 }
 
 // DONE
 void GP_player_state_change_grabbing_to_vaulting(Player* player)
 {
    player->player_state          = PLAYER_STATE_VAULTING;
-   player->anim_state            = P_ANIM_VAULTING;
+   player->anim_state            = PlayerAnimationState_Vaulting;
    player->vaulting_entity_ptr   = player->grabbing_entity;
    player->grabbing_entity       = NULL;
 }
 
-// @TODO REFACTOR - 2d normal to 3D
-void GP_player_state_change_standing_to_vaulting(Player* player, Entity* entity, vec2 normal_vec, vec3 final_position)
+void GP_player_state_change_standing_to_vaulting(Player* player, Ledge ledge, vec3 final_position)
 {
-   vec3 rev_normal = rev_2Dnormal(normal_vec);
+   G_INPUT_INFO.block_mouse_move    = true;
 
    player->player_state             = PLAYER_STATE_VAULTING;
-   player->anim_state               = P_ANIM_VAULTING;
-   player->anim_final_pos           = final_position;
-   player->anim_orig_pos            = player->entity_ptr->position;
+   player->anim_state               = PlayerAnimationState_Vaulting;
    player->entity_ptr->velocity     = vec3(0);
-   player->anim_orig_dir            = nrmlz(to_xz(pCam->Front));
-   player->anim_final_dir           = rev_normal;
-   player->vaulting_entity_ptr      = entity;
+
+   player->anim_orig_pos            = player->entity_ptr->position;
+   player->anim_orig_dir            = normalize(to_xz(pCam->Front));
+
+   auto inward_normal = normalize(cross(ledge.a - ledge.b, UNIT_Y));
+   player->anim_final_pos           = final_position;
+   player->anim_final_dir           = inward_normal;
 }
 
 // DONE
@@ -295,7 +298,7 @@ void GP_player_state_change_sliding_to_jumping(Player* player)
    player->entity_ptr->velocity.y = player->jump_initial_speed;
    
    player->player_state = PLAYER_STATE_JUMPING;
-   player->anim_state = P_ANIM_JUMPING;
+   player->anim_state = PlayerAnimationState_Jumping;
    player->height_before_fall = player->entity_ptr->position.y;
 }
 
