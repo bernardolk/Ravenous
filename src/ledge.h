@@ -8,7 +8,7 @@
 //    contain a ledge (but it does contain an edge).
 
 struct Ledge {
-   bool empty = false;
+   bool empty = true;
    vec3 a;                       
    vec3 b;
 

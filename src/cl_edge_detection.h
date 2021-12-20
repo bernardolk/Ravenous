@@ -58,6 +58,13 @@ Ledge CL_perform_ledge_detection(Player* player)
    if(front_test.hit)
    {
       vec3 frontal_hitpoint = point_from_detection(front_test.ray, front_test);
+      vec3 front_face_n = get_triangle_normal(front_test.t);
+
+      // checks if face "points downwards" like this: / (p)  and not like this \ (p) where (p) is player trying to grab ledge
+      RENDER_MESSAGE(to_string(dot(UNIT_Y, front_face_n)));
+
+      if(dot(UNIT_Y, front_face_n) > 0.0001)
+         return ledge;
 
       const float _top_ray_height = 2.0f;
       auto top_ray = Ray{frontal_hitpoint + front_test.ray.direction * 0.0001f + UNIT_Y * _top_ray_height, -UNIT_Y};
@@ -72,10 +79,7 @@ Ledge CL_perform_ledge_detection(Player* player)
          ledge.surface_point  = top_hitpoint;
 
          if(top_test.distance <= player->height || top_hitpoint.y - frontal_hitpoint.y > _front_ray_spacing)
-         {
-            ledge.empty = true;
             return ledge;
-         }
 
          IM_RENDER.add_line(IMHASH, top_ray.origin, frontal_hitpoint, 1.2, false, COLOR_PURPLE_1);
          IM_RENDER.add_point(IMHASH, top_hitpoint, 2.0, true, COLOR_PURPLE_1);
@@ -85,7 +89,9 @@ Ledge CL_perform_ledge_detection(Player* player)
          vec3 edge2 = top_test.t.c - top_test.t.b; // 2
          vec3 edge3 = top_test.t.a - top_test.t.c; // 3
 
-         vec3 front_face_n = get_triangle_normal(front_test.t);
+         // for debug: show face normal
+         vec3 front_face_center = get_barycenter(front_test.t);
+         IM_RENDER.add_line(IMHASH, front_face_center, front_face_center + 1.f * front_face_n, 2.0, false, COLOR_BLUE_1);
 
          if(abs(dot(edge1, front_face_n)) < 0.0001)
          {
@@ -95,6 +101,8 @@ Ledge CL_perform_ledge_detection(Player* player)
 
             ledge.a = top_test.t.a;
             ledge.b = top_test.t.b;
+
+            ledge.empty = false;
             return ledge;
          }
          else if(abs(dot(edge2, front_face_n)) < 0.0001)
@@ -105,6 +113,8 @@ Ledge CL_perform_ledge_detection(Player* player)
 
             ledge.a = top_test.t.b;
             ledge.b = top_test.t.c;
+
+            ledge.empty = false;
             return ledge;
          }
          else if(abs(dot(edge3, front_face_n)) < 0.0001)
@@ -115,6 +125,8 @@ Ledge CL_perform_ledge_detection(Player* player)
 
             ledge.a = top_test.t.c;
             ledge.b = top_test.t.a;
+
+            ledge.empty = false;
             return ledge;
          }
          else

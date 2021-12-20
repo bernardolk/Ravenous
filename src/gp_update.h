@@ -424,7 +424,6 @@ void GP_check_trigger_interaction(Player* player)
 // -------------------
 // > LEDGE GRABBING
 // -------------------
-
 void GP_check_player_grabbed_ledge(Player* player)
 {
    Ledge ledge = CL_perform_ledge_detection(player);

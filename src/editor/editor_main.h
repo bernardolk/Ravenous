@@ -88,6 +88,10 @@ struct EditorContext {
    // gizmos
    Entity* tri_axis[3];
    Entity* tri_axis_letters[3];
+
+   // debug options
+   bool debug_ledge_detection = false;
+
 } EdContext;
 
 
@@ -215,6 +219,12 @@ void update()
 
    // resets mouse click event
    EdContext.mouse_click = false;
+
+   // check for debug flags
+   if(EdContext.debug_ledge_detection)
+   {
+      CL_perform_ledge_detection(G_SCENE_INFO.player);
+   }
 }
 
 void update_triaxis_gizmo()

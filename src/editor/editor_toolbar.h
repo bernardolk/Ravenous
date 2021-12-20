@@ -115,5 +115,9 @@ void render_toolbar()
       EdContext.collision_log_panel.active = true;
    }
 
+   // DEBUG OPTIONS
+   ImGui::Text("Debug options");
+   ImGui::Checkbox("Ledge detection", &EdContext.debug_ledge_detection);
+
    ImGui::End();
 }
