@@ -42,6 +42,12 @@ CL_VtraceResult CL_do_stepover_vtrace(Player* player)
    if(!raytest.hit) 
       return CL_VtraceResult{ false };
 
+   // auto angle = dot(get_triangle_normal(raytest.t), UNIT_Y);
+   // cout << "Angle is: " << to_string(angle) << "\n";
+   // if(angle < 1 - 0.866)
+   //    return CL_VtraceResult{ false };
+
+   
     // draw arrow
    auto hitpoint = point_from_detection(downward_ray, raytest);
    IM_RENDER.add_line(IMHASH, hitpoint, ray_origin, 1.0, true, COLOR_GREEN_1);

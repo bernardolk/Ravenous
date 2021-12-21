@@ -1056,16 +1056,16 @@ void update_entity_control_arrows(EntityPanelContext* panel)
    starting_model = rotate(starting_model, glm::radians(entity->rotation.y), UNIT_Y);
    starting_model = rotate(starting_model, glm::radians(entity->rotation.z), UNIT_Z);
 
-   float scale_value = 0.5;
-   if(0.5 > entity->scale.x / 2 || 0.5 > entity->scale.y / 2 || 0.5 > entity->scale.z / 2)
-   {
-      float smallest = entity->scale.x;
-      if(smallest > entity->scale.y) smallest = entity->scale.y;
-      if(smallest > entity->scale.z) smallest = entity->scale.z;
-      scale_value = smallest * 0.6;
-      if(scale_value < 0.3)
-         scale_value = 0.3;
-   }
+   float scale_value = 0.8;
+   // if(0.5 > entity->scale.x / 2 || 0.5 > entity->scale.y / 2 || 0.5 > entity->scale.z / 2)
+   // {
+   //    float smallest = entity->scale.x;
+   //    if(smallest > entity->scale.y) smallest = entity->scale.y;
+   //    if(smallest > entity->scale.z) smallest = entity->scale.z;
+   //    scale_value = smallest * 0.6;
+   //    if(scale_value < 0.3)
+   //       scale_value = 0.3;
+   // }
 
    for(int i = 0; i < 3; i++)
    {

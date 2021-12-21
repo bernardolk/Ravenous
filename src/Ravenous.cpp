@@ -193,6 +193,8 @@ void simulate_gravity_trajectory();
 
 
 
+
+
 int main()
 {
    // INITIAL GLFW AND GLAD SETUPS
@@ -255,6 +257,9 @@ int main()
    //@TODO: for debugging
    player->entity_ptr->wireframe = true;
 
+   // Does a first update
+   update_scene_objects();
+
 	// MAIN LOOP
 	while (!glfwWindowShouldClose(G_DISPLAY_INFO.window))
 	{
@@ -304,7 +309,6 @@ int main()
 		//	UPDATE PHASE
       // -------------
       Frame_Ray_Collider_Count = 0;
-		update_scene_objects();
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player);
       // @todo - check player events
       GP_update_player_state(player);

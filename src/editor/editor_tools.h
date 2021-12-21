@@ -362,7 +362,10 @@ void place_entity_with_mouse(Entity* entity)
    auto pickray = cast_pickray();
    auto test = test_ray_against_scene(pickray, entity);
    if(test.hit)
+   {
       entity->position = point_from_detection(pickray, test);
+      entity->update();
+   }
 }
 
 

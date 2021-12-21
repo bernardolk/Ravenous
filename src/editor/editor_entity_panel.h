@@ -256,7 +256,6 @@ void render_entity_panel(EntityPanelContext* panel)
       if(!(duplicated || deleted))
          deactivate_editor_modes();
 
-      // needs to be done here to prevent a bug
       entity->update();
       auto update_cells = World.update_entity_world_cells(entity);
       if(update_cells.status != CellUpdate_OK)
