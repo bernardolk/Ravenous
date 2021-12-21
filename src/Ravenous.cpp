@@ -85,8 +85,8 @@ struct GlobalDisplayInfo {
 struct MouseCoordinates {
    double last_x = 0;
    double last_y = 0; 
-   double left_click_x;
-   double left_click_y;
+   double click_x;
+   double click_y;
    double x;
    double y;
 };

@@ -188,28 +188,21 @@ void handle_input_flags(InputFlags flags, Player* &player)
    // ---------------
    if(G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK)
    {
-      if(flags.key_press & KEY_LEFT_CTRL)
+      if(EdContext.snap_mode)
       {
-         if(EdContext.snap_mode)
-         {
-            check_selection_to_snap();
-         }
-         else if(EdContext.measure_mode)
-         {
-            check_selection_to_measure();
-         }
-         else if(EdContext.locate_coords_mode)
-         {
-            check_selection_to_locate_coords();
-         }
-         else if(EdContext.stretch_mode)
-         {
-            check_selection_to_stretch();
-         }
-         else
-         {
-            check_selection_to_open_panel(player);
-         }
+         check_selection_to_snap();
+      }
+      else if(EdContext.measure_mode)
+      {
+         check_selection_to_measure();
+      }
+      else if(EdContext.locate_coords_mode)
+      {
+         check_selection_to_locate_coords();
+      }
+      else if(EdContext.stretch_mode)
+      {
+         check_selection_to_stretch();
       }
       else if(flags.key_press & KEY_G)
       {
@@ -217,7 +210,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
       }
       else
       {
-         // deselection
+         check_selection_to_open_panel(player);
          EdContext.mouse_click = true;
       }
    }

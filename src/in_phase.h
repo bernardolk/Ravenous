@@ -66,6 +66,7 @@ u16 MOUSE_LB_CLICK       = 1 << 0;
 u16 MOUSE_RB_CLICK       = 1 << 1;
 u16 MOUSE_DRAGGING       = 1 << 2;
 u16 MOUSE_LB_HOLD        = 1 << 3;
+u16 MOUSE_RB_HOLD        = 1 << 4;
 
 
 InputFlags input_phase() 
@@ -401,10 +402,10 @@ void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
       return;
 
    // activates mouse dragging if clicking and current mouse position has changed a certain ammount
-	if (!(G_INPUT_INFO.mouse_state & MOUSE_DRAGGING) && G_INPUT_INFO.mouse_state & MOUSE_LB_HOLD)
+	if (!(G_INPUT_INFO.mouse_state & MOUSE_DRAGGING) && G_INPUT_INFO.mouse_state & MOUSE_RB_HOLD)
    { 
-      auto offset_from_click_x = abs(G_INPUT_INFO.mouse_coords.left_click_x - G_INPUT_INFO.mouse_coords.x);
-      auto offset_from_click_y = abs(G_INPUT_INFO.mouse_coords.left_click_y - G_INPUT_INFO.mouse_coords.y); 
+      auto offset_from_click_x = abs(G_INPUT_INFO.mouse_coords.click_x - G_INPUT_INFO.mouse_coords.x);
+      auto offset_from_click_y = abs(G_INPUT_INFO.mouse_coords.click_y - G_INPUT_INFO.mouse_coords.y); 
       if(offset_from_click_x > 2 || offset_from_click_y > 2)
       {
          G_INPUT_INFO.mouse_state |= MOUSE_DRAGGING;
@@ -467,9 +468,6 @@ void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
          if(action == GLFW_PRESS)
          {
             G_INPUT_INFO.mouse_state |= MOUSE_LB_CLICK;
-            G_INPUT_INFO.forget_last_mouse_coords = true;
-            G_INPUT_INFO.mouse_coords.left_click_x = G_INPUT_INFO.mouse_coords.x;
-            G_INPUT_INFO.mouse_coords.left_click_y = G_INPUT_INFO.mouse_coords.y;
          }
          else if(action == GLFW_RELEASE)
          {
@@ -484,10 +482,15 @@ void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
          if(action == GLFW_PRESS)
          {
             G_INPUT_INFO.mouse_state |= MOUSE_RB_CLICK;
+            G_INPUT_INFO.forget_last_mouse_coords = true;
+            G_INPUT_INFO.mouse_coords.click_x = G_INPUT_INFO.mouse_coords.x;
+            G_INPUT_INFO.mouse_coords.click_y = G_INPUT_INFO.mouse_coords.y;
          }
          else if(action == GLFW_RELEASE)
          {
             G_INPUT_INFO.mouse_state &= ~(MOUSE_RB_CLICK);
+            G_INPUT_INFO.mouse_state &= ~(MOUSE_RB_HOLD);
+            G_INPUT_INFO.mouse_state &= ~(MOUSE_DRAGGING);
          }
          break;
       }
@@ -522,6 +525,11 @@ void check_mouse_click_hold()
    {
       G_INPUT_INFO.mouse_state &= ~(MOUSE_LB_CLICK);
       G_INPUT_INFO.mouse_state |= MOUSE_LB_HOLD;
+   }
+   if((G_INPUT_INFO.mouse_state & MOUSE_RB_CLICK))
+   {
+      G_INPUT_INFO.mouse_state &= ~(MOUSE_RB_CLICK);
+      G_INPUT_INFO.mouse_state |= MOUSE_RB_HOLD;
    }
 }
 

@@ -17,6 +17,7 @@ void apply_state(EntityState state)
    state.entity->position = state.position;
    state.entity->scale = state.scale;
    state.entity->rotate_y(state.rotation.y - state.entity->rotation.y);
+   state.entity->update();
 }
 
 mat4 mat_model_from_entity_state(EntityState state)

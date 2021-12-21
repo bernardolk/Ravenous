@@ -467,6 +467,8 @@ void move_entity_with_mouse(Entity* entity)
          entity->position.z = ray.origin.z + ray.direction.z * test.distance;
          break;
    }
+
+   entity->update();
 }
 
 void place_entity()
@@ -474,8 +476,9 @@ void place_entity()
    EdContext.move_mode = false;
    EdContext.place_mode = false;
    
-   CL_recompute_collision_buffer_entities(G_SCENE_INFO.player);
    auto& entity = EdContext.selected_entity;
+   entity->update();
+   CL_recompute_collision_buffer_entities(G_SCENE_INFO.player);
    EdContext.undo_stack.track(entity);
 }
 
