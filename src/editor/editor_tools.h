@@ -655,10 +655,6 @@ void move_light_with_mouse(string type, int index)
    // places entity accordingly
    switch(EdContext.move_axis)
    {
-      case 0:  // XZ 
-         position.x = ray.origin.x + ray.direction.x * test.distance;
-         position.z = ray.origin.z + ray.direction.z * test.distance;
-         break;
       case 1:  // X
          position.x = ray.origin.x + ray.direction.x * test.distance;
          break;
