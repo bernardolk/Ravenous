@@ -369,21 +369,11 @@ void place_entity_with_mouse(Entity* entity)
 }
 
 
-// -----------------
-// MOVE ENTITY TOOL
-// -----------------
-void move_entity_with_mouse(Entity* entity);
-void activate_move_mode(Entity* entity);
-void place_entity(Entity* entity);
-
-void activate_move_mode(Entity* entity)
-{
-   deactivate_editor_modes();
-   EdContext.move_mode = true;
-   EdContext.move_axis = 0;
-   EdContext.selected_entity = entity;
-   EdContext.undo_stack.track(entity);
-}
+// -------------
+// > MOVE TOOLS 
+// -------------
+RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* entity);
+void place_entity();
 
 RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* entity)
 { 
@@ -449,6 +439,38 @@ RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* entity)
    return test;
 }
 
+void place_entity()
+{
+   EdContext.move_mode = false;
+   EdContext.move_entity_by_arrows = false;
+   EdContext.move_entity_by_arrows_ref_point = vec3(0);
+   EdContext.place_mode = false;
+   
+   auto& entity = EdContext.selected_entity;
+   entity->update();
+   CL_recompute_collision_buffer_entities(G_SCENE_INFO.player);
+   EdContext.undo_stack.track(entity);
+}
+
+
+
+// ------------
+// > MOVE MODE
+// ------------
+void move_entity_with_mouse(Entity* entity);
+void activate_move_mode(Entity* entity);
+void place_entity(Entity* entity);
+
+void activate_move_mode(Entity* entity)
+{
+   deactivate_editor_modes();
+   EdContext.move_mode = true;
+   EdContext.move_axis = 0;
+   EdContext.selected_entity = entity;
+   EdContext.undo_stack.track(entity);
+}
+
+
 void move_entity_with_mouse(Entity* entity)
 {
    RaycastTest test = test_ray_against_entity_support_plane(EdContext.move_axis, entity);
@@ -456,16 +478,11 @@ void move_entity_with_mouse(Entity* entity)
       return;
 
    Ray ray = test.ray;
+   vec3 pos = ray.origin + ray.direction * test.distance;
 
    // places entity accordingly
    switch(EdContext.move_axis)
    {
-      vec3 pos = ray.origin + ray.direction * test.distance;
-
-      // if moving by arrows we want to get the offset from the mouse drag starting point, and not absolute position
-      if(EdContext.move_entity_by_arrows)
-         pos -= EdContext.move_entity_by_arrows_starting_point;
-
       case 0:  // XZ 
          entity->position.x = pos.x;
          entity->position.z = pos.z;
@@ -484,18 +501,60 @@ void move_entity_with_mouse(Entity* entity)
    entity->update();
 }
 
-void place_entity()
+
+
+// ------------------------
+// > MOVE ENTITY BY ARROWS
+// ------------------------
+void activate_move_entity_by_arrow(u8 move_axis);
+void move_entity_by_arrows(Entity* entity);
+
+
+void activate_move_entity_by_arrow(u8 move_axis)
 {
-   EdContext.move_mode = false;
-   EdContext.move_entity_by_arrows = false;
-   EdContext.move_entity_by_arrows_starting_point = vec3(0);
-   EdContext.place_mode = false;
-   
-   auto& entity = EdContext.selected_entity;
-   entity->update();
-   CL_recompute_collision_buffer_entities(G_SCENE_INFO.player);
-   EdContext.undo_stack.track(entity);
+   EdContext.move_axis = move_axis;
+   EdContext.move_entity_by_arrows = true;
+   auto test = test_ray_against_entity_support_plane(move_axis, EdContext.selected_entity);
+   EdContext.move_entity_by_arrows_ref_point = point_from_detection(test.ray, test);
+   EdContext.undo_stack.track(EdContext.selected_entity);
+
 }
+
+void move_entity_by_arrows(Entity* entity)
+{
+   RaycastTest test = test_ray_against_entity_support_plane(EdContext.move_axis, entity);
+   if(!test.hit)
+      return;
+
+   Ray ray = test.ray;
+   vec3 pos = ray.origin + ray.direction * test.distance;
+
+   // gets the offset from the mouse drag starting point, and not absolute position
+   vec3 diff = pos - EdContext.move_entity_by_arrows_ref_point;
+
+   // modifies entity position
+   switch(EdContext.move_axis)
+   {
+      case 0:  // XZ 
+         entity->position.x += diff.x;
+         entity->position.z += diff.z;
+         break;
+      case 1: // X
+         entity->position.x += diff.x;
+         break;
+      case 2:  // Y
+         entity->position.y += diff.y;
+         break;
+      case 3:  // Z
+         entity->position.z += diff.z;
+         break;
+   }
+
+   EdContext.move_entity_by_arrows_ref_point = pos;
+
+   entity->update();
+}
+
 
 
 // ----------------

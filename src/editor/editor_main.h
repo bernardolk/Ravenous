@@ -50,7 +50,7 @@ struct EditorContext {
 
    // move entity by arrows
    bool move_entity_by_arrows = false;
-   vec3 move_entity_by_arrows_starting_point = vec3(0);
+   vec3 move_entity_by_arrows_ref_point = vec3(0);
 
    // place mode
    bool place_mode = false;
@@ -212,7 +212,7 @@ void update()
    if(EdContext.move_entity_by_arrows)
    {
       if(EdContext.mouse_dragging)
-         move_entity_with_mouse(EdContext.selected_entity);
+         move_entity_by_arrows(EdContext.selected_entity);
       // the below condition is to prevent from deactivating too early
       else if(!EdContext.mouse_click)
          place_entity();
@@ -1150,13 +1150,6 @@ void check_selection_to_move_entity()
       activate_move_light_mode(test_light.obj_hit_type, test_light.obj_hit_index);
 }
 
-void activate_move_entity_by_arrow(u8 move_axis)
-{
-   EdContext.move_axis = move_axis;
-   EdContext.move_entity_by_arrows = true;
-   auto test = test_ray_against_entity_support_plane(move_axis, EdContext.selected_entity);
-   EdContext.move_entity_by_arrows_starting_point = point_from_detection(test.ray, test);
-}
 
 bool check_selection_to_grab_entity_arrows()
 {
