@@ -385,10 +385,8 @@ void activate_move_mode(Entity* entity)
    EdContext.undo_stack.track(entity);
 }
 
-void move_entity_with_mouse(Entity* entity)
-{
-   Ray ray = cast_pickray();
-
+RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* entity)
+{ 
    // create a big plane for placing entity in the world with the mouse using raycast from camera to mouse
    // position. In the case of Y placement, we need to compute the plane considering the camera orientation.
    Triangle t1, t2;
@@ -437,34 +435,49 @@ void move_entity_with_mouse(Entity* entity)
    }
 
    // ray casts against created plane
+   Ray ray = cast_pickray();
    RaycastTest test;
-   
+
    test = test_ray_against_triangle(ray, t1);
    if(!test.hit)
    {
       test = test_ray_against_triangle(ray, t2);
       if(!test.hit)
-      {
          cout << "warning: can't find plane to place entity!\n";
-         return;
-      }
    }
+
+   return test;
+}
+
+void move_entity_with_mouse(Entity* entity)
+{
+   RaycastTest test = test_ray_against_entity_support_plane(EdContext.move_axis, entity);
+   if(!test.hit)
+      return;
+
+   Ray ray = test.ray;
 
    // places entity accordingly
    switch(EdContext.move_axis)
    {
+      vec3 pos = ray.origin + ray.direction * test.distance;
+
+      // if moving by arrows we want to get the offset from the mouse drag starting point, and not absolute position
+      if(EdContext.move_entity_by_arrows)
+         pos -= EdContext.move_entity_by_arrows_starting_point;
+
       case 0:  // XZ 
-         entity->position.x = ray.origin.x + ray.direction.x * test.distance;
-         entity->position.z = ray.origin.z + ray.direction.z * test.distance;
+         entity->position.x = pos.x;
+         entity->position.z = pos.z;
          break;
       case 1:  // X
-         entity->position.x = ray.origin.x + ray.direction.x * test.distance;
+         entity->position.x = pos.x;
          break;
       case 2:  // Y
-         entity->position.y = ray.origin.y + ray.direction.y * test.distance;
+         entity->position.y = pos.y;
          break;
       case 3:  // Z
-         entity->position.z = ray.origin.z + ray.direction.z * test.distance;
+         entity->position.z = pos.z;
          break;
    }
 
@@ -474,6 +487,8 @@ void move_entity_with_mouse(Entity* entity)
 void place_entity()
 {
    EdContext.move_mode = false;
+   EdContext.move_entity_by_arrows = false;
+   EdContext.move_entity_by_arrows_starting_point = vec3(0);
    EdContext.place_mode = false;
    
    auto& entity = EdContext.selected_entity;

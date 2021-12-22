@@ -64,9 +64,10 @@ u64 KEY_DELETE          = 1LL << 49;
 
 u16 MOUSE_LB_CLICK       = 1 << 0;
 u16 MOUSE_RB_CLICK       = 1 << 1;
-u16 MOUSE_DRAGGING       = 1 << 2;
+u16 MOUSE_RB_DRAGGING    = 1 << 2;
 u16 MOUSE_LB_HOLD        = 1 << 3;
 u16 MOUSE_RB_HOLD        = 1 << 4;
+u16 MOUSE_LB_DRAGGING    = 1 << 5;
 
 
 InputFlags input_phase() 
@@ -402,18 +403,30 @@ void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
       return;
 
    // activates mouse dragging if clicking and current mouse position has changed a certain ammount
-	if (!(G_INPUT_INFO.mouse_state & MOUSE_DRAGGING) && G_INPUT_INFO.mouse_state & MOUSE_RB_HOLD)
+	if (!(G_INPUT_INFO.mouse_state & MOUSE_RB_DRAGGING) && G_INPUT_INFO.mouse_state & MOUSE_RB_HOLD)
    { 
       auto offset_from_click_x = abs(G_INPUT_INFO.mouse_coords.click_x - G_INPUT_INFO.mouse_coords.x);
       auto offset_from_click_y = abs(G_INPUT_INFO.mouse_coords.click_y - G_INPUT_INFO.mouse_coords.y); 
       if(offset_from_click_x > 2 || offset_from_click_y > 2)
       {
-         G_INPUT_INFO.mouse_state |= MOUSE_DRAGGING;
+         G_INPUT_INFO.mouse_state |= MOUSE_RB_DRAGGING;
       }
    }
 
+   // do the same for LB
+   if (!(G_INPUT_INFO.mouse_state & MOUSE_LB_DRAGGING) && G_INPUT_INFO.mouse_state & MOUSE_LB_HOLD)
+   { 
+      auto offset_from_click_x = abs(G_INPUT_INFO.mouse_coords.click_x - G_INPUT_INFO.mouse_coords.x);
+      auto offset_from_click_y = abs(G_INPUT_INFO.mouse_coords.click_y - G_INPUT_INFO.mouse_coords.y); 
+      if(offset_from_click_x > 2 || offset_from_click_y > 2)
+      {
+         G_INPUT_INFO.mouse_state |= MOUSE_LB_DRAGGING;
+      }
+   }
+
+   // @todo: should refactor this out of here
    // MOVE CAMERA WITH MOUSE IF APPROPRIATE
-   if (PROGRAM_MODE.current == GAME_MODE || (G_INPUT_INFO.mouse_state & MOUSE_DRAGGING) ) 
+   if (PROGRAM_MODE.current == GAME_MODE || (G_INPUT_INFO.mouse_state & MOUSE_RB_DRAGGING) ) 
    {
       if(G_INPUT_INFO.block_mouse_move)
          return;
@@ -473,7 +486,7 @@ void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
          {
             G_INPUT_INFO.mouse_state &= ~(MOUSE_LB_CLICK);
             G_INPUT_INFO.mouse_state &= ~(MOUSE_LB_HOLD);
-            G_INPUT_INFO.mouse_state &= ~(MOUSE_DRAGGING);
+            G_INPUT_INFO.mouse_state &= ~(MOUSE_LB_DRAGGING);
          }
          break;
       }
@@ -490,7 +503,7 @@ void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
          {
             G_INPUT_INFO.mouse_state &= ~(MOUSE_RB_CLICK);
             G_INPUT_INFO.mouse_state &= ~(MOUSE_RB_HOLD);
-            G_INPUT_INFO.mouse_state &= ~(MOUSE_DRAGGING);
+            G_INPUT_INFO.mouse_state &= ~(MOUSE_RB_DRAGGING);
          }
          break;
       }

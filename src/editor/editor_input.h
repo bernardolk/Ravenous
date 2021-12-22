@@ -186,6 +186,9 @@ void handle_input_flags(InputFlags flags, Player* &player)
    // ---------------
    // CLICK CONTROLS
    // ---------------
+   EdContext.mouse_click      = false;
+   EdContext.mouse_dragging   = false;
+
    if(G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK)
    {
       if(EdContext.snap_mode)
@@ -210,10 +213,27 @@ void handle_input_flags(InputFlags flags, Player* &player)
       }
       else
       {
-         check_selection_to_open_panel(player);
          EdContext.mouse_click = true;
+
+         if(EdContext.entity_panel.active)
+         {
+            if(check_selection_to_grab_entity_arrows())
+               return;               
+         }
+
+         check_selection_to_open_panel(player);
       }
    }
+
+   else if(G_INPUT_INFO.mouse_state & MOUSE_LB_DRAGGING)
+   {
+      EdContext.mouse_dragging = true;
+   }
+   else if(G_INPUT_INFO.mouse_state & MOUSE_LB_HOLD)
+   {
+      EdContext.mouse_dragging = true;
+   }
+   
 
    // -------------------------------
    // SPAWN PLAYER ON MOUSE POSITION

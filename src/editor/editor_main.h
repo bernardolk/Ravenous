@@ -38,13 +38,19 @@ struct EditorContext {
    bool toolbar_active = true;
 
    // general mode controls
-   bool mouse_click = false;
+   bool mouse_click     = false;
+   bool mouse_dragging  = false;
+
    Entity* selected_entity = nullptr;
 
    // move mode
    bool move_mode = false;
    bool scale_on_drop = false;
    u8 move_axis = 0;
+
+   // move entity by arrows
+   bool move_entity_by_arrows = false;
+   vec3 move_entity_by_arrows_starting_point = vec3(0);
 
    // place mode
    bool place_mode = false;
@@ -102,6 +108,7 @@ void terminate();
 
 void update_triaxis_gizmo();
 void check_selection_to_open_panel(Player* player);
+bool check_selection_to_grab_entity_arrows();
 void check_selection_to_move_entity();
 
 void render_text_overlay(Player* player);
@@ -200,6 +207,15 @@ void update()
          else
             move_entity_with_mouse(EdContext.selected_entity);
       }
+   }
+
+   if(EdContext.move_entity_by_arrows)
+   {
+      if(EdContext.mouse_dragging)
+         move_entity_with_mouse(EdContext.selected_entity);
+      // the below condition is to prevent from deactivating too early
+      else if(!EdContext.mouse_click)
+         place_entity();
    }
 
    if(EdContext.place_mode)
@@ -489,6 +505,15 @@ void initialize()
    x_arrow->textures.push_back(Texture{red_tex,  "texture_diffuse", "red.jpg",  "red axis"});
    y_arrow->textures.push_back(Texture{green_tex, "texture_diffuse", "green.jpg", "green axis"});
    z_arrow->textures.push_back(Texture{blue_tex,  "texture_diffuse", "blue.jpg",  "blue axis"});
+
+   x_arrow->collision_mesh = axis_mesh;
+   x_arrow->collider = *axis_mesh;
+
+   y_arrow->collision_mesh = axis_mesh;
+   y_arrow->collider = *axis_mesh;
+
+   z_arrow->collision_mesh = axis_mesh;
+   z_arrow->collider = *axis_mesh;
 
    EdContext.entity_panel.x_arrow = x_arrow;
    EdContext.entity_panel.y_arrow = y_arrow;
@@ -1072,7 +1097,10 @@ void update_entity_control_arrows(EntityPanelContext* panel)
       auto model = rotate(starting_model, glm::radians(angles[i]), rot_axis[i]);
       model = scale(model, vec3(scale_value));
       arrows[i]->matModel = model;
+      arrows[i]->update_collider();
+      arrows[i]->update_bounding_box();
    }
+   
 }
 
 
@@ -1120,6 +1148,44 @@ void check_selection_to_move_entity()
       activate_move_mode(test.entity);
    else if(test_light.hit)
       activate_move_light_mode(test_light.obj_hit_type, test_light.obj_hit_index);
+}
+
+void activate_move_entity_by_arrow(u8 move_axis)
+{
+   EdContext.move_axis = move_axis;
+   EdContext.move_entity_by_arrows = true;
+   auto test = test_ray_against_entity_support_plane(move_axis, EdContext.selected_entity);
+   EdContext.move_entity_by_arrows_starting_point = point_from_detection(test.ray, test);
+}
+
+bool check_selection_to_grab_entity_arrows()
+{
+   auto pickray = cast_pickray();
+   RaycastTest test;
+   
+   test = test_ray_against_entity(pickray, EdContext.entity_panel.x_arrow);
+   if(test.hit)
+   {
+      activate_move_entity_by_arrow(1);
+      return true;
+   }
+
+   test = test_ray_against_entity(pickray, EdContext.entity_panel.y_arrow);
+   if(test.hit)
+   {
+      activate_move_entity_by_arrow(2);
+      return true;
+   }
+
+   test = test_ray_against_entity(pickray, EdContext.entity_panel.z_arrow);
+   if(test.hit)
+   {
+      activate_move_entity_by_arrow(3);
+      return true;
+   }
+
+   return false;
+
 }
 
 void start_dear_imgui_frame()
