@@ -28,9 +28,15 @@ struct EntityPanelContext {
    bool reverse_scale_x = false;
    bool reverse_scale_y = false;
    bool reverse_scale_z = false;
+
    Entity* x_arrow;
    Entity* y_arrow;
    Entity* z_arrow;
+
+   Entity* rotation_gizmo_x;
+   Entity* rotation_gizmo_y;
+   Entity* rotation_gizmo_z;
+
    EntityState entity_tracked_state;
    bool show_normals       = false;
    bool show_collider      = false;

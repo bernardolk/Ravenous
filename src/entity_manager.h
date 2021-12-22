@@ -14,6 +14,7 @@ struct EntityManager
    // > ENTITY MANAGER
    // ------------------ 
    unsigned int count = 0;
+   unsigned int editor_count = 0;
    EntityPool pool = EntityPool(200);
 
    Shader* default_shader;
@@ -42,10 +43,10 @@ struct EntityManager
          auto _mesh = Geometry_Catalogue.find(mesh);
          if(_mesh == Geometry_Catalogue.end())
          {
-            cout << "FATAL: mesh'" << mesh << "' not found in mesh catalogue.\n";
-            assert(false);
+            attrs.mesh = load_wavefront_obj_as_mesh(MODELS_PATH, mesh);
          }
-         attrs.mesh = _mesh->second;
+         else
+            attrs.mesh = _mesh->second;
       }
       
       if(collision_mesh != "")
@@ -53,10 +54,10 @@ struct EntityManager
          auto _collision_mesh = Geometry_Catalogue.find(collision_mesh);
          if(_collision_mesh == Geometry_Catalogue.end())
          {
-            cout << "FATAL: mesh'" << collision_mesh << "' not found in mesh catalogue.\n";
-            assert(false);
+            attrs.mesh = load_wavefront_obj_as_mesh(MODELS_PATH, collision_mesh);
          }
-         attrs.collision_mesh = _collision_mesh->second;
+         else
+            attrs.collision_mesh = _collision_mesh->second;
       }
 
       if(shader != "")
@@ -194,6 +195,37 @@ struct EntityManager
          register_in_world_and_scene(new_entity);
       }
       return new_entity;  
+   }
+
+   // -----------------------
+   // > CREATE EDITOR ENTITY
+   // -----------------------
+   // Editor entities can be created using this method. These entities have separate id's and are not
+   //    registered into the world.
+
+   Entity* create_editor_entity(
+      string name,
+      string mesh,
+      string shader,
+      string texture,
+      string collision_mesh,
+      vec3 scale = vec3{1.0f})
+   {
+      auto [_texture, _mesh, _collision_mesh, _shader] = _find_entity_assets_in_catalogue(mesh, collision_mesh, shader, texture);
+
+      Entity* new_entity                              = pool.get_next();
+      new_entity->id                                  = ++editor_count;
+      new_entity->name                                = name;
+      new_entity->shader                              = _shader;
+      new_entity->mesh                                = _mesh;
+      new_entity->scale                               = scale;
+      new_entity->collision_mesh                      = _collision_mesh;
+      new_entity->collider                            = *_collision_mesh;
+      new_entity->collider.name                       = name + "-collider";
+      new_entity->collider.setup_gl_data();
+      new_entity->textures.push_back(_texture);
+
+      return new_entity;
    }
 
 

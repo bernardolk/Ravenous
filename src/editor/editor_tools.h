@@ -441,15 +441,19 @@ RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* entity)
 
 void place_entity()
 {
+   /* Common function for move/rotate/scale entity tools.
+      Updates entity, tracks it state and updates world.
+      To be called at the end of entity modification operation. */
+
    EdContext.move_mode = false;
    EdContext.move_entity_by_arrows = false;
+   EdContext.rotate_entity_with_mouse = false;
    EdContext.move_entity_by_arrows_ref_point = vec3(0);
    EdContext.place_mode = false;
    
-   auto& entity = EdContext.selected_entity;
-   entity->update();
+   EdContext.selected_entity->update();
    CL_recompute_collision_buffer_entities(G_SCENE_INFO.player);
-   EdContext.undo_stack.track(entity);
+   EdContext.undo_stack.track(EdContext.selected_entity);
 }
 
 
@@ -517,8 +521,8 @@ void activate_move_entity_by_arrow(u8 move_axis)
    auto test = test_ray_against_entity_support_plane(move_axis, EdContext.selected_entity);
    EdContext.move_entity_by_arrows_ref_point = point_from_detection(test.ray, test);
    EdContext.undo_stack.track(EdContext.selected_entity);
-
 }
+
 
 void move_entity_by_arrows(Entity* entity)
 {
@@ -679,6 +683,63 @@ void place_light()
    EdContext.selected_light = -1;
 }
 
+
+// ---------------------
+// > ROTATE ENTITY TOOL
+// ---------------------
+void activate_rotate_entity_with_mouse(u8 move_axis);
+float mouse_offset_to_angular_offset(float mouse_offset);
+void rotate_entity_with_mouse(Entity* entity);
+
+void activate_rotate_entity_with_mouse(u8 move_axis)
+{
+   EdContext.move_axis = move_axis;
+   EdContext.rotate_entity_with_mouse = true;
+   EdContext.rotate_entity_with_mouse_mouse_coords_ref = vec2(
+      G_INPUT_INFO.mouse_coords.x,
+      G_INPUT_INFO.mouse_coords.y
+   );
+   EdContext.undo_stack.track(EdContext.selected_entity);
+}
+
+float mouse_offset_to_angular_offset(float mouse_offset)
+{
+   // 360 degrees per 500 pixels of offset
+   return mouse_offset * 360.f / 500.f;  
+}
+
+void rotate_entity_with_mouse(Entity* entity)
+{
+   auto mouse_coords = vec2(G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
+
+   switch(EdContext.move_axis)
+   {
+      case 1: // X
+      {
+         float diff = mouse_coords.y - EdContext.rotate_entity_with_mouse_mouse_coords_ref.y;
+         float angular_diff = mouse_offset_to_angular_offset(diff);
+         entity->rotation.x += angular_diff;
+         break;
+      }
+      case 2:  // Y
+      {
+         float diff = mouse_coords.x - EdContext.rotate_entity_with_mouse_mouse_coords_ref.x;
+         float angular_diff = mouse_offset_to_angular_offset(diff);
+         entity->rotation.y += angular_diff;
+         break;
+      }
+      case 3:  // Z
+      {
+         float diff = mouse_coords.y - EdContext.rotate_entity_with_mouse_mouse_coords_ref.y;
+         float angular_diff = mouse_offset_to_angular_offset(diff);
+         entity->rotation.z += angular_diff;
+         break;
+      }
+   }
+
+   EdContext.rotate_entity_with_mouse_mouse_coords_ref = mouse_coords;
+   entity->update();
+}
 
 
 // ------------------

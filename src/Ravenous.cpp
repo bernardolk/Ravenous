@@ -140,6 +140,7 @@ struct ProgramConfig {
 #include <input_recorder.h>
 #include <globals.h>
 #include <entity_pool.h>
+#include <loaders.h>
 #include <entity_manager.h>
 
 // entity manager and entity pool
@@ -154,7 +155,6 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <editor/editor_im_macros.h>
 
 
-#include <loaders.h>
 #include <cl_tests.h>
 #include <raycast.h>
 #include <render.h>

@@ -52,6 +52,10 @@ struct EditorContext {
    bool move_entity_by_arrows = false;
    vec3 move_entity_by_arrows_ref_point = vec3(0);
 
+   // rotate entity with mouse
+   bool rotate_entity_with_mouse = false;
+   vec2 rotate_entity_with_mouse_mouse_coords_ref = vec2(0);
+
    // place mode
    bool place_mode = false;
 
@@ -109,11 +113,14 @@ void terminate();
 void update_triaxis_gizmo();
 void check_selection_to_open_panel(Player* player);
 bool check_selection_to_grab_entity_arrows();
+bool check_selection_to_grab_entity_rotation_gizmo();
 void check_selection_to_move_entity();
 
 void render_text_overlay(Player* player);
 void render_event_triggers(Camera* camera);
 void render_entity_control_arrows(EntityPanelContext* panel);
+void render_entity_rotation_gizmo(EntityPanelContext* panel);
+void update_entity_rotation_gizmo(EntityPanelContext* panel);
 void render_entity_mesh_normals(EntityPanelContext* panel);
 void render_world_cells(Camera* camera);
 void render_lightbulbs(Camera* camera);
@@ -153,6 +160,7 @@ void update()
    if(EdContext.entity_panel.active)
    {
       update_entity_control_arrows(&EdContext.entity_panel);
+      update_entity_rotation_gizmo(&EdContext.entity_panel);
    }
    else
    {
@@ -217,6 +225,16 @@ void update()
       else if(!EdContext.mouse_click)
          place_entity();
    }
+
+   if(EdContext.rotate_entity_with_mouse)
+   {
+      if(EdContext.mouse_dragging)
+         rotate_entity_with_mouse(EdContext.selected_entity);
+      // the below condition is to prevent from deactivating too early
+      else if(!EdContext.mouse_click)
+         place_entity();
+   }
+
 
    if(EdContext.place_mode)
    {
@@ -351,6 +369,7 @@ void render(Player* player, WorldStruct* world)
 
       render_entity_panel(&panel);
       render_entity_control_arrows(&panel);
+      render_entity_rotation_gizmo(&panel);
 
       if(panel.show_normals)
          render_entity_mesh_normals(&panel);
@@ -481,6 +500,7 @@ void initialize()
 
 
    // load entity panel axis arrows
+   // @todo: refactor this to use the entity_manager
    auto x_arrow = new Entity();
    auto y_arrow = new Entity();
    auto z_arrow = new Entity();
@@ -518,6 +538,22 @@ void initialize()
    EdContext.entity_panel.x_arrow = x_arrow;
    EdContext.entity_panel.y_arrow = y_arrow;
    EdContext.entity_panel.z_arrow = z_arrow;
+
+   // creates entity rotation gizmos
+   auto rotation_gizmo_x = Entity_Manager.create_editor_entity(
+      "rotation_gizmo_x", "rotation_gizmo", "ed_entity_arrow_shader", "red", "rotation_gizmo"
+   );
+   auto rotation_gizmo_y = Entity_Manager.create_editor_entity(
+      "rotation_gizmo_x", "rotation_gizmo", "ed_entity_arrow_shader", "green", "rotation_gizmo"
+      );
+   auto rotation_gizmo_z = Entity_Manager.create_editor_entity(
+      "rotation_gizmo_x", "rotation_gizmo", "ed_entity_arrow_shader", "blue", "rotation_gizmo"
+      );
+
+   EdContext.entity_panel.rotation_gizmo_x = rotation_gizmo_x;
+   EdContext.entity_panel.rotation_gizmo_y = rotation_gizmo_y;
+   EdContext.entity_panel.rotation_gizmo_z = rotation_gizmo_z;
+
 
    // palette panel
    initialize_palette(&EdContext.palette_panel);
@@ -1053,10 +1089,21 @@ void render_lightbulbs(Camera* camera)
 
 void render_entity_control_arrows(EntityPanelContext* panel)
 {
+   //@todo: try placing editor objects in a separate z buffer? Maybe manually... so we don't have to use GL_ALWAYS
    glDepthFunc(GL_ALWAYS);
    render_editor_entity(panel->x_arrow, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
    render_editor_entity(panel->y_arrow, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
    render_editor_entity(panel->z_arrow, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
+   glDepthFunc(GL_LESS);
+}
+
+void render_entity_rotation_gizmo(EntityPanelContext* panel)
+{
+   //@todo: try placing editor objects in a separate z buffer? Maybe manually... so we don't have to use GL_ALWAYS
+   glDepthFunc(GL_ALWAYS);
+   render_editor_entity(panel->rotation_gizmo_x, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
+   render_editor_entity(panel->rotation_gizmo_y, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
+   render_editor_entity(panel->rotation_gizmo_z, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
    glDepthFunc(GL_LESS);
 }
 
@@ -1100,7 +1147,30 @@ void update_entity_control_arrows(EntityPanelContext* panel)
       arrows[i]->update_collider();
       arrows[i]->update_bounding_box();
    }
+}
+
+void update_entity_rotation_gizmo(EntityPanelContext* panel)
+{
+   // arrow positioning settings
+   float    angles[3]   = {270, 0, 90};
+   vec3     rot_axis[3] = {UNIT_Z, UNIT_X, UNIT_X};
+   Entity*  gizmos[3]   = {panel->rotation_gizmo_x, panel->rotation_gizmo_y, panel->rotation_gizmo_z};
    
+   auto  entity = panel->entity;
+
+   // update arrow mat models doing correct matrix multiplication order
+   auto starting_model = translate(mat4identity, entity->bounding_box.get_centroid());
+
+   float scale_value = 1.0;
+
+   for(int i = 0; i < 3; i++)
+   {
+      auto model = rotate(starting_model, glm::radians(angles[i]), rot_axis[i]);
+      model = scale(model, vec3(scale_value));
+      gizmos[i]->matModel = model;
+      gizmos[i]->update_collider();
+      gizmos[i]->update_bounding_box();
+   }
 }
 
 
@@ -1156,30 +1226,46 @@ bool check_selection_to_grab_entity_arrows()
    auto pickray = cast_pickray();
    RaycastTest test;
    
-   test = test_ray_against_entity(pickray, EdContext.entity_panel.x_arrow);
-   if(test.hit)
-   {
-      activate_move_entity_by_arrow(1);
-      return true;
-   }
+   Entity* arrows[3] = {EdContext.entity_panel.x_arrow, EdContext.entity_panel.y_arrow, EdContext.entity_panel.z_arrow};
 
-   test = test_ray_against_entity(pickray, EdContext.entity_panel.y_arrow);
-   if(test.hit)
+   For(3)
    {
-      activate_move_entity_by_arrow(2);
-      return true;
-   }
-
-   test = test_ray_against_entity(pickray, EdContext.entity_panel.z_arrow);
-   if(test.hit)
-   {
-      activate_move_entity_by_arrow(3);
-      return true;
+      test = test_ray_against_entity(pickray, arrows[i]);
+      if(test.hit)
+      {
+         activate_move_entity_by_arrow(i + 1);
+         return true;
+      }
    }
 
    return false;
-
 }
+
+
+bool check_selection_to_grab_entity_rotation_gizmo()
+{
+   auto pickray = cast_pickray();
+   RaycastTest test;
+   
+   Entity* rot_gizmos[3] = {
+      EdContext.entity_panel.rotation_gizmo_x,
+      EdContext.entity_panel.rotation_gizmo_y,
+      EdContext.entity_panel.rotation_gizmo_z
+   };
+
+   For(3)
+   {
+      test = test_ray_against_entity(pickray, rot_gizmos[i]);
+      if(test.hit)
+      {
+         activate_rotate_entity_with_mouse(i + 1);
+         return true;
+      }
+   }
+
+   return false;
+}
+
 
 void start_dear_imgui_frame()
 {

@@ -79,6 +79,15 @@ struct BoundingBox {
 
       return result;
    }
+
+   vec3 get_centroid()
+   {
+      return {
+         (maxx + minx) / 2,
+         (maxy + miny) / 2,
+         (maxz + minz) / 2,
+      };
+   }
 };
 
 

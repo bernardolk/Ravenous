@@ -218,7 +218,10 @@ void handle_input_flags(InputFlags flags, Player* &player)
          if(EdContext.entity_panel.active)
          {
             if(check_selection_to_grab_entity_arrows())
-               return;               
+               return;
+
+            if(check_selection_to_grab_entity_rotation_gizmo())
+               return;          
          }
 
          check_selection_to_open_panel(player);
