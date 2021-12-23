@@ -32,7 +32,8 @@ struct EntityManager
    auto _find_entity_assets_in_catalogue(string mesh, string collision_mesh, string shader, string texture)
    {
       struct {
-         Texture texture;
+         Texture textures[2];
+         int textures_found = 0;
          Mesh* mesh;
          Mesh* collision_mesh;
          Shader* shader;
@@ -73,13 +74,27 @@ struct EntityManager
 
       if(texture != "")
       {
-         auto _texture = Texture_Catalogue.find(texture);
-         if(_texture == Texture_Catalogue.end())
+         // diffuse texture
          {
-            cout << "FATAL: texture'" << texture << "' not found in texture catalogue.\n";
-            assert(false);
+            auto _texture = Texture_Catalogue.find(texture);
+            if(_texture == Texture_Catalogue.end())
+            {
+               cout << "FATAL: texture'" << texture << "' not found in texture catalogue.\n";
+               assert(false);
+            }
+            attrs.textures[0] = _texture->second;
+            attrs.textures_found++;
          }
-         attrs.texture = _texture->second;
+
+         // normal texture
+         {
+            auto _texture = Texture_Catalogue.find(texture + "_normal");
+            if(_texture != Texture_Catalogue.end())
+            {
+               attrs.textures[1] = _texture->second;
+               attrs.textures_found++;
+            }
+         }
       }
 
       return attrs;
@@ -90,8 +105,8 @@ struct EntityManager
    // ---------------------------------
    void set_default_entity_attributes(string mesh, string shader, string texture)
    {
-      auto [_texture, _mesh, _,  _shader] = _find_entity_assets_in_catalogue(mesh, "", shader, texture);
-      default_texture = _texture;
+      auto [_textures, _texture_count, _mesh, _,  _shader] = _find_entity_assets_in_catalogue(mesh, "", shader, texture);
+      default_texture = _textures[0];
       default_shader  = _shader;
       default_mesh    = _mesh;
    }
@@ -122,6 +137,7 @@ struct EntityManager
    // -----------------
    // Deals with entity creation. All entities created should be created through here.
 
+   // MAIN FUNCTION
    Entity* create_entity(
       string name,
       string mesh,
@@ -130,7 +146,8 @@ struct EntityManager
       string collision_mesh,
       vec3 scale = vec3{1.0f})
    {
-      auto [_texture, _mesh, _collision_mesh, _shader] = _find_entity_assets_in_catalogue(mesh, collision_mesh, shader, texture);
+      auto [_textures, _texture_count,  _mesh, _collision_mesh, _shader] = 
+         _find_entity_assets_in_catalogue(mesh, collision_mesh, shader, texture);
 
       Entity* new_entity                              = pool.get_next();
       new_entity->id                                  = ++count;
@@ -142,7 +159,8 @@ struct EntityManager
       new_entity->collider                            = *_collision_mesh;
       new_entity->collider.name                       = name + "-collider";
       new_entity->collider.setup_gl_data();
-      new_entity->textures.push_back(_texture);
+      For(_texture_count)
+         new_entity->textures.push_back(_textures[i]);
 
       register_in_world_and_scene(new_entity);
       return new_entity;
@@ -211,7 +229,8 @@ struct EntityManager
       string collision_mesh,
       vec3 scale = vec3{1.0f})
    {
-      auto [_texture, _mesh, _collision_mesh, _shader] = _find_entity_assets_in_catalogue(mesh, collision_mesh, shader, texture);
+      auto [_textures, _texture_count, _mesh, _collision_mesh, _shader] =
+          _find_entity_assets_in_catalogue(mesh, collision_mesh, shader, texture);
 
       Entity* new_entity                              = pool.get_next();
       new_entity->id                                  = ++editor_count;
@@ -223,7 +242,8 @@ struct EntityManager
       new_entity->collider                            = *_collision_mesh;
       new_entity->collider.name                       = name + "-collider";
       new_entity->collider.setup_gl_data();
-      new_entity->textures.push_back(_texture);
+      For(_texture_count)
+         new_entity->textures.push_back(_textures[i]);
 
       return new_entity;
    }

@@ -95,9 +95,15 @@ void load_textures_from_assets_folder()
          auto ind = texture_filename.find('.');
          string texture_name = texture_filename.substr(0, ind);
 
+         string texture_type = "texture_diffuse";
+         if(texture_name.find("normal") != string::npos)
+         {
+            texture_type = "texture_normal";
+         }
+
          Texture new_texture {
             texture_id,
-            "texture_diffuse",
+            texture_type,
             texture_filename,
             texture_name
          };
