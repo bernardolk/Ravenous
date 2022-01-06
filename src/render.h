@@ -43,6 +43,7 @@ void render_entity(Entity* entity);
 void render_editor_entity(Entity* entity, Scene* scene, Camera* camera);
 void render_mesh(Mesh* mesh, RenderOptions opts = RenderOptions{});
 void render_message_buffer_contents();
+void set_shader_light_variables(Scene* scene, Shader* shader, Camera* camera);
 
 
 // ------------
@@ -107,6 +108,9 @@ void render_mesh(Mesh* mesh, RenderOptions opts)
 // --------------
 void render_entity(Entity* entity)
 {
+   entity->shader->use();
+   entity->shader->setMatrix4("model", entity->matModel);
+
    // bind appropriate textures
    unsigned int diffuseNr = 1;
    unsigned int specularNr = 1;
@@ -147,6 +151,10 @@ void render_entity(Entity* entity)
    glBindTexture(GL_TEXTURE_CUBE_MAP, R_DEPTH_CUBEMAP_TEXTURE);
    i++;
 
+   // check for tiled texture
+   if(entity->texture_tiled)
+      entity->shader->setInt("num_of_tiles", entity->num_of_tiles_x);
+
    // draw mesh
    auto render_opts = RenderOptions{entity->wireframe};
    render_mesh(entity->mesh, render_opts);
@@ -178,7 +186,28 @@ void render_editor_entity(Entity* entity, Scene* scene, Camera* camera)
 void render_scene(Scene* scene, Camera* camera) 
 {
    // set shader settings that are common to the scene
-   auto shader = Shader_Catalogue.find("model")->second;
+   // both to "normal" model shader and to tiled model shader
+   auto model_shader = Shader_Catalogue.find("model")->second;
+   set_shader_light_variables(scene, model_shader, camera);
+
+   auto model_tiled_shader = Shader_Catalogue.find("tiledTextureModel")->second;
+   set_shader_light_variables(scene, model_tiled_shader, camera);
+
+	Entity **entity_iterator = &(scene->entities[0]);
+   int entities_vec_size =  scene->entities.size();
+	for(int it = 0; it < entities_vec_size; it++) 
+   {
+	   auto entity = *entity_iterator++;
+      if(!entity->render_me)
+         continue;
+
+      render_entity(entity);
+	}
+}
+
+
+void set_shader_light_variables(Scene* scene, Shader* shader, Camera* camera)
+{
    shader->use();
 
    int point_light_count = 0;
@@ -240,21 +269,11 @@ void render_scene(Scene* scene, Camera* camera)
    shader->  setFloat3("viewPos",             camera->Position);
    shader-> setMatrix4("lightSpaceMatrix",    R_DIR_LIGHT_SPACE_MATRIX);
    shader->   setFloat("cubemap_far_plane",   R_CUBEMAP_FAR_PLANE);
-
-	Entity **entity_iterator = &(scene->entities[0]);
-   int entities_vec_size =  scene->entities.size();
-	for(int it = 0; it < entities_vec_size; it++) 
-   {
-	   auto entity = *entity_iterator++;
-      if(!entity->render_me)
-         continue;
-
-      entity->shader-> setMatrix4("model", entity->matModel);
-      render_entity(entity);
-	}
 }
 
 
+
+// leave for debugging
 string p_grab = "Grabbed: ";
 int p_floor = -1;
 

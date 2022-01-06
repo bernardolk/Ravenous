@@ -28,6 +28,8 @@ struct Entity {
 	glm::mat4 matModel   = mat4identity;
    bool render_me       = true;
    bool wireframe       = false;
+   bool texture_tiled   = false;          // is set in scene loading if name of shader equals the tiled texture shader name
+   int num_of_tiles_x   = 1;
 
    // simulation data
 	vec3 position        = vec3(0.0f);

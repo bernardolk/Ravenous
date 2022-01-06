@@ -118,6 +118,8 @@ inline Parse parse_name_char(Parse toparse)
 
 inline Parse parse_name(Parse toparse)
 {
+   /* Names consists of alphanumeric or space chars  */
+
    char string_buffer[50];
    size_t sb_size = 0;
    Parse outparse{ toparse.string, toparse.size, 0};
@@ -147,6 +149,8 @@ inline Parse parse_token_char(Parse toparse)
 
 inline Parse parse_token(Parse toparse)
 {
+   /* Tokens consists of alphanumeric or '_' or '.' chars  */
+
    //@todo : this procedure doesn't adhere to the 'outparse' contract
    //          its using the toparse as outparse.
    char string_buffer[50];

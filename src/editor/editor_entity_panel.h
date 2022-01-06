@@ -194,6 +194,18 @@ void render_entity_panel(EntityPanelContext* panel)
       }
    }
 
+   if(ImGui::Checkbox("Tiled texture", &entity->texture_tiled))
+   {
+      if(entity->texture_tiled)
+         entity->shader = Shader_Catalogue.find("tiledTextureModel")->second;
+      else
+         entity->shader = Shader_Catalogue.find("model")->second;
+   }
+   if(entity->texture_tiled)
+   {
+      ImGui::SliderInt("num of tiles x", &entity->num_of_tiles_x, 0, 10);
+   }
+
    ImGui::NewLine();
    ImGui::NewLine();
 

@@ -192,9 +192,6 @@ void setup_gl();
 void simulate_gravity_trajectory();
 
 
-
-
-
 int main()
 {
    // INITIAL GLFW AND GLAD SETUPS
@@ -636,6 +633,10 @@ void initialize_shaders()
    // general model shader
    auto model_shader = create_shader_program("model", "vertex_model", "fragment_multiple_lights");
    Shader_Catalogue.insert({model_shader->name, model_shader});
+
+   // tiled texture model shader
+   auto tiled_texture_model_shader = create_shader_program("tiledTextureModel", "vertex_model", "fragment_tiled_texture_model_shader");
+   Shader_Catalogue.insert({tiled_texture_model_shader->name, tiled_texture_model_shader});
 
    // draw line shader
 	auto line_shader = create_shader_program("line", "vertex_debug_line", "fragment_debug_line");
