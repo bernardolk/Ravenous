@@ -2,7 +2,7 @@
 /* ==========================================
                      RAVENOUS
    ==========================================
-     By Bernardo L. Knackfuss - 2020 - 2021 
+     By Bernardo L. Knackfuss - 2020 - 2022 
    ========================================== */
 
 
@@ -20,6 +20,8 @@
 #include <glm/gtx/normal.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include <sstream>
 #include <iostream>
 #include <fstream>
 #include <map>
@@ -35,8 +37,9 @@
 #include <dearIMGUI/imgui_impl_glfw.h>
 #include <dearIMGUI/imgui_impl_opengl3.h>
 
-
 #include <rvn_types.h>
+
+using namespace std;
 
 
 const string PROJECT_PATH = "c:/repositories/ravenous";
@@ -126,6 +129,7 @@ struct ProgramConfig {
 #include <colors.h>
 #include <in_flags.h>
 #include <cl_types.h>
+#include <texture.h>
 #include <mesh.h>
 #include <utils.h>
 #include <character.h>

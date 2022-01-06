@@ -1,19 +1,5 @@
 #pragma once
 
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
-
-using namespace std;
-
-struct Texture {
-    unsigned int id;
-    string type;
-    string path;
-    string name;
-};
-
 struct Mesh {
     vector<Vertex> vertices;
     vector<unsigned int> indices;

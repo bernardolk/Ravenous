@@ -88,7 +88,7 @@ void render_mesh(Mesh* mesh, RenderOptions opts)
             "it won't be rendered!\n";
    }
 
-   // set to normal
+   // set to defaults
    if(opts.wireframe)
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
    if(opts.always_on_top)
@@ -112,10 +112,10 @@ void render_entity(Entity* entity)
    entity->shader->setMatrix4("model", entity->matModel);
 
    // bind appropriate textures
-   unsigned int diffuseNr = 1;
-   unsigned int specularNr = 1;
-   unsigned int normalNr = 1;
-   unsigned int heightNr = 1;
+   unsigned int diffuse_n = 1;
+   unsigned int specular_n = 1;
+   unsigned int normal_n = 1;
+   unsigned int height_n = 1;
 
    unsigned int i;
    for (i = 0; i < entity->textures.size(); i++)
@@ -124,14 +124,14 @@ void render_entity(Entity* entity)
       glActiveTexture(GL_TEXTURE0 + i); 
       string number;
       string name = entity->textures[i].type;
-      if (name == "texture_diffuse")
-         number = to_string(diffuseNr++);
-      else if (name == "texture_specular")
-         number = to_string(specularNr++);
-      else if (name == "texture_normal")
-         number = to_string(normalNr++); 
-      else if (name == "texture_height")
-         number = to_string(heightNr++); 
+      if       (name == "texture_diffuse")
+         number = to_string(diffuse_n++);
+      else if  (name == "texture_specular")
+         number = to_string(specular_n++);
+      else if  (name == "texture_normal")
+         number = to_string(normal_n++); 
+      else if  (name == "texture_height")
+         number = to_string(height_n++); 
 
       // now set the sampler to the correct texture unit
       glUniform1i(glGetUniformLocation(entity->shader->gl_programId, (name + number).c_str()), i);

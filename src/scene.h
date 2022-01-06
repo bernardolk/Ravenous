@@ -297,13 +297,11 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
       writer << "\n";
 
       int textures =  entity->textures.size();
-      for(int t = 0; t < textures; t++)
+      For(textures)
       {
-         Texture texture = entity->textures[t];
-         writer << "texture " 
-                  << texture.type << " "
-                  << texture.name << " "
-                  << texture.path << "\n";
+         Texture texture = entity->textures[i];
+         if(texture.type == "texture_diffuse")
+            writer << "texture " << texture.name << "\n";
       }
 
       if(entity->wireframe)
@@ -512,49 +510,45 @@ Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count
       
       else if(property == "texture")
       {
-         std::string texture_type, texture_name, texture_filename;
+         // @TODO def_2 is unnecessary now. After scene files don't contain it anymore, lets drop support.
+         std::string texture_def_1, texture_def_2;
          p = parse_all_whitespace(p);
          p = parse_token(p);
-         texture_type = p.string_buffer;
+         texture_def_1 = p.string_buffer;
 
          p = parse_all_whitespace(p);
          p = parse_token(p);
-         texture_name = p.string_buffer;
+         texture_def_2 = p.string_buffer;
 
-         p = parse_all_whitespace(p);
-         p = parse_token(p);
-         texture_filename = p.string_buffer;
-
-         auto find = Texture_Catalogue.find(texture_name);
-         if(find != Texture_Catalogue.end())
+         // > texture definition error handling
+         // >> check for missing info
+         if(texture_def_1 == "")
          {
-            new_entity->textures.push_back(find->second);
+            std::cout << "Fatal: Texture for entity '" << new_entity->name << "' is missing name. \n"; 
+            assert(false);
          }
-         else
-         {
-            // texture definition error handling
-            if(texture_name == "" || texture_type == "" || texture_filename == "")
-            {
-               std::cout << "Fatal: Texture for entity '" << new_entity->name << "' is missing either name or type or filename. \n"; 
-               assert(false);
-            }
-            if(!(texture_type == "texture_diffuse" || texture_type == "texture_normal"))
-            {
-               std::cout<<"Fatal: '"<<texture_name<<"' has unknown texture type '" <<texture_type << "'.\n"; 
-               assert(false);
-            }
+         
+         // @TODO: for backwards compability
+         string texture_name = texture_def_1;
+         if(texture_def_2 != "")
+            texture_name = texture_def_2;
 
-            unsigned int texture_id = load_texture_from_file(texture_filename, TEXTURES_PATH);
-            if(texture_id == 0)
-            {
-               cout << "Texture '" << texture_name << "' could not be loaded. \n"; 
-               assert(false);
-            }
-            
-            Texture new_texture{texture_id, texture_type, texture_filename, texture_name};
-            Texture_Catalogue.insert({texture_name, new_texture});
-            new_entity->textures.push_back(new_texture);
-         }   
+         // fetches texture in catalogue
+         auto texture = Texture_Catalogue.find(texture_name);
+         if(texture == Texture_Catalogue.end())
+         {
+            std::cout<<"Fatal: '"<< texture_name <<"' was not found (not pre-loaded) inside Texture Catalogue \n"; 
+            assert(false);
+         }
+
+         new_entity->textures.push_back(texture->second);
+
+         // fetches texture normal in catalogue, if any
+         auto normal = Texture_Catalogue.find(texture_name + "_normal");
+         if(normal != Texture_Catalogue.end())
+         {
+            new_entity->textures.push_back(normal->second);
+         }
       }
 
       else if(property == "hidden")
