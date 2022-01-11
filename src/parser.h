@@ -23,7 +23,29 @@ namespace Parser
 		unsigned int uiToken;
       u64 u64Token;
       float vec3[3];
+      float vec2[2];
 	};
+
+   glm::vec3 get_vec3_val()
+   {
+      _check_has_val_error();
+      return glm::vec3{vec3[0], vec3[1], vec3[2]};
+   }
+
+   glm::vec2 get_vec2_val()
+   {
+      _check_has_val_error();
+      return glm::vec2{vec2[0], vec2[1]};
+   }
+
+   void _check_has_val_error()
+   {
+      if(hasToken == 0)
+      {
+         cout << "FATAL: Parse has no vec3 value to be retrieved. Check line being parsed.\n";
+         assert(false);
+      }
+   }
 };
 
 
@@ -77,7 +99,8 @@ inline Parse parse_all_whitespace(Parse toparse)
 inline Parse parse_letter(Parse toparse) 
 {
 	Parse outparse{ toparse.string, toparse.size, 0};
-	if (isalpha(toparse.string[0])) {
+	if (isalpha(toparse.string[0]))
+   {
 		outparse.cToken = toparse.string[0];
 		outparse.string = &(toparse.string[1]);
 		outparse.size = toparse.size - 1;
@@ -90,7 +113,9 @@ inline Parse parse_letter(Parse toparse)
 inline Parse parse_symbol(Parse toparse)
 {
    Parse outparse{ toparse.string, toparse.size, 0};
-	if (isgraph(toparse.string[0]) && !isalnum(toparse.string[0])) {
+   char _char = toparse.string[0];
+	if (isgraph(_char) && !isalnum(_char) && _char != ' ')
+   {
 		outparse.cToken = toparse.string[0];
 		outparse.string = &(toparse.string[1]);
 		outparse.size = toparse.size - 1;
@@ -104,8 +129,9 @@ inline Parse parse_symbol(Parse toparse)
 // parses letters, digits or space character
 inline Parse parse_name_char(Parse toparse)
 {
- Parse outparse{ toparse.string, toparse.size, 0};
-	if (isalnum(toparse.string[0]) || toparse.string[0] == ' ') {
+   Parse outparse{ toparse.string, toparse.size, 0};
+	if (isalnum(toparse.string[0]) || toparse.string[0] == ' ')
+   {
 		outparse.cToken = toparse.string[0];
 		outparse.string = &(toparse.string[1]);
 		outparse.size = toparse.size - 1;
@@ -127,6 +153,7 @@ inline Parse parse_name(Parse toparse)
       toparse = parse_name_char(toparse);
       if(toparse.hasToken) string_buffer[sb_size++] = toparse.cToken;
    } while(toparse.hasToken);
+
    string_buffer[sb_size] = '\0';
    strcpy(&outparse.string_buffer[0], &string_buffer[0]);
    return outparse;
@@ -135,8 +162,9 @@ inline Parse parse_name(Parse toparse)
 // parses chars for tokens (without spaces)
 inline Parse parse_token_char(Parse toparse)
 {
- Parse outparse{ toparse.string, toparse.size, 0};
-	if (isalnum(toparse.string[0]) || toparse.string[0] == '_' || toparse.string[0] == '.') {
+   Parse outparse{ toparse.string, toparse.size, 0};
+	if (isalnum(toparse.string[0]) || toparse.string[0] == '_' || toparse.string[0] == '.')
+   {
 		outparse.cToken = toparse.string[0];
 		outparse.string = &(toparse.string[1]);
 		outparse.size = toparse.size - 1;
@@ -159,6 +187,7 @@ inline Parse parse_token(Parse toparse)
       toparse = parse_token_char(toparse);
       if(toparse.hasToken) string_buffer[sb_size++] = toparse.cToken;
    } while(toparse.hasToken);
+
    string_buffer[sb_size] = '\0';
    if(sb_size > 0)
       toparse.hasToken = 1;
@@ -311,24 +340,49 @@ inline Parse parse_float(Parse toparse)
 }
 
 
-inline Parse parse_float_vector(Parse p)
+inline Parse parse_vec3(Parse toparse)
 {
+	Parse outparse{ toparse.string, toparse.size, 0 };
    float x, y, z;
-   p = parse_all_whitespace(p);
-   p = parse_float(p);
-   x = p.fToken;
 
-   p = parse_all_whitespace(p);
-   p = parse_float(p);
-   y = p.fToken;
+   outparse = parse_all_whitespace(outparse);
+   outparse = parse_float(outparse);
+   if(!outparse.hasToken) return outparse;
+   x = outparse.fToken;
 
-   p = parse_all_whitespace(p);
-   p = parse_float(p);
-   z = p.fToken;
+   outparse = parse_all_whitespace(outparse);
+   outparse = parse_float(outparse);
+   if(!outparse.hasToken) return outparse;
+   y = outparse.fToken;
 
-   p.vec3[0] = x;
-   p.vec3[1] = y;
-   p.vec3[2] = z;
-   return p;
+   outparse = parse_all_whitespace(outparse);
+   outparse = parse_float(outparse);
+   if(!outparse.hasToken) return outparse;
+   z = outparse.fToken;
+
+   outparse.vec3[0] = x;
+   outparse.vec3[1] = y;
+   outparse.vec3[2] = z;
+   return outparse;
+}
+
+inline Parse parse_vec2(Parse toparse)
+{
+	Parse outparse{ toparse.string, toparse.size, 0 };
+   float u, v;
+
+   outparse = parse_all_whitespace(outparse);
+   outparse = parse_float(outparse);
+   if(!outparse.hasToken) return outparse;
+   u = outparse.fToken;
+
+   outparse = parse_all_whitespace(outparse);
+   outparse = parse_float(outparse);
+   if(!outparse.hasToken) return outparse;
+   v = outparse.fToken;
+
+   outparse.vec2[0] = u;
+   outparse.vec2[1] = v;
+   return outparse;
 }
 }

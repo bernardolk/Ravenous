@@ -192,6 +192,7 @@ void create_boilerplate_geometry();
 GLenum glCheckError_(const char* file, int line);
 void start_frame();
 void check_all_entities_have_shaders();
+void check_all_geometry_has_gl_data();
 void setup_gl();
 void simulate_gravity_trajectory();
 
@@ -251,6 +252,7 @@ int main()
 
    // Pre-loop checks
    check_all_entities_have_shaders();
+   check_all_geometry_has_gl_data();
 
    // load pre recorded input recordings
    Input_Recorder.load();
@@ -423,6 +425,18 @@ void check_all_entities_have_shaders()
       {
          cout << "FATAL: GL DATA not set for entity '" << entity->name << "'.\n";
          assert(false); 
+      }
+   }
+}
+
+void check_all_geometry_has_gl_data()
+{
+   ForIt(Geometry_Catalogue)
+   {
+      auto item = it->second;
+      if(item->gl_data.VAO == 0 || item->gl_data.VBO == 0)
+      {
+         assert(false);
       }
    }
 }

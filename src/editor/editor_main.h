@@ -915,7 +915,7 @@ void render_world_cells(Camera* camera)
    auto& scene = G_SCENE_INFO.active_scene;
 
    auto shader = Shader_Catalogue.find("color")->second;
-   auto cell_mesh = Geometry_Catalogue.find("world cell")->second;
+   auto cell_mesh = Geometry_Catalogue.find("aabb")->second;
    
    for(int i = 0; i < World.cells_in_use_count; i++)
    {

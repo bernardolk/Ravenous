@@ -304,7 +304,7 @@ void execute_command(string buffer_line, Player* &player, WorldStruct* world, Ca
       const string argument = p.string_buffer;
       if(argument == "cam")
       {
-         p = parse_float_vector(p);
+         p = parse_vec3(p);
          camera->Position.x = p.vec3[0];
          camera->Position.y = p.vec3[1];
          camera->Position.z = p.vec3[2];

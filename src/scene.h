@@ -340,11 +340,11 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
 void parse_and_load_camera_settings(Parser::Parse p, ifstream* reader, int& line_count, std::string path)
 {
       p = parse_all_whitespace(p);
-      p = parse_float_vector(p);
+      p = parse_vec3(p);
       G_SCENE_INFO.camera->Position = vec3{p.vec3[0], p.vec3[1], p.vec3[2]};
 
       p = parse_all_whitespace(p);
-      p = parse_float_vector(p);
+      p = parse_vec3(p);
       camera_look_at(G_SCENE_INFO.camera, vec3{p.vec3[0], p.vec3[1], p.vec3[2]}, false);
 }
 
@@ -364,7 +364,7 @@ void parse_and_load_player_orientation(Parser::Parse p, ifstream* reader, int& l
 
    if(attribute == "player_orientation")
    {
-      p = parse_float_vector(p);
+      p = parse_vec3(p);
       auto orientation = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
       G_SCENE_INFO.views[FPS_CAM]->Front = orientation;
       player->orientation = orientation;
@@ -387,7 +387,7 @@ void parse_and_load_player_attribute(Parser::Parse p, ifstream* reader, int& lin
 
    if(attribute == "player_position")
    {
-      p = parse_float_vector(p);
+      p = parse_vec3(p);
       auto position = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
       player->entity_ptr->position = position;
       player->checkpoint_pos = position;
@@ -395,7 +395,7 @@ void parse_and_load_player_attribute(Parser::Parse p, ifstream* reader, int& lin
    }
    else if(attribute == "player_initial_velocity")
    {
-      p = parse_float_vector(p);
+      p = parse_vec3(p);
       player->initial_velocity = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
       player->entity_ptr->velocity = player->initial_velocity;
    }
@@ -443,19 +443,19 @@ Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count
 
       if(property == "position")
       {
-         p = parse_float_vector(p);
+         p = parse_vec3(p);
          new_entity->position = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
       }
 
       else if(property == "rotation")
       {
-         p = parse_float_vector(p);
+         p = parse_vec3(p);
          new_entity->rotation = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
       }
 
       else if(property == "scale")
       {
-         p = parse_float_vector(p);
+         p = parse_vec3(p);
          if(p.vec3[0] < 0 || p.vec3[1] < 0 || p.vec3[2] < 0)
          {
             std::cout << "FATAL: ENTITY SCALE PROPERTY CANNOT BE NEGATIVE. AT '" << path
@@ -567,7 +567,7 @@ Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count
 
       else if(property == "trigger")
       {
-         p = parse_float_vector(p);
+         p = parse_vec3(p);
          new_entity->trigger_scale = vec3{p.vec3[0], p.vec3[1], p.vec3[2]};
       }
 
@@ -609,17 +609,17 @@ void parse_and_load_light_source(Parser::Parse p, ifstream* reader, int& line_co
 
          if(property == "position")
          {
-            p = parse_float_vector(p);
+            p = parse_vec3(p);
             point_light.position = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
          }
          else if(property == "diffuse")
          {
-            p = parse_float_vector(p);
+            p = parse_vec3(p);
             point_light.diffuse = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
          }
          else if(property == "specular")
          {
-            p = parse_float_vector(p);
+            p = parse_vec3(p);
             point_light.specular = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
          }
          else if(property == "constant")
@@ -657,22 +657,22 @@ void parse_and_load_light_source(Parser::Parse p, ifstream* reader, int& line_co
 
          if(property == "position")
          {
-            p = parse_float_vector(p);
+            p = parse_vec3(p);
             spotlight.position = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
          }
          else if(property == "direction")
          {
-            p = parse_float_vector(p);
+            p = parse_vec3(p);
             spotlight.direction = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
          }
          else if(property == "diffuse")
          {
-            p = parse_float_vector(p);
+            p = parse_vec3(p);
             spotlight.diffuse = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
          }
          else if(property == "specular")
          {
-            p = parse_float_vector(p);
+            p = parse_vec3(p);
             spotlight.specular = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
          }
          else if(property == "constant")
@@ -722,17 +722,17 @@ void parse_and_load_light_source(Parser::Parse p, ifstream* reader, int& line_co
 
          if(property == "direction")
          {
-            p = parse_float_vector(p);
+            p = parse_vec3(p);
             light.direction = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
          }
          else if(property == "diffuse")
          {
-            p = parse_float_vector(p);
+            p = parse_vec3(p);
             light.diffuse = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
          }
          else if(property == "specular")
          {
-            p = parse_float_vector(p);
+            p = parse_vec3(p);
             light.specular = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
          }
          else break;
@@ -822,7 +822,7 @@ ProgramConfig load_configs()
       else if(attribute == "ambient_light")
       {
          p = parse_all_whitespace(p);
-         p = parse_float_vector(p);
+         p = parse_vec3(p);
          config.ambient_light = vec3{p.vec3[0], p.vec3[1], p.vec3[2]};
       }
       else if(attribute == "ambient_intensity")

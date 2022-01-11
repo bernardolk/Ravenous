@@ -114,10 +114,12 @@ void load_textures_from_assets_folder()
 }
 
 
-Mesh* load_wavefront_obj_as_mesh(string path, string name, bool setup_gl_data = true, GLenum render_method = GL_TRIANGLES) {
-   // this will insert to catalogue!
+Mesh* load_wavefront_obj_as_mesh(
+   string path, string filename, string name = "", bool setup_gl_data = true, GLenum render_method = GL_TRIANGLES
+) {
+   /* Loads a model from the provided path and filename and add it to the Geometry_Catalogue with provided name */
 
-   string full_path = path + name + ".obj";
+   string full_path = path + filename + ".obj";
 	ifstream reader(full_path);
 
    if(!reader.is_open())
@@ -129,70 +131,100 @@ Mesh* load_wavefront_obj_as_mesh(string path, string name, bool setup_gl_data = 
 	std::string line;
 	auto mesh = new Mesh();
 
+   vector<vec3> v_pos;
+   vector<vec2> v_texels;
+
    // Parses file
-	while (getline(reader, line)) {
+	while (getline(reader, line)) 
+   {
 		const char* cline = line.c_str();
 		size_t size = line.size();
 
 		Parser::Parse p{ cline, size };
 		p = parse_token(p);
       string attr = p.string_buffer;
-		if (p.hasToken && attr == "m") {
+
+      if(!p.hasToken)
+         continue;
+
+      // ?
+		if (attr == "m")
+      {
 
 		}
 
-		if (p.hasToken && attr == "v") {
-		Vertex vert;
-		  do {
-		    p = parse_whitespace(p);
-		  } while (p.hasToken);
-		  p = parse_float(p);
-		  vert.position.x = p.fToken;
-		  
-		  do {
-		    p = parse_whitespace(p);
-		  } while (p.hasToken);
-		  p = parse_float(p);
-		  vert.position.y = p.fToken;
-
-		  do {
-		    p = parse_whitespace(p);
-		  } while (p.hasToken);
-		  p = parse_float(p);
-		  vert.position.z = p.fToken;
-		
-		  mesh->vertices.push_back(vert);
+      // vertex coordinates
+		else if (attr == "v")
+      {
+         p = parse_vec3(p);
+         v_pos.push_back(p.get_vec3_val());
 		}
 
-		if (p.hasToken && attr == "f") {
-		  do {
-		    p = parse_whitespace(p);
-		  } while (p.hasToken);
-		  p = parse_uint(p);
-		  mesh->indices.push_back(p.uiToken - 1);
-		  
-		  do {
-		    p = parse_whitespace(p);
-		  } while (p.hasToken);
-		  p = parse_uint(p);
-		  mesh->indices.push_back(p.uiToken - 1);
-		  
-		  do {
-		    p = parse_whitespace(p);
-		  } while (p.hasToken);
-		  p = parse_uint(p);
-		  mesh->indices.push_back(p.uiToken - 1);
-		}
+      // texture coordinates
+      else if(attr == "vt")
+      {
+         p = parse_vec2(p);
+         v_texels.push_back(p.get_vec2_val());
+      }
+
+      // faces
+      else if (attr == "f")
+      {
+         /* Faces in obj can have either a (e.g.) 'f 1 1 1' format or a 'f 1/1/1 2/2/1 3/3/1' format 
+            the first one includes only vertex position index (v) while the second format includes that + (after '/') 
+            the texel coordinates (vt) index and also the face index (irrelevant to us)
+         */
+
+         For(3)
+         {
+            Vertex v;
+            p = parse_all_whitespace(p);
+
+            // parses vertex index
+            {
+               p = parse_uint(p);
+               u32 index = p.uiToken - 1;
+               v.position = v_pos[index];
+               mesh->indices.push_back(index);
+            }
+
+            p = parse_symbol(p);
+            if(p.hasToken || p.cToken == '/')
+            {
+               // parses texel index
+               p = parse_uint(p);
+               if(p.hasToken)
+               {
+                  u32 index = p.uiToken - 1;
+                  v.tex_coords = v_texels[index];
+               }
+
+               // discard face index
+               p = parse_symbol(p);
+               p = parse_uint(p);
+            }
+
+            // adds vertex to mesh, finally
+            mesh->vertices.push_back(v);
+         }
+      }
 	}
 
-   // setup other data
-   mesh->name = name;
+   // sets texture name
+   string            catalogue_name;
+   if(name != "")    catalogue_name = name;
+   else              catalogue_name = filename;
+   mesh->name = catalogue_name;
+
+   // setup gl data
    if(setup_gl_data)
       mesh->setup_gl_data();
+
+   // sets render method for mesh
    mesh->render_method = render_method;
 
    // adds to catalogue
-   Geometry_Catalogue.insert({name, mesh});
+   Geometry_Catalogue.insert({catalogue_name, mesh});
 
 	return mesh;
 }
