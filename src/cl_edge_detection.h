@@ -47,12 +47,16 @@ Ledge CL_perform_ledge_detection(Player* player)
    //           top face - where the vertical ray (up towards down) is going to hit
    Ledge ledge;
 
+   // settings
+   const float _front_ray_first_ray_delta_y = 0.3f;
+   const float _front_ray_spacing   = 0.03;
+   const float _front_ray_qty       = 12;
+
    auto orientation_xz = to_xz(player->orientation);
-   auto first_ray = Ray{player->eye() - UNIT_Y * 0.2f, orientation_xz};
+   auto first_ray = Ray{player->eye() - UNIT_Y * _front_ray_first_ray_delta_y, orientation_xz};
    ledge.detection_direction = first_ray.direction;
 
-   const float _front_ray_spacing   = 0.03;
-   const float _front_ray_qty       = 10;
+
 
    auto front_test = CL_get_top_hit_from_multiple_raycasts(first_ray, _front_ray_qty, _front_ray_spacing, player);
    if(front_test.hit)
