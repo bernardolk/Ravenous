@@ -55,7 +55,7 @@ struct EntityManager
          auto _collision_mesh = Geometry_Catalogue.find(collision_mesh);
          if(_collision_mesh == Geometry_Catalogue.end())
          {
-            attrs.mesh = load_wavefront_obj_as_mesh(MODELS_PATH, collision_mesh);
+            attrs.collision_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, collision_mesh);
          }
          else
             attrs.collision_mesh = _collision_mesh->second;

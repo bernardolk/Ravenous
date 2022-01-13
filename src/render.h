@@ -82,6 +82,7 @@ void render_mesh(Mesh* mesh, RenderOptions opts)
          break;
       case GL_TRIANGLES:
          glDrawElements(GL_TRIANGLES,  mesh->indices.size(), GL_UNSIGNED_INT, 0);
+         //glDrawArrays(GL_TRIANGLES, 0, mesh->vertices.size());
          break;
       default:
          cout << "WARNING: no drawing method set for mesh '" << mesh->name << "', "<< 

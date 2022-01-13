@@ -68,11 +68,6 @@ void create_boilerplate_geometry()
    slope_mesh->setup_gl_data();
    Geometry_Catalogue.insert({slope_mesh->name, slope_mesh});
 
-
-   // TRIGGER
-   auto trigger_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, "player_cylinder");
-   Geometry_Catalogue.insert({trigger_mesh->name, trigger_mesh});
-
    // PLAYER CAPSULE
    load_wavefront_obj_as_mesh(MODELS_PATH, "capsule");
 

@@ -541,13 +541,13 @@ void initialize()
 
    // creates entity rotation gizmos
    auto rotation_gizmo_x = Entity_Manager.create_editor_entity(
-      "rotation_gizmo_x", "rotation_gizmo", "ed_entity_arrow_shader", "red", "rotation_gizmo"
+      "rotation_gizmo_x", "rotation_gizmo", "ed_entity_arrow_shader", "red", "rotation_gizmo_collision"
    );
    auto rotation_gizmo_y = Entity_Manager.create_editor_entity(
-      "rotation_gizmo_x", "rotation_gizmo", "ed_entity_arrow_shader", "green", "rotation_gizmo"
+      "rotation_gizmo_y", "rotation_gizmo", "ed_entity_arrow_shader", "green", "rotation_gizmo_collision"
       );
    auto rotation_gizmo_z = Entity_Manager.create_editor_entity(
-      "rotation_gizmo_x", "rotation_gizmo", "ed_entity_arrow_shader", "blue", "rotation_gizmo"
+      "rotation_gizmo_z", "rotation_gizmo", "ed_entity_arrow_shader", "blue", "rotation_gizmo_collision"
       );
 
    EdContext.entity_panel.rotation_gizmo_x = rotation_gizmo_x;

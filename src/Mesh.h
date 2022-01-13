@@ -2,7 +2,7 @@
 
 struct Mesh {
     vector<Vertex> vertices;
-    vector<unsigned int> indices;
+    vector<u32> indices;
     GLenum render_method;
     GLData gl_data;
     string name;
@@ -25,7 +25,7 @@ struct Mesh {
       glBindBuffer(GL_ARRAY_BUFFER, new_gl_data.VBO);
       glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &(vertices[0]), GL_STATIC_DRAW);
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, new_gl_data.EBO);
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &(indices[0]), GL_STATIC_DRAW);
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(u32), &(indices[0]), GL_STATIC_DRAW);
 
       // set the vertex attribute pointers
       // vertex positions

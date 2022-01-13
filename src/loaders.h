@@ -119,6 +119,11 @@ Mesh* load_wavefront_obj_as_mesh(
 ) {
    /* Loads a model from the provided path and filename and add it to the Geometry_Catalogue with provided name */
 
+   // @todo: Currently, we are loading each vertex using the .obj "f line", but that creates 3 vertex per faces.
+   //    For faces that share an exact vertex (like in the case of a box where each face is a quad, sharing one
+   //    triangle). This means we must use glDrawArrays instead of glDrawElements. One option is to code a custom
+   //    exporter in blender to get just unique vertex data + indices, but maybe for now this is enough.
+
    string full_path = path + filename + ".obj";
 	ifstream reader(full_path);
 
@@ -133,6 +138,8 @@ Mesh* load_wavefront_obj_as_mesh(
 
    vector<vec3> v_pos;
    vector<vec2> v_texels;
+   vector<vec3> v_normals;
+   int faces_count = 0;
 
    // Parses file
 	while (getline(reader, line)) 
@@ -167,15 +174,25 @@ Mesh* load_wavefront_obj_as_mesh(
          v_texels.push_back(p.get_vec2_val());
       }
 
-      // faces
+      else if(attr == "vn")
+      {
+         p = parse_vec3(p);
+         v_normals.push_back(p.get_vec3_val());
+      }
+
+      // construct faces
       else if (attr == "f")
       {
-         /* Faces in obj can have either a (e.g.) 'f 1 1 1' format or a 'f 1/1/1 2/2/1 3/3/1' format 
-            the first one includes only vertex position index (v) while the second format includes that + (after '/') 
-            the texel coordinates (vt) index and also the face index (irrelevant to us)
+         /* We are dealing now with the format: 'f 1/1/1 2/2/1 3/3/1 4/4/1' which follows the template 'vi/vt/vn' for each vertex.
+            We can then use the anticlock-wise winding order to use the 123 341 index convention to get triangles from each f line. 
+            If faces are triangulated, then we will have only 3 vertices per face instead of 4 like in the example above.
+            Note about indices (mesh->indices): They refer not to the index 'vi' but to the index of the vertex in the mesh->vertices array.
          */
 
-         For(3)
+         int vertex_count = 0;
+         
+         // we expect either faces with 3 or 4 vertices only.
+         while(true)
          {
             Vertex v;
             p = parse_all_whitespace(p);
@@ -183,9 +200,10 @@ Mesh* load_wavefront_obj_as_mesh(
             // parses vertex index
             {
                p = parse_uint(p);
+               if(!p.hasToken) break;
+
                u32 index = p.uiToken - 1;
                v.position = v_pos[index];
-               mesh->indices.push_back(index);
             }
 
             p = parse_symbol(p);
@@ -193,20 +211,53 @@ Mesh* load_wavefront_obj_as_mesh(
             {
                // parses texel index
                p = parse_uint(p);
-               if(p.hasToken)
+               if(p.hasToken && v_texels.size() > 0)
                {
                   u32 index = p.uiToken - 1;
                   v.tex_coords = v_texels[index];
                }
 
-               // discard face index
+               // parses normal index
                p = parse_symbol(p);
-               p = parse_uint(p);
+               if(p.hasToken || p.cToken == '/')
+               {
+                  p = parse_uint(p);
+                  if(p.hasToken && v_normals.size() > 0)
+                  {
+                     u32 index = p.uiToken - 1;
+                     v.normal = v_normals[index];
+                  }
+               }
             }
 
             // adds vertex to mesh, finally
             mesh->vertices.push_back(v);
+
+            vertex_count++;
          }
+         
+         // face triangle #1
+         int face_index = mesh->vertices.size() - vertex_count;
+         mesh->indices.push_back(face_index + 0);
+         mesh->indices.push_back(face_index + 1);
+         mesh->indices.push_back(face_index + 2);
+
+         if(vertex_count == 4)
+         { 
+            // face triangle #2
+            mesh->indices.push_back(face_index + 2);
+            mesh->indices.push_back(face_index + 3);
+            mesh->indices.push_back(face_index + 0);
+         }
+
+         else if(vertex_count > 4)
+         {
+            cout << "FATAL: mesh file " + filename + 
+               ".obj contain at least one face with unsupported ammount of vertices. Please triangulate or quadfy faces.\n";
+            assert(false);
+         }
+
+         faces_count++;
       }
 	}
 
