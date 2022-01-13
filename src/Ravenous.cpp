@@ -38,6 +38,7 @@
 #include <dearIMGUI/imgui_impl_opengl3.h>
 
 #include <rvn_types.h>
+#include <logging.h>
 
 using namespace std;
 
@@ -456,6 +457,7 @@ void initialize_shaders()
    Shader_Catalogue.insert({model_shader->name, model_shader});
 
    // tiled texture model shader
+   // ONLY WORKS FOR box UV unwrapped type of textures (6 sided unwrapped box)
    auto tiled_texture_model_shader = create_shader_program("tiledTextureModel", "vertex_model", "fragment_tiled_texture_model_shader");
    Shader_Catalogue.insert({tiled_texture_model_shader->name, tiled_texture_model_shader});
 
