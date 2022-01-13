@@ -288,12 +288,14 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
                << entity->scale.y << " "
                << entity->scale.z << "\n";
       writer << "mesh " << entity->mesh->name << "\n";
-
-      // shader: If entity is using tiled texture fragment shader, also writes number of tiles
-      // since we can change it through the editor
       writer << "shader " << entity->shader->name;
+
+      // shader: If entity is using tiled texture fragment shader, also writes number of tiles since we can change it through the editor
       if(entity->texture_tiled)
-         writer << " " << entity->num_of_tiles_x;
+         For(6) {
+            writer << " " << entity->uv_tile_wrap[i];
+         }
+
       writer << "\n";
 
       int textures =  entity->textures.size();
@@ -477,9 +479,15 @@ Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count
             if(shader_name == "tiledTextureModel")
             {
                new_entity->texture_tiled = true;
-               p = parse_all_whitespace(p);
-               p = parse_int(p);
-               new_entity->num_of_tiles_x = p.iToken;
+               For(6)
+               {
+                  p = parse_all_whitespace(p);
+                  p = parse_int(p);
+                  if(!p.hasToken)
+                     log(LOG_FATAL, "Scene description contain an entity with box tiled shader without full tile quantity description.");
+
+                  new_entity->uv_tile_wrap[i] = p.iToken;
+               }
             }
             new_entity->shader = find->second;
          }

@@ -154,7 +154,14 @@ void render_entity(Entity* entity)
 
    // check for tiled texture
    if(entity->texture_tiled)
-      entity->shader->setInt("num_of_tiles", entity->num_of_tiles_x);
+   {
+      entity->shader->setInt("texture_wrap_top",      entity->uv_tile_wrap[0]);
+      entity->shader->setInt("texture_wrap_bottom",   entity->uv_tile_wrap[1]);
+      entity->shader->setInt("texture_wrap_front",    entity->uv_tile_wrap[2]);
+      entity->shader->setInt("texture_wrap_left",     entity->uv_tile_wrap[3]);
+      entity->shader->setInt("texture_wrap_right",    entity->uv_tile_wrap[4]);
+      entity->shader->setInt("texture_wrap_back",     entity->uv_tile_wrap[5]);
+   }
 
    // draw mesh
    auto render_opts = RenderOptions{entity->wireframe};

@@ -203,7 +203,13 @@ void render_entity_panel(EntityPanelContext* panel)
    }
    if(entity->texture_tiled)
    {
-      ImGui::SliderInt("num of tiles x", &entity->num_of_tiles_x, 0, 10);
+      ImGui::Text("Number of tiles for each face:");
+      ImGui::SliderInt("Top face",     &entity->uv_tile_wrap[0],  0, 15);
+      ImGui::SliderInt("Bottom face",  &entity->uv_tile_wrap[1],  0, 15);
+      ImGui::SliderInt("Front face",   &entity->uv_tile_wrap[2],  0, 15);
+      ImGui::SliderInt("Left face",    &entity->uv_tile_wrap[3],  0, 15);
+      ImGui::SliderInt("Right face",   &entity->uv_tile_wrap[4],  0, 15);
+      ImGui::SliderInt("Back face",    &entity->uv_tile_wrap[5],  0, 15);
    }
 
    ImGui::NewLine();
