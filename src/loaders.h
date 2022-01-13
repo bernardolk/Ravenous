@@ -236,7 +236,7 @@ Mesh* load_wavefront_obj_as_mesh(
             vertex_count++;
          }
          
-         // face triangle #1
+         // face's triangle #1
          int face_index = mesh->vertices.size() - vertex_count;
          mesh->indices.push_back(face_index + 0);
          mesh->indices.push_back(face_index + 1);
@@ -244,7 +244,7 @@ Mesh* load_wavefront_obj_as_mesh(
 
          if(vertex_count == 4)
          { 
-            // face triangle #2
+            // face's triangle #2
             mesh->indices.push_back(face_index + 2);
             mesh->indices.push_back(face_index + 3);
             mesh->indices.push_back(face_index + 0);
@@ -254,6 +254,13 @@ Mesh* load_wavefront_obj_as_mesh(
          {
             cout << "FATAL: mesh file " + filename + 
                ".obj contain at least one face with unsupported ammount of vertices. Please triangulate or quadfy faces.\n";
+            assert(false);
+         }
+
+         else if(vertex_count < 3)
+         {
+            log(LOG_FATAL, "mesh file " + filename + 
+               ".obj contain at least one face with 2 or less vertices. Please review the geometry.\n");
             assert(false);
          }
 
@@ -283,6 +290,8 @@ Mesh* load_wavefront_obj_as_mesh(
 
 unsigned int load_texture_from_file(string filename, const string& directory, bool gamma)
 {
+   stbi_set_flip_vertically_on_load(true);  
+
    // returns the gl_texture ID
    
    string path;
@@ -354,4 +363,119 @@ vector<string> get_files_in_folder(string directory)
    FindClose(find_files_handle);
    
    return filenames;
+}
+
+
+void write_mesh_extra_data_file(string filename, Mesh* mesh)
+{
+   string extra_data_path  = MODELS_PATH + "extra_data/" + filename + ".objplus";
+   ofstream writer(extra_data_path);
+
+   if(!writer.is_open())
+      Quit_fatal("couldn't write mesh extra data.");
+
+   writer << fixed << setprecision(4);
+
+   // write tangents
+   For(mesh->vertices.size())
+   {
+      writer << "vtan"
+         << " " << mesh->vertices[i].tangent.x
+         << " " << mesh->vertices[i].tangent.y
+         << " " << mesh->vertices[i].tangent.z << "\n";
+   }
+
+   // write bitangents
+   For(mesh->vertices.size())
+   {
+      writer << "vbitan"
+         << " " << mesh->vertices[i].bitangent.x
+         << " " << mesh->vertices[i].bitangent.y
+         << " " << mesh->vertices[i].bitangent.z << "\n";
+   }
+
+   writer.close();
+
+   // string loginfo = "Wrote mesh extra data for " + filename " mesh.";
+   log(LOG_INFO, "loginfo");
+}
+
+
+void load_mesh_extra_data(string filename, Mesh* mesh)
+{
+   string extra_data_path  = MODELS_PATH + "extra_data/" + filename + ".objplus";
+   
+   ifstream reader(extra_data_path);
+   string line;
+
+   u32 vtan_i = 0;
+   u32 vbitan_i = 0;
+   while(getline(reader, line))
+   {
+      const char* cline = line.c_str();
+		size_t size = line.size();
+
+		Parser::Parse p{ cline, size };
+      p = parse_token(p);
+      
+      if(!p.hasToken)
+         continue;
+      
+      string attr = p.string_buffer;
+
+      if(attr == "vtan")
+      {
+         p = parse_vec3(p);
+         mesh->vertices[vtan_i++].tangent = p.get_vec3_val();
+      }
+
+      else if(attr == "vbitan")
+      {
+         p = parse_vec3(p);
+         mesh->vertices[vbitan_i++].bitangent = p.get_vec3_val();   
+      }
+   }
+
+   reader.close();
+}
+
+
+void attach_extra_data_to_mesh(string filename, string filepath, Mesh* mesh)
+{
+   /* checks if file exists or if its outdated from mesh file. If so, creates it again. 
+      Then load file to attach to existing mesh the extra data.
+      Extra data being: Tangents and Bitangents.
+   */
+
+   string extra_data_path  = MODELS_PATH + "extra_data/" + filename + ".objplus";
+   string mesh_path        = filepath + filename + ".obj";
+
+   //@todo: platform dependency
+   WIN32_FIND_DATA find_data_extra_data;
+   HANDLE find_handle = FindFirstFileA(extra_data_path.c_str(), &find_data_extra_data);
+   if(find_handle != INVALID_HANDLE_VALUE)
+   {
+      WIN32_FIND_DATA find_data_mesh;
+      HANDLE find_handle_mesh = FindFirstFileA(mesh_path.c_str(), &find_data_mesh);
+      if(find_handle_mesh == INVALID_HANDLE_VALUE)
+         log(LOG_FATAL, "Unexpected: couldn't find file handle for mesh obj while checking for extra mesh data.");
+
+         if(CompareFileTime(&find_data_mesh.ftLastWriteTime, &find_data_extra_data.ftLastWriteTime) == 1)
+         {
+            mesh->compute_tangents();
+            mesh->compute_bitangents();
+            write_mesh_extra_data_file(filename, mesh);
+         }
+   }
+   else
+   {
+      mesh->compute_tangents();
+      mesh->compute_bitangents();
+      write_mesh_extra_data_file(filename, mesh);
+   }
+
+   FindClose(find_handle);
+
+   // finally, loads data and attach to mesh
+   load_mesh_extra_data(filename, mesh);
 }

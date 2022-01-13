@@ -151,6 +151,22 @@ struct Mesh {
       bb.set(vec3(minx, miny, minz), vec3(maxx, maxy, maxz));
       return bb;
    }
+
+   void compute_tangents()
+   {
+
+
+
+   }
+
+
+
+   void compute_bitangents()
+   {
+
+
+      
+   }
 };
 
 

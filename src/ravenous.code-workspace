@@ -53,7 +53,8 @@
          "xstddef": "cpp",
          "xtr1common": "cpp",
          "*.rh": "cpp",
-         "deque": "cpp"
+         "deque": "cpp",
+         "stack": "cpp"
       }
    },
    "launch": {
