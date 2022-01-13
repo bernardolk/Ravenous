@@ -762,11 +762,12 @@ void check_for_asset_changes()
       auto model_name = it->first;
       string path = MODELS_PATH + model_name + ".obj";
 
+      //@todo: platform dependency
       WIN32_FIND_DATA find_data;
       HANDLE find_handle = FindFirstFileA(path.c_str(), &find_data);
       if(find_handle != INVALID_HANDLE_VALUE)
       {
-        auto mesh = it->second;
+         auto mesh = it->second;
          if(CompareFileTime(&mesh->last_written, &find_data.ftLastWriteTime) != 0)
          {
             cout << "ASSET '" << model_name << "' changed!\n";
