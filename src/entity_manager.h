@@ -343,10 +343,10 @@ struct EntityManager
    {
       // remove from scene render list
       int index = -1;
-      for (int i = 0; i < entity_registry->size(); i++)
+      For(entity_registry->size())
       {
          auto item = (*entity_registry)[i];
-         if(item->id == entity->id)
+         if(item->id == entity->id)             //@todo: maybe we could check here by ptr address directly
          {
             index = i;
             break;
@@ -375,7 +375,7 @@ struct EntityManager
       {
          auto entity = deletion_stack[0];
          deletion_stack.erase(deletion_stack.begin());
-         delete entity;
+         pool.free_slot(entity);
       }
    }
 };

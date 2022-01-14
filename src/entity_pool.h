@@ -20,7 +20,7 @@ struct EntityPool {
          assert(false);
       }
 
-      for(int i = 0; i < size; i++)
+      For(size)
       {
          // initializes entity with "placement new"
          auto _ = new (pool + i) Entity();
@@ -31,7 +31,7 @@ struct EntityPool {
    
    Entity* get_next()
    {
-      for(int i = 0; i < size; i++)
+      For(size)
       {
          if(pool[i].flags & EntityFlags_EmptyEntity)
          {
@@ -43,6 +43,24 @@ struct EntityPool {
       cout << "EntityPool is full!\n";
       assert(false);
       return nullptr;
+   }
+
+   void free_slot(Entity* entity)
+   {
+      Entity* cursor = pool;
+      bool deleted = false;
+      For(size)
+      {
+         if(cursor == entity)
+         {
+            cursor->flags |= EntityFlags_EmptyEntity;
+            deleted = true;
+            break;
+         }
+      }
+
+      if(!deleted)
+         log(LOG_WARNING, "Entity '" + entity->name + "' requested to be deleted couldn't be found in entity pool.");
    }
 };
 
