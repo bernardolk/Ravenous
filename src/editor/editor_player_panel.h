@@ -21,7 +21,11 @@ void render_player_panel(PlayerPanelContext* panel)
 
    ImGui::NewLine();
 
-   ImGui::Checkbox("Hide Entity", &entity->wireframe);
+   bool _hide_control = entity->flags & EntityFlags_HiddenEntity;
+   if(ImGui::Checkbox("Hide Entity", &_hide_control))
+   {
+      entity->flags ^= EntityFlags_HiddenEntity;
+   }
    ImGui::NewLine();
 
    ImGui::Text("Speed: ");

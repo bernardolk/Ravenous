@@ -42,8 +42,7 @@ RaycastTest test_ray_against_scene(Ray ray, RayCastType test_type = RayCast_Test
    Entity* skip = nullptr, float max_distance = MAX_FLOAT)
 {
    /* This will test a ray agains the scene
-      @todo - This should first test ray against world cells, then get the list of entities from these world cells to
-               test against 
+      @todo - This should first test ray against world cells, then get the list of entities from these world cells to test against 
    */
 
    float min_distance = MAX_FLOAT;
@@ -54,7 +53,7 @@ RaycastTest test_ray_against_scene(Ray ray, RayCastType test_type = RayCast_Test
 	for(int it = 0; it < entities_vec_size; it++) 
    {
 	   auto entity = *entity_iterator++;
-      if(test_type == RayCast_TestOnlyVisibleEntities && (!entity->render_me || entity->wireframe))
+      if(test_type == RayCast_TestOnlyVisibleEntities && entity->flags & EntityFlags_InvisibleEntity)
          continue;
       if(skip != nullptr && entity->id == skip->id)
          continue;

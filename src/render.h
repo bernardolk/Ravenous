@@ -164,7 +164,8 @@ void render_entity(Entity* entity)
    }
 
    // draw mesh
-   auto render_opts = RenderOptions{entity->wireframe};
+   RenderOptions render_opts;
+   render_opts.wireframe = entity->flags & EntityFlags_RenderWireframe || entity->flags & EntityFlags_HiddenEntity;
    render_mesh(entity->mesh, render_opts);
 
    // always good practice to set everything back to defaults once configured.
@@ -206,7 +207,7 @@ void render_scene(Scene* scene, Camera* camera)
 	for(int it = 0; it < entities_vec_size; it++) 
    {
 	   auto entity = *entity_iterator++;
-      if(!entity->render_me)
+      if(entity->flags & EntityFlags_InvisibleEntity)
          continue;
 
       render_entity(entity);
@@ -529,7 +530,7 @@ void render_depth_map()
    for(int it = 0; it < entities_vec_size; it++) 
    {
       auto entity = *entity_iterator++;
-      if(!entity->render_me)
+      if(entity->flags & EntityFlags_InvisibleEntity)
          continue;
 
       depth_shader-> setMatrix4("model", entity->matModel);
@@ -582,7 +583,7 @@ void render_depth_cubemap()
    for(int it = 0; it < entities_vec_size; it++) 
    {
       auto entity = *entity_iterator++;
-      if(!entity->render_me)
+      if(entity->flags & EntityFlags_InvisibleEntity)
          continue;
 
       depth_shader-> setMatrix4("model", entity->matModel);

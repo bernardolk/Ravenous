@@ -261,8 +261,8 @@ int main()
    // load pre recorded input recordings
    Input_Recorder.load();
 
-   //@TODO: for debugging
-   player->entity_ptr->wireframe = true;
+   //@TODO: better for debugging
+   player->entity_ptr->flags |= EntityFlags_RenderWireframe;
 
    // Does a first update
    update_scene_objects();
@@ -594,7 +594,7 @@ void toggle_program_modes(Player* player)
       PROGRAM_MODE.last    = PROGRAM_MODE.current;
       PROGRAM_MODE.current = GAME_MODE;
       G_SCENE_INFO.camera  = G_SCENE_INFO.views[1];
-      player->entity_ptr->render_me = false;
+      player->entity_ptr->flags |= EntityFlags_InvisibleEntity;
       glfwSetInputMode(G_DISPLAY_INFO.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
       Editor::end_dear_imgui_frame();
 
@@ -605,7 +605,7 @@ void toggle_program_modes(Player* player)
       PROGRAM_MODE.last    = PROGRAM_MODE.current;
       PROGRAM_MODE.current = EDITOR_MODE;
       G_SCENE_INFO.camera  = G_SCENE_INFO.views[0];
-      player->entity_ptr->render_me = true;
+      player->entity_ptr->flags &= ~EntityFlags_InvisibleEntity;
       glfwSetInputMode(G_DISPLAY_INFO.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
       Editor::start_dear_imgui_frame();
 

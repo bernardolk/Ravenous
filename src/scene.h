@@ -305,7 +305,7 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
             writer << "texture " << texture.name << "\n";
       }
 
-      if(entity->wireframe)
+      if(entity->flags & EntityFlags_RenderWireframe)
          writer << "hidden\n";
 
       if(entity->type == CHECKPOINT)
@@ -560,7 +560,7 @@ Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count
 
       else if(property == "hidden")
       {
-         new_entity->wireframe = true;
+         new_entity->flags |= EntityFlags_HiddenEntity;
       }
 
       else if(property == "type")

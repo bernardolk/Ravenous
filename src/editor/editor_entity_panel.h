@@ -49,7 +49,11 @@ void render_entity_panel(EntityPanelContext* panel)
 
    // HIDE ENTITY
    ImGui::SameLine();
-   ImGui::Checkbox("Hide Entity", &entity->wireframe);
+   bool _hide_control = entity->flags & EntityFlags_HiddenEntity;
+   if(ImGui::Checkbox("Hide Entity", &_hide_control))
+   {
+      entity->flags ^= EntityFlags_HiddenEntity;
+   }
 
    // MODEL PROPERTIES
    ImGui::NewLine();

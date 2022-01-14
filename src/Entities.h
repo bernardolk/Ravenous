@@ -12,7 +12,11 @@ enum EntityType {
 const static size_t ENTITY_WOLRD_CELL_OCCUPATION_LIMIT = 50;
 
 enum EntityFlags {
-   EntityFlags_EmptyEntity    = (1 << 0)
+   EntityFlags_EmptyEntity          = (1 << 0),
+   EntityFlags_InvisibleEntity      = (1 << 1),
+   EntityFlags_HiddenEntity         = (1 << 2),
+   EntityFlags_RenderTiledTexture   = (1 << 3),
+   EntityFlags_RenderWireframe      = (1 << 4)
 };
 
 struct Entity {
@@ -26,8 +30,6 @@ struct Entity {
    Mesh* mesh;
    std::vector<Texture> textures;
 	glm::mat4 matModel   = mat4identity;
-   bool render_me       = true;
-   bool wireframe       = false;
    bool texture_tiled   = false;          // is set in scene loading if name of shader equals the tiled texture shader name
    
    // box UV tile setting
