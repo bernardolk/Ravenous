@@ -18,6 +18,7 @@ c:\repositories\ravenous\include\dearIMGUI\imgui_draw.cpp ^
 c:\repositories\ravenous\include\dearIMGUI\imgui_widgets.cpp ^
 c:\repositories\ravenous\include\dearIMGUI\imgui_tables.cpp ^
 c:\repositories\ravenous\include\dearIMGUI\imgui_demo.cpp ^
+c:\repositories\ravenous\include\dearIMGUI\imgui_stdlib.cpp ^
 glfw3.lib glad.lib  IrrXMLd.lib zlibd.lib zlibstaticd.lib freetyped.lib opengl32.lib ^
 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ^
 /EHsc /Zi ^
