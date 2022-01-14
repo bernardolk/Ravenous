@@ -47,7 +47,6 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
    // creates player
    auto player_entity = create_player_entity();
    auto player = create_player(player_entity);
-   scene->entities.push_back(player_entity);
    G_SCENE_INFO.player = player;
 
    // starts reading

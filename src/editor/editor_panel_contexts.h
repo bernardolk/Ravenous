@@ -11,6 +11,12 @@ struct PalettePanelContext {
    unsigned int count = 0;
 };
 
+struct SceneObjectsPanelContext {
+   bool active = false;
+   bool focused = false;
+   std::string search_text  = "";
+};
+
 struct EntityPanelContext {
    bool active = false;
    bool focused = false;

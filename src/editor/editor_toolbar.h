@@ -49,6 +49,11 @@ void render_toolbar()
    }
 
    // PANELS
+   if(ImGui::Button("Scene objects", ImVec2(150,18)))
+   {
+      EdContext.scene_objects_panel.active = true;
+   }
+
    if(ImGui::Button("Entity Palette", ImVec2(150,18)))
    {
       EdContext.palette_panel.active = true;

@@ -236,6 +236,17 @@ vec3 get_random_color()
 }
 
 
+// text
+#include <cctype>
+
+inline
+void tolower(std::string* data)
+{
+   std::transform(data->begin(), data->end(), data->begin(), [](unsigned char c){ return std::tolower(c); });
+}
+
+
+
 // macros
 
 #define For(x) for (int i = 0; i < x; i ++)

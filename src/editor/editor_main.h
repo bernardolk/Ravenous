@@ -26,6 +26,7 @@ struct EditorContext {
    DeletedEntityLog deletion_log;
 
    // panels
+   SceneObjectsPanelContext scene_objects_panel;
    EntityPanelContext entity_panel;
    PlayerPanelContext player_panel;
    WorldPanelContext world_panel;
@@ -137,6 +138,7 @@ void end_dear_imgui_frame();
 #include <editor/editor_lights_panel.h>
 #include <editor/editor_collision_log_panel.h>
 #include <editor/editor_input_recorder_panel.h>
+#include <editor/editor_scene_objects_panel.h>
 
 //------------------
 // > UPDATE EDITOR
@@ -360,6 +362,9 @@ void render(Player* player, WorldStruct* world)
    // --------------
    // render panels
    // --------------
+   if(EdContext.scene_objects_panel.active)
+      render_scene_objects_panel(&EdContext.scene_objects_panel);
+
    if(EdContext.world_panel.active)
       render_world_panel(&EdContext.world_panel, world, player);
 
