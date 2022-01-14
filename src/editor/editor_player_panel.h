@@ -16,8 +16,11 @@ void render_player_panel(PlayerPanelContext* panel)
    ImGui::Begin("Player Panel", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
    panel->focused = ImGui::IsWindowFocused();
 
-   string entity_identification = entity->name + " (" + to_string(entity->id) + ")";
+   string entity_identification = entity->name;
    ImGui::Text(entity_identification.c_str());
+
+   string entity_id = "Id: " + to_string(entity->id);
+   ImGui::Text(entity_id.c_str());
 
    ImGui::NewLine();
 
