@@ -26,9 +26,12 @@ void render_palette_panel(PalettePanelContext* panel)
 void initialize_palette(PalettePanelContext* panel)
 {
    int texture_count = 0;
+
+   stbi_set_flip_vertically_on_load(false);  
    panel->textures[texture_count++] = load_texture_from_file("box.png", EDITOR_ASSETS);
    panel->textures[texture_count++] = load_texture_from_file("slope.png", EDITOR_ASSETS);
    panel->textures[texture_count++] = load_texture_from_file("checkpoint.png", EDITOR_ASSETS);
+   stbi_set_flip_vertically_on_load(true);  
 
    // 0
    panel->entity_palette[panel->count++] = EntityAttributes{

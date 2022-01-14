@@ -290,8 +290,6 @@ Mesh* load_wavefront_obj_as_mesh(
 
 unsigned int load_texture_from_file(string filename, const string& directory, bool gamma)
 {
-   stbi_set_flip_vertically_on_load(true);  
-
    // returns the gl_texture ID
    
    string path;
