@@ -11,15 +11,7 @@ pushd c:\repositories\ravenous\build
 			
 cl.exe /std:c++17 /MD ^
 c:\repositories\ravenous\src\ravenous.cpp ^
-c:\repositories\ravenous\include\dearIMGUI\imgui.cpp ^
-c:\repositories\ravenous\include\dearIMGUI\imgui_impl_glfw.cpp ^
-c:\repositories\ravenous\include\dearIMGUI\imgui_impl_opengl3.cpp ^
-c:\repositories\ravenous\include\dearIMGUI\imgui_draw.cpp ^
-c:\repositories\ravenous\include\dearIMGUI\imgui_widgets.cpp ^
-c:\repositories\ravenous\include\dearIMGUI\imgui_tables.cpp ^
-c:\repositories\ravenous\include\dearIMGUI\imgui_demo.cpp ^
-c:\repositories\ravenous\include\dearIMGUI\imgui_stdlib.cpp ^
-glfw3.lib glad.lib  IrrXMLd.lib zlibd.lib zlibstaticd.lib freetyped.lib opengl32.lib ^
+glfw3.lib glad.lib  IrrXMLd.lib zlibd.lib zlibstaticd.lib freetyped.lib opengl32.lib imgui.lib ^
 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ^
 /EHsc /Zi ^
 /I c:\repositories\ravenous\include ^

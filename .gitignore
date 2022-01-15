@@ -20,3 +20,4 @@ recordings/*
 !scenes/world.txt
 camera.txt
 src/ravenous.code-workspace
+lib/build/*
