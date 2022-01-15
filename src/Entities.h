@@ -30,7 +30,6 @@ struct Entity {
    Mesh* mesh;
    std::vector<Texture> textures;
 	glm::mat4 matModel   = mat4identity;
-   bool texture_tiled   = false;          // is set in scene loading if name of shader equals the tiled texture shader name
    
    // box UV tile setting
    int uv_tile_wrap[6] = {1,1,1,1,1,1};

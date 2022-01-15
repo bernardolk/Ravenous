@@ -153,7 +153,7 @@ void render_entity(Entity* entity)
    i++;
 
    // check for tiled texture
-   if(entity->texture_tiled)
+   if(entity->flags & EntityFlags_RenderTiledTexture)
    {
       entity->shader->setInt("texture_wrap_top",      entity->uv_tile_wrap[0]);
       entity->shader->setInt("texture_wrap_bottom",   entity->uv_tile_wrap[1]);

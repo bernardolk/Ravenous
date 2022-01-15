@@ -12,7 +12,7 @@ void render_entity_panel(EntityPanelContext* panel);
 void render_entity_panel(EntityPanelContext* panel)
 {
    auto& entity = panel->entity;
-   ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 550, 370), ImGuiCond_Appearing);
+   ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 550, 200), ImGuiCond_Appearing);
 
    ImGui::Begin("Entity Panel", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
    panel->focused = ImGui::IsWindowFocused();
@@ -198,14 +198,17 @@ void render_entity_panel(EntityPanelContext* panel)
       }
    }
 
-   if(ImGui::Checkbox("Tiled texture", &entity->texture_tiled))
+   bool _tiled_texture = entity->flags & EntityFlags_RenderTiledTexture;
+   if(ImGui::Checkbox("Tiled texture", &_tiled_texture))
    {
-      if(entity->texture_tiled)
+      entity->flags ^= EntityFlags_RenderTiledTexture;
+      if(_tiled_texture)
          entity->shader = Shader_Catalogue.find("tiledTextureModel")->second;
       else
          entity->shader = Shader_Catalogue.find("model")->second;
    }
-   if(entity->texture_tiled)
+
+   if(entity->flags & EntityFlags_RenderTiledTexture)
    {
       ImGui::Text("Number of tiles for each face:");
       ImGui::SliderInt("Top face",     &entity->uv_tile_wrap[0],  0, 15);
