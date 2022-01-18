@@ -129,6 +129,7 @@ struct ProgramConfig {
 
 
 // SOURCE INCLUDES
+#include <rvn_macros.h>
 #include <colors.h>
 #include <in_flags.h>
 #include <cl_types.h>

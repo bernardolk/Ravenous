@@ -244,12 +244,3 @@ void tolower(std::string* data)
 {
    std::transform(data->begin(), data->end(), data->begin(), [](unsigned char c){ return std::tolower(c); });
 }
-
-
-
-// macros
-
-#define For(x) for (int i = 0; i < x; i ++)
-#define for_less(x) for (int i = 0; i < x; i ++)
-#define for_less_equal(x) for (int i = 0; i <+ x; i ++)
-#define ForIt(x) for (auto it = x.begin(); it != x.end(); it++)

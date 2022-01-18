@@ -10,11 +10,17 @@
 #include <iostream>
 #include <map>
 
-Mesh* load_wavefront_obj_as_mesh(string path, string name, bool setup_gl_data, GLenum render_method);
-unsigned int load_texture_from_file(string path, const string& directory, bool gamma = false);
-vector<string> get_files_in_folder(string directory);
-void load_textures_from_assets_folder();
-gl_charmap load_text_textures(string font, int size);
+// prototypes
+Mesh*          load_wavefront_obj_as_mesh          (string path, string name, bool setup_gl_data, GLenum render_method);
+unsigned int   load_texture_from_file              (string path, const string& directory, bool gamma = false);
+vector<string> get_files_in_folder                 (string directory);
+gl_charmap     load_text_textures                  (string font, int size);
+void           attach_extra_data_to_mesh           (string filename, string filepath, Mesh* mesh);
+void           load_mesh_extra_data                (string filename, Mesh* mesh);
+void           write_mesh_extra_data_file          (string filename, Mesh* mesh);
+void           load_textures_from_assets_folder    ();
+
+
 
 gl_charmap load_text_textures(string font, int size) 
 {
@@ -277,11 +283,17 @@ Mesh* load_wavefront_obj_as_mesh(
       }
 	}
 
+   mesh->faces_count = faces_count;
+
    // sets texture name
    string            catalogue_name;
    if(name != "")    catalogue_name = name;
    else              catalogue_name = filename;
    mesh->name = catalogue_name;
+
+   // load/computes tangents and bitangents
+   if(v_texels.size() > 0)
+      attach_extra_data_to_mesh(filename, path, mesh);
 
    // setup gl data
    if(setup_gl_data)
@@ -289,6 +301,7 @@ Mesh* load_wavefront_obj_as_mesh(
 
    // sets render method for mesh
    mesh->render_method = render_method;
+
 
    // adds to catalogue
    Geometry_Catalogue.insert({catalogue_name, mesh});
@@ -403,8 +416,7 @@ void write_mesh_extra_data_file(string filename, Mesh* mesh)
 
    writer.close();
 
-   // string loginfo = "Wrote mesh extra data for " + filename " mesh.";
-   log(LOG_INFO, "loginfo");
+   log(LOG_INFO, "Wrote mesh extra data for " + filename + " mesh.");
 }
 
 
@@ -449,13 +461,15 @@ void load_mesh_extra_data(string filename, Mesh* mesh)
 
 void attach_extra_data_to_mesh(string filename, string filepath, Mesh* mesh)
 {
-   /* checks if file exists or if its outdated from mesh file. If so, creates it again. 
-      Then load file to attach to existing mesh the extra data.
-      Extra data being: Tangents and Bitangents.
+   /* Attach tangents and bitangents data to the mesh from a precomputation based on mesh vertices.
+      If the extra mesh data file is outdated from mesh file or inexistent, compute data and write to it.
+      If exists and is up to date, loads extra data from it.
    */
 
    string extra_data_path  = MODELS_PATH + "extra_data/" + filename + ".objplus";
    string mesh_path        = filepath + filename + ".obj";
+
+   bool compute_extra_data = false;
 
    //@todo: platform dependency
    WIN32_FIND_DATA find_data_extra_data;
@@ -467,22 +481,24 @@ void attach_extra_data_to_mesh(string filename, string filepath, Mesh* mesh)
       if(find_handle_mesh == INVALID_HANDLE_VALUE)
          log(LOG_FATAL, "Unexpected: couldn't find file handle for mesh obj while checking for extra mesh data.");
 
-         if(CompareFileTime(&find_data_mesh.ftLastWriteTime, &find_data_extra_data.ftLastWriteTime) == 1)
-         {
-            mesh->compute_tangents();
-            mesh->compute_bitangents();
-            write_mesh_extra_data_file(filename, mesh);
-         }
+      if(CompareFileTime(&find_data_mesh.ftLastWriteTime, &find_data_extra_data.ftLastWriteTime) == 1)
+         compute_extra_data = true;
+
+      FindClose(find_handle_mesh);
+   }
+   else
+      compute_extra_data = true;
+
+
+   if(compute_extra_data)
+   {
+      mesh->compute_tangents_and_bitangents();
+      write_mesh_extra_data_file(filename, mesh);
    }
    else
    {
-      mesh->compute_tangents();
-      mesh->compute_bitangents();
-      write_mesh_extra_data_file(filename, mesh);
+      load_mesh_extra_data(filename, mesh);
    }
 
    FindClose(find_handle);
-
-   // finally, loads data and attach to mesh
-   load_mesh_extra_data(filename, mesh);
 }

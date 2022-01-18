@@ -3,6 +3,7 @@
 struct Mesh {
     vector<Vertex> vertices;
     vector<u32> indices;
+    u32 faces_count;
     GLenum render_method;
     GLData gl_data;
     string name;
@@ -152,20 +153,39 @@ struct Mesh {
       return bb;
    }
 
-   void compute_tangents()
+   void compute_tangents_and_bitangents()
    {
+      For(faces_count)
+      {
+         Vertex v1 = vertices[indices[i * 3 + 0]];
+         Vertex v2 = vertices[indices[i * 3 + 1]];
+         Vertex v3 = vertices[indices[i * 3 + 2]];
 
+         vec3 edge1     = v2.position   - v1.position;
+         vec3 edge2     = v3.position   - v1.position;
+         vec2 delta_uv1 = v2.tex_coords - v1.tex_coords;
+         vec2 delta_uv2 = v3.tex_coords - v1.tex_coords; 
 
+         float f = 1.0f / (delta_uv1.x * delta_uv2.y - delta_uv2.x * delta_uv1.y);
 
-   }
+         vec3 tangent, bitangent;
+         tangent.x     = f * (delta_uv2.y * edge1.x - delta_uv1.y * edge2.x);
+         tangent.y     = f * (delta_uv2.y * edge1.y - delta_uv1.y * edge2.y);
+         tangent.z     = f * (delta_uv2.y * edge1.z - delta_uv1.y * edge2.z);
 
+         bitangent.x   = f * (-delta_uv2.x * edge1.x + delta_uv1.x * edge2.x);
+         bitangent.y   = f * (-delta_uv2.x * edge1.y + delta_uv1.x * edge2.y);
+         bitangent.z   = f * (-delta_uv2.x * edge1.z + delta_uv1.x * edge2.z);
 
+         vertices[indices[i * 3 + 0]].tangent = tangent;
+         vertices[indices[i * 3 + 0]].bitangent = bitangent;
 
-   void compute_bitangents()
-   {
+         vertices[indices[i * 3 + 1]].tangent = tangent;
+         vertices[indices[i * 3 + 1]].bitangent = bitangent;
 
-
-      
+         vertices[indices[i * 3 + 2]].tangent = tangent;
+         vertices[indices[i * 3 + 2]].bitangent = bitangent;
+      }
    }
 };
 

@@ -113,44 +113,48 @@ void render_entity(Entity* entity)
    entity->shader->setMatrix4("model", entity->matModel);
 
    // bind appropriate textures
-   unsigned int diffuse_n = 1;
-   unsigned int specular_n = 1;
-   unsigned int normal_n = 1;
-   unsigned int height_n = 1;
+   u32 diffuse_n = 1;
+   u32 specular_n = 1;
+   u32 normal_n = 1;
+   u32 height_n = 1;
 
-   unsigned int i;
+   u32 i;
    for (i = 0; i < entity->textures.size(); i++)
    {
       // active proper texture unit before binding
       glActiveTexture(GL_TEXTURE0 + i); 
       string number;
-      string name = entity->textures[i].type;
-      if       (name == "texture_diffuse")
+      // @todo: can turn this into enum for faster int comparison
+      string type = entity->textures[i].type;
+      if       (type == "texture_diffuse")
          number = to_string(diffuse_n++);
-      else if  (name == "texture_specular")
+      else if  (type == "texture_specular")
          number = to_string(specular_n++);
-      else if  (name == "texture_normal")
+      else if  (type == "texture_normal")
          number = to_string(normal_n++); 
-      else if  (name == "texture_height")
+      else if  (type == "texture_height")
          number = to_string(height_n++); 
 
       // now set the sampler to the correct texture unit
-      glUniform1i(glGetUniformLocation(entity->shader->gl_programId, (name + number).c_str()), i);
+      glUniform1i(glGetUniformLocation(entity->shader->gl_programId, (type + number).c_str()), i);
       // and finally bind the texture
       glBindTexture(GL_TEXTURE_2D, entity->textures[i].id);
    }
 
-   // shadow map texture
-   glActiveTexture(GL_TEXTURE0 + i);
-   glUniform1i(glGetUniformLocation(entity->shader->gl_programId, "shadowMap"), i);
-   glBindTexture(GL_TEXTURE_2D, R_DEPTH_MAP);
-   i++;
+   // SHADOW MAPS
+   {
+      // shadow map texture
+      glActiveTexture(GL_TEXTURE0 + i);
+      glUniform1i(glGetUniformLocation(entity->shader->gl_programId, "shadowMap"), i);
+      glBindTexture(GL_TEXTURE_2D, R_DEPTH_MAP);
+      i++;
 
-   // shadow cubemap texture
-   glActiveTexture(GL_TEXTURE0 + i);
-   glUniform1i(glGetUniformLocation(entity->shader->gl_programId, "shadowCubemap"), i);
-   glBindTexture(GL_TEXTURE_CUBE_MAP, R_DEPTH_CUBEMAP_TEXTURE);
-   i++;
+      // shadow cubemap texture
+      glActiveTexture(GL_TEXTURE0 + i);
+      glUniform1i(glGetUniformLocation(entity->shader->gl_programId, "shadowCubemap"), i);
+      glBindTexture(GL_TEXTURE_CUBE_MAP, R_DEPTH_CUBEMAP_TEXTURE);
+      i++;  
+   }
 
    // check for tiled texture
    if(entity->flags & EntityFlags_RenderTiledTexture)
@@ -177,12 +181,12 @@ void render_editor_entity(Entity* entity, Scene* scene, Camera* camera)
 {
    entity->shader->use();
    // important that the gizmo dont have a position set.
-   entity->shader->setMatrix4("model", entity->matModel);
-   entity->shader->setMatrix4("view", camera->View4x4);
-   entity->shader->setMatrix4("projection", camera->Projection4x4);
-   entity->shader->setFloat3("viewPos", camera->Position);
-   entity->shader->setFloat("shininess", scene->global_shininess);
-   entity->shader->setMatrix4("model", entity->matModel);
+   entity->shader->setMatrix4("model",          entity->matModel);
+   entity->shader->setMatrix4("view",           camera->View4x4);
+   entity->shader->setMatrix4("projection",     camera->Projection4x4);
+   entity->shader->setFloat3("viewPos",         camera->Position);
+   entity->shader->setFloat("shininess",        scene->global_shininess);
+   entity->shader->setMatrix4("model",          entity->matModel);
    entity->shader->setFloat3("entity_position", entity->position);
 
    render_entity(entity);
@@ -267,17 +271,17 @@ void set_shader_light_variables(Scene* scene, Shader* shader, Camera* camera)
       dir_count++;
    }
 
-   shader->     setInt("num_directional_lights", dir_count);
-   shader->     setInt("num_spot_lights",     spotlight_count);
-   shader->     setInt("num_point_lights",    point_light_count);
-   shader-> setMatrix4("view",                camera->View4x4);
-   shader-> setMatrix4("projection",          camera->Projection4x4);
-   shader->   setFloat("shininess",           scene->global_shininess);
-   shader->  setFloat3("ambient",             scene->ambient_light);
-   shader->   setFloat("ambient_intensity",   scene->ambient_intensity);
-   shader->  setFloat3("viewPos",             camera->Position);
-   shader-> setMatrix4("lightSpaceMatrix",    R_DIR_LIGHT_SPACE_MATRIX);
-   shader->   setFloat("cubemap_far_plane",   R_CUBEMAP_FAR_PLANE);
+   shader->     setInt("num_directional_lights",   dir_count);
+   shader->     setInt("num_spot_lights",          spotlight_count);
+   shader->     setInt("num_point_lights",         point_light_count);
+   shader-> setMatrix4("view",                     camera->View4x4);
+   shader-> setMatrix4("projection",               camera->Projection4x4);
+   shader->   setFloat("shininess",                scene->global_shininess);
+   shader->  setFloat3("ambient",                  scene->ambient_light);
+   shader->   setFloat("ambient_intensity",        scene->ambient_intensity);
+   shader->  setFloat3("viewPos",                  camera->Position);
+   shader-> setMatrix4("lightSpaceMatrix",         R_DIR_LIGHT_SPACE_MATRIX);
+   shader->   setFloat("cubemap_far_plane",        R_CUBEMAP_FAR_PLANE);
 }
 
 
