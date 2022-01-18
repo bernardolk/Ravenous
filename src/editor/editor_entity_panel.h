@@ -186,6 +186,18 @@ void render_entity_panel(EntityPanelContext* panel)
       }   
    }
 
+   if(ImGui::CollapsingHeader("Shader"))
+   {
+      for(auto const& shader : Shader_Catalogue)
+      {
+         bool in_use = entity->shader->name == shader.second->name;
+         if(ImGui::RadioButton(shader.second->name.c_str(), in_use))
+         {
+            entity->shader = shader.second;
+         }
+      }
+   }
+
    if(ImGui::CollapsingHeader("Textures"))
    {
       for(auto const& texture : Texture_Catalogue)
