@@ -460,6 +460,11 @@ void initialize_shaders()
    auto model_shader = create_shader_program("model", "vertex_model", "fragment_multiple_lights");
    Shader_Catalogue.insert({model_shader->name, model_shader});
 
+   // general model shader without normal mapping
+   auto model_shader_no_normal_mapping = 
+      create_shader_program("model_no_normal_mapping", "vertex_model_no_normal_mapping", "fragment_multiple_lights_no_normal_mapping");
+   Shader_Catalogue.insert({model_shader_no_normal_mapping->name, model_shader_no_normal_mapping});
+
    // tiled texture model shader
    // ONLY WORKS FOR box UV unwrapped type of textures (6 sided unwrapped box)
    auto tiled_texture_model_shader = create_shader_program("tiledTextureModel", "vertex_model", "fragment_tiled_texture_model_shader");

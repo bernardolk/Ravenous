@@ -1,0 +1,225 @@
+#version 330 core
+
+in vec3 FragPos;
+in vec3 Normal;
+in vec2 TexCoords;
+in vec4 LightSpaceFragPos;
+
+out vec4 FragColor;
+
+struct DirLight{
+	vec3 direction;
+	vec3 diffuse;
+	vec3 specular;
+};
+
+struct PointLight{
+	vec3 position;
+
+	vec3 diffuse;
+	vec3 specular;
+
+	float constant;
+	float linear;
+	float quadratic;
+};
+
+struct SpotLight{
+	vec3 position;
+	vec3 direction;
+
+	vec3 diffuse;
+	vec3 specular;
+	
+	float innercone;
+	float outercone;
+
+	float constant;
+	float linear;
+	float quadratic;
+};
+
+#define MAX_POINT_LIGHT_SOURCES 32
+#define MAX_SPOT_LIGHT_SOURCES 32
+#define MAX_DIRECTIONAL_LIGHT_SOURCES 32
+
+uniform DirLight dirLights[MAX_DIRECTIONAL_LIGHT_SOURCES];
+uniform PointLight pointLights[MAX_POINT_LIGHT_SOURCES];
+uniform SpotLight spotLights[MAX_SPOT_LIGHT_SOURCES];
+
+uniform int num_directional_lights;
+uniform int num_point_lights;
+uniform int num_spot_lights;
+
+uniform vec3 ambient;
+uniform float ambient_intensity;
+uniform float shininess;
+uniform vec3 viewPos;
+
+uniform sampler2D texture_diffuse1;
+uniform sampler2D texture_diffuse2;
+uniform sampler2D texture_diffuse3;
+uniform sampler2D texture_specular1;
+uniform sampler2D texture_specular2;
+uniform sampler2D shadowMap;
+
+uniform samplerCube shadowCubemap;
+uniform float cubemap_far_plane;
+
+
+vec3 norm;
+vec3 difTex;
+vec3 specTex;
+
+vec3 calcDirectionalLight(DirLight dirLight)
+{
+	vec3 lightDirection = normalize(-dirLight.direction);
+	
+	// Diffuse
+	float diff_cos = max(dot(norm, lightDirection), 0.0);
+	vec3 diffuse = diff_cos * dirLight.diffuse * difTex;
+	
+	// Specular
+	vec3 specular_reflection = reflect(-lightDirection, norm);
+	vec3 fragToView = normalize(viewPos - FragPos);
+	float spec = pow(max(dot(fragToView, specular_reflection), 0.0), shininess);
+	vec3 specular = spec * dirLight.specular * specTex;
+	
+	vec3 result =  diffuse + specular;
+	return result;
+}
+
+vec3 calcPointLight(PointLight pointLight)
+{	
+	vec3 lightToFrag = normalize(FragPos - pointLight.position);
+	float distance = length(FragPos - pointLight.position);
+	
+	// Diffuse
+	float diff_cos = max(dot(-lightToFrag, norm), 0.0);
+	vec3 diffuse = diff_cos * pointLight.diffuse * difTex;
+	
+	// Specular
+	vec3 specular_reflection = reflect(lightToFrag, norm);
+	vec3 fragToView = normalize(viewPos - FragPos);
+	float spec = pow(max(dot(fragToView, specular_reflection), 0.0), shininess);
+	vec3 specular = spec * pointLight.specular * specTex;
+	
+	// Decay	
+	float decay = 1 / (pointLight.constant + pointLight.linear * distance + pointLight.quadratic * (distance * distance));
+	vec3 result = (diffuse + specular) * decay;
+	return result;
+}
+
+
+vec3 calcSpotLight(SpotLight spotlight)
+{
+	vec3 lightToFragDir = normalize(FragPos - spotlight.position); 				// From fragment position to light
+
+	// diffuse
+   float diff = max(dot(-lightToFragDir, norm), 0.0);							// Dot product of normalized vectors = cosine of angle between vectors. Maximum intensity at parallel (normal and light)
+   vec3 diffuse = spotlight.diffuse * diff * difTex;							// Modulate light intensity based on cosine and material
+ 
+	// specular (for each vertex we have a different position in the world, hence, a different light intensity)
+	vec3 fragToViewDir =  normalize(viewPos - FragPos);
+	vec3 reflectDir = reflect(lightToFragDir, norm);
+	float spec = pow(max(dot(fragToViewDir, reflectDir), 0.0), shininess);
+	vec3 specular = spotlight.specular * spec * specTex;
+ 
+   // Decay (attenuation)
+   float distance = length(spotlight.position - FragPos); 
+   float decay = 1.0 / (spotlight.constant + spotlight.linear * distance + spotlight.quadratic * distance * distance);
+	
+	// Intensity (light cone suavization towards borders)
+	float theta = dot(-lightToFragDir, normalize(-spotlight.direction));
+	float epsilon = spotlight.innercone - spotlight.outercone;
+	float intensity = clamp((theta - spotlight.outercone) / epsilon, 0.0, 1.0);
+ 
+	// results
+    vec3 result = (diffuse + specular) * intensity * decay;
+	return result;
+}
+
+float shadowDirectionalLight(vec4 fragPosLightSpace)
+{
+   // performs perspective divide because this is not passed thorugh gl_Position, 
+   // which OpenGL does this for automatically
+   vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+
+   // transform to [0,1] range
+   projCoords = projCoords * 0.5 + 0.5;
+
+   // place objects outside light range (shadow map range) in light
+   if(projCoords.z > 1.0)
+      return 0;  
+
+   // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+   float closestDepth = texture(shadowMap, projCoords.xy).r; 
+
+   // get depth of current fragment from light's perspective
+   float currentDepth = projCoords.z;
+
+   // check whether current frag pos is in shadow
+   // bias should be surface angle dependent
+   float bias = 0.005;  
+   float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
+
+   return shadow;
+}
+
+float shadowPointLight()
+{
+   // ALSO BEING DONE ONLY FOR FIRST LIGHT
+   vec3 lightPos = pointLights[0].position; 
+
+   // get vector between fragment position and light position
+   vec3 fragToLight = FragPos - lightPos;
+
+   // use the light to fragment vector to sample from the depth map    
+   float closestDepth = texture(shadowCubemap, fragToLight).r;
+
+   // it is currently in linear range between [0,1]. Re-transform back to original value
+   closestDepth *= cubemap_far_plane;
+
+   // now get current linear depth as the length between the fragment and light position
+   float currentDepth = length(fragToLight);
+
+   // now test for shadows
+   float bias = 0.05;
+   float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+
+   return shadow;
+}
+
+float shadowCalculation(vec4 fragPosLightSpace)
+{
+   float shadow = 0;
+   // DIRECTIONAL LIGHT
+   if(num_directional_lights > 0)
+      shadow += shadowDirectionalLight(fragPosLightSpace);
+   // POINT LIGHT
+   // if(num_point_lights > 0)
+     // shadow += shadowPointLight();
+
+   return shadow;   
+}
+
+
+void main()
+{
+	difTex = vec3(texture(texture_diffuse1, TexCoords)) + vec3(texture(texture_diffuse2, TexCoords));
+	specTex = vec3(texture(texture_specular1, TexCoords)) + vec3(texture(texture_specular2, TexCoords));
+	norm = normalize(Normal);
+	
+	vec3 color = vec3(0.0);
+	for(int i = 0; i < num_directional_lights; i++)
+		color += calcDirectionalLight(dirLights[i]);
+	for(int i = 0; i < num_point_lights; i++)
+		color += calcPointLight(pointLights[i]);
+	for(int i = 0; i < num_spot_lights; i++)
+		color += calcSpotLight(spotLights[i]);
+   
+   float shadow = shadowCalculation(LightSpaceFragPos);
+   color = (1.0 - shadow) * color;
+   color += ambient * ambient_intensity * difTex;
+	FragColor = vec4(color,1.0);
+}
