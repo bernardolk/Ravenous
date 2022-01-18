@@ -123,6 +123,7 @@ void render_entity_control_arrows(EntityPanelContext* panel);
 void render_entity_rotation_gizmo(EntityPanelContext* panel);
 void update_entity_rotation_gizmo(EntityPanelContext* panel);
 void render_entity_mesh_normals(EntityPanelContext* panel);
+float _get_gizmo_scaling_factor(Entity* entity, float min, float max);
 void render_world_cells(Camera* camera);
 void render_lightbulbs(Camera* camera);
 void start_dear_imgui_frame();
@@ -572,9 +573,9 @@ void render_text_overlay(Player* player)
    float GUI_y = G_DISPLAY_INFO.VIEWPORT_HEIGHT - 60;
    float SCREEN_HEIGHT = G_DISPLAY_INFO.VIEWPORT_HEIGHT;
 
-   string font = "consola18";
-   string font_center = "swanseait38";
-   string font_center_small = "swanseait20";
+   string font                = "consola18";
+   string font_center         = "swanseait38";
+   string font_center_small   = "swanseait20";
    float centered_text_height = SCREEN_HEIGHT - 120;
    float centered_text_height_small = centered_text_height - 40;
    vec3 tool_text_color_yellow = vec3(0.8, 0.8, 0.2);
@@ -1112,6 +1113,25 @@ void render_entity_rotation_gizmo(EntityPanelContext* panel)
    glDepthFunc(GL_LESS);
 }
 
+float _get_gizmo_scaling_factor(Entity* entity, float min, float max)
+{
+   /* Editor gizmos need to follow entities' dimensions so they don't look too big or too small in comparison with the entity 
+      when displayed. */
+
+   float scaling_factor = min;
+   float min_dimension = MAX_FLOAT;
+   if(entity->scale.x < min_dimension) min_dimension = entity->scale.x;
+   if(entity->scale.y < min_dimension) min_dimension = entity->scale.y;
+   if(entity->scale.z < min_dimension) min_dimension = entity->scale.z;
+
+   if(min_dimension < min)
+      scaling_factor = min_dimension;
+   else if(min_dimension >= max)
+      scaling_factor = min_dimension / max;
+
+   return scaling_factor;
+}
+
 void update_entity_control_arrows(EntityPanelContext* panel)
 {
    // arrow positioning settings
@@ -1133,16 +1153,7 @@ void update_entity_control_arrows(EntityPanelContext* panel)
    starting_model = rotate(starting_model, glm::radians(entity->rotation.y), UNIT_Y);
    starting_model = rotate(starting_model, glm::radians(entity->rotation.z), UNIT_Z);
 
-   float scale_value = 0.8;
-   // if(0.5 > entity->scale.x / 2 || 0.5 > entity->scale.y / 2 || 0.5 > entity->scale.z / 2)
-   // {
-   //    float smallest = entity->scale.x;
-   //    if(smallest > entity->scale.y) smallest = entity->scale.y;
-   //    if(smallest > entity->scale.z) smallest = entity->scale.z;
-   //    scale_value = smallest * 0.6;
-   //    if(scale_value < 0.3)
-   //       scale_value = 0.3;
-   // }
+   float scale_value = _get_gizmo_scaling_factor(entity, 0.8, 3.0);
 
    for(int i = 0; i < 3; i++)
    {
@@ -1166,7 +1177,7 @@ void update_entity_rotation_gizmo(EntityPanelContext* panel)
    // update arrow mat models doing correct matrix multiplication order
    auto starting_model = translate(mat4identity, entity->bounding_box.get_centroid());
 
-   float scale_value = 1.0;
+   float scale_value = _get_gizmo_scaling_factor(entity, 1.0, 3.0);
 
    for(int i = 0; i < 3; i++)
    {
