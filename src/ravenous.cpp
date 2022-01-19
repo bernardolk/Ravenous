@@ -449,61 +449,78 @@ void check_all_geometry_has_gl_data()
 #include <geometry.h>
 
 void initialize_shaders() 
-{
-   // text shader
-	auto text_shader = create_shader_program("text", "vertex_text", "fragment_text");
+{  
+   /* Parses shader program info from programs file, assembles each shader program and stores them into the
+      shaders catalogue. */
+      
+   std::ifstream programs_file(SHADERS_FOLDER_PATH + "programs.csv");
+   if(!programs_file.is_open())
+     Quit_fatal("Couldn't open shader programs file.");
+
+   std::string line;
+
+   // discard header
+   getline(programs_file, line);
+
+   int count_line = 1;
+   while(getline(programs_file, line))
+   {
+      count_line++;
+      bool error, missing_comma, has_geometry_shader = false;
+      Parser::Parse p { line.c_str(), line.size() };
+
+      p = parse_token(p);
+      if(!p.hasToken) error = true;
+      std::string shader_name = p.string_buffer;
+
+      p = parse_all_whitespace(p);
+      p = parse_symbol(p);
+      if(!p.hasToken) missing_comma = true;
+
+      p = parse_all_whitespace(p);
+      p = parse_token(p);
+      if(!p.hasToken) error = true;
+      std::string vertex_shader_name = p.string_buffer;
+
+      p = parse_all_whitespace(p);
+      p = parse_symbol(p);
+      if(!p.hasToken) missing_comma = true;
+
+      p = parse_all_whitespace(p);
+      p = parse_token(p);
+      if(p.hasToken) has_geometry_shader = true;
+      std::string geometry_shader_name = p.string_buffer;
+
+      p = parse_all_whitespace(p);
+      p = parse_symbol(p);
+      if(!p.hasToken) missing_comma = true;
+
+      p = parse_all_whitespace(p);
+      p = parse_token(p);
+      if(!p.hasToken) error = true;
+      std::string fragment_shader_name = p.string_buffer;
+
+      // load shaders code and mounts program from parsed shader attributes
+      Shader* shader;
+      if(has_geometry_shader)
+         shader = create_shader_program(shader_name, vertex_shader_name, geometry_shader_name, fragment_shader_name);
+      else
+         shader = create_shader_program(shader_name, vertex_shader_name, fragment_shader_name);
+      
+      Shader_Catalogue.insert({shader->name, shader});
+
+      if(error)
+         Quit_fatal("Error in shader programs file definition. Couldn't parse line " + to_string(count_line) + ".");
+      if(missing_comma)
+         Quit_fatal("Error in shader programs file definition. There is a missing comma in line " + to_string(count_line) + ".");
+   }
+
+   programs_file.close();
+
+   // setup for text shader
+   auto text_shader = Shader_Catalogue.find("text")->second;
    text_shader->use();
 	text_shader->setMatrix4("projection", glm::ortho(0.0f, G_DISPLAY_INFO.VIEWPORT_WIDTH, 0.0f, G_DISPLAY_INFO.VIEWPORT_HEIGHT));
-   Shader_Catalogue.insert({text_shader->name, text_shader});
-
-   // general model shader
-   auto model_shader = create_shader_program("model", "vertex_model", "fragment_multiple_lights");
-   Shader_Catalogue.insert({model_shader->name, model_shader});
-
-   // tiled texture model shader
-   // ONLY WORKS FOR box UV unwrapped type of textures (6 sided unwrapped box)
-   auto tiled_texture_model_shader = create_shader_program("tiledTextureModel", "vertex_model", "fragment_tiled_texture_model_shader");
-   Shader_Catalogue.insert({tiled_texture_model_shader->name, tiled_texture_model_shader});
-
-   // draw line shader
-	auto line_shader = create_shader_program("line", "vertex_debug_line", "fragment_debug_line");
-   Shader_Catalogue.insert({line_shader->name, line_shader});
-
-   // immediate draw shaders
-   auto im_point_shader = create_shader_program("immediate_point", "vertex_point", "fragment_point");
-   Shader_Catalogue.insert({im_point_shader->name, im_point_shader});
-
-   // immediate draw mesh shaders
-   auto im_mesh_shader = create_shader_program("im_mesh", "vertex_simple_mesh", "fragment_color");
-   Shader_Catalogue.insert({im_mesh_shader->name, im_mesh_shader});
-
-   // editor entity shaders
-   auto ortho_shader = create_shader_program("ortho_gui", "vertex_static", "fragment_static");
-   Shader_Catalogue.insert({ortho_shader->name, ortho_shader});
-
-   // general model shader
-   auto color_shader = create_shader_program("color", "vertex_model", "fragment_color");
-   Shader_Catalogue.insert({color_shader->name, color_shader});
-
-   // depth map shader
-   auto depth_shader = create_shader_program("depth", "vertex_depth", "fragment_empty");
-   Shader_Catalogue.insert({depth_shader->name, depth_shader});
-
-   // depth map debug shader
-   auto depth_debug_shader = create_shader_program("depth_debug", "vertex_depth_debug", "fragment_depth_debug");
-   Shader_Catalogue.insert({depth_debug_shader->name, depth_debug_shader});
-
-   // depth cubemap
-   auto depth_cubemap_shader = create_shader_program(
-      "depth_cubemap", "vertex_depth_cubemap", "geometry_depth_cubemap" ,"fragment_depth_cubemap"
-   );
-   Shader_Catalogue.insert({depth_cubemap_shader->name, depth_cubemap_shader});
-
-   // editor entity arrow shader
-   auto editor_arrow_shader = create_shader_program(
-      "ed_entity_arrow_shader", "vertex_model", "fragment_ed_entity_arrow"
-   );
-   Shader_Catalogue.insert({editor_arrow_shader->name, editor_arrow_shader});
 }
 
 
