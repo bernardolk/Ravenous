@@ -38,8 +38,8 @@ struct UndoStack {
 
    void track(EntityState state)
    {
-      log(LOG_INFO, "Tracking entity '" + state.entity->name + "'.");
-      
+      //log(LOG_INFO, "Tracking entity '" + state.entity->name + "'.");
+
       if(full)
       {
          G_BUFFERS.rm_buffer->add("UNDO/REDO STACK FULL.", 800);

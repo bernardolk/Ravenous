@@ -280,9 +280,14 @@ void render_entity_panel(EntityPanelContext* panel)
 
    if(track)
    {
+      // the following block makes sure that we track the entity original state if necessary.
+      // if we already tracked it or we used an external tool from the panel, like grab/move tool, 
+      // we don't track, since these tools have their own tracking calls.
       if(!panel->tracked_once)
       {
-         EdContext.undo_stack.track(panel->entity_starting_state);
+         EntityState last_recorded_state = EdContext.undo_stack.check();
+         if(last_recorded_state.entity->id != entity->id)
+            EdContext.undo_stack.track(panel->entity_starting_state);
          panel->tracked_once = true;
       }
    

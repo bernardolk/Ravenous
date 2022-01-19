@@ -344,38 +344,25 @@ void check_selection_to_locate_coords()
    }
 }
 
-// ------------------
-// PLACE ENTITY TOOL
-// ------------------
-void activate_place_mode(Entity* entity);
-void place_entity_with_mouse(Entity* entity);
-
-void activate_place_mode(Entity* entity)
-{
-   deactivate_editor_modes();
-   EdContext.place_mode = true;
-   EdContext.selected_entity = entity;
-   EdContext.undo_stack.track(entity);
-}
-
-
-void place_entity_with_mouse(Entity* entity)
-{
-   auto pickray = cast_pickray();
-   auto test = test_ray_against_scene(pickray, entity);
-   if(test.hit)
-   {
-      entity->position = point_from_detection(pickray, test);
-      entity->update();
-   }
-}
-
-
 // -------------
 // > MOVE TOOLS 
 // -------------
-RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* entity);
-void place_entity();
+void place_entity()
+{
+   /* Common function for move/rotate/scale entity tools.
+      Updates entity, tracks it state and updates world.
+      To be called at the end of entity modification operation. */
+
+   EdContext.move_mode                    = false;
+   EdContext.move_entity_by_arrows        = false;
+   EdContext.rotate_entity_with_mouse     = false;
+   EdContext.place_mode                   = false;
+   EdContext.move_entity_by_arrows_ref_point = vec3(0);
+   
+   EdContext.selected_entity->update();
+   CL_recompute_collision_buffer_entities(G_SCENE_INFO.player);
+   EdContext.undo_stack.track(EdContext.selected_entity);
+}
 
 RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* entity)
 { 
@@ -441,32 +428,32 @@ RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* entity)
    return test;
 }
 
-void place_entity()
+// --------------
+// >> PLACE MODE
+// --------------
+void activate_place_mode(Entity* entity)
 {
-   /* Common function for move/rotate/scale entity tools.
-      Updates entity, tracks it state and updates world.
-      To be called at the end of entity modification operation. */
+   deactivate_editor_modes();
+   EdContext.place_mode = true;
+   EdContext.selected_entity = entity;
+   EdContext.undo_stack.track(entity);
+}
 
-   EdContext.move_mode = false;
-   EdContext.move_entity_by_arrows = false;
-   EdContext.rotate_entity_with_mouse = false;
-   EdContext.move_entity_by_arrows_ref_point = vec3(0);
-   EdContext.place_mode = false;
-   
-   EdContext.selected_entity->update();
-   CL_recompute_collision_buffer_entities(G_SCENE_INFO.player);
-   EdContext.undo_stack.track(EdContext.selected_entity);
+void select_entity_placing_with_mouse_move(Entity* entity)
+{
+   auto pickray = cast_pickray();
+   auto test = test_ray_against_scene(pickray, entity);
+   if(test.hit)
+   {
+      entity->position = point_from_detection(pickray, test);
+      entity->update();
+   }
 }
 
 
-
-// ------------
-// > MOVE MODE
-// ------------
-void move_entity_with_mouse(Entity* entity);
-void activate_move_mode(Entity* entity);
-void place_entity(Entity* entity);
-
+// -------------
+// >> MOVE MODE
+// -------------
 void activate_move_mode(Entity* entity)
 {
    deactivate_editor_modes();
@@ -475,7 +462,6 @@ void activate_move_mode(Entity* entity)
    EdContext.selected_entity = entity;
    EdContext.undo_stack.track(entity);
 }
-
 
 void move_entity_with_mouse(Entity* entity)
 {
@@ -508,10 +494,9 @@ void move_entity_with_mouse(Entity* entity)
 }
 
 
-
-// ------------------------
-// > MOVE ENTITY BY ARROWS
-// ------------------------
+// -------------------------
+// >> MOVE ENTITY BY ARROWS
+// -------------------------
 void activate_move_entity_by_arrow(u8 move_axis);
 void move_entity_by_arrows(Entity* entity);
 

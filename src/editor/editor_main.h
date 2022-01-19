@@ -242,11 +242,9 @@ void update()
    if(EdContext.place_mode)
    {
       if(EdContext.mouse_click)
-      {
          place_entity();
-      }
       else
-         place_entity_with_mouse(EdContext.selected_entity);
+         select_entity_placing_with_mouse_move(EdContext.selected_entity);
    }
 
    if(EdContext.scale_entity_with_mouse)
