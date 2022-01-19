@@ -21,81 +21,90 @@ struct Shader {
     {
         glUseProgram(gl_programId);
     }
-    // utility uniform functions
-    // ------------------------------------------------------------------------
-    void setBool(const std::string& name, bool value) const
-    {
-        glUniform1i(glGetUniformLocation(gl_programId, name.c_str()), (int)value);
-    }
-    // ------------------------------------------------------------------------
-    void setInt(const std::string& name, int value) const
-    {
-        glUniform1i(glGetUniformLocation(gl_programId, name.c_str()), value);
-    }
-    // ------------------------------------------------------------------------
-    void setFloat(const std::string& name, float value) const
-    {
-        glUniform1f(glGetUniformLocation(gl_programId, name.c_str()), value);
-    }
-    void setFloat2(const std::string& name, float value0, float value1) const
-    {
-        glUniform2f(glGetUniformLocation(gl_programId, name.c_str()), value0, value1);
-    }
-    void setFloat2(const std::string& name, vec2 vec) const
-    {
-        glUniform2f(glGetUniformLocation(gl_programId, name.c_str()), vec.x, vec.y);
-    }
-    void setFloat3(const std::string& name, float value0, float value1, float value2) const
-    {
-        glUniform3f(glGetUniformLocation(gl_programId, name.c_str()), value0, value1, value2);
-    }
-    void setFloat3(const std::string& name, vec3 vec) const
-    {
-        glUniform3f(glGetUniformLocation(gl_programId, name.c_str()), vec.x, vec.y, vec.z);
-    }
-    void setFloat4(const std::string& name, float value0, float value1, float value2, float value3) const
-    {
-        glUniform4f(glGetUniformLocation(gl_programId, name.c_str()), value0, value1, value2, value3);
-    }
-    void setFloat4(const std::string& name, glm::vec4 vec) const
-    {
-        glUniform4f(glGetUniformLocation(gl_programId, name.c_str()), vec.x, vec.y, vec.z, vec.w);
-    }
-    void setMatrix4(const std::string& name, glm::mat4 mat) {
-        glUniformMatrix4fv(glGetUniformLocation(gl_programId, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
-    }
+
+   // =====================
+   // GL Uniform functions
+   // =====================
+   void setBool(const std::string& name, bool value) const
+   {
+      glUniform1i(glGetUniformLocation(gl_programId, name.c_str()), (int)value);
+   }
+
+   void setInt(const std::string& name, int value) const
+   {
+      glUniform1i(glGetUniformLocation(gl_programId, name.c_str()), value);
+   }
+
+   void setFloat(const std::string& name, float value) const
+   {
+      glUniform1f(glGetUniformLocation(gl_programId, name.c_str()), value);
+   }
+
+   void setFloat2(const std::string& name, float value0, float value1) const
+   {
+      glUniform2f(glGetUniformLocation(gl_programId, name.c_str()), value0, value1);
+   }
+
+   void setFloat2(const std::string& name, vec2 vec) const
+   {
+      glUniform2f(glGetUniformLocation(gl_programId, name.c_str()), vec.x, vec.y);
+   }
+
+   void setFloat3(const std::string& name, float value0, float value1, float value2) const
+   {
+      glUniform3f(glGetUniformLocation(gl_programId, name.c_str()), value0, value1, value2);
+   }
+
+   void setFloat3(const std::string& name, vec3 vec) const
+   {
+      glUniform3f(glGetUniformLocation(gl_programId, name.c_str()), vec.x, vec.y, vec.z);
+   }
+
+   void setFloat4(const std::string& name, float value0, float value1, float value2, float value3) const
+   {
+      glUniform4f(glGetUniformLocation(gl_programId, name.c_str()), value0, value1, value2, value3);
+   }
+
+   void setFloat4(const std::string& name, glm::vec4 vec) const
+   {
+      glUniform4f(glGetUniformLocation(gl_programId, name.c_str()), vec.x, vec.y, vec.z, vec.w);
+   }
+
+   void setMatrix4(const std::string& name, glm::mat4 mat) {
+      glUniformMatrix4fv(glGetUniformLocation(gl_programId, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
+   }
 };
 
 bool check_shader_compile_errors(Shader* shader, std::string type, unsigned int id)
 {
    // returns true if we have a compilation problem in the shader program
-    int success;
-    char infoLog[1024];
+   int success;
+   char infoLog[1024];
 
-    if (type != "PROGRAM") {
-        glGetShaderiv(id, GL_COMPILE_STATUS, &success);
-        if (!success)
-        {
-            glGetShaderInfoLog(id, 1024, NULL, infoLog);
-            std::cout << "ERROR::SHADER_COMPILATION_ERROR: " << type << " SHADER AT PROGRAM "  << shader->name 
-                        << "' : vertex shader -> '" << shader->vertex_path << "' fragment shader -> " << shader->fragment_path
-                        << "\n DETAILS: \n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+   if (type != "PROGRAM") {
+      glGetShaderiv(id, GL_COMPILE_STATUS, &success);
+      if (!success)
+      {
+         glGetShaderInfoLog(id, 1024, NULL, infoLog);
+         std::cout << "ERROR::SHADER_COMPILATION_ERROR: " << type << " SHADER AT PROGRAM "  << shader->name 
+                     << "' : vertex shader -> '" << shader->vertex_path << "' fragment shader -> " << shader->fragment_path
+                     << "\n DETAILS: \n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+      return true;
+      }
+   }
+   else {
+      glGetProgramiv(id, GL_LINK_STATUS, &success);
+      if (!success)
+      {
+         glGetProgramInfoLog(id, 1024, NULL, infoLog);
+         std::cout << "ERROR::PROGRAM_LINKING_ERROR: AT PROGRAM '" << shader->name 
+                     << "' : vertex shader -> '" << shader->vertex_path << "' fragment shader -> " << shader->fragment_path
+                     << "\n DETAILS: \n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
          return true;
-        }
-    }
-    else {
-        glGetProgramiv(id, GL_LINK_STATUS, &success);
-        if (!success)
-        {
-            glGetProgramInfoLog(id, 1024, NULL, infoLog);
-            std::cout << "ERROR::PROGRAM_LINKING_ERROR: AT PROGRAM '" << shader->name 
-                        << "' : vertex shader -> '" << shader->vertex_path << "' fragment shader -> " << shader->fragment_path
-                        << "\n DETAILS: \n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
-            return true;
-        }
-    }
+      }
+   }
 
-    return false;
+   return false;
 }
 
 Shader* create_shader_program(

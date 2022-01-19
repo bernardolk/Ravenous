@@ -4,6 +4,7 @@ in vec3 FragPos;
 in vec3 Normal;
 in vec2 TexCoords;
 in vec4 LightSpaceFragPos;
+in mat3 TBN;
 
 out vec4 FragColor;
 
@@ -62,6 +63,7 @@ uniform sampler2D texture_diffuse3;
 uniform sampler2D texture_specular1;
 uniform sampler2D texture_specular2;
 uniform sampler2D shadowMap;
+uniform sampler2D texture_normal1;
 
 uniform int texture_wrap_top;
 uniform int texture_wrap_bottom;
@@ -258,7 +260,14 @@ void main()
 	specTex = vec3(texture(texture_specular1, tex_coords)) + vec3(texture(texture_specular2, tex_coords));
 	
 	
-	norm = normalize(Normal);
+	// normals mapping
+	vec3 normal_map_color      = texture(texture_normal1, tex_coords).rgb;						// obtain normal from normal map in range [0,1]
+    vec3 normal_map_direction  = normalize(normal_map_color * 2.0 - 1.0); 						// transform normal vector to range [-1,1]
+		
+	
+	// calculate lighting
+	// norm = normalize(Normal);
+	norm = normalize(TBN * normal_map_direction);
 	
 	vec3 color = vec3(0.0);
 	for(int i = 0; i < num_directional_lights; i++)

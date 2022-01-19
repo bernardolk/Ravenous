@@ -221,5 +221,5 @@ void main()
    float shadow = shadowCalculation(LightSpaceFragPos);
    color = (1.0 - shadow) * color;
    color += ambient * ambient_intensity * difTex;
-	FragColor = vec4(color,1.0);
+	FragColor = vec4(color, 1.0);
 }
