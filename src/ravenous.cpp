@@ -45,17 +45,17 @@
 using namespace std;
 
 
-const string PROJECT_PATH = "c:/repositories/ravenous";
-const string TEXTURES_PATH = PROJECT_PATH + "/assets/textures/";
-const string MODELS_PATH = PROJECT_PATH + "/assets/models/";
-const string FONTS_PATH = PROJECT_PATH + "/assets/fonts/";
-const string SHADERS_FOLDER_PATH = PROJECT_PATH + "/shaders/";
-const string CAMERA_FILE_PATH = PROJECT_PATH + "/camera.txt";
-const string SCENES_FOLDER_PATH = PROJECT_PATH + "/scenes/";
-const string SHADERS_FILE_EXTENSION = ".shd";
-const string CONFIG_FILE_PATH = PROJECT_PATH + "/config.txt";
-const string SCENE_TEMPLATE_NAME = "scene_template";
-const string INPUT_RECORDINGS_FOLDER_PATH = PROJECT_PATH + "/recordings/";
+const string PROJECT_PATH                    = "c:/repositories/ravenous";
+const string TEXTURES_PATH                   = PROJECT_PATH + "/assets/textures/";
+const string MODELS_PATH                     = PROJECT_PATH + "/assets/models/";
+const string FONTS_PATH                      = PROJECT_PATH + "/assets/fonts/";
+const string SHADERS_FOLDER_PATH             = PROJECT_PATH + "/shaders/";
+const string CAMERA_FILE_PATH                = PROJECT_PATH + "/camera.txt";
+const string SCENES_FOLDER_PATH              = PROJECT_PATH + "/scenes/";
+const string SHADERS_FILE_EXTENSION          = ".shd";
+const string CONFIG_FILE_PATH                = PROJECT_PATH + "/config.txt";
+const string SCENE_TEMPLATE_NAME             = "scene_template";
+const string INPUT_RECORDINGS_FOLDER_PATH    = PROJECT_PATH + "/recordings/";
 
 const glm::mat4 mat4identity(
 	1.0f, 0.0f, 0.0f, 0.0f,

@@ -267,16 +267,13 @@ Mesh* load_wavefront_obj_as_mesh(
 
          else if(vertex_count > 4)
          {
-            cout << "FATAL: mesh file " + filename + 
-               ".obj contain at least one face with unsupported ammount of vertices. Please triangulate or quadfy faces.\n";
-            assert(false);
+            Quit_fatal("mesh file " + filename + 
+               ".obj contain at least one face with unsupported ammount of vertices. Please triangulate or quadfy faces.\n");
          }
 
          else if(vertex_count < 3)
          {
-            log(LOG_FATAL, "mesh file " + filename + 
-               ".obj contain at least one face with 2 or less vertices. Please review the geometry.\n");
-            assert(false);
+            Quit_fatal("mesh file " + filename + ".obj contain at least one face with 2 or less vertices. Please review the geometry.\n");
          }
 
          faces_count++;
@@ -479,7 +476,7 @@ void attach_extra_data_to_mesh(string filename, string filepath, Mesh* mesh)
       WIN32_FIND_DATA find_data_mesh;
       HANDLE find_handle_mesh = FindFirstFileA(mesh_path.c_str(), &find_data_mesh);
       if(find_handle_mesh == INVALID_HANDLE_VALUE)
-         log(LOG_FATAL, "Unexpected: couldn't find file handle for mesh obj while checking for extra mesh data.");
+         Quit_fatal("Unexpected: couldn't find file handle for mesh obj while checking for extra mesh data.");
 
       if(CompareFileTime(&find_data_mesh.ftLastWriteTime, &find_data_extra_data.ftLastWriteTime) == 1)
          compute_extra_data = true;

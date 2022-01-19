@@ -62,8 +62,7 @@ void render_entity_panel(EntityPanelContext* panel)
 
    // entity state tracking
    bool track = false;
-
-
+   
    // POSITION
    bool used_pos = false;
    {
@@ -281,8 +280,13 @@ void render_entity_panel(EntityPanelContext* panel)
 
    if(track)
    {
+      if(!panel->tracked_once)
+      {
+         EdContext.undo_stack.track(panel->entity_starting_state);
+         panel->tracked_once = true;
+      }
+   
       EdContext.undo_stack.track(entity);
-      panel->entity_tracked_state = get_entity_state(entity);
    }
 
    // ----------------
@@ -319,6 +323,7 @@ void open_entity_panel(Entity* entity)
    panel.show_collider           = false;
    panel.show_bounding_box       = false;
    panel.rename_option_active    = false;
-   panel.entity_tracked_state    = get_entity_state(entity);
+   panel.tracked_once            = false;
+   panel.entity_starting_state   = get_entity_state(entity);
    panel.empty_rename_buffer();
 }

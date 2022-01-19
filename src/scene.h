@@ -483,7 +483,7 @@ Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count
                   p = parse_all_whitespace(p);
                   p = parse_int(p);
                   if(!p.hasToken)
-                     log(LOG_FATAL, "Scene description contain an entity with box tiled shader without full tile quantity description.");
+                     Quit_fatal("Scene description contain an entity with box tiled shader without full tile quantity description.");
 
                   new_entity->uv_tile_wrap[i] = p.iToken;
                }

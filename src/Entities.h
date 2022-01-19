@@ -138,14 +138,6 @@ struct Entity {
    }
 };
 
-struct EntityState {
-   Entity* entity = nullptr;
-   unsigned int id;
-   vec3 position;
-   vec3 scale;
-   vec3 rotation;
-};
-
 struct SpotLight {
 	vec3 position = vec3(0);
 	vec3 direction = vec3(0, -1, 0);

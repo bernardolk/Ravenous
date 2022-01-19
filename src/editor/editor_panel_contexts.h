@@ -43,7 +43,9 @@ struct EntityPanelContext {
    Entity* rotation_gizmo_y;
    Entity* rotation_gizmo_z;
 
-   EntityState entity_tracked_state;
+   EntityState entity_starting_state;
+   bool tracked_once       = false;
+
    bool show_normals       = false;
    bool show_collider      = false;
    bool show_bounding_box  = false;

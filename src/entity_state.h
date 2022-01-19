@@ -1,3 +1,11 @@
+struct EntityState {
+   Entity* entity = nullptr;
+   unsigned int id;
+   vec3 position;
+   vec3 scale;
+   vec3 rotation;
+};
+
 EntityState get_entity_state(Entity* entity)
 {
    EntityState state; 
@@ -19,6 +27,14 @@ void apply_state(EntityState state)
    state.entity->rotation = state.rotation;
    state.entity->update();
 }
+
+bool compare_entity_states(EntityState state1, EntityState state2)
+   {
+      return state1.id == state2.id
+         && state1.position == state2.position
+         && state1.scale == state2.scale
+         && state1.rotation == state2.rotation;
+   }
 
 mat4 mat_model_from_entity_state(EntityState state)
 {

@@ -1,10 +1,3 @@
-bool compare_state(EntityState s1, EntityState s2)
-{
-   return s1.position == s2.position &&
-      s1.scale == s2.scale &&
-      s1.rotation == s2.rotation;
-}
-
 struct DeletedEntityLog {
    u8 size = 0;
    const static u8 capacity = 100;
@@ -45,13 +38,15 @@ struct UndoStack {
 
    void track(EntityState state)
    {
+      log(LOG_INFO, "Tracking entity '" + state.entity->name + "'.");
+      
       if(full)
       {
          G_BUFFERS.rm_buffer->add("UNDO/REDO STACK FULL.", 800);
          return;
       }
 
-      if(!_comp_state(state, check()))
+      if(!compare_entity_states(state, check()))
       {
          stack[++pos] = state;
          limit = pos;
@@ -137,15 +132,6 @@ struct UndoStack {
       
       // if entity current state is equal to state in stack
       // then is not valid for undo also
-      return !_comp_state(get_entity_state(state.entity), state);
-   }
-
-   // internal
-   bool _comp_state(EntityState state1, EntityState state2)
-   {
-      return state1.id == state2.id
-         && state1.position == state2.position
-         && state1.scale == state2.scale
-         && state1.rotation == state2.rotation;
+      return !compare_entity_states(get_entity_state(state.entity), state);
    }
 };
