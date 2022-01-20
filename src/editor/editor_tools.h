@@ -557,10 +557,14 @@ void move_entity_by_arrows(Entity* entity)
 void move_light_with_mouse(string type, int index);
 void activate_move_light_mode(string type, int index);
 void place_light(string type, int index);
+void open_lights_panel(string type, int index, bool focus_tab); //fwd
+
 
 void activate_move_light_mode(string type, int index)
 {
    deactivate_editor_modes();
+   EdContext.entity_panel.active = false;
+   open_lights_panel(type, index, true);
    EdContext.move_mode = true;
    EdContext.selected_light = index;
    EdContext.selected_light_type = type;
@@ -642,6 +646,10 @@ void move_light_with_mouse(string type, int index)
    // places entity accordingly
    switch(EdContext.move_axis)
    {
+      case 0:
+         position.x = ray.origin.x + ray.direction.x * test.distance;
+         position.z = ray.origin.z + ray.direction.z * test.distance;
+         break;
       case 1:  // X
          position.x = ray.origin.x + ray.direction.x * test.distance;
          break;

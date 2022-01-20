@@ -1,10 +1,6 @@
 // -------------
 // LIGHTS PANEL
 // -------------
-
-void open_lights_panel(string type, int index, bool focus_tab);
-vec3 compute_direction_from_angles(float pitch, float yaw);
-
 void open_lights_panel(string type = "", int index = -1, bool focus_tab = false)
 {
    EdContext.lights_panel.active = true;
