@@ -181,7 +181,7 @@ struct Player {
 
    void set_checkpoint(Entity* entity)
    {
-      if(entity->type != CHECKPOINT) assert(false);
+      if(entity->type != EntityType_Checkpoint) assert(false);
 
       checkpoint_pos = entity_ptr->position;
       checkpoint = entity;

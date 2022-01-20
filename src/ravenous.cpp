@@ -150,6 +150,7 @@ struct ProgramConfig {
 #include <entity_pool.h>
 #include <loaders.h>
 #include <entity_manager.h>
+#include <geometry.h>
 
 // entity manager and entity pool
 EntityManager Entity_Manager;
@@ -192,7 +193,6 @@ void setup_GLFW(bool debug);
 void render_ray();
 void update_scene_objects();
 void initialize_shaders();
-void create_boilerplate_geometry();
 GLenum glCheckError_(const char* file, int line);
 void start_frame();
 void check_all_entities_have_shaders();
@@ -219,7 +219,7 @@ int main()
    stbi_set_flip_vertically_on_load(true);  
    load_textures_from_assets_folder();
    initialize_shaders();
-   create_boilerplate_geometry();
+   load_models();
 
    // Allocate buffers and logs
    G_BUFFERS.entity_buffer = allocate_entity_buffer();
@@ -445,8 +445,6 @@ void check_all_geometry_has_gl_data()
       }
    }
 }
-
-#include <geometry.h>
 
 void initialize_shaders() 
 {  

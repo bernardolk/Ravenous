@@ -40,7 +40,7 @@ void initialize_palette(PalettePanelContext* panel)
       "model", 
       "grey",
       "aabb", 
-      STATIC
+      EntityType_Static
    };
 
    // 1
@@ -50,7 +50,7 @@ void initialize_palette(PalettePanelContext* panel)
       "model", 
       "grey",
       "slope", 
-      STATIC
+      EntityType_Static
    };
 
    // 3
@@ -60,7 +60,7 @@ void initialize_palette(PalettePanelContext* panel)
       "model", 
       "grey", 
       "aabb", 
-      CHECKPOINT,
+      EntityType_Checkpoint,
       vec3(0.3, 1.2, 0.3)
    };
 }

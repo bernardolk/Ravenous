@@ -285,7 +285,7 @@ struct EntityManager
    // [internal]
    void _remove_checkpoint_type(Entity* entity)
    {
-      if(entity->type == CHECKPOINT)
+      if(entity->type == EntityType_Checkpoint)
       {
          int entity_index_in_vector = -1;
          int i = 0;
@@ -306,8 +306,12 @@ struct EntityManager
 
    void _add_checkpoint_type(Entity* entity)
    {
-      entity->type = CHECKPOINT;
-      entity->trigger = Geometry_Catalogue.find("trigger")->second;
+      auto find = Geometry_Catalogue.find("trigger");
+      if(find ==  Geometry_Catalogue.end())
+         Quit_fatal("Couldn't find 'trigger' mesh for creating Trigger type entity.");
+      
+      entity->type      = EntityType_Checkpoint;
+      entity->trigger   = find->second;
       checkpoints_registry->push_back(entity);
    }
 
@@ -315,17 +319,17 @@ struct EntityManager
    {  
       switch(type)
       {
-         case CHECKPOINT:
+         case EntityType_Checkpoint:
          {
-            if(entity->type != CHECKPOINT)
+            if(entity->type != EntityType_Checkpoint)
                _add_checkpoint_type(entity);
             break;
          }
-         case STATIC:
+         case EntityType_Static:
          {
-            if(entity->type == CHECKPOINT)
+            if(entity->type == EntityType_Checkpoint)
                _remove_checkpoint_type(entity);
-            entity->type = STATIC;
+            entity->type = EntityType_Static;
             break;
          }
          default:
@@ -359,7 +363,7 @@ struct EntityManager
          entity->world_cells[i]->remove(entity);
 
       // remove from checkpoint registry if checkpoint
-      if(entity->type == CHECKPOINT)
+      if(entity->type == EntityType_Checkpoint)
       {
          auto& vec = *(checkpoints_registry);
          vec.erase(std::remove(vec.begin(), vec.end(), entity), vec.end());

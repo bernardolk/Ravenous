@@ -308,7 +308,7 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
       if(entity->flags & EntityFlags_RenderWireframe)
          writer << "hidden\n";
 
-      if(entity->type == CHECKPOINT)
+      if(entity->type == EntityType_Checkpoint)
       {
          writer << "type 1\n";
          writer << "trigger " 

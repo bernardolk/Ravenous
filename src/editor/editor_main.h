@@ -900,15 +900,16 @@ void render_event_triggers(Camera* camera)
    auto find = Shader_Catalogue.find("color");
    auto shader = find->second;
 
+   shader->use();
+   shader->setMatrix4("view", camera->View4x4);
+   shader->setMatrix4("projection", camera->Projection4x4);
+
    for(int i = 0; i < checkpoints.size(); i++)
    {
       auto checkpoint = checkpoints[i];
-      shader->use();
-      shader->setFloat3("color", 0.5, 0.5, 0.3);
-      shader->setFloat("opacity", 0.6);
-      shader->setMatrix4("model", checkpoint->trigger_model);
-      shader->setMatrix4("view", camera->View4x4);
-      shader->setMatrix4("projection", camera->Projection4x4);
+      shader->setMatrix4("model", checkpoint->trigger_matModel);
+      shader->setFloat3 ("color", 0.5, 0.5, 0.3);
+      shader->setFloat  ("opacity", 0.6);
       render_mesh(checkpoint->trigger, RenderOptions{});
    }
 }

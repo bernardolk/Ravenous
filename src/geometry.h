@@ -1,4 +1,4 @@
-void create_boilerplate_geometry()
+void load_models()
 {
    //TEXT
    {
@@ -72,5 +72,8 @@ void create_boilerplate_geometry()
    load_wavefront_obj_as_mesh(MODELS_PATH, "capsule");
 
    // LIGHTBULB
-   auto lightbulb_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, "lightbulb");
+   load_wavefront_obj_as_mesh(MODELS_PATH, "lightbulb");
+
+   // TRIGGER (CYLINDER)
+   load_wavefront_obj_as_mesh(MODELS_PATH, "trigger");
 }

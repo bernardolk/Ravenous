@@ -5,8 +5,8 @@ struct WorldCell;
 
 
 enum EntityType {
-   STATIC            = 0,
-   CHECKPOINT        = 1
+   EntityType_Static            = 0,
+   EntityType_Checkpoint        = 1
 };
 
 const static size_t ENTITY_WOLRD_CELL_OCCUPATION_LIMIT = 50;
@@ -22,7 +22,7 @@ enum EntityFlags {
 struct Entity {
    u32 id;
    string name       = "NONAME";
-   EntityType type   = STATIC;
+   EntityType type   = EntityType_Static;
    u32 flags;
 
    // render data
@@ -55,7 +55,7 @@ struct Entity {
    Mesh* trigger;
    vec3 trigger_scale   = vec3(1.5f, 1.f, 0.f);
    vec3 trigger_pos     = vec3(0.0f);
-   mat4 trigger_model;
+   mat4 trigger_matModel;
 
 
    // ----------
@@ -71,7 +71,9 @@ struct Entity {
       update_model_matrix();
       update_collider();
       update_bounding_box();
-      update_trigger();
+
+      if(type == EntityType_Checkpoint)
+         update_trigger();
    }
 
 
@@ -105,18 +107,14 @@ struct Entity {
 
    void update_trigger()
    {
-      // auto [x0, x1, z0, z1] = get_rect_bounds();
-      // trigger_pos = position + vec3{(x1 - x0) / 2.0f, trigger_scale.y, (z1 - z0) / 2.0f};
-      // glm::mat4 model = translate(mat4identity, trigger_pos);
-		// model = rotate(model, glm::radians(rotation.x), vec3(1.0f, 0.0f, 0.0f));
-		// model = rotate(model, glm::radians(rotation.y), vec3(0.0f, 1.0f, 0.0f));
-		// model = rotate(model, glm::radians(rotation.z), vec3(0.0f, 0.0f, 1.0f));
-      // // to avoid elipsoids
-      // trigger_scale.z = trigger_scale.x;
-		// model = glm::scale(model, trigger_scale);
-		// trigger_model = model;
+      auto centroid = bounding_box.get_centroid();
+      glm::mat4 model = translate(mat4identity, centroid);
 
-      // ???
+      // to avoid elipsoids
+      trigger_scale.z = trigger_scale.x;
+		model = glm::scale(model, trigger_scale);
+
+		trigger_matModel = model;
    }
 
 

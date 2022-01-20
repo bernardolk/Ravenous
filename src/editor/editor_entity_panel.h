@@ -166,8 +166,8 @@ void render_entity_panel(EntityPanelContext* panel)
 
    // TABS
 
-   // CHECKPOINT
-   if(entity->type == CHECKPOINT)
+   // EntityType_Checkpoint
+   if(entity->type == EntityType_Checkpoint)
    {
       ImGui::NewLine();
       ImGui::Text("Event trigger");
