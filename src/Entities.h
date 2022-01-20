@@ -134,6 +134,21 @@ struct Entity {
 		rotation_matrix = rotate(rotation_matrix, glm::radians(rotation.z), vec3(0.0f, 0.0f, 1.0f));
       return rotation_matrix;
    }
+
+   Mesh get_trigger_collider()
+   {
+      Mesh trigger_collider;
+
+      // empty collider
+      trigger_collider.vertices.clear();
+
+      // multiplies model matrix to collision mesh
+      for (int i = 0; i < trigger->vertices.size(); i++)
+         trigger_collider.vertices.push_back(Vertex{trigger->vertices[i] * trigger_matModel});
+
+      return trigger_collider;
+   }
+
 };
 
 struct SpotLight {

@@ -408,12 +408,12 @@ void GP_check_trigger_interaction(Player* player)
    auto checkpoints = G_SCENE_INFO.active_scene->checkpoints;
    for(int i = 0; i < checkpoints.size(); i++)
    {
-      auto checkpoint            = checkpoints[i];
+      auto checkpoint = checkpoints[i];
 
       //@todo: do a cylinder vs cylinder or cylinder vs aabb test here
-      ///auto triggered             = CL_test_cylinder_vs_cylinder(...);
-      bool triggered = false;
-      if(triggered)
+      Mesh trigger_collider = checkpoint->get_trigger_collider();
+      GJK_Result gjk_test = CL_run_GJK(&player->entity_ptr->collider, &trigger_collider);
+      if(gjk_test.collision)
       {
          RENDER_MESSAGE("CHECKPOINT", 1000);
          player->set_checkpoint(checkpoint);

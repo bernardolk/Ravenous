@@ -171,8 +171,12 @@ void render_entity_panel(EntityPanelContext* panel)
    {
       ImGui::NewLine();
       ImGui::Text("Event trigger");
-      ImGui::SliderFloat("radius", &entity->trigger_scale.x, 0, 10);
-      ImGui::SliderFloat("height", &entity->trigger_scale.y, 0, 10);
+      
+      bool ev_radius_interaction = ImGui::SliderFloat("radius", &entity->trigger_scale.x, 0, 10);
+      bool ev_height_interaction = ImGui::SliderFloat("height", &entity->trigger_scale.y, 0, 10);
+
+      if(ev_radius_interaction || ev_height_interaction)
+         entity->update();
    }
    
    ImGui::NewLine();
