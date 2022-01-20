@@ -286,7 +286,7 @@ void render_entity_panel(EntityPanelContext* panel)
       if(!panel->tracked_once)
       {
          EntityState last_recorded_state = EdContext.undo_stack.check();
-         if(last_recorded_state.entity->id != entity->id)
+         if(last_recorded_state.entity == nullptr || last_recorded_state.entity->id != entity->id)
             EdContext.undo_stack.track(panel->entity_starting_state);
          panel->tracked_once = true;
       }
