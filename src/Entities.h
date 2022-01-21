@@ -6,7 +6,8 @@ struct WorldCell;
 
 enum EntityType {
    EntityType_Static            = 0,
-   EntityType_Checkpoint        = 1
+   EntityType_Checkpoint        = 1,
+   EntityType_Timed             = 2,
 };
 
 const static size_t ENTITY_WOLRD_CELL_OCCUPATION_LIMIT = 50;
