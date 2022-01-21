@@ -313,15 +313,13 @@ struct EntityManager
       }
    }
 
-   void _add_checkpoint_type(Entity* entity)
+   void _make_interactable(Entity* entity)
    {
       auto find = Geometry_Catalogue.find("trigger");
       if(find ==  Geometry_Catalogue.end())
          Quit_fatal("Couldn't find 'trigger' mesh for creating Trigger type entity.");
       
-      entity->type      = EntityType_Checkpoint;
-      entity->trigger   = find->second;
-      checkpoints_registry->push_back(entity);
+      entity->trigger = find->second;
       interactables_registry->push_back(entity);
    }
 
@@ -331,8 +329,12 @@ struct EntityManager
       {
          case EntityType_Checkpoint:
          {
-            if(entity->type != EntityType_Checkpoint)
-               _add_checkpoint_type(entity);
+            if(entity->type != EntityType_Checkpoint || entity->type != EntityType_Timed)
+            {
+               _make_interactable(entity);
+               entity->type = EntityType_Checkpoint;
+               checkpoints_registry->push_back(entity);
+            }
             break;
          }
          case EntityType_Static:
@@ -340,6 +342,15 @@ struct EntityManager
             if(entity->type == EntityType_Checkpoint)
                _remove_checkpoint_type(entity);
             entity->type = EntityType_Static;
+            break;
+         }
+         case EntityType_Timed:
+         {
+            if(entity->type != EntityType_Checkpoint || entity->type != EntityType_Timed)
+            {
+               _make_interactable(entity);
+               entity->type = EntityType_Timed;
+            }
             break;
          }
          default:
