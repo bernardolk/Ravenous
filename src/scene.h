@@ -1,5 +1,16 @@
+struct DeferredLoadBuffer {
+   static const int size = 64;
+   int count = 0;
+   Entity* from[size];
+   std::string to[size];
+   std::string context[size];
+};
+
+// Prototypes
 bool load_scene_from_file(std::string scene_name, WorldStruct* world);
-Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, std::string path);
+Entity* parse_and_load_entity(
+   Parser::Parse p, ifstream* reader, int& line_count, std::string path, DeferredLoadBuffer* deferred_load_buffer
+);
 void parse_and_load_player_attribute(Parser::Parse p, ifstream* reader, int& line_count, std::string path, Player* player);
 void setup_scene_boilerplate_stuff();
 bool save_player_position_to_file(string scene_name, Player* player);
@@ -15,6 +26,8 @@ ProgramConfig load_configs();
 bool save_configs_to_file();
 
 #include <iomanip>
+
+
 
 
 bool load_scene_from_file(std::string scene_name, WorldStruct* world)
@@ -50,6 +63,9 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
    auto player = create_player(player_entity);
    G_SCENE_INFO.player = player;
 
+   // creates deferred load buffer for associating entities after loading them all
+   auto deferred_load_buffer = DeferredLoadBuffer();
+
    // starts reading
    std::string line;
    Parser::Parse p;
@@ -62,7 +78,7 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
       p = parse_symbol(p);
       if(p.cToken == '#')
       {
-         Entity* new_entity = parse_and_load_entity(p, &reader, line_count, path);
+         Entity* new_entity = parse_and_load_entity(p, &reader, line_count, path, &deferred_load_buffer);
 
          // set up collider
          new_entity->collider = *new_entity->collision_mesh;
@@ -87,6 +103,40 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
       else if(p.cToken == '&')
       {
          parse_and_load_player_orientation(p, &reader, line_count, path, player);
+      }
+   }
+
+   // connects entities using deferred load buffer
+   For(deferred_load_buffer.count)
+   {
+      Entity* from         = deferred_load_buffer.from[i];
+      std::string context  = deferred_load_buffer.context[i];
+      Entity* to;
+
+      bool found_to_entity = false;
+      Forj(scene->entities.size())
+      {  
+         Entity* entity = scene->entities[j];
+         if(entity->name == deferred_load_buffer.to[i])
+         {
+            to = entity;
+            found_to_entity = true;
+            break;
+         }
+      }
+
+      if(!found_to_entity)
+      {
+         Quit_fatal("Something weird happened. We tried to deferred load the relationship of '"
+            + context + "' between (from) '" + from->name + "' and a supposed (to) '" 
+            + deferred_load_buffer.to[i] + "' but we couldn't find that entity inside the scene list.");
+      }
+
+      //@todo: BAD! This requires coordination of literal strings between parts of the module. Need an enum for more clarity.
+      //@todo: ALSO, what about introspection/reflection? ... 
+      if(context == "timer_target")
+      {
+         from->timer_target = to;
       }
    }
    
@@ -309,14 +359,35 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
       if(entity->flags & EntityFlags_RenderWireframe)
          writer << "hidden\n";
 
-      if(entity->type == EntityType_Checkpoint)
+      switch(entity->type)
       {
-         writer << "type 1\n";
-         writer << "trigger " 
-            << entity->trigger_scale.x << " "
-            << entity->trigger_scale.y << " "
-            << entity->trigger_scale.z << "\n";
+         case EntityType_Static:
+         {
+            writer << "type static\n";
+            break;
+         }
+         case EntityType_Checkpoint:
+         {
+            writer << "type checkpoint\n";
+            writer << "trigger " 
+               << entity->trigger_scale.x << " "
+               << entity->trigger_scale.y << " "
+               << entity->trigger_scale.z << "\n";
+            break;
+         }
+         case EntityType_Timed:
+         {
+            writer << "type timed\n";
+            writer << "trigger " 
+               << entity->trigger_scale.x << " "
+               << entity->trigger_scale.y << " "
+               << entity->trigger_scale.z << "\n";
+            if(entity->timer_target != nullptr)
+               writer << "timer_target " << entity->timer_target->name << "\n";
+            break;
+         }
       }
+
       if(entity->slidable)
       {
          writer << "slidable \n";
@@ -429,8 +500,9 @@ void parse_and_load_player_attribute(Parser::Parse p, ifstream* reader, int& lin
 }
 
 
-Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count, std::string path)
-{
+Entity* parse_and_load_entity(
+   Parser::Parse p, ifstream* reader, int& line_count, std::string path, DeferredLoadBuffer* deferred_load_buffer
+){
    std::string line;
 
    auto new_entity = Entity_Manager.create_entity();
@@ -567,10 +639,29 @@ Entity* parse_and_load_entity(Parser::Parse p, ifstream* reader, int& line_count
       else if(property == "type")
       {
          p = parse_all_whitespace(p);
-         p = parse_int(p);
-         int entity_type = p.iToken;
-         auto type_enum = (EntityType) entity_type;
-         Entity_Manager.set_type(new_entity, type_enum);
+         p = parse_token(p);
+         std::string entity_type = p.string_buffer;
+         if(entity_type == "static")
+            Entity_Manager.set_type(new_entity, EntityType_Static);
+         else if(entity_type == "checkpoint")
+            Entity_Manager.set_type(new_entity, EntityType_Checkpoint);
+         else if(entity_type == "timed")
+            Entity_Manager.set_type(new_entity, EntityType_Timed);
+         else
+            Quit_fatal("Entity type '" + entity_type + "' not identified.");
+      }
+
+      else if(property == "timer_target")
+      {
+         p = parse_all_whitespace(p);
+         p = parse_name(p);
+         std::string timer_target = p.string_buffer;
+
+         int i = deferred_load_buffer->count;
+         deferred_load_buffer->to[i] = timer_target;
+         deferred_load_buffer->from[i] = new_entity;
+         deferred_load_buffer->context[i] = "timer_target";
+         deferred_load_buffer->count++;
       }
 
       else if(property == "trigger")
