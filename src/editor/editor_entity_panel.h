@@ -266,6 +266,25 @@ void render_entity_panel(EntityPanelContext* panel)
          ImGui::Text("Timer settings");
 
          ImGui::SliderInt("Duration", &entity->timer_duration, 0, 100);
+
+         // change timer target
+         ImGui::Text("Timer target");
+         std::string target_entity_name = entity->timer_target == nullptr ? "No target selected." : entity->timer_target->name;
+         ImGui::Text(target_entity_name.c_str());
+         ImGui::SameLine();
+         if(ImGui::Button("Show", ImVec2(68, 18)))
+         {
+            if(entity->timer_target != nullptr)
+            {  
+               panel->show_related_entity = true;
+               panel->related_entity = entity->timer_target;
+            }
+         }
+         ImGui::SameLine();
+         if(ImGui::Button("Change", ImVec2(92, 18)))
+         {
+            activate_select_entity_aux_tool(&entity->timer_target);
+         }
       }
 
       ImGui::Checkbox("Slidable", &entity->slidable);
@@ -374,17 +393,19 @@ void open_entity_panel(Entity* entity)
 {
    EdContext.selected_entity = entity;
 
-   auto &panel                   = EdContext.entity_panel;
-   panel.active                  = true;
-   panel.entity                  = entity;
-   panel.reverse_scale_x         = false;
-   panel.reverse_scale_y         = false;
-   panel.reverse_scale_z         = false;
-   panel.show_normals            = false;
-   panel.show_collider           = false;
-   panel.show_bounding_box       = false;
-   panel.rename_option_active    = false;
-   panel.tracked_once            = false;
-   panel.entity_starting_state   = get_entity_state(entity);
+   auto &panel                      = EdContext.entity_panel;
+   panel.active                     = true;
+   panel.entity                     = entity;
+   panel.reverse_scale_x            = false;
+   panel.reverse_scale_y            = false;
+   panel.reverse_scale_z            = false;
+   panel.show_normals               = false;
+   panel.show_collider              = false;
+   panel.show_bounding_box          = false;
+   panel.rename_option_active       = false;
+   panel.tracked_once               = false;
+   panel.show_related_entity        = false;
+   panel.related_entity             = nullptr;
+   panel.entity_starting_state      = get_entity_state(entity);
    panel.empty_rename_buffer();
 }

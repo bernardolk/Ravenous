@@ -63,6 +63,7 @@ struct Entity {
    Entity*  timer_target         = nullptr;
    bool     is_timer_target      = false;
    bool     timer_start_action   = false;
+   bool     timer_end_action     = false;
 
    // ----------
    // > METHODS

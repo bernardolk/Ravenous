@@ -50,6 +50,9 @@ struct EntityPanelContext {
    bool show_collider      = false;
    bool show_bounding_box  = false;
 
+   bool show_related_entity = false;
+   Entity* related_entity  = nullptr;
+
    void empty_rename_buffer()
    {
       for(int i = 0; i < _rename_buff_size; i++)

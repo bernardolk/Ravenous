@@ -91,6 +91,10 @@ struct EditorContext {
    // stretch mode
    bool stretch_mode = false;
 
+   // select entity aux tool
+   bool     select_entity_aux_mode               = false;
+   Entity** select_entity_aux_mode_entity_slot = nullptr;
+
    // show things 
    bool show_event_triggers = false;
    bool show_world_cells = false;
@@ -116,6 +120,7 @@ void check_selection_to_open_panel(Player* player);
 bool check_selection_to_grab_entity_arrows();
 bool check_selection_to_grab_entity_rotation_gizmo();
 void check_selection_to_move_entity();
+void check_selection_to_select_related_entity();
 
 void render_text_overlay(Player* player);
 void render_event_triggers(Camera* camera);
@@ -220,6 +225,14 @@ void update()
       }
    }
 
+   if(EdContext.select_entity_aux_mode)
+   {
+      if(EdContext.mouse_click)
+      {
+         check_selection_to_select_related_entity();
+      }
+   }
+
    if(EdContext.move_entity_by_arrows)
    {
       if(EdContext.mouse_dragging)
@@ -314,26 +327,51 @@ void render(Player* player, WorldStruct* world)
       render_entity(axis);
    }
 
-   // render glowing wireframe on top of selected entity
+   // Entity panel special render calls
    if(EdContext.entity_panel.active)
    {
-      // update
-      auto state = get_entity_state(EdContext.selected_entity);
-      auto model = mat_model_from_entity_state(state);
+      // Render glowing pink wireframe on top of selected entity
+      {
+         // update
+         auto state = get_entity_state(EdContext.selected_entity);
+         auto model = mat_model_from_entity_state(state);
 
-      // compute color intensity based on time
-      float time_value = glfwGetTime();
-      float intensity = sin(time_value) * 2;
-      if(intensity < 0) intensity *= -1.0;
-      intensity += 1.0;
+         // compute color intensity based on time
+         float time_value = glfwGetTime();
+         float intensity = sin(time_value) * 2;
+         if(intensity < 0) intensity *= -1.0;
+         intensity += 1.0;
 
-      // render
-      auto glowing_line = Shader_Catalogue.find("color")->second;
-      glowing_line->use();
-      glowing_line->setMatrix4("model", model);
-      glowing_line->setFloat3("color", intensity * 0.890, intensity * 0.168, intensity * 0.6);
-      glowing_line->setFloat("opacity", 1);
-      render_mesh(EdContext.selected_entity->mesh, RenderOptions{true, false, 3});
+         // render
+         auto glowing_line = Shader_Catalogue.find("color")->second;
+         glowing_line->use();
+         glowing_line->setMatrix4("model", model);
+         glowing_line->setFloat3("color", intensity * 0.890, intensity * 0.168, intensity * 0.6);
+         glowing_line->setFloat("opacity", 1);
+         render_mesh(EdContext.selected_entity->mesh, RenderOptions{true, false, 3});
+      }
+
+      // Render glowing yellow wireframe on top of an arbitrary related entity
+      if(EdContext.entity_panel.show_related_entity)
+      {
+         // update
+         auto state = get_entity_state(EdContext.entity_panel.related_entity);
+         auto model = mat_model_from_entity_state(state);
+
+         // compute color intensity based on time
+         float time_value = glfwGetTime();
+         float intensity = sin(time_value) * 2;
+         if(intensity < 0) intensity *= -1.0;
+         intensity += 1.0;
+
+         // render
+         auto glowing_line = Shader_Catalogue.find("color")->second;
+         glowing_line->use();
+         glowing_line->setMatrix4("model", model);
+         glowing_line->setFloat3("color", intensity * 0.941, intensity * 0.776, intensity * 0);
+         glowing_line->setFloat("opacity", 1);
+         render_mesh(EdContext.entity_panel.related_entity->mesh, RenderOptions{true, false, 3});
+      }
    }
 
    // render glowing wireframe on top of snap reference entity
@@ -888,6 +926,21 @@ void render_text_overlay(Player* player)
          "STRETCH MODE"
       );
    }
+
+   // --------------------------
+   // ENTITY SELECTION AUX MODE
+   // --------------------------
+   if(EdContext.select_entity_aux_mode)
+   {
+      render_text(
+         font_center,
+         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
+         centered_text_height,
+         vec3(0.8, 0.8, 0.2),
+         true,
+         "SELECT RELATED ENTITY"
+      );
+   }
 }
 
 
@@ -1222,6 +1275,17 @@ void check_selection_to_open_panel(Player* player)
    }
    else if(test_light.hit)
       open_lights_panel(test_light.obj_hit_type, test_light.obj_hit_index, true);
+}
+
+void check_selection_to_select_related_entity()
+{
+   auto pickray      = cast_pickray();
+   auto test         = test_ray_against_scene(pickray, RayCast_TestOnlyVisibleEntities);
+   if(test.hit)
+   {
+      EdContext.select_entity_aux_mode                = false;
+      *EdContext.select_entity_aux_mode_entity_slot = test.entity;
+   }
 }
 
 void check_selection_to_move_entity()

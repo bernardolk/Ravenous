@@ -421,15 +421,13 @@ void GP_check_trigger_interaction(Player* player)
          {
             case EntityType_Checkpoint:
             {
-               player->set_checkpoint(checkpoint);
+               player->set_checkpoint(interactable);
                break;
             }
             case EntityType_Timed:
             {
-               Game_State.timer_remaining_time  = (float) interactable->timer_duration;
-               Game_State.timer_target          = interactable->timer_target;
-               Game_State.timer_active          = true;
-               Game_State.events                |= GameEvent_TimerStart;
+               GP_game_state_start_timer(interactable);
+               break;
             }
          }
       }

@@ -1,13 +1,14 @@
 void deactivate_editor_modes()
 {
-   EdContext.move_mode = false;
-   EdContext.snap_mode = false;
-   EdContext.measure_mode = false;
-   EdContext.first_point_found = false;
-   EdContext.second_point_found = false;
-   EdContext.stretch_mode = false;
-   EdContext.locate_coords_mode = false;
-   EdContext.place_mode = false;
+   EdContext.move_mode                 = false;
+   EdContext.snap_mode                 = false;
+   EdContext.measure_mode              = false;
+   EdContext.first_point_found         = false;
+   EdContext.second_point_found        = false;
+   EdContext.stretch_mode              = false;
+   EdContext.locate_coords_mode        = false;
+   EdContext.place_mode                = false;
+   EdContext.select_entity_aux_mode    = false;
 }
 
 bool check_modes_are_active()
@@ -736,12 +737,23 @@ void rotate_entity_with_mouse(Entity* entity)
 // ------------------
 // SCALE ENTITY TOOL
 // ------------------
-void scale_entity_with_mouse(Entity* entity);
-
 void scale_entity_with_mouse(Entity* entity)
 {
    // NOT IMPLEMENTED
 }
+
+
+// -----------------------
+// SELECT ENTITY AUX TOOL
+// -----------------------
+// used in entity panel to select other entity to attribute 1 to 1 relationships
+
+void activate_select_entity_aux_tool(Entity** entity_slot)
+{
+   EdContext.select_entity_aux_mode             = true;
+   EdContext.select_entity_aux_mode_entity_slot = entity_slot;
+}
+
 
 // -----
 // MISC

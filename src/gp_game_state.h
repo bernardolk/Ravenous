@@ -1,10 +1,4 @@
 
-enum GameEvents {
-   GameEvent_TimerStart = 1 << 0,
-   GameEvent_TimerEnd   = 1 << 1,
-};
-
-
 struct GameState {
 
    // timed event
@@ -18,37 +12,37 @@ struct GameState {
 } Game_State;
 
 
-void GP_game_state_reset_events()
-{
-   Game_State.events = 0;
-}
+// prototypes
+void GP_update_game_state();
+void GP_game_state_stop_timer();
+void GP_game_state_start_timer(Entity* interactable);
 
 
 
 void GP_update_game_state()
 {
    if(Game_State.timer_active)
-      GP_game_state_update_timed_event();
-}
-
-
-void GP_game_state_update_timed_event()
-{
-   if(Game_State.events & GameEvent_TimerStart)
-      Game_State.timer_target->timer_start_action = true;
-
-   Game_State.timer_remaining_time -= G_FRAME_INFO.duration;
-   if(Game_State.timer_remaining_time <= 0)
    {
-      Game_State.timer_active = false;
-      Game_State.events |= GameEvent_TimerEnd;
+      Game_State.timer_remaining_time -= G_FRAME_INFO.duration;
+      if(Game_State.timer_remaining_time <= 0)
+         GP_game_state_stop_timer();
    }
 }
 
-//@todo
-void GP_game_state_start_timer()
-{
 
+void GP_game_state_stop_timer()
+{
+   Game_State.timer_active = false;
+   Game_State.timer_target->timer_end_action = true;
+}
+
+
+void GP_game_state_start_timer(Entity* interactable)
+{
+   Game_State.timer_remaining_time              = (float) interactable->timer_duration;
+   Game_State.timer_target                      = interactable->timer_target;
+   Game_State.timer_active                      = true;
+   Game_State.timer_target->timer_end_action    = true;
 }
 
 
