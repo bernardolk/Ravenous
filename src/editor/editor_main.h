@@ -893,8 +893,8 @@ void render_text_overlay(Player* player)
 
 void render_event_triggers(Camera* camera)
 {
-   auto checkpoints = G_SCENE_INFO.active_scene->checkpoints;
-   if(checkpoints.size() == 0)
+   auto interactables = G_SCENE_INFO.active_scene->interactables;
+   if(interactables.size() == 0)
       return;
       
    auto find = Shader_Catalogue.find("color");
@@ -904,9 +904,9 @@ void render_event_triggers(Camera* camera)
    shader->setMatrix4("view", camera->View4x4);
    shader->setMatrix4("projection", camera->Projection4x4);
 
-   for(int i = 0; i < checkpoints.size(); i++)
+   for(int i = 0; i < interactables.size(); i++)
    {
-      auto checkpoint = checkpoints[i];
+      auto checkpoint = interactables[i];
       shader->setMatrix4("model", checkpoint->trigger_matModel);
       shader->setFloat3 ("color", 0.5, 0.5, 0.3);
       shader->setFloat  ("opacity", 0.6);
