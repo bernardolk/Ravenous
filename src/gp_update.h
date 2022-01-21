@@ -406,7 +406,7 @@ vec3 GP_player_standing_get_next_position(Player* player)
 void GP_check_trigger_interaction(Player* player)
 {
    auto interactables = G_SCENE_INFO.active_scene->interactables;
-   for(int i = 0; i < interactables.size(); i++)
+   For(interactables.size())
    {
       auto interactable = interactables[i];
 

@@ -291,26 +291,37 @@ struct EntityManager
    // ------------------
    // > SET ENTITY TYPE
    // ------------------
-   // [internal]
-   void _remove_checkpoint_type(Entity* entity)
+   void _remove_from_checkpoint_registry(Entity* entity)
    {
-      if(entity->type == EntityType_Checkpoint)
+      int index = -1;
+      For(checkpoints_registry->size())
       {
-         int entity_index_in_vector = -1;
-         int i = 0;
-         for(auto it = checkpoints_registry->begin();
-            it < checkpoints_registry->end(); 
-            it++, i++)
+         auto it = (*checkpoints_registry)[i];
+         if(it == entity)
          {
-            if(*it == entity)
-            {
-               entity_index_in_vector = i;
-               break;
-            }
+            index = i;
+            break;
          }
-         if(entity_index_in_vector > -1)
-            checkpoints_registry->erase(checkpoints_registry->begin() + entity_index_in_vector);
       }
+      if(index > -1)
+         checkpoints_registry->erase(checkpoints_registry->begin() + index);
+   }
+
+   void _remove_from_interactables_registry(Entity* entity)
+   {
+      int index = -1;
+      For(interactables_registry->size())
+      {
+         auto it = (*interactables_registry)[i];
+         if(it == entity)
+         {
+            index = i;
+            break;
+         }
+      }
+
+      if(index > -1)
+         interactables_registry->erase(interactables_registry->begin() + index);
    }
 
    void _make_interactable(Entity* entity)
@@ -340,7 +351,15 @@ struct EntityManager
          case EntityType_Static:
          {
             if(entity->type == EntityType_Checkpoint)
-               _remove_checkpoint_type(entity);
+            {
+               _remove_from_checkpoint_registry(entity);
+               _remove_from_interactables_registry(entity);
+            }
+            else if(entity->type == EntityType_Timed)
+            {
+               _remove_from_interactables_registry(entity);
+            }
+               
             entity->type = EntityType_Static;
             break;
          }

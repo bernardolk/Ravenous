@@ -237,21 +237,21 @@ void render_entity_panel(EntityPanelContext* panel)
       bool is_static = entity->type == EntityType_Static;
       if(ImGui::RadioButton("Static", is_static))
       {
-         entity->type = EntityType_Static;
+         Entity_Manager.set_type(entity, EntityType_Static);
       }
 
       // EntityType_Checkpoint
       bool is_checkpoint = entity->type == EntityType_Checkpoint;
       if(ImGui::RadioButton("Checkpoint", is_checkpoint))
       {
-         entity->type = EntityType_Checkpoint;
+         Entity_Manager.set_type(entity, EntityType_Checkpoint);
       }
 
       // EntityType_Timed
       bool is_timed = entity->type == EntityType_Timed;
       if(ImGui::RadioButton("Timed", is_timed))
       {
-         entity->type = EntityType_Timed;
+         Entity_Manager.set_type(entity, EntityType_Timed);
       }
 
       ImGui::NewLine();

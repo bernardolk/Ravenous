@@ -39,6 +39,9 @@ void GP_game_state_stop_timer()
 
 void GP_game_state_start_timer(Entity* interactable)
 {
+   if(Game_State.timer_target == nullptr)
+      return;
+      
    Game_State.timer_remaining_time              = (float) interactable->timer_duration;
    Game_State.timer_target                      = interactable->timer_target;
    Game_State.timer_active                      = true;
