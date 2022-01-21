@@ -283,6 +283,17 @@ void render_entity_panel(EntityPanelContext* panel)
 
       else if(is_timed)
       {
+         ImGui::Text("Event trigger");
+         
+         bool a = ImGui::SliderFloat("radius", &entity->trigger_scale.x, 0, 10);
+         bool b = ImGui::SliderFloat("height", &entity->trigger_scale.y, 0, 10);
+
+         if(a || b)
+            entity->update();
+
+            
+         ImGui::NewLine();
+
          ImGui::SliderInt("Duration", &entity->timer_duration, 0, 100);
 
          // change timer target
