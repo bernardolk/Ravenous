@@ -405,18 +405,33 @@ vec3 GP_player_standing_get_next_position(Player* player)
 
 void GP_check_trigger_interaction(Player* player)
 {
-   auto checkpoints = G_SCENE_INFO.active_scene->checkpoints;
-   for(int i = 0; i < checkpoints.size(); i++)
+   auto interactables = G_SCENE_INFO.active_scene->interactables;
+   for(int i = 0; i < interactables.size(); i++)
    {
-      auto checkpoint = checkpoints[i];
+      auto interactable = interactables[i];
 
       //@todo: do a cylinder vs cylinder or cylinder vs aabb test here
-      Mesh trigger_collider = checkpoint->get_trigger_collider();
+      Mesh trigger_collider = interactable->get_trigger_collider();
       GJK_Result gjk_test = CL_run_GJK(&player->entity_ptr->collider, &trigger_collider);
       if(gjk_test.collision)
       {
          RENDER_MESSAGE("CHECKPOINT", 1000);
-         player->set_checkpoint(checkpoint);
+
+         switch(interactable->type)
+         {
+            case EntityType_Checkpoint:
+            {
+               player->set_checkpoint(checkpoint);
+               break;
+            }
+            case EntityType_Timed:
+            {
+               Game_State.timer_remaining_time  = (float) interactable->timer_duration;
+               Game_State.timer_target          = interactable->timer_target;
+               Game_State.timer_active          = true;
+               Game_State.events                |= GameEvent_TimerStart;
+            }
+         }
       }
    }
 }

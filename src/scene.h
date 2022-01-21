@@ -43,6 +43,7 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
    G_SCENE_INFO.camera = G_SCENE_INFO.views[0];    // sets to editor camera
    Entity_Manager.set_entity_registry(&G_SCENE_INFO.active_scene->entities);
    Entity_Manager.set_checkpoints_registry(&G_SCENE_INFO.active_scene->checkpoints);
+   Entity_Manager.set_interactables_registry(&G_SCENE_INFO.active_scene->interactables);
 
    // creates player
    auto player_entity = create_player_entity();

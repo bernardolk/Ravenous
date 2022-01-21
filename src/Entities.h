@@ -37,14 +37,14 @@ struct Entity {
 
 
    // simulation data
-	vec3 position        = vec3(0.0f);
-	vec3 rotation        = vec3(0.0f);
-	vec3 scale           = vec3(1.0f);
-   vec3 velocity        = vec3(0.0f);
+	vec3     position        = vec3(0.0f);
+	vec3     rotation        = vec3(0.0f);
+	vec3     scale           = vec3(1.0f);
+   vec3     velocity        = vec3(0.0f);
 
-   Mesh* collision_mesh;         // static collision mesh vertex data
-   Mesh  collider;               // dynamic collision mesh, obtained by multiplying static collision mesh with model matrix
-   BoundingBox bounding_box;     // computed using the collider mesh, used for fast first pass collision tests
+   Mesh*        collision_mesh;        // static collision mesh vertex data
+   Mesh         collider;              // dynamic collision mesh, obtained by multiplying static collision mesh with model matrix
+   BoundingBox  bounding_box;          // computed using the collider mesh, used for fast first pass collision tests
 
    // collider settings
    bool slidable = false;
@@ -53,11 +53,16 @@ struct Entity {
    int world_cells_count = 0;
 
    // event trigger
-   Mesh* trigger;
-   vec3 trigger_scale   = vec3(1.5f, 1.f, 0.f);
-   vec3 trigger_pos     = vec3(0.0f);
-   mat4 trigger_matModel;
+   Mesh*    trigger              = nullptr;
+   vec3     trigger_scale        = vec3(1.5f, 1.f, 0.f);
+   vec3     trigger_pos          = vec3(0.0f);
+   mat4     trigger_matModel;
 
+   // timer variables
+   int      timer_duration       = 0;
+   Entity*  timer_target         = nullptr;
+   bool     is_timer_target      = false;
+   bool     timer_start_action   = false;
 
    // ----------
    // > METHODS
@@ -180,11 +185,13 @@ struct DirectionalLight {
 };
 
 struct Scene {
-	std::vector<Entity*> entities;
-	std::vector<SpotLight> spotLights;
-	std::vector<DirectionalLight> directionalLights;
-	std::vector<PointLight> pointLights;
-   std::vector<Entity*> checkpoints;
+	std::vector<Entity*>             entities;
+	std::vector<SpotLight>           spotLights;
+	std::vector<DirectionalLight>    directionalLights;
+	std::vector<PointLight>          pointLights;
+   std::vector<Entity*>             interactables;
+   std::vector<Entity*>             checkpoints;
+
    float global_shininess = 17;
    vec3 ambient_light = vec3(1);
    float ambient_intensity = 0;

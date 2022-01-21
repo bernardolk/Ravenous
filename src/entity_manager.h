@@ -17,13 +17,14 @@ struct EntityManager
    unsigned int editor_count = 0;
    EntityPool pool = EntityPool(200);
 
-   Shader* default_shader;
-   Mesh* default_mesh;
-   Texture default_texture;
+   Shader*     default_shader;
+   Mesh*       default_mesh;
+   Texture     default_texture;
 
-   vector<Entity*> deletion_stack;
-   vector<Entity*>* entity_registry;
-   vector<Entity*>* checkpoints_registry;
+   vector<Entity*>   deletion_stack;
+   vector<Entity*>*  entity_registry;
+   vector<Entity*>*  checkpoints_registry;
+   vector<Entity*>*  interactables_registry;
    
    // --------------------------------------
    // > FIND ASSETS IN CATALOGUES
@@ -111,6 +112,9 @@ struct EntityManager
       default_mesh    = _mesh;
    }
 
+   // ---------------------------------
+   // > SET REGISTRIES
+   // ---------------------------------
    void set_entity_registry(vector<Entity*>* registry)
    {
       entity_registry = registry;
@@ -119,6 +123,11 @@ struct EntityManager
    void set_checkpoints_registry(vector<Entity*>* registry)
    {
       checkpoints_registry = registry;
+   }
+
+   void set_interactables_registry(vector<Entity*>* registry)
+   {
+      interactables_registry = registry;
    }
 
    // ------------------
@@ -313,6 +322,7 @@ struct EntityManager
       entity->type      = EntityType_Checkpoint;
       entity->trigger   = find->second;
       checkpoints_registry->push_back(entity);
+      interactables_registry->push_back(entity);
    }
 
    void set_type(Entity* entity, EntityType type)

@@ -240,19 +240,33 @@ void render_entity_panel(EntityPanelContext* panel)
          entity->type = EntityType_Checkpoint;
       }
 
-      if(is_checkpoint)
+      // EntityType_Timed
+      bool is_timed = entity->type == EntityType_Timed;
+      if(ImGui::RadioButton("Timed", is_timed))
       {
-         ImGui::NewLine();
-         ImGui::Text("Event trigger");
-         
-         bool ev_radius_interaction = ImGui::SliderFloat("radius", &entity->trigger_scale.x, 0, 10);
-         bool ev_height_interaction = ImGui::SliderFloat("height", &entity->trigger_scale.y, 0, 10);
-
-         if(ev_radius_interaction || ev_height_interaction)
-            entity->update();
+         entity->type = EntityType_Timed;
       }
 
       ImGui::Text("Properties");
+      ImGui::NewLine();
+
+      if(is_checkpoint)
+      {
+         ImGui::Text("Event trigger");
+         
+         bool a = ImGui::SliderFloat("radius", &entity->trigger_scale.x, 0, 10);
+         bool b = ImGui::SliderFloat("height", &entity->trigger_scale.y, 0, 10);
+
+         if(a || b)
+            entity->update();
+      }
+
+      else if(is_timed)
+      {
+         ImGui::Text("Timer settings");
+
+         ImGui::SliderInt("Duration", &entity->timer_duration, 0, 100);
+      }
 
       ImGui::Checkbox("Slidable", &entity->slidable);
 
