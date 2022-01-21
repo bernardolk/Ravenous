@@ -233,6 +233,13 @@ void render_entity_panel(EntityPanelContext* panel)
    {
       ImGui::Text("Entity Type");
 
+      // EntityType_Static
+      bool is_static = entity->type == EntityType_Static;
+      if(ImGui::RadioButton("Static", is_static))
+      {
+         entity->type = EntityType_Static;
+      }
+
       // EntityType_Checkpoint
       bool is_checkpoint = entity->type == EntityType_Checkpoint;
       if(ImGui::RadioButton("Checkpoint", is_checkpoint))
@@ -247,8 +254,21 @@ void render_entity_panel(EntityPanelContext* panel)
          entity->type = EntityType_Timed;
       }
 
-      ImGui::Text("Properties");
       ImGui::NewLine();
+      ImGui::NewLine();
+      ImGui::Text("Collider properties");
+      ImGui::NewLine();
+
+      ImGui::Checkbox("Slidable", &entity->slidable);
+
+      ImGui::NewLine();
+      ImGui::NewLine();
+
+      if(!is_static)
+      {
+         ImGui::Text("Entity Type Properties");
+         ImGui::NewLine();
+      }
 
       if(is_checkpoint)
       {
@@ -263,11 +283,10 @@ void render_entity_panel(EntityPanelContext* panel)
 
       else if(is_timed)
       {
-         ImGui::Text("Timer settings");
-
          ImGui::SliderInt("Duration", &entity->timer_duration, 0, 100);
 
          // change timer target
+         ImGui::NewLine();
          ImGui::Text("Timer target");
          std::string target_entity_name = entity->timer_target == nullptr ? "No target selected." : entity->timer_target->name;
          ImGui::Text(target_entity_name.c_str());
@@ -286,8 +305,6 @@ void render_entity_panel(EntityPanelContext* panel)
             activate_select_entity_aux_tool(&entity->timer_target);
          }
       }
-
-      ImGui::Checkbox("Slidable", &entity->slidable);
 
       ImGui::EndTabItem();
    }

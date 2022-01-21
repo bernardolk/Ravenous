@@ -755,9 +755,9 @@ void activate_select_entity_aux_tool(Entity** entity_slot)
 }
 
 
-// -----
-// MISC
-// -----
+// -------------
+// MISCELANEOUS
+// -------------
 void check_for_asset_changes();
 void render_aabb_boundaries(Entity* entity);
 
