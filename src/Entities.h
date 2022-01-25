@@ -21,7 +21,7 @@ enum EntityFlags {
 };
 
 struct Entity {
-   u32 id;
+   u64 id            = -1;
    string name       = "NONAME";
    EntityType type   = EntityType_Static;
    u32 flags;

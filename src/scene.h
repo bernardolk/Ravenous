@@ -28,6 +28,7 @@ bool save_configs_to_file();
 #include <iomanip>
 
 
+u64 Max_Entity_Id = 0;
 
 
 bool load_scene_from_file(std::string scene_name, WorldStruct* world)
@@ -71,18 +72,46 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
    Parser::Parse p;
    int line_count = 0;
 
-   // parses entity
+   // parses header
+   parser_nextline(&reader, &line, &p);
+   line_count++;
+
+   p = parse_token(p);
+   if(!p.hasToken)
+      Quit_fatal("Scene '" + scene_name + "' didn't start with NEXT_ENTITY_ID token.");
+   
+   std::string next_entity_id_token = p.string_buffer;
+   if(next_entity_id_token != "NEXT_ENTITY_ID")
+      Quit_fatal("Scene '" + scene_name + "' didn't start with NEXT_ENTITY_ID token.");
+
+   p = parse_whitespace(p);
+   p = parse_symbol(p);
+   if(!p.hasToken || p.cToken != '=')
+      Quit_fatal("Missing '=' after NEXT_ENTITY_ID.");
+
+   p = parse_whitespace(p);
+   p = parse_u64(p);
+
+   // ENTITY IDs related code
+   bool recompute_next_entity_id = false;
+   if(!p.hasToken)
+      recompute_next_entity_id = true;
+   else
+      Entity_Manager.next_entity_id = p.u64Token;
+
+   // parses entities
    while(parser_nextline(&reader, &line, &p))
    {
       line_count++;
+
       p = parse_symbol(p);
       if(p.cToken == '#')
       {
          Entity* new_entity = parse_and_load_entity(p, &reader, line_count, path, &deferred_load_buffer);
 
          // set up collider
-         new_entity->collider = *new_entity->collision_mesh;
-         new_entity->collider.name = new_entity->name + "-collider";
+         new_entity->collider       = *new_entity->collision_mesh;
+         new_entity->collider.name  = new_entity->name + "-collider";
          new_entity->collider.setup_gl_data();
 
          // puts entity into entities list and update geometric properties
@@ -137,6 +166,23 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
       if(context == "timer_target")
       {
          from->timer_target = to;
+      }
+   }
+
+
+   // If misisng NEXT_ENTITY_ID in scene header, recompute from collected Ids (If no entity has an ID yet, this will be 1)
+   if(recompute_next_entity_id)
+   {
+      Entity_Manager.next_entity_id = Max_Entity_Id + 1;
+   }
+
+   // assign IDs to entities missing them starting from max current id
+   For(scene->entities.size())
+   {
+      auto entity = scene->entities[i];
+      if(entity->name != PLAYER_NAME && entity->id == -1)
+      {
+         entity->id = Entity_Manager.next_entity_id++;
       }
    }
    
@@ -202,6 +248,8 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
    }
 
    writer << fixed << setprecision(4);
+
+   writer << "NEXT_ENTITY_ID = " << Entity_Manager.next_entity_id << "\n";
 
    // write camera settings to file
    auto camera = G_SCENE_INFO.views[0];
@@ -315,6 +363,8 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
             << light.specular.z << "\n";
    }
 
+
+   // @todo WE SHOULD SORT ENTITIES BY IDS BEFORE WRITING! (to minimize git conflicts in the future.)
    // write scene data (for each entity)
    Entity **entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
    int entities_vec_size =  G_SCENE_INFO.active_scene->entities.size();
@@ -325,6 +375,7 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
          continue;
 
       writer << "\n#" << entity->name << "\n";
+      writer << "id " << entity->id << "\n";
       writer << "position " 
                << entity->position.x << " "
                << entity->position.y << " "
@@ -515,7 +566,17 @@ Entity* parse_and_load_entity(
       p = parse_token(p);
       const std::string property = p.string_buffer;
 
-      if(property == "position")
+      if(property == "id")
+      {
+         p = parse_all_whitespace(p);
+         p = parse_u64(p);
+         new_entity->id = p.u64Token;
+
+         if(Max_Entity_Id < p.u64Token)
+            Max_Entity_Id = p.u64Token;
+      }
+
+      else if(property == "position")
       {
          p = parse_vec3(p);
          new_entity->position = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
@@ -680,6 +741,7 @@ Entity* parse_and_load_entity(
          break;
       }
    }
+
    return new_entity;
 }
 

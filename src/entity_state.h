@@ -1,6 +1,6 @@
 struct EntityState {
    Entity* entity = nullptr;
-   unsigned int id;
+   u64 id;
    vec3 position;
    vec3 scale;
    vec3 rotation;

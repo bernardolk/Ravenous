@@ -13,8 +13,8 @@ struct EntityManager
    // ------------------
    // > ENTITY MANAGER
    // ------------------ 
-   unsigned int count = 0;
-   unsigned int editor_count = 0;
+   u64 next_entity_id = 1;
+   u64 editor_count = 0;
    EntityPool pool = EntityPool(200);
 
    Shader*     default_shader;
@@ -159,7 +159,6 @@ struct EntityManager
          _find_entity_assets_in_catalogue(mesh, collision_mesh, shader, texture);
 
       Entity* new_entity                              = pool.get_next();
-      new_entity->id                                  = ++count;
       new_entity->name                                = name;
       new_entity->shader                              = _shader;
       new_entity->mesh                                = _mesh;
@@ -212,7 +211,6 @@ struct EntityManager
    Entity* create_entity(bool load_defaults = false)
    {
       auto new_entity = pool.get_next();
-      new_entity->id = ++count;
       if(load_defaults)
       {
          new_entity->textures.push_back(default_texture);
@@ -266,7 +264,7 @@ struct EntityManager
       // allocate entity with new id
       auto new_entity = pool.get_next();
       *new_entity     = *entity;
-      new_entity->id  = ++count;
+      new_entity->id  = next_entity_id++;
       new_entity->collider    = *new_entity->collision_mesh;
       new_entity->collider.setup_gl_data();
       // tries new name with copy

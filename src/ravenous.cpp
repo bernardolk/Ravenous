@@ -54,7 +54,7 @@ const string CAMERA_FILE_PATH                = PROJECT_PATH + "/camera.txt";
 const string SCENES_FOLDER_PATH              = PROJECT_PATH + "/scenes/";
 const string SHADERS_FILE_EXTENSION          = ".shd";
 const string CONFIG_FILE_PATH                = PROJECT_PATH + "/config.txt";
-const string SCENE_TEMPLATE_NAME             = "scene_template";
+const string SCENE_TEMPLATE_FILENAME         = "template_scene";
 const string INPUT_RECORDINGS_FOLDER_PATH    = PROJECT_PATH + "/recordings/";
 
 const glm::mat4 mat4identity(
@@ -198,6 +198,7 @@ void initialize_shaders();
 GLenum glCheckError_(const char* file, int line);
 void start_frame();
 void check_all_entities_have_shaders();
+void check_all_entities_have_ids();
 void check_all_geometry_has_gl_data();
 void setup_gl();
 void simulate_gravity_trajectory();
@@ -259,6 +260,7 @@ int main()
 
    // Pre-loop checks
    check_all_entities_have_shaders();
+   check_all_entities_have_ids();
    check_all_geometry_has_gl_data();
 
    // load pre recorded input recordings
@@ -418,22 +420,26 @@ void start_frame()
 
 void check_all_entities_have_shaders()
 {
-   Entity **entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
-   int entities_vec_size =  G_SCENE_INFO.active_scene->entities.size();
-	for(int it = 0; it < entities_vec_size; it++) 
+   For(G_SCENE_INFO.active_scene->entities.size())
    {
-	   auto entity = *entity_iterator++;
+	   auto entity = G_SCENE_INFO.active_scene->entities[i];
 
       if(entity->shader == nullptr)
-      {
-         cout << "FATAL: shader not set for entity '" << entity->name << "'.\n";
-         assert(false); 
-      }
+         Quit_fatal("shader not set for entity '" + entity->name + "'.");
+
       if(entity->mesh->gl_data.VAO == 0)
-      {
-         cout << "FATAL: GL DATA not set for entity '" << entity->name << "'.\n";
-         assert(false); 
-      }
+         Quit_fatal("GL DATA not set for entity '" + entity->name + "'.");
+   }
+}
+
+void check_all_entities_have_ids()
+{
+	For(G_SCENE_INFO.active_scene->entities.size())
+   {
+	   auto entity = G_SCENE_INFO.active_scene->entities[i];
+
+      if(entity->name != PLAYER_NAME && entity->id == -1)
+         Quit_fatal("There are entities without IDs. Check scene loading code for a flaw.");
    }
 }
 

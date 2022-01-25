@@ -1,3 +1,5 @@
+NEXT_ENTITY_ID = 
+
 *27.3743 9.0780 -23.7612  -0.6986 -0.4415 0.5631
 @player_position = -0.0874 -11.8999 2.4194
 @player_initial_velocity = 0.0000 0.0000 0.0000

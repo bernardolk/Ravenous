@@ -207,7 +207,7 @@ void execute_command(string buffer_line, Player* &player, WorldStruct* world, Ca
             return;
          }
 
-         if(!load_scene_from_file(SCENE_TEMPLATE_NAME, world))
+         if(!load_scene_from_file(SCENE_TEMPLATE_FILENAME, world))
          {
             G_BUFFERS.rm_buffer->add("Scene template not found.", 3000);
             return;
