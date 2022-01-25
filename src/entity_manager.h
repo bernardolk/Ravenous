@@ -307,7 +307,7 @@ struct EntityManager
          checkpoints_registry->erase(checkpoints_registry->begin() + index);
    }
 
-   void _remove_from_interactables_registry(Entity* entity)
+   void _remove_interactivity(Entity* entity)
    {
       int index = -1;
       For(interactables_registry->size())
@@ -322,6 +322,8 @@ struct EntityManager
 
       if(index > -1)
          interactables_registry->erase(interactables_registry->begin() + index);
+
+      entity->trigger = nullptr;
    }
 
    void _make_interactable(Entity* entity)
@@ -338,40 +340,58 @@ struct EntityManager
    {  
       switch(type)
       {
+
+         // CHECKPOINT
          case EntityType_Checkpoint:
          {
-            if(entity->type != EntityType_Checkpoint || entity->type != EntityType_Timed)
+            if(!entity->is_interactable())
             {
                _make_interactable(entity);
-               entity->type = EntityType_Checkpoint;
+            }
+
+            if(entity->type != EntityType_Checkpoint)
+            {
                checkpoints_registry->push_back(entity);
             }
+
+            entity->type = EntityType_Checkpoint;
             break;
          }
+
+         // STATIC
          case EntityType_Static:
          {
+            if(entity->is_interactable())
+            {
+               _remove_interactivity(entity);
+            }
+
             if(entity->type == EntityType_Checkpoint)
             {
                _remove_from_checkpoint_registry(entity);
-               _remove_from_interactables_registry(entity);
-            }
-            else if(entity->type == EntityType_Timed)
-            {
-               _remove_from_interactables_registry(entity);
             }
                
             entity->type = EntityType_Static;
             break;
          }
+
+         // TIMED
          case EntityType_Timed:
          {
-            if(entity->type != EntityType_Checkpoint || entity->type != EntityType_Timed)
+            if(!entity->is_interactable())
             {
                _make_interactable(entity);
-               entity->type = EntityType_Timed;
             }
+
+            if(entity->type == EntityType_Checkpoint)
+            {
+               _remove_from_checkpoint_registry(entity);
+            }
+
+            entity->type = EntityType_Timed;
             break;
          }
+
          default:
          {
             cout << "Entity manager doesn't know what entity type '" << to_string(type) << "' should be";
@@ -379,6 +399,9 @@ struct EntityManager
          }
       }
    }
+
+
+
 
    // ----------------
    // > DELETE ENTITY

@@ -79,7 +79,7 @@ struct Entity {
       update_collider();
       update_bounding_box();
 
-      if(type == EntityType_Checkpoint)
+      if(is_interactable())
          update_trigger();
    }
 
@@ -156,6 +156,10 @@ struct Entity {
       return trigger_collider;
    }
 
+   bool is_interactable()
+   {
+      return type == EntityType_Checkpoint || type == EntityType_Timed;
+   }
 };
 
 struct SpotLight {
