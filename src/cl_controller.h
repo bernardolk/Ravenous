@@ -216,9 +216,9 @@ CL_Results CL_test_player_vs_entity(Entity* entity, Player* player)
    }
 
    if(b_gjk && b_epa)
-      RENDER_MESSAGE("COMPLETE COLLISION", 1000);
+      editor_print("COMPLETE COLLISION", 1000);
    else if (b_gjk)
-      RENDER_MESSAGE("EPA UNRESOLVED COLLISION", 1000);
+      editor_print("EPA UNRESOLVED COLLISION", 1000);
 
    return cl_results;
 }

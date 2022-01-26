@@ -183,7 +183,7 @@ EPA_Result CL_run_EPA(Simplex simplex, Mesh* collider_A, Mesh* collider_B)
 
          for (int j = 0; j < polytope.size(); j++)
             if (i != j && glm::length(polytope[i] - polytope[j]) <= 0.001)
-               RENDER_MESSAGE("POINTS " + to_string(i) + " AND " + to_string(j) + " ARE EQUAL", 2000);
+               editor_print("POINTS " + to_string(i) + " AND " + to_string(j) + " ARE EQUAL", 2000);
       }
 
       // RENDER EDGES

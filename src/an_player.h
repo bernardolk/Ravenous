@@ -188,14 +188,14 @@ bool AN_p_anim_vaulting(Player* player)
    }
 
    /*
-   RENDER_MESSAGE("front: " + to_string(nrmlz(to2d_xz(pCam->Front))));
-   RENDER_MESSAGE("final dir: " + to_string(player->anim_final_dir), 0, vec3(0.8, 0.8, 0.8));
-   RENDER_MESSAGE("orig angle: " + to_string(orig_angle), 0, vec3(0.8, 0.8, 0.8));
-   RENDER_MESSAGE("current angle: " +  to_string(updated_angle));
-   RENDER_MESSAGE("sva cam-final: " +  to_string(updated_sva), 0, vec3(0,0.8,0.1));
-   RENDER_MESSAGE("sva orig-final: " +  to_string(orig_sva), 0, vec3(0,0.8,0.1));
-   RENDER_MESSAGE("orig sign: " +  to_string(orig_sign), 0, vec3(0.8,0.0,0.1));
-   RENDER_MESSAGE("updated sign: " +  to_string(updated_sign), 0, vec3(0.8,0.0,0.1));
+   editor_print("front: " + to_string(nrmlz(to2d_xz(pCam->Front))));
+   editor_print("final dir: " + to_string(player->anim_final_dir), 0, vec3(0.8, 0.8, 0.8));
+   editor_print("orig angle: " + to_string(orig_angle), 0, vec3(0.8, 0.8, 0.8));
+   editor_print("current angle: " +  to_string(updated_angle));
+   editor_print("sva cam-final: " +  to_string(updated_sva), 0, vec3(0,0.8,0.1));
+   editor_print("sva orig-final: " +  to_string(orig_sva), 0, vec3(0,0.8,0.1));
+   editor_print("orig sign: " +  to_string(orig_sign), 0, vec3(0.8,0.0,0.1));
+   editor_print("updated sign: " +  to_string(updated_sign), 0, vec3(0.8,0.0,0.1));
    */
 
    if(is_equal(p_pos, player->anim_final_pos) && player->anim_finished_turning)

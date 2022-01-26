@@ -1,8 +1,3 @@
-
-enum TimerTargetType {
-   TimerTargetType_VerticalSlidingDoor = 1,
-};
-
 // enum TimerTargetFlags {
 //    TimerTargetFlag_Inactive   = 0,
 //    TimerTargetFlag_Starting   = 1,
@@ -43,29 +38,4 @@ struct TimerTarget {
       else
          return true;
    }
-}
-
-
-void GP_update_timers()
-{
-   For(Game_State.timer_targets_array_size)
-   {
-      auto target = Game_State.timer_targets[i];
-
-      if(target.active)
-      {
-         // perform timer target action according to entity timer target type
-         switch(target.entity->timer_target_type)
-         {
-            case TimerTargetType_VerticalSlidingDoor:
-            {
-               // animation code call
-               break;
-            }
-         }
-
-         // update timer
-         target.update();
-      }
-   }
-}
+};

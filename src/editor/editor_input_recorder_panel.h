@@ -34,7 +34,7 @@ void render_input_recorder_panel(InputRecorderPanelContext* panel)
       ImGui::PushStyleColor(ImGuiCol_ButtonActive,  (ImVec4)ImColor::HSV(0.03f, 0.8f, 0.8f));
       if(ImGui::Button("Record", ImVec2(60, 18)))
       {
-         RENDER_MESSAGE("Input Recording Started", 2000);
+         editor_print("Input Recording Started", 2000);
          Input_Recorder.start_recording();
       }
       ImGui::PopStyleColor(3);
@@ -44,7 +44,7 @@ void render_input_recorder_panel(InputRecorderPanelContext* panel)
    {
       if(ImGui::Button("Stop Recording", ImVec2(100, 18)))
       {
-         RENDER_MESSAGE("Input Recording Stoped", 2000);
+         editor_print("Input Recording Stoped", 2000);
          Input_Recorder.stop_recording();
       }
    }

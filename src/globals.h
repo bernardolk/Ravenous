@@ -219,12 +219,12 @@ RenderMessageBuffer* allocate_render_message_buffer()
 }
 
 
-void RENDER_MESSAGE(string msg, float duration = 0, vec3 color = vec3(-1))
+void editor_print(string msg, float duration = 0, vec3 color = vec3(-1))
 {
    G_BUFFERS.rm_buffer->add(msg, duration, color);
 }
 
-void RENDER_UNIQUE_MESSAGE(string msg, float duration = 0, vec3 color = vec3(-1))
+void editor_persist_print(string msg, float duration = 0, vec3 color = vec3(-1))
 {
    // same as above, but in this case we don't update the message if already present 
    // (good for counting num of times for things that happen not that many times)

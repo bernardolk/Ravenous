@@ -38,7 +38,7 @@ struct Player;
 void AN_p_anim_force_interrupt(Player* player);
 bool CL_update_player_world_cells(Player* player);
 void CL_recompute_collision_buffer_entities(Player* player);
-void RENDER_MESSAGE(string msg, float duration, vec3 color);
+void editor_print(string msg, float duration, vec3 color);
 
 struct Player {
    Entity* entity_ptr;
@@ -132,7 +132,7 @@ struct Player {
       if(cells_updated) 
       {
          CL_recompute_collision_buffer_entities(this);
-         RENDER_MESSAGE("Recomputed World Cells for Player.", 2000, COLOR_PURPLE_1);
+         editor_print("Recomputed World Cells for Player.", 2000, COLOR_PURPLE_1);
       }
    }
 

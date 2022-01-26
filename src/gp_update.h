@@ -107,10 +107,10 @@ void GP_update_player_state(Player* &player)
                      break;
                   }
                   else
-                     RENDER_MESSAGE("Player won't fit if he falls here.", 1000);
+                     editor_print("Player won't fit if he falls here.", 1000);
                }
                else
-                     RENDER_MESSAGE("We could fall but we are smarts", 1000);
+                     editor_print("We could fall but we are smarts", 1000);
 
                break;
             }
@@ -131,7 +131,7 @@ void GP_update_player_state(Player* &player)
          // Check interactions
          if(player->want_to_grab){
             GP_check_player_grabbed_ledge(player);
-            RENDER_UNIQUE_MESSAGE("Ran check player grabbed ledge", 1000);
+            editor_persist_print("Ran check player grabbed ledge", 1000);
          }
 
          break;
@@ -415,7 +415,7 @@ void GP_check_trigger_interaction(Player* player)
       GJK_Result gjk_test = CL_run_GJK(&player->entity_ptr->collider, &trigger_collider);
       if(gjk_test.collision)
       {
-         RENDER_MESSAGE("Trigger Interaction", 1000);
+         editor_print("Trigger Interaction", 1000);
 
          switch(interactable->type)
          {
@@ -604,7 +604,7 @@ void GP_check_player_grabbed_ledge(Player* player)
 //          // IM_RENDER.add_mesh(IMHASH, player->entity_ptr, future_pos);
 //          if(CL_test_in_mock_position(player, future_pos))
 //          {
-//             RENDER_MESSAGE("Vaulting failed.");
+//             editor_print("Vaulting failed.");
 //             continue;
 //          }
          

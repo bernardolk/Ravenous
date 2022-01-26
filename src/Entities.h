@@ -2,16 +2,19 @@
 
 // forward declarations
 struct WorldCell;
-enum TimerTargetType;
 
+const static size_t ENTITY_WOLRD_CELL_OCCUPATION_LIMIT = 50;
+
+enum EntityTimerTargetType {
+   EntityTimerTargetType_NotATarget          = 0,
+   EntityTimerTargetType_VerticalSlidingDoor = 1,
+};
 
 enum EntityType {
    EntityType_Static            = 0,
    EntityType_Checkpoint        = 1,
    EntityType_Timed             = 2,
 };
-
-const static size_t ENTITY_WOLRD_CELL_OCCUPATION_LIMIT = 50;
 
 enum EntityFlags {
    EntityFlags_EmptyEntity          = (1 << 0),
@@ -70,12 +73,12 @@ struct Entity {
    // ---------------------------
    // > timer variables
    // ---------------------------
-   Entity*           timer_target            = nullptr;     /* If the entity is interactable and has a timer target,
-                                                               this points to the target entity. */
-   int               timer_duration          = 0;           // Expressed in seconds
-   bool              is_timer_target         = false;       // If this entity is a target of another interactable
-   TimerTargetType   timer_target_type       = 0;           // The type of target this entity is, if it is a target of another interactable.
-
+   Entity*                 timer_target       = nullptr;     /* If the entity is interactable and has a timer target,
+                                                                this points to the target entity. */
+   int                     timer_duration     = 0;           // Expressed in seconds
+   bool                    is_timer_target    = false;       // If this entity is a target of another interactable
+   EntityTimerTargetType   timer_target_type  = EntityTimerTargetType_NotATarget;
+                                                             // The type of target this entity is, if it is a target of another interactable.
 
    // ---------------------------
    // > methods
@@ -92,9 +95,7 @@ struct Entity {
       update_bounding_box();
 
       if(is_interactable())
-         update_trigger();
-      
-      if(type == EntityType_Timed && timer_running)
+         update_trigger();  
    }
 
 

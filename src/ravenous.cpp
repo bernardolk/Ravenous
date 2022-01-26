@@ -139,6 +139,8 @@ struct ProgramConfig {
 #include <character.h>
 #include <shader.h>
 #include <entities.h>
+#include <lights.h>
+#include <scene.h>
 #include <entity_state.h>
 #include <player.h>
 #include <camera.h>
@@ -173,13 +175,12 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <an_player.h>
 #include <cl_buffers.h>
 #include <cl_controller.h>
+#include <gp_timer_target.h>
 #include <gp_game_state.h>
 #include <gp_update.h>
-#include <lights.h>
-#include <scene.h>
+#include <serialization.h>
 #include <console.h>
 #include <in_handlers.h>
-#include <gp_timer_target.h>
 
 #include <editor/editor_main.h>
 
@@ -325,7 +326,7 @@ int main()
       Frame_Ray_Collider_Count = 0;
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player);
       // @todo - check player events
-      GP_update_game_state();
+      GP_update_timers();
       GP_update_player_state(player);
       AN_animate_player(player);
       // simulate_gravity_trajectory();      

@@ -42,7 +42,7 @@ void render_scene(Scene* scene, Camera* camera);
 void render_entity(Entity* entity);
 void render_editor_entity(Entity* entity, Scene* scene, Camera* camera);
 void render_mesh(Mesh* mesh, RenderOptions opts = RenderOptions{});
-void render_message_buffer_contents();
+void editor_print_buffer_contents();
 void set_shader_light_variables(Scene* scene, Shader* shader, Camera* camera);
 
 
