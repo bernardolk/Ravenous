@@ -19,17 +19,17 @@ void log(RavenousLogLevel level, std::string message)
    {
       case LOG_INFO:
       {
-         message_header += "\n> INFO message: ";
+         message_header += "> INFO message: ";
          break;
       }
       case LOG_WARNING:
       {
-         message_header += "\n> WARNING message: ";
+         message_header += "> WARNING message: ";
          break;
       }
       case LOG_ERROR:
       {
-         message_header += "\n> ERROR message: ";
+         message_header += "> ERROR message: ";
          break;
       }
    }

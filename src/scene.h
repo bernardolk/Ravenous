@@ -448,14 +448,14 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
    writer.close();
 
    if(do_copy)
-      cout << "Scene copy saved succesfully as '" << scene_name << ".txt'. \n";
+      log(LOG_INFO, "Scene copy saved succesfully as '" + scene_name + ".txt'");
    else if(was_renamed)
    {
-      cout << "Scene saved succesfully as '" << scene_name << ".txt' (now editing it). \n";
+      log(LOG_INFO, "Scene saved succesfully as '" + scene_name + ".txt' (now editing it)");
       G_SCENE_INFO.scene_name = scene_name;
    }
    else
-      cout << "Scene saved succesfully.\n";
+      log(LOG_INFO, "Scene saved succesfully.");
 
    return true;
 }

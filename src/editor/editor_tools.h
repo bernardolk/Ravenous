@@ -777,7 +777,7 @@ void check_for_asset_changes()
          auto mesh = it->second;
          if(CompareFileTime(&mesh->last_written, &find_data.ftLastWriteTime) != 0)
          {
-            cout << "ASSET '" << model_name << "' changed!\n";
+            log(LOG_INFO, "asset updated: " + model_name);
             mesh->last_written = find_data.ftLastWriteTime;
             auto dummy_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, model_name);
             mesh->vertices = dummy_mesh->vertices;

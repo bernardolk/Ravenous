@@ -27,14 +27,12 @@ gl_charmap load_text_textures(string font, int size)
 	// Load font
 	FT_Library ft;
 	if (FT_Init_FreeType(&ft))
-		std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+		Quit_fatal("Freetype: Could not init FreeType Library");
       
 	FT_Face face;
 	string filepath = FONTS_PATH + font;
 	if (FT_New_Face(ft, filepath.c_str(), 0, &face))
-		std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
-   else
-		std::cout << "OK::FREETYPE: " << font << " loaded." << std::endl;
+		log(LOG_ERROR, "Freetype: Failed to load font");
 
 	FT_Set_Pixel_Sizes(face, 0, size);
 
@@ -43,8 +41,9 @@ gl_charmap load_text_textures(string font, int size)
 	for (GLubyte c = 0; c < 128; c++)
 	{
 		//Load character glyph
-		if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
-			std::cout << "ERROR::FREETYPE: Failed to load Glyph" << std::endl;
+		if (FT_Load_Char(face, c, FT_LOAD_RENDER)) 
+      {
+			log(LOG_ERROR, "Freetype: Failed to load Glyph");
 			continue;
 		}
 
@@ -75,7 +74,6 @@ gl_charmap load_text_textures(string font, int size)
          face->glyph->advance.x 
       };
 		font_charmap.insert(std::pair<GLchar, Character>(c, character));
-		//std::cout << "c: " << (GLchar)c << " sizeInfo: " << character.Size.x << " (x) " << character.Size.y << " (y)" << std::endl;
 	}
 
    // saves font chars to catalogue

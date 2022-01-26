@@ -14,6 +14,12 @@ struct Mesh {
       // to avoid a pretty bad rendering issue
       assert(indices.size() > 0);
 
+      if(gl_data.VAO > 0)
+      {
+         log(LOG_INFO, "Redundant setup_gl_data call occured.");
+         return;
+      }
+
       GLData new_gl_data;
 
       // create buffers/arrays
