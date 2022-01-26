@@ -313,6 +313,7 @@ void render_entity_panel(EntityPanelContext* panel)
          ImGui::SameLine();
          if(ImGui::Button("Change", ImVec2(92, 18)))
          {
+            panel->show_related_entity = false;
             activate_select_entity_aux_tool(&entity->timer_target);
          }
       }

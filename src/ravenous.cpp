@@ -175,9 +175,11 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <cl_controller.h>
 #include <gp_game_state.h>
 #include <gp_update.h>
+#include <lights.h>
 #include <scene.h>
 #include <console.h>
 #include <in_handlers.h>
+#include <gp_timer_target.h>
 
 #include <editor/editor_main.h>
 

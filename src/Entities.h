@@ -2,6 +2,7 @@
 
 // forward declarations
 struct WorldCell;
+enum TimerTargetType;
 
 
 enum EntityType {
@@ -20,13 +21,19 @@ enum EntityFlags {
    EntityFlags_RenderWireframe      = (1 << 4)
 };
 
+// =======================
+// >        ENTITY
+// =======================
 struct Entity {
+
    u64 id            = -1;
    string name       = "NONAME";
    EntityType type   = EntityType_Static;
    u32 flags;
 
-   // render data
+   // ---------------------------
+   //  > render data
+   // ---------------------------
 	Shader* shader;
    Mesh* mesh;
    std::vector<Texture> textures;
@@ -52,22 +59,27 @@ struct Entity {
    WorldCell* world_cells[ENTITY_WOLRD_CELL_OCCUPATION_LIMIT];
    int world_cells_count = 0;
 
-   // event trigger
+   // ---------------------------
+   // > event trigger settings
+   // ---------------------------
    Mesh*    trigger              = nullptr;
    vec3     trigger_scale        = vec3(1.5f, 1.f, 0.f);
    vec3     trigger_pos          = vec3(0.0f);
    mat4     trigger_matModel;
 
-   // timer variables
-   int      timer_duration       = 0;
-   Entity*  timer_target         = nullptr;
-   bool     is_timer_target      = false;
-   bool     timer_start_action   = false;
-   bool     timer_end_action     = false;
+   // ---------------------------
+   // > timer variables
+   // ---------------------------
+   Entity*           timer_target            = nullptr;     /* If the entity is interactable and has a timer target,
+                                                               this points to the target entity. */
+   int               timer_duration          = 0;           // Expressed in seconds
+   bool              is_timer_target         = false;       // If this entity is a target of another interactable
+   TimerTargetType   timer_target_type       = 0;           // The type of target this entity is, if it is a target of another interactable.
 
-   // ----------
-   // > METHODS
-   // ----------
+
+   // ---------------------------
+   // > methods
+   // ---------------------------
 
    void update()
    {
@@ -81,6 +93,8 @@ struct Entity {
 
       if(is_interactable())
          update_trigger();
+      
+      if(type == EntityType_Timed && timer_running)
    }
 
 
@@ -159,75 +173,5 @@ struct Entity {
    bool is_interactable()
    {
       return type == EntityType_Checkpoint || type == EntityType_Timed;
-   }
-};
-
-struct SpotLight {
-	vec3 position = vec3(0);
-	vec3 direction = vec3(0, -1, 0);
-	vec3 diffuse = vec3(1);
-	vec3 specular = vec3(1);
-	float innercone = 1;
-	float outercone = 0.5;
-	float intensity_constant = 0.02f;
-	float intensity_linear = 1.0f;
-	float intensity_quadratic = 0.032f;
-};
-
-struct PointLight {
-	vec3 position = vec3(0);
-	vec3 diffuse = vec3(1);
-	vec3 specular = vec3(1);
-	float intensity_constant = 0.5f;
-	float intensity_linear = 0.4f;
-	float intensity_quadratic = 0.032f;
-};
-
-struct DirectionalLight {
-	vec3 direction = vec3(0, -1, 0);
-	vec3 diffuse = vec3(1);
-	vec3 specular = vec3(1);
-};
-
-struct Scene {
-	std::vector<Entity*>             entities;
-	std::vector<SpotLight>           spotLights;
-	std::vector<DirectionalLight>    directionalLights;
-	std::vector<PointLight>          pointLights;
-   std::vector<Entity*>             interactables;
-   std::vector<Entity*>             checkpoints;
-
-   float global_shininess = 17;
-   vec3 ambient_light = vec3(1);
-   float ambient_intensity = 0;
-
-   bool search_name(string name)
-   {
-      for(int i = 0; i < entities.size() ; i++)
-         if(entities[i]->name == name)
-            return true;
-      return false;
-   }
-
-   int entity_index(Entity* entity)
-   {
-      for(int i = 0; i < entities.size() ; i++)
-         if(entities[i]->name == entity->name)
-            return i;
-      return -1;
-   }
-
-   Entity* find_entity(std::string name) 
-   {
-      for(int i = 0; i < entities.size() ; i++)
-         if(entities[i]->name == name)
-            return entities[i];
-      return NULL;
-   }
-
-   void load_configs(ProgramConfig configs)
-   {
-      ambient_light = configs.ambient_light;
-      ambient_intensity = configs.ambient_intensity;
    }
 };

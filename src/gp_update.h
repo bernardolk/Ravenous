@@ -415,7 +415,7 @@ void GP_check_trigger_interaction(Player* player)
       GJK_Result gjk_test = CL_run_GJK(&player->entity_ptr->collider, &trigger_collider);
       if(gjk_test.collision)
       {
-         RENDER_MESSAGE("CHECKPOINT", 1000);
+         RENDER_MESSAGE("Trigger Interaction", 1000);
 
          switch(interactable->type)
          {
@@ -426,7 +426,7 @@ void GP_check_trigger_interaction(Player* player)
             }
             case EntityType_Timed:
             {
-               GP_game_state_start_timer(interactable);
+               Game_State.start_timer(interactable);
                break;
             }
          }
