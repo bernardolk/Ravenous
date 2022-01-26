@@ -1,4 +1,4 @@
 scene = cliff
 camspeed = 8.5
-ambient_light = 1 1 1
+ambient_light = 1 0.99999 0.99999
 ambient_intensity = 0.08

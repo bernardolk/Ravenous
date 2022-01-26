@@ -439,8 +439,8 @@ struct EntityManager
       while(deletion_stack.size() > 0)
       {
          auto entity = deletion_stack[0];
-         deletion_stack.erase(deletion_stack.begin());
          pool.free_slot(entity);
+         deletion_stack.erase(deletion_stack.begin());
       }
    }
 };

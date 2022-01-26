@@ -51,12 +51,15 @@ struct EntityPool {
       bool deleted = false;
       For(size)
       {
-         if(cursor == entity)
+         if(cursor->id == entity->id)
          {
+            // inits new entity with "placement new"
+            auto _ = new (cursor) Entity();
             cursor->flags |= EntityFlags_EmptyEntity;
             deleted = true;
             break;
          }
+         cursor++;
       }
 
       if(!deleted)
