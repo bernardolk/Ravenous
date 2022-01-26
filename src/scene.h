@@ -1,15 +1,15 @@
-struct DeferredLoadBuffer {
+struct DeferredEntityRelationBuffer {
    static const int size = 64;
    int count = 0;
    Entity* from[size];
-   std::string to[size];
+   u64 to[size];
    std::string context[size];
 };
 
 // Prototypes
 bool load_scene_from_file(std::string scene_name, WorldStruct* world);
 Entity* parse_and_load_entity(
-   Parser::Parse p, ifstream* reader, int& line_count, std::string path, DeferredLoadBuffer* deferred_load_buffer
+   Parser::Parse p, ifstream* reader, int& line_count, std::string path, DeferredEntityRelationBuffer* entity_relations
 );
 void parse_and_load_player_attribute(Parser::Parse p, ifstream* reader, int& line_count, std::string path, Player* player);
 void setup_scene_boilerplate_stuff();
@@ -65,7 +65,7 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
    G_SCENE_INFO.player = player;
 
    // creates deferred load buffer for associating entities after loading them all
-   auto deferred_load_buffer = DeferredLoadBuffer();
+   auto entity_relations = DeferredEntityRelationBuffer();
 
    // starts reading
    std::string line;
@@ -107,7 +107,7 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
       p = parse_symbol(p);
       if(p.cToken == '#')
       {
-         Entity* new_entity = parse_and_load_entity(p, &reader, line_count, path, &deferred_load_buffer);
+         Entity* new_entity = parse_and_load_entity(p, &reader, line_count, path, &entity_relations);
 
          // set up collider
          new_entity->collider       = *new_entity->collision_mesh;
@@ -136,19 +136,19 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
    }
 
    // connects entities using deferred load buffer
-   For(deferred_load_buffer.count)
+   For(entity_relations.count)
    {
-      Entity* from         = deferred_load_buffer.from[i];
-      std::string context  = deferred_load_buffer.context[i];
-      Entity* to;
+      Entity* from         = entity_relations.from[i];
+      std::string context  = entity_relations.context[i];
+      Entity* to_entity;
 
       bool found_to_entity = false;
       Forj(scene->entities.size())
       {  
          Entity* entity = scene->entities[j];
-         if(entity->name == deferred_load_buffer.to[i])
+         if(entity->id == entity_relations.to[i])
          {
-            to = entity;
+            to_entity = entity;
             found_to_entity = true;
             break;
          }
@@ -157,15 +157,15 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
       if(!found_to_entity)
       {
          Quit_fatal("Something weird happened. We tried to deferred load the relationship of '"
-            + context + "' between (from) '" + from->name + "' and a supposed (to) '" 
-            + deferred_load_buffer.to[i] + "' but we couldn't find that entity inside the scene list.");
+            + context + "' between (from) '" + from->name + "' and an entity with id '" 
+            + to_string(entity_relations.to[i]) + "' but we couldn't find that entity inside the scene list.");
       }
 
       //@todo: BAD! This requires coordination of literal strings between parts of the module. Need an enum for more clarity.
       //@todo: ALSO, what about introspection/reflection? ... 
       if(context == "timer_target")
       {
-         from->timer_target = to;
+         from->timer_target = to_entity;
       }
    }
 
@@ -434,7 +434,7 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
                << entity->trigger_scale.y << " "
                << entity->trigger_scale.z << "\n";
             if(entity->timer_target != nullptr)
-               writer << "timer_target " << entity->timer_target->name << "\n";
+               writer << "timer_target " << entity->timer_target->id << "\n";
             break;
          }
       }
@@ -552,7 +552,7 @@ void parse_and_load_player_attribute(Parser::Parse p, ifstream* reader, int& lin
 
 
 Entity* parse_and_load_entity(
-   Parser::Parse p, ifstream* reader, int& line_count, std::string path, DeferredLoadBuffer* deferred_load_buffer
+   Parser::Parse p, ifstream* reader, int& line_count, std::string path, DeferredEntityRelationBuffer* entity_relations
 ){
    std::string line;
 
@@ -715,14 +715,14 @@ Entity* parse_and_load_entity(
       else if(property == "timer_target")
       {
          p = parse_all_whitespace(p);
-         p = parse_name(p);
-         std::string timer_target = p.string_buffer;
+         p = parse_u64(p);
+         auto timer_target_id = p.u64Token;
 
-         int i = deferred_load_buffer->count;
-         deferred_load_buffer->to[i] = timer_target;
-         deferred_load_buffer->from[i] = new_entity;
-         deferred_load_buffer->context[i] = "timer_target";
-         deferred_load_buffer->count++;
+         int i                         = entity_relations->count;
+         entity_relations->to[i]       = timer_target_id;
+         entity_relations->from[i]     = new_entity;
+         entity_relations->context[i]  = "timer_target";
+         entity_relations->count++;
       }
 
       else if(property == "trigger")
