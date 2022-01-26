@@ -374,7 +374,7 @@ struct EntityManager
          }
 
          // TIMED
-         case EntityType_Timed:
+         case EntityType_TimerTrigger:
          {
             if(!entity->is_interactable())
             {
@@ -386,7 +386,7 @@ struct EntityManager
                _remove_from_checkpoint_registry(entity);
             }
 
-            entity->type = EntityType_Timed;
+            entity->type = EntityType_TimerTrigger;
             break;
          }
 

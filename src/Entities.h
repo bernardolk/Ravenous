@@ -13,7 +13,7 @@ enum EntityTimerTargetType {
 enum EntityType {
    EntityType_Static            = 0,
    EntityType_Checkpoint        = 1,
-   EntityType_Timed             = 2,
+   EntityType_TimerTrigger             = 2,
 };
 
 enum EntityFlags {
@@ -173,6 +173,6 @@ struct Entity {
 
    bool is_interactable()
    {
-      return type == EntityType_Checkpoint || type == EntityType_Timed;
+      return type == EntityType_Checkpoint || type == EntityType_TimerTrigger;
    }
 };

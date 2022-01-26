@@ -424,7 +424,7 @@ void GP_check_trigger_interaction(Player* player)
                player->set_checkpoint(interactable);
                break;
             }
-            case EntityType_Timed:
+            case EntityType_TimerTrigger:
             {
                Game_State.start_timer(interactable);
                break;

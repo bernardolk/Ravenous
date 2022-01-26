@@ -247,11 +247,11 @@ void render_entity_panel(EntityPanelContext* panel)
          Entity_Manager.set_type(entity, EntityType_Checkpoint);
       }
 
-      // EntityType_Timed
-      bool is_timed = entity->type == EntityType_Timed;
+      // EntityType_TimerTrigger
+      bool is_timed = entity->type == EntityType_TimerTrigger;
       if(ImGui::RadioButton("Timed", is_timed))
       {
-         Entity_Manager.set_type(entity, EntityType_Timed);
+         Entity_Manager.set_type(entity, EntityType_TimerTrigger);
       }
 
       ImGui::NewLine();

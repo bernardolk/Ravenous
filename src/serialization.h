@@ -426,9 +426,9 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
                << entity->trigger_scale.z << "\n";
             break;
          }
-         case EntityType_Timed:
+         case EntityType_TimerTrigger:
          {
-            writer << "type timed\n";
+            writer << "type timer_trigger\n";
             writer << "trigger " 
                << entity->trigger_scale.x << " "
                << entity->trigger_scale.y << " "
@@ -706,8 +706,8 @@ Entity* parse_and_load_entity(
             Entity_Manager.set_type(new_entity, EntityType_Static);
          else if(entity_type == "checkpoint")
             Entity_Manager.set_type(new_entity, EntityType_Checkpoint);
-         else if(entity_type == "timed")
-            Entity_Manager.set_type(new_entity, EntityType_Timed);
+         else if(entity_type == "timer_trigger")
+            Entity_Manager.set_type(new_entity, EntityType_TimerTrigger);
          else
             Quit_fatal("Entity type '" + entity_type + "' not identified.");
       }
