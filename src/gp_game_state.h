@@ -9,10 +9,10 @@ struct GameState {
    {
       For(timer_targets_array_size)
       {
-         auto timer = timer_targets[i];
-         if(!timer.active)
+         auto timer = &timer_targets[i];
+         if(!timer->active)
          {
-            timer.start(interactable->timer_target, interactable->timer_duration);  
+            timer->start(interactable->timer_target, interactable->timer_duration);  
             break;
          }
       }
