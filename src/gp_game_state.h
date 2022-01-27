@@ -34,6 +34,8 @@ void GP_update_timers()
             case EntityTimerTargetType_VerticalSlidingDoor:
             {
                // animation code call
+               
+
                editor_print("Remaining time: " + fmt_tostr(timer->remaining_time, 0));
                break;
             }
