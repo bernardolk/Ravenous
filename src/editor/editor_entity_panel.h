@@ -248,8 +248,8 @@ void render_entity_panel(EntityPanelContext* panel)
       }
 
       // EntityType_TimerTrigger
-      bool is_timed = entity->type == EntityType_TimerTrigger;
-      if(ImGui::RadioButton("Timed", is_timed))
+      bool is_timer_trigger = entity->type == EntityType_TimerTrigger;
+      if(ImGui::RadioButton("Timer Trigger", is_timer_trigger))
       {
          Entity_Manager.set_type(entity, EntityType_TimerTrigger);
       }
@@ -281,7 +281,7 @@ void render_entity_panel(EntityPanelContext* panel)
             entity->update();
       }
 
-      else if(is_timed)
+      else if(is_timer_trigger)
       {
          ImGui::Text("Event trigger");
          
@@ -319,6 +319,24 @@ void render_entity_panel(EntityPanelContext* panel)
       }
 
       ImGui::EndTabItem();
+   }
+
+   // -------------------
+   // > TIMER TARGET TAB
+   // -------------------
+   if(entity->is_timer_target)
+   {
+      if(ImGui::BeginTabItem("Timer Target Settings", NULL, ImGuiTabItemFlags_None))
+      {
+         // EntityTimerTargetType_VerticalSlidingDoor
+         bool is_vsd = entity->timer_target_type == EntityTimerTargetType_VerticalSlidingDoor;
+         if(ImGui::RadioButton("Vertical Sliding Door", is_vsd))
+         {
+            entity->timer_target_type = EntityTimerTargetType_VerticalSlidingDoor;
+         }
+
+         ImGui::EndTabItem();
+      }
    }
 
    // ----------------

@@ -24,23 +24,23 @@ void GP_update_timers()
 {
    For(Game_State.timer_targets_array_size)
    {
-      auto target = Game_State.timer_targets[i];
+      auto timer = &Game_State.timer_targets[i];
 
-      if(target.active)
+      if(timer->active)
       {
          // perform timer target action according to entity timer target type
-         switch(target.entity->timer_target_type)
+         switch(timer->entity->timer_target_type)
          {
             case EntityTimerTargetType_VerticalSlidingDoor:
             {
                // animation code call
-               editor_print("Remaining time: " + fmt_tostr(target.remaining_time, 0));
+               editor_print("Remaining time: " + fmt_tostr(timer->remaining_time, 0));
                break;
             }
          }
 
          // update timer
-         target.update();
+         timer->update();
       }
    }
 }

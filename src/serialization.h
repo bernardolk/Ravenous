@@ -12,14 +12,16 @@ Entity* parse_and_load_entity(
    Parser::Parse p, ifstream* reader, int& line_count, std::string path, DeferredEntityRelationBuffer* entity_relations
 );
 void parse_and_load_player_attribute(Parser::Parse p, ifstream* reader, int& line_count, std::string path, Player* player);
-void setup_scene_boilerplate_stuff();
-bool save_player_position_to_file(string scene_name, Player* player);
-bool save_scene_to_file(string scene_name, Player* player, bool do_copy);
 void parse_and_load_light_source(Parser::Parse p, ifstream* reader, int& line_count, string path);
 void parse_and_load_camera_settings(Parser::Parse p, ifstream* reader, int& line_count, std::string path);
 void parse_and_load_player_orientation(Parser::Parse p, ifstream* reader, int& line_count, std::string path, Player* player);
 bool load_player_attributes_from_file();
 bool check_if_scene_exists();
+
+void setup_scene_boilerplate_stuff();
+bool save_player_position_to_file(string scene_name, Player* player);
+bool save_scene_to_file(string scene_name, Player* player, bool do_copy);
+
 Entity* create_player_entity();
 Player* create_player(Entity* player_entity);
 ProgramConfig load_configs();
@@ -166,6 +168,7 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
       if(context == "timer_target")
       {
          from->timer_target = to_entity;
+         to_entity->is_timer_target = true;
       }
    }
 
@@ -435,8 +438,14 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
                << entity->trigger_scale.z << "\n";
             if(entity->timer_target != nullptr)
                writer << "timer_target " << entity->timer_target->id << "\n";
+            writer << "timer_duration " << entity->timer_duration << "\n";
             break;
          }
+      }
+
+      if(entity->is_timer_target)
+      {
+         writer << "timer_target_type " << entity->timer_target_type << "\n";
       }
 
       if(entity->slidable)
@@ -712,6 +721,10 @@ Entity* parse_and_load_entity(
             Quit_fatal("Entity type '" + entity_type + "' not identified.");
       }
 
+      // ---------------------------------
+      // > timer trigger related settings
+      // ---------------------------------
+
       else if(property == "timer_target")
       {
          p = parse_all_whitespace(p);
@@ -724,6 +737,25 @@ Entity* parse_and_load_entity(
          entity_relations->context[i]  = "timer_target";
          entity_relations->count++;
       }
+      
+      else if(property == "timer_target_type")
+      {
+         p = parse_all_whitespace(p);
+         p = parse_uint(p);
+         auto tt_type = (EntityTimerTargetType) p.uiToken;
+
+         new_entity->is_timer_target = true;
+         new_entity->timer_target_type = tt_type;
+      }
+
+      else if(property == "timer_duration")
+      {
+         p = parse_all_whitespace(p);
+         p = parse_float(p);
+         new_entity->timer_duration = p.fToken;
+      }
+
+      // ---------------------------------
 
       else if(property == "trigger")
       {
