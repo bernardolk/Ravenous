@@ -29,9 +29,9 @@ void render_scene_objects_panel(SceneObjectsPanelContext* panel)
             panel->active = false;
             
             if(entity->name == PLAYER_NAME)
-               open_entity_panel(entity);
-            else
                open_player_panel(G_SCENE_INFO.player);
+            else
+               open_entity_panel(entity);
          }
       }
    }
