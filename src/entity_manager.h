@@ -262,16 +262,16 @@ struct EntityManager
    Entity* copy_entity(Entity* entity)
    {
       // allocate entity with new id
-      auto new_entity = pool.get_next();
-      *new_entity     = *entity;
-      new_entity->id  = next_entity_id++;
-      new_entity->collider    = *new_entity->collision_mesh;
+      auto new_entity               = pool.get_next();
+      *new_entity                   = *entity;
+      new_entity->id                = next_entity_id++;
+      new_entity->collider          = *new_entity->collision_mesh;
       new_entity->collider.setup_gl_data();
       // tries new name with copy
       string new_name = new_entity->name;
       if(new_name != "NONAME")
       {
-         new_name =+ " copy";
+         new_name = new_name + " copy";
          // if exists already, keep increasing the number inside parenthesis
          if(G_SCENE_INFO.active_scene->search_name(new_name))
          {
