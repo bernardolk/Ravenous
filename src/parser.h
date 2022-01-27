@@ -126,11 +126,11 @@ inline Parse parse_symbol(Parse toparse)
 }
 
 
-// parses letters, digits or space character
+// parses letters, digits, space or underline character
 inline Parse parse_name_char(Parse toparse)
 {
    Parse outparse{ toparse.string, toparse.size, 0};
-	if (isalnum(toparse.string[0]) || toparse.string[0] == ' ')
+	if (isalnum(toparse.string[0]) || toparse.string[0] == ' ' || toparse.string[0] == '_')
    {
 		outparse.cToken = toparse.string[0];
 		outparse.string = &(toparse.string[1]);
