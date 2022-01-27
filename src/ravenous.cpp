@@ -173,6 +173,7 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <in_phase.h>
 #include <gp_player_state.h>
 #include <an_player.h>
+#include <an_update.h>
 #include <cl_buffers.h>
 #include <cl_controller.h>
 #include <gp_timer_target.h>
@@ -328,7 +329,7 @@ int main()
       // @todo - check player events
       GP_update_timers();
       GP_update_player_state(player);
-      AN_animate_player(player);
+      AN_update_animations(player);
       // simulate_gravity_trajectory();      
 
       // -------------
