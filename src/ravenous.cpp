@@ -179,7 +179,10 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <gp_timer.h>
 #include <gp_game_state.h>
 #include <gp_update.h>
-#include <serialization.h>
+
+#include <sr_save_scene.h>
+#include <sr_save_configs.h>
+#include <sr_load_scene.h>
 #include <console.h>
 #include <in_handlers.h>
 
@@ -269,6 +272,9 @@ int main()
 
    // load pre recorded input recordings
    Input_Recorder.load();
+
+   // create hardcoded animations
+   AN_create_hardcoded_animations();
 
    //@TODO: better for debugging
    player->entity_ptr->flags |= EntityFlags_RenderWireframe;
