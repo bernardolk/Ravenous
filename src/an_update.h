@@ -1,4 +1,8 @@
 
+// Catalogue
+struct EntityAnimation;
+std::map<string, EntityAnimation> Animation_Catalogue;
+
 const static u32 AN_MAX_ENTITY_ANIMATION_KEYFRAMES = 16;
 
 enum EntityAnimationKeyframeFlags {
@@ -43,39 +47,48 @@ struct EntityAnimation {
       // --------------------
       // > Perform animation
       // --------------------
-
       
-
+      float speed;
       // Update entity position
       if(kf->flags & EntityAnimKfFlags_ChangePosition)
       {
-
+         //x
+         speed = (kf->final_position.x - kf->starting_position.x) / kf->duration;
+         entity->position.x += speed * frame_duration_ms;
+         //y
+         speed = (kf->final_position.y - kf->starting_position.y) / kf->duration;
+         entity->position.y += speed * frame_duration_ms;
+         //z
+         speed = (kf->final_position.z - kf->starting_position.z) / kf->duration;
+         entity->position.z += speed * frame_duration_ms;
       }
       
       // Update entity rotation
       if(kf->flags & EntityAnimKfFlags_ChangeRotation)
       {
-
+         //x
+         speed = (kf->final_rotation.x - kf->starting_rotation.x) / kf->duration;
+         entity->rotation.x += speed * frame_duration_ms;
+         //y
+         speed = (kf->final_rotation.y - kf->starting_rotation.y) / kf->duration;
+         entity->rotation.y += speed * frame_duration_ms;
+         //z
+         speed = (kf->final_rotation.z - kf->starting_rotation.z) / kf->duration;
+         entity->rotation.z += speed * frame_duration_ms;
       }
 
       // Update entity scale
       if(kf->flags & EntityAnimKfFlags_ChangeScale)
       {
-         if(kf->final_scale.x > 0)
-         {
-            float speed = (kf->final_scale.x - kf->starting_scale.x) / kf->duration;
-            entity->scale.x += speed * frame_duration_ms;
-         }
-         if(kf->final_scale.y > 0)
-         {
-            float speed = (kf->final_scale.y - kf->starting_scale.y) / kf->duration;
-            entity->scale.y += speed * frame_duration_ms;
-         }
-         if(kf->final_scale.z > 0)
-         {
-            float speed = (kf->final_scale.z - kf->starting_scale.z) / kf->duration;
-            entity->scale.z += speed * frame_duration_ms;
-         }
+         //x
+         speed = (kf->final_scale.x - kf->starting_scale.x) / kf->duration;
+         entity->scale.x += speed * frame_duration_ms;
+         //y
+         speed = (kf->final_scale.y - kf->starting_scale.y) / kf->duration;
+         entity->scale.y += speed * frame_duration_ms;
+         //z
+         speed = (kf->final_scale.z - kf->starting_scale.z) / kf->duration;
+         entity->scale.z += speed * frame_duration_ms;
       }
 
       entity->update();
@@ -113,22 +126,16 @@ struct EntityAnimationBuffer {
       return 0;
    }
 
-   void start_animation(Entity* entity, EntityAnimationKeyframe* keyframes, u32 keyframes_count)
+   void start_animation(Entity* entity, EntityAnimation* animation)
    {
-      //@todo: later in the future we might want to have an Animation_Catalogue and then reference animations
-      //       by id. Then we can search the catalogue and place a pointer to the keyframe array into the anim
-      //       buffer or something like that.
+      // makes a copy of the animation to the Entity_Animations buffer
 
       auto i = _find_slot();
-      auto animation = &animations[i];
+      auto _animation = &animations[i];
 
-      animation->active          = true;
-      animation->entity          = entity;
-      animation->keyframes_count = keyframes_count;
-      
-      // copy keyframes to buffer
-      For(keyframes_count)
-         animation->keyframes[i] = keyframes[i];
+      *_animation                 = *animation;
+      _animation->active          = true;
+      _animation->entity          = entity;
    }
 
    void update_animations()
@@ -145,10 +152,43 @@ struct EntityAnimationBuffer {
 } Entity_Animations;
 
 
-
-void AN_door_sliding_animation(Entity* entity)
+void AN_create_hardcoded_animations()
 {
-  
 
-   return;
+   // >> VERTICAL DOOR 
+   {
+      // > SLIDING UP
+      {
+         auto kf             = EntityAnimationKeyframe();
+         kf.duration         = 2000;
+         kf.starting_scale   = vec3{0,0,0};
+         kf.final_scale      = kf.starting_scale;
+         kf.final_scale.z    = 0.2; 
+         kf.flags            |= EntityAnimKfFlags_ChangeScale;
+
+
+         auto anim               = EntityAnimation();
+         anim.keyframes_count    = 1;
+         anim.keyframes[0]       = kf;
+
+         Animation_Catalogue.insert({"vertical_door_slide_up", anim});
+      }
+
+      // > SLIDING DOWN
+      {
+         auto kf             = EntityAnimationKeyframe();
+         kf.duration         = 2000;
+         kf.starting_scale   = vec3{0,0,0};
+         kf.final_scale      = kf.starting_scale;
+         kf.final_scale.z    = 2.350;
+         kf.flags            |= EntityAnimKfFlags_ChangeScale;
+
+
+         auto anim               = EntityAnimation();
+         anim.keyframes_count    = 1;
+         anim.keyframes[0]       = kf;
+
+         Animation_Catalogue.insert({"vertical_door_slide_down", anim});
+      }
+   }
 }

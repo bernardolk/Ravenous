@@ -15,20 +15,14 @@ struct GameState {
          if(!timer->active)
          {
             timer->start(interactable->timer_target, interactable->timer_duration);  
-            //@todo: tmp solution
-            {
-               tmp_kf = EntityAnimationKeyframe();
-               tmp_kf.duration         = 2000;
-               tmp_kf.starting_scale   = timer->entity->scale;
-               tmp_kf.final_scale      = vec3{-1, -1, 0.2};
-               tmp_kf.flags            |= EntityAnimKfFlags_ChangeScale;
 
-               Entity_Animations.start_animation(
-                  timer->entity,
-                  &tmp_kf,
-                  1
-               );
+            // plays animation, if entity has one
+            if(timer->entity->timer_start_animation != "")
+            {
+               auto anim = &Animation_Catalogue.find(timer->entity->timer_start_animation)->second;
+               Entity_Animations.start_animation(timer->entity, anim);
             }
+            
             return;
          }
       }
@@ -49,19 +43,12 @@ struct GameState {
             bool active = timer->update();
             if(!active)
             {
-               //@todo: tmp solution
-               {
-                  tmp_kf = EntityAnimationKeyframe();
-                  tmp_kf.duration         = 2000;
-                  tmp_kf.starting_scale   = timer->entity->scale;
-                  tmp_kf.final_scale      = vec3{-1, -1, 2.350};
-                  tmp_kf.flags            |= EntityAnimKfFlags_ChangeScale;
 
-                  Entity_Animations.start_animation(
-                     timer->entity,
-                     &tmp_kf,
-                     1
-                  );
+               // plays animation, if entity has one
+               if(timer->entity->timer_stop_animation != "")
+               {
+                  auto anim = &Animation_Catalogue.find(timer->entity->timer_stop_animation)->second;
+                  Entity_Animations.start_animation(timer->entity, anim);
                }
 
                timer->stop();
