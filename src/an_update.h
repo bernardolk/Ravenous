@@ -159,13 +159,12 @@ void AN_create_hardcoded_animations()
    {
       // > SLIDING UP
       {
-         auto kf             = EntityAnimationKeyframe();
-         kf.duration         = 2000;
-         kf.starting_scale   = vec3{0,0,0};
-         kf.final_scale      = kf.starting_scale;
-         kf.final_scale.z    = 0.2; 
-         kf.flags            |= EntityAnimKfFlags_ChangeScale;
-
+         auto kf                 = EntityAnimationKeyframe();
+         kf.duration             = 2000;
+         kf.starting_scale       = vec3{0.24, 1.6, 2.350};
+         kf.final_scale          = kf.starting_scale;
+         kf.final_scale.z        = 0.2; 
+         kf.flags                |= EntityAnimKfFlags_ChangeScale;
 
          auto anim               = EntityAnimation();
          anim.keyframes_count    = 1;
@@ -176,13 +175,12 @@ void AN_create_hardcoded_animations()
 
       // > SLIDING DOWN
       {
-         auto kf             = EntityAnimationKeyframe();
-         kf.duration         = 2000;
-         kf.starting_scale   = vec3{0,0,0};
-         kf.final_scale      = kf.starting_scale;
-         kf.final_scale.z    = 2.350;
-         kf.flags            |= EntityAnimKfFlags_ChangeScale;
-
+         auto kf                 = EntityAnimationKeyframe();
+         kf.duration             = 2000;
+         kf.starting_scale       = vec3{0.24, 1.6, 0.2};
+         kf.final_scale          = kf.starting_scale;
+         kf.final_scale.z        = 2.350;
+         kf.flags                |= EntityAnimKfFlags_ChangeScale;
 
          auto anim               = EntityAnimation();
          anim.keyframes_count    = 1;

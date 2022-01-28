@@ -198,6 +198,29 @@ Entity* parse_and_load_entity(
          new_entity->timer_duration = p.fToken;
       }
 
+      // -----------------------------
+      // > animation related settings
+      // -----------------------------
+
+      else if(property == "timer_start_animation")
+      {
+         p = parse_all_whitespace(p);
+         p = parse_token(p);
+
+         std::string tsa = p.string_buffer;
+         new_entity->timer_start_animation = tsa;
+      }
+
+      else if(property == "timer_stop_animation")
+      {
+         p = parse_all_whitespace(p);
+         p = parse_token(p);
+
+         std::string tsa = p.string_buffer;
+         new_entity->timer_stop_animation = tsa;
+      }
+
+
       // ---------------------------------
 
       else if(property == "trigger")

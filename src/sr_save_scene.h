@@ -218,6 +218,16 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
          writer << "timer_target_type " << entity->timer_target_type << "\n";
       }
 
+      if(entity->timer_start_animation != "")
+      {
+         writer << "timer_start_animation " << entity->timer_start_animation << "\n";
+      }
+
+      if(entity->timer_stop_animation != "")
+      {
+         writer << "timer_stop_animation " << entity->timer_stop_animation << "\n";
+      }
+
       if(entity->slidable)
       {
          writer << "slidable \n";

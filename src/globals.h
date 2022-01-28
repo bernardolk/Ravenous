@@ -1,9 +1,9 @@
 // -----------
 // CATALOGUES
 // -----------
-std::map<string, Mesh*> Geometry_Catalogue;
-std::map<string, Shader*> Shader_Catalogue;
-std::map<string, Texture> Texture_Catalogue;
+std::map<string, Mesh*>    Geometry_Catalogue;
+std::map<string, Shader*>  Shader_Catalogue;
+std::map<string, Texture>  Texture_Catalogue;
 
 typedef std::map<GLchar, Character> gl_charmap;
 std::map<string, gl_charmap> Font_Catalogue;
