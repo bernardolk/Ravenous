@@ -26,10 +26,7 @@ struct Timer {
       /* Returns whether the timer is still active */
       remaining_time -= G_FRAME_INFO.duration;
       if(remaining_time <= 0)
-      {
-         stop();
          return false;
-      }
       else
          return true;
    }

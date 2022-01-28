@@ -17,13 +17,14 @@ struct GameState {
             timer->start(interactable->timer_target, interactable->timer_duration);  
             //@todo: tmp solution
             {
+               tmp_kf = EntityAnimationKeyframe();
                tmp_kf.duration         = 2000;
-               tmp_kf.starting_scale   = interactable->timer_target->scale;
+               tmp_kf.starting_scale   = timer->entity->scale;
                tmp_kf.final_scale      = vec3{-1, -1, 0.2};
                tmp_kf.flags            |= EntityAnimKfFlags_ChangeScale;
 
                Entity_Animations.start_animation(
-                  interactable->timer_target,
+                  timer->entity,
                   &tmp_kf,
                   1
                );
@@ -45,7 +46,26 @@ struct GameState {
          if(timer->active)
          {
             editor_print("Remaining time: " + fmt_tostr(timer->remaining_time, 0));
-            timer->update();
+            bool active = timer->update();
+            if(!active)
+            {
+               //@todo: tmp solution
+               {
+                  tmp_kf = EntityAnimationKeyframe();
+                  tmp_kf.duration         = 2000;
+                  tmp_kf.starting_scale   = timer->entity->scale;
+                  tmp_kf.final_scale      = vec3{-1, -1, 2.350};
+                  tmp_kf.flags            |= EntityAnimKfFlags_ChangeScale;
+
+                  Entity_Animations.start_animation(
+                     timer->entity,
+                     &tmp_kf,
+                     1
+                  );
+               }
+
+               timer->stop();
+            }
          }
       }
    }
