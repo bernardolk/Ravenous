@@ -1,14 +1,5 @@
-// enum TimerTargetFlags {
-//    TimerTargetFlag_Inactive   = 0,
-//    TimerTargetFlag_Starting   = 1,
-//    TimerTargetFlag_Active     = 2,
-//    TimerTargetFlag_Stopping   = 3,
-// }
-
-
-struct TimerTarget {
+struct Timer {
    Entity*           entity = nullptr;
-   // TimerTargetFlags  flags = 0;
    bool              active = false;
    float             remaining_time = 0;
 
@@ -17,6 +8,8 @@ struct TimerTarget {
       entity = target;
       remaining_time = duration;
       active = true;
+      
+      // setup anim in Entity_Animations if there is animation
    }
 
    void stop()
@@ -24,6 +17,8 @@ struct TimerTarget {
       entity = nullptr;
       active = false;
       remaining_time = 0;
+
+      // setup anim in Entity_Animations if there is animation
    }
 
    bool update()

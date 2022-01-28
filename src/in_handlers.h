@@ -92,7 +92,7 @@ void IN_handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum
             player->want_to_grab = true;
 
          // INTERACT
-         if(pressed(flags, KEY_ACTION))
+         if(pressed_once(flags, KEY_ACTION))
             GP_check_trigger_interaction(player);
 
          break;

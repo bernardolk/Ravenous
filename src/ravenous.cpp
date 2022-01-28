@@ -176,7 +176,7 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <an_update.h>
 #include <cl_buffers.h>
 #include <cl_controller.h>
-#include <gp_timer_target.h>
+#include <gp_timer.h>
 #include <gp_game_state.h>
 #include <gp_update.h>
 #include <serialization.h>
@@ -326,10 +326,12 @@ int main()
       // -------------
       Frame_Ray_Collider_Count = 0;
 		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player);
-      // @todo - check player events
-      GP_update_timers();
+      Game_State.update_timers();
       GP_update_player_state(player);
-      AN_update_animations(player);
+      AN_animate_player(player);
+      Entity_Animations.update_animations();
+
+
       // simulate_gravity_trajectory();      
 
       // -------------

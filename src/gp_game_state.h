@@ -1,48 +1,54 @@
 
 struct GameState {
 
-   // timed events
-   const static size_t timer_targets_array_size = 64;
-   TimerTarget timer_targets[timer_targets_array_size];
+   // Timed events (timers)
+   const static size_t timers_array_size = 64;
+   Timer timers[timers_array_size];
+
+   EntityAnimationKeyframe tmp_kf;
 
    void start_timer(Entity* interactable)
    {
-      For(timer_targets_array_size)
+      For(timers_array_size)
       {
-         auto timer = &timer_targets[i];
+         auto timer = &timers[i];
          if(!timer->active)
          {
             timer->start(interactable->timer_target, interactable->timer_duration);  
-            break;
+            //@todo: tmp solution
+            {
+               tmp_kf.duration         = 2000;
+               tmp_kf.starting_scale   = interactable->timer_target->scale;
+               tmp_kf.final_scale      = vec3{-1, -1, 0.2};
+               tmp_kf.flags            |= EntityAnimKfFlags_ChangeScale;
+
+               Entity_Animations.start_animation(
+                  interactable->timer_target,
+                  &tmp_kf,
+                  1
+               );
+            }
+            return;
+         }
+      }
+
+      Quit_fatal("Too many timer targets running at the same time.");
+      return;
+   }
+
+   void update_timers()
+   {
+      For(timers_array_size)
+      {
+         auto timer = &timers[i];
+
+         if(timer->active)
+         {
+            editor_print("Remaining time: " + fmt_tostr(timer->remaining_time, 0));
+            timer->update();
          }
       }
    }
+
 } Game_State;
 
-
-void GP_update_timers()
-{
-   For(Game_State.timer_targets_array_size)
-   {
-      auto timer = &Game_State.timer_targets[i];
-
-      if(timer->active)
-      {
-         // perform timer target action according to entity timer target type
-         switch(timer->entity->timer_target_type)
-         {
-            case EntityTimerTargetType_VerticalSlidingDoor:
-            {
-               // animation code call
-               
-
-               editor_print("Remaining time: " + fmt_tostr(timer->remaining_time, 0));
-               break;
-            }
-         }
-
-         // update timer
-         timer->update();
-      }
-   }
-}
