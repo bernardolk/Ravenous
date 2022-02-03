@@ -291,10 +291,61 @@ void render_entity_panel(EntityPanelContext* panel)
          if(a || b)
             entity->update();
 
-            
          ImGui::NewLine();
 
          ImGui::SliderInt("Duration", &entity->timer_duration, 0, 100);
+
+         if(entity->timer_target != nullptr)
+         {
+            //@todo should be any kind of time_attack_door, but ok
+            if(entity->timer_target->timer_target_type == EntityTimerTargetType_VerticalSlidingDoor)
+            {
+               auto data = &entity->time_attack_trigger_data;
+               int empty_slot = -1;
+               bool there_is_at_least_one_marking = false;
+               For(data->size)
+               {
+                  if(data->markings[i] != nullptr)
+                  {
+                     if(!there_is_at_least_one_marking)
+                     {
+                        // renders header for this section
+                        ImGui::Text("Marking entity     -     Time checkpoint (s)     -     Delete");
+                        there_is_at_least_one_marking = true;
+                     }
+                     ImGui::Button(data->markings[i]->name.c_str(), ImVec2(48, 18));
+                     ImGui::SameLine();
+                     ImGui::DragInt("", (int*) &data->time_checkpoints[i], 1, 0, 10000);
+                     if(ImGui::Button("", ImVec2(32, 18)))
+                     {
+                        data->markings[i]             = nullptr;
+                        data->notification_mask[i]    = false;
+                        data->time_checkpoints[i]     = 0;
+                     }
+                  }
+                  else if(empty_slot == -1)
+                  {
+                     empty_slot = i;
+                  }
+               }
+
+               if(empty_slot >= 0)
+               {
+                  ImGui::NewLine();
+            
+                  if(ImGui::Button("Add marking", ImVec2(60, 18)))
+                  {
+                     panel->show_related_entity = false;
+                     activate_select_entity_aux_tool(&data->markings[empty_slot]);
+                  }
+               }
+               else
+               {
+                  std::string text = "Limit of " + to_string(data->size) + " markings reached. Can't add another one";
+                  ImGui::Text(text.c_str());
+               }
+            }
+         }
 
          // change timer target
          ImGui::NewLine();

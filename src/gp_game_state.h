@@ -14,13 +14,13 @@ struct GameState {
          auto timer = &timers[i];
          if(!timer->active)
          {
-            timer->start(interactable->timer_target, interactable->timer_duration);  
+            timer->start(interactable->timer_target, interactable, interactable->timer_duration);  
 
             // plays animation, if entity has one
-            if(timer->entity->timer_start_animation != "")
+            if(timer->target->timer_start_animation != "")
             {
-               auto anim = &Animation_Catalogue.find(timer->entity->timer_start_animation)->second;
-               Entity_Animations.start_animation(timer->entity, anim);
+               auto anim = &Animation_Catalogue.find(timer->target->timer_start_animation)->second;
+               Entity_Animations.start_animation(timer->target, anim);
             }
             
             return;
@@ -45,10 +45,10 @@ struct GameState {
             {
 
                // plays animation, if entity has one
-               if(timer->entity->timer_stop_animation != "")
+               if(timer->target->timer_stop_animation != "")
                {
-                  auto anim = &Animation_Catalogue.find(timer->entity->timer_stop_animation)->second;
-                  Entity_Animations.start_animation(timer->entity, anim);
+                  auto anim = &Animation_Catalogue.find(timer->target->timer_stop_animation)->second;
+                  Entity_Animations.start_animation(timer->target, anim);
                }
 
                timer->stop();

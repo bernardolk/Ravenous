@@ -11,8 +11,8 @@ enum EntityTimerTargetType {
 };
 
 enum EntityType {
-   EntityType_Static            = 0,
-   EntityType_Checkpoint        = 1,
+   EntityType_Static                   = 0,
+   EntityType_Checkpoint               = 1,
    EntityType_TimerTrigger             = 2,
 };
 
@@ -21,7 +21,21 @@ enum EntityFlags {
    EntityFlags_InvisibleEntity      = (1 << 1),
    EntityFlags_HiddenEntity         = (1 << 2),
    EntityFlags_RenderTiledTexture   = (1 << 3),
-   EntityFlags_RenderWireframe      = (1 << 4)
+   EntityFlags_RenderWireframe      = (1 << 4),
+   EntityFlags_SetColorUniform      = (1 << 5),
+};
+
+struct TimeAttackMarkingEntityData {
+   vec3 color_off = vec3(0.1, 0.1, 0.1);
+   vec3 color_on  = vec3(0.1, 0.4, 0.85);
+};
+
+struct TimeAttackDoorTriggerEntityData {
+   const static size_t  size  = 16;
+   Entity*              markings[size];                  /* not perfect name, but means the lights that show
+                                                           if the player is on track or not towards the timed door */
+   u32                  time_checkpoints[size];
+   bool                 notification_mask[size];
 };
 
 // =======================
@@ -81,6 +95,19 @@ struct Entity {
                                                              // The type of target this entity is, if it is a target of another interactable.
    std::string timer_start_animation  = "";       // if is timer target, animation to play when timer starts
    std::string timer_stop_animation   = "";       // if is timer target, animation to play when timer ends
+
+   union {
+      /* if this entity is a timer_trigger and the timer_target of this entity is a time_attack_door, then
+         we store here the list of markings and their respective time checkpoints */ 
+      TimeAttackDoorTriggerEntityData time_attack_trigger_data;
+
+      // if this entity is a marking for a time_attack_door / switch , then it will have data here
+      TimeAttackMarkingEntityData time_attack_marking_data;
+   };
+
+   vec3 color;
+
+   Entity() : time_attack_marking_data() {}
 
    // ---------------------------
    // > methods

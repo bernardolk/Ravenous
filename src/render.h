@@ -167,6 +167,11 @@ void render_entity(Entity* entity)
       entity->shader->setInt("texture_wrap_back",     entity->uv_tile_wrap[5]);
    }
 
+   if(entity->flags & EntityFlags_SetColorUniform)
+   {
+      entity->shader->setFloat3("color", entity->color);
+   }
+
    // draw mesh
    RenderOptions render_opts;
    render_opts.wireframe = entity->flags & EntityFlags_RenderWireframe || entity->flags & EntityFlags_HiddenEntity;

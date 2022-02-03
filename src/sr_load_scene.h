@@ -49,7 +49,7 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
    // clears the current scene entity data
    if(G_SCENE_INFO.active_scene != NULL)
       G_SCENE_INFO.active_scene->entities.clear();
-      // CLEAR BUFFERS ?
+      // clear buffers ?
 
    // Gets a new world struct from scratch
    World.init();
@@ -103,7 +103,9 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
    else
       Entity_Manager.next_entity_id = p.u64Token;
 
-   // parses entities
+   // -----------------------------------
+   //           Parse entities
+   // -----------------------------------
    while(parser_nextline(&reader, &line, &p))
    {
       line_count++;
@@ -139,6 +141,10 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
       }
    }
 
+   // -----------------------------------
+   //          Post parse steps
+   // -----------------------------------
+
    // connects entities using deferred load buffer
    For(entity_relations.count)
    {
@@ -169,11 +175,30 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
       //@todo: ALSO, what about introspection/reflection? ... 
       if(context == "timer_target")
       {
-         from->timer_target = to_entity;
-         to_entity->is_timer_target = true;
+         from->timer_target         = to_entity;
+         from->timer_target->is_timer_target = true;
+
+         // initializes data for triggers of time_attack_door
+         //@todo should be any kind of time_attack_door, but ok
+         if(from->timer_target->timer_target_type == EntityTimerTargetType_VerticalSlidingDoor)
+         {
+            auto data = &from->time_attack_trigger_data;
+            new(data) TimeAttackDoorTriggerEntityData();        // because cpp unions...
+            For(data->size)
+            {
+               //@todo we will, obviously, load these in when we serialize it to the file
+               data->markings[i]             = nullptr;
+               data->notification_mask[i]    = false;
+               data->time_checkpoints[i]     = 0;
+            }
+         }
       }
    }
 
+
+   // -----------------------------------
+   //         Entity id bookkeeping
+   // -----------------------------------
 
    // If misisng NEXT_ENTITY_ID in scene header, recompute from collected Ids (If no entity has an ID yet, this will be 1)
    if(recompute_next_entity_id)
@@ -195,7 +220,7 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
 
    G_SCENE_INFO.scene_name = scene_name;
 
-   // SAVE BACKUP
+   // save backup
    save_scene_to_file("backup", player, true);
 
    return true;

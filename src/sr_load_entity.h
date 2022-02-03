@@ -180,6 +180,17 @@ Entity* parse_and_load_entity(
          entity_relations->context[i]  = "timer_target";
          entity_relations->count++;
       }
+
+      else if(property == "timer_duration")
+      {
+         p = parse_all_whitespace(p);
+         p = parse_float(p);
+         new_entity->timer_duration = p.fToken;
+      }
+
+      // ---------------------------------
+      // > timer target related settings
+      // ---------------------------------
       
       else if(property == "timer_target_type")
       {
@@ -189,13 +200,6 @@ Entity* parse_and_load_entity(
 
          new_entity->is_timer_target = true;
          new_entity->timer_target_type = tt_type;
-      }
-
-      else if(property == "timer_duration")
-      {
-         p = parse_all_whitespace(p);
-         p = parse_float(p);
-         new_entity->timer_duration = p.fToken;
       }
 
       // -----------------------------
