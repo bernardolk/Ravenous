@@ -315,8 +315,9 @@ void render_entity_panel(EntityPanelContext* panel)
                      }
                      ImGui::Button(data->markings[i]->name.c_str(), ImVec2(48, 18));
                      ImGui::SameLine();
-                     ImGui::DragInt("", (int*) &data->time_checkpoints[i], 1, 0, 10000);
-                     if(ImGui::Button("", ImVec2(32, 18)))
+                     
+                     ImGui::DragInt("##duration", (int*) &data->time_checkpoints[i], 1, 0, 10000);
+                     if(ImGui::Button("Delete", ImVec2(32, 18)))
                      {
                         data->markings[i]             = nullptr;
                         data->notification_mask[i]    = false;

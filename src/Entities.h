@@ -36,6 +36,15 @@ struct TimeAttackDoorTriggerEntityData {
                                                            if the player is on track or not towards the timed door */
    u32                  time_checkpoints[size];
    bool                 notification_mask[size];
+
+   TimeAttackDoorTriggerEntityData() {
+      For(size)
+      {
+         markings[i]           = nullptr;
+         time_checkpoints[i]   = 0;
+         notification_mask[i]  = false;
+      }
+   }
 };
 
 // =======================
@@ -87,14 +96,15 @@ struct Entity {
    // ---------------------------
    // > timer variables
    // ---------------------------
-   Entity*                 timer_target       = nullptr;     /* If the entity is interactable and has a timer target,
-                                                                this points to the target entity. */
-   int                     timer_duration     = 0;           // Expressed in seconds
-   bool                    is_timer_target    = false;       // If this entity is a target of another interactable
+   Entity*                 timer_target       = nullptr;          /* If the entity is interactable and has a timer target,
+                                                                     this points to the target entity. */
+   int                     timer_duration     = 0;                // Expressed in seconds
+   bool                    is_timer_target    = false;            // If this entity is a target of another interactable
    EntityTimerTargetType   timer_target_type  = EntityTimerTargetType_NotATarget;
-                                                             // The type of target this entity is, if it is a target of another interactable.
-   std::string timer_start_animation  = "";       // if is timer target, animation to play when timer starts
-   std::string timer_stop_animation   = "";       // if is timer target, animation to play when timer ends
+                                                                  /* The type of target this entity is, if it is a target of another   
+                                                                     interactable. */
+   std::string timer_start_animation  = "";                       // if is timer target, animation to play when timer starts
+   std::string timer_stop_animation   = "";                       // if is timer target, animation to play when timer ends
 
    union {
       /* if this entity is a timer_trigger and the timer_target of this entity is a time_attack_door, then

@@ -13,8 +13,8 @@ struct Timer {
 
    void start(Entity* target, Entity* trigger, float duration)
    {
-      target            = target;
-      trigger           = trigger;
+      this->target            = target;
+      this->trigger           = trigger;
       remaining_time    = duration;
       elapsed_time      = 0;
       active            = true;
@@ -60,7 +60,8 @@ struct Timer {
          auto entity = data->markings[i];
 
          // turn every marking on
-         entity->color = entity->time_attack_marking_data.color_on;
+         if(entity != nullptr)
+            entity->color = entity->time_attack_marking_data.color_on;
       }
    }
 
