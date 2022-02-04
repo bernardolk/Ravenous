@@ -46,7 +46,7 @@ struct Entity {
    u64 id            = -1;
    string name       = "NONAME";
    EntityType type   = EntityType_Static;
-   u32 flags;
+   u32 flags         = 0;
 
    // ---------------------------
    //  > render data
