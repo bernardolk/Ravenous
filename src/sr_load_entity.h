@@ -1,4 +1,6 @@
 
+const std::string SrLoadEntity_TypeNotSetErrorMsg = "Need to load entity type before loading type-specific data.";
+
 Entity* parse_and_load_entity(
    Parser::Parse p, 
    ifstream* reader, 
@@ -7,6 +9,8 @@ Entity* parse_and_load_entity(
    DeferredEntityRelationBuffer* entity_relations)
 {
    std::string line;
+
+   bool type_set = false;
 
    auto new_entity = Entity_Manager.create_entity();
    p = parse_name(p);
@@ -154,22 +158,36 @@ Entity* parse_and_load_entity(
          p = parse_all_whitespace(p);
          p = parse_token(p);
          std::string entity_type = p.string_buffer;
-         if(entity_type == "static")
+
+         if (entity_type == SrStr_EntityType_Static)
             Entity_Manager.set_type(new_entity, EntityType_Static);
-         else if(entity_type == "checkpoint")
+
+         else if(entity_type == SrStr_EntityType_Checkpoint)
             Entity_Manager.set_type(new_entity, EntityType_Checkpoint);
-         else if(entity_type == "timer_trigger")
+
+         else if(entity_type == SrStr_EntityType_TimerTrigger)
             Entity_Manager.set_type(new_entity, EntityType_TimerTrigger);
+
+         else if(entity_type == SrStr_EntityType_TimerTarget)
+            Entity_Manager.set_type(new_entity, EntityType_TimerTarget);
+
+         else if(entity_type == SrStr_EntityType_TimerMarking)
+            Entity_Manager.set_type(new_entity, EntityType_TimerMarking);
+
          else
             Quit_fatal("Entity type '" + entity_type + "' not identified.");
+
+         type_set = true;
       }
 
       // ---------------------------------
-      // > timer trigger related settings
+      // > entity type related properties
       // ---------------------------------
 
       else if(property == "timer_target")
       {
+         if(!type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
+
          p = parse_all_whitespace(p);
          p = parse_u64(p);
          auto timer_target_id = p.u64Token;
@@ -182,46 +200,44 @@ Entity* parse_and_load_entity(
       }
 
       else if(property == "timer_duration")
-      {
+      {o
+         if(!type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
+
          p = parse_all_whitespace(p);
          p = parse_float(p);
-         new_entity->timer_duration = p.fToken;
+         new_entity->timer_trigger_data.timer_duration = p.fToken;
       }
 
-      // ---------------------------------
-      // > timer target related settings
-      // ---------------------------------
-      
       else if(property == "timer_target_type")
       {
+         if(!type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
+
          p = parse_all_whitespace(p);
          p = parse_uint(p);
          auto tt_type = (EntityTimerTargetType) p.uiToken;
-
-         new_entity->is_timer_target = true;
-         new_entity->timer_target_type = tt_type;
+         new_entity->timer_target_data.timer_target_type = tt_type;
       }
-
-      // -----------------------------
-      // > animation related settings
-      // -----------------------------
 
       else if(property == "timer_start_animation")
       {
-         p = parse_all_whitespace(p);
-         p = parse_token(p);
+         if(!type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
-         std::string tsa = p.string_buffer;
-         new_entity->timer_start_animation = tsa;
+         p = parse_all_whitespace(p);
+         p = parse_uint(p);
+
+         auto tsa = p.uiToken;
+         new_entity->timer_target_data.timer_start_animation = tsa;
       }
 
       else if(property == "timer_stop_animation")
       {
-         p = parse_all_whitespace(p);
-         p = parse_token(p);
+         if(!type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
-         std::string tsa = p.string_buffer;
-         new_entity->timer_stop_animation = tsa;
+         p = parse_all_whitespace(p);
+         p = parse_uint(p);
+
+         auto tsa = p.uiToken;
+         new_entity->timer_target_data.timer_stop_animation = tsa;
       }
 
 
