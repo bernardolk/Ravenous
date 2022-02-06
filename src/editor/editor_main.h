@@ -1307,7 +1307,7 @@ void check_selection_to_select_related_entity()
             case EdToolCallback_EntityManagerSetType:
             {
                Entity_Manager.set_type(
-                  EdContext.select_entity_aux_mode_callback_args.entity,
+                  *EdContext.select_entity_aux_mode_entity_slot,
                   EdContext.select_entity_aux_mode_callback_args.entity_type
                );
                break;
