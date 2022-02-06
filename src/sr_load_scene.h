@@ -174,14 +174,12 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
       if(context == "timer_target")
       {
          from->timer_trigger_data.timer_target = to_entity;
-         Entity_Manager.set_type(to_entity, EntityType_TimerTarget);
 
          // initializes data for triggers of time_attack_door
          //@todo should be any kind of time_attack_door, but ok
          if(to_entity->timer_target_data.timer_target_type == EntityTimerTargetType_VerticalSlidingDoor)
          {
             auto data = &from->timer_trigger_data;
-            new(data) TimerTriggerData();        // because cpp unions...
             For(data->size)
             {
                //@todo we will, obviously, load these in when we serialize it to the file
