@@ -334,24 +334,23 @@ struct EntityManager
       interactables_registry->push_back(entity);
    }
 
+   void _unset_all_type_related_configurations(Entity* entity)
+   {
+      _remove_from_checkpoint_registry(entity);
+      _remove_interactivity(entity);
+   }
+
    void set_type(Entity* entity, EntityType type)
    {  
+      _unset_all_type_related_configurations(entity);
+
       switch(type)
       {
-
          // CHECKPOINT
          case EntityType_Checkpoint:
          {
-            if(!entity->is_interactable())
-            {
-               _make_interactable(entity);
-            }
-
-            if(entity->type != EntityType_Checkpoint)
-            {
-               checkpoints_registry->push_back(entity);
-            }
-
+            _make_interactable(entity);
+            checkpoints_registry->push_back(entity);
             entity->type = EntityType_Checkpoint;
             break;
          }
@@ -359,42 +358,38 @@ struct EntityManager
          // STATIC
          case EntityType_Static:
          {
-            if(entity->is_interactable())
-            {
-               _remove_interactivity(entity);
-            }
-
-            if(entity->type == EntityType_Checkpoint)
-            {
-               _remove_from_checkpoint_registry(entity);
-            }
-               
             entity->type = EntityType_Static;
             break;
          }
 
-         // TIMED
+         // TIMER TRIGGER
          case EntityType_TimerTrigger:
          {
-            if(!entity->is_interactable())
-            {
-               _make_interactable(entity);
-            }
-
-            if(entity->type == EntityType_Checkpoint)
-            {
-               _remove_from_checkpoint_registry(entity);
-            }
-
+            _make_interactable(entity);
             entity->type = EntityType_TimerTrigger;
+            // initialize union member
+            new(&entity->timer_trigger_data) TimerTriggerData();
+            break;
+         }
+
+         // TIMER TARGET
+         case EntityType_TimerTarget:
+         {
+            entity->type = EntityType_TimerTarget;
+            new(&entity->timer_trigger_data) TimerTargetData();
+            break;
+         }
+
+         // TIMER MARKING
+         case EntityType_TimerMarking:
+         {
+            entity->type = EntityType_TimerMarking;
+            new(&entity->timer_marking_data) TimerMarkingData();
             break;
          }
 
          default:
-         {
-            cout << "Entity manager doesn't know what entity type '" << to_string(type) << "' should be";
-            assert(false);
-         }
+            Quit_fatal("Entity manager doesn't know what entity type '" + to_string(type) + "' should be.");
       }
    }
 

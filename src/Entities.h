@@ -14,6 +14,8 @@ enum EntityType {
    EntityType_Static                   = 0,
    EntityType_Checkpoint               = 1,
    EntityType_TimerTrigger             = 2,
+   EntityType_TimerTarget              = 3,
+   EntityType_TimerMarking             = 4,
 };
 
 enum EntityFlags {
@@ -25,19 +27,23 @@ enum EntityFlags {
    EntityFlags_SetColorUniform      = (1 << 5),
 };
 
-struct TimeAttackMarkingEntityData {
+struct TimerMarkingData {
    vec3 color_off = vec3(0.1, 0.1, 0.1);
    vec3 color_on  = vec3(0.1, 0.4, 0.85);
+   vec3 color;
 };
 
-struct TimeAttackDoorTriggerEntityData {
+struct TimerTriggerData {
+   Entity*              timer_target       = nullptr;
+   int                  timer_duration     = 0;          // Expressed in seconds
+
    const static size_t  size  = 16;
    Entity*              markings[size];                  /* not perfect name, but means the lights that show
                                                            if the player is on track or not towards the timed door */
    u32                  time_checkpoints[size];
    bool                 notification_mask[size];
 
-   TimeAttackDoorTriggerEntityData() {
+   TimerTriggerData() {
       For(size)
       {
          markings[i]           = nullptr;
@@ -45,6 +51,12 @@ struct TimeAttackDoorTriggerEntityData {
          notification_mask[i]  = false;
       }
    }
+};
+
+struct TimerTargetData {
+   EntityTimerTargetType   timer_target_type       = EntityTimerTargetType_NotATarget;
+   u32                     timer_start_animation   = 0;          // animation id of anim to play when timer starts
+   u32                     timer_stop_animation    = 0;          // animation id of anim to play when timer ends
 };
 
 // =======================
@@ -94,30 +106,17 @@ struct Entity {
    mat4     trigger_matModel;
 
    // ---------------------------
-   // > timer variables
+   // > entity type data
    // ---------------------------
-   Entity*                 timer_target       = nullptr;          /* If the entity is interactable and has a timer target,
-                                                                     this points to the target entity. */
-   int                     timer_duration     = 0;                // Expressed in seconds
-   bool                    is_timer_target    = false;            // If this entity is a target of another interactable
-   EntityTimerTargetType   timer_target_type  = EntityTimerTargetType_NotATarget;
-                                                                  /* The type of target this entity is, if it is a target of another   
-                                                                     interactable. */
-   std::string timer_start_animation  = "";                       // if is timer target, animation to play when timer starts
-   std::string timer_stop_animation   = "";                       // if is timer target, animation to play when timer ends
 
    union {
-      /* if this entity is a timer_trigger and the timer_target of this entity is a time_attack_door, then
-         we store here the list of markings and their respective time checkpoints */ 
-      TimeAttackDoorTriggerEntityData time_attack_trigger_data;
-
-      // if this entity is a marking for a time_attack_door / switch , then it will have data here
-      TimeAttackMarkingEntityData time_attack_marking_data;
+      TimerTriggerData  timer_trigger_data;
+      TimerMarkingData  timer_marking_data;
+      TimerTargetData   timer_target_data;
    };
 
-   vec3 color;
-
-   Entity() : time_attack_marking_data() {}
+   Entity()    : timer_marking_data() {}
+   ~Entity() {}
 
    // ---------------------------
    // > methods

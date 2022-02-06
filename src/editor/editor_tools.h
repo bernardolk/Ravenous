@@ -747,11 +747,15 @@ void scale_entity_with_mouse(Entity* entity)
 // SELECT ENTITY AUX TOOL
 // -----------------------
 // used in entity panel to select other entity to attribute 1 to 1 relationships
-
-void activate_select_entity_aux_tool(Entity** entity_slot)
-{
-   EdContext.select_entity_aux_mode             = true;
-   EdContext.select_entity_aux_mode_entity_slot = entity_slot;
+void activate_select_entity_aux_tool(
+   Entity** entity_slot, 
+   EdToolCallback callback = EdToolCallback_NoCallback,
+   EdToolCallbackArgs args = EdToolCallbackArgs{}
+){
+   EdContext.select_entity_aux_mode                = true;
+   EdContext.select_entity_aux_mode_entity_slot    = entity_slot;
+   EdContext.select_entity_aux_mode_callback       = callback;
+   EdContext.select_entity_aux_mode_callback_args  = args;
 }
 
 

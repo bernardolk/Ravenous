@@ -190,6 +190,7 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
             writer << "type static\n";
             break;
          }
+
          case EntityType_Checkpoint:
          {
             writer << "type checkpoint\n";
@@ -199,6 +200,7 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
                << entity->trigger_scale.z << "\n";
             break;
          }
+
          case EntityType_TimerTrigger:
          {
             writer << "type timer_trigger\n";
@@ -206,26 +208,29 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
                << entity->trigger_scale.x << " "
                << entity->trigger_scale.y << " "
                << entity->trigger_scale.z << "\n";
-            if(entity->timer_target != nullptr)
-               writer << "timer_target " << entity->timer_target->id << "\n";
-            writer << "timer_duration " << entity->timer_duration << "\n";
+            if(entity->timer_trigger_data.timer_target != nullptr)
+               writer << "timer_target " << entity->timer_trigger_data.timer_target->id << "\n";
+            writer << "timer_duration " << entity->timer_trigger_data.timer_duration << "\n";
             break;
          }
-      }
 
-      if(entity->is_timer_target)
-      {
-         writer << "timer_target_type " << entity->timer_target_type << "\n";
-      }
+         case EntityType_TimerTarget:
+         {
+            writer << "timer_target_type " << entity->timer_target_data.timer_target_type << "\n";
 
-      if(entity->timer_start_animation != "")
-      {
-         writer << "timer_start_animation " << entity->timer_start_animation << "\n";
-      }
+            if(entity->timer_target_data.timer_start_animation != 0)
+               writer << "timer_start_animation " << entity->timer_target_data.timer_start_animation << "\n";
 
-      if(entity->timer_stop_animation != "")
-      {
-         writer << "timer_stop_animation " << entity->timer_stop_animation << "\n";
+            if(entity->timer_target_data.timer_stop_animation != 0)
+               writer << "timer_stop_animation " << entity->timer_target_data.timer_stop_animation << "\n";
+
+            break;
+         }
+
+         case EntityType_TimerMarking:
+         {
+            break;
+         }
       }
 
       if(entity->slidable)

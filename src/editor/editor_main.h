@@ -13,6 +13,18 @@ const static float TRIAXIS_SCREENPOS_Y = -1.80;
 #include <editor/editor_undo.h>
 #include <editor/editor_panel_contexts.h>
 
+enum EdToolCallback {
+   EdToolCallback_NoCallback             = 0,
+   EdToolCallback_EntityManagerSetType   = 1,
+};
+
+struct EdToolCallbackArgs {
+   Entity* entity;
+   union {
+      EntityType entity_type;
+   };
+};
+
 struct EditorContext {
    ImGuiStyle* imStyle;
    
@@ -92,8 +104,10 @@ struct EditorContext {
    bool stretch_mode = false;
 
    // select entity aux tool
-   bool     select_entity_aux_mode               = false;
-   Entity** select_entity_aux_mode_entity_slot = nullptr;
+   bool                 select_entity_aux_mode                 = false;
+   Entity**             select_entity_aux_mode_entity_slot     = nullptr;
+   EdToolCallback       select_entity_aux_mode_callback        = EdToolCallback_NoCallback;
+   EdToolCallbackArgs   select_entity_aux_mode_callback_args   = EdToolCallbackArgs{};
 
    // show things 
    bool show_event_triggers = false;
@@ -1285,6 +1299,21 @@ void check_selection_to_select_related_entity()
    {
       EdContext.select_entity_aux_mode                = false;
       *EdContext.select_entity_aux_mode_entity_slot = test.entity;
+
+      if(EdContext.select_entity_aux_mode_callback != EdToolCallback_NoCallback)
+      {
+         switch(EdContext.select_entity_aux_mode_callback)
+         {
+            case EdToolCallback_EntityManagerSetType:
+            {
+               Entity_Manager.set_type(
+                  EdContext.select_entity_aux_mode_callback_args.entity,
+                  EdContext.select_entity_aux_mode_callback_args.entity_type
+               );
+               break;
+            }
+         }
+      }
    }
 }
 

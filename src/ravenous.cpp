@@ -180,6 +180,7 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <gp_game_state.h>
 #include <gp_update.h>
 
+#include <sr_common.h>
 #include <sr_save_scene.h>
 #include <sr_save_configs.h>
 #include <sr_load_scene.h>

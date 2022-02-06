@@ -1,7 +1,7 @@
 
 // Catalogue
 struct EntityAnimation;
-std::map<string, EntityAnimation> Animation_Catalogue;
+std::map<u32, EntityAnimation> Animation_Catalogue;
 
 const static u32 AN_MAX_ENTITY_ANIMATION_KEYFRAMES = 16;
 
@@ -24,6 +24,7 @@ struct EntityAnimationKeyframe {
 };
 
 struct EntityAnimation {
+   std::string                description = "";
    bool                       active = false;
    Entity*                    entity = nullptr;
    u32                        keyframes_count = 0;
@@ -167,10 +168,11 @@ void AN_create_hardcoded_animations()
          kf.flags                |= EntityAnimKfFlags_ChangeScale;
 
          auto anim               = EntityAnimation();
+         anim.description        = "vertical_door_slide_up";
          anim.keyframes_count    = 1;
          anim.keyframes[0]       = kf;
 
-         Animation_Catalogue.insert({"vertical_door_slide_up", anim});
+         Animation_Catalogue.insert({1, anim});
       }
 
       // > SLIDING DOWN
@@ -183,10 +185,11 @@ void AN_create_hardcoded_animations()
          kf.flags                |= EntityAnimKfFlags_ChangeScale;
 
          auto anim               = EntityAnimation();
+         anim.description        = "vertical_door_slide_down";
          anim.keyframes_count    = 1;
          anim.keyframes[0]       = kf;
 
-         Animation_Catalogue.insert({"vertical_door_slide_down", anim});
+         Animation_Catalogue.insert({2, anim});
       }
    }
 }

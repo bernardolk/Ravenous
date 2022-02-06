@@ -20,7 +20,7 @@ struct Timer {
       active            = true;
 
       // @todo: could be any kind of time_attack_door, but ok.
-      if(target->timer_target_type == EntityTimerTargetType_VerticalSlidingDoor)
+      if(target->timer_target_data.timer_target_type == EntityTimerTargetType_VerticalSlidingDoor)
          _start_time_attack_door_timer();
    }
 
@@ -53,7 +53,7 @@ struct Timer {
    void _start_time_attack_door_timer()
    {
       // not sure this should live here and not in the entity.h file. But ok.
-      auto data = &trigger->time_attack_trigger_data;
+      auto data = &trigger->timer_trigger_data;
       For(data->size)
       {
          data->notification_mask[i] = false;
@@ -61,21 +61,21 @@ struct Timer {
 
          // turn every marking on
          if(entity != nullptr)
-            entity->color = entity->time_attack_marking_data.color_on;
+            entity->timer_marking_data.color = entity->timer_marking_data.color_on;
       }
    }
 
 
    void _update_time_attack_door_timer()
    {
-      auto data = &trigger->time_attack_trigger_data;
+      auto data = &trigger->timer_trigger_data;
       For(data->size)
       {
          auto entity = data->markings[i];
          if(entity != nullptr && data->notification_mask[i] == false && data->time_checkpoints[i] <= elapsed_time)
          {
             // turn the marking off
-            entity->color = entity->time_attack_marking_data.color_off;
+            entity->timer_marking_data.color = entity->timer_marking_data.color_off;
             data->notification_mask[i] = true;
          }
       }

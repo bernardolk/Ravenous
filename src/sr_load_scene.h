@@ -171,19 +171,17 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
             + to_string(entity_relations.to[i]) + "' but we couldn't find that entity inside the scene list.");
       }
 
-      //@todo: BAD! This requires coordination of literal strings between parts of the module. Need an enum for more clarity.
-      //@todo: ALSO, what about introspection/reflection? ... 
       if(context == "timer_target")
       {
-         from->timer_target         = to_entity;
-         from->timer_target->is_timer_target = true;
+         from->timer_trigger_data.timer_target = to_entity;
+         Entity_Manager.set_type(to_entity, EntityType_TimerTarget);
 
          // initializes data for triggers of time_attack_door
          //@todo should be any kind of time_attack_door, but ok
-         if(from->timer_target->timer_target_type == EntityTimerTargetType_VerticalSlidingDoor)
+         if(to_entity->timer_target_data.timer_target_type == EntityTimerTargetType_VerticalSlidingDoor)
          {
-            auto data = &from->time_attack_trigger_data;
-            new(data) TimeAttackDoorTriggerEntityData();        // because cpp unions...
+            auto data = &from->timer_trigger_data;
+            new(data) TimerTriggerData();        // because cpp unions...
             For(data->size)
             {
                //@todo we will, obviously, load these in when we serialize it to the file

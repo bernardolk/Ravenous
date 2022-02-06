@@ -167,9 +167,9 @@ void render_entity(Entity* entity)
       entity->shader->setInt("texture_wrap_back",     entity->uv_tile_wrap[5]);
    }
 
-   if(entity->flags & EntityFlags_SetColorUniform)
+   if(entity->type == EntityType_TimerMarking)
    {
-      entity->shader->setFloat3("color", entity->color);
+      entity->shader->setFloat3("color", entity->timer_marking_data.color);
    }
 
    // draw mesh

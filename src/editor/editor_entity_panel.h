@@ -293,14 +293,14 @@ void render_entity_panel(EntityPanelContext* panel)
 
          ImGui::NewLine();
 
-         ImGui::SliderInt("Duration", &entity->timer_duration, 0, 100);
+         ImGui::SliderInt("Duration", &entity->timer_trigger_data.timer_duration, 0, 100);
 
-         if(entity->timer_target != nullptr)
+         if(entity->timer_trigger_data.timer_target != nullptr)
          {
             //@todo should be any kind of time_attack_door, but ok
-            if(entity->timer_target->timer_target_type == EntityTimerTargetType_VerticalSlidingDoor)
+            if(entity->timer_trigger_data.timer_target->timer_target_data.timer_target_type == EntityTimerTargetType_VerticalSlidingDoor)
             {
-               auto data = &entity->time_attack_trigger_data;
+               auto data = &entity->timer_trigger_data;
                int empty_slot = -1;
                bool there_is_at_least_one_marking = false;
                For(data->size)
@@ -337,7 +337,16 @@ void render_entity_panel(EntityPanelContext* panel)
                   if(ImGui::Button("Add marking", ImVec2(60, 18)))
                   {
                      panel->show_related_entity = false;
-                     activate_select_entity_aux_tool(&data->markings[empty_slot]);
+
+                     auto callback_args         = EdToolCallbackArgs();
+                     callback_args.entity       = entity;
+                     callback_args.entity_type  = EntityType_TimerMarking;
+
+                     activate_select_entity_aux_tool(
+                        &data->markings[empty_slot],
+                        EdToolCallback_EntityManagerSetType,
+                        callback_args
+                     );
                   }
                }
                else
@@ -350,23 +359,30 @@ void render_entity_panel(EntityPanelContext* panel)
 
          // change timer target
          ImGui::NewLine();
+
          ImGui::Text("Timer target");
-         std::string target_entity_name = entity->timer_target == nullptr ? "No target selected." : entity->timer_target->name;
+         std::string target_entity_name;
+         if(entity->timer_trigger_data.timer_target == nullptr)
+            target_entity_name = "No target selected.";
+         else
+            target_entity_name = entity->timer_trigger_data.timer_target->name;
          ImGui::Text(target_entity_name.c_str());
+
+
          ImGui::SameLine();
          if(ImGui::Button("Show", ImVec2(68, 18)))
          {
-            if(entity->timer_target != nullptr)
+            if(entity->timer_trigger_data.timer_target != nullptr)
             {  
                panel->show_related_entity = true;
-               panel->related_entity = entity->timer_target;
+               panel->related_entity = entity->timer_trigger_data.timer_target;
             }
          }
          ImGui::SameLine();
          if(ImGui::Button("Change", ImVec2(92, 18)))
          {
             panel->show_related_entity = false;
-            activate_select_entity_aux_tool(&entity->timer_target);
+            activate_select_entity_aux_tool(&entity->timer_trigger_data.timer_target);
          }
       }
 
@@ -376,15 +392,15 @@ void render_entity_panel(EntityPanelContext* panel)
    // -------------------
    // > TIMER TARGET TAB
    // -------------------
-   if(entity->is_timer_target)
+   if(entity->type == EntityType_TimerTarget)
    {
       if(ImGui::BeginTabItem("Timer Target Settings", NULL, ImGuiTabItemFlags_None))
       {
          // EntityTimerTargetType_VerticalSlidingDoor
-         bool is_vsd = entity->timer_target_type == EntityTimerTargetType_VerticalSlidingDoor;
+         bool is_vsd = entity->timer_target_data.timer_target_type == EntityTimerTargetType_VerticalSlidingDoor;
          if(ImGui::RadioButton("Vertical Sliding Door", is_vsd))
          {
-            entity->timer_target_type = EntityTimerTargetType_VerticalSlidingDoor;
+            entity->timer_target_data.timer_target_type = EntityTimerTargetType_VerticalSlidingDoor;
          }
 
          ImGui::EndTabItem();

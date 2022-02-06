@@ -200,7 +200,7 @@ Entity* parse_and_load_entity(
       }
 
       else if(property == "timer_duration")
-      {o
+      {
          if(!type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
          p = parse_all_whitespace(p);
