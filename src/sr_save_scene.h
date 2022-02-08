@@ -211,11 +211,21 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
             if(entity->timer_trigger_data.timer_target != nullptr)
                writer << "timer_target " << entity->timer_trigger_data.timer_target->id << "\n";
             writer << "timer_duration " << entity->timer_trigger_data.timer_duration << "\n";
+
+            For(entity->timer_trigger_data.size)
+            {
+               auto marking            = entity->timer_trigger_data.markings[i];
+               u32  time_checkpoint    = entity->timer_trigger_data.time_checkpoints[i];
+               if(marking != nullptr)
+                  writer << "timer_marking " << marking->id << " " << time_checkpoint << "\n";
+            }
+
             break;
          }
 
          case EntityType_TimerTarget:
          {
+            writer << "type timer_target\n";
             writer << "timer_target_type " << entity->timer_target_data.timer_target_type << "\n";
 
             if(entity->timer_target_data.timer_start_animation != 0)
@@ -229,6 +239,17 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
 
          case EntityType_TimerMarking:
          {
+            writer << "type timer_marking\n";
+            writer << "timer_marking_color_on "
+               << entity->timer_marking_data.color_on.x << " "
+               << entity->timer_marking_data.color_on.y << " "
+               << entity->timer_marking_data.color_on.z << "\n";
+
+            writer << "timer_marking_color_off "
+               << entity->timer_marking_data.color_off.x << " "
+               << entity->timer_marking_data.color_off.y << " "
+               << entity->timer_marking_data.color_off.z << "\n";
+
             break;
          }
       }

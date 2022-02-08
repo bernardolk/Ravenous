@@ -59,7 +59,7 @@ struct Timer {
          data->notification_mask[i] = false;
          auto entity = data->markings[i];
 
-         // turn every marking on
+         // turns  every marking on
          if(entity != nullptr)
             entity->timer_marking_data.color = entity->timer_marking_data.color_on;
       }

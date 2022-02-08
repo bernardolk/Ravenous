@@ -254,6 +254,20 @@ void render_entity_panel(EntityPanelContext* panel)
          Entity_Manager.set_type(entity, EntityType_TimerTrigger);
       }
 
+      // EntityType_TimerTarget
+      bool is_timer_target = entity->type == EntityType_TimerTarget;
+      if(ImGui::RadioButton("Timer Target", is_timer_target))
+      {
+         Entity_Manager.set_type(entity, EntityType_TimerTarget);
+      }
+
+      // EntityType_TimerMarking
+      bool is_timer_marking = entity->type == EntityType_TimerMarking;
+      if(ImGui::RadioButton("Timer Marking", is_timer_marking))
+      {
+         Entity_Manager.set_type(entity, EntityType_TimerMarking);
+      }
+
       ImGui::NewLine();
       ImGui::NewLine();
       ImGui::Text("Collider properties");
@@ -316,12 +330,11 @@ void render_entity_panel(EntityPanelContext* panel)
                      ImGui::Button(data->markings[i]->name.c_str(), ImVec2(48, 18));
                      ImGui::SameLine();
                      
-                     ImGui::DragInt("##duration", (int*) &data->time_checkpoints[i], 1, 0, 10000);
+                     std::string dint_id = "##duration-" + to_string(i);
+                     ImGui::DragInt(dint_id.c_str(), (int*) &data->time_checkpoints[i], 1, 0, 10000);
                      if(ImGui::Button("Delete", ImVec2(32, 18)))
                      {
-                        data->markings[i]             = nullptr;
-                        data->notification_mask[i]    = false;
-                        data->time_checkpoints[i]     = 0;
+                       data->delete_marking(i);
                      }
                   }
                   else if(empty_slot == -1)

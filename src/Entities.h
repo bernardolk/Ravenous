@@ -47,9 +47,29 @@ struct TimerTriggerData {
       For(size)
       {
          markings[i]           = nullptr;
-         time_checkpoints[i]   = 0;
          notification_mask[i]  = false;
+         time_checkpoints[i]   = 0;
       }
+   }
+
+   void add_marking(Entity* entity, u32 time_checkpoint)
+   {
+      For(size)
+         if(markings[i] == nullptr)
+         {
+            markings[i]          = entity;
+            time_checkpoints[i]  = time_checkpoint;
+            return;
+         }
+
+      log(LOG_WARNING, "Max number of timer markings reached when trying to add entity as one to timer trigger entity.");
+   }
+
+   void delete_marking(int i)
+   {
+      markings[i]             = nullptr;
+      notification_mask[i]    = false;
+      time_checkpoints[i]     = 0;
    }
 };
 
@@ -64,10 +84,10 @@ struct TimerTargetData {
 // =======================
 struct Entity {
 
-   u64 id            = -1;
-   string name       = "NONAME";
-   EntityType type   = EntityType_Static;
-   u32 flags         = 0;
+   u64 id               = -1;
+   std::string name     = "NONAME";
+   EntityType type      = EntityType_Static;
+   u32 flags            = 0;
 
    // ---------------------------
    //  > render data

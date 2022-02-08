@@ -192,10 +192,10 @@ Entity* parse_and_load_entity(
          p = parse_u64(p);
          auto timer_target_id = p.u64Token;
 
-         int i                         = entity_relations->count;
-         entity_relations->to[i]       = timer_target_id;
-         entity_relations->from[i]     = new_entity;
-         entity_relations->context[i]  = "timer_target";
+         int i                                     = entity_relations->count;
+         entity_relations->deferred_entity_ids[i]  = timer_target_id;
+         entity_relations->entities[i]             = new_entity;
+         entity_relations->relations[i]            = SrEntityRelation_TimerTarget;
          entity_relations->count++;
       }
 
@@ -240,13 +240,44 @@ Entity* parse_and_load_entity(
          new_entity->timer_target_data.timer_stop_animation = tsa;
       }
 
+      else if(property == "timer_marking")
+      {
+         if(!type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
+
+         p = parse_all_whitespace(p);
+         p = parse_uint(p);
+         auto marking_id = p.uiToken;
+
+         p = parse_all_whitespace(p);
+         p = parse_uint(p);
+         auto marking_time_checkpoint = p.uiToken;
+
+         int i                                     = entity_relations->count;
+         entity_relations->deferred_entity_ids[i]  = marking_id;
+         entity_relations->entities[i]             = new_entity;
+         entity_relations->relations[i]            = SrEntityRelation_TimerMarking;
+         entity_relations->aux_uint_buffer[i]      = marking_time_checkpoint;
+         entity_relations->count++;
+      }
+
+      else if(property == "timer_marking_color_on")
+      {
+         p = parse_vec3(p);
+         new_entity->timer_marking_data.color_on = p.get_vec3_val();
+      }
+
+      else if(property == "timer_marking_color_off")
+      {
+         p = parse_vec3(p);
+         new_entity->timer_marking_data.color_off = p.get_vec3_val();
+      }
 
       // ---------------------------------
 
       else if(property == "trigger")
       {
          p = parse_vec3(p);
-         new_entity->trigger_scale = vec3{p.vec3[0], p.vec3[1], p.vec3[2]};
+         new_entity->trigger_scale = p.get_vec3_val();
       }
 
       else if(property == "slidable")

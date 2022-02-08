@@ -2,13 +2,21 @@
 // Global variable to control entity IDs
 u64 Max_Entity_Id = 0;
 
-struct DeferredEntityRelationBuffer {
-   static const int size = 64;
-   int count = 0;
-   Entity* from[size];
-   u64 to[size];
-   std::string context[size];
+enum SrEntityRelation {
+   SrEntityRelation_TimerTarget    = 0,
+   SrEntityRelation_TimerMarking   = 1
 };
+
+// Allows storing relationships between parsed entities to be set after parsing is done
+struct DeferredEntityRelationBuffer {
+   static const int        size = 64;
+   int                     count = 0;
+   Entity*                 entities[size];
+   u64                     deferred_entity_ids[size];
+   SrEntityRelation        relations[size];
+   u32                     aux_uint_buffer[size];
+};
+
 
 // Prototypes
 bool load_scene_from_file(std::string scene_name, WorldStruct* world);
@@ -148,45 +156,37 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
    // connects entities using deferred load buffer
    For(entity_relations.count)
    {
-      Entity* from         = entity_relations.from[i];
-      std::string context  = entity_relations.context[i];
-      Entity* to_entity;
+      Entity* entity             = entity_relations.entities[i];
+      auto relation              = entity_relations.relations[i];
+      auto deferred_entity_id    = entity_relations.deferred_entity_ids[i];
+      Entity* deferred_entity    = nullptr;
 
-      bool found_to_entity = false;
       Forj(scene->entities.size())
       {  
          Entity* entity = scene->entities[j];
-         if(entity->id == entity_relations.to[i])
+         if(entity->id == deferred_entity_id)
          {
-            to_entity = entity;
-            found_to_entity = true;
+            deferred_entity = entity;
             break;
          }
       }
 
-      if(!found_to_entity)
-      {
-         Quit_fatal("Something weird happened. We tried to deferred load the relationship of '"
-            + context + "' between (from) '" + from->name + "' and an entity with id '" 
-            + to_string(entity_relations.to[i]) + "' but we couldn't find that entity inside the scene list.");
-      }
+      if(deferred_entity == nullptr)
+         Quit_fatal("Entity with id '" + to_string(deferred_entity_id) + "' not found to stablish a defined entity relationship.");
 
-      if(context == "timer_target")
+      switch(relation)
       {
-         from->timer_trigger_data.timer_target = to_entity;
-
-         // initializes data for triggers of time_attack_door
-         //@todo should be any kind of time_attack_door, but ok
-         if(to_entity->timer_target_data.timer_target_type == EntityTimerTargetType_VerticalSlidingDoor)
+         case SrEntityRelation_TimerTarget:
          {
-            auto data = &from->timer_trigger_data;
-            For(data->size)
-            {
-               //@todo we will, obviously, load these in when we serialize it to the file
-               data->markings[i]             = nullptr;
-               data->notification_mask[i]    = false;
-               data->time_checkpoints[i]     = 0;
-            }
+            entity->timer_trigger_data.timer_target = deferred_entity;
+            break;
+         }
+
+         case SrEntityRelation_TimerMarking:
+         {
+            u32 time_checkpoint = entity_relations.aux_uint_buffer[i];
+            entity->timer_trigger_data.add_marking(deferred_entity, time_checkpoint);
+            break;
          }
       }
    }
