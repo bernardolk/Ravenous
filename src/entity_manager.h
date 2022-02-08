@@ -338,6 +338,9 @@ struct EntityManager
    {
       _remove_from_checkpoint_registry(entity);
       _remove_interactivity(entity);
+
+      auto default_shader = Shader_Catalogue.find(DEFAULT_ENTITY_SHADER)->second;
+      entity->shader = default_shader;
    }
 
    void set_type(Entity* entity, EntityType type)
@@ -385,6 +388,9 @@ struct EntityManager
          {
             entity->type = EntityType_TimerMarking;
             new(&entity->timer_marking_data) TimerMarkingData();
+
+            auto shader = Shader_Catalogue.find(ENTITY_SHADER_MARKING)->second;
+            entity->shader = shader;
             break;
          }
 

@@ -4,6 +4,9 @@
 struct WorldCell;
 
 const static size_t ENTITY_WOLRD_CELL_OCCUPATION_LIMIT = 50;
+const static std::string DEFAULT_ENTITY_SHADER = "model";
+const static std::string ENTITY_SHADER_MARKING = "color";
+
 
 enum EntityTimerTargetType {
    EntityTimerTargetType_NotATarget          = 0,
@@ -24,7 +27,6 @@ enum EntityFlags {
    EntityFlags_HiddenEntity         = (1 << 2),
    EntityFlags_RenderTiledTexture   = (1 << 3),
    EntityFlags_RenderWireframe      = (1 << 4),
-   EntityFlags_SetColorUniform      = (1 << 5),
 };
 
 struct TimerMarkingData {

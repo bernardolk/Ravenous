@@ -21,11 +21,18 @@ struct Timer {
 
       // @todo: could be any kind of time_attack_door, but ok.
       if(target->timer_target_data.timer_target_type == EntityTimerTargetType_VerticalSlidingDoor)
+      {
+         type = TimerType_TimeAttackDoor;
          _start_time_attack_door_timer();
+      }
    }
 
    void stop()
    {
+      // specific stop procedures first
+      if(type == TimerType_TimeAttackDoor)
+         _stop_time_attack_door_timer();
+
       target            = nullptr;
       trigger           = nullptr;
       active            = false;
@@ -76,7 +83,22 @@ struct Timer {
          {
             // turn the marking off
             entity->timer_marking_data.color = entity->timer_marking_data.color_off;
-            data->notification_mask[i] = true;
+            data->notification_mask[i]       = true;
+         }
+      }
+   }
+
+   void _stop_time_attack_door_timer()
+   {
+      auto data = &trigger->timer_trigger_data;
+      For(data->size)
+      {
+         auto entity = data->markings[i];
+         if(entity != nullptr)
+         {
+            // turns all markings off
+            entity->timer_marking_data.color = entity->timer_marking_data.color_off;
+            data->notification_mask[i]       = false;
          }
       }
    }
