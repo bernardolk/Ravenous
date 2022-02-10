@@ -1039,6 +1039,9 @@ void render_lightbulbs(Camera* camera)
    auto mesh = Geometry_Catalogue.find("lightbulb")->second;
    auto shader = Shader_Catalogue.find("color")->second;
 
+   shader->setMatrix4("view", camera->View4x4);
+   shader->setMatrix4("projection", camera->Projection4x4);
+
    auto selected_light = EdContext.lights_panel.selected_light;
    auto selected_light_type = EdContext.lights_panel.selected_light_type;
 
@@ -1052,11 +1055,10 @@ void render_lightbulbs(Camera* camera)
       //opts.wireframe = true;
       //render
       shader->use();
+      shader->setMatrix4("model", model);
       shader->setFloat3("color", light.diffuse);
       shader->setFloat("opacity", 1.0);
-      shader->setMatrix4("model", model);
-      shader->setMatrix4("view", camera->View4x4);
-      shader->setMatrix4("projection", camera->Projection4x4);
+
       render_mesh(mesh, opts);
 
       point_c++;
@@ -1072,13 +1074,10 @@ void render_lightbulbs(Camera* camera)
       //opts.wireframe = true;
       //render
       shader->use();
+      shader->setMatrix4("model", model);
       shader->setFloat3("color", light.diffuse);
       shader->setFloat("opacity", 1.0);
-      shader->setMatrix4("model", model);
-      shader->setMatrix4("view", camera->View4x4);
-      shader->setMatrix4("projection", camera->Projection4x4);
       render_mesh(mesh, opts);
-
       spot_c++;
    }
 
@@ -1110,11 +1109,10 @@ void render_lightbulbs(Camera* camera)
       opts.wireframe = true;
 
       shader->use();
+      shader->setMatrix4("model", aabb_model);
       shader->setFloat3("color", vec3{0.9, 0.7, 0.9});
       shader->setFloat("opacity", 1.0);
-      shader->setMatrix4("model", aabb_model);
-      shader->setMatrix4("view", camera->View4x4);
-      shader->setMatrix4("projection", camera->Projection4x4);
+      
       render_mesh(aabb_mesh, opts);
 
       // direction arrow

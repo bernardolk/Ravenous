@@ -211,6 +211,9 @@ void render_scene(Scene* scene, Camera* camera)
    auto model_tiled_shader = Shader_Catalogue.find("tiledTextureModel")->second;
    set_shader_light_variables(scene, model_tiled_shader, camera);
 
+   auto color_shader = Shader_Catalogue.find("color")->second;
+   set_shader_light_variables(scene, color_shader, camera);
+
 	Entity **entity_iterator = &(scene->entities[0]);
    int entities_vec_size =  scene->entities.size();
 	for(int it = 0; it < entities_vec_size; it++) 
