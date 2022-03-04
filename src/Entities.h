@@ -16,7 +16,7 @@ enum EntityTimerTargetType {
 enum EntityType {
    EntityType_Static                   = 0,
    EntityType_Checkpoint               = 1,
-   EntityType_TimerTrigger             = 2,
+   EntityType_TimerTrigger             =  2,
    EntityType_TimerTarget              = 3,
    EntityType_TimerMarking             = 4,
 };

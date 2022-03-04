@@ -48,9 +48,9 @@ Ledge CL_perform_ledge_detection(Player* player)
    Ledge ledge;
 
    // settings
-   const float _front_ray_first_ray_delta_y = 0.3f;
-   const float _front_ray_spacing   = 0.03;
-   const float _front_ray_qty       = 12;
+   const float _front_ray_first_ray_delta_y     = 0.6;
+   const float _front_ray_spacing               = 0.03;
+   const float _front_ray_qty                   = 24;
 
    auto orientation_xz = to_xz(player->orientation);
    auto first_ray = Ray{player->eye() - UNIT_Y * _front_ray_first_ray_delta_y, orientation_xz};
