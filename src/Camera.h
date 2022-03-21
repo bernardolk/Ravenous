@@ -122,7 +122,7 @@ void camera_look_at(Camera* camera, vec3 ref, bool isPosition)
 	look_vec = glm::normalize(look_vec);
 
 	float pitch = glm::degrees(glm::asin(look_vec.y));
-	float yaw   = glm::degrees(atan2(look_vec.x, -1 * look_vec.z) - 3.141592 / 2);
+	float yaw   = glm::degrees(atan2(look_vec.x, -1 * look_vec.z) - PI / 2);
 
 	camera->Front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
 	camera->Front.y = sin(glm::radians(pitch));
@@ -203,7 +203,7 @@ void save_camera_settings_to_file(string path, vec3 position, vec3 direction)
 void compute_angles_from_direction(float& pitch, float& yaw, vec3 direction)
 {
    pitch = glm::degrees(glm::asin(direction.y));
-   yaw = glm::degrees(atan2(direction.x, -1 * direction.z) - 3.141592 / 2);
+   yaw = glm::degrees(atan2(direction.x, -1 * direction.z) - PI / 2);
    if (pitch > 89.0f)  pitch = 89.0f;
    if (pitch < -89.0f) pitch = -89.0f;
    if (yaw > 360.0f)   yaw -= 360.0f;

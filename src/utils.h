@@ -177,6 +177,12 @@ vec3 to3d_xz(vec2 vector)
    return vec3(vector.x, 0, vector.y);
 }
 
+inline
+vec3 to_vec3(vec4 vector)
+{
+   return vec3(vector.x, vector.y, vector.z);
+}
+
 // VECTOR OPERATIONS
 inline
 vec3 nrmlz(vec3 vec)

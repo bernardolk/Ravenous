@@ -20,6 +20,8 @@
 #include <glm/gtx/normal.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/euler_angles.hpp>
+
 
 #include <sstream>
 #include <iostream>
@@ -189,6 +191,8 @@ void erase_entity(Scene* scene, Entity* entity);
 
 #include <editor/editor_main.h>
 
+#include <missile.h>
+
 
 #define glCheckError() glCheckError_(__FILE__, __LINE__) 
 
@@ -283,6 +287,9 @@ int main()
    // Does a first update
    update_scene_objects();
 
+   // -------------- MISSILE ------
+   Entity* Missile_Entity = G_SCENE_INFO.active_scene->find_entity("missile");
+
 	// MAIN LOOP
 	while (!glfwWindowShouldClose(G_DISPLAY_INFO.window))
 	{
@@ -326,6 +333,17 @@ int main()
             IN_handle_common_input(input_flags, player);
             break;
       }
+
+      // if(pressed_once(input_flags, KEY_U))
+      // {
+      //    UPDATE_MISSILE = !UPDATE_MISSILE;
+      // }
+
+      if(pressed_once(input_flags, KEY_U))
+      {
+         UPDATE_MISSILE = true;
+      }
+
       reset_input_flags(input_flags);
 
       // -------------
@@ -337,7 +355,10 @@ int main()
       GP_update_player_state(player);
       AN_animate_player(player);
       Entity_Animations.update_animations();
-
+      update_scene_objects();
+     
+      update_missile(player, Missile_Entity);
+      UPDATE_MISSILE = false;
 
       // simulate_gravity_trajectory();      
 
