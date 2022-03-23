@@ -108,10 +108,14 @@ CL_ResultsArray CL_test_and_resolve_collisions(Player* player)
       if(result.collision)
       {
          CL_mark_entity_checked(result.entity);
-         CL_log_collision(result, c);
-         CL_resolve_collision(result, player);
-         results_array.results[results_array.count] = result;
-         results_array.count++;
+         // @todo delete later!
+         if(!result.entity->dodged)
+         {  
+            CL_log_collision(result, c);   
+            CL_resolve_collision(result, player);
+            results_array.results[results_array.count] = result;
+            results_array.count++;
+         }
       }
       else break;
    }

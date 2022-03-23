@@ -21,6 +21,7 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/euler_angles.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 
 #include <sstream>
@@ -192,6 +193,7 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <editor/editor_main.h>
 
 #include <missile.h>
+#include <compass.h>
 
 
 #define glCheckError() glCheckError_(__FILE__, __LINE__) 
@@ -355,9 +357,10 @@ int main()
       GP_update_player_state(player);
       AN_animate_player(player);
       Entity_Animations.update_animations();
-      update_scene_objects();
      
       update_missile(player, Missile_Entity);
+      //update_scene_objects();
+
       UPDATE_MISSILE = false;
 
       // simulate_gravity_trajectory();      

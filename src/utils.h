@@ -107,9 +107,18 @@ float abs(vec3 v)
 }
 
 // VECTOR ANGLE
-
 inline
 float vector_angle(vec2 A, vec2 B)
+{
+   float dot = glm::dot(A, B);
+   float len_A = glm::length(A);
+   float len_B = glm::length(B);
+   float theta = acos(dot / (len_A * len_B));
+   return theta;
+}
+
+inline
+float vector_angle(vec3 A, vec3 B)
 {
    float dot = glm::dot(A, B);
    float len_A = glm::length(A);
@@ -207,6 +216,36 @@ vec3 project_vec_into_ref(vec3 vec, vec3 ref)
 {
    auto proj = dot(vec, ref) / (abs(ref) * abs(ref)) * ref;
    return proj;
+}
+
+
+// OTHER MATHS
+
+inline
+vec3 rot_mat_to_euler_angles_XYZ(mat4 &M)
+{
+   /*
+      This is equivalent to calling glm::extractEulerAngleXYZ
+   */
+  
+    float sy = sqrt(M[0][0] * M[0][0] +  M[1][0] * M[1][0] );
+
+    bool singular = sy < 1e-6; // If
+
+    float x, y, z;
+    if (!singular)
+    {
+        x = atan2(M[2][1] , M[2][2]);
+        y = atan2(-M[2][0], sy);
+        z = atan2(M[1][0], M[0][0]);
+    }
+    else
+    {
+        x = atan2(-M[1][2], M[1][1]);
+        y = atan2(-M[2][0], sy);
+        z = 0;
+    }
+    return vec3(x, y, z);
 }
 
 

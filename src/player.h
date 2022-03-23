@@ -85,6 +85,7 @@ struct Player {
    bool jumping_from_slope       = false;
    bool action                   = false;
    bool want_to_grab             = false;
+   bool dodge_btn                = false;
 
    PlayerState player_state;
    PlayerState initial_player_state;

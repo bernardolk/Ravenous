@@ -108,6 +108,7 @@ struct Entity {
 	vec3     rotation        = vec3(0.0f);
 	vec3     scale           = vec3(1.0f);
    vec3     velocity        = vec3(0.0f);
+   glm::quat quaternion;
 
    Mesh*        collision_mesh;        // static collision mesh vertex data
    Mesh         collider;              // dynamic collision mesh, obtained by multiplying static collision mesh with model matrix
@@ -118,6 +119,14 @@ struct Entity {
 
    WorldCell* world_cells[ENTITY_WOLRD_CELL_OCCUPATION_LIMIT];
    int world_cells_count = 0;
+
+
+
+   bool dodged = false;
+   float inv_period_timer = 0;
+
+
+
 
    // ---------------------------
    // > event trigger settings

@@ -55,6 +55,8 @@ void IN_process_move_keys(InputFlags flags, vec3& v_dir)
 
 void IN_handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm)
 {
+   player->dodge_btn = false;
+
    // assign keys
    IN_assign_keys_to_actions(pm);
 
@@ -93,7 +95,10 @@ void IN_handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum
 
          // INTERACT
          if(pressed_once(flags, KEY_ACTION))
+         {
             GP_check_trigger_interaction(player);
+            player->dodge_btn = true;
+         }
 
          break;
       }
