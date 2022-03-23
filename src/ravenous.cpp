@@ -48,6 +48,10 @@
 using namespace std;
 
 
+// @todo temp for missile action
+bool Exploded = false;
+
+
 const string PROJECT_PATH                    = "c:/repositories/ravenous";
 const string TEXTURES_PATH                   = PROJECT_PATH + "/assets/textures/";
 const string MODELS_PATH                     = PROJECT_PATH + "/assets/models/";
@@ -290,7 +294,8 @@ int main()
    update_scene_objects();
 
    // -------------- MISSILE ------
-   Entity* Missile_Entity = G_SCENE_INFO.active_scene->find_entity("missile");
+   Entity* Missile_Entity  = G_SCENE_INFO.active_scene->find_entity("missile");
+   Entity* Phone_Entity    = G_SCENE_INFO.active_scene->find_entity("phone");
 
 	// MAIN LOOP
 	while (!glfwWindowShouldClose(G_DISPLAY_INFO.window))
@@ -358,10 +363,25 @@ int main()
       AN_animate_player(player);
       Entity_Animations.update_animations();
      
-      update_missile(player, Missile_Entity);
+      if(UPDATE_MISSILE && !Launch)
+      {
+         editor_print("Missile launch!");
+         Launch = true;
+      }
+
+      if(UPDATE_MISSILE && !Exploded)
+         update_missile(player, Missile_Entity);
+      else if(Exploded)
+      {
+         // Entity_Manager.mark_for_deletion(Missile_Entity);
+         Missile_Entity->flags |= EntityFlags_HiddenEntity;
+      }
+
+      get_compass_heading(Phone_Entity);
+
       //update_scene_objects();
 
-      UPDATE_MISSILE = false;
+      // UPDATE_MISSILE = false;
 
       // simulate_gravity_trajectory();      
 

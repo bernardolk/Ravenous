@@ -1,5 +1,5 @@
 
-float MISSILE_LIN_SPEED = 4.5;
+float MISSILE_LIN_SPEED = 3.5;
 float MISSILE_ANG_SPEED = 180;
 float MIN_DODGE_DISTANCE = 1.5;
 float MISSILE_INV_PERIOD = 2;
@@ -7,6 +7,8 @@ float MISSILE_INV_PERIOD = 2;
 vec4 MISSILE_INITIAL_HEADING = vec4(0, 0, -1, 1);
 
 bool UPDATE_MISSILE = false;
+
+bool Launch = false;
 
 void update_missile(Player* player, Entity* missile)
 {
@@ -28,22 +30,6 @@ void update_missile(Player* player, Entity* missile)
 
    // update position
    missile->position += normalize(H) * MISSILE_LIN_SPEED * G_FRAME_INFO.duration;
-
-
-   if(length(dist) < MIN_DODGE_DISTANCE)
-   {
-      IM_RENDER.add_line(
-         IMHASH, missile->position + vec3(missile->scale.x / 2.0f, missile->scale.y / 2.0f, 0), 
-         missile->position + dist, 2.0f, false, COLOR_GREEN_1
-      );
-   }
-   else
-   {
-      IM_RENDER.add_line(
-         IMHASH, missile->position + vec3(missile->scale.x / 2.0f, missile->scale.y / 2.0f, 0), 
-         missile->position + dist, 1.2f, false, COLOR_RED_1
-      );
-   }
 
    if(!missile->dodged)
    {
@@ -77,7 +63,7 @@ void update_missile(Player* player, Entity* missile)
    {
       missile->inv_period_timer += G_FRAME_INFO.duration;
 
-      editor_print("Player is invincible against missile right now!");
+      editor_print("Player is invincible against missile right now!", 2000, COLOR_GREEN_2);
 
       if(missile->inv_period_timer >= MISSILE_INV_PERIOD)
       {
@@ -86,9 +72,23 @@ void update_missile(Player* player, Entity* missile)
       }
    }
 
-
    // update missile
    missile->update();
+
+   if(length(dist) < MIN_DODGE_DISTANCE)
+   {
+      IM_RENDER.add_line(
+         IMHASH, missile->position + vec3(missile->scale.x / 2.0f, missile->scale.y / 2.0f, 0), 
+         missile->position + dist, 2.0f, false, COLOR_GREEN_1
+      );
+   }
+   else
+   {
+      IM_RENDER.add_line(
+         IMHASH, missile->position + vec3(missile->scale.x / 2.0f, missile->scale.y / 2.0f, 0), 
+         missile->position + dist, 1.2f, false, COLOR_RED_1
+      );
+   }
 
 
    // render vectors

@@ -192,6 +192,12 @@ vec3 to_vec3(vec4 vector)
    return vec3(vector.x, vector.y, vector.z);
 }
 
+inline
+vec4 to_vec4(vec3 vector, float w)
+{
+   return vec4(vector.x, vector.y, vector.z, w);
+}
+
 // VECTOR OPERATIONS
 inline
 vec3 nrmlz(vec3 vec)
@@ -216,6 +222,14 @@ vec3 project_vec_into_ref(vec3 vec, vec3 ref)
 {
    auto proj = dot(vec, ref) / (abs(ref) * abs(ref)) * ref;
    return proj;
+}
+
+inline 
+vec3 project_vec_onto_plane(vec3 v, vec3 n)
+{
+   auto v_proj_n = project_vec_into_ref(v, n);
+   auto v_proj_plane = v - v_proj_n;
+   return v_proj_plane;
 }
 
 

@@ -133,7 +133,7 @@ struct Player {
       if(cells_updated) 
       {
          CL_recompute_collision_buffer_entities(this);
-         editor_print("Recomputed World Cells for Player.", 2000, COLOR_PURPLE_1);
+         // editor_print("Recomputed World Cells for Player.", 2000, COLOR_PURPLE_1);
       }
    }
 

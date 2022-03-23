@@ -121,7 +121,7 @@ struct Entity {
    int world_cells_count = 0;
 
 
-
+   // temp missile fields
    bool dodged = false;
    float inv_period_timer = 0;
 

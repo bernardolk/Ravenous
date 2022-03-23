@@ -111,11 +111,19 @@ CL_ResultsArray CL_test_and_resolve_collisions(Player* player)
          // @todo delete later!
          if(!result.entity->dodged)
          {  
+            if(result.entity->name == "missile")
+            {
+               editor_print("Player took damage!", 2000, COLOR_RED_2);
+               editor_print("Missile exploded!", 2000, COLOR_YELLOW_1);
+               Exploded = true;
+            }
+
             CL_log_collision(result, c);   
             CL_resolve_collision(result, player);
             results_array.results[results_array.count] = result;
             results_array.count++;
          }
+         
       }
       else break;
    }
@@ -219,10 +227,10 @@ CL_Results CL_test_player_vs_entity(Entity* entity, Player* player)
       }
    }
 
-   if(b_gjk && b_epa)
-      editor_print("COMPLETE COLLISION", 1000);
-   else if (b_gjk)
-      editor_print("EPA UNRESOLVED COLLISION", 1000);
+   // if(b_gjk && b_epa)
+   //    editor_print("COMPLETE COLLISION", 1000);
+   // else if (b_gjk)
+   //    editor_print("EPA UNRESOLVED COLLISION", 1000);
 
    return cl_results;
 }
