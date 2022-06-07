@@ -1,12 +1,12 @@
 // -----------
 // CATALOGUES
 // -----------
-std::map<string, Mesh*>    Geometry_Catalogue;
-std::map<string, Shader*>  Shader_Catalogue;
-std::map<string, Texture>  Texture_Catalogue;
+std::map<std::string, Mesh*>    Geometry_Catalogue;
+std::map<std::string, Shader*>  Shader_Catalogue;
+std::map<std::string, Texture>  Texture_Catalogue;
 
 typedef std::map<GLchar, Character> gl_charmap;
-std::map<string, gl_charmap> Font_Catalogue;
+std::map<std::string, gl_charmap> Font_Catalogue;
 
 // ---------------------
 // CAPACITY DEFINITIONS
@@ -43,7 +43,7 @@ struct GlobalSceneInfo {
    Camera* views[2];
    Player* player;
    bool input_mode = false;
-   string scene_name;
+  std::string scene_name;
 
    bool tmp_unstuck_things = false;
 } G_SCENE_INFO;
@@ -74,7 +74,7 @@ struct EntityBuffer {
 // stores messages to be displayed on screen during a certain duration
 
 struct RenderMessageBufferElement {
-   string message = "";
+  std::string message = "";
    float elapsed = 0;
    float duration = 0;
    vec3 color;
@@ -85,7 +85,7 @@ struct RenderMessageBuffer {
    size_t size;
    u16 count = 0;
 
-   bool add(string msg, float duration, vec3 color = vec3(-1))
+   bool add(std::string msg, float duration, vec3 color = vec3(-1))
    {
       if(count < size)
       {
@@ -119,7 +119,7 @@ struct RenderMessageBuffer {
       }
    }
 
-   bool add_unique(string msg, float duration, vec3 color = vec3(-1))
+   bool add_unique(std::string msg, float duration, vec3 color = vec3(-1))
    {
       if(count < size)
       {
@@ -165,7 +165,7 @@ void expire_render_messages_from_buffer()
 }
 
 // fw decl.
-void render_text(string font, float x, float y, vec3 color, bool center, string text);
+void render_text(std::string font, float x, float y, vec3 color, bool center,std::string text);
 
 void render_message_buffer_contents()
 {
@@ -219,12 +219,12 @@ RenderMessageBuffer* allocate_render_message_buffer()
 }
 
 
-void editor_print(string msg, float duration = 0, vec3 color = vec3(-1))
+void editor_print(std::string msg, float duration = 0, vec3 color = vec3(-1))
 {
    G_BUFFERS.rm_buffer->add(msg, duration, color);
 }
 
-void editor_persist_print(string msg, float duration = 0, vec3 color = vec3(-1))
+void editor_persist_print(std::string msg, float duration = 0, vec3 color = vec3(-1))
 {
    // same as above, but in this case we don't update the message if already present 
    // (good for counting num of times for things that happen not that many times)

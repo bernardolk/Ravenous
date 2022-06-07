@@ -1,9 +1,9 @@
 struct EntityAttributes {
-   string name;
-   string mesh;
-   string shader;
-   string texture;
-   string collision_mesh;
+  std::string name;
+  std::string mesh;
+  std::string shader;
+  std::string texture;
+  std::string collision_mesh;
    EntityType type;
    vec3 scale = vec3{1.0f};
 };
@@ -21,16 +21,16 @@ struct EntityManager
    Mesh*       default_mesh;
    Texture     default_texture;
 
-   vector<Entity*>   deletion_stack;
-   vector<Entity*>*  entity_registry;
-   vector<Entity*>*  checkpoints_registry;
-   vector<Entity*>*  interactables_registry;
+   std::vector<Entity*>   deletion_stack;
+   std::vector<Entity*>*  entity_registry;
+   std::vector<Entity*>*  checkpoints_registry;
+   std::vector<Entity*>*  interactables_registry;
    
    // --------------------------------------
    // > FIND ASSETS IN CATALOGUES
    // --------------------------------------
    // [INTERNAL]
-   auto _find_entity_assets_in_catalogue(string mesh, string collision_mesh, string shader, string texture)
+   auto _find_entity_assets_in_catalogue(std::string mesh,std::string collision_mesh,std::string shader,std::string texture)
    {
       struct {
          Texture textures[2];
@@ -104,7 +104,7 @@ struct EntityManager
    // ---------------------------------
    // > SET DEFAULT ENTITY ATTRIBUTES
    // ---------------------------------
-   void set_default_entity_attributes(string mesh, string shader, string texture)
+   void set_default_entity_attributes(std::string mesh,std::string shader,std::string texture)
    {
       auto [_textures, _texture_count, _mesh, _,  _shader] = _find_entity_assets_in_catalogue(mesh, "", shader, texture);
       default_texture = _textures[0];
@@ -115,17 +115,17 @@ struct EntityManager
    // ---------------------------------
    // > SET REGISTRIES
    // ---------------------------------
-   void set_entity_registry(vector<Entity*>* registry)
+   void set_entity_registry(std::vector<Entity*>* registry)
    {
       entity_registry = registry;
    }
 
-   void set_checkpoints_registry(vector<Entity*>* registry)
+   void set_checkpoints_registry(std::vector<Entity*>* registry)
    {
       checkpoints_registry = registry;
    }
 
-   void set_interactables_registry(vector<Entity*>* registry)
+   void set_interactables_registry(std::vector<Entity*>* registry)
    {
       interactables_registry = registry;
    }
@@ -148,11 +148,11 @@ struct EntityManager
 
    // MAIN FUNCTION
    Entity* create_entity(
-      string name,
-      string mesh,
-      string shader,
-      string texture,
-      string collision_mesh,
+      std::string name,
+      std::string mesh,
+      std::string shader,
+      std::string texture,
+      std::string collision_mesh,
       vec3 scale = vec3{1.0f})
    {
       auto [_textures, _texture_count,  _mesh, _collision_mesh, _shader] = 
@@ -197,7 +197,7 @@ struct EntityManager
    // -----------------------------------------------------------
    // > > Creates with a said name and maybe defaults or blank
    // -----------------------------------------------------------
-   Entity* create_entity(string name, bool load_defaults = true)
+   Entity* create_entity(std::string name, bool load_defaults = true)
    {
       //warning: we don't check if name exists in registry
       auto new_entity = create_entity(load_defaults);
@@ -229,11 +229,11 @@ struct EntityManager
    //    registered into the world.
 
    Entity* create_editor_entity(
-      string name,
-      string mesh,
-      string shader,
-      string texture,
-      string collision_mesh,
+     std::string name,
+     std::string mesh,
+     std::string shader,
+     std::string texture,
+     std::string collision_mesh,
       vec3 scale = vec3{1.0f})
    {
       auto [_textures, _texture_count, _mesh, _collision_mesh, _shader] =
@@ -268,7 +268,7 @@ struct EntityManager
       new_entity->collider          = *new_entity->collision_mesh;
       new_entity->collider.setup_gl_data();
       // tries new name with copy
-      string new_name = new_entity->name;
+     std::string new_name = new_entity->name;
       if(new_name != "NONAME")
       {
          new_name = new_name + " copy";
@@ -277,7 +277,7 @@ struct EntityManager
          {
             unsigned int n_count = 1;
             do{
-               new_name = new_name + "(" + to_string(n_count++) + ")";
+               new_name = new_name + "(" + std::to_string(n_count++) + ")";
             } while(G_SCENE_INFO.active_scene->search_name(new_name));
          }
       }
@@ -395,7 +395,7 @@ struct EntityManager
          }
 
          default:
-            Quit_fatal("Entity manager doesn't know what entity type '" + to_string(type) + "' should be.");
+            Quit_fatal("Entity manager doesn't know what entity type '" + std::to_string(type) + "' should be.");
       }
    }
 

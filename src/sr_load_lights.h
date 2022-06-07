@@ -1,10 +1,10 @@
 
-void parse_and_load_light_source(Parser::Parse p, std::ifstream* reader, int& line_count, string path)
+void parse_and_load_light_source(Parser::Parse p, std::ifstream* reader, int& line_count, std::string path)
 {
-   string line;
+  std::string line;
 
    p = parse_token(p);
-   string type = p.string_buffer;
+  std::string type = p.string_buffer;
 
    if (!(type == "point" || type == "spot" || type == "directional"))
    {
@@ -68,7 +68,7 @@ void parse_and_load_light_source(Parser::Parse p, std::ifstream* reader, int& li
       {
          line_count++;
          p = parse_token(p);
-         const std::string property = p.string_buffer;
+         const std::string  property = p.string_buffer;
 
          if(property == "position")
          {
@@ -133,7 +133,7 @@ void parse_and_load_light_source(Parser::Parse p, std::ifstream* reader, int& li
       {
          line_count++;
          p = parse_token(p);
-         const std::string property = p.string_buffer;
+         const std::string  property = p.string_buffer;
 
          if(property == "direction")
          {

@@ -39,7 +39,7 @@ enum CellUpdateStatus {
 
 struct CellUpdate {
    CellUpdateStatus status;
-   string message;
+  std::string message;
    bool entity_changed_cell;
 };
 
@@ -102,7 +102,7 @@ struct WorldCell {
    {
       if(count == WORLD_CELL_CAPACITY)
       {
-         string message = "World cell '" + coords_str() + "' is full.";
+        std::string message = "World cell '" + coords_str() + "' is full.";
          return CellUpdate{ CellUpdate_CELL_FULL, message };
       }
 
@@ -165,11 +165,11 @@ struct WorldCell {
       count = new_count;
    }
 
-   string coords_str()
+  std::string coords_str()
    {
-      return "Cell [" + to_string(i) 
-         + "," + to_string(j) + "," + to_string(k) 
-         + "] (" + to_string(count) + ")";
+      return "Cell [" + std::to_string(i) 
+         + "," + std::to_string(j) + "," + std::to_string(k) 
+         + "] (" + std::to_string(count) + ")";
    }
 
    vec3 coords()
@@ -182,7 +182,7 @@ struct WorldCell {
       return get_world_coordinates_from_world_cell_coordinates(i, j, k);
    }
 
-   string coords_meters_str()
+  std::string coords_meters_str()
    {
       vec3 mcoords = coords_meters();
       return "[x: " + format_float_tostr(mcoords[0], 1) 
@@ -277,7 +277,7 @@ struct WorldStruct {
 
    CellUpdate update_entity_world_cells(Entity* entity)
    {
-      string message;
+     std::string message;
 
       // computes which cells the entity is occupying based on it's axis aligned bounding box
       auto [bb_min, bb_max]   = entity->bounding_box.bounds();
@@ -291,7 +291,7 @@ struct WorldStruct {
          return CellUpdate{CellUpdate_OUT_OF_BOUNDS, message};
       }
 
-      vector<WorldCell*> new_cells;
+      std::vector<WorldCell*> new_cells;
       for(int i = i0; i <= i1; i++)
       for(int j = j0; j <= j1; j++)
       for(int k = k0; k <= k1; k++)
@@ -301,12 +301,12 @@ struct WorldStruct {
       if(new_cells.size() > ENTITY_WOLRD_CELL_OCCUPATION_LIMIT)
       {
          message = "Entity '" + entity->name + "' is too large and it occupies more than " +
-            "the limit of " + to_string(ENTITY_WOLRD_CELL_OCCUPATION_LIMIT) + " world cells at a time.";
+            "the limit of " + std::to_string(ENTITY_WOLRD_CELL_OCCUPATION_LIMIT) + " world cells at a time.";
          return CellUpdate{CellUpdate_ENTITY_TOO_BIG, message};
       }
 
       // computes outdated world cells to remove the entity from
-      vector<WorldCell*> cells_to_remove_from;
+      std::vector<WorldCell*> cells_to_remove_from;
       for(int i = 0; i < entity->world_cells_count; i++)
       {
          auto entity_world_cell = entity->world_cells[i];
@@ -324,7 +324,7 @@ struct WorldStruct {
       }
 
       // computes the cells to add entity to
-      vector<WorldCell*> cells_to_add_to;
+      std::vector<WorldCell*> cells_to_add_to;
       for(int i = 0; i < new_cells.size(); i++)
       {
          auto cell = new_cells[i];

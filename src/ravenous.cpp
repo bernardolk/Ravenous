@@ -23,7 +23,6 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-
 #include <sstream>
 #include <iostream>
 #include <fstream>
@@ -45,23 +44,22 @@
 #include <rvn_types.h>
 #include <logging.h>
 
-// using string = std::string;
 
 // @todo temp for missile action
 bool Exploded = false;
 
 
-const string PROJECT_PATH                    = "c:/repositories/ravenous";
-const string TEXTURES_PATH                   = PROJECT_PATH + "/assets/textures/";
-const string MODELS_PATH                     = PROJECT_PATH + "/assets/models/";
-const string FONTS_PATH                      = PROJECT_PATH + "/assets/fonts/";
-const string SHADERS_FOLDER_PATH             = PROJECT_PATH + "/shaders/";
-const string CAMERA_FILE_PATH                = PROJECT_PATH + "/camera.txt";
-const string SCENES_FOLDER_PATH              = PROJECT_PATH + "/scenes/";
-const string SHADERS_FILE_EXTENSION          = ".shd";
-const string CONFIG_FILE_PATH                = PROJECT_PATH + "/config.txt";
-const string SCENE_TEMPLATE_FILENAME         = "template_scene";
-const string INPUT_RECORDINGS_FOLDER_PATH    = PROJECT_PATH + "/recordings/";
+const std::string PROJECT_PATH                    = "c:/repositories/ravenous";
+const std::string TEXTURES_PATH                   = PROJECT_PATH + "/assets/textures/";
+const std::string MODELS_PATH                     = PROJECT_PATH + "/assets/models/";
+const std::string FONTS_PATH                      = PROJECT_PATH + "/assets/fonts/";
+const std::string SHADERS_FOLDER_PATH             = PROJECT_PATH + "/shaders/";
+const std::string CAMERA_FILE_PATH                = PROJECT_PATH + "/camera.txt";
+const std::string SCENES_FOLDER_PATH              = PROJECT_PATH + "/scenes/";
+const std::string SHADERS_FILE_EXTENSION          = ".shd";
+const std::string CONFIG_FILE_PATH                = PROJECT_PATH + "/config.txt";
+const std::string SCENE_TEMPLATE_FILENAME         = "template_scene";
+const std::string INPUT_RECORDINGS_FOLDER_PATH    = PROJECT_PATH + "/recordings/";
 
 const glm::mat4 mat4identity(
 	1.0f, 0.0f, 0.0f, 0.0f,
@@ -122,7 +120,7 @@ struct GlobalFrameInfo {
 } G_FRAME_INFO;
 
 struct ProgramConfig {
-   string initial_scene;
+  std::string initial_scene;
    float camspeed;
    vec3 ambient_light;
    float ambient_intensity;
@@ -573,9 +571,9 @@ void initialize_shaders()
       Shader_Catalogue.insert({shader->name, shader});
 
       if(error)
-         Quit_fatal("Error in shader programs file definition. Couldn't parse line " + to_string(count_line) + ".");
+         Quit_fatal("Error in shader programs file definition. Couldn't parse line " + std::to_string(count_line) + ".");
       if(missing_comma)
-         Quit_fatal("Error in shader programs file definition. There is a missing comma in line " + to_string(count_line) + ".");
+         Quit_fatal("Error in shader programs file definition. There is a missing comma in line " + std::to_string(count_line) + ".");
    }
 
    programs_file.close();

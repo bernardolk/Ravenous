@@ -25,7 +25,7 @@ void load_models()
 
    // SLOPE
    // with Z coming at the screen, X to the right, slope starts at x=0 high and goes low on x=1
-   vector<Vertex> slope_vertex_vec = {
+   std::vector<Vertex> slope_vertex_vec = {
       // bottom
       Vertex{vec3(0.0f, 0.0f, 0.0f),   vec3(0.0f, -1.0f, 0.0f),   vec2(0.5f, 0.5f)},   //0
       Vertex{vec3(1.0f, 0.0f, 0.0f),   vec3(0.0f, -1.0f, 0.0f),   vec2(1.0f, 0.5f)},   //1
@@ -51,7 +51,7 @@ void load_models()
       Vertex{vec3(0.0f, 1.0f, 1.0f),   vec3(-1.0f, 0.0f, 0.0f),   vec2(0.5f, 0.5f)},   //17
    };
 
-   vector<u32> slope_vertex_indices = 
+   std::vector<u32> slope_vertex_indices = 
    { 
       0, 1, 2, 2, 3, 0,          // bottom face
       8, 9, 10,                  // front

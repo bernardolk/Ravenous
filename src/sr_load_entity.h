@@ -1,5 +1,5 @@
 
-const std::string SrLoadEntity_TypeNotSetErrorMsg = "Need to load entity type before loading type-specific data.";
+const std::string  SrLoadEntity_TypeNotSetErrorMsg = "Need to load entity type before loading type-specific data.";
 
 Entity* parse_and_load_entity(
    Parser::Parse p, 
@@ -20,7 +20,7 @@ Entity* parse_and_load_entity(
    {
       line_count ++;
       p = parse_token(p);
-      const std::string property = p.string_buffer;
+      const std::string  property = p.string_buffer;
 
       if(property == "id")
       {
@@ -126,7 +126,7 @@ Entity* parse_and_load_entity(
          }
          
          // @TODO: for backwards compability
-         string texture_name = texture_def_1;
+        std::string texture_name = texture_def_1;
          if(texture_def_2 != "")
             texture_name = texture_def_2;
 

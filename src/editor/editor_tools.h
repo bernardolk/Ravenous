@@ -27,7 +27,7 @@ void editor_erase_entity(Entity* entity)
    EdContext.undo_stack.deletion_log.add(entity);
 }
 
-void editor_erase_light(int index, string type)
+void editor_erase_light(int index, std::string type)
 {
    if(type == "point")
    {
@@ -423,7 +423,7 @@ RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* entity)
    {
       test = test_ray_against_triangle(ray, t2);
       if(!test.hit)
-         std:: << "warning: can't find plane to place entity!\n";
+         std::cout << "warning: can't find plane to place entity!\n";
    }
 
    return test;
@@ -555,13 +555,13 @@ void move_entity_by_arrows(Entity* entity)
 // @todo: This will DISAPPEAR after lights become entities!
 //       We need to provide entity rights to lights too! revolution now!
 
-void move_light_with_mouse(string type, int index);
-void activate_move_light_mode(string type, int index);
-void place_light(string type, int index);
-void open_lights_panel(string type, int index, bool focus_tab); //fwd
+void move_light_with_mouse(std::string type, int index);
+void activate_move_light_mode(std::string type, int index);
+void place_light(std::string type, int index);
+void open_lights_panel(std::string type, int index, bool focus_tab); //fwd
 
 
-void activate_move_light_mode(string type, int index)
+void activate_move_light_mode(std::string type, int index)
 {
    deactivate_editor_modes();
    EdContext.entity_panel.active = false;
@@ -571,7 +571,7 @@ void activate_move_light_mode(string type, int index)
    EdContext.selected_light_type = type;
 }
 
-void move_light_with_mouse(string type, int index)
+void move_light_with_mouse(std::string type, int index)
 {
    vec3 position;
    if(type == "point" && index > -1)
@@ -771,7 +771,7 @@ void check_for_asset_changes()
    while (it != Geometry_Catalogue.end())
    {
       auto model_name = it->first;
-      string path = MODELS_PATH + model_name + ".obj";
+      std::string path = MODELS_PATH + model_name + ".obj";
 
       //@todo: platform dependency
       WIN32_FIND_DATA find_data;
@@ -801,7 +801,7 @@ void render_aabb_boundaries(Entity* entity)
    // auto bounds = entity->collision_geometry.aabb;
    // IM_RENDER.add(
    //    IMHASH,
-   //    vector<Vertex>{
+   //    std::vector<Vertex>{
    //       Vertex{vec3(bounds.x0,entity->position.y, bounds.z0)},
    //       Vertex{vec3(bounds.x0,entity->position.y + bounds.height, bounds.z0)},
 

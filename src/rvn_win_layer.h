@@ -4,7 +4,7 @@ bool WIN_list_files(string path, std::string mask, std::vector<string>& files) {
    
     HANDLE hFind = INVALID_HANDLE_VALUE;
     WIN32_FIND_DATA ffd;
-    string spec;
+    std::string spec;
     std::stack<string> directories;
 
     directories.push(path);

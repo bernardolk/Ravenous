@@ -65,7 +65,7 @@ Ledge CL_perform_ledge_detection(Player* player)
       vec3 front_face_n = get_triangle_normal(front_test.t);
 
       // checks if face "points downwards" like this: / (p)  and not like this \ (p) where (p) is player trying to grab ledge
-      editor_print(to_string(dot(UNIT_Y, front_face_n)));
+      editor_print(std::to_string(dot(UNIT_Y, front_face_n)));
 
       if(dot(UNIT_Y, front_face_n) > 0.0001)
          return ledge;

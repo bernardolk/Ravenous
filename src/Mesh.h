@@ -1,12 +1,12 @@
 #pragma once
 
 struct Mesh {
-    vector<Vertex> vertices;
-    vector<u32> indices;
+    std::vector<Vertex> vertices;
+    std::vector<u32> indices;
     u32 faces_count;
     GLenum render_method;
     GLData gl_data;
-    string name;
+    std::string name;
     FILETIME last_written;
 
    void setup_gl_data()

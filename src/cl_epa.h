@@ -69,7 +69,7 @@ void CL_add_if_outer_edge(
 
 
 inline
-bool CL_support_is_in_polytope(vector<vec3> polytope, vec3 support_point)
+bool CL_support_is_in_polytope(std::vector<vec3> polytope, vec3 support_point)
 {
    for (int i = 0; i < polytope.size(); i++)
    {
@@ -83,7 +83,7 @@ bool CL_support_is_in_polytope(vector<vec3> polytope, vec3 support_point)
 
 EPA_Result CL_run_EPA(Simplex simplex, Mesh* collider_A, Mesh* collider_B)
 {
-   vector<vec3> polytope;
+   std::vector<vec3> polytope;
    polytope.insert(polytope.begin(), std::begin(simplex.points), std::end(simplex.points));
 
 	std::vector<size_t>  faces = {
@@ -178,12 +178,12 @@ EPA_Result CL_run_EPA(Simplex simplex, Mesh* collider_A, Mesh* collider_B)
       // RENDER POLYTOPE
       for (int i = 0; i < polytope.size(); i++)
       {
-         IM_RENDER.add_point(IMCUSTOMHASH("poly-" + to_string(i)), 
+         IM_RENDER.add_point(IMCUSTOMHASH("poly-" + std::to_string(i)), 
             polytope[i], 2.0, true, vec3(0.4, 0.2, 0.4), 1);
 
          for (int j = 0; j < polytope.size(); j++)
             if (i != j && glm::length(polytope[i] - polytope[j]) <= 0.001)
-               editor_print("POINTS " + to_string(i) + " AND " + to_string(j) + " ARE EQUAL", 2000);
+               editor_print("POINTS " + std::to_string(i) + " AND " + std::to_string(j) + " ARE EQUAL", 2000);
       }
 
       // RENDER EDGES

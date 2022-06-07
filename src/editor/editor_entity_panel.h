@@ -39,7 +39,7 @@ void render_entity_panel(EntityPanelContext* panel)
    if(ImGui::BeginTabItem("Controls", NULL, ImGuiTabItemFlags_None))
    {
       ImGui::Text(("Name: " + entity->name).c_str());
-      ImGui::Text(("Id: " + to_string(entity->id)).c_str());
+      ImGui::Text(("Id: " + std::to_string(entity->id)).c_str());
       ImGui::Text(("Shader: " + entity->shader->name).c_str());
 
       // RENAME
@@ -147,7 +147,7 @@ void render_entity_panel(EntityPanelContext* panel)
       // SLIDE INDICATOR
       // if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
       // {
-      //    string slide_type;
+      //   std::string slide_type;
       //    auto inclination = entity->collision_geometry.slope.inclination;
       //    if(inclination > SLIDE_MAX_ANGLE)
       //       slide_type = "Player will: slide fall";
@@ -330,7 +330,7 @@ void render_entity_panel(EntityPanelContext* panel)
                      ImGui::Button(data->markings[i]->name.c_str(), ImVec2(48, 18));
                      ImGui::SameLine();
                      
-                     std::string dint_id = "##duration-" + to_string(i);
+                     std::string dint_id = "##duration-" + std::to_string(i);
                      ImGui::DragInt(dint_id.c_str(), (int*) &data->time_checkpoints[i], 1, 0, 10000);
                      if(ImGui::Button("Delete", ImVec2(32, 18)))
                      {
@@ -364,7 +364,7 @@ void render_entity_panel(EntityPanelContext* panel)
                }
                else
                {
-                  std::string text = "Limit of " + to_string(data->size) + " markings reached. Can't add another one";
+                  std::string text = "Limit of " + std::to_string(data->size) + " markings reached. Can't add another one";
                   ImGui::Text(text.c_str());
                }
             }

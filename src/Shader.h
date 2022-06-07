@@ -25,52 +25,52 @@ struct Shader {
    // =====================
    // GL Uniform functions
    // =====================
-   void setBool(const std::string& name, bool value) const
+   void setBool(const std::string & name, bool value) const
    {
       glUniform1i(glGetUniformLocation(gl_programId, name.c_str()), (int)value);
    }
 
-   void setInt(const std::string& name, int value) const
+   void setInt(const std::string & name, int value) const
    {
       glUniform1i(glGetUniformLocation(gl_programId, name.c_str()), value);
    }
 
-   void setFloat(const std::string& name, float value) const
+   void setFloat(const std::string & name, float value) const
    {
       glUniform1f(glGetUniformLocation(gl_programId, name.c_str()), value);
    }
 
-   void setFloat2(const std::string& name, float value0, float value1) const
+   void setFloat2(const std::string & name, float value0, float value1) const
    {
       glUniform2f(glGetUniformLocation(gl_programId, name.c_str()), value0, value1);
    }
 
-   void setFloat2(const std::string& name, vec2 vec) const
+   void setFloat2(const std::string & name, vec2 vec) const
    {
       glUniform2f(glGetUniformLocation(gl_programId, name.c_str()), vec.x, vec.y);
    }
 
-   void setFloat3(const std::string& name, float value0, float value1, float value2) const
+   void setFloat3(const std::string & name, float value0, float value1, float value2) const
    {
       glUniform3f(glGetUniformLocation(gl_programId, name.c_str()), value0, value1, value2);
    }
 
-   void setFloat3(const std::string& name, vec3 vec) const
+   void setFloat3(const std::string & name, vec3 vec) const
    {
       glUniform3f(glGetUniformLocation(gl_programId, name.c_str()), vec.x, vec.y, vec.z);
    }
 
-   void setFloat4(const std::string& name, float value0, float value1, float value2, float value3) const
+   void setFloat4(const std::string & name, float value0, float value1, float value2, float value3) const
    {
       glUniform4f(glGetUniformLocation(gl_programId, name.c_str()), value0, value1, value2, value3);
    }
 
-   void setFloat4(const std::string& name, glm::vec4 vec) const
+   void setFloat4(const std::string & name, glm::vec4 vec) const
    {
       glUniform4f(glGetUniformLocation(gl_programId, name.c_str()), vec.x, vec.y, vec.z, vec.w);
    }
 
-   void setMatrix4(const std::string& name, glm::mat4 mat) {
+   void setMatrix4(const std::string & name, glm::mat4 mat) {
       glUniformMatrix4fv(glGetUniformLocation(gl_programId, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
    }
 };
@@ -109,9 +109,9 @@ bool check_shader_compile_errors(Shader* shader, std::string type, unsigned int 
 
 Shader* create_shader_program(
    std::string name, 
-   const std::string vertex_shader_filename,
-   const std::string geometry_shader_filename, 
-   const std::string fragment_shader_filename)
+   const std::string  vertex_shader_filename,
+   const std::string  geometry_shader_filename, 
+   const std::string  fragment_shader_filename)
 {
    auto shader = new Shader();
    shader->name = name;
@@ -243,7 +243,7 @@ Shader* create_shader_program(
     return shader;
 }
 
-Shader* create_shader_program(std::string name, const std::string vertex_shader_filename, const std::string fragment_shader_filename)
+Shader* create_shader_program(std::string name, const std::string  vertex_shader_filename, const std::string  fragment_shader_filename)
 {
   return create_shader_program(name, vertex_shader_filename, "", fragment_shader_filename);
 }

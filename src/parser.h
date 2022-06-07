@@ -49,19 +49,7 @@ namespace Parser
 };
 
 
-bool parser_nextline(ifstream* reader, std::string* line, Parse* toparse)
-{
-   if(getline(*reader, *line))
-   {
-      toparse->string = line->c_str();
-      toparse->size = line->size();
-
-      return true;
-   }
-   return false;
-}
-
-bool parser_nextline(fstream* reader, std::string* line, Parse* toparse)
+bool parser_nextline(std::ifstream* reader, std::string* line, Parse* toparse)
 {
    if(getline(*reader, *line))
    {

@@ -24,7 +24,7 @@ Entity* parse_and_load_entity(
    Parser::Parse p, std::ifstream* reader, int& line_count, std::string path, DeferredEntityRelationBuffer* entity_relations
 );
 void parse_and_load_player_attribute(Parser::Parse p, std::ifstream* reader, int& line_count, std::string path, Player* player);
-void parse_and_load_light_source(Parser::Parse p, std::ifstream* reader, int& line_count, string path);
+void parse_and_load_light_source(Parser::Parse p, std::ifstream* reader, int& line_count,std::string path);
 void parse_and_load_camera_settings(Parser::Parse p, std::ifstream* reader, int& line_count, std::string path);
 void parse_and_load_player_orientation(Parser::Parse p, std::ifstream* reader, int& line_count, std::string path, Player* player);
 bool load_player_attributes_from_file();
@@ -45,7 +45,7 @@ bool save_configs_to_file();
 
 bool load_scene_from_file(std::string scene_name, WorldStruct* world)
 {
-   string path = SCENES_FOLDER_PATH + scene_name + ".txt";
+  std::string path = SCENES_FOLDER_PATH + scene_name + ".txt";
    std::ifstream reader(path);
 
    if(!reader.is_open())
@@ -172,7 +172,7 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
       }
 
       if(deferred_entity == nullptr)
-         Quit_fatal("Entity with id '" + to_string(deferred_entity_id) + "' not found to stablish a defined entity relationship.");
+         Quit_fatal("Entity with id '" + std::to_string(deferred_entity_id) + "' not found to stablish a defined entity relationship.");
 
       switch(relation)
       {
@@ -224,9 +224,9 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
 
 
 
-bool check_if_scene_exists(string scene_name)
+bool check_if_scene_exists(std::string scene_name)
 {
-   string path = SCENES_FOLDER_PATH + scene_name + ".txt";
+   std::string path = SCENES_FOLDER_PATH + scene_name + ".txt";
    std::ifstream reader(path);
    return reader.is_open();
 }

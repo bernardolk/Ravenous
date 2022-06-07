@@ -1,5 +1,5 @@
 void handle_console_input(InputFlags flags, Player* &player, WorldStruct* world, Camera* camera);
-void execute_command(string buffer_line, Player* &player, WorldStruct* world, Camera* camera);
+void execute_command(std::string buffer_line, Player* &player, WorldStruct* world, Camera* camera);
 void check_letter_key_presses(InputFlags flags);
 void clear_console_string_buffer();
 void render_console();
@@ -7,7 +7,7 @@ void start_console_mode();
 void quit_console_mode();
 void move_to_previous_buffer();
 void move_to_next_buffer();
-string commit_buffer();
+std::string commit_buffer();
 void initialize_console_buffers();
 void copy_buffer_to_scratch_buffer();
 void clear_scratch_buffer();
@@ -37,7 +37,7 @@ void initialize_console_buffers()
 void render_console()
 {
    render_text(15, G_DISPLAY_INFO.VIEWPORT_HEIGHT - 20, CONSOLE.scratch_buffer);
-   render_text(15, G_DISPLAY_INFO.VIEWPORT_HEIGHT - 35, to_string(CONSOLE.b_ind));
+   render_text(15, G_DISPLAY_INFO.VIEWPORT_HEIGHT - 35, std::to_string(CONSOLE.b_ind));
 }
 
 void move_to_next_buffer()
@@ -87,7 +87,7 @@ void quit_console_mode()
    PROGRAM_MODE.last = CONSOLE_MODE;
 }
 
-string commit_buffer()
+std::string commit_buffer()
 {
    // copy from scratch buffer to variable
    int char_ind = 0;
@@ -140,11 +140,11 @@ void clear_scratch_buffer()
    CONSOLE.c_ind = 0;
 }
 
-void execute_command(string buffer_line, Player* &player, WorldStruct* world, Camera* camera)
+void execute_command(std::string buffer_line, Player* &player, WorldStruct* world, Camera* camera)
 {
    Parser::Parse p {buffer_line.c_str(), 50};
    p = parse_token(p);
-   const string command = p.string_buffer;
+   const std::string command = p.string_buffer;
 
    // ---------------
    // 'SAVE' COMMAND
@@ -153,7 +153,7 @@ void execute_command(string buffer_line, Player* &player, WorldStruct* world, Ca
    {
       p = parse_whitespace(p);
       p = parse_token(p);
-      const string argument = p.string_buffer;
+      const std::string argument = p.string_buffer;
       save_scene_to_file(argument, player, false);
    }
 
@@ -165,7 +165,7 @@ void execute_command(string buffer_line, Player* &player, WorldStruct* world, Ca
       // if you dont want to switch to the new file when saving scene with a new name
       p = parse_whitespace(p);
       p = parse_token(p);
-      const string scene_name = p.string_buffer;
+      const std::string scene_name = p.string_buffer;
       save_scene_to_file(scene_name, player, true);
    }
 
@@ -176,7 +176,7 @@ void execute_command(string buffer_line, Player* &player, WorldStruct* world, Ca
    {
       p = parse_whitespace(p);
       p = parse_token(p);
-      const string scene_name = p.string_buffer;
+      const std::string scene_name = p.string_buffer;
       // updates scene with new one
       if(load_scene_from_file(scene_name, world))
       {
@@ -197,7 +197,7 @@ void execute_command(string buffer_line, Player* &player, WorldStruct* world, Ca
    {
       p = parse_whitespace(p);
       p = parse_token(p);
-      const string scene_name = p.string_buffer;
+      const std::string scene_name = p.string_buffer;
       if(scene_name != "")
       {
          auto current_scene = G_SCENE_INFO.scene_name;
@@ -243,7 +243,7 @@ void execute_command(string buffer_line, Player* &player, WorldStruct* world, Ca
    {
       p = parse_whitespace(p);
       p = parse_token(p);
-      const string argument = p.string_buffer;
+      const std::string argument = p.string_buffer;
       if(argument == "scene")
       {
          G_CONFIG.initial_scene = G_SCENE_INFO.scene_name;
@@ -310,7 +310,7 @@ void execute_command(string buffer_line, Player* &player, WorldStruct* world, Ca
    {
       p = parse_whitespace(p);
       p = parse_token(p);
-      const string argument = p.string_buffer;
+      const std::string argument = p.string_buffer;
       if(argument == "cam")
       {
          p = parse_vec3(p);

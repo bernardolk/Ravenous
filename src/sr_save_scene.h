@@ -1,5 +1,5 @@
 
-bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
+bool save_scene_to_file(std::string scene_name, Player* player, bool do_copy)
 {
    bool was_renamed = scene_name.length() > 0;
    if(!was_renamed)
@@ -11,16 +11,16 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
       return false;
    }
 
-   string path = SCENES_FOLDER_PATH + scene_name + ".txt";
+  std::string path = SCENES_FOLDER_PATH + scene_name + ".txt";
 
-   ofstream writer(path);
+   std::ofstream writer(path);
    if(!writer.is_open())
    {
       std::cout << "Saving scene failed.\n";
       return false;
    }
 
-   writer << fixed << setprecision(4);
+   writer << std::fixed << std::setprecision(4);
 
    writer << "NEXT_ENTITY_ID = " << Entity_Manager.next_entity_id << "\n";
 

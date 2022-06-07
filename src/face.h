@@ -11,12 +11,12 @@ struct Face {
 Face face_from_axis_aligned_triangle(Triangle t)
 {
    // computes center
-   float x0 = min({t.a.x, t.b.x, t.c.x});
-   float x1 = max({t.a.x, t.b.x, t.c.x});
-   float y0 = min({t.a.y, t.b.y, t.c.y});
-   float y1 = max({t.a.y, t.b.y, t.c.y});
-   float z0 = min({t.a.z, t.b.z, t.c.z});
-   float z1 = max({t.a.z, t.b.z, t.c.z});
+   float x0 = std::min({t.a.x, t.b.x, t.c.x});
+   float x1 = std::max({t.a.x, t.b.x, t.c.x});
+   float y0 = std::min({t.a.y, t.b.y, t.c.y});
+   float y1 = std::max({t.a.y, t.b.y, t.c.y});
+   float z0 = std::min({t.a.z, t.b.z, t.c.z});
+   float z1 = std::max({t.a.z, t.b.z, t.c.z});
 
    float mx, my, mz;
    mx = x0 == x1 ? x0 : ((x1 - x0) / 2.0f) + x0;

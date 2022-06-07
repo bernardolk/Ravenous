@@ -15,7 +15,7 @@ void render_world_panel(WorldPanelContext* panel, WorldStruct* world, Player* pl
       auto coords = cell->coords();
 
       // adds indicator in header if player is inside cell
-      string player_indicator = "";
+     std::string player_indicator = "";
       for(int i = 0; i < player->entity_ptr->world_cells_count; i++)
       {
          if(coords == player->entity_ptr->world_cells[i]->coords())
@@ -25,11 +25,11 @@ void render_world_panel(WorldPanelContext* panel, WorldStruct* world, Player* pl
          }
       }
 
-      string header = cell->coords_str() + player_indicator;
+     std::string header = cell->coords_str() + player_indicator;
       if(ImGui::CollapsingHeader(header.c_str()))
       {
          bool is_active = panel->cell_coords == coords;
-         string show_name = "show##" + to_string(i);
+         std::string show_name = "show##" + std::to_string(i);
          if(ImGui::Checkbox(show_name.c_str(), &is_active))
          {
             panel->cell_coords = is_active ? coords : vec3{-1.0f};
@@ -37,7 +37,7 @@ void render_world_panel(WorldPanelContext* panel, WorldStruct* world, Player* pl
 
          ImGui::SameLine();
 
-         string coords_meters = cell->coords_meters_str();
+         std::string coords_meters = cell->coords_meters_str();
          ImGui::Text(coords_meters.c_str());
 
          for(int e_i = 0; e_i < WORLD_CELL_CAPACITY; e_i++)
@@ -45,7 +45,7 @@ void render_world_panel(WorldPanelContext* panel, WorldStruct* world, Player* pl
             auto entity = cell->entities[e_i];
             if(entity != nullptr)
             {
-               string line = to_string(e_i + 1) + ". " + entity->name;
+               std::string line = std::to_string(e_i + 1) + ". " + entity->name;
                ImGui::Text(line.c_str());
             }
          }

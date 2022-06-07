@@ -25,7 +25,7 @@
 #define IM_R_FIND_SLOT() ImmediateDrawElementSlot slot = _find_element_or_empty_slot(_hash); \
                          if(slot.empty && slot.index == -1) return;
 
-hash<string> im_hasher;
+std::hash<std::string> im_hasher;
 
 struct ImmediateDrawElement {
    size_t hash;
@@ -94,7 +94,7 @@ struct GlobalImmediateDraw {
       return ImmediateDrawElementSlot { true, slot };
    }
 
-   void _set_mesh(int i, vector<Vertex> vertices, GLenum draw_method, RenderOptions opts)
+   void _set_mesh(int i, std::vector<Vertex> vertices, GLenum draw_method, RenderOptions opts)
    {
       auto obj = &list[i];
       obj->mesh.vertices = vertices;
@@ -143,36 +143,36 @@ struct GlobalImmediateDraw {
 		return model;
    }
 
-   void _set_indices(int i, vector<u32> indices)
+   void _set_indices(int i, std::vector<u32> indices)
    {
       list[i].mesh.indices = indices;
    }
 
    size_t _hash_file_and_line(char* file, int line)
    {
-      return im_hasher(string(file) + "-" + to_string(line));
+      return im_hasher(std::string(file) + "-" + std::to_string(line));
    }
 
    size_t _hash_file_line_and_iteration(char* file, int line, int it)
    {
-      return im_hasher(string(file) + "-" + to_string(line) + "-" + to_string(it));
+      return im_hasher(std::string(file) + "-" + std::to_string(line) + "-" + std::to_string(it));
    }
 
    /* --------------------------- */
    /*      > Add primitives       */
    /* --------------------------- */
-   void add(size_t _hash, vector<Vertex> vertex_vec, GLenum draw_method, RenderOptions opts = RenderOptions{})
+   void add(size_t _hash, std::vector<Vertex> vertex_vec, GLenum draw_method, RenderOptions opts = RenderOptions{})
    {
       IM_R_FIND_SLOT();
       
       _set_mesh(slot.index, vertex_vec, draw_method, opts);
    }
 
-   void add(size_t _hash, vector<Triangle> triangles, GLenum draw_method = GL_LINE_LOOP, RenderOptions opts = RenderOptions{})
+   void add(size_t _hash, std::vector<Triangle> triangles, GLenum draw_method = GL_LINE_LOOP, RenderOptions opts = RenderOptions{})
    {
       IM_R_FIND_SLOT();
 
-      vector<Vertex> vertex_vec;
+      std::vector<Vertex> vertex_vec;
       for(int i = 0; i < triangles.size(); i++)
       {
          vertex_vec.push_back(Vertex{triangles[i].a});
@@ -193,7 +193,7 @@ struct GlobalImmediateDraw {
    {
       IM_R_FIND_SLOT();
 
-      auto vertex_vec = vector<Vertex>{ Vertex{pointA}, Vertex{pointB} };
+      auto vertex_vec = std::vector<Vertex>{ Vertex{pointA}, Vertex{pointB} };
 
       RenderOptions opts;
       opts.line_width = line_width;
@@ -211,11 +211,11 @@ struct GlobalImmediateDraw {
       _set_mesh(slot.index, vertex_vec, GL_LINES, opts);
    }
 
-   void add_line_loop(size_t _hash, vector<vec3> points, float line_width = 1.0, bool always_on_top = false)
+   void add_line_loop(size_t _hash, std::vector<vec3> points, float line_width = 1.0, bool always_on_top = false)
    {
       IM_R_FIND_SLOT();
 
-      auto vertex_vec = vector<Vertex>();
+      auto vertex_vec = std::vector<Vertex>();
       for(int i = 0; i < points.size(); i++)
          vertex_vec.push_back(Vertex{points[i]});
 
@@ -238,7 +238,7 @@ struct GlobalImmediateDraw {
          obj->duration = duration;
       }
 
-      auto vertex_vec = vector<Vertex>{ Vertex{point} };
+      auto vertex_vec = std::vector<Vertex>{ Vertex{point} };
 
       RenderOptions opts;
       opts.point_size = point_size;
@@ -258,8 +258,8 @@ struct GlobalImmediateDraw {
    {
       IM_R_FIND_SLOT();
 
-      auto vertex_vec = vector<Vertex>{ Vertex{t.a}, Vertex{t.b}, Vertex{t.c} };
-      auto indices = vector<u32>{ 0, 1, 2 };
+      auto vertex_vec = std::vector<Vertex>{ Vertex{t.a}, Vertex{t.b}, Vertex{t.c} };
+      auto indices = std::vector<u32>{ 0, 1, 2 };
 
       RenderOptions opts;
       opts.line_width = line_width;

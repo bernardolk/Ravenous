@@ -30,7 +30,7 @@ ProgramConfig load_configs()
    {
       line_count++;
       p = parse_token(p);
-      string attribute = p.string_buffer;
+     std::string attribute = p.string_buffer;
 
       p = parse_all_whitespace(p);
       p = parse_symbol(p);

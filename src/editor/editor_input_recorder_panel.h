@@ -11,7 +11,7 @@ void render_input_recorder_panel(InputRecorderPanelContext* panel)
    ImGui::Text("Recordings");
    for(int i = 0; i < Input_Recorder.recording_idx; i++)
    {
-      string rec_name = "Recording #" + to_string(i);
+      std::string rec_name = "Recording #" + std::to_string(i);
       bool is_active = panel->selected_recording == i;
       if(ImGui::Checkbox(rec_name.c_str(), &is_active))
       {

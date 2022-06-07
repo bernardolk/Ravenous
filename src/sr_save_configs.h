@@ -1,6 +1,6 @@
 bool save_configs_to_file()
 {
-   ofstream writer(CONFIG_FILE_PATH);
+   std::ofstream writer(CONFIG_FILE_PATH);
    if(!writer.is_open())
    {
       std::cout << "Saving config file failed.\n";

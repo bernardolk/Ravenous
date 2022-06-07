@@ -4,25 +4,20 @@
 #include <stb_image/stb_image.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <map>
 
 // prototypes
-Mesh*          load_wavefront_obj_as_mesh          (string path, string name, bool setup_gl_data, GLenum render_method);
-unsigned int   load_texture_from_file              (string path, const string& directory, bool gamma = false);
-vector<string> get_files_in_folder                 (string directory);
-gl_charmap     load_text_textures                  (string font, int size);
-void           attach_extra_data_to_mesh           (string filename, string filepath, Mesh* mesh);
-void           load_mesh_extra_data                (string filename, Mesh* mesh);
-void           write_mesh_extra_data_file          (string filename, Mesh* mesh);
-void           load_textures_from_assets_folder    ();
+Mesh*                load_wavefront_obj_as_mesh          (std::string path, std::string name, bool setup_gl_data, GLenum render_method);
+unsigned int         load_texture_from_file              (std::string path, const std::string & directory, bool gamma = false);
+std::vector<std::string>  get_files_in_folder            (std::string directory);
+gl_charmap           load_text_textures                  (std::string font, int size);
+void                 attach_extra_data_to_mesh           (std::string filename, std::string filepath, Mesh* mesh);
+void                 load_mesh_extra_data                (std::string filename, Mesh* mesh);
+void                 write_mesh_extra_data_file          (std::string filename, Mesh* mesh);
+void                 load_textures_from_assets_folder    ();
 
 
 
-gl_charmap load_text_textures(string font, int size) 
+gl_charmap load_text_textures(std::string font, int size) 
 {
 	// Load font
 	FT_Library ft;
@@ -78,8 +73,8 @@ gl_charmap load_text_textures(string font, int size)
 
    // saves font chars to catalogue
    auto separator = font.find('.');
-   string font_name = font.substr(0, separator);
-   string font_catalogue_name = font_name + to_string(size);
+   std::string font_name = font.substr(0, separator);
+   std::string font_catalogue_name = font_name + std::to_string(size);
 
    Font_Catalogue.insert({font_catalogue_name, font_charmap});
 
@@ -106,10 +101,10 @@ void load_textures_from_assets_folder()
          }
 
          auto ind = texture_filename.find('.');
-         string texture_name = texture_filename.substr(0, ind);
+         std::string texture_name = texture_filename.substr(0, ind);
 
-         string texture_type = "texture_diffuse";
-         if(texture_name.find("normal") != string::npos)
+         std::string texture_type = "texture_diffuse";
+         if(texture_name.find("normal") != std::string::npos)
          {
             texture_type = "texture_normal";
          }
@@ -128,7 +123,7 @@ void load_textures_from_assets_folder()
 
 
 Mesh* load_wavefront_obj_as_mesh(
-   string path, string filename, string name = "", bool setup_gl_data = true, GLenum render_method = GL_TRIANGLES
+   std::string path, std::string filename, std::string name = "", bool setup_gl_data = true, GLenum render_method = GL_TRIANGLES
 ) {
    /* Loads a model from the provided path and filename and add it to the Geometry_Catalogue with provided name */
 
@@ -137,8 +132,8 @@ Mesh* load_wavefront_obj_as_mesh(
    //    triangle). This means we must use glDrawArrays instead of glDrawElements. One option is to code a custom
    //    exporter in blender to get just unique vertex data + indices, but maybe for now this is enough.
 
-   string full_path = path + filename + ".obj";
-	ifstream reader(full_path);
+   std::string full_path = path + filename + ".obj";
+	std::ifstream reader(full_path);
 
    if(!reader.is_open())
    {
@@ -149,9 +144,9 @@ Mesh* load_wavefront_obj_as_mesh(
 	std::string line;
 	auto mesh = new Mesh();
 
-   vector<vec3> v_pos;
-   vector<vec2> v_texels;
-   vector<vec3> v_normals;
+   std::vector<vec3> v_pos;
+   std::vector<vec2> v_texels;
+   std::vector<vec3> v_normals;
    int faces_count = 0;
 
    // Parses file
@@ -162,7 +157,7 @@ Mesh* load_wavefront_obj_as_mesh(
 
 		Parser::Parse p{ cline, size };
 		p = parse_token(p);
-      string attr = p.string_buffer;
+      std::string attr = p.string_buffer;
 
       if(!p.hasToken)
          continue;
@@ -281,7 +276,7 @@ Mesh* load_wavefront_obj_as_mesh(
    mesh->faces_count = faces_count;
 
    // sets texture name
-   string            catalogue_name;
+   std::string       catalogue_name;
    if(name != "")    catalogue_name = name;
    else              catalogue_name = filename;
    mesh->name = catalogue_name;
@@ -305,11 +300,11 @@ Mesh* load_wavefront_obj_as_mesh(
 }
 
 
-unsigned int load_texture_from_file(string filename, const string& directory, bool gamma)
+unsigned int load_texture_from_file(std::string filename, const std::string & directory, bool gamma)
 {
    // returns the gl_texture ID
    
-   string path;
+   std::string path;
    if (path.substr(0, path.length() - 2) == "/")
       path = directory + filename;
    else
@@ -319,7 +314,7 @@ unsigned int load_texture_from_file(string filename, const string& directory, bo
    unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
    if (!data)
    {
-      std::cout << "Texture failed to load at path: " << path << endl;
+      std::cout << "Texture failed to load at path: " << path << std::endl;
       stbi_image_free(data);
       return 0;
    }
@@ -355,10 +350,10 @@ unsigned int load_texture_from_file(string filename, const string& directory, bo
 }
 
 
-vector<string> get_files_in_folder(string directory)
+std::vector<std::string> get_files_in_folder(std::string directory)
 {
-   vector<string> filenames;
-   string path_to_files = directory + "\\*";
+   std::vector<std::string> filenames;
+   std::string path_to_files = directory + "\\*";
    WIN32_FIND_DATA files;
    HANDLE find_files_handle = FindFirstFile(path_to_files.c_str(), &files);
 
@@ -381,15 +376,15 @@ vector<string> get_files_in_folder(string directory)
 }
 
 
-void write_mesh_extra_data_file(string filename, Mesh* mesh)
+void write_mesh_extra_data_file(std::string filename, Mesh* mesh)
 {
-   string extra_data_path  = MODELS_PATH + "extra_data/" + filename + ".objplus";
-   ofstream writer(extra_data_path);
+   std::string extra_data_path  = MODELS_PATH + "extra_data/" + filename + ".objplus";
+   std::ofstream writer(extra_data_path);
 
    if(!writer.is_open())
       Quit_fatal("couldn't write mesh extra data.");
 
-   writer << fixed << setprecision(4);
+   writer << std::fixed << std::setprecision(4);
 
    // write tangents
    For(mesh->vertices.size())
@@ -415,12 +410,12 @@ void write_mesh_extra_data_file(string filename, Mesh* mesh)
 }
 
 
-void load_mesh_extra_data(string filename, Mesh* mesh)
+void load_mesh_extra_data(std::string filename, Mesh* mesh)
 {
-   string extra_data_path  = MODELS_PATH + "extra_data/" + filename + ".objplus";
+   std::string extra_data_path  = MODELS_PATH + "extra_data/" + filename + ".objplus";
    
    std::ifstream reader(extra_data_path);
-   string line;
+   std::string line;
 
    u32 vtan_i = 0;
    u32 vbitan_i = 0;
@@ -435,7 +430,7 @@ void load_mesh_extra_data(string filename, Mesh* mesh)
       if(!p.hasToken)
          continue;
       
-      string attr = p.string_buffer;
+      std::string attr = p.string_buffer;
 
       if(attr == "vtan")
       {
@@ -454,15 +449,15 @@ void load_mesh_extra_data(string filename, Mesh* mesh)
 }
 
 
-void attach_extra_data_to_mesh(string filename, string filepath, Mesh* mesh)
+void attach_extra_data_to_mesh(std::string filename, std::string filepath, Mesh* mesh)
 {
    /* Attach tangents and bitangents data to the mesh from a precomputation based on mesh vertices.
       If the extra mesh data file is outdated from mesh file or inexistent, compute data and write to it.
       If exists and is up to date, loads extra data from it.
    */
 
-   string extra_data_path  = MODELS_PATH + "extra_data/" + filename + ".objplus";
-   string mesh_path        = filepath + filename + ".obj";
+   std::string extra_data_path  = MODELS_PATH + "extra_data/" + filename + ".objplus";
+   std::string mesh_path        = filepath + filename + ".obj";
 
    bool compute_extra_data = false;
 

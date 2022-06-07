@@ -7,7 +7,7 @@ void render_toolbar()
    ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 230, 180), ImGuiCond_Appearing);
    ImGui::Begin("Tools", &EdContext.toolbar_active, ImGuiWindowFlags_AlwaysAutoResize);
 
-   string scene_name = "Scene name: " + G_SCENE_INFO.scene_name;
+  std::string scene_name = "Scene name: " + G_SCENE_INFO.scene_name;
    ImGui::Text(scene_name.c_str());
    ImGui::NewLine();
 

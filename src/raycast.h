@@ -7,7 +7,7 @@ struct RaycastTest {
    Entity* entity       = NULL;
 
    int obj_hit_index    = -1;
-   string obj_hit_type;
+  std::string obj_hit_type;
    
    Triangle t;
    u16 t_index;

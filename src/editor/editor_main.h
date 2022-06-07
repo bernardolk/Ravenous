@@ -5,7 +5,7 @@
 namespace Editor
 {
 
-const static string EDITOR_ASSETS = PROJECT_PATH + "/assets/editor/";
+const static std::string EDITOR_ASSETS = PROJECT_PATH + "/assets/editor/";
 
 const static float TRIAXIS_SCREENPOS_X = -1.80;
 const static float TRIAXIS_SCREENPOS_Y = -1.80;
@@ -29,7 +29,7 @@ struct EditorContext {
    ImGuiStyle* imStyle;
    
    // scene tracking
-   string last_frame_scene;
+  std::string last_frame_scene;
 
    // undo stack
    UndoStack undo_stack;
@@ -73,7 +73,7 @@ struct EditorContext {
    bool place_mode = false;
 
    // move light @todo: will disappear!
-   string selected_light_type = "";
+  std::string selected_light_type = "";
    int selected_light = -1;
 
    // scale mode
@@ -476,7 +476,7 @@ void render(Player* player, WorldStruct* world)
 
       IM_RENDER.add(
          IMHASH,
-         vector<Vertex>{
+         std::vector<Vertex>{
             Vertex{EdContext.measure_from},
             Vertex{second_point}
          },
@@ -623,9 +623,9 @@ void render_text_overlay(Player* player)
    float GUI_y = G_DISPLAY_INFO.VIEWPORT_HEIGHT - 60;
    float SCREEN_HEIGHT = G_DISPLAY_INFO.VIEWPORT_HEIGHT;
 
-   string font                = "consola18";
-   string font_center         = "swanseait38";
-   string font_center_small   = "swanseait20";
+  std::string font                = "consola18";
+  std::string font_center         = "swanseait38";
+  std::string font_center_small   = "swanseait20";
    float centered_text_height = SCREEN_HEIGHT - 120;
    float centered_text_height_small = centered_text_height - 40;
    vec3 tool_text_color_yellow = vec3(0.8, 0.8, 0.2);
@@ -635,28 +635,28 @@ void render_text_overlay(Player* player)
    // CAMERA POSITION
    auto camera = G_SCENE_INFO.camera;
 
-   string cam_p[3]{
+  std::string cam_p[3]{
       format_float_tostr(camera->Position.x, 2),
       format_float_tostr(camera->Position.y, 2), 
       format_float_tostr(camera->Position.z ,2), 
    };
-   string camera_position  = "camera:   x: " + cam_p[0] + " y:" + cam_p[1] + " z:" + cam_p[2];
+  std::string camera_position  = "camera:   x: " + cam_p[0] + " y:" + cam_p[1] + " z:" + cam_p[2];
    render_text(font, 235, 45, camera_position);
 
 
    // PLAYER POSITION
    vec3 p_feet = player->feet();
-   string player_p[3]{
+  std::string player_p[3]{
       format_float_tostr(p_feet.x, 1),
       format_float_tostr(p_feet.y, 1),
       format_float_tostr(p_feet.z, 1),
    };
-   string player_pos = "player:   x: " +  player_p[0] + " y: " +  player_p[1] + " z: " +  player_p[2];
+  std::string player_pos = "player:   x: " +  player_p[0] + " y: " +  player_p[1] + " z: " +  player_p[2];
    render_text(font, 235, 70, player_pos);
 
 
    // PLAYER LIVES
-   string lives = to_string(player->lives);
+  std::string lives = std::to_string(player->lives);
    render_text(
       font,
       G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 
@@ -696,20 +696,20 @@ void render_text_overlay(Player* player)
    render_text("consola18", G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 30, player_state_text_color, player_state_text);
 
 
-   string player_floor = "player floor: ";
+  std::string player_floor = "player floor: ";
    if(player->standing_entity_ptr != NULL)
       player_floor += player->standing_entity_ptr->name;
    render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 60, player_floor);
 
-   string p_grab = "grabbing: ";
+  std::string p_grab = "grabbing: ";
    if(player->grabbing_entity != NULL)
       p_grab += player->grabbing_entity->name;
    render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 45, p_grab);
 
 
    // FPS
-   string fps = to_string(G_FRAME_INFO.fps);
-   string fps_gui = "FPS: " + fps;
+   std::string fps = std::to_string(G_FRAME_INFO.fps);
+   std::string fps_gui = "FPS: " + fps;
    render_text(font, G_DISPLAY_INFO.VIEWPORT_WIDTH - 110, 40, fps_gui);
 
 
@@ -720,7 +720,7 @@ void render_text_overlay(Player* player)
    // ----------
    if(EdContext.snap_mode)
    {
-      string snap_cycle;
+      std::string snap_cycle;
       switch(EdContext.snap_cycle)
       {
          case 0:
@@ -734,7 +734,7 @@ void render_text_overlay(Player* player)
             break;
       }
 
-      string snap_axis;
+      std::string snap_axis;
       switch(EdContext.snap_axis)
       {
          case 0:
@@ -762,7 +762,7 @@ void render_text_overlay(Player* player)
       }
 
       // selects text based on situation of snap tool
-      string sub_text;
+     std::string sub_text;
       if(EdContext.snap_reference == nullptr)
          sub_text = "select another entity to snap to.";
       else
@@ -792,7 +792,7 @@ void render_text_overlay(Player* player)
    // -------------
    if(EdContext.measure_mode)
    {
-      string axis = 
+     std::string axis = 
          EdContext.measure_axis == 0 ? "x" :
          EdContext.measure_axis == 1 ? "y" :
          "z";
@@ -829,7 +829,7 @@ void render_text_overlay(Player* player)
    // ----------
    if(EdContext.move_mode)
    {
-      string move_axis;
+     std::string move_axis;
       switch(EdContext.move_axis)
       {
          case 0:
@@ -903,7 +903,7 @@ void render_text_overlay(Player* player)
          "LOCATE COORDS MODE"
       );
 
-      string locate_coords_subtext;
+     std::string locate_coords_subtext;
       if(!EdContext.locate_coords_found_point)
       {
          locate_coords_subtext = "Please select a world position to get coordinates.";

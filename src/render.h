@@ -29,15 +29,15 @@ struct RenderOptions
 };
 
 
-void render_text(float x, float y, string text);
-void render_text(float x, float y, vec3 color, string text);
-void render_text(string font, float x, float y, string text);
-void render_text(string font, float x, float y, bool center, string text);
-void render_text(string font, float x, float y, vec3 color, string text);
-void render_text(string font, float x, float y, vec3 color, bool center, string text);
-void render_text(string font, float x, float y, float scale, string text);
-void render_text(string font, float x, float y, vec3 color, float scale, string text);
-void render_text(string font, float x, float y, vec3 color, float scale, bool center, string text);
+void render_text(float x, float y, std::string text);
+void render_text(float x, float y, vec3 color, std::string text);
+void render_text(std::string font, float x, float y, std::string text);
+void render_text(std::string font, float x, float y, bool center, std::string text);
+void render_text(std::string font, float x, float y, vec3 color, std::string text);
+void render_text(std::string font, float x, float y, vec3 color, bool center, std::string text);
+void render_text(std::string font, float x, float y, float scale,std::string text);
+void render_text(std::string font, float x, float y, vec3 color, float scale, std::string text);
+void render_text(std::string font, float x, float y, vec3 color, float scale, bool center, std::string text);
 void render_scene(Scene* scene, Camera* camera);
 void render_entity(Entity* entity);
 void render_editor_entity(Entity* entity, Scene* scene, Camera* camera);
@@ -123,17 +123,17 @@ void render_entity(Entity* entity)
    {
       // active proper texture unit before binding
       glActiveTexture(GL_TEXTURE0 + i); 
-      string number;
+      std::string number;
       // @todo: can turn this into enum for faster int comparison
-      string type = entity->textures[i].type;
+      std::string type = entity->textures[i].type;
       if       (type == "texture_diffuse")
-         number = to_string(diffuse_n++);
+         number = std::to_string(diffuse_n++);
       else if  (type == "texture_specular")
-         number = to_string(specular_n++);
+         number = std::to_string(specular_n++);
       else if  (type == "texture_normal")
-         number = to_string(normal_n++); 
+         number = std::to_string(normal_n++); 
       else if  (type == "texture_height")
-         number = to_string(height_n++); 
+         number = std::to_string(height_n++); 
 
       // now set the sampler to the correct texture unit
       glUniform1i(glGetUniformLocation(entity->shader->gl_programId, (type + number).c_str()), i);
@@ -237,7 +237,7 @@ void set_shader_light_variables(Scene* scene, Shader* shader, Camera* camera)
       point_light_ptr++)
    {
       PointLight point_light = *point_light_ptr;
-      string uniform_name = "pointLights[" + to_string(point_light_count) + "]";
+      std::string uniform_name = "pointLights[" + std::to_string(point_light_count) + "]";
       shader->setFloat3(uniform_name + ".position",  point_light.position);
       shader->setFloat3(uniform_name + ".diffuse",   point_light.diffuse);
       shader->setFloat3(uniform_name + ".specular",  point_light.specular);
@@ -253,7 +253,7 @@ void set_shader_light_variables(Scene* scene, Shader* shader, Camera* camera)
       spotlight_ptr++)
    {
       SpotLight spotlight = *spotlight_ptr;
-      string uniform_name = "spotLights[" + to_string(spotlight_count) + "]";
+      std::string uniform_name = "spotLights[" + std::to_string(spotlight_count) + "]";
       shader->setFloat3(uniform_name + ".position",  spotlight.position);
       shader->setFloat3(uniform_name + ".direction", spotlight.direction);
       shader->setFloat3(uniform_name + ".diffuse",   spotlight.diffuse);
@@ -272,7 +272,7 @@ void set_shader_light_variables(Scene* scene, Shader* shader, Camera* camera)
       dir_ptr++)
    {
       DirectionalLight dir_light = *dir_ptr;
-      string uniform_name = "dirLights[" + to_string(dir_count) + "]";
+      std::string uniform_name = "dirLights[" + std::to_string(dir_count) + "]";
       shader->setFloat3(uniform_name + ".direction", dir_light.direction);
       shader->setFloat3(uniform_name + ".diffuse",   dir_light.diffuse);
       shader->setFloat3(uniform_name + ".specular",  dir_light.specular);
@@ -295,7 +295,7 @@ void set_shader_light_variables(Scene* scene, Shader* shader, Camera* camera)
 
 
 // leave for debugging
-string p_grab = "Grabbed: ";
+std::string p_grab = "Grabbed: ";
 int p_floor = -1;
 
 // -------------------------
@@ -304,17 +304,17 @@ int p_floor = -1;
 void render_game_gui(Player* player)
 {
    auto color = player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1};
-   render_text("consola42", 25, 75, color, to_string(player->lives));
+   render_text("consola42", 25, 75, color, std::to_string(player->lives));
 
    if(player->grabbing_entity != NULL)
    {  
       p_grab = "Grabbed: ";
-      string last_grabbed = player->grabbing_entity->name;
+      std::string last_grabbed = player->grabbing_entity->name;
       p_grab += "'" + last_grabbed + "'";
    }
    render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 45, p_grab);
 
-   string player_floor = "player floor: ";
+   std::string player_floor = "player floor: ";
    if(player->standing_entity_ptr != NULL) 
    {
       player_floor += player->standing_entity_ptr->name;
@@ -330,47 +330,47 @@ void render_game_gui(Player* player)
 // ------------
 // RENDER TEXT
 // ------------
-void render_text(float x, float y, string text) 
+void render_text(float x, float y, std::string text) 
 {
    render_text("consola12", x, y, vec3{1.0, 1.0, 1.0}, 1.0, false, text);
 }
 
-void render_text(string font, float x, float y, string text) 
+void render_text(std::string font, float x, float y, std::string text) 
 {
    render_text(font, x, y, vec3{1.0, 1.0, 1.0}, 1.0, false, text);
 }
 
-void render_text(float x, float y, vec3 color, string text)
+void render_text(float x, float y, vec3 color, std::string text)
 {
    render_text("consola12", x, y, color, 1.0, false, text);
 }
 
-void render_text(string font, float x, float y, bool center, string text) 
+void render_text(std::string font, float x, float y, bool center, std::string text) 
 {
    render_text(font, x, y, vec3{1.0, 1.0, 1.0}, 1.0, center, text);
 }
 
-void render_text(string font, float x, float y, vec3 color, string text) 
+void render_text(std::string font, float x, float y, vec3 color, std::string text) 
 {
    render_text(font, x, y, color, 1.0, false, text);
 }
 
-void render_text(string font, float x, float y, vec3 color, bool center, string text) 
+void render_text(std::string font, float x, float y, vec3 color, bool center, std::string text) 
 {
    render_text(font, x, y, color, 1.0, center, text);
 }
 
-void render_text(string font, float x, float y, float scale, string text) 
+void render_text(std::string font, float x, float y, float scale, std::string text) 
 {
    render_text(font, x, y,  vec3{1.0, 1.0, 1.0}, scale, false, text);
 }
 
-void render_text(string font, float x, float y, vec3 color, float scale, string text) 
+void render_text(std::string font, float x, float y, vec3 color, float scale, std::string text) 
 {
    render_text(font, x, y, color, scale, false, text);
 }
 
-void render_text(string font, float x, float y, vec3 color, float scale, bool center, string text) 
+void render_text(std::string font, float x, float y, vec3 color, float scale, bool center, std::string text) 
 {
    // Finds text shader in catalogue and set variables 
    auto text_shader = Shader_Catalogue.find("text")->second;
@@ -403,8 +403,8 @@ void render_text(string font, float x, float y, vec3 color, float scale, bool ce
          ind++;
       }
 
-      string size_str = font.substr(ind, font.size());
-      string font_filename  = font.substr(0, ind) + ".ttf";
+     std::string size_str = font.substr(ind, font.size());
+     std::string font_filename  = font.substr(0, ind) + ".ttf";
 
       int font_size = std::stoi(size_str);
       charmap = load_text_textures(font_filename, font_size);
@@ -417,7 +417,7 @@ void render_text(string font, float x, float y, vec3 color, float scale, bool ce
    //@todo add enum to CENTER, LEFT ALIGN (default, no extra work) and RIGHT ALIGN
    if(center)
    {
-      string::iterator it;
+      std::string::iterator it;
       float x_sum = 0;
 	   for (it = text.begin(); it != text.end(); it++)
       {

@@ -53,11 +53,11 @@ void render_collision_log_panel(CollisionLogPanelContext* panel)
                
             ImGui::TableNextRow();
             ImGui::TableSetColumnIndex(0);
-            ImGui::Text(to_string(row).c_str());
+            ImGui::Text(std::to_string(row).c_str());
             ImGui::TableSetColumnIndex(1);
             ImGui::Text(entry->entity->name.c_str());
             ImGui::TableSetColumnIndex(2);
-            ImGui::Text(to_string(entry->penetration).c_str());
+            ImGui::Text(std::to_string(entry->penetration).c_str());
             ImGui::TableSetColumnIndex(3);
             ImGui::Text(to_string(entry->normal).c_str());
          }

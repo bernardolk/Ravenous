@@ -11,7 +11,7 @@ void render_scene_objects_panel(SceneObjectsPanelContext* panel)
    ImGui::NewLine();
 
    // copy search text and lowercase it
-   string _search_text;
+   std::string _search_text;
    _search_text.assign(panel->search_text);
    tolower(&_search_text);
 
@@ -19,7 +19,7 @@ void render_scene_objects_panel(SceneObjectsPanelContext* panel)
    For(scene->entities.size())
    {
       Entity* entity = scene->entities[i];
-      string name = entity->name;
+      std::string name = entity->name;
       tolower(&name);
 
       if(panel->search_text == "" || name.find(_search_text) != std::string::npos)

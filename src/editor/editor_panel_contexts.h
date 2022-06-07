@@ -96,7 +96,7 @@ struct LightsPanelContext {
    int selected_light = -1;
    float selected_light_yaw;
    float selected_light_pitch;
-   string selected_light_type;
+  std::string selected_light_type;
 };
 
 struct CollisionLogPanelContext {

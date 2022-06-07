@@ -5,11 +5,11 @@
 #include <ctime>
 
 const static int MAX_INPUT_RECORDINGS = 20;
-const string RECORDINGS_FILENAME_PREFIX = "rec-";
-const string RECORDINGS_FILENAME_EXTENSION = ".txt";
+const std::string RECORDINGS_FILENAME_PREFIX = "rec-";
+const std::string RECORDINGS_FILENAME_EXTENSION = ".txt";
 
 struct RecordedInput {
-   vector<InputFlags> history;
+   std::vector<InputFlags> history;
 };
 
 struct InputRecorder {
@@ -99,11 +99,11 @@ struct InputRecorder {
       auto t = std::time(nullptr);
       auto tm = *std::localtime(&t);
 
-      stringstream timestamp_stream;
+      std::stringstream timestamp_stream;
       timestamp_stream << std::put_time(&tm, "%d-%m-%Y-%H-%M");
 
-      string timestamp = timestamp_stream.str();
-      ofstream writer(
+      std::string timestamp = timestamp_stream.str();
+      std::ofstream writer(
          INPUT_RECORDINGS_FOLDER_PATH + RECORDINGS_FILENAME_PREFIX 
          + timestamp + RECORDINGS_FILENAME_EXTENSION
       );
@@ -118,8 +118,8 @@ struct InputRecorder {
 
       for(int i = 0; i < record.size(); i++)
       {
-         writer << to_string(record[i].key_press)   << "\n";
-         writer << to_string(record[i].key_release) << "\n";
+         writer << std::to_string(record[i].key_press)   << "\n";
+         writer << std::to_string(record[i].key_release) << "\n";
       }
 
    }
@@ -130,7 +130,7 @@ struct InputRecorder {
       // it will *wipe* all previous in-memory stored recordings.
       // For that reason, should be used only at startup.
       
-      vector<string> files;
+      std::vector<std::string> files;
       if (OS_list_files(INPUT_RECORDINGS_FOLDER_PATH, "*", files)) 
       {
          recording_idx = 0;
@@ -172,13 +172,13 @@ struct InputRecorder {
    // void _get_file_id_from_filename(string filename)
    // {
    //    // get the last record id saved
-   //    vector<string> recordings;
+   //    std::vector<std::string> recordings;
    //    if (OS_list_files(INPUT_RECORDINGS_FOLDER_PATH, "*", files)) 
    //    {
    //       for (int i = 0; i < recordings.size(); i++)
    //       {
    //          size_t pos = recordings[i].find(RECORDINGS_FILENAME_PREFIX);
-   //          string filename = recordings[i].substr(pos);
+   //         std::stringfilename = recordings[i].substr(pos);
    //          size_t
    //    }
    // }
