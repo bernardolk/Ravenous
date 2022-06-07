@@ -10,7 +10,7 @@ struct Scene {
    vec3 ambient_light = vec3(1);
    float ambient_intensity = 0;
 
-   bool search_name(string name)
+   bool search_name(std::string name)
    {
       for(int i = 0; i < entities.size() ; i++)
          if(entities[i]->name == name)

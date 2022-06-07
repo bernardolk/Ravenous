@@ -1,11 +1,11 @@
 #include<stack>
 
-bool WIN_list_files(string path, std::string mask, std::vector<string>& files) {
+bool WIN_list_files(std::string path, std::string mask, std::vector<std::string>& files) {
    
     HANDLE hFind = INVALID_HANDLE_VALUE;
     WIN32_FIND_DATA ffd;
     std::string spec;
-    std::stack<string> directories;
+    std::stack<std::string> directories;
 
     directories.push(path);
     files.clear();

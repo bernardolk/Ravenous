@@ -16,26 +16,26 @@ void print_vertex_array_position(Vertex* vertex, size_t length, std::string titl
 }
 
 inline
-string format_float_tostr(float num, int precision = 3)   
+std::string format_float_tostr(float num, int precision = 3)   
 {
-	string temp = std::to_string(num);
+	std::string temp = std::to_string(num);
 	return temp.substr(0, temp.find(".") + precision);
 }
 
 inline
-string fmt_tostr(float num, int precision)   
+std::string fmt_tostr(float num, int precision)   
 {
 	return format_float_tostr(num, precision);
 }
 
 inline
-string to_string(vec3 vec)
+std::string to_string(vec3 vec)
 {
    return "(" + std::to_string(vec.x) + ", " + std::to_string(vec.y) + ", " + std::to_string(vec.z) + ")";
 }
 
 inline
-string to_string(vec2 vec)
+std::string to_string(vec2 vec)
 {
    return "(" + std::to_string(vec.x) + ", " + std::to_string(vec.y) + ")";
 }

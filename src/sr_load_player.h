@@ -93,9 +93,9 @@ void parse_and_load_player_attribute(Parser::Parse p, std::ifstream* reader, int
    }
 }
 
-bool load_player_attributes_from_file(string scene_name, Player* player)
+bool load_player_attributes_from_file(std::string scene_name, Player* player)
 {
-  std::string path = SCENES_FOLDER_PATH + scene_name + ".txt";
+   std::string path = SCENES_FOLDER_PATH + scene_name + ".txt";
    std::ifstream reader(path);
 
    if(!reader.is_open())

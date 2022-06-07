@@ -6,14 +6,16 @@
 #include FT_FREETYPE_H
 
 // prototypes
-Mesh*                load_wavefront_obj_as_mesh          (std::string path, std::string name, bool setup_gl_data, GLenum render_method);
-unsigned int         load_texture_from_file              (std::string path, const std::string & directory, bool gamma = false);
-std::vector<std::string>  get_files_in_folder            (std::string directory);
-gl_charmap           load_text_textures                  (std::string font, int size);
-void                 attach_extra_data_to_mesh           (std::string filename, std::string filepath, Mesh* mesh);
-void                 load_mesh_extra_data                (std::string filename, Mesh* mesh);
-void                 write_mesh_extra_data_file          (std::string filename, Mesh* mesh);
-void                 load_textures_from_assets_folder    ();
+using strVector = std::vector<std::string>;
+
+Mesh*             load_wavefront_obj_as_mesh          (std::string path, std::string name, bool setup_gl_data, GLenum render_method);
+unsigned int      load_texture_from_file              (std::string path, const std::string & directory, bool gamma = false);
+gl_charmap        load_text_textures                  (std::string font, int size);
+void              attach_extra_data_to_mesh           (std::string filename, std::string filepath, Mesh* mesh);
+void              load_mesh_extra_data                (std::string filename, Mesh* mesh);
+void              write_mesh_extra_data_file          (std::string filename, Mesh* mesh);
+void              load_textures_from_assets_folder    ();
+strVector         get_files_in_folder                 (std::string directory);
 
 
 
@@ -25,7 +27,7 @@ gl_charmap load_text_textures(std::string font, int size)
 		Quit_fatal("Freetype: Could not init FreeType Library");
       
 	FT_Face face;
-	string filepath = FONTS_PATH + font;
+	std::string filepath = FONTS_PATH + font;
 	if (FT_New_Face(ft, filepath.c_str(), 0, &face))
 		log(LOG_ERROR, "Freetype: Failed to load font");
 
@@ -350,9 +352,9 @@ unsigned int load_texture_from_file(std::string filename, const std::string & di
 }
 
 
-std::vector<std::string> get_files_in_folder(std::string directory)
+strVector get_files_in_folder(std::string directory)
 {
-   std::vector<std::string> filenames;
+   strVector filenames;
    std::string path_to_files = directory + "\\*";
    WIN32_FIND_DATA files;
    HANDLE find_files_handle = FindFirstFile(path_to_files.c_str(), &files);

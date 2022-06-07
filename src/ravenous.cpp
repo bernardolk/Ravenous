@@ -202,8 +202,6 @@ void erase_entity(Scene* scene, Entity* entity);
 // OPENGL OBJECTS
 unsigned int texture, texture_specular;
 
-using namespace glm;
-
 // FUNCTION PROTOTYPES
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void setup_GLFW(bool debug);

@@ -9,7 +9,7 @@ const static SupportedPlatforms PLATFORM = OS_WINDOWS;
    #include <rvn_win_layer.h>
 #endif
 
-bool OS_list_files(std::string path,std::string filetype, std::vector<string>& files)
+bool OS_list_files(std::string path,std::string filetype, std::vector<std::string>& files)
 {
    #if PLATFORM == OS_WINDOWS
       return WIN_list_files(path, filetype, files);

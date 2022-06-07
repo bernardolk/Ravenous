@@ -38,8 +38,8 @@ u8 FPS_CAM = 1;
 void camera_update(Camera* camera, float viewportWidth, float viewportHeight, Player* player);
 void camera_change_direction(Camera* camera, float yawOffset, float pitchOffset);
 void camera_look_at(Camera* camera, vec3 ref, bool isPosition);
-void save_camera_settings_to_file(string path, vec3 position, vec3 direction);
-float* load_camera_settings(string path);
+void save_camera_settings_to_file(std::string path, vec3 position, vec3 direction);
+float* load_camera_settings(std::string path);
 void set_camera_to_free_roam(Camera* camera);
 void set_camera_to_third_person(Camera* camera, Player* player);
 void compute_angles_from_direction(float& pitch, float& yaw, vec3 direction);
@@ -130,7 +130,7 @@ void camera_look_at(Camera* camera, vec3 ref, bool isPosition)
 	camera->Front = glm::normalize(camera->Front);
 }
 
-float* load_camera_settings(string path)
+float* load_camera_settings(std::string path)
 {
    std::ifstream reader(path);
 	std::string line;
@@ -187,7 +187,7 @@ float* load_camera_settings(string path)
    return &camera_settings[0];
 }
 
-void save_camera_settings_to_file(string path, vec3 position, vec3 direction)
+void save_camera_settings_to_file(std::string path, vec3 position, vec3 direction)
 {
    std::ofstream ofs;
    ofs.open(path);

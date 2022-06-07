@@ -13,7 +13,7 @@ enum PlayerState {
    PLAYER_STATE_VAULTING
 };
 
-string PLAYER_NAME = "Player";
+std::string PLAYER_NAME = "Player";
 
 // ----------
 // Animation
@@ -38,7 +38,7 @@ struct Player;
 void AN_p_anim_force_interrupt(Player* player);
 bool CL_update_player_world_cells(Player* player);
 void CL_recompute_collision_buffer_entities(Player* player);
-void editor_print(string msg, float duration, vec3 color);
+void editor_print(std::string msg, float duration, vec3 color);
 
 struct Player {
    Entity* entity_ptr;
