@@ -85,7 +85,7 @@ void render_mesh(Mesh* mesh, RenderOptions opts)
          //glDrawArrays(GL_TRIANGLES, 0, mesh->vertices.size());
          break;
       default:
-         cout << "WARNING: no drawing method set for mesh '" << mesh->name << "', "<< 
+         std::cout << "WARNING: no drawing method set for mesh '" << mesh->name << "', "<< 
             "it won't be rendered!\n";
    }
 

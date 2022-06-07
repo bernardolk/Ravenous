@@ -12,11 +12,6 @@ bool Launch = false;
 
 void update_missile(Player* player, Entity* missile)
 {
-   /*    
-      FIGURED IT OUT: We need a pure rotation matrix to extract euler angles otherwise we get 
-      something fucked up. That is, we can't translate nor scale the matrix.
-   */
-
    // compute rotation mat
    mat4 missile_rot  = rotate(mat4identity, glm::radians(missile->rotation.x), vec3(1.0f, 0.0f, 0.0f));
    missile_rot       = rotate(missile_rot,  glm::radians(missile->rotation.y), vec3(0.0f, 1.0f, 0.0f));

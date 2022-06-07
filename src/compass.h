@@ -33,6 +33,18 @@ vec3 get_orientation_from_api(Entity* entity)
 //    return theta;
 // }
 
+// inline
+// vec2 to2d_xz(vec3 vector)
+// {
+//    return vec2(vector.x, vector.z);
+// }
+
+// inline
+// vec3 to3d_xz(vec2 vector)
+// {
+//    return vec3(vector.x, 0, vector.y);
+// }
+
 float get_compass_heading(Entity* entity)
 {
    // first get angles, assuming XYZ euler angles order, angles in degrees
@@ -59,21 +71,16 @@ float get_compass_heading(Entity* entity)
    screen_up   = glm::normalize(to_vec3(rot * to_vec4(screen_up, 1)));
 
    // third, project the north vec vec3(0, 0, 1) onto the screen.
-   float screen_north_dot = dot(north, screen_n);
+   vec3 projected_north = glm::normalize(project_vec_onto_plane(north, screen_n));
 
-   vec3 projected_north;
-   // if(screen_north_dot == 0 || screen_north_dot == 1 || screen_north_dot == -1)
-   // {
-   //    projected_north = screen_up;
-   // }
-   // else
-   {
-      projected_north = glm::normalize(project_vec_onto_plane(north, screen_n));
-   }
+   // fourth, project screen up vector into xz plane to get angle from north vector
+   vec2 screen_up_xz    = to2d_xz(project_vec_onto_plane(screen_up, vec3(0, 1, 0)));
+   vec2 north_xz        = to2d_xz(north);
 
-   // fourth, if northvec and screen normal are parallel, assume angle = 0 degrees.
    float angle = glm::degrees(vector_angle(screen_up, projected_north));
 
+
+   // render reference lines / gizmos
    vec3 original_center = vec3(
       entity->position.x + entity->scale.x / 2.0, 
       entity->position.y + entity->scale.y, 
@@ -87,11 +94,10 @@ float get_compass_heading(Entity* entity)
    IM_RENDER.add_line(IMHASH, center, center + screen_n           * 1.5f, 3.0f, false, COLOR_GREEN_1);
    IM_RENDER.add_line(IMHASH, center, center + projected_north    * 0.8f, 3.0f, true,  COLOR_YELLOW_1);
 
-   // IM_RENDER.add_line(IMHASH, center, center + projected_north * 2.f, 1.2f, false, COLOR_YELLOW_1);
-   // IM_RENDER.add_line(IMHASH, center, center + projected_north * 2.f, 1.2f, false, COLOR_YELLOW_1);
+   // IM_RENDER.add_line(IMHASH, center, center + glm::normalize(to3d_xz(north_xz))     * 1.5f, 3.0f, false, COLOR_YELLOW_2);
+   // IM_RENDER.add_line(IMHASH, center, center + glm::normalize(to3d_xz(screen_up_xz)) * 1.5f, 3.0f, false, COLOR_BLUE_2);
 
-
-   editor_print("Angle from north: " + to_string(angle));
+   // editor_print("Angle from north: " + to_string(angle));
 
    return angle;
 }
