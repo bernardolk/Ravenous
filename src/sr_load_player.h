@@ -15,7 +15,7 @@ Player* create_player(Entity* player_entity)
 }
 
 
-void parse_and_load_player_orientation(Parser::Parse p, ifstream* reader, int& line_count, std::string path, Player* player)
+void parse_and_load_player_orientation(Parser::Parse p, std::ifstream* reader, int& line_count, std::string path, Player* player)
 {
    p = parse_token(p);
    std::string attribute = p.string_buffer;
@@ -38,7 +38,7 @@ void parse_and_load_player_orientation(Parser::Parse p, ifstream* reader, int& l
    }
 }
 
-void parse_and_load_player_attribute(Parser::Parse p, ifstream* reader, int& line_count, std::string path, Player* player)
+void parse_and_load_player_attribute(Parser::Parse p, std::ifstream* reader, int& line_count, std::string path, Player* player)
 {
    p = parse_token(p);
    std::string attribute = p.string_buffer;
@@ -96,11 +96,11 @@ void parse_and_load_player_attribute(Parser::Parse p, ifstream* reader, int& lin
 bool load_player_attributes_from_file(string scene_name, Player* player)
 {
    string path = SCENES_FOLDER_PATH + scene_name + ".txt";
-   ifstream reader(path);
+   std::ifstream reader(path);
 
    if(!reader.is_open())
    {
-      cout << "WARNING: Loading player attributes from file failed.\n";
+      std::cout << "WARNING: Loading player attributes from file failed.\n";
       return false;
    }
 

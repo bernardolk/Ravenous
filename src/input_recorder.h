@@ -110,7 +110,7 @@ struct InputRecorder {
 
       if(!writer.is_open())
       {
-         cout << "Cant save recording to file. \n";  
+         std::cout << "Cant save recording to file. \n";  
          assert(false);
       }
 
@@ -137,10 +137,10 @@ struct InputRecorder {
 
          for (int i = 0; i < files.size(); i++)
          {
-            ifstream reader(files[i]);
+            std::ifstream reader(files[i]);
             if(!reader.is_open())
             {
-               cout << "Could not open recording file '" + files[i] + ".\n";  
+               std::cout << "Could not open recording file '" + files[i] + ".\n";  
                continue;
             }
 

@@ -101,7 +101,7 @@ void load_textures_from_assets_folder()
 
          if(texture_id == 0)
          {
-            cout << "Texture '" << texture_filename << "' could not be loaded. \n"; 
+            std::cout << "Texture '" << texture_filename << "' could not be loaded. \n"; 
             assert(false);
          }
 
@@ -142,7 +142,7 @@ Mesh* load_wavefront_obj_as_mesh(
 
    if(!reader.is_open())
    {
-      cout << "Fatal: Could not find/open wavefront file at '" << full_path << "'.\n";
+      std::cout << "Fatal: Could not find/open wavefront file at '" << full_path << "'.\n";
       assert(false);
    }
 
@@ -319,7 +319,7 @@ unsigned int load_texture_from_file(string filename, const string& directory, bo
    unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
    if (!data)
    {
-      cout << "Texture failed to load at path: " << path << endl;
+      std::cout << "Texture failed to load at path: " << path << endl;
       stbi_image_free(data);
       return 0;
    }
@@ -364,7 +364,7 @@ vector<string> get_files_in_folder(string directory)
 
    if(find_files_handle == INVALID_HANDLE_VALUE) 
    {
-      cout << "Error: Invalid directory '" + directory + "' for finding files.";
+      std::cout << "Error: Invalid directory '" + directory + "' for finding files.";
       return filenames;
    }
    
@@ -419,7 +419,7 @@ void load_mesh_extra_data(string filename, Mesh* mesh)
 {
    string extra_data_path  = MODELS_PATH + "extra_data/" + filename + ".objplus";
    
-   ifstream reader(extra_data_path);
+   std::ifstream reader(extra_data_path);
    string line;
 
    u32 vtan_i = 0;

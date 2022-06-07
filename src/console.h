@@ -266,7 +266,7 @@ void execute_command(string buffer_line, Player* &player, WorldStruct* world, Ca
          G_CONFIG.initial_scene = G_SCENE_INFO.scene_name;
          save_configs_to_file();
       }
-      else cout << "you can set 'scene' or 'all'. dude. " << command << " won't work.\n";
+      else std::cout << "you can set 'scene' or 'all'. dude. " << command << " won't work.\n";
    }
 
    // -----------------
@@ -318,12 +318,12 @@ void execute_command(string buffer_line, Player* &player, WorldStruct* world, Ca
          camera->Position.y = p.vec3[1];
          camera->Position.z = p.vec3[2];
       }
-      else cout << "you can move cam only at the moment dude. I don't know what '" 
+      else std::cout << "you can move cam only at the moment dude. I don't know what '" 
          << command << " " << argument << "' means man.\n";
       
    }
 
-   else cout << "what do you mean with " << command << " man?\n";
+   else std::cout << "what do you mean with " << command << " man?\n";
 }
 
 void handle_console_input(InputFlags flags, Player* &player, WorldStruct* world, Camera* camera)

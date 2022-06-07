@@ -1,4 +1,4 @@
 scene = missile
-camspeed = 8.5
+camspeed = 4.9
 ambient_light = 1 0.99999 0.99999
 ambient_intensity = 0.08

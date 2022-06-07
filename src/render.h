@@ -321,7 +321,7 @@ void render_game_gui(Player* player)
       if(p_floor != player->standing_entity_ptr->id)
       {
          p_floor = player->standing_entity_ptr->id;
-         cout << "new floor: " << p_floor << "\n";
+         std::cout << "new floor: " << p_floor << "\n";
       }
    }
    render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 60, player_floor);
@@ -396,7 +396,7 @@ void render_text(string font, float x, float y, vec3 color, float scale, bool ce
          
          else if(ind + 1 == font.size())
          {
-            cout << "Font '" << font << "' could not be loaded because no size was "
+            std::cout << "Font '" << font << "' could not be loaded because no size was "
                << "appended to its name in render_text function call.";
             return;
          }

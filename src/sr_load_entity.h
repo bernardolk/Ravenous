@@ -3,7 +3,7 @@ const std::string SrLoadEntity_TypeNotSetErrorMsg = "Need to load entity type be
 
 Entity* parse_and_load_entity(
    Parser::Parse p, 
-   ifstream* reader, 
+   std::ifstream* reader, 
    int& line_count, 
    std::string path, 
    DeferredEntityRelationBuffer* entity_relations)

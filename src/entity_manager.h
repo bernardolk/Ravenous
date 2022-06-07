@@ -67,7 +67,7 @@ struct EntityManager
          auto _shader = Shader_Catalogue.find(shader);
          if(_shader == Shader_Catalogue.end())
          {
-            cout << "FATAL: shader'" << shader << "' not found in shader catalogue.\n";
+            std::cout << "FATAL: shader'" << shader << "' not found in shader catalogue.\n";
             assert(false);
          }
          attrs.shader = _shader->second;
@@ -80,7 +80,7 @@ struct EntityManager
             auto _texture = Texture_Catalogue.find(texture);
             if(_texture == Texture_Catalogue.end())
             {
-               cout << "FATAL: texture'" << texture << "' not found in texture catalogue.\n";
+               std::cout << "FATAL: texture'" << texture << "' not found in texture catalogue.\n";
                assert(false);
             }
             attrs.textures[0] = _texture->second;

@@ -113,7 +113,7 @@ struct RenderMessageBuffer {
       }
       else
       {
-         cout << "WARNING: message has not been addded to message buffer"
+         std::cout << "WARNING: message has not been addded to message buffer"
          << "because it is FULL. Message was: " << msg << "\n";
          return false;
       }
@@ -141,7 +141,7 @@ struct RenderMessageBuffer {
       }
       else
       {
-         cout << "WARNING: message has not been addded to message buffer"
+         std::cout << "WARNING: message has not been addded to message buffer"
          << "because it is FULL. Message was: " << msg << "\n";
          return false;
       }

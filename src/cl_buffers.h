@@ -13,7 +13,7 @@ bool CL_update_player_world_cells(Player* player)
    auto update_cells = World.update_entity_world_cells(player->entity_ptr);
    if(!update_cells.status == CellUpdate_OK)
    {
-      cout << update_cells.message << "\n";
+      std::cout << update_cells.message << "\n";
       return false;
    }
 

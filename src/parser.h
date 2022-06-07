@@ -42,7 +42,7 @@ namespace Parser
    {
       if(hasToken == 0)
       {
-         cout << "FATAL: Parse has no vec3 value to be retrieved. Check line being parsed.\n";
+         std::cout << "FATAL: Parse has no vec3 value to be retrieved. Check line being parsed.\n";
          assert(false);
       }
    }

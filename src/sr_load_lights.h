@@ -1,5 +1,5 @@
 
-void parse_and_load_light_source(Parser::Parse p, ifstream* reader, int& line_count, string path)
+void parse_and_load_light_source(Parser::Parse p, std::ifstream* reader, int& line_count, string path)
 {
    string line;
 
@@ -8,7 +8,7 @@ void parse_and_load_light_source(Parser::Parse p, ifstream* reader, int& line_co
 
    if (!(type == "point" || type == "spot" || type == "directional"))
    {
-      cout << "FATAL: Unrecognized light source in scene file '" << path << "', line " << line_count << ".\n";
+      std::cout << "FATAL: Unrecognized light source in scene file '" << path << "', line " << line_count << ".\n";
       assert(false);
    }
 

@@ -423,7 +423,7 @@ RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* entity)
    {
       test = test_ray_against_triangle(ray, t2);
       if(!test.hit)
-         cout << "warning: can't find plane to place entity!\n";
+         std:: << "warning: can't find plane to place entity!\n";
    }
 
    return test;
@@ -639,7 +639,7 @@ void move_light_with_mouse(string type, int index)
       test = test_ray_against_triangle(ray, t2);
       if(!test.hit)
       {
-         cout << "warning: can't find plane to place light!\n";
+         std::cout << "warning: can't find plane to place light!\n";
          return;
       }
    }

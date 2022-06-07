@@ -16,7 +16,7 @@ struct EntityPool {
       pool = (Entity*) malloc(size * sizeof(Entity));
       if(pool == NULL)
       {
-         cout << "FATAL: failed to allocate memory for EntityPool.\n";
+         std::cout << "FATAL: failed to allocate memory for EntityPool.\n";
          assert(false);
       }
 
@@ -40,7 +40,7 @@ struct EntityPool {
          }
       }
 
-      cout << "EntityPool is full!\n";
+      std::cout << "EntityPool is full!\n";
       assert(false);
       return nullptr;
    }

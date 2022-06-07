@@ -7,7 +7,7 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
 
    if(do_copy && !was_renamed)
    {
-      cout << "please provide a name for the copy.\n";
+      std::cout << "please provide a name for the copy.\n";
       return false;
    }
 
@@ -16,7 +16,7 @@ bool save_scene_to_file(string scene_name, Player* player, bool do_copy)
    ofstream writer(path);
    if(!writer.is_open())
    {
-      cout << "Saving scene failed.\n";
+      std::cout << "Saving scene failed.\n";
       return false;
    }
 

@@ -70,7 +70,7 @@ struct EntityPanelContext {
             return false;
       }
 
-      cout << "Invalid c-string in rename buffer.\n";
+      std::cout << "Invalid c-string in rename buffer.\n";
       assert(false);
       return false;
    }

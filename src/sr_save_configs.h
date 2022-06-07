@@ -3,7 +3,7 @@ bool save_configs_to_file()
    ofstream writer(CONFIG_FILE_PATH);
    if(!writer.is_open())
    {
-      cout << "Saving config file failed.\n";
+      std::cout << "Saving config file failed.\n";
       return false;
    }
 
@@ -17,7 +17,7 @@ bool save_configs_to_file()
    writer << "ambient_intensity = " << G_CONFIG.ambient_intensity << "\n";
 
    writer.close();
-   cout << "Config file saved succesfully.\n";
+   std::cout << "Config file saved succesfully.\n";
 
    return true;
 }

@@ -132,7 +132,7 @@ void camera_look_at(Camera* camera, vec3 ref, bool isPosition)
 
 float* load_camera_settings(string path)
 {
-   ifstream reader(path);
+   std::ifstream reader(path);
 	std::string line;
 
 	static float camera_settings[6];

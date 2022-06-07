@@ -89,7 +89,7 @@ struct GlobalImmediateDraw {
       }
 
       if(slot == -1)
-         cout << "IM RENDER BUFFER IS FULL\n";
+         std::cout << "IM RENDER BUFFER IS FULL\n";
 
       return ImmediateDrawElementSlot { true, slot };
    }

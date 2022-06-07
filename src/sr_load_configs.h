@@ -1,4 +1,4 @@
-void parse_and_load_camera_settings(Parser::Parse p, ifstream* reader, int& line_count, std::string path)
+void parse_and_load_camera_settings(Parser::Parse p, std::ifstream* reader, int& line_count, std::string path)
 {
       p = parse_all_whitespace(p);
       p = parse_vec3(p);
@@ -11,11 +11,11 @@ void parse_and_load_camera_settings(Parser::Parse p, ifstream* reader, int& line
 
 ProgramConfig load_configs()
 {
-   ifstream reader(CONFIG_FILE_PATH);
+   std::ifstream reader(CONFIG_FILE_PATH);
 
    if(!reader.is_open())
    {
-      cout << "FATAL: Cant load config file '" + CONFIG_FILE_PATH + "', path NOT FOUND \n";  
+      std::cout << "FATAL: Cant load config file '" + CONFIG_FILE_PATH + "', path NOT FOUND \n";  
       assert(false);
    }
 

@@ -45,8 +45,7 @@
 #include <rvn_types.h>
 #include <logging.h>
 
-using namespace std;
-
+// using string = std::string;
 
 // @todo temp for missile action
 bool Exploded = false;

@@ -43,7 +43,7 @@ CL_VtraceResult CL_do_stepover_vtrace(Player* player)
       return CL_VtraceResult{ false };
 
    // auto angle = dot(get_triangle_normal(raytest.t), UNIT_Y);
-   // cout << "Angle is: " << to_string(angle) << "\n";
+   // std::cout << "Angle is: " << to_string(angle) << "\n";
    // if(angle < 1 - 0.866)
    //    return CL_VtraceResult{ false };
 
