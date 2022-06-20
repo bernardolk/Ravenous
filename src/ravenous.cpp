@@ -10,18 +10,6 @@
 #include <windows.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/ext/vector_float2.hpp> // vec2
-#include <glm/ext/vector_float3.hpp> // vec3
-#include <glm/ext/matrix_float4x4.hpp> // mat4x4
-#include <glm/ext/matrix_transform.hpp> // translate, rotate, scale, identity
-#include <glm/gtx/compatibility.hpp>
-#include <glm/gtx/norm.hpp>
-#include <glm/gtx/normal.hpp>
-#include <glm/gtx/rotate_vector.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/euler_angles.hpp>
-#include <glm/gtx/quaternion.hpp>
 
 #include <sstream>
 #include <iostream>
@@ -40,8 +28,7 @@
 #include <dearIMGUI/imgui_impl_opengl3.h>
 #include <dearIMGUI/imgui_stdlib.h>
 
-
-#include <rvn_types.h>
+#include <engine/core/rvn_types.h>
 #include <logging.h>
 
 
@@ -147,7 +134,7 @@ struct ProgramConfig {
 #include <scene.h>
 #include <entity_state.h>
 #include <player.h>
-#include <camera.h>
+#include <engine/camera.h>
 #include <parser.h>
 #include <cl_collider.h>
 #include <world.h>
@@ -352,7 +339,10 @@ int main()
 		//	UPDATE PHASE
       // -------------
       Frame_Ray_Collider_Count = 0;
-		camera_update(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player);
+      if(PROGRAM_MODE.current == GAME_MODE)
+		   camera_update_game(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player->eye());
+      else if(PROGRAM_MODE.current == EDITOR_MODE)
+		   camera_update_editor(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player->entity_ptr->position);
       Game_State.update_timers();
       GP_update_player_state(player);
       AN_animate_player(player);

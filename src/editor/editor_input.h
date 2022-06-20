@@ -178,7 +178,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
    if(pressed_once(flags, KEY_T))
    {  // toggle camera type
       if (G_SCENE_INFO.camera->type == FREE_ROAM)
-         set_camera_to_third_person(G_SCENE_INFO.camera, player);
+         set_camera_to_third_person(G_SCENE_INFO.camera);
       else if (G_SCENE_INFO.camera->type == THIRD_PERSON)
          set_camera_to_free_roam(G_SCENE_INFO.camera);
    }
