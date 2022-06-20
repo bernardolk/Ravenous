@@ -249,14 +249,6 @@ void execute_command(std::string buffer_line, Player* &player, WorldStruct* worl
          G_CONFIG.initial_scene = G_SCENE_INFO.scene_name;
          save_configs_to_file();
       }
-      // else if(argument == "cam")
-      // {
-      //    save_camera_settings_to_file(
-      //       CAMERA_FILE_PATH,
-      //       G_SCENE_INFO.camera->Position,
-      //       G_SCENE_INFO.camera->Front
-      //    );
-      // }
       else if(argument == "all")
       {
          // save scene

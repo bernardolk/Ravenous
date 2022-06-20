@@ -21,16 +21,3 @@ bool save_configs_to_file()
 
    return true;
 }
-
-void save_camera_settings_to_file(std::string path, vec3 position, vec3 direction)
-{
-   std::ofstream ofs;
-   ofs.open(path);
-   ofs << position.x << " ";
-   ofs << position.y << " ";
-   ofs << position.z << "\n";
-   ofs << direction.x << " ";
-   ofs << direction.y << " ";
-   ofs << direction.z;
-   ofs.close();
-}

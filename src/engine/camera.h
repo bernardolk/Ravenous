@@ -34,7 +34,6 @@ void camera_update_game                (Camera* camera, float viewportWidth, flo
 void camera_update_editor              (Camera* camera, float viewportWidth, float viewportHeight, vec3 position);
 void camera_change_direction           (Camera* camera, float yawOffset, float pitchOffset);
 void camera_look_at                    (Camera* camera, vec3 ref, bool isPosition);
-void save_camera_settings_to_file      (std::string path, vec3 position, vec3 direction);
 void set_camera_to_free_roam           (Camera* camera);
 void set_camera_to_third_person        (Camera* camera);
 void compute_angles_from_direction     (float& pitch, float& yaw, vec3 direction);
