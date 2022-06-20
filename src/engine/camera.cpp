@@ -1,4 +1,6 @@
 #include <engine/camera.h>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/gtx/compatibility.hpp>
 
 extern const u8 EDITOR_CAM     = 0;
 extern const u8 FPS_CAM        = 1; 

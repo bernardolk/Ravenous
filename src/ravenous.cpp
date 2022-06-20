@@ -28,6 +28,13 @@
 #include <dearIMGUI/imgui_impl_opengl3.h>
 #include <dearIMGUI/imgui_stdlib.h>
 
+#include <glm/gtx/norm.hpp>
+#include <glm/gtx/normal.hpp>
+#include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/euler_angles.hpp>
+#include <glm/gtx/quaternion.hpp>
+
 #include <engine/core/rvn_types.h>
 #include <logging.h>
 

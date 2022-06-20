@@ -1,18 +1,8 @@
 #pragma once
-#include <limits>
-#include <string>
 #include <glm/glm.hpp>
 #include <glm/ext/vector_float2.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/ext/matrix_float4x4.hpp>
-#include <glm/ext/matrix_transform.hpp>
-#include <glm/gtx/compatibility.hpp>
-#include <glm/gtx/norm.hpp>
-#include <glm/gtx/normal.hpp>
-#include <glm/gtx/rotate_vector.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/euler_angles.hpp>
-#include <glm/gtx/quaternion.hpp>
 
 typedef int i16;
 typedef long int i32;
@@ -91,3 +81,4 @@ inline vec3 toVec3(vec4 vec)
 {
    return vec3(vec.x, vec.y, vec.z);
 }
+

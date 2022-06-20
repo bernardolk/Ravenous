@@ -1,3 +1,4 @@
+#include <limits>
 #include <engine/core/rvn_types.h>
 
 // VECTOR COMPARISON
