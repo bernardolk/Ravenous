@@ -4,7 +4,7 @@
 
 void render_scene_objects_panel(SceneObjectsPanelContext* panel)
 {
-   ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 600, 50), ImGuiCond_Appearing);
+   ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::VIEWPORT_WIDTH - 600, 50), ImGuiCond_Appearing);
    ImGui::Begin("Scene objects", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
 
    ImGui::InputText("Search", &panel->search_text);

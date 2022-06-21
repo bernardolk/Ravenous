@@ -32,7 +32,7 @@ struct ImmediateDrawElement {
    bool empty;
    Mesh mesh;
    RenderOptions render_options;
-   i16 duration;
+   int duration;
    bool is_mesh;
    vec3 pos;
    vec3 rot;

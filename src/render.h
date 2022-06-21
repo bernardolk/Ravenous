@@ -312,7 +312,7 @@ void render_game_gui(Player* player)
       std::string last_grabbed = player->grabbing_entity->name;
       p_grab += "'" + last_grabbed + "'";
    }
-   render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 45, p_grab);
+   render_text(GlobalDisplayConfig::VIEWPORT_WIDTH - 400, 45, p_grab);
 
    std::string player_floor = "player floor: ";
    if(player->standing_entity_ptr != NULL) 
@@ -324,7 +324,7 @@ void render_game_gui(Player* player)
          std::cout << "new floor: " << p_floor << "\n";
       }
    }
-   render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 60, player_floor);
+   render_text(GlobalDisplayConfig::VIEWPORT_WIDTH - 400, 60, player_floor);
 }
 
 // ------------
@@ -551,7 +551,7 @@ void render_depth_map()
 
    // de-setup
    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-   glViewport(0, 0, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT);
+   glViewport(0, 0, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT);
 }
 
 void render_depth_cubemap()
@@ -604,12 +604,12 @@ void render_depth_cubemap()
 
    // de-setup
    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-   glViewport(0, 0, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT);
+   glViewport(0, 0, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT);
 }
 
 void render_depth_map_debug()
 {
-	glViewport(0, 0, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT);
+	glViewport(0, 0, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT);
    //glClearColor(0.196, 0.298, 0.3607, 1.0f);
    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    // shadow map texture
@@ -631,7 +631,7 @@ void render_depth_map_debug()
 
 // void use_depth_map()
 // {
-// 	glViewport(0, 0, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT);
+// 	glViewport(0, 0, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT);
 //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 //    ConfigureShaderAndMatrices();
 //    glBindTexture(GL_TEXTURE_2D, depthMap);

@@ -14,7 +14,7 @@ void render_collision_log_panel(CollisionLogPanelContext* panel)
    const u16 table_height = 120;
 
    ImGui::SetNextWindowPos(
-      ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - w_width, G_DISPLAY_INFO.VIEWPORT_HEIGHT - w_height - w_bottom_margin), 
+      ImVec2(GlobalDisplayConfig::VIEWPORT_WIDTH - w_width, GlobalDisplayConfig::VIEWPORT_HEIGHT - w_height - w_bottom_margin), 
       ImGuiCond_Appearing
    );
    ImGui::Begin("Collision Log Panel", &panel->active, ImGuiWindowFlags_None);

@@ -36,24 +36,14 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include <engine/core/rvn_types.h>
-#include <logging.h>
+#include <engine/logging.h>
+#include <engine/configs.h>
+#include <engine/catalogues.h>
 
 
 // @todo temp for missile action
 bool Exploded = false;
 
-
-const std::string PROJECT_PATH                    = "c:/repositories/ravenous";
-const std::string TEXTURES_PATH                   = PROJECT_PATH + "/assets/textures/";
-const std::string MODELS_PATH                     = PROJECT_PATH + "/assets/models/";
-const std::string FONTS_PATH                      = PROJECT_PATH + "/assets/fonts/";
-const std::string SHADERS_FOLDER_PATH             = PROJECT_PATH + "/shaders/";
-const std::string CAMERA_FILE_PATH                = PROJECT_PATH + "/camera.txt";
-const std::string SCENES_FOLDER_PATH              = PROJECT_PATH + "/scenes/";
-const std::string SHADERS_FILE_EXTENSION          = ".shd";
-const std::string CONFIG_FILE_PATH                = PROJECT_PATH + "/config.txt";
-const std::string SCENE_TEMPLATE_FILENAME         = "template_scene";
-const std::string INPUT_RECORDINGS_FOLDER_PATH    = PROJECT_PATH + "/recordings/";
 
 const glm::mat4 mat4identity(
 	1.0f, 0.0f, 0.0f, 0.0f,
@@ -80,11 +70,8 @@ struct GLData {
    GLuint EBO = 0;
 };
 
-struct GlobalDisplayInfo {
-   GLFWwindow* window;
-   const float VIEWPORT_WIDTH = 1980;
-   const float VIEWPORT_HEIGHT = 1080;
-} G_DISPLAY_INFO;
+
+GlobalDisplayInfo G_DISPLAY_INFO;
 
 struct MouseCoordinates {
    double last_x = 0;
@@ -135,14 +122,14 @@ struct ProgramConfig {
 #include <mesh.h>
 #include <utils.h>
 #include <character.h>
-#include <shader.h>
+#include <engine/shader.h>
 #include <entities.h>
 #include <lights.h>
 #include <scene.h>
 #include <entity_state.h>
 #include <player.h>
 #include <engine/camera.h>
-#include <parser.h>
+#include <engine/parser.h>
 #include <cl_collider.h>
 #include <world.h>
 #include <input_recorder.h>
@@ -347,9 +334,9 @@ int main()
       // -------------
       Frame_Ray_Collider_Count = 0;
       if(PROGRAM_MODE.current == GAME_MODE)
-		   camera_update_game(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player->eye());
+		   camera_update_game(G_SCENE_INFO.camera, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT, player->eye());
       else if(PROGRAM_MODE.current == EDITOR_MODE)
-		   camera_update_editor(G_SCENE_INFO.camera, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, player->entity_ptr->position);
+		   camera_update_editor(G_SCENE_INFO.camera, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT, player->entity_ptr->position);
       Game_State.update_timers();
       GP_update_player_state(player);
       AN_animate_player(player);
@@ -504,81 +491,6 @@ void check_all_geometry_has_gl_data()
    }
 }
 
-void initialize_shaders() 
-{  
-   /* Parses shader program info from programs file, assembles each shader program and stores them into the
-      shaders catalogue. */
-      
-   std::ifstream programs_file(SHADERS_FOLDER_PATH + "programs.csv");
-   if(!programs_file.is_open())
-     Quit_fatal("Couldn't open shader programs file.");
-
-   std::string line;
-
-   // discard header
-   getline(programs_file, line);
-
-   int count_line = 1;
-   while(getline(programs_file, line))
-   {
-      count_line++;
-      bool error, missing_comma, has_geometry_shader = false;
-      Parser::Parse p { line.c_str(), line.size() };
-
-      p = parse_token(p);
-      if(!p.hasToken) error = true;
-      std::string shader_name = p.string_buffer;
-
-      p = parse_all_whitespace(p);
-      p = parse_symbol(p);
-      if(!p.hasToken) missing_comma = true;
-
-      p = parse_all_whitespace(p);
-      p = parse_token(p);
-      if(!p.hasToken) error = true;
-      std::string vertex_shader_name = p.string_buffer;
-
-      p = parse_all_whitespace(p);
-      p = parse_symbol(p);
-      if(!p.hasToken) missing_comma = true;
-
-      p = parse_all_whitespace(p);
-      p = parse_token(p);
-      if(p.hasToken) has_geometry_shader = true;
-      std::string geometry_shader_name = p.string_buffer;
-
-      p = parse_all_whitespace(p);
-      p = parse_symbol(p);
-      if(!p.hasToken) missing_comma = true;
-
-      p = parse_all_whitespace(p);
-      p = parse_token(p);
-      if(!p.hasToken) error = true;
-      std::string fragment_shader_name = p.string_buffer;
-
-      // load shaders code and mounts program from parsed shader attributes
-      Shader* shader;
-      if(has_geometry_shader)
-         shader = create_shader_program(shader_name, vertex_shader_name, geometry_shader_name, fragment_shader_name);
-      else
-         shader = create_shader_program(shader_name, vertex_shader_name, fragment_shader_name);
-      
-      Shader_Catalogue.insert({shader->name, shader});
-
-      if(error)
-         Quit_fatal("Error in shader programs file definition. Couldn't parse line " + std::to_string(count_line) + ".");
-      if(missing_comma)
-         Quit_fatal("Error in shader programs file definition. There is a missing comma in line " + std::to_string(count_line) + ".");
-   }
-
-   programs_file.close();
-
-   // setup for text shader
-   auto text_shader = Shader_Catalogue.find("text")->second;
-   text_shader->use();
-	text_shader->setMatrix4("projection", glm::ortho(0.0f, G_DISPLAY_INFO.VIEWPORT_WIDTH, 0.0f, G_DISPLAY_INFO.VIEWPORT_HEIGHT));
-}
-
 
 inline void update_scene_objects() 
 {
@@ -607,7 +519,7 @@ void setup_GLFW(bool debug) {
    glfwWindowHint(GLFW_SAMPLES, 4);
 
 	// Creates the window
-	G_DISPLAY_INFO.window = glfwCreateWindow(G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT, "Ravenous", NULL, NULL);
+	G_DISPLAY_INFO.window = glfwCreateWindow(GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT, "Ravenous", NULL, NULL);
 	if (G_DISPLAY_INFO.window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -621,7 +533,7 @@ void setup_GLFW(bool debug) {
 	}
 
 	// Setups openGL viewport
-	glViewport(0, 0, G_DISPLAY_INFO.VIEWPORT_WIDTH, G_DISPLAY_INFO.VIEWPORT_HEIGHT);
+	glViewport(0, 0, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT);
 	glfwSetFramebufferSizeCallback(G_DISPLAY_INFO.window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(G_DISPLAY_INFO.window, on_mouse_move);
 	glfwSetScrollCallback(G_DISPLAY_INFO.window, on_mouse_scroll);

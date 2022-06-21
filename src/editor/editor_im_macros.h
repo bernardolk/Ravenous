@@ -14,7 +14,7 @@ struct ImmediateEditorValues {
 #define _START_IM_ED() bool _active = true; \
    if(PROGRAM_MODE.current == EDITOR_MODE) { \
    ImGui::SetNextWindowPos( \
-      ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH / 2 - 200, G_DISPLAY_INFO.VIEWPORT_HEIGHT - 100), ImGuiCond_Appearing \
+      ImVec2(GlobalDisplayConfig::VIEWPORT_WIDTH / 2 - 200, GlobalDisplayConfig::VIEWPORT_HEIGHT - 100), ImGuiCond_Appearing \
    ); \
    ImGui::Begin("ImEdValues", &_active, ImGuiWindowFlags_AlwaysAutoResize);
 

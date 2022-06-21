@@ -1,3 +1,5 @@
+#pragma once
+
 enum RavenousLogLevel {
    LOG_INFO = 1,
    LOG_WARNING = 2,
@@ -12,7 +14,7 @@ enum RavenousLogLevel {
                               assert(false); }
 
 
-void log(RavenousLogLevel level, std::string message)
+void log(RavenousLogLevel level, const std::string& message)
 {
    std::string message_header = "\n";
    switch(level)

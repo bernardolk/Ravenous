@@ -11,7 +11,7 @@ void render_player_panel(PlayerPanelContext* panel)
    auto& entity = panel->player->entity_ptr;
    auto& player = panel->player;
 
-   ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 550, 370), ImGuiCond_Appearing);
+   ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::VIEWPORT_WIDTH - 550, 370), ImGuiCond_Appearing);
 
    ImGui::Begin("Player Panel", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
    panel->focused = ImGui::IsWindowFocused();

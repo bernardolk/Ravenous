@@ -4,9 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include <Mesh.h>
 #include <glm/vec3.hpp>
-
 
 namespace Parser
 {

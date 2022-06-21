@@ -265,10 +265,10 @@ RaycastTest test_ray_against_lights(Ray ray)
 // ---------------
 Ray cast_pickray() 
 {
-	float screenX_normalized = (G_INPUT_INFO.mouse_coords.x - G_DISPLAY_INFO.VIEWPORT_WIDTH / 2) /
-                              (G_DISPLAY_INFO.VIEWPORT_WIDTH / 2);
-	float screenY_normalized = -1 * (G_INPUT_INFO.mouse_coords.y - G_DISPLAY_INFO.VIEWPORT_HEIGHT / 2) / 
-                                   (G_DISPLAY_INFO.VIEWPORT_HEIGHT / 2);
+	float screenX_normalized = (G_INPUT_INFO.mouse_coords.x - GlobalDisplayConfig::VIEWPORT_WIDTH / 2) /
+                              (GlobalDisplayConfig::VIEWPORT_WIDTH / 2);
+	float screenY_normalized = -1 * (G_INPUT_INFO.mouse_coords.y - GlobalDisplayConfig::VIEWPORT_HEIGHT / 2) / 
+                                   (GlobalDisplayConfig::VIEWPORT_HEIGHT / 2);
 
 	glm::vec4 ray_clip(screenX_normalized, screenY_normalized, -1.0, 1.0);
 	glm::mat4 inv_view = glm::inverse(G_SCENE_INFO.camera->View4x4);

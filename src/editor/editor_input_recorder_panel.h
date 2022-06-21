@@ -4,7 +4,7 @@
 
 void render_input_recorder_panel(InputRecorderPanelContext* panel)
 {
-   ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 800), ImGuiCond_Once);
+   ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::VIEWPORT_WIDTH - 400, 800), ImGuiCond_Once);
    ImGui::Begin("Input Recorder Panel", &panel->active, ImGuiWindowFlags_None);
    ImGui::SetWindowSize("Input Recorder Panel", ImVec2(350, 220), ImGuiCond_Always);
 

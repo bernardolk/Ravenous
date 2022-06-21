@@ -620,8 +620,8 @@ void initialize()
 
 void render_text_overlay(Player* player)
 {
-   float GUI_y = G_DISPLAY_INFO.VIEWPORT_HEIGHT - 60;
-   float SCREEN_HEIGHT = G_DISPLAY_INFO.VIEWPORT_HEIGHT;
+   float GUI_y = GlobalDisplayConfig::VIEWPORT_HEIGHT - 60;
+   float SCREEN_HEIGHT = GlobalDisplayConfig::VIEWPORT_HEIGHT;
 
   std::string font                = "consola18";
   std::string font_center         = "swanseait38";
@@ -659,7 +659,7 @@ void render_text_overlay(Player* player)
   std::string lives = std::to_string(player->lives);
    render_text(
       font,
-      G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 
+      GlobalDisplayConfig::VIEWPORT_WIDTH - 400, 
       90,
       player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1},
       lives
@@ -693,24 +693,24 @@ void render_text_overlay(Player* player)
          player_state_text = "PLAYER EVICTED FROM SLOPE";
          break;
    }
-   render_text("consola18", G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 30, player_state_text_color, player_state_text);
+   render_text("consola18", GlobalDisplayConfig::VIEWPORT_WIDTH - 400, 30, player_state_text_color, player_state_text);
 
 
   std::string player_floor = "player floor: ";
    if(player->standing_entity_ptr != NULL)
       player_floor += player->standing_entity_ptr->name;
-   render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 60, player_floor);
+   render_text(GlobalDisplayConfig::VIEWPORT_WIDTH - 400, 60, player_floor);
 
   std::string p_grab = "grabbing: ";
    if(player->grabbing_entity != NULL)
       p_grab += player->grabbing_entity->name;
-   render_text(G_DISPLAY_INFO.VIEWPORT_WIDTH - 400, 45, p_grab);
+   render_text(GlobalDisplayConfig::VIEWPORT_WIDTH - 400, 45, p_grab);
 
 
    // FPS
    std::string fps = std::to_string(G_FRAME_INFO.fps);
    std::string fps_gui = "FPS: " + fps;
-   render_text(font, G_DISPLAY_INFO.VIEWPORT_WIDTH - 110, 40, fps_gui);
+   render_text(font, GlobalDisplayConfig::VIEWPORT_WIDTH - 110, 40, fps_gui);
 
 
    // EDITOR TOOLS INDICATORS
@@ -770,7 +770,7 @@ void render_text_overlay(Player* player)
       
       render_text(
          font_center, 
-         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, 
+         GlobalDisplayConfig::VIEWPORT_WIDTH / 2, 
          centered_text_height, 
          tool_text_color_yellow, 
          true,
@@ -779,7 +779,7 @@ void render_text_overlay(Player* player)
 
        render_text(
          font_center_small, 
-         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, 
+         GlobalDisplayConfig::VIEWPORT_WIDTH / 2, 
          centered_text_height_small, 
          snap_mode_subtext_color, 
          true,
@@ -799,7 +799,7 @@ void render_text_overlay(Player* player)
 
       render_text(
          font_center,
-         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
+         GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
          centered_text_height,
          vec3(0.8, 0.8, 0.2),
          true,
@@ -815,7 +815,7 @@ void render_text_overlay(Player* player)
 
          render_text(
             font_center,
-            G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
+            GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
             centered_text_height_small,
             vec3(0.8, 0.8, 0.2),
             true,
@@ -848,7 +848,7 @@ void render_text_overlay(Player* player)
 
       render_text(
          font_center,
-         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
+         GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
          centered_text_height,
          vec3(0.8, 0.8, 0.2),
          true,
@@ -857,7 +857,7 @@ void render_text_overlay(Player* player)
 
       render_text(
          font_center,
-         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
+         GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
          centered_text_height_small,
          vec3(0.8, 0.8, 0.2),
          true,
@@ -872,7 +872,7 @@ void render_text_overlay(Player* player)
    {
       render_text(
          font_center,
-         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
+         GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
          centered_text_height,
          vec3(0.8, 0.8, 0.2),
          true,
@@ -881,7 +881,7 @@ void render_text_overlay(Player* player)
 
       render_text(
          font_center_small,
-         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
+         GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
          centered_text_height_small,
          vec3(0.8, 0.8, 0.2),
          true,
@@ -896,7 +896,7 @@ void render_text_overlay(Player* player)
    {
       render_text(
          font_center,
-         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
+         GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
          centered_text_height,
          vec3(0.8, 0.8, 0.2),
          true,
@@ -918,7 +918,7 @@ void render_text_overlay(Player* player)
 
       render_text(
          font_center_small, 
-         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, 
+         GlobalDisplayConfig::VIEWPORT_WIDTH / 2, 
          centered_text_height - 40, 
          tool_text_color_green, 
          true,
@@ -933,7 +933,7 @@ void render_text_overlay(Player* player)
    {
       render_text(
          font_center,
-         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
+         GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
          centered_text_height,
          vec3(0.8, 0.8, 0.2),
          true,
@@ -948,7 +948,7 @@ void render_text_overlay(Player* player)
    {
       render_text(
          font_center,
-         G_DISPLAY_INFO.VIEWPORT_WIDTH / 2,
+         GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
          centered_text_height,
          vec3(0.8, 0.8, 0.2),
          true,

@@ -1,21 +1,11 @@
-// -----------
-// CATALOGUES
-// -----------
-std::map<std::string, Mesh*>    Geometry_Catalogue;
-std::map<std::string, Shader*>  Shader_Catalogue;
-std::map<std::string, Texture>  Texture_Catalogue;
-
-typedef std::map<GLchar, Character> gl_charmap;
-std::map<std::string, gl_charmap> Font_Catalogue;
-
 // ---------------------
 // CAPACITY DEFINITIONS
 // ---------------------
-const size_t COLLISION_LOG_BUFFER_CAPACITY = 150;
-const size_t COLLISION_LOG_CAPACITY = 20;
-const size_t COLLISION_BUFFER_CAPACITY = WORLD_CELL_CAPACITY * 8;
-const size_t MESSAGE_BUFFER_CAPACITY = 10;
-const int MAX_MESSAGES_TO_RENDER = 8;
+const extern size_t   COLLISION_LOG_BUFFER_CAPACITY;
+const extern size_t   COLLISION_LOG_CAPACITY;
+const extern size_t   COLLISION_BUFFER_CAPACITY;
+const extern size_t   MESSAGE_BUFFER_CAPACITY;
+const extern int      MAX_MESSAGES_TO_RENDER;
 
 // ----------------------
 // global buffers struct
@@ -183,8 +173,8 @@ void render_message_buffer_contents()
          render_count++;
          render_text(
             "consola20",
-            G_DISPLAY_INFO.VIEWPORT_WIDTH / 2, 
-            G_DISPLAY_INFO.VIEWPORT_HEIGHT - 120 - render_count * 25,  
+            GlobalDisplayConfig::VIEWPORT_WIDTH / 2, 
+            GlobalDisplayConfig::VIEWPORT_HEIGHT - 120 - render_count * 25,  
             item->color == vec3(-1) ? vec3(0.8, 0.8, 0.2) : item->color,
             true,
             item->message

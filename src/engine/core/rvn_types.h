@@ -4,18 +4,28 @@
 #include <glm/ext/vector_float3.hpp>
 #include <glm/ext/matrix_float4x4.hpp>
 
-typedef int i16;
-typedef long int i32;
-typedef long long int i64;
+
 typedef unsigned char u8;
 typedef unsigned short int u16;
 typedef unsigned int u32;
 typedef unsigned long long u64;
-const static float PI = 3.141592;
+
 typedef glm::vec4 vec4;
 typedef glm::vec3 vec3;
 typedef glm::vec2 vec2;
 typedef glm::mat4 mat4;
+
+struct Character {
+	u32 TextureID;       // ID handle of the glyph texture
+	glm::ivec2 Size;        // Size of glyph
+	glm::ivec2 Bearing;     // Offset from baseline to left/top of glyph
+	u32 Advance;         // Offset to advance to next glyph
+};
+
+typedef std::map<char, Character> gl_charmap;
+
+// globals
+const static float PI = 3.141592;
 
 extern const float VEC_COMPARE_PRECISION;
 extern const float MAX_FLOAT;

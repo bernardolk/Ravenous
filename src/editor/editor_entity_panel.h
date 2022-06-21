@@ -27,7 +27,7 @@ void render_entity_panel(EntityPanelContext* panel)
    u32 action_flags = 0;
    bool track = false;
 
-   ImGui::SetNextWindowPos(ImVec2(G_DISPLAY_INFO.VIEWPORT_WIDTH - 550, 200), ImGuiCond_Appearing);
+   ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::VIEWPORT_WIDTH - 550, 200), ImGuiCond_Appearing);
    ImGui::Begin("Entity Panel", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
    panel->focused = ImGui::IsWindowFocused();
 

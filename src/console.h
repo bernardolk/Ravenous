@@ -36,8 +36,8 @@ void initialize_console_buffers()
 
 void render_console()
 {
-   render_text(15, G_DISPLAY_INFO.VIEWPORT_HEIGHT - 20, CONSOLE.scratch_buffer);
-   render_text(15, G_DISPLAY_INFO.VIEWPORT_HEIGHT - 35, std::to_string(CONSOLE.b_ind));
+   render_text(15, GlobalDisplayConfig::VIEWPORT_HEIGHT - 20, CONSOLE.scratch_buffer);
+   render_text(15, GlobalDisplayConfig::VIEWPORT_HEIGHT - 35, std::to_string(CONSOLE.b_ind));
 }
 
 void move_to_next_buffer()
