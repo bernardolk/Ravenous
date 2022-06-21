@@ -1,6 +1,7 @@
 #include <map>
 #include <string>
-#include <engine/rvn_types.h>
+#include <engine/core/rvn_types.h>
+#include <texture.h>
 #include <engine/catalogues.h>
 
 std::map<std::string, Mesh*>        Geometry_Catalogue;

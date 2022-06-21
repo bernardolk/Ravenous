@@ -14,8 +14,8 @@ const static std::string INPUT_RECORDINGS_FOLDER_PATH    = PROJECT_PATH + "/reco
 
 struct GLFWwindow;
 
-struct GlobalDisplayInfo {
+struct GlobalDisplayConfig {
    GLFWwindow* window;
-   const static float VIEWPORT_WIDTH   = 1980;
-   const static float VIEWPORT_HEIGHT  = 1080;
+   const inline static float VIEWPORT_WIDTH   = 1980;
+   const inline static float VIEWPORT_HEIGHT  = 1080;
 };

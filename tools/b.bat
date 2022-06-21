@@ -14,7 +14,8 @@ c:\repositories\ravenous\src\ravenous.cpp ^
 c:\repositories\ravenous\src\engine\camera.cpp ^
 c:\repositories\ravenous\src\engine\shader.cpp ^
 c:\repositories\ravenous\src\engine\core\rvn_types.cpp ^
-c:\repositories\ravenous\src\engine\core\catalogues.cpp ^
+c:\repositories\ravenous\src\engine\catalogues.cpp ^
+c:\repositories\ravenous\src\engine\globals.cpp ^
 glfw3.lib glad.lib  IrrXMLd.lib zlibd.lib zlibstaticd.lib freetyped.lib opengl32.lib imgui.lib ^
 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ^
 /EHsc /Zi ^

@@ -71,7 +71,7 @@ struct GLData {
 };
 
 
-GlobalDisplayInfo G_DISPLAY_INFO;
+GlobalDisplayConfig G_DISPLAY_INFO;
 
 struct MouseCoordinates {
    double last_x = 0;

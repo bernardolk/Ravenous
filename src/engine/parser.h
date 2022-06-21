@@ -47,7 +47,7 @@ namespace Parser
 };
 
 
-bool parser_nextline(std::ifstream* reader, std::string* line, Parse* toparse)
+inline bool parser_nextline(std::ifstream* reader, std::string* line, Parse* toparse)
 {
    if(getline(*reader, *line))
    {
