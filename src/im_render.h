@@ -20,8 +20,8 @@
 // Put a prefix + i from the loop in it and you should be fine.
 
 #define IMCUSTOMHASH(x) im_hasher(x)
-#define IM_ITERHASH(x) IM_RENDER._hash_file_line_and_iteration(__FILE__, __LINE__, x)
-#define IMHASH IM_RENDER._hash_file_and_line(__FILE__, __LINE__)
+#define IM_ITERHASH(x) im_hasher(std::string(__FILE__) + "-" + std::to_string(__LINE__) + "-" + std::to_string(x))
+#define IMHASH im_hasher(std::string(__FILE__) + "-" + std::to_string(__LINE__))
 #define IM_R_FIND_SLOT() ImmediateDrawElementSlot slot = _find_element_or_empty_slot(_hash); \
                          if(slot.empty && slot.index == -1) return;
 
@@ -146,16 +146,6 @@ struct GlobalImmediateDraw {
    void _set_indices(int i, std::vector<u32> indices)
    {
       list[i].mesh.indices = indices;
-   }
-
-   size_t _hash_file_and_line(char* file, int line)
-   {
-      return im_hasher(std::string(file) + "-" + std::to_string(line));
-   }
-
-   size_t _hash_file_line_and_iteration(char* file, int line, int it)
-   {
-      return im_hasher(std::string(file) + "-" + std::to_string(line) + "-" + std::to_string(it));
    }
 
    /* --------------------------- */

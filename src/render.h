@@ -422,7 +422,7 @@ void render_text(std::string font, float x, float y, vec3 color, float scale, bo
 	   for (it = text.begin(); it != text.end(); it++)
       {
 		   auto ch = charmap[*it];
-         x_sum += ch.Bearing.x * scale + ch.Size.x * scale;
+         x_sum += ch.bearing.x * scale + ch.size.x * scale;
       }
       x -= x_sum / 2.0;
    }
@@ -434,10 +434,10 @@ void render_text(std::string font, float x, float y, vec3 color, float scale, bo
    {
 		Character ch = charmap[*c];
 
-		GLfloat xpos = x + ch.Bearing.x * scale;
-		GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
-		GLfloat w = ch.Size.x * scale;
-		GLfloat h = ch.Size.y * scale;
+		GLfloat xpos = x + ch.bearing.x * scale;
+		GLfloat ypos = y - (ch.size.y - ch.bearing.y) * scale;
+		GLfloat w = ch.size.x * scale;
+		GLfloat h = ch.size.y * scale;
 		// Update VBO for each character
 		GLfloat vertices[6][4] = {
          { xpos, ypos + h, 0.0, 0.0 },
@@ -449,13 +449,13 @@ void render_text(std::string font, float x, float y, vec3 color, float scale, bo
 		};
 
 		// Render glyph texture over quad
-		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+		glBindTexture(GL_TEXTURE_2D, ch.texture_id);
 		// Update content of VBO memory
 		glBindBuffer(GL_ARRAY_BUFFER, text_geometry->gl_data.VBO);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
 		// Render quad
 		glDrawArrays(GL_TRIANGLES, 0, 6);
-		x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
+		x += (ch.advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
 	}
    glDepthFunc(GL_LESS);
 }

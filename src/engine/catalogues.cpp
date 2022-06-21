@@ -2,6 +2,7 @@
 #include <string>
 #include <engine/core/rvn_types.h>
 #include <texture.h>
+#include <engine/render/text/character.h>
 #include <engine/catalogues.h>
 
 std::map<std::string, Mesh*>        Geometry_Catalogue;

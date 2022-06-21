@@ -64,12 +64,13 @@ gl_charmap load_text_textures(std::string font, int size)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		// Now store character for later use
-		Character character = { 
-         gylphTexture, 
-         glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows), 
-         glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top), 
-         face->glyph->advance.x 
+		Character character = {
+         .texture_id  = gylphTexture,
+         .size        = glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+         .bearing     = glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+         .advance     = face->glyph->advance.x
       };
+
 		font_charmap.insert(std::pair<GLchar, Character>(c, character));
 	}
 
@@ -336,9 +337,9 @@ unsigned int load_texture_from_file(std::string filename, const std::string & di
          break;
    }
 
-   unsigned int textureID;
-   glGenTextures(1, &textureID);
-   glBindTexture(GL_TEXTURE_2D, textureID);
+   unsigned int texture_id;
+   glGenTextures(1, &texture_id);
+   glBindTexture(GL_TEXTURE_2D, texture_id);
    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
    glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -348,7 +349,7 @@ unsigned int load_texture_from_file(std::string filename, const std::string & di
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
    stbi_image_free(data);
-   return textureID;
+   return texture_id;
 }
 
 

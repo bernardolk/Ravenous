@@ -1,13 +1,19 @@
 #pragma once
 
+struct GLData {
+   u32 VAO = 0;
+   u32 VBO = 0;
+   u32 EBO = 0;
+};
+
 struct Mesh {
-    std::vector<Vertex> vertices;
-    std::vector<u32> indices;
-    u32 faces_count;
-    GLenum render_method;
-    GLData gl_data;
-    std::string name;
-    FILETIME last_written;
+    std::vector<Vertex>    vertices;
+    std::vector<u32>       indices;
+    u32                    faces_count;
+    GLenum                 render_method;
+    GLData                 gl_data;
+    std::string            name;
+    FILETIME               last_written;
 
    void setup_gl_data()
    {
@@ -199,8 +205,6 @@ struct Mesh {
 // prototypes
 GLData setup_gl_data_for_lines(Vertex* vertices, size_t size);
 std::vector<Vertex> construct_cylinder(float radius, float half_lenght, int slices); 
-
-
 
 GLData setup_gl_data_for_lines(Vertex* vertices, size_t size) 
 {

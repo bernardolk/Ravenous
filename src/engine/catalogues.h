@@ -3,6 +3,7 @@
 struct Mesh;
 struct Shader;
 struct Texture;
+struct Character;
 
 extern std::map<std::string, Mesh*>        Geometry_Catalogue;
 extern std::map<std::string, Shader*>      Shader_Catalogue;

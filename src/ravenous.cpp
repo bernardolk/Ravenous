@@ -38,6 +38,7 @@
 #include <engine/core/rvn_types.h>
 #include <engine/logging.h>
 #include <engine/configs.h>
+#include <engine/render/text/character.h>
 #include <engine/catalogues.h>
 
 
@@ -63,12 +64,6 @@ struct ProgramMode {
    ProgramModeEnum current = EDITOR_MODE;
    ProgramModeEnum last = EDITOR_MODE;
 } PROGRAM_MODE;
-
-struct GLData {
-   GLuint VAO = 0;
-   GLuint VBO = 0;
-   GLuint EBO = 0;
-};
 
 
 GlobalDisplayConfig G_DISPLAY_INFO;
@@ -119,9 +114,8 @@ struct ProgramConfig {
 #include <in_flags.h>
 #include <cl_types.h>
 #include <texture.h>
-#include <mesh.h>
+#include <engine/mesh.h>
 #include <utils.h>
-#include <character.h>
 #include <engine/shader.h>
 #include <entities.h>
 #include <lights.h>

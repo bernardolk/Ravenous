@@ -9,6 +9,7 @@
 #include <engine/configs.h>
 #include <engine/parser.h>
 #include <engine/logging.h>
+#include <engine/render/text/character.h>
 #include <engine/catalogues.h>
 #include <engine/shader.h>
 

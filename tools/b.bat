@@ -9,7 +9,7 @@ pushd c:\repositories\ravenous\build
             +%time:~6,1%*10^
             +%time:~7,1% >nul
 			
-cl.exe /std:c++17 /MD ^
+cl.exe /std:c++20 /MD ^
 c:\repositories\ravenous\src\ravenous.cpp ^
 c:\repositories\ravenous\src\engine\camera.cpp ^
 c:\repositories\ravenous\src\engine\shader.cpp ^
