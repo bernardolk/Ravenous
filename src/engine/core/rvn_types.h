@@ -17,6 +17,13 @@ typedef glm::mat4 mat4;
 // globals
 const static float PI = 3.141592;
 
+const static mat4 mat4identity(
+	1.0f, 0.0f, 0.0f, 0.0f,
+	0.0f, 1.0f, 0.0f, 0.0f,
+	0.0f, 0.0f, 1.0f, 0.0f,
+	0.0f, 0.0f, 0.0f, 1.0f
+);
+
 extern const float VEC_COMPARE_PRECISION;
 extern const float MAX_FLOAT;
 extern const float MIN_FLOAT;

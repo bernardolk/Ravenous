@@ -1,3 +1,4 @@
+#pragma once
 
 auto world_coords_to_cells(float x, float y, float z);
 vec3 get_world_coordinates_from_world_cell_coordinates(int i, int j, int k);
@@ -43,6 +44,9 @@ struct CellUpdate {
    bool entity_changed_cell;
 };
 
+struct Entity;
+struct BoundingBox;
+
 
 // -----------
 // WORLD CELL
@@ -64,138 +68,21 @@ struct WorldCell {
    // world coords / bounding box
    BoundingBox bounding_box;
 
-   void init(int ii, int ji, int ki)
-   {
-      count = 0;
-
-      // set logical coordinates
-      i = ii;
-      j = ji;
-      k = ki;
-
-      // set physical world coordinates to bounding box
-      vec3 origin = get_world_coordinates_from_world_cell_coordinates(ii, ji, ki);
-      bounding_box.minx = origin.x;
-      bounding_box.miny = origin.y;
-      bounding_box.minz = origin.z;
-      bounding_box.maxx = origin.x + W_CELL_LEN_METERS;
-      bounding_box.maxy = origin.y + W_CELL_LEN_METERS;
-      bounding_box.maxz = origin.z + W_CELL_LEN_METERS;
-
-      // initialize entities list
-      for(int i = 0; i < WORLD_CELL_CAPACITY; i++)
-         entities[i] = nullptr;
-   }
-
-   void remove(Entity* entity)
-   {
-      for(int i = 0; i < WORLD_CELL_CAPACITY; i++)
-         if(entities[i] == entity)
-         {
-            entities[i] = nullptr;
-            defrag();
-            return;
-         }
-   }
-
-   CellUpdate add(Entity* entity)
-   {
-      if(count == WORLD_CELL_CAPACITY)
-      {
-        std::string message = "World cell '" + coords_str() + "' is full.";
-         return CellUpdate{ CellUpdate_CELL_FULL, message };
-      }
-
-      for(int i = 0; i < WORLD_CELL_CAPACITY; i++)
-         if(entities[i] == nullptr)
-         {
-            entities[i] = entity;
-            count++;
-            return CellUpdate{ CellUpdate_OK };
-         }
-
-      return CellUpdate{ CellUpdate_UNEXPECTED, "world cell add method returned weirdly." };
-   }
-
-   void defrag()
-   {
-      if(count == 0)
-         return;
-
-      // initialize holes array
-      unsigned int hole_count = 0;
-      int holes[WORLD_CELL_CAPACITY];
-      for(int i = 0; i < WORLD_CELL_CAPACITY; i++)
-         holes[i] = -1;
-
-      // find holes and store in array
-      // also count how many items there are
-      int new_count = 0;
-      for(int i = 0; i < count; i++)
-      {
-         // we dont want to count the last empty spot as a hole
-         if(entities[i] == nullptr)
-         {
-            if(i + 1 != count)
-               holes[hole_count++] = i;
-         }
-         else 
-            new_count++;
-      }
-
-      // loop through list from top to bottom and fill
-      // holes as it finds candidates to swap      
-      int idx = count - 1; 
-      int hole_idx = 0;
-      while(true)
-      {
-         int hole = holes[hole_idx];
-         if(hole == -1 || idx == 0)
-            break;
-
-         auto item = entities[idx];
-         if(item != nullptr)
-         {
-            entities[hole] = item;
-            entities[idx] = nullptr;
-            hole_idx++;
-         }
-         idx--;
-      }
-      count = new_count;
-   }
-
-  std::string coords_str()
-   {
-      return "Cell [" + std::to_string(i) 
-         + "," + std::to_string(j) + "," + std::to_string(k) 
-         + "] (" + std::to_string(count) + ")";
-   }
-
-   vec3 coords()
-   {
-      return vec3{i, j, k};
-   }
-
-   vec3 coords_meters()
-   {
-      return get_world_coordinates_from_world_cell_coordinates(i, j, k);
-   }
-
-  std::string coords_meters_str()
-   {
-      vec3 mcoords = coords_meters();
-      return "[x: " + format_float_tostr(mcoords[0], 1) 
-         + ", y: " + format_float_tostr(mcoords[1], 1) + ", z: " + format_float_tostr(mcoords[2], 1) 
-         + "]";
-   }
+   void init(int ii, int ji, int ki);
+   void remove(Entity* entity);
+   CellUpdate add(Entity* entity);
+   void defrag();
+   std::string coords_str();
+   vec3 coords();
+   vec3 coords_meters();
+   std::string coords_meters_str();
 };
 
 // -------------------
 // COORDINATE METHODS
 // -------------------
 
-vec3 get_world_coordinates_from_world_cell_coordinates(int i, int j, int k)
+inline vec3 get_world_coordinates_from_world_cell_coordinates(int i, int j, int k)
 {
    float world_x = (i - W_CELLS_OFFSET_X) * W_CELL_LEN_METERS;
    float world_y = (j - W_CELLS_OFFSET_Y) * W_CELL_LEN_METERS;
@@ -205,7 +92,7 @@ vec3 get_world_coordinates_from_world_cell_coordinates(int i, int j, int k)
 }
 
 
-auto world_coords_to_cells(float x, float y, float z)
+inline auto world_coords_to_cells(float x, float y, float z)
 {
    struct {
       int i, j, k;
@@ -230,7 +117,7 @@ auto world_coords_to_cells(float x, float y, float z)
    return world_cell_coords;
 }
 
-auto world_coords_to_cells(vec3 position)
+inline auto world_coords_to_cells(vec3 position)
 {
    return world_coords_to_cells(position.x, position.y, position.z);
 }

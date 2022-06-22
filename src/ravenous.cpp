@@ -43,14 +43,6 @@
 // @todo temp for missile action
 bool Exploded = false;
 
-
-const glm::mat4 mat4identity(
-	1.0f, 0.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f, 0.0f,
-	0.0f, 0.0f, 1.0f, 0.0f,
-	0.0f, 0.0f, 0.0f, 1.0f
-);
-
 // GLOBAL STRUCT VARIABLES OR TYPES 
 enum ProgramModeEnum {
    GAME_MODE = 0,
@@ -118,15 +110,15 @@ struct ProgramConfig {
 #include <engine/mesh.h>
 #include <utils.h>
 #include <engine/shader.h>
-#include <entities.h>
-#include <lights.h>
+#include <engine/entity.h>
+#include <engine/lights.h>
 #include <scene.h>
 #include <entity_state.h>
 #include <player.h>
 #include <engine/camera.h>
 #include <engine/parser.h>
 #include <cl_collider.h>
-#include <world.h>
+#include <engine/world/world.h>
 #include <input_recorder.h>
 #include <globals.h>
 #include <entity_pool.h>

@@ -11,6 +11,8 @@ pushd c:\repositories\ravenous\build
 			
 cl.exe /std:c++20 /MD ^
 c:\repositories\ravenous\src\ravenous.cpp ^
+c:\repositories\ravenous\src\engine\world\world.cpp ^
+c:\repositories\ravenous\src\engine\entity.cpp ^
 c:\repositories\ravenous\src\engine\camera.cpp ^
 c:\repositories\ravenous\src\engine\shader.cpp ^
 c:\repositories\ravenous\src\engine\mesh.cpp ^
