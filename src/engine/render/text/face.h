@@ -1,3 +1,7 @@
+#pragma once
+
+struct Triangle;
+
 struct Face {
    Triangle a;
    Triangle b;
@@ -8,7 +12,7 @@ struct Face {
 // -----------------------------
 // > Triangle / Face operations
 // -----------------------------
-Face face_from_axis_aligned_triangle(Triangle t)
+inline Face face_from_axis_aligned_triangle(Triangle t)
 {
    // computes center
    float x0 = std::min({t.a.x, t.b.x, t.c.x});

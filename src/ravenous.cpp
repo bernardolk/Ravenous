@@ -39,8 +39,6 @@
 #include <engine/logging.h>
 #include <engine/configs.h>
 #include <engine/render/text/character.h>
-#include <engine/catalogues.h>
-
 
 // @todo temp for missile action
 bool Exploded = false;
@@ -112,8 +110,11 @@ struct ProgramConfig {
 #include <rvn_macros.h>
 #include <colors.h>
 #include <in_flags.h>
-#include <cl_types.h>
-#include <texture.h>
+#include <engine/collision/cl_types.h>
+#include <engine/collision/primitives/ray.h>
+#include <engine/collision/primitives/triangle.h>
+#include <engine/collision/primitives/bounding_box.h>
+#include <engine/vertex.h>
 #include <engine/mesh.h>
 #include <utils.h>
 #include <engine/shader.h>
@@ -147,6 +148,9 @@ void erase_entity(Scene* scene, Entity* entity);
 
 #include <cl_tests.h>
 #include <raycast.h>
+#include <engine/render/text/face.h>
+#include <engine/render/text/text_renderer.h>
+#include <engine/render/renderer.h>
 #include <render.h>
 #include <im_render.h>
 #include <in_phase.h>

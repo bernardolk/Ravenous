@@ -17,9 +17,11 @@ struct Shader {
    void setFloat3 (const std::string & name, float value0, float value1, float value2) const;
    void setFloat3 (const std::string & name, vec3 vec) const;
    void setFloat4 (const std::string & name, float value0, float value1, float value2, float value3) const;
-   void setFloat4 (const std::string & name, glm::vec4 vec) const;
-   void setMatrix4(const std::string & name, glm::mat4 mat) const;
+   void setFloat4 (const std::string & name, vec4 vec) const;
+   void setMatrix4(const std::string & name, mat4 mat) const;
 };
+
+extern std::map<std::string, Shader*> Shader_Catalogue;
 
 bool check_shader_compile_errors(Shader* shader, std::string type, unsigned int id);
 

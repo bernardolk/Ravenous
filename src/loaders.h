@@ -2,8 +2,6 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image/stb_image.h>
-#include <ft2build.h>
-#include FT_FREETYPE_H
 
 // prototypes
 using strVector = std::vector<std::string>;
@@ -18,75 +16,6 @@ void              load_textures_from_assets_folder    ();
 strVector         get_files_in_folder                 (std::string directory);
 
 
-
-gl_charmap load_text_textures(std::string font, int size) 
-{
-	// Load font
-	FT_Library ft;
-	if (FT_Init_FreeType(&ft))
-		Quit_fatal("Freetype: Could not init FreeType Library");
-      
-	FT_Face face;
-	std::string filepath = FONTS_PATH + font;
-	if (FT_New_Face(ft, filepath.c_str(), 0, &face))
-		log(LOG_ERROR, "Freetype: Failed to load font");
-
-	FT_Set_Pixel_Sizes(face, 0, size);
-
-   gl_charmap font_charmap;
-	//we will store all characters inside the Characters map
-	for (GLubyte c = 0; c < 128; c++)
-	{
-		//Load character glyph
-		if (FT_Load_Char(face, c, FT_LOAD_RENDER)) 
-      {
-			log(LOG_ERROR, "Freetype: Failed to load Glyph");
-			continue;
-		}
-
-		GLuint gylphTexture;
-		glGenTextures(1, &gylphTexture);
-		glBindTexture(GL_TEXTURE_2D, gylphTexture);
-		glTexImage2D(
-         GL_TEXTURE_2D,
-         0,
-         GL_RED,
-         face->glyph->bitmap.width, 
-         face->glyph->bitmap.rows,
-         0,
-         GL_RED,
-         GL_UNSIGNED_BYTE,
-         face->glyph->bitmap.buffer
-      );
-		// Set texture options
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		// Now store character for later use
-		Character character = {
-         .texture_id  = gylphTexture,
-         .size        = glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-         .bearing     = glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-         .advance     = face->glyph->advance.x
-      };
-
-		font_charmap.insert(std::pair<GLchar, Character>(c, character));
-	}
-
-   // saves font chars to catalogue
-   auto separator = font.find('.');
-   std::string font_name = font.substr(0, separator);
-   std::string font_catalogue_name = font_name + std::to_string(size);
-
-   Font_Catalogue.insert({font_catalogue_name, font_charmap});
-
-	glBindTexture(GL_TEXTURE_2D, 0);
-	FT_Done_Face(face);
-	FT_Done_FreeType(ft);
-
-   return font_charmap;
-}
 
 void load_textures_from_assets_folder()
 {

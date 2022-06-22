@@ -1,5 +1,4 @@
-#include <triangle.h>
-#include <face.h>
+#pragma once
 
 struct RaycastTest {
    bool hit             = false;

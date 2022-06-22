@@ -175,7 +175,7 @@ void update()
    EdContext.last_frame_scene = G_SCENE_INFO.scene_name;
 
    // check for asset changes
-   check_for_asset_changes();
+   // check_for_asset_changes();
    update_triaxis_gizmo();
 
    // ENTITY PANEL

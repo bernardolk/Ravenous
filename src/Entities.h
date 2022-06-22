@@ -245,3 +245,19 @@ struct Entity {
       return type == EntityType_Checkpoint || type == EntityType_TimerTrigger;
    }
 };
+
+
+/*
+   ENTITIES FUNCTION LIMBO -> ALL ENTITY FUNCTIONS LIVE HERE UNTIL REFACTOR IS
+   FINISHED.
+*/
+
+Triangle get_triangle_for_indexed_mesh(Entity* entity, int triangle_index);
+
+Triangle get_triangle_for_indexed_mesh(Entity* entity, int triangle_index)
+{
+   Mesh* mesh = entity->mesh;
+   mat4 model = entity->matModel;
+
+   return get_triangle_for_indexed_mesh(mesh, model, triangle_index);
+}

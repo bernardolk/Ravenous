@@ -762,39 +762,39 @@ void activate_select_entity_aux_tool(
 // -------------
 // MISCELANEOUS
 // -------------
-void check_for_asset_changes();
+// void check_for_asset_changes();
 void render_aabb_boundaries(Entity* entity);
 
-void check_for_asset_changes()
-{
-   auto it = Geometry_Catalogue.begin();
-   while (it != Geometry_Catalogue.end())
-   {
-      auto model_name = it->first;
-      std::string path = MODELS_PATH + model_name + ".obj";
+// void check_for_asset_changes()
+// {
+//    auto it = Geometry_Catalogue.begin();
+//    while (it != Geometry_Catalogue.end())
+//    {
+//       auto model_name = it->first;
+//       std::string path = MODELS_PATH + model_name + ".obj";
 
-      //@todo: platform dependency
-      WIN32_FIND_DATA find_data;
-      HANDLE find_handle = FindFirstFileA(path.c_str(), &find_data);
-      if(find_handle != INVALID_HANDLE_VALUE)
-      {
-         auto mesh = it->second;
-         if(CompareFileTime(&mesh->last_written, &find_data.ftLastWriteTime) != 0)
-         {
-            log(LOG_INFO, "asset updated: " + model_name);
-            mesh->last_written = find_data.ftLastWriteTime;
-            auto dummy_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, model_name);
-            mesh->vertices = dummy_mesh->vertices;
-            mesh->indices = dummy_mesh->indices;
-            mesh->gl_data = dummy_mesh->gl_data;
-            free(dummy_mesh);
-         }
-      }
+//       //@todo: platform dependency
+//       WIN32_FIND_DATA find_data;
+//       HANDLE find_handle = FindFirstFileA(path.c_str(), &find_data);
+//       if(find_handle != INVALID_HANDLE_VALUE)
+//       {
+//          auto mesh = it->second;
+//          if(CompareFileTime(&mesh->last_written, &find_data.ftLastWriteTime) != 0)
+//          {
+//             log(LOG_INFO, "asset updated: " + model_name);
+//             mesh->last_written = find_data.ftLastWriteTime;
+//             auto dummy_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, model_name);
+//             mesh->vertices = dummy_mesh->vertices;
+//             mesh->indices = dummy_mesh->indices;
+//             mesh->gl_data = dummy_mesh->gl_data;
+//             free(dummy_mesh);
+//          }
+//       }
 
-      FindClose(find_handle);
-      it++;
-   }
-}
+//       FindClose(find_handle);
+//       it++;
+//    }
+// }
 
 void render_aabb_boundaries(Entity* entity)
 {
