@@ -46,7 +46,12 @@ struct CellUpdate {
 
 struct Entity;
 struct BoundingBox;
-
+struct RaycastTest;
+enum RayCastType;
+struct PointLight;
+struct SpotLight;
+struct DirectionalLight;
+struct Player;
 
 // -----------
 // WORLD CELL
@@ -126,146 +131,39 @@ inline auto world_coords_to_cells(vec3 position)
 // ----------------
 // > WORLD
 // ----------------
+struct World {
+   std::vector<Entity*>             entities;
+   std::vector<PointLight*>         point_lights;
+   std::vector<SpotLight*>          spot_lights;
+   std::vector<DirectionalLight*>   directional_lights;
+   std::vector<Entity*>             interactables;
+   std::vector<Entity*>             checkpoints;
 
+   const float global_shininess     = 17;
+   vec3 ambient_light               = vec3(1);
+   const float ambient_intensity    = 0;
 
-struct WorldStruct {
-   WorldCell cells[W_CELLS_NUM_X][W_CELLS_NUM_Y][W_CELLS_NUM_Z];
-   WorldCell* cells_in_use[W_CELLS_NUM_X * W_CELLS_NUM_Y * W_CELLS_NUM_Z];
-   int cells_in_use_count = 0;
+   WorldCell      cells[W_CELLS_NUM_X][W_CELLS_NUM_Y][W_CELLS_NUM_Z];
+   WorldCell*     cells_in_use[W_CELLS_NUM_X * W_CELLS_NUM_Y * W_CELLS_NUM_Z];
+   int            cells_in_use_count = 0;
 
-   WorldStruct()
-   {
-      init();
-   }
+   World                                  ();
+   void        init                       ();
+   void        update_cells_in_use_list   ();
+   CellUpdate  update_entity_world_cells  (Entity* entity);
+   RaycastTest raycast                    (
+      Ray ray,    
+      RayCastType test_type, 
+      Entity* skip            = nullptr, 
+      float max_distance      = MAX_FLOAT
+   );
 
-   void init()
-   {
-      for(int i = 0; i < W_CELLS_NUM_X; i++)
-      for(int j = 0; j < W_CELLS_NUM_Y; j++)
-      for(int k = 0; k < W_CELLS_NUM_Z; k++)
-         cells[i][j][k].init(i, j, k);
-   }
+   RaycastTest raycast                    (
+      Ray ray,    
+      Entity* skip            = nullptr, 
+      float max_distance      = MAX_FLOAT
+   );
 
-   void update_cells_in_use_list()
-   {
-      cells_in_use_count = 0;
-      for(int i = 0; i < W_CELLS_NUM_X; i++)
-      for(int j = 0; j < W_CELLS_NUM_Y; j++)
-      for(int k = 0; k < W_CELLS_NUM_Z; k++)
-      {
-         auto cell = &cells[i][j][k];
-         if(cell->count != 0)
-         {
-            cells_in_use[cells_in_use_count] = cell;
-            cells_in_use_count++;
-         }
-      }
-   }
-
-   CellUpdate update_entity_world_cells(Entity* entity)
-   {
-     std::string message;
-
-      // computes which cells the entity is occupying based on it's axis aligned bounding box
-      auto [bb_min, bb_max]   = entity->bounding_box.bounds();
-      auto [i0, j0, k0]       = world_coords_to_cells(bb_min);
-      auto [i1, j1, k1]       = world_coords_to_cells(bb_max);
-
-      // out of bounds catch
-      if (i0 == -1 || i1 == -1)
-      {
-        message = "Entity '" + entity->name + "' is located out of current world bounds.";
-         return CellUpdate{CellUpdate_OUT_OF_BOUNDS, message};
-      }
-
-      std::vector<WorldCell*> new_cells;
-      for(int i = i0; i <= i1; i++)
-      for(int j = j0; j <= j1; j++)
-      for(int k = k0; k <= k1; k++)
-         new_cells.push_back(&cells[i][j][k]);
-
-      // entity too large catch
-      if(new_cells.size() > ENTITY_WOLRD_CELL_OCCUPATION_LIMIT)
-      {
-         message = "Entity '" + entity->name + "' is too large and it occupies more than " +
-            "the limit of " + std::to_string(ENTITY_WOLRD_CELL_OCCUPATION_LIMIT) + " world cells at a time.";
-         return CellUpdate{CellUpdate_ENTITY_TOO_BIG, message};
-      }
-
-      // computes outdated world cells to remove the entity from
-      std::vector<WorldCell*> cells_to_remove_from;
-      for(int i = 0; i < entity->world_cells_count; i++)
-      {
-         auto entity_world_cell = entity->world_cells[i];
-         bool found = false;
-         for(int c = 0; c < new_cells.size(); c++)
-         {
-            if(new_cells[c] == entity_world_cell)
-            {
-               found = true;
-               break;
-            }
-         }
-         if(!found)
-            cells_to_remove_from.push_back(entity_world_cell);
-      }
-
-      // computes the cells to add entity to
-      std::vector<WorldCell*> cells_to_add_to;
-      for(int i = 0; i < new_cells.size(); i++)
-      {
-         auto cell = new_cells[i];
-         bool exists = false;
-         for(int j = 0; j < entity->world_cells_count; j++)
-         {
-            auto entity_cell = entity->world_cells[j];
-            if(cell == entity_cell)
-            {
-               exists = true;
-               break;
-            }
-         }      
-         if(!exists)
-            cells_to_add_to.push_back(cell);
-      }
-
-      // remove entity from old cells
-      for(int i = 0; i < cells_to_remove_from.size(); i++)
-      {
-         auto cell = cells_to_remove_from[i];
-         cell->remove(entity);
-      }
-
-      // add entity to new cells
-      // PS: if this fails, entity will have no cells. Easier to debug.
-      for(int i = 0; i < cells_to_add_to.size(); i++)
-      {
-         auto cell = cells_to_add_to[i];
-         auto cell_update = cell->add(entity);
-         if(cell_update.status != CellUpdate_OK)
-         {
-            return cell_update;
-         }
-      }
-      
-      // re-set cells to entity
-      int new_cells_count = 0;
-      for(int i = 0; i < new_cells.size(); i++)
-      {
-         auto cell = new_cells[i];
-         entity->world_cells[new_cells_count] = cell;
-         new_cells_count++;
-      }
-      entity->world_cells_count = new_cells_count;
-
-      bool changed_cells = cells_to_add_to.size() > 0 || cells_to_remove_from.size() > 0;
-      return CellUpdate{CellUpdate_OK, "", changed_cells};
-   }
+   RaycastTest linear_raycast_array       (Ray first_ray, int qty, float spacing, Player* player);
+   RaycastTest raycast_lights             (Ray ray);
 };
-
-
-
-
-
-
-

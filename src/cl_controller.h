@@ -1,7 +1,3 @@
-#include <cl_log.h>
-#include <cl_resolvers.h>
-#include <cl_edge_detection.h>
-
 CL_ResultsArray CL_test_and_resolve_collisions(Player* player);
 CL_Results CL_test_collision_buffer_entitites(
    Player* player,

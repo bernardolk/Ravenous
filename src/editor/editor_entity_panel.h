@@ -503,17 +503,17 @@ void entity_panel_track_entity_changes(EntityPanelContext* panel)
 }
 
 
-void entity_panel_update_entity_and_editor_context(EntityPanelContext* panel, u32 action)
+void entity_panel_update_entity_and_editor_context(EntityPanelContext* panel, u32 action, World* world)
 {
    if(!(action & EntityPanelTA_Duplicate || action & EntityPanelTA_Delete))
       deactivate_editor_modes();
 
    panel->entity->update();
-   auto update_cells = World.update_entity_world_cells(panel->entity);
+   auto update_cells = world->update_entity_world_cells(panel->entity);
    if(update_cells.status != CellUpdate_OK)
       G_BUFFERS.rm_buffer->add(update_cells.message, 3500);
 
-   World.update_cells_in_use_list();
+   world->update_cells_in_use_list();
 }
 
 

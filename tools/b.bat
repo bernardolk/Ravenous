@@ -10,12 +10,14 @@ pushd c:\repositories\ravenous\build
             +%time:~7,1% >nul
 			
 cl.exe /std:c++20 /MD ^
+c:\repositories\ravenous\src\cl_edge_detection.cpp ^
 c:\repositories\ravenous\src\ravenous.cpp ^
+c:\repositories\ravenous\src\engine\world\world.cpp ^
+c:\repositories\ravenous\src\engine\collision\raycast.cpp ^
 c:\repositories\ravenous\src\engine\render\im_render.cpp ^
 c:\repositories\ravenous\src\engine\collision\simplex.cpp ^
 c:\repositories\ravenous\src\engine\collision\cl_epa.cpp ^
 c:\repositories\ravenous\src\engine\collision\cl_gjk.cpp ^
-c:\repositories\ravenous\src\engine\world\world.cpp ^
 c:\repositories\ravenous\src\engine\entity.cpp ^
 c:\repositories\ravenous\src\engine\camera.cpp ^
 c:\repositories\ravenous\src\engine\shader.cpp ^

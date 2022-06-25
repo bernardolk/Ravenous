@@ -68,28 +68,28 @@ struct MouseCoordinates {
 };
 
 struct GlobalInputInfo {
-   bool forget_last_mouse_coords = true;
-   MouseCoordinates mouse_coords;
-   u64 key_state = 0;
-   u8 mouse_state = 0;
-   bool block_mouse_move = false;
+   bool              forget_last_mouse_coords   = true;
+   MouseCoordinates  mouse_coords;
+   u64               key_state                  = 0;
+   u8                mouse_state                = 0;
+   bool              block_mouse_move           = false;
 } G_INPUT_INFO;
 
 struct GlobalFrameInfo {
-   float duration;
-   float real_duration;
-   float last_frame_time;
-   int   fps;
-   int   fps_counter;
-   float sub_second_counter;
-   float time_step = 1;
+   float    duration;
+   float    real_duration;
+   float    last_frame_time;
+   int      fps;
+   int      fps_counter;
+   float    sub_second_counter;
+   float    time_step = 1;
 } G_FRAME_INFO;
 
 struct ProgramConfig {
-  std::string initial_scene;
-   float camspeed;
-   vec3 ambient_light;
-   float ambient_intensity;
+   std::string       initial_scene;
+   float             camspeed;
+   vec3              ambient_light;
+   float             ambient_intensity;
 } G_CONFIG;
 
 // should be conditional in the future to support multiple platforms and
@@ -117,7 +117,7 @@ struct ProgramConfig {
 #include <player.h>
 #include <engine/camera.h>
 #include <engine/parser.h>
-#include <cl_collider.h>
+#include <engine/collision/raycast.h>
 #include <engine/world/world.h>
 #include <input_recorder.h>
 #include <globals.h>
@@ -136,16 +136,13 @@ Camera* edCam;
 void toggle_program_modes(Player* player);
 void erase_entity(Scene* scene, Entity* entity);
 #include <editor/editor_im_macros.h>
-
-
-#include <cl_tests.h>
-#include <raycast.h>
 #include <engine/render/text/face.h>
 #include <engine/render/text/text_renderer.h>
 #include <engine/render/renderer.h>
 #include <render.h>
 #include <engine/render/im_render.h>
 #include <in_phase.h>
+#include <cl_edge_detection.h>
 #include <gp_player_state.h>
 #include <an_player.h>
 #include <an_update.h>
@@ -153,6 +150,9 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <engine/collision/simplex.h>
 #include <engine/collision/cl_gjk.h>
 #include <engine/collision/cl_epa.h>
+#include <cl_log.h>
+#include <cl_resolvers.h>
+#include <cl_edge_detection.h>
 #include <cl_controller.h>
 #include <gp_timer.h>
 #include <gp_game_state.h>
@@ -190,18 +190,19 @@ void check_all_geometry_has_gl_data();
 void setup_gl();
 void simulate_gravity_trajectory();
 
-
 int main()
 {
+   World world;
+
    // INITIAL GLFW AND GLAD SETUPS
 	setup_GLFW(true);
    setup_gl();
 
    // create cameras
-	Camera* editor_camera = new Camera();
-   Camera* first_person_camera = new Camera();
-   G_SCENE_INFO.views[EDITOR_CAM] = editor_camera;
-   G_SCENE_INFO.views[FPS_CAM] = first_person_camera;
+	Camera* editor_camera               = new Camera();
+   Camera* first_person_camera         = new Camera();
+   G_SCENE_INFO.views[EDITOR_CAM]      = editor_camera;
+   G_SCENE_INFO.views[FPS_CAM]         = first_person_camera;
    pCam = first_person_camera;
    edCam = editor_camera;
 
@@ -224,7 +225,7 @@ int main()
 
    // loads initial scene
    G_CONFIG = load_configs();
-   load_scene_from_file(G_CONFIG.initial_scene, &World);
+   load_scene_from_file(G_CONFIG.initial_scene, &world);
    Player* player = G_SCENE_INFO.player;
    player->checkpoint_pos = player->entity_ptr->position;   // set player initial checkpoint position
 
@@ -236,7 +237,7 @@ int main()
    Entity_Manager.set_default_entity_attributes(            // sets some loaded assets from scene as
       "aabb", "model", "grey"                               // defaults for entity construction
    );  
-   World.update_entity_world_cells(player->entity_ptr);     // sets player to the world
+   world.update_entity_world_cells(player->entity_ptr);     // sets player to the world
    CL_recompute_collision_buffer_entities(player);          // populates collision buffer and others
    
    Editor::initialize();
@@ -294,18 +295,18 @@ int main()
       switch(PROGRAM_MODE.current)
       {
          case CONSOLE_MODE:
-            handle_console_input(input_flags, player, &World, G_SCENE_INFO.camera);
+            handle_console_input(input_flags, player, &world, G_SCENE_INFO.camera);
             break;
          case EDITOR_MODE:
-            Editor::handle_input_flags(input_flags, player);
+            Editor::handle_input_flags(input_flags, player, &world, G_SCENE_INFO.camera);
             if(!ImGui::GetIO().WantCaptureKeyboard)
             {
-               IN_handle_movement_input(input_flags, player, EDITOR_MODE);
+               IN_handle_movement_input(input_flags, player, EDITOR_MODE, &world);
                IN_handle_common_input(input_flags, player);
             }
             break;
          case GAME_MODE:
-            IN_handle_movement_input(input_flags, player, GAME_MODE);
+            IN_handle_movement_input(input_flags, player, GAME_MODE, &world);
             IN_handle_common_input(input_flags, player);
             break;
       }
@@ -325,7 +326,6 @@ int main()
       // -------------
 		//	UPDATE PHASE
       // -------------
-      Frame_Ray_Collider_Count = 0;
       if(PROGRAM_MODE.current == GAME_MODE)
 		   camera_update_game(G_SCENE_INFO.camera, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT, player->eye());
       else if(PROGRAM_MODE.current == EDITOR_MODE)
@@ -362,9 +362,9 @@ int main()
       // -------------
 		glClearColor(0.196, 0.298, 0.3607, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      render_depth_map();
-      render_depth_cubemap();
-		render_scene(G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
+      render_depth_map(&world);
+      render_depth_cubemap(&world);
+		render_scene(&world, G_SCENE_INFO.camera);
       //render_depth_map_debug();
       switch(PROGRAM_MODE.current)
       {
@@ -372,8 +372,8 @@ int main()
             render_console();
             break;
          case EDITOR_MODE:
-            Editor::update();
-            Editor::render(player, &World);
+            Editor::update(player, &world, G_SCENE_INFO.camera);
+            Editor::render(player, &world, G_SCENE_INFO.camera);
             break;
          case GAME_MODE:
             render_game_gui(player);
@@ -447,11 +447,11 @@ void start_frame()
    }
 }
 
-void check_all_entities_have_shaders()
+void check_all_entities_have_shaders(World* world)
 {
-   For(G_SCENE_INFO.active_scene->entities.size())
+   For(world->entities.size())
    {
-	   auto entity = G_SCENE_INFO.active_scene->entities[i];
+	   auto entity = world->entities[i];
 
       if(entity->shader == nullptr)
          Quit_fatal("shader not set for entity '" + entity->name + "'.");
@@ -461,11 +461,11 @@ void check_all_entities_have_shaders()
    }
 }
 
-void check_all_entities_have_ids()
+void check_all_entities_have_ids(World* world)
 {
-	For(G_SCENE_INFO.active_scene->entities.size())
+	For(world->entities.size())
    {
-	   auto entity = G_SCENE_INFO.active_scene->entities[i];
+	   auto entity = world->entities[i];
 
       if(entity->name != PLAYER_NAME && entity->id == -1)
          Quit_fatal("There are entities without IDs. Check scene loading code for a flaw.");
@@ -485,17 +485,13 @@ void check_all_geometry_has_gl_data()
 }
 
 
-inline void update_scene_objects() 
+inline void update_scene_objects(World* world) 
 {
-	Entity** entity_iterator = &G_SCENE_INFO.active_scene->entities[0];
-	size_t list_size = G_SCENE_INFO.active_scene->entities.size();
-	for (int i = 0; i < list_size; i++) 
+	for (int i = 0; i < world->entities.size(); i++) 
    {
-      Entity* &entity = *entity_iterator;
+      Entity* entity = world->entities[i];
 		// Updates model matrix;	
 		entity->update();
-      entity_iterator++;
-
       // auto[min,max] = entity->bounding_box.bounds();
       // IM_RENDER.add_point(IMHASH, min, 3.0, true, vec3(0.964, 0.576, 0.215));
       // IM_RENDER.add_point(IMHASH, max, 3.0, true, vec3(0.964, 0.576, 0.215));

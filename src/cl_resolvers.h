@@ -7,7 +7,7 @@ bool CL_run_tests_for_fall_simulation(Player* player);
 void GP_update_player_state(Player* &player);
 CL_Results CL_test_player_vs_entity(Entity* entity, Player* player);
 
-float PLAYER_STEPOVER_LIMIT   = 0.21;
+float PLAYER_STEPOVER_LIMIT = 0.21;
 
 
 // ---------------------
@@ -28,7 +28,7 @@ struct CL_VtraceResult {
 };
 
 
-CL_VtraceResult CL_do_stepover_vtrace(Player* player)
+CL_VtraceResult CL_do_stepover_vtrace(Player* player, World* world)
 {
    /* Cast a ray at player's last point of contact with terrain to look for something steppable (terrain).
       Will cull out any results that are to be considered too high (is a wall) or too low (is a hole) considering
@@ -36,7 +36,7 @@ CL_VtraceResult CL_do_stepover_vtrace(Player* player)
 
    vec3 ray_origin      = player->last_terrain_contact_point() + vec3(0, 0.21, 0);
    auto downward_ray    = Ray{ ray_origin, -UNIT_Y };
-   RaycastTest raytest  = test_ray_against_scene(downward_ray, RayCast_TestOnlyFromOutsideIn, player->entity_ptr);
+   RaycastTest raytest  = world->raycast(downward_ray, RayCast_TestOnlyFromOutsideIn, player->entity_ptr);
 
    if(!raytest.hit) 
       return CL_VtraceResult{ false };

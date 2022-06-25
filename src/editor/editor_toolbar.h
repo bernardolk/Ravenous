@@ -2,7 +2,7 @@
 // > EDITOR TOOLBAR
 //------------------
 
-void render_toolbar()
+void render_toolbar(World* world)
 {
    ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::VIEWPORT_WIDTH - 230, 180), ImGuiCond_Appearing);
    ImGui::Begin("Tools", &EdContext.toolbar_active, ImGuiWindowFlags_AlwaysAutoResize);
@@ -106,12 +106,12 @@ void render_toolbar()
 
    // SHOW STUFF
    ImGui::Checkbox("Show Event Triggers", &EdContext.show_event_triggers);
-   ImGui::Checkbox("Show WorldStruct Cells", &EdContext.show_world_cells);
+   ImGui::Checkbox("Show World Cells", &EdContext.show_world_cells);
    ImGui::Checkbox("Show Point Lights", &EdContext.show_lightbulbs);
    ImGui::NewLine();
    if(ImGui::Button("Unhide entities"))
    {
-      unhide_entities();
+      unhide_entities(world);
    }
 
    // OPTIONS

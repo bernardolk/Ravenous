@@ -1,3 +1,4 @@
+#pragma once
 
 struct SpotLight {
 	vec3 position              = vec3(0);

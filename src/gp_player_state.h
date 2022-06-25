@@ -1,3 +1,4 @@
+#pragma once
 
 /* 
    --------------------
@@ -5,9 +6,6 @@
    --------------------
    Work in progress state machine-like modelling of player state 
 */
-
-#include <ledge.h>
-
 void GP_player_state_change_jumping_to_falling    (Player* player);
 void GP_player_state_change_standing_to_falling   (Player* player);
 void GP_player_state_change_falling_to_standing   (Player* player);

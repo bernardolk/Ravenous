@@ -1,4 +1,4 @@
-void handle_input_flags(InputFlags flags, Player* &player)
+void handle_input_flags(InputFlags flags, Player* &player, World* world, Camera* camera)
 {
    // ------------------------
    // EDITOR EDITING COMMANDS
@@ -19,7 +19,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
    {
       // save scene
       player->checkpoint_pos = player->entity_ptr->position;
-      save_scene_to_file("", player, false);
+      save_scene_to_file("", player, world, false);
       // set scene
       G_CONFIG.initial_scene = G_SCENE_INFO.scene_name;
       save_configs_to_file();
@@ -197,11 +197,11 @@ void handle_input_flags(InputFlags flags, Player* &player)
       }
       else if(EdContext.measure_mode)
       {
-         check_selection_to_measure();
+         check_selection_to_measure(world);
       }
       else if(EdContext.locate_coords_mode)
       {
-         check_selection_to_locate_coords();
+         check_selection_to_locate_coords(world);
       }
       else if(EdContext.stretch_mode)
       {
@@ -209,7 +209,7 @@ void handle_input_flags(InputFlags flags, Player* &player)
       }
       else if(flags.key_press & KEY_G)
       {
-         check_selection_to_move_entity();
+         check_selection_to_move_entity(world, camera);
       }
       else
       {
@@ -220,14 +220,14 @@ void handle_input_flags(InputFlags flags, Player* &player)
             if(EdContext.select_entity_aux_mode)
                return;
 
-            if(check_selection_to_grab_entity_arrows())
+            if(check_selection_to_grab_entity_arrows(camera))
                return;
 
-            if(check_selection_to_grab_entity_rotation_gizmo())
+            if(check_selection_to_grab_entity_rotation_gizmo(camera))
                return;
          }
 
-         check_selection_to_open_panel(player);
+         check_selection_to_open_panel(player, world, camera);
       }
    }
 
@@ -246,8 +246,8 @@ void handle_input_flags(InputFlags flags, Player* &player)
    // -------------------------------
    if(pressed_once(flags, KEY_C))
    {
-      auto pickray = cast_pickray();
-      auto test = test_ray_against_scene(pickray, player->entity_ptr);
+      auto pickray = cast_pickray(G_SCENE_INFO.camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
+      auto test = world->raycast(pickray, player->entity_ptr);
       if(test.hit)
       {
          auto surface_point =  point_from_detection(pickray, test);

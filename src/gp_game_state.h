@@ -1,4 +1,3 @@
-
 struct GameState {
 
    // Timed events (timers)

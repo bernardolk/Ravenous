@@ -1,5 +1,5 @@
 
-bool save_scene_to_file(std::string scene_name, Player* player, bool do_copy)
+bool save_scene_to_file(std::string scene_name, Player* player, World* world, bool do_copy)
 {
    bool was_renamed = scene_name.length() > 0;
    if(!was_renamed)
@@ -57,9 +57,9 @@ bool save_scene_to_file(std::string scene_name, Player* player, bool do_copy)
       << fps_cam->Front.z << "\n"; 
 
    // write light sources POINT
-   for(int it = 0; it < G_SCENE_INFO.active_scene->pointLights.size(); it++)
+   for(int i = 0; i < world->point_lights.size(); i++)
    {
-      auto light = G_SCENE_INFO.active_scene->pointLights[it];
+      auto light = *world->point_lights[i];
 
       writer << "\n$point\n"
             << "position "
@@ -83,9 +83,9 @@ bool save_scene_to_file(std::string scene_name, Player* player, bool do_copy)
    }
 
    // write light sources SPOT
-   for(int it = 0; it < G_SCENE_INFO.active_scene->spotLights.size(); it++)
+   for(int i = 0; i < world->spot_lights.size(); i++)
    {
-      auto light = G_SCENE_INFO.active_scene->spotLights[it];
+      auto light = *world->spot_lights[i];
 
       writer << "\n$spot\n"
             << "position "
@@ -117,9 +117,9 @@ bool save_scene_to_file(std::string scene_name, Player* player, bool do_copy)
    }
 
    // write light sources DIRECTIONAL
-   for(int it = 0; it < G_SCENE_INFO.active_scene->directionalLights.size(); it++)
+   for(int i = 0; i < world->directional_lights.size(); i++)
    {
-      auto light = G_SCENE_INFO.active_scene->directionalLights[it];
+      auto light = *world->directional_lights[i];
 
       writer << "\n$directional\n"
             << "direction "
@@ -136,14 +136,9 @@ bool save_scene_to_file(std::string scene_name, Player* player, bool do_copy)
             << light.specular.z << "\n";
    }
 
-
-   // @todo WE SHOULD SORT ENTITIES BY IDS BEFORE WRITING! (to minimize git conflicts in the future.)
-   // write scene data (for each entity)
-   Entity **entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
-   int entities_vec_size =  G_SCENE_INFO.active_scene->entities.size();
-	for(int it = 0; it < entities_vec_size; it++) 
+   for(int it = 0; it < world->entities.size(); it++) 
    {
-	   auto entity = *entity_iterator++;
+      Entity* entity = world->entities[0];
       if(entity->name == "Player")
          continue;
 

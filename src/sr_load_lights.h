@@ -1,5 +1,5 @@
 
-void parse_and_load_light_source(Parser::Parse p, std::ifstream* reader, int& line_count, std::string path)
+void parse_and_load_light_source(Parser::Parse p, std::ifstream* reader, int& line_count, std::string path, World* world)
 {
   std::string line;
 
@@ -14,7 +14,7 @@ void parse_and_load_light_source(Parser::Parse p, std::ifstream* reader, int& li
 
    if(type == "point")
    {
-      PointLight point_light;
+      PointLight& point_light = *(new PointLight());
 
       while(parser_nextline(reader, &line, &p))
       {
@@ -58,11 +58,11 @@ void parse_and_load_light_source(Parser::Parse p, std::ifstream* reader, int& li
          else break;
       }
 
-      G_SCENE_INFO.active_scene->pointLights.push_back(point_light);
+      world->point_lights.push_back(&point_light);
    }
    else if(type == "spot")
    {
-      SpotLight spotlight;
+      SpotLight& spotlight = *(new SpotLight());
 
       while(parser_nextline(reader, &line, &p))
       {
@@ -123,11 +123,11 @@ void parse_and_load_light_source(Parser::Parse p, std::ifstream* reader, int& li
          else break;
       }
 
-      G_SCENE_INFO.active_scene->spotLights.push_back(spotlight);     
+      world->spot_lights.push_back(&spotlight);     
    }
    else if(type == "directional")
    {
-      DirectionalLight light;
+      DirectionalLight& light = *(new DirectionalLight());
 
       while(parser_nextline(reader, &line, &p))
       {
@@ -153,6 +153,6 @@ void parse_and_load_light_source(Parser::Parse p, std::ifstream* reader, int& li
          else break;
       }
 
-      G_SCENE_INFO.active_scene->directionalLights.push_back(light);     
+      world->directional_lights.push_back(&light);     
    }
 }

@@ -2,7 +2,7 @@
 // SCENE OBJECTS PANEL
 // --------------------
 
-void render_scene_objects_panel(SceneObjectsPanelContext* panel)
+void render_scene_objects_panel(World* world, SceneObjectsPanelContext* panel)
 {
    ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::VIEWPORT_WIDTH - 600, 50), ImGuiCond_Appearing);
    ImGui::Begin("Scene objects", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
@@ -15,10 +15,9 @@ void render_scene_objects_panel(SceneObjectsPanelContext* panel)
    _search_text.assign(panel->search_text);
    tolower(&_search_text);
 
-   Scene* scene = G_SCENE_INFO.active_scene;
-   For(scene->entities.size())
+   For(world->entities.size())
    {
-      Entity* entity = scene->entities[i];
+      Entity* entity = world->entities[i];
       std::string name = entity->name;
       tolower(&name);
 

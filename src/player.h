@@ -1,3 +1,5 @@
+#pragma once
+
 enum PlayerState {
    PLAYER_STATE_FALLING,
    PLAYER_STATE_STANDING,
@@ -35,10 +37,10 @@ float PLAYER_ANIMATION_DURATIONS[] = {
 
 // forward declarations
 struct Player;
+struct Entity;
 void AN_p_anim_force_interrupt(Player* player);
 bool CL_update_player_world_cells(Player* player);
 void CL_recompute_collision_buffer_entities(Player* player);
-void editor_print(std::string msg, float duration, vec3 color);
 
 struct Player {
    Entity* entity_ptr;
@@ -133,7 +135,6 @@ struct Player {
       if(cells_updated) 
       {
          CL_recompute_collision_buffer_entities(this);
-         // editor_print("Recomputed World Cells for Player.", 2000, COLOR_PURPLE_1);
       }
    }
 

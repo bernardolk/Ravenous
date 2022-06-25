@@ -1,5 +1,7 @@
+#pragma once
+
 void IN_handle_common_input                     (InputFlags flags, Player* &player);
-void IN_handle_movement_input                   (InputFlags flags, Player* &player, ProgramModeEnum pm);
+void IN_handle_movement_input                   (InputFlags flags, Player* &player, ProgramModeEnum pm, World* world);
 
 u64 KEY_MOVE_UP, KEY_MOVE_DOWN, KEY_MOVE_LEFT, KEY_MOVE_RIGHT, KEY_DASH, KEY_WALK, KEY_ACTION;
 
@@ -53,7 +55,7 @@ void IN_process_move_keys(InputFlags flags, vec3& v_dir)
 }
 
 
-void IN_handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm)
+void IN_handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum pm, World* world)
 {
    player->dodge_btn = false;
 
@@ -96,7 +98,7 @@ void IN_handle_movement_input(InputFlags flags, Player* &player, ProgramModeEnum
          // INTERACT
          if(pressed_once(flags, KEY_ACTION))
          {
-            GP_check_trigger_interaction(player);
+            GP_check_trigger_interaction(player, world);
             player->dodge_btn = true;
          }
 

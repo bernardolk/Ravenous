@@ -19,12 +19,12 @@ struct DeferredEntityRelationBuffer {
 
 
 // Prototypes
-bool load_scene_from_file(std::string scene_name, WorldStruct* world);
+bool load_scene_from_file(std::string scene_name, World* world);
 Entity* parse_and_load_entity(
    Parser::Parse p, std::ifstream* reader, int& line_count, std::string path, DeferredEntityRelationBuffer* entity_relations
 );
 void parse_and_load_player_attribute(Parser::Parse p, std::ifstream* reader, int& line_count, std::string path, Player* player);
-void parse_and_load_light_source(Parser::Parse p, std::ifstream* reader, int& line_count,std::string path);
+void parse_and_load_light_source(Parser::Parse p, std::ifstream* reader, int& line_count,std::string path, World* world);
 void parse_and_load_camera_settings(Parser::Parse p, std::ifstream* reader, int& line_count, std::string path);
 void parse_and_load_player_orientation(Parser::Parse p, std::ifstream* reader, int& line_count, std::string path, Player* player);
 bool load_player_attributes_from_file();
@@ -43,9 +43,9 @@ bool save_configs_to_file();
 #include <sr_load_configs.h>
 #include <sr_load_entity.h>
 
-bool load_scene_from_file(std::string scene_name, WorldStruct* world)
+bool load_scene_from_file(std::string scene_name, World* world)
 {
-  std::string path = SCENES_FOLDER_PATH + scene_name + ".txt";
+   std::string path = SCENES_FOLDER_PATH + scene_name + ".txt";
    std::ifstream reader(path);
 
    if(!reader.is_open())
@@ -55,21 +55,20 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
    }
 
    // clears the current scene entity data
-   if(G_SCENE_INFO.active_scene != NULL)
-      G_SCENE_INFO.active_scene->entities.clear();
-      // clear buffers ?
+   // @TODO: This is not freeing entities from memory ... d'oh
+   world->entities.clear();
 
    // Gets a new world struct from scratch
-   World.init();
+   world->init();
 
    // creates new scene
    // @todo: possibly leaking memory if switching between scenes.
    auto scene = new Scene();
    G_SCENE_INFO.active_scene = scene;
    G_SCENE_INFO.camera = G_SCENE_INFO.views[0];    // sets to editor camera
-   Entity_Manager.set_entity_registry(&G_SCENE_INFO.active_scene->entities);
-   Entity_Manager.set_checkpoints_registry(&G_SCENE_INFO.active_scene->checkpoints);
-   Entity_Manager.set_interactables_registry(&G_SCENE_INFO.active_scene->interactables);
+   Entity_Manager.set_entity_registry(&world->entities);
+   Entity_Manager.set_checkpoints_registry(&world->checkpoints);
+   Entity_Manager.set_interactables_registry(&world->interactables);
 
    // creates player
    auto player_entity = create_player_entity();
@@ -137,7 +136,7 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
       }
       else if(p.cToken == '$')
       {
-         parse_and_load_light_source(p, &reader, line_count, path);
+         parse_and_load_light_source(p, &reader, line_count, path, world);
       }
       else if(p.cToken == '*')
       {
@@ -161,9 +160,9 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
       auto deferred_entity_id    = entity_relations.deferred_entity_ids[i];
       Entity* deferred_entity    = nullptr;
 
-      Forj(scene->entities.size())
+      Forj(world->entities.size())
       {  
-         Entity* entity = scene->entities[j];
+         Entity* entity = world->entities[j];
          if(entity->id == deferred_entity_id)
          {
             deferred_entity = entity;
@@ -203,9 +202,9 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
    }
 
    // assign IDs to entities missing them starting from max current id
-   For(scene->entities.size())
+   For(world->entities.size())
    {
-      auto entity = scene->entities[i];
+      auto entity = world->entities[i];
       if(entity->name != PLAYER_NAME && entity->id == -1)
       {
          entity->id = Entity_Manager.next_entity_id++;
@@ -217,7 +216,7 @@ bool load_scene_from_file(std::string scene_name, WorldStruct* world)
    G_SCENE_INFO.scene_name = scene_name;
 
    // save backup
-   save_scene_to_file("backup", player, true);
+   save_scene_to_file("backup", player, world, true);
 
    return true;
 } 

@@ -1,24 +1,26 @@
+#pragma once
 
+struct Entity;
 
 const unsigned int   R_SHADOW_BUFFER_WIDTH = 1920, R_SHADOW_BUFFER_HEIGHT = 1080;
 unsigned int         R_DEPTH_MAP_FBO;
 unsigned int         R_DEPTH_MAP;
 
-mat4 R_DIR_LIGHT_SPACE_MATRIX;
-vec3 R_DIRECTIONAL_LIGHT_POS = vec3{-2.0f, 4.0f, -1.0f};
+mat4                 R_DIR_LIGHT_SPACE_MATRIX;
+vec3                 R_DIRECTIONAL_LIGHT_POS = vec3{-2.0f, 4.0f, -1.0f};
 
 // depth cubemap (point light shadow)
-unsigned int   R_DEPTH_CUBEMAP_FBO;
-mat4           R_POINT_LIGHT_SPACE_MATRICES[6];
-unsigned int   R_DEPTH_CUBEMAP_TEXTURE;
-float          R_CUBEMAP_NEAR_PLANE = 1.0f;
-float          R_CUBEMAP_FAR_PLANE = 25.0f;
+unsigned int         R_DEPTH_CUBEMAP_FBO;
+mat4                 R_POINT_LIGHT_SPACE_MATRICES[6];
+unsigned int         R_DEPTH_CUBEMAP_TEXTURE;
+float                R_CUBEMAP_NEAR_PLANE = 1.0f;
+float                R_CUBEMAP_FAR_PLANE = 25.0f;
 
 
-void render_entity(Entity* entity);
-void render_scene(Scene* scene, Camera* camera);
-void render_editor_entity(Entity* entity, Scene* scene, Camera* camera);
-void set_shader_light_variables(Scene* scene, Shader* shader, Camera* camera);
+void render_entity               (Entity* entity);
+void render_scene                (World* world, Camera* camera);
+void render_editor_entity        (Entity* entity, World* world, Camera* camera);
+void set_shader_light_variables  (World* world, Shader* shader, Camera* camera);
 
 // --------------
 // RENDER ENTITY
@@ -98,7 +100,7 @@ void render_entity(Entity* entity)
 }
 
 
-void render_editor_entity(Entity* entity, Scene* scene, Camera* camera)
+void render_editor_entity(Entity* entity, World* world, Camera* camera)
 {
    entity->shader->use();
    // important that the gizmo dont have a position set.
@@ -108,7 +110,7 @@ void render_editor_entity(Entity* entity, Scene* scene, Camera* camera)
    entity->shader->setMatrix4("model",             entity->matModel);
    entity->shader->setFloat3 ("viewPos",           camera->Position);
    entity->shader->setFloat3 ("entity_position",   entity->position);
-   entity->shader->setFloat  ("shininess",         scene->global_shininess);
+   entity->shader->setFloat  ("shininess",         world->global_shininess);
 
    render_entity(entity);
 }
@@ -117,24 +119,22 @@ void render_editor_entity(Entity* entity, Scene* scene, Camera* camera)
 // -------------
 // RENDER SCENE
 // -------------
-void render_scene(Scene* scene, Camera* camera) 
+void render_scene(World* world, Camera* camera) 
 {
    // set shader settings that are common to the scene
    // both to "normal" model shader and to tiled model shader
    auto model_shader = Shader_Catalogue.find("model")->second;
-   set_shader_light_variables(scene, model_shader, camera);
+   set_shader_light_variables(world, model_shader, camera);
 
    auto model_tiled_shader = Shader_Catalogue.find("tiledTextureModel")->second;
-   set_shader_light_variables(scene, model_tiled_shader, camera);
+   set_shader_light_variables(world, model_tiled_shader, camera);
 
    auto color_shader = Shader_Catalogue.find("color")->second;
-   set_shader_light_variables(scene, color_shader, camera);
+   set_shader_light_variables(world, color_shader, camera);
 
-	Entity **entity_iterator = &(scene->entities[0]);
-   int entities_vec_size =  scene->entities.size();
-	for(int it = 0; it < entities_vec_size; it++) 
+	for(int i = 0; i < world->entities.size(); i++) 
    {
-	   auto entity = *entity_iterator++;
+	   Entity* entity = world->entities[i];
       if(entity->flags & EntityFlags_InvisibleEntity)
          continue;
 
@@ -143,69 +143,71 @@ void render_scene(Scene* scene, Camera* camera)
 }
 
 
-void set_shader_light_variables(Scene* scene, Shader* shader, Camera* camera)
+void set_shader_light_variables(World* world, Shader* shader, Camera* camera)
 {
    shader->use();
 
-   int point_light_count = 0;
-   for (auto point_light_ptr = scene->pointLights.begin(); 
-      point_light_ptr != scene->pointLights.end(); 
-      point_light_ptr++)
+   int light_count;
+   // point lights
    {
-      PointLight point_light = *point_light_ptr;
-      std::string uniform_name = "pointLights[" + std::to_string(point_light_count) + "]";
-      shader->setFloat3(uniform_name + ".position",  point_light.position);
-      shader->setFloat3(uniform_name + ".diffuse",   point_light.diffuse);
-      shader->setFloat3(uniform_name + ".specular",  point_light.specular);
-      shader->setFloat(uniform_name  + ".constant",  point_light.intensity_constant);
-      shader->setFloat(uniform_name  + ".linear",    point_light.intensity_linear);
-      shader->setFloat(uniform_name  + ".quadratic", point_light.intensity_quadratic);
-      point_light_count++;
+      light_count = 0;
+      for (auto& light : world->point_lights)
+      {
+         auto uniform_name = "pointLights[" + std::to_string(light_count) + "]";
+         shader->setFloat3(uniform_name + ".position",  light->position);
+         shader->setFloat3(uniform_name + ".diffuse",   light->diffuse);
+         shader->setFloat3(uniform_name + ".specular",  light->specular);
+         shader->setFloat(uniform_name  + ".constant",  light->intensity_constant);
+         shader->setFloat(uniform_name  + ".linear",    light->intensity_linear);
+         shader->setFloat(uniform_name  + ".quadratic", light->intensity_quadratic);
+         light++;
+      }
+      shader->setInt("num_point_lights", light_count);
    }
 
-   int spotlight_count = 0;
-   for (auto spotlight_ptr = scene->spotLights.begin(); 
-      spotlight_ptr != scene->spotLights.end(); 
-      spotlight_ptr++)
+   // spot lights
    {
-      SpotLight spotlight = *spotlight_ptr;
-      std::string uniform_name = "spotLights[" + std::to_string(spotlight_count) + "]";
-      shader->setFloat3(uniform_name + ".position",  spotlight.position);
-      shader->setFloat3(uniform_name + ".direction", spotlight.direction);
-      shader->setFloat3(uniform_name + ".diffuse",   spotlight.diffuse);
-      shader->setFloat3(uniform_name + ".specular",  spotlight.specular);
-      shader->setFloat(uniform_name  + ".constant",  spotlight.intensity_constant);
-      shader->setFloat(uniform_name  + ".linear",    spotlight.intensity_linear);
-      shader->setFloat(uniform_name  + ".quadratic", spotlight.intensity_quadratic);
-      shader->setFloat(uniform_name  + ".innercone", spotlight.innercone);
-      shader->setFloat(uniform_name  + ".outercone", spotlight.outercone);
-      spotlight_count++;
+      light_count = 0;
+      for (auto& light : world->spot_lights)
+      {
+         auto uniform_name = "spotLights[" + std::to_string(light_count) + "]";
+         shader->setFloat3(uniform_name + ".position",  light->position);
+         shader->setFloat3(uniform_name + ".direction", light->direction);
+         shader->setFloat3(uniform_name + ".diffuse",   light->diffuse);
+         shader->setFloat3(uniform_name + ".specular",  light->specular);
+         shader->setFloat(uniform_name  + ".constant",  light->intensity_constant);
+         shader->setFloat(uniform_name  + ".linear",    light->intensity_linear);
+         shader->setFloat(uniform_name  + ".quadratic", light->intensity_quadratic);
+         shader->setFloat(uniform_name  + ".innercone", light->innercone);
+         shader->setFloat(uniform_name  + ".outercone", light->outercone);
+         light_count++;
+      }
+
+      shader->setInt("num_spot_lights", light_count);
    }
 
-   int dir_count = 0;
-   for (auto dir_ptr = scene->directionalLights.begin(); 
-      dir_ptr != scene->directionalLights.end(); 
-      dir_ptr++)
+   // directional lights
    {
-      DirectionalLight dir_light = *dir_ptr;
-      std::string uniform_name = "dirLights[" + std::to_string(dir_count) + "]";
-      shader->setFloat3(uniform_name + ".direction", dir_light.direction);
-      shader->setFloat3(uniform_name + ".diffuse",   dir_light.diffuse);
-      shader->setFloat3(uniform_name + ".specular",  dir_light.specular);
-      dir_count++;
+      light_count = 0;
+      for (auto& light : world->directional_lights)
+      {
+         auto uniform_name = "dirLights[" + std::to_string(light_count) + "]";
+         shader->setFloat3(uniform_name + ".direction", light->direction);
+         shader->setFloat3(uniform_name + ".diffuse",   light->diffuse);
+         shader->setFloat3(uniform_name + ".specular",  light->specular);
+         light_count++;
+      }
+      shader->setInt("num_directional_lights", light_count);
    }
 
-   shader->     setInt("num_directional_lights",   dir_count);
-   shader->     setInt("num_spot_lights",          spotlight_count);
-   shader->     setInt("num_point_lights",         point_light_count);
-   shader-> setMatrix4("view",                     camera->View4x4);
-   shader-> setMatrix4("projection",               camera->Projection4x4);
-   shader->   setFloat("shininess",                scene->global_shininess);
-   shader->  setFloat3("ambient",                  scene->ambient_light);
-   shader->   setFloat("ambient_intensity",        scene->ambient_intensity);
-   shader->  setFloat3("viewPos",                  camera->Position);
-   shader-> setMatrix4("lightSpaceMatrix",         R_DIR_LIGHT_SPACE_MATRIX);
-   shader->   setFloat("cubemap_far_plane",        R_CUBEMAP_FAR_PLANE);
+   shader->setMatrix4   ("view",               camera->View4x4);
+   shader->setMatrix4   ("projection",         camera->Projection4x4);
+   shader->setFloat3    ("viewPos",            camera->Position);
+   shader->setFloat     ("shininess",          world->global_shininess);
+   shader->setFloat3    ("ambient",            world->ambient_light);
+   shader->setFloat     ("ambient_intensity",  world->ambient_intensity);
+   shader->setMatrix4   ("lightSpaceMatrix",   R_DIR_LIGHT_SPACE_MATRIX);
+   shader->setFloat     ("cubemap_far_plane",  R_CUBEMAP_FAR_PLANE);
 }
 
 // leave for debugging
@@ -307,7 +309,7 @@ void create_light_space_transform_matrices()
 // -----------------
 // RENDER DEPTH MAP
 // -----------------
-void render_depth_map()
+void render_depth_map(World* world)
 {
    // setup
    glViewport(0, 0, R_SHADOW_BUFFER_WIDTH, R_SHADOW_BUFFER_HEIGHT);
@@ -318,11 +320,9 @@ void render_depth_map()
    depth_shader->use();
    depth_shader->setMatrix4("lightSpaceMatrix", R_DIR_LIGHT_SPACE_MATRIX);
    
-   Entity **entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
-   int entities_vec_size =  G_SCENE_INFO.active_scene->entities.size();
-   for(int it = 0; it < entities_vec_size; it++) 
+   for(int it = 0; it < world->entities.size(); it++) 
    {
-      auto entity = *entity_iterator++;
+      Entity* entity = world->entities[0];
       if(entity->flags & EntityFlags_InvisibleEntity)
          continue;
 
@@ -335,29 +335,28 @@ void render_depth_map()
    glViewport(0, 0, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT);
 }
 
-void render_depth_cubemap()
+void render_depth_cubemap(World* world)
 {
    // for now, testing, we are doing this just for the first point light source
-   auto& scene = G_SCENE_INFO.active_scene;
-   if(scene->pointLights.size() == 0)
+   if(world->point_lights.size() == 0)
       return;
 
-   auto light = scene->pointLights[0];
+   auto light = world->point_lights[0];
 
    float aspect = (float)R_SHADOW_BUFFER_WIDTH/ (float)R_SHADOW_BUFFER_HEIGHT;
    mat4 cubemap_proj = glm::perspective(glm::radians(90.0f), aspect, R_CUBEMAP_NEAR_PLANE, R_CUBEMAP_FAR_PLANE); 
    R_POINT_LIGHT_SPACE_MATRICES[0] = 
-      cubemap_proj * glm::lookAt(light.position, light.position + vec3(1.0, 0.0, 0.0), vec3(0.0,-1.0, 0.0));
+      cubemap_proj * glm::lookAt(light->position, light->position + vec3(1.0, 0.0, 0.0), vec3(0.0,-1.0, 0.0));
    R_POINT_LIGHT_SPACE_MATRICES[1] = 
-      cubemap_proj * glm::lookAt(light.position, light.position + vec3(-1.0, 0.0, 0.0), vec3(0.0,-1.0, 0.0));
+      cubemap_proj * glm::lookAt(light->position, light->position + vec3(-1.0, 0.0, 0.0), vec3(0.0,-1.0, 0.0));
    R_POINT_LIGHT_SPACE_MATRICES[2] = 
-      cubemap_proj * glm::lookAt(light.position, light.position + vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0));
+      cubemap_proj * glm::lookAt(light->position, light->position + vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0));
    R_POINT_LIGHT_SPACE_MATRICES[3] = 
-      cubemap_proj * glm::lookAt(light.position, light.position + vec3(0.0,-1.0, 0.0), vec3(0.0, 0.0, -1.0));
+      cubemap_proj * glm::lookAt(light->position, light->position + vec3(0.0,-1.0, 0.0), vec3(0.0, 0.0, -1.0));
    R_POINT_LIGHT_SPACE_MATRICES[4] = 
-      cubemap_proj * glm::lookAt(light.position, light.position + vec3(0.0, 0.0, 1.0), vec3(0.0,-1.0, 0.0));
+      cubemap_proj * glm::lookAt(light->position, light->position + vec3(0.0, 0.0, 1.0), vec3(0.0,-1.0, 0.0));
    R_POINT_LIGHT_SPACE_MATRICES[5] = 
-      cubemap_proj * glm::lookAt(light.position, light.position + vec3(0.0, 0.0, -1.0), vec3(0.0,-1.0, 0.0));
+      cubemap_proj * glm::lookAt(light->position, light->position + vec3(0.0, 0.0, -1.0), vec3(0.0,-1.0, 0.0));
 
    // setup
    glViewport(0, 0, R_SHADOW_BUFFER_WIDTH, R_SHADOW_BUFFER_HEIGHT);
@@ -366,16 +365,16 @@ void render_depth_cubemap()
    glClear(GL_DEPTH_BUFFER_BIT);
    auto depth_shader = Shader_Catalogue.find("depth_cubemap")->second;
    depth_shader->use();
+   
    for (unsigned int i = 0; i < 6; ++i)
       depth_shader->setMatrix4("shadowMatrices[" + std::to_string(i) + "]", R_POINT_LIGHT_SPACE_MATRICES[i]);
+   
    depth_shader->setFloat("cubemap_far_plane", R_CUBEMAP_FAR_PLANE);
-   depth_shader->setFloat3("lightPos", light.position);
+   depth_shader->setFloat3("lightPos", light->position);
 
-   Entity **entity_iterator = &(G_SCENE_INFO.active_scene->entities[0]);
-   int entities_vec_size =  G_SCENE_INFO.active_scene->entities.size();
-   for(int it = 0; it < entities_vec_size; it++) 
+   for(int i = 0; i < world->entities.size(); i++) 
    {
-      auto entity = *entity_iterator++;
+      auto entity = world->entities[i];
       if(entity->flags & EntityFlags_InvisibleEntity)
          continue;
 

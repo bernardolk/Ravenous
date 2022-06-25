@@ -1,7 +1,8 @@
+#pragma once
 
 void GP_update_player_state                     (Player* &player);
-vec3 GP_player_standing_get_next_position  (Player* player);
-void GP_check_trigger_interaction               (Player* player);
+vec3 GP_player_standing_get_next_position       (Player* player);
+void GP_check_trigger_interaction               (Player* player, World* world);
 void GP_check_player_grabbed_ledge              (Player* player);
 bool GP_check_player_vaulting                   (Player* player);
 bool GP_simulate_player_collision_in_falling_trajectory(Player* player, vec2 xz_velocity);
@@ -11,7 +12,7 @@ bool GP_simulate_player_collision_in_falling_trajectory(Player* player, vec2 xz_
 float SLOPE_MIN_ANGLE = 0.4;
 
 
-void GP_update_player_state(Player* &player)
+void GP_update_player_state(Player* &player, World* world)
 {   
    switch(player->player_state)
    {
@@ -38,7 +39,7 @@ void GP_update_player_state(Player* &player)
          while(it < 2)
          {
             it++;
-            auto vtrace = CL_do_stepover_vtrace(player);
+            auto vtrace = CL_do_stepover_vtrace(player, world);
 
             // snap player to the last terrain contact point detected if its a valid stepover hit
             if(vtrace.hit && (vtrace.delta_y > 0.0004 || vtrace.delta_y < 0))
@@ -275,7 +276,7 @@ void GP_update_player_state(Player* &player)
             break;
          }
 
-         auto vtrace = CL_do_stepover_vtrace(player);
+         auto vtrace = CL_do_stepover_vtrace(player, world);
          if(!vtrace.hit)
          {
             GP_change_player_state(player, PLAYER_STATE_FALLING);
@@ -403,12 +404,11 @@ vec3 GP_player_standing_get_next_position(Player* player)
 // > ACTION
 // -------------------
 
-void GP_check_trigger_interaction(Player* player)
+void GP_check_trigger_interaction(Player* player, World* world)
 {
-   auto interactables = G_SCENE_INFO.active_scene->interactables;
-   For(interactables.size())
+   For(world->interactables.size())
    {
-      auto interactable = interactables[i];
+      auto interactable = world->interactables[i];
 
       //@todo: do a cylinder vs cylinder or cylinder vs aabb test here
       Mesh trigger_collider = interactable->get_trigger_collider();

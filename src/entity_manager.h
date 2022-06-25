@@ -1,3 +1,7 @@
+#pragma once
+
+struct World;
+
 struct EntityAttributes {
   std::string name;
   std::string mesh;
@@ -25,6 +29,8 @@ struct EntityManager
    std::vector<Entity*>*  entity_registry;
    std::vector<Entity*>*  checkpoints_registry;
    std::vector<Entity*>*  interactables_registry;
+
+   World* world;
    
    // --------------------------------------
    // > FIND ASSETS IN CATALOGUES
@@ -135,10 +141,10 @@ struct EntityManager
    // ------------------
    void register_in_world_and_scene(Entity* entity)
    {
-      G_SCENE_INFO.active_scene->entities.push_back(entity);
+      this->world->entities.push_back(entity);
       entity->update();
-      World.update_entity_world_cells(entity);
-      World.update_cells_in_use_list();
+      this->world->update_entity_world_cells(entity);
+      this->world->update_cells_in_use_list();
    }
 
    // -----------------

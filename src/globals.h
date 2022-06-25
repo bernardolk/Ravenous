@@ -25,8 +25,6 @@ struct GlobalBuffers {
 // -----------------
 // spatial partitioning struct and scene data
 
-WorldStruct World;
-
 struct GlobalSceneInfo {
    Scene* active_scene = NULL;
    Camera* camera;

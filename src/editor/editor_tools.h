@@ -44,9 +44,9 @@ void editor_erase_light(int index, std::string type)
       EdContext.lights_panel.selected_light = -1;
 }
 
-void unhide_entities()
+void unhide_entities(World* world)
 {
-   for(auto& entity: G_SCENE_INFO.active_scene->entities)
+   for(auto& entity: world->entities)
    {
       if(entity->flags & EntityFlags_HiddenEntity)
          entity->flags &= ~EntityFlags_HiddenEntity;
@@ -123,7 +123,7 @@ void snap_entity_to_reference(Entity* entity)
 
 void check_selection_to_snap()
 {
-   // auto pickray = cast_pickray();
+   // auto pickray = cast_pickray(G_SCENE_INFO.camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
    // auto test = test_ray_against_scene(pickray);
    // if(test.hit)
    // {
@@ -272,7 +272,7 @@ void stretch_entity_to_reference(Entity* entity, Triangle t)
 
 void check_selection_to_stretch()
 {
-   // auto pickray = cast_pickray();
+   // auto pickray = cast_pickray(G_SCENE_INFO.camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
    // auto test = test_ray_against_scene(pickray);
    // if(test.hit)
    // {
@@ -286,7 +286,7 @@ void check_selection_to_stretch()
 // MEASURE TOOL
 // -------------
 void activate_measure_mode(u8 axis);
-void check_selection_to_measure();
+void check_selection_to_measure(World* world);
 
 void activate_measure_mode(u8 axis)
 {
@@ -295,10 +295,10 @@ void activate_measure_mode(u8 axis)
    EdContext.measure_axis = axis;
 }
 
-void check_selection_to_measure()
+void check_selection_to_measure(World* world)
 {
-   auto pickray = cast_pickray();
-   auto test = test_ray_against_scene(pickray);
+   auto pickray = cast_pickray(G_SCENE_INFO.camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
+   auto test = world->raycast(pickray);
    if(test.hit)
    {
       if(!EdContext.first_point_found || EdContext.second_point_found)
@@ -325,7 +325,7 @@ void check_selection_to_measure()
 // LOCATE COORDINATES MODE
 // ------------------------
 void activate_locate_coords_mode();
-void check_selection_to_locate_coords();
+void check_selection_to_locate_coords(World* world);
 
 void activate_locate_coords_mode()
 {
@@ -334,10 +334,10 @@ void activate_locate_coords_mode()
    EdContext.locate_coords_found_point = false;
 }
 
-void check_selection_to_locate_coords()
+void check_selection_to_locate_coords(World* world)
 {
-   auto pickray = cast_pickray();
-   auto test = test_ray_against_scene(pickray);
+   auto pickray = cast_pickray(G_SCENE_INFO.camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
+   auto test = world->raycast(pickray);
    if(test.hit)
    {
       EdContext.locate_coords_found_point = true;
@@ -415,7 +415,7 @@ RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* entity)
    }
 
    // ray casts against created plane
-   Ray ray = cast_pickray();
+   auto ray = cast_pickray(G_SCENE_INFO.camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
    RaycastTest test;
 
    test = test_ray_against_triangle(ray, t1);
@@ -440,10 +440,10 @@ void activate_place_mode(Entity* entity)
    EdContext.undo_stack.track(entity);
 }
 
-void select_entity_placing_with_mouse_move(Entity* entity)
+void select_entity_placing_with_mouse_move(Entity* entity, World* world)
 {
-   auto pickray = cast_pickray();
-   auto test = test_ray_against_scene(pickray, entity);
+   auto pickray = cast_pickray(G_SCENE_INFO.camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
+   auto test = world->raycast(pickray, entity);
    if(test.hit)
    {
       entity->position = point_from_detection(pickray, test);
@@ -581,7 +581,7 @@ void move_light_with_mouse(std::string type, int index)
    else assert(false);
 
 
-   Ray ray = cast_pickray();
+   auto ray = cast_pickray(G_SCENE_INFO.camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
 
    // create a big plane for placing entity in the world with the mouse using raycast from camera to mouse
    // position. In the case of Y placement, we need to compute the plane considering the camera orientation.

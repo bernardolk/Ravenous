@@ -2,6 +2,8 @@
 #include <glm/gtx/quaternion.hpp>
 #include <editor/editor_colors.h>
 
+struct World;
+
 namespace Editor
 {
 
@@ -38,14 +40,14 @@ struct EditorContext {
    DeletedEntityLog deletion_log;
 
    // panels
-   SceneObjectsPanelContext scene_objects_panel;
-   EntityPanelContext entity_panel;
-   PlayerPanelContext player_panel;
-   WorldPanelContext world_panel;
-   PalettePanelContext palette_panel;
-   LightsPanelContext lights_panel;
-   CollisionLogPanelContext collision_log_panel;
-   InputRecorderPanelContext input_recorder_panel;
+   SceneObjectsPanelContext   scene_objects_panel;
+   EntityPanelContext         entity_panel;
+   PlayerPanelContext         player_panel;
+   WorldPanelContext          world_panel;
+   PalettePanelContext        palette_panel;
+   LightsPanelContext         lights_panel;
+   CollisionLogPanelContext   collision_log_panel;
+   InputRecorderPanelContext  input_recorder_panel;
 
    // toolbar
    bool toolbar_active = true;
@@ -125,28 +127,31 @@ struct EditorContext {
 
 
 void initialize();
-void update();
-void render(Player* player, WorldStruct* world);
+void update(Player* player);
+void render(Player* player, World* world, Camera* camera);
 void terminate();
 
 void update_triaxis_gizmo();
-void check_selection_to_open_panel(Player* player);
-bool check_selection_to_grab_entity_arrows();
-bool check_selection_to_grab_entity_rotation_gizmo();
-void check_selection_to_move_entity();
-void check_selection_to_select_related_entity();
+void check_selection_to_open_panel(Player* player, World* world, Camera* camera);
+bool check_selection_to_grab_entity_arrows(Camera* camera);
+bool check_selection_to_grab_entity_rotation_gizmo(Camera* camera);
+void check_selection_to_move_entity(World* world, Camera* camera);
+void check_selection_to_select_related_entity(World* world, Camera* camera);
 
-void render_text_overlay(Player* player);
-void render_event_triggers(Camera* camera);
-void render_entity_control_arrows(EntityPanelContext* panel);
-void render_entity_rotation_gizmo(EntityPanelContext* panel);
+void render_text_overlay(Player* player, Camera* camera);
+void render_event_triggers(Camera* camera, World* world);
+void update_entity_control_arrows(EntityPanelContext* panel);
+void render_entity_control_arrows(EntityPanelContext* panel, World* world, Camera* camera);
+void render_entity_rotation_gizmo(EntityPanelContext* panel, World* world, Camera* camera);
 void update_entity_rotation_gizmo(EntityPanelContext* panel);
 void render_entity_mesh_normals(EntityPanelContext* panel);
 float _get_gizmo_scaling_factor(Entity* entity, float min, float max);
-void render_world_cells(Camera* camera);
-void render_lightbulbs(Camera* camera);
+void render_world_cells(Camera* camera, World* world);
+void render_lightbulbs(Camera* camera, World* world);
 void start_dear_imgui_frame();
 void end_dear_imgui_frame();
+
+
 
 #include <editor/editor_tools.h>
 #include <editor/editor_toolbar.h>
@@ -164,7 +169,7 @@ void end_dear_imgui_frame();
 // > UPDATE EDITOR
 //------------------
 
-void update()
+void update(Player* player, World* world, Camera* camera)
 {
    if(EdContext.last_frame_scene != G_SCENE_INFO.scene_name)
    {
@@ -243,7 +248,7 @@ void update()
    {
       if(EdContext.mouse_click)
       {
-         check_selection_to_select_related_entity();
+         check_selection_to_select_related_entity(world, camera);
       }
    }
 
@@ -271,7 +276,7 @@ void update()
       if(EdContext.mouse_click)
          place_entity();
       else
-         select_entity_placing_with_mouse_move(EdContext.selected_entity);
+         select_entity_placing_with_mouse_move(EdContext.selected_entity, world);
    }
 
    if(EdContext.scale_entity_with_mouse)
@@ -285,7 +290,7 @@ void update()
    // check for debug flags
    if(EdContext.debug_ledge_detection)
    {
-      CL_perform_ledge_detection(G_SCENE_INFO.player);
+      CL_perform_ledge_detection(player);
    }
 }
 
@@ -308,26 +313,26 @@ void update_triaxis_gizmo()
 // > RENDER EDITOR UI
 //---------------------
 
-void render(Player* player, WorldStruct* world)
+void render(Player* player, World* world, Camera* camera)
 {
    // render world objs if toggled
    if(EdContext.show_event_triggers)
    {
-      render_event_triggers(G_SCENE_INFO.camera);
+      render_event_triggers(camera, world);
    }
 
    if(EdContext.show_world_cells)
    {
-      render_world_cells(G_SCENE_INFO.camera);
+      render_world_cells(camera, world);
    }
 
    if(EdContext.show_lightbulbs)
    {
-      render_lightbulbs(G_SCENE_INFO.camera);
+      render_lightbulbs(camera, world);
    }
    
    // render triaxis
-   auto triaxis_view = glm::lookAt(vec3(0.0f), G_SCENE_INFO.camera->Front, -1.0f * G_SCENE_INFO.camera->Up);
+   auto triaxis_view = glm::lookAt(vec3(0.0f), camera->Front, -1.0f * camera->Up);
    float displacement_x[3] = {0.3f, 0.0f, 0.0f};
    float displacement_y[3] = {0.0f, 0.3f, 0.0f};
    for(int i=0; i < 3; i++)
@@ -414,7 +419,7 @@ void render(Player* player, WorldStruct* world)
    // render panels
    // --------------
    if(EdContext.scene_objects_panel.active)
-      render_scene_objects_panel(&EdContext.scene_objects_panel);
+      render_scene_objects_panel(world, &EdContext.scene_objects_panel);
 
    if(EdContext.world_panel.active)
       render_world_panel(&EdContext.world_panel, world, player);
@@ -424,8 +429,8 @@ void render(Player* player, WorldStruct* world)
       auto& panel = EdContext.entity_panel;
 
       render_entity_panel(&panel);
-      render_entity_control_arrows(&panel);
-      render_entity_rotation_gizmo(&panel);
+      render_entity_control_arrows(&panel, world, camera);
+      render_entity_rotation_gizmo(&panel, world, camera);
 
       if(panel.show_normals)
          render_entity_mesh_normals(&panel);
@@ -490,9 +495,9 @@ void render(Player* player, WorldStruct* world)
       IM_RENDER.add_point(IMHASH, EdContext.locate_coords_position, 2.0);
    }
 
-   render_toolbar();
+   render_toolbar(world);
 
-   render_text_overlay(player);
+   render_text_overlay(player, camera);
 
    ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -618,7 +623,7 @@ void initialize()
 }
 
 
-void render_text_overlay(Player* player)
+void render_text_overlay(Player* player, Camera* camera)
 {
    float GUI_y = GlobalDisplayConfig::VIEWPORT_HEIGHT - 60;
    float SCREEN_HEIGHT = GlobalDisplayConfig::VIEWPORT_HEIGHT;
@@ -633,8 +638,6 @@ void render_text_overlay(Player* player)
 
 
    // CAMERA POSITION
-   auto camera = G_SCENE_INFO.camera;
-
   std::string cam_p[3]{
       format_float_tostr(camera->Position.x, 2),
       format_float_tostr(camera->Position.y, 2), 
@@ -958,10 +961,9 @@ void render_text_overlay(Player* player)
 }
 
 
-void render_event_triggers(Camera* camera)
+void render_event_triggers(Camera* camera, World* world)
 {
-   auto interactables = G_SCENE_INFO.active_scene->interactables;
-   if(interactables.size() == 0)
+   if(world->interactables.size() == 0)
       return;
       
    auto find = Shader_Catalogue.find("color");
@@ -971,9 +973,9 @@ void render_event_triggers(Camera* camera)
    shader->setMatrix4("view", camera->View4x4);
    shader->setMatrix4("projection", camera->Projection4x4);
 
-   for(int i = 0; i < interactables.size(); i++)
+   for(int i = 0; i < world->interactables.size(); i++)
    {
-      auto checkpoint = interactables[i];
+      auto checkpoint = world->interactables[i];
       shader->setMatrix4("model", checkpoint->trigger_matModel);
       shader->setFloat3 ("color", 0.5, 0.5, 0.3);
       shader->setFloat  ("opacity", 0.6);
@@ -982,19 +984,17 @@ void render_event_triggers(Camera* camera)
 }
 
 
-void render_world_cells(Camera* camera)
+void render_world_cells(Camera* camera, World* world)
 {
-   auto& scene = G_SCENE_INFO.active_scene;
-
    auto shader = Shader_Catalogue.find("color")->second;
    auto cell_mesh = Geometry_Catalogue.find("aabb")->second;
    
-   for(int i = 0; i < World.cells_in_use_count; i++)
+   for(int i = 0; i < world->cells_in_use_count; i++)
    {
       RenderOptions opts;
       opts.wireframe = true;
 
-      auto cell = World.cells_in_use[i];
+      auto cell = world->cells_in_use[i];
 
       vec3 color;
       if(EdContext.world_panel.cell_coords.x == cell->i &&
@@ -1033,30 +1033,29 @@ void render_world_cells(Camera* camera)
 }
 
 
-void render_lightbulbs(Camera* camera)
+void render_lightbulbs(Camera* camera, World* world)
 {
-   auto& scene = G_SCENE_INFO.active_scene;
-   auto mesh = Geometry_Catalogue.find("lightbulb")->second;
-   auto shader = Shader_Catalogue.find("color")->second;
+   auto  mesh        = Geometry_Catalogue.find("lightbulb")->second;
+   auto  shader      = Shader_Catalogue.find("color")->second;
 
    shader->setMatrix4("view", camera->View4x4);
    shader->setMatrix4("projection", camera->Projection4x4);
 
-   auto selected_light = EdContext.lights_panel.selected_light;
-   auto selected_light_type = EdContext.lights_panel.selected_light_type;
+   auto selected_light        = EdContext.lights_panel.selected_light;
+   auto selected_light_type   = EdContext.lights_panel.selected_light_type;
 
    // point lights
    int point_c = 0;
-   for(auto const& light: scene->pointLights)
+   for(auto const& light: world->point_lights)
    {
-      auto model = translate(mat4identity, light.position + vec3{0, 0.5, 0});
+      auto model = translate(mat4identity, light->position + vec3{0, 0.5, 0});
       model = glm::scale(model, vec3{0.1f});
       RenderOptions opts;
       //opts.wireframe = true;
       //render
       shader->use();
       shader->setMatrix4("model", model);
-      shader->setFloat3("color", light.diffuse);
+      shader->setFloat3("color", light->diffuse);
       shader->setFloat("opacity", 1.0);
 
       render_mesh(mesh, opts);
@@ -1066,16 +1065,16 @@ void render_lightbulbs(Camera* camera)
 
    // spot lights
    int spot_c = 0;
-   for(auto const& light: scene->spotLights)
+   for(auto const& light: world->spot_lights)
    {
-      auto model = translate(mat4identity, light.position + vec3{0, 0.5, 0});
+      auto model = translate(mat4identity, light->position + vec3{0, 0.5, 0});
       model = glm::scale(model, vec3{0.1f});
       RenderOptions opts;
       //opts.wireframe = true;
       //render
       shader->use();
       shader->setMatrix4("model", model);
-      shader->setFloat3("color", light.diffuse);
+      shader->setFloat3("color", light->diffuse);
       shader->setFloat("opacity", 1.0);
       render_mesh(mesh, opts);
       spot_c++;
@@ -1089,13 +1088,13 @@ void render_lightbulbs(Camera* camera)
       if(selected_light_type == "point")
       {
          assert(selected_light <= point_c);
-         auto light = scene->pointLights[selected_light];
+         auto& light = *world->point_lights[selected_light];
          light_position = light.position;
       }
       else if(selected_light_type == "spot")
       {
          assert(selected_light <= spot_c);
-         auto light = scene->spotLights[selected_light];
+         auto& light = *world->spot_lights[selected_light];
          light_position = light.position;
          light_direction = light.direction;
       }
@@ -1157,25 +1156,27 @@ void render_lightbulbs(Camera* camera)
 }
 
 
-void render_entity_control_arrows(EntityPanelContext* panel)
+void render_entity_control_arrows(EntityPanelContext* panel, World* world, Camera* camera)
 {
    //@todo: try placing editor objects in a separate z buffer? Maybe manually... so we don't have to use GL_ALWAYS
    glDepthFunc(GL_ALWAYS);
-   render_editor_entity(panel->x_arrow, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
-   render_editor_entity(panel->y_arrow, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
-   render_editor_entity(panel->z_arrow, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
+   render_editor_entity(panel->x_arrow, world, camera);
+   render_editor_entity(panel->y_arrow, world, camera);
+   render_editor_entity(panel->z_arrow, world, camera);
    glDepthFunc(GL_LESS);
 }
 
-void render_entity_rotation_gizmo(EntityPanelContext* panel)
+
+void render_entity_rotation_gizmo(EntityPanelContext* panel, World* world, Camera* camera)
 {
    //@todo: try placing editor objects in a separate z buffer? Maybe manually... so we don't have to use GL_ALWAYS
    glDepthFunc(GL_ALWAYS);
-   render_editor_entity(panel->rotation_gizmo_x, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
-   render_editor_entity(panel->rotation_gizmo_y, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
-   render_editor_entity(panel->rotation_gizmo_z, G_SCENE_INFO.active_scene, G_SCENE_INFO.camera);
+   render_editor_entity(panel->rotation_gizmo_x, world, camera);
+   render_editor_entity(panel->rotation_gizmo_y, world, camera);
+   render_editor_entity(panel->rotation_gizmo_z, world, camera);
    glDepthFunc(GL_LESS);
 }
+
 
 float _get_gizmo_scaling_factor(Entity* entity, float min, float max)
 {
@@ -1195,6 +1196,7 @@ float _get_gizmo_scaling_factor(Entity* entity, float min, float max)
 
    return scaling_factor;
 }
+
 
 void update_entity_control_arrows(EntityPanelContext* panel)
 {
@@ -1228,6 +1230,7 @@ void update_entity_control_arrows(EntityPanelContext* panel)
       arrows[i]->update_bounding_box();
    }
 }
+
 
 void update_entity_rotation_gizmo(EntityPanelContext* panel)
 {
@@ -1272,11 +1275,13 @@ void render_entity_mesh_normals(EntityPanelContext* panel)
    }
 }
 
-void check_selection_to_open_panel(Player* player)
+
+void check_selection_to_open_panel(Player* player, World* world, Camera* camera)
 {
-   auto pickray      = cast_pickray();
-   auto test         = test_ray_against_scene(pickray, RayCast_TestOnlyVisibleEntities);
-   auto test_light   = test_ray_against_lights(pickray);
+   auto pickray      = cast_pickray(camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
+   auto test         = world->raycast(pickray, RayCast_TestOnlyVisibleEntities);
+   auto test_light   = world->raycast_lights(pickray);
+   
    if(test.hit && (!test_light.hit || test_light.distance > test.distance))
    {
       if(test.entity->name == PLAYER_NAME)
@@ -1289,10 +1294,11 @@ void check_selection_to_open_panel(Player* player)
       open_lights_panel(test_light.obj_hit_type, test_light.obj_hit_index, true);
 }
 
-void check_selection_to_select_related_entity()
+
+void check_selection_to_select_related_entity(World* world, Camera* camera)
 {
-   auto pickray      = cast_pickray();
-   auto test         = test_ray_against_scene(pickray, RayCast_TestOnlyVisibleEntities);
+   auto pickray      = cast_pickray(camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
+   auto test         = world->raycast(pickray, RayCast_TestOnlyVisibleEntities);
    if(test.hit)
    {
       EdContext.select_entity_aux_mode                = false;
@@ -1315,11 +1321,12 @@ void check_selection_to_select_related_entity()
    }
 }
 
-void check_selection_to_move_entity()
+
+void check_selection_to_move_entity(World* world, Camera* camera)
 {
-   auto pickray = cast_pickray();
-   auto test = test_ray_against_scene(pickray, RayCast_TestOnlyVisibleEntities);
-   auto test_light = test_ray_against_lights(pickray);
+   auto pickray      = cast_pickray(camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
+   auto test         = world->raycast(pickray, RayCast_TestOnlyVisibleEntities);
+   auto test_light   = world->raycast_lights(pickray);
    if(test.hit && (!test_light.hit || test_light.distance > test.distance))
       activate_move_mode(test.entity);
    else if(test_light.hit)
@@ -1327,9 +1334,9 @@ void check_selection_to_move_entity()
 }
 
 
-bool check_selection_to_grab_entity_arrows()
+bool check_selection_to_grab_entity_arrows(Camera* camera)
 {
-   auto pickray = cast_pickray();
+   auto pickray = cast_pickray(camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
    RaycastTest test;
    
    Entity* arrows[3] = {EdContext.entity_panel.x_arrow, EdContext.entity_panel.y_arrow, EdContext.entity_panel.z_arrow};
@@ -1348,9 +1355,9 @@ bool check_selection_to_grab_entity_arrows()
 }
 
 
-bool check_selection_to_grab_entity_rotation_gizmo()
+bool check_selection_to_grab_entity_rotation_gizmo(Camera* camera)
 {
-   auto pickray = cast_pickray();
+   auto pickray = cast_pickray(camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
    RaycastTest test;
    
    Entity* rot_gizmos[3] = {

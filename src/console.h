@@ -1,5 +1,5 @@
-void handle_console_input(InputFlags flags, Player* &player, WorldStruct* world, Camera* camera);
-void execute_command(std::string buffer_line, Player* &player, WorldStruct* world, Camera* camera);
+void handle_console_input(InputFlags flags, Player* &player, World* world, Camera* camera);
+void execute_command(std::string buffer_line, Player* &player, World* world, Camera* camera);
 void check_letter_key_presses(InputFlags flags);
 void clear_console_string_buffer();
 void render_console();
@@ -140,7 +140,7 @@ void clear_scratch_buffer()
    CONSOLE.c_ind = 0;
 }
 
-void execute_command(std::string buffer_line, Player* &player, WorldStruct* world, Camera* camera)
+void execute_command(std::string buffer_line, Player* &player, World* world, Camera* camera)
 {
    Parser::Parse p {buffer_line.c_str(), 50};
    p = parse_token(p);
@@ -154,7 +154,7 @@ void execute_command(std::string buffer_line, Player* &player, WorldStruct* worl
       p = parse_whitespace(p);
       p = parse_token(p);
       const std::string argument = p.string_buffer;
-      save_scene_to_file(argument, player, false);
+      save_scene_to_file(argument, player, world, false);
    }
 
    // ---------------
@@ -166,7 +166,7 @@ void execute_command(std::string buffer_line, Player* &player, WorldStruct* worl
       p = parse_whitespace(p);
       p = parse_token(p);
       const std::string scene_name = p.string_buffer;
-      save_scene_to_file(scene_name, player, true);
+      save_scene_to_file(scene_name, player, world, true);
    }
 
    // ---------------
@@ -213,7 +213,7 @@ void execute_command(std::string buffer_line, Player* &player, WorldStruct* worl
             return;
          }
 
-         if(!save_scene_to_file(scene_name, player, false))
+         if(!save_scene_to_file(scene_name, player, world, false))
          {
             // if couldnt save copy of template, falls back, so we dont edit the template by mistake
             if(load_scene_from_file(current_scene, world))
@@ -253,7 +253,7 @@ void execute_command(std::string buffer_line, Player* &player, WorldStruct* worl
       {
          // save scene
          player->checkpoint_pos = player->entity_ptr->position;
-         save_scene_to_file("", player, false);
+         save_scene_to_file("", player, world, false);
          // set scene
          G_CONFIG.initial_scene = G_SCENE_INFO.scene_name;
          save_configs_to_file();
@@ -318,7 +318,7 @@ void execute_command(std::string buffer_line, Player* &player, WorldStruct* worl
    else std::cout << "what do you mean with " << command << " man?\n";
 }
 
-void handle_console_input(InputFlags flags, Player* &player, WorldStruct* world, Camera* camera)
+void handle_console_input(InputFlags flags, Player* &player, World* world, Camera* camera)
 {
    if(pressed_once(flags, KEY_ENTER))
    {
