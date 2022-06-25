@@ -11,6 +11,10 @@ pushd c:\repositories\ravenous\build
 			
 cl.exe /std:c++20 /MD ^
 c:\repositories\ravenous\src\ravenous.cpp ^
+c:\repositories\ravenous\src\engine\render\im_render.cpp ^
+c:\repositories\ravenous\src\engine\collision\simplex.cpp ^
+c:\repositories\ravenous\src\engine\collision\cl_epa.cpp ^
+c:\repositories\ravenous\src\engine\collision\cl_gjk.cpp ^
 c:\repositories\ravenous\src\engine\world\world.cpp ^
 c:\repositories\ravenous\src\engine\entity.cpp ^
 c:\repositories\ravenous\src\engine\camera.cpp ^
@@ -36,8 +40,8 @@ popd
 		+%time:~7,1% >nul
 
 @set /A _elapsed=%_toc%-%_tic
-@echo ..
 @echo total compilation time: %_elapsed% s.
+@echo ..
 
 
 

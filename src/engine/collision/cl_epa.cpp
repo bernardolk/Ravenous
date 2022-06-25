@@ -1,16 +1,19 @@
-// ---------------------------------------------
-//       EPA - Expanded Polytope Algorithm
-// ---------------------------------------------
-// Uses the output of GJK to compute a penetration vector, useful for resolving collisions
+#include <vector>
+#include <string>
+#include <map>
+#include <engine/core/rvn_types.h>
+#include <engine/collision/primitives/bounding_box.h>
+#include <engine/collision/primitives/ray.h>
+#include <engine/vertex.h>
+#include <engine/mesh.h>
+#include <colors.h>
+#include <engine/render/renderer.h>
+#include <engine/render/im_render.h>
+#include <engine/collision/simplex.h>
+#include <engine/collision/cl_gjk.h>
+#include <engine/collision/cl_epa.h>
 
-int CL_MAX_EPA_ITERATIONS = 100;
-
-struct EPA_Result {
-   bool collision = false;
-   float penetration;
-   vec3 direction; 
-};
-
+extern const int CL_MAX_EPA_ITERATIONS = 100;
 
 std::pair<std::vector<vec4>, size_t> CL_EPA_get_face_normals_and_closest_face(
 	const std::vector<vec3>& polytope,
@@ -65,19 +68,6 @@ void CL_add_if_outer_edge(
 		edges.erase(reverse);
 	else
 		edges.emplace_back(faces[a], faces[b]);
-}
-
-
-inline
-bool CL_support_is_in_polytope(std::vector<vec3> polytope, vec3 support_point)
-{
-   for (int i = 0; i < polytope.size(); i++)
-   {
-      if (polytope[i] == support_point)
-         return true;
-   }
-
-   return false;
 }
 
 
@@ -172,35 +162,37 @@ EPA_Result CL_run_EPA(Simplex simplex, Mesh* collider_A, Mesh* collider_B)
 		}
 	}
 
-   // DEBUG
-   if(false)
-   {
-      // RENDER POLYTOPE
-      for (int i = 0; i < polytope.size(); i++)
-      {
-         IM_RENDER.add_point(IMCUSTOMHASH("poly-" + std::to_string(i)), 
-            polytope[i], 2.0, true, vec3(0.4, 0.2, 0.4), 1);
+   // // DEBUG
+   // if(false)
+   // {
+   //    // RENDER POLYTOPE
+   //    for (int i = 0; i < polytope.size(); i++)
+   //    {
+   //       IM_RENDER.add_point(
+   //          IMCUSTOMHASH("poly-" + std::to_string(i)), 
+   //          polytope[i], 2.0, true, vec3(0.4, 0.2, 0.4), 1
+   //       );
 
-         for (int j = 0; j < polytope.size(); j++)
-            if (i != j && glm::length(polytope[i] - polytope[j]) <= 0.001)
-               editor_print("POINTS " + std::to_string(i) + " AND " + std::to_string(j) + " ARE EQUAL", 2000);
-      }
+   //       for (int j = 0; j < polytope.size(); j++)
+   //          if (i != j && glm::length(polytope[i] - polytope[j]) <= 0.001)
+   //             editor_print("POINTS " + std::to_string(i) + " AND " + std::to_string(j) + " ARE EQUAL", 2000);
+   //    }
 
-      // RENDER EDGES
-      for (size_t i = 0; i < face_normals.size(); i++)
-      {
-         size_t f = i * 3;
-         IM_RENDER.add_line(IMHASH, polytope[faces[f    ]], polytope[faces[f + 1]], 1.5, true, vec3(0.3, 0.5, 0.2));
-         IM_RENDER.add_line(IMHASH, polytope[faces[f + 1]], polytope[faces[f + 2]], 1.5, true, vec3(0.3, 0.5, 0.2));
-         IM_RENDER.add_line(IMHASH, polytope[faces[f + 2]], polytope[faces[f    ]], 1.5, true, vec3(0.3, 0.5, 0.2));
-      }
+   //    // RENDER EDGES
+   //    for (size_t i = 0; i < face_normals.size(); i++)
+   //    {
+   //       size_t f = i * 3;
+   //       IM_RENDER.add_line(IMHASH, polytope[faces[f    ]], polytope[faces[f + 1]], 1.5, true, vec3(0.3, 0.5, 0.2));
+   //       IM_RENDER.add_line(IMHASH, polytope[faces[f + 1]], polytope[faces[f + 2]], 1.5, true, vec3(0.3, 0.5, 0.2));
+   //       IM_RENDER.add_line(IMHASH, polytope[faces[f + 2]], polytope[faces[f    ]], 1.5, true, vec3(0.3, 0.5, 0.2));
+   //    }
 
-      // RENDER ORIGIN
-      IM_RENDER.add_point(IMHASH, vec3(0), 3.0, false, vec3(0.956, 0.784, 0.184));
+   //    // RENDER ORIGIN
+   //    IM_RENDER.add_point(IMHASH, vec3(0), 3.0, false, vec3(0.956, 0.784, 0.184));
 
-      // RENDER PENETRATION VECTOR
-      IM_RENDER.add_line(IMHASH, vec3(0), penetration_normal * min_distance_to_face, 2.0, false, vec3(0.882, 0.254, 0.878));
-   }
+   //    // RENDER PENETRATION VECTOR
+   //    IM_RENDER.add_line(IMHASH, vec3(0), penetration_normal * min_distance_to_face, 2.0, false, vec3(0.882, 0.254, 0.878));
+   // }
 
 	EPA_Result result;
 
@@ -215,3 +207,5 @@ EPA_Result CL_run_EPA(Simplex simplex, Mesh* collider_A, Mesh* collider_B)
 
 	return result;
 }
+
+

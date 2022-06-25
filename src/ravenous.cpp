@@ -45,9 +45,9 @@ bool Exploded = false;
 
 // GLOBAL STRUCT VARIABLES OR TYPES 
 enum ProgramModeEnum {
-   GAME_MODE = 0,
-   EDITOR_MODE = 1,
-   CONSOLE_MODE = 2,
+   GAME_MODE      = 0,
+   EDITOR_MODE    = 1,
+   CONSOLE_MODE   = 2,
 };
 
 struct ProgramMode {
@@ -144,12 +144,15 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <engine/render/text/text_renderer.h>
 #include <engine/render/renderer.h>
 #include <render.h>
-#include <im_render.h>
+#include <engine/render/im_render.h>
 #include <in_phase.h>
 #include <gp_player_state.h>
 #include <an_player.h>
 #include <an_update.h>
 #include <cl_buffers.h>
+#include <engine/collision/simplex.h>
+#include <engine/collision/cl_gjk.h>
+#include <engine/collision/cl_epa.h>
 #include <cl_controller.h>
 #include <gp_timer.h>
 #include <gp_game_state.h>
@@ -376,8 +379,8 @@ int main()
             render_game_gui(player);
             break;
       }
-      IM_RENDER.render();
-      IM_RENDER.check_expired_entries();
+      IM_RENDER.render(G_SCENE_INFO.camera);
+      IM_RENDER.update(G_FRAME_INFO.duration);
       render_message_buffer_contents();
 
       // -------------

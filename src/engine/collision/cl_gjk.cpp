@@ -1,100 +1,27 @@
+#include <vector>
+#include <string>
+#include <map>
+#include <engine/core/rvn_types.h>
+#include <engine/collision/primitives/bounding_box.h>
+#include <engine/collision/primitives/ray.h>
+#include <engine/vertex.h>
+#include <engine/mesh.h>
+#include <colors.h>
+#include <engine/render/renderer.h>
+#include <engine/render/im_render.h>
+#include <engine/collision/simplex.h>
+#include <engine/collision/cl_gjk.h>
 
-// -----------------------------------------------
-//    GJK - Gilbert–Johnson–Keerthi Algorithm
-// -----------------------------------------------
-// Utilizes the fact that the Minkowski difference's shape of two meshes will contain
-// the origin if they are intersecting, and it won't in case not.
-// 
-// props to blog.winter.dev for the excellent explanation of the algorithm and code examples.
-//
-// Here, we define data structures to be used by the algorithm and auxiliary functions for the
-// main looping function. Each iteration we find a point in the minkowski difference that is
-// a candidate for composing a simplex (simplest geom. form in N-dimensions [line, triangle,
-// tetrahedron, ...]) that will enclose the origin and check if we should change direction or
-// discard one or another point inside the simplex by computing where the origin is in relation
-// to each face/region delimited by the current simplex. The direction mentioned is the direction
-// in which we will try picking the furthest point in the minkowski's difference shape.
-
-
-// ------------------
-// > SIMPLEX
-// ------------------
-struct Simplex {
-		vec3 points[4];
-		u32 p_size;
-
-		Simplex()
-      {
-         points[0] = vec3(0);
-         points[1] = vec3(0);
-         points[2] = vec3(0);
-         points[3] = vec3(0);
-         p_size = 0;
-      }
-
-		Simplex& operator=(std::initializer_list<vec3> list) {
-			for (auto v = list.begin(); v != list.end(); v++) {
-				points[std::distance(list.begin(), v)] = *v;
-			}
-			p_size = list.size();
-
-			return *this;
-		}
-
-		void push_front(vec3 point) {
-         points[3] = points[2];
-         points[2] = points[1];
-         points[1] = points[0];
-         points[0] = point;
-         
-			p_size = p_size + 1;
-         assert(p_size <= 4);
-		}
-
-		vec3& operator[](u32 i) { return points[i]; }
-		u32 size() const { return p_size; }
+vec3 Debug_Colors[] = {
+   COLOR_RED_1,
+   COLOR_GREEN_1,
+   COLOR_BLUE_1,
+   COLOR_PURPLE_1,
 };
 
-// ------------------
-// > GJK_Iteration
-// ------------------
-struct GJK_Iteration {
-   Simplex simplex;
-   vec3 direction;
-   bool finished = false;
-};
-
-// ------------------
-// > GJK_Result
-// ------------------
-struct GJK_Result {
-   Simplex simplex;
-   bool collision;
-};
-
-// ------------------
-// > GJK_Point
-// ------------------
-struct GJK_Point {
-   vec3 point;
-   bool empty;
-};
-
-// --------------------
-// > UTILITY FUNCTIONS
-// --------------------
-
-inline
-bool CL_same_general_direction(vec3 a, vec3 b)
-{
-   return glm::dot(a, b) > 0;
-}
-
-
-// ------------------------
-// > GJK SUPPORT FUNCTIONS
-// ------------------------
-
+/* -----------------------
+  GJK Support Functions
+----------------------- */
 GJK_Point CL_find_furthest_vertex(Mesh* collision_mesh, vec3 direction)
 {
 	// Linearly scan the CollisionMesh doing dot products with the vertices and storing the one with max value, then return it
@@ -134,10 +61,9 @@ GJK_Point CL_get_support_point(Mesh* collision_mesh_A, Mesh* collision_mesh_B, v
    return GJK_Point{gjk_point_a.point - gjk_point_b.point, false};
 }
 
-// -----------------------
-// > UPDATE SIMPLEX CALLS
-// -----------------------
-
+/* -----------------------
+  Update simplex calls
+----------------------- */
 GJK_Iteration CL_update_line_simplex(GJK_Iteration gjk)
 {
    vec3 a = gjk.simplex[0];
@@ -291,17 +217,9 @@ GJK_Iteration CL_update_simplex_and_direction(GJK_Iteration gjk)
 }
 
 
-// ------------------
-// > CL_RUN_GJK
-// ------------------
-vec3 Debug_Colors[] = {
-   COLOR_RED_1,
-   COLOR_GREEN_1,
-   COLOR_BLUE_1,
-   COLOR_PURPLE_1,
-};
-
-
+/* ------------------
+   Run GJK
+------------------ */
 void _CL_debug_render_simplex(Simplex simplex)
 {
    for(int i = 0; i < simplex.size(); i++)
@@ -352,4 +270,3 @@ GJK_Result CL_run_GJK(Mesh* collider_A, Mesh* collider_B)
       }
    }
 }
-

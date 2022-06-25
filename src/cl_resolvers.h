@@ -1,4 +1,3 @@
-
 void CL_resolve_collision(CL_Results results, Player* player);
 void CL_wall_slide_player(Player* player, vec3 wall_normal);
 bool GP_simulate_player_collision_in_falling_trajectory(Player* player, vec2 xz_velocity);

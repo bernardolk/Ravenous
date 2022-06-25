@@ -1,72 +1,7 @@
-// ----------------------
-// > CL_IgnoreColliders
-// ----------------------
-/* used, currently, to avoid detecting collision with colliders that are 
-    being used by player as a floor platform / terrain
-*/
-// struct CL_IgnoreColliders {
-//    const static size_t size = 5;
-//    Entity* list[size] = {};
-//    size_t count = 0;
-
-//    void add(Entity* entity)
-//    {
-//       if(count == size)
-//       {
-//          std::cout << "CL_IgnoreColliders is full\n";
-//          assert(false);
-//       }
-
-//       for(int i = 0; i < count; i++)
-//          if(list[i] == entity)
-//             return;
-
-//       list[count] = entity;
-//       count++;
-//    };
-
-//    void empty()
-//    {
-//       for(int i = 0; i < size; i++)
-//          list[i] = NULL;
-      
-//       count = 0;
-//    }
-
-//    void remove(Entity* entity)
-//    {
-//       for(int i = 0; i < count; i++)
-//          if(list[i] == entity)
-//          {
-//             list[i] = NULL;
-//             for(int j = i; j < count - 1; j++)
-//             {
-//                list[j] = list[j + 1];
-//                list[j + 1] = NULL;
-//             }
-//             count--;
-//             return;
-//          }
-//    }
-
-//    bool is_in_list(Entity* entity)
-//    {
-//       for(int i = 0; i < count; i++)
-//          if(list[i] == entity)
-//             return true;
-
-//       return false;
-//    }
-
-// } CL_Ignore_Colliders;
-
-#include <cl_gjk.h>
-#include <cl_epa.h>
 #include <cl_log.h>
 #include <cl_resolvers.h>
 #include <cl_edge_detection.h>
 
-// PROTOTYPES
 CL_ResultsArray CL_test_and_resolve_collisions(Player* player);
 CL_Results CL_test_collision_buffer_entitites(
    Player* player,
@@ -80,7 +15,7 @@ bool CL_test_collisions(Player* player);
 
 
 // --------------------------------------
-// > RUN INTERATIVE COLLISION DETECTION
+// > RUN ITERATIVE COLLISION DETECTION
 // --------------------------------------
 /* Current strategy looks like this:
    - We have a collision buffer which holds all entities currently residing inside player's current world cells.
@@ -226,11 +161,6 @@ CL_Results CL_test_player_vs_entity(Entity* entity, Player* player)
          cl_results.collision    = true;
       }
    }
-
-   // if(b_gjk && b_epa)
-   //    editor_print("COMPLETE COLLISION", 1000);
-   // else if (b_gjk)
-   //    editor_print("EPA UNRESOLVED COLLISION", 1000);
 
    return cl_results;
 }
