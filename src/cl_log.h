@@ -1,3 +1,5 @@
+#pragma once
+
 // ----------------
 // > COLLISION LOG
 // ----------------
@@ -24,10 +26,20 @@ struct CollisionLog {
    CollisionLogEntry* write;
    const size_t window_size = COLLISION_LOG_CAPACITY;
 };
-CollisionLog* COLLISION_LOG;
 
 
-void CL_log_collision(CL_Results data, int iteration)
+// struct CollisionLogger {
+
+//    static CollisionLog* log;
+
+
+
+// };
+
+//@TODO
+extern CollisionLog* COLLISION_LOG;
+
+inline void CL_log_collision(CL_Results data, int iteration)
 {    
    auto& log = COLLISION_LOG;
    if(log->write_count == COLLISION_LOG_CAPACITY)
@@ -56,7 +68,7 @@ void CL_log_collision(CL_Results data, int iteration)
 }
 
 
-CollisionLogEntry* CL_read_collision_log_entry(int i)
+inline CollisionLogEntry* CL_read_collision_log_entry(int i)
 {
    auto& log = COLLISION_LOG;
 
@@ -79,7 +91,7 @@ CollisionLogEntry* CL_read_collision_log_entry(int i)
 }
 
 
-CollisionLog* CL_allocate_collision_log()
+inline CollisionLog* CL_allocate_collision_log()
 {
    size_t size                = COLLISION_LOG_CAPACITY;
    auto collision_log         = new CollisionLog;

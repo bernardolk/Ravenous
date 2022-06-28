@@ -3,12 +3,15 @@
 // ---------------------------------------------
 // Uses the output of GJK to compute a penetration vector, useful for resolving collisions
 
+struct Mesh;
+struct Simplex;
+
 extern const int CL_MAX_EPA_ITERATIONS;
 
 struct EPA_Result {
-   bool collision = false;
+   bool  collision = false;
    float penetration;
-   vec3 direction; 
+   vec3  direction; 
 };
 
 std::pair<std::vector<vec4>, size_t> CL_EPA_get_face_normals_and_closest_face(

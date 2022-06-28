@@ -45,22 +45,22 @@ void render_collision_log_panel(CollisionLogPanelContext* panel)
       clipper.Begin(table_items_to_show);
       while (clipper.Step())
       {
-         for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
-         {
-            CollisionLogEntry* entry = CL_read_collision_log_entry(row);
-            if(entry == nullptr || entry->entity == NULL)
-               break;
+         // for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
+         // {
+         //    CollisionLogEntry* entry = CL_read_collision_log_entry(row);
+         //    if(entry == nullptr || entry->entity == NULL)
+         //       break;
                
-            ImGui::TableNextRow();
-            ImGui::TableSetColumnIndex(0);
-            ImGui::Text(std::to_string(row).c_str());
-            ImGui::TableSetColumnIndex(1);
-            ImGui::Text(entry->entity->name.c_str());
-            ImGui::TableSetColumnIndex(2);
-            ImGui::Text(std::to_string(entry->penetration).c_str());
-            ImGui::TableSetColumnIndex(3);
-            ImGui::Text(to_string(entry->normal).c_str());
-         }
+         //    ImGui::TableNextRow();
+         //    ImGui::TableSetColumnIndex(0);
+         //    ImGui::Text(std::to_string(row).c_str());
+         //    ImGui::TableSetColumnIndex(1);
+         //    ImGui::Text(entry->entity->name.c_str());
+         //    ImGui::TableSetColumnIndex(2);
+         //    ImGui::Text(std::to_string(entry->penetration).c_str());
+         //    ImGui::TableSetColumnIndex(3);
+         //    ImGui::Text(to_string(entry->normal).c_str());
+         // }
       }
       ImGui::EndTable();
    }

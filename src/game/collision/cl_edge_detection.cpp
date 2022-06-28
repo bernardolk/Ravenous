@@ -20,7 +20,7 @@
 #include <utils.h>
 #include <engine/collision/raycast.h>
 #include <player.h>
-#include <cl_edge_detection.h>
+#include <game/collision/cl_edge_detection.h>
 
 
 Ledge CL_perform_ledge_detection(Player* player, World* world)
@@ -114,6 +114,7 @@ Ledge CL_perform_ledge_detection(Player* player, World* world)
    ledge.empty = true;
    return ledge;
 }
+
 
 vec3 CL_get_final_position_ledge_vaulting(Player* player, Ledge ledge)
 {

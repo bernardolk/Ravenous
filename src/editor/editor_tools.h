@@ -217,7 +217,7 @@ void stretch_entity_to_reference(Entity* entity, Triangle t)
    // int triangles = entity->mesh->indices.size() / 3;
    // for(int i = 0; i < triangles; i++)
    // {
-   //    Triangle _t = get_triangle_for_indexed_mesh(entity, i);
+   //    Triangle _t = get_triangle_for_indexed_mesh(entity->mesh, entity->matModel, i);
    //    vec3 _normal = glm::triangleNormal(_t.a, _t.b, _t.c);
 
    //    if(is_equal(normal, _normal) && !aligned)

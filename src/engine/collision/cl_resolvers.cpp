@@ -1,13 +1,31 @@
-void CL_resolve_collision(CL_Results results, Player* player);
-void CL_wall_slide_player(Player* player, vec3 wall_normal);
-bool GP_simulate_player_collision_in_falling_trajectory(Player* player, vec2 xz_velocity);
-bool CL_run_tests_for_fall_simulation(Player* player);
-
-// fwd decl.
-void GP_update_player_state(Player* &player);
-CL_Results CL_test_player_vs_entity(Entity* entity, Player* player);
-
-float PLAYER_STEPOVER_LIMIT = 0.21;
+#include <string>
+#include <vector>
+#include <engine/core/rvn_types.h>
+#include <rvn_macros.h>
+//#include <engine/camera.h>
+#include <engine/vertex.h>
+#include <engine/collision/primitives/bounding_box.h>
+#include <map>
+#include <engine/mesh.h>
+#include <glm/gtx/normal.hpp>
+#include <engine/collision/primitives/triangle.h>
+#include <engine/collision/primitives/ray.h>
+#include <glm/gtx/quaternion.hpp>
+#include <engine/entity.h>
+//#include <engine/configs.h>
+#include <engine/configs.h>
+#include <player.h>
+#include <engine/world/world.h>
+#include <iostream>
+#include <globals.h>
+#include <engine/collision/cl_types.h>
+#include <colors.h>
+#include <engine/render/renderer.h>
+#include <engine/render/im_render.h>
+#include <engine/collision/raycast.h>
+#include <algorithm>
+#include <utils.h>
+#include <engine/collision/cl_resolvers.h>
 
 
 // ---------------------
@@ -21,16 +39,11 @@ void CL_resolve_collision(CL_Results results, Player* player)
    player->entity_ptr->update();
 }
 
-struct CL_VtraceResult {
-   bool hit = false;
-   float delta_y;
-   Entity* entity;
-};
-
 
 CL_VtraceResult CL_do_stepover_vtrace(Player* player, World* world)
 {
-   /* Cast a ray at player's last point of contact with terrain to look for something steppable (terrain).
+   /* 
+      Cast a ray at player's last point of contact with terrain to look for something steppable (terrain).
       Will cull out any results that are to be considered too high (is a wall) or too low (is a hole) considering
       player's current height. */
 
@@ -61,9 +74,9 @@ CL_VtraceResult CL_do_stepover_vtrace(Player* player, World* world)
 
 bool GP_simulate_player_collision_in_falling_trajectory(Player* player, vec2 xz_velocity)
 {
-   /*    Simulates how it would be if player fell following the xz_velocity vector.
-         If player can get in a position where he is not stuck, we allow him to fall. 
-   */
+   /*    
+      Simulates how it would be if player fell following the xz_velocity vector.
+      If player can get in a position where he is not stuck, we allow him to fall. */
 
    // configs
    float d_frame = 0.014;
@@ -132,12 +145,12 @@ void CL_wall_slide_player(Player* player, vec3 wall_normal)
 // --------------------------------------
 bool CL_run_tests_for_fall_simulation(Player* player)
 { 
-   /* It basically the usual test but without collision resolving. */
+   // It basically the usual test but without collision resolving.
 
-   auto entity_buffer = G_BUFFERS.entity_buffer;
-   auto buffer = entity_buffer->buffer;
-   auto entity_list_size = entity_buffer->size;
-   bool terrain_collision = false;
+   auto entity_buffer      = G_BUFFERS.entity_buffer;
+   auto buffer             = entity_buffer->buffer;
+   auto entity_list_size   = entity_buffer->size;
+   bool terrain_collision  = false;
 
    for (int i = 0; i < entity_list_size; i++)
    {

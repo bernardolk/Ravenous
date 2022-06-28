@@ -1,3 +1,5 @@
+#pragma once
+
 // ---------------------
 // CAPACITY DEFINITIONS
 // ---------------------
@@ -14,11 +16,31 @@ const int      MAX_MESSAGES_TO_RENDER = 8;
 
 struct EntityBuffer;
 struct RenderMessageBuffer;
+struct Scene;
+struct Camera;
+struct Player;
+struct GlobalDisplayConfig;
+
+struct GlobalFrameInfo {
+   float    duration;
+   float    real_duration;
+   float    last_frame_time;
+   int      fps;
+   int      fps_counter;
+   float    sub_second_counter;
+   float    time_step = 1;
+};
+
+extern GlobalFrameInfo G_FRAME_INFO;
+
 
 struct GlobalBuffers {
    EntityBuffer* entity_buffer;
    RenderMessageBuffer* rm_buffer;
-} G_BUFFERS;
+};
+
+// @TODO
+extern GlobalBuffers G_BUFFERS;
 
 // -----------------
 //  WORLD AND SCENE
@@ -34,7 +56,11 @@ struct GlobalSceneInfo {
   std::string scene_name;
 
    bool tmp_unstuck_things = false;
-} G_SCENE_INFO;
+};
+
+// @TODO
+extern GlobalSceneInfo G_SCENE_INFO;
+
 
 // ---------------
 // GLOBAL BUFFERS
@@ -136,7 +162,7 @@ struct RenderMessageBuffer {
    }
 };
 
-void expire_render_messages_from_buffer()
+inline void expire_render_messages_from_buffer()
 {
    size_t size = G_BUFFERS.rm_buffer->size;
    auto item = G_BUFFERS.rm_buffer->buffer;
@@ -155,7 +181,7 @@ void expire_render_messages_from_buffer()
 // fw decl.
 void render_text(std::string font, float x, float y, vec3 color, bool center,std::string text);
 
-void render_message_buffer_contents()
+inline void render_message_buffer_contents()
 {
    //@todo make disappearing effect
    int render_count = 0;
@@ -187,7 +213,7 @@ void render_message_buffer_contents()
 // > BUFFERS AND LOGS ALLOCATIONS
 // -------------------------------
 
-EntityBuffer* allocate_entity_buffer()
+inline EntityBuffer* allocate_entity_buffer()
 {
    size_t size          = COLLISION_BUFFER_CAPACITY;
    auto e_buffer        = new EntityBuffer;
@@ -197,7 +223,7 @@ EntityBuffer* allocate_entity_buffer()
 }
 
 
-RenderMessageBuffer* allocate_render_message_buffer()
+inline RenderMessageBuffer* allocate_render_message_buffer()
 {
    size_t size          = MESSAGE_BUFFER_CAPACITY;
    auto rm_buffer       = new RenderMessageBuffer;
@@ -207,12 +233,12 @@ RenderMessageBuffer* allocate_render_message_buffer()
 }
 
 
-void editor_print(std::string msg, float duration = 0, vec3 color = vec3(-1))
+inline void editor_print(std::string msg, float duration = 0, vec3 color = vec3(-1))
 {
    G_BUFFERS.rm_buffer->add(msg, duration, color);
 }
 
-void editor_persist_print(std::string msg, float duration = 0, vec3 color = vec3(-1))
+inline void editor_persist_print(std::string msg, float duration = 0, vec3 color = vec3(-1))
 {
    // same as above, but in this case we don't update the message if already present 
    // (good for counting num of times for things that happen not that many times)

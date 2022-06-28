@@ -44,14 +44,15 @@ struct CellUpdate {
    bool entity_changed_cell;
 };
 
-struct Entity;
-struct BoundingBox;
-struct RaycastTest;
-enum RayCastType;
-struct PointLight;
-struct SpotLight;
-struct DirectionalLight;
-struct Player;
+struct   Entity;
+struct   BoundingBox;
+struct   Ray;
+struct   RaycastTest;
+enum     RayCastType;
+struct   PointLight;
+struct   SpotLight;
+struct   DirectionalLight;
+struct   Player;
 
 // -----------
 // WORLD CELL

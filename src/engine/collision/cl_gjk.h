@@ -14,32 +14,34 @@
 // to each face/region delimited by the current simplex. The direction mentioned is the direction
 // in which we will try picking the furthest point in the minkowski's difference shape.
 
+struct Simplex;
+
 struct GJK_Iteration {
-   Simplex simplex;
-   vec3 direction;
-   bool finished = false;
+   Simplex  simplex;
+   vec3     direction;
+   bool     finished       = false;
 };
 
 struct GJK_Result {
-   Simplex simplex;
-   bool collision;
+   Simplex  simplex;
+   bool     collision;
 };
 
 struct GJK_Point {
-   vec3 point;
-   bool empty;
+   vec3     point;
+   bool     empty;
 };
 
-GJK_Point      CL_find_furthest_vertex  (Mesh* collision_mesh, vec3 direction);
-GJK_Point      CL_get_support_point     (Mesh* collision_mesh_A, Mesh* collision_mesh_B, vec3 direction);
-GJK_Iteration  CL_update_line_simplex   (GJK_Iteration gjk);
+GJK_Point      CL_find_furthest_vertex          (Mesh* collision_mesh, vec3 direction);
+GJK_Point      CL_get_support_point             (Mesh* collision_mesh_A, Mesh* collision_mesh_B, vec3 direction);
+GJK_Iteration  CL_update_line_simplex           (GJK_Iteration gjk);
 
-GJK_Iteration CL_update_triangle_simplex      (GJK_Iteration gjk);
-GJK_Iteration CL_update_tetrahedron_simplex   (GJK_Iteration gjk);
-GJK_Iteration CL_update_simplex_and_direction (GJK_Iteration gjk);
+GJK_Iteration  CL_update_triangle_simplex       (GJK_Iteration gjk);
+GJK_Iteration  CL_update_tetrahedron_simplex    (GJK_Iteration gjk);
+GJK_Iteration  CL_update_simplex_and_direction  (GJK_Iteration gjk);
 
-void _CL_debug_render_simplex(Simplex simplex);
-GJK_Result CL_run_GJK(Mesh* collider_A, Mesh* collider_B);
+void           _CL_debug_render_simplex         (Simplex simplex);
+GJK_Result     CL_run_GJK                       (Mesh* collider_A, Mesh* collider_B);
 
 
 inline bool CL_same_general_direction(vec3 a, vec3 b)

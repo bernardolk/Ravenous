@@ -75,15 +75,6 @@ struct GlobalInputInfo {
    bool              block_mouse_move           = false;
 } G_INPUT_INFO;
 
-struct GlobalFrameInfo {
-   float    duration;
-   float    real_duration;
-   float    last_frame_time;
-   int      fps;
-   int      fps_counter;
-   float    sub_second_counter;
-   float    time_step = 1;
-} G_FRAME_INFO;
 
 struct ProgramConfig {
    std::string       initial_scene;
@@ -142,18 +133,17 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <render.h>
 #include <engine/render/im_render.h>
 #include <in_phase.h>
-#include <cl_edge_detection.h>
-#include <gp_player_state.h>
-#include <an_player.h>
-#include <an_update.h>
-#include <cl_buffers.h>
+
 #include <engine/collision/simplex.h>
 #include <engine/collision/cl_gjk.h>
 #include <engine/collision/cl_epa.h>
-#include <cl_log.h>
-#include <cl_resolvers.h>
-#include <cl_edge_detection.h>
-#include <cl_controller.h>
+// #include <cl_log.h>
+#include <engine/collision/cl_resolvers.h>
+#include <engine/collision/cl_controller.h>
+#include <game/collision/cl_edge_detection.h>
+#include <gp_player_state.h>
+#include <an_player.h>
+#include <an_update.h>
 #include <gp_timer.h>
 #include <gp_game_state.h>
 #include <gp_update.h>
@@ -169,6 +159,12 @@ void erase_entity(Scene* scene, Entity* entity);
 
 #include <missile.h>
 #include <compass.h>
+
+// globals
+GlobalBuffers     G_BUFFERS;
+GlobalSceneInfo   G_SCENE_INFO;
+GlobalFrameInfo   G_FRAME_INFO;
+// CollisionLog*     COLLISION_LOG;
 
 
 #define glCheckError() glCheckError_(__FILE__, __LINE__) 
@@ -215,7 +211,7 @@ int main()
    // Allocate buffers and logs
    G_BUFFERS.entity_buffer = allocate_entity_buffer();
    G_BUFFERS.rm_buffer     = allocate_render_message_buffer();
-   COLLISION_LOG           = CL_allocate_collision_log();
+   // COLLISION_LOG           = CL_allocate_collision_log();
    initialize_console_buffers();
 
    Entity_Manager.pool.init();

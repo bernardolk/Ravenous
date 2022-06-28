@@ -1,9 +1,9 @@
 struct EntityState {
    Entity* entity = nullptr;
-   u64 id;
-   vec3 position;
-   vec3 scale;
-   vec3 rotation;
+   u64     id;
+   vec3    position;
+   vec3    scale;
+   vec3    rotation;
 };
 
 EntityState get_entity_state(Entity* entity)

@@ -15,7 +15,7 @@ enum PlayerState {
    PLAYER_STATE_VAULTING
 };
 
-std::string PLAYER_NAME = "Player";
+const static std::string PLAYER_NAME = "Player";
 
 // ----------
 // Animation
@@ -36,11 +36,12 @@ float PLAYER_ANIMATION_DURATIONS[] = {
 };
 
 // forward declarations
-struct Player;
-struct Entity;
-void AN_p_anim_force_interrupt(Player* player);
-bool CL_update_player_world_cells(Player* player);
-void CL_recompute_collision_buffer_entities(Player* player);
+struct   Player;
+struct   Entity;
+void     AN_p_anim_force_interrupt(Player* player);
+bool     CL_update_player_world_cells(Player* player);
+void     CL_recompute_collision_buffer_entities(Player* player);
+
 
 struct Player {
    Entity* entity_ptr;

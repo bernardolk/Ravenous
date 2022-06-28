@@ -1265,7 +1265,7 @@ void render_entity_mesh_normals(EntityPanelContext* panel)
    int triangles = entity->mesh->indices.size() / 3;
    for(int i = 0; i < triangles; i++)
    {
-      Triangle _t = get_triangle_for_indexed_mesh(entity, i);
+      Triangle _t = get_triangle_for_indexed_mesh(entity->mesh, entity->matModel, i);
       vec3 normal = glm::triangleNormal(_t.a, _t.b, _t.c);
       Face f = face_from_axis_aligned_triangle(_t);
       
