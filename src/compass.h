@@ -90,12 +90,12 @@ float get_compass_heading(Entity* entity)
    vec3 center_rot   = to_vec3(rot * to_vec4(original_center - entity->position, 1));
    vec3 center       = entity->position + center_rot;
 
-   IM_RENDER.add_line(IMHASH, center, center + screen_up          * 1.5f, 3.0f, false, COLOR_BLUE_1);
-   IM_RENDER.add_line(IMHASH, center, center + screen_n           * 1.5f, 3.0f, false, COLOR_GREEN_1);
-   IM_RENDER.add_line(IMHASH, center, center + projected_north    * 0.8f, 3.0f, true,  COLOR_YELLOW_1);
+   ImDraw::add_line(IMHASH, center, center + screen_up          * 1.5f, 3.0f, false, COLOR_BLUE_1);
+   ImDraw::add_line(IMHASH, center, center + screen_n           * 1.5f, 3.0f, false, COLOR_GREEN_1);
+   ImDraw::add_line(IMHASH, center, center + projected_north    * 0.8f, 3.0f, true,  COLOR_YELLOW_1);
 
-   // IM_RENDER.add_line(IMHASH, center, center + glm::normalize(to3d_xz(north_xz))     * 1.5f, 3.0f, false, COLOR_YELLOW_2);
-   // IM_RENDER.add_line(IMHASH, center, center + glm::normalize(to3d_xz(screen_up_xz)) * 1.5f, 3.0f, false, COLOR_BLUE_2);
+   // ImDraw::add_line(IMHASH, center, center + glm::normalize(to3d_xz(north_xz))     * 1.5f, 3.0f, false, COLOR_YELLOW_2);
+   // ImDraw::add_line(IMHASH, center, center + glm::normalize(to3d_xz(screen_up_xz)) * 1.5f, 3.0f, false, COLOR_BLUE_2);
 
    // editor_print("Angle from north: " + to_string(angle));
 

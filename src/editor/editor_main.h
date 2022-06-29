@@ -435,12 +435,12 @@ void render(Player* player, World* world, Camera* camera)
       if(panel.show_normals)
          render_entity_mesh_normals(&panel);
       if(panel.show_collider)
-         IM_RENDER.add_mesh(IMHASH, &panel.entity->collider, COLOR_PURPLE_1, 0);
+         ImDraw::add_mesh(IMHASH, &panel.entity->collider, COLOR_PURPLE_1, 0);
       if(panel.show_bounding_box)
       {
          auto aabb = Geometry_Catalogue.find("aabb")->second;
          auto [pos, scale] = panel.entity->bounding_box.get_pos_and_scale();
-         IM_RENDER.add_mesh(IMHASH, aabb, pos, vec3(0), scale, COLOR_PINK_1, 0);
+         ImDraw::add_mesh(IMHASH, aabb, pos, vec3(0), scale, COLOR_PINK_1, 0);
       }
    }
 
@@ -479,7 +479,7 @@ void render(Player* player, World* world, Camera* camera)
       if(EdContext.measure_axis == 2)
          second_point = vec3(EdContext.measure_from.x, EdContext.measure_from.y, EdContext.measure_to);   
 
-      IM_RENDER.add(
+      ImDraw::add(
          IMHASH,
          std::vector<Vertex>{
             Vertex{EdContext.measure_from},
@@ -492,7 +492,7 @@ void render(Player* player, World* world, Camera* camera)
 
    if(EdContext.locate_coords_mode && EdContext.locate_coords_found_point)
    {
-      IM_RENDER.add_point(IMHASH, EdContext.locate_coords_position, 2.0);
+      ImDraw::add_point(IMHASH, EdContext.locate_coords_position, 2.0);
    }
 
    render_toolbar(world);
@@ -1123,7 +1123,7 @@ void render_lightbulbs(Camera* camera, World* world)
 
          vec3 arrow_origin = light_position - vec3{0.0, 0.56, 0.0};
          vec3 arrow_end = arrow_origin + arrow_direction * 1.5f;
-         IM_RENDER.add_line(IMHASH, arrow_origin, arrow_end, 1.5);
+         ImDraw::add_line(IMHASH, arrow_origin, arrow_end, 1.5);
       }
 
       // @todo: epic fail below (trying to rotate an arrow mesh according to a dir vector)
@@ -1269,9 +1269,9 @@ void render_entity_mesh_normals(EntityPanelContext* panel)
       vec3 normal = glm::triangleNormal(_t.a, _t.b, _t.c);
       Face f = face_from_axis_aligned_triangle(_t);
       
-      IM_RENDER.add_point(IMHASH, f.center, 2.0, true);
+      ImDraw::add_point(IMHASH, f.center, 2.0, true);
 
-      IM_RENDER.add_line(IMHASH, f.center, f.center + normal * 2.0f, 2.5, true);
+      ImDraw::add_line(IMHASH, f.center, f.center + normal * 2.0f, 2.5, true);
    }
 }
 

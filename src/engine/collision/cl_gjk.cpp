@@ -223,7 +223,7 @@ GJK_Iteration CL_update_simplex_and_direction(GJK_Iteration gjk)
 void _CL_debug_render_simplex(Simplex simplex)
 {
    for(int i = 0; i < simplex.size(); i++)
-      IM_RENDER.add_point(IM_ITERHASH(i), simplex[i], 2.0, true, Debug_Colors[i]);
+      ImDraw::add_point(IM_ITERHASH(i), simplex[i], 2.0, true, Debug_Colors[i]);
 }
 
 
@@ -241,7 +241,7 @@ GJK_Result CL_run_GJK(Mesh* collider_A, Mesh* collider_B)
    gjk.simplex.push_front(support.point);
    gjk.direction = -support.point;
 
-   // IM_RENDER.add_point(IMHASH, support.point, 2.0, true, Debug_Colors[0]);
+   // ImDraw::add_point(IMHASH, support.point, 2.0, true, Debug_Colors[0]);
 
    int it_count = 0;
    while(true)
@@ -256,7 +256,7 @@ GJK_Result CL_run_GJK(Mesh* collider_A, Mesh* collider_B)
 
       gjk.simplex.push_front(support.point);
 
-      // IM_RENDER.add_point(IM_ITERHASH(it_count), support.point, 2.0, true, Debug_Colors[it_count + 1]);
+      // ImDraw::add_point(IM_ITERHASH(it_count), support.point, 2.0, true, Debug_Colors[it_count + 1]);
 
       gjk = CL_update_simplex_and_direction(gjk);
 

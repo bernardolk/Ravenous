@@ -42,20 +42,20 @@ struct GlobalBuffers {
 // @TODO
 extern GlobalBuffers G_BUFFERS;
 
+
 // -----------------
 //  WORLD AND SCENE
 // -----------------
 // spatial partitioning struct and scene data
 
 struct GlobalSceneInfo {
-   Scene* active_scene = NULL;
-   Camera* camera;
-   Camera* views[2];
-   Player* player;
-   bool input_mode = false;
-  std::string scene_name;
-
-   bool tmp_unstuck_things = false;
+   Scene*      active_scene = NULL;
+   Camera*     camera;
+   Camera*     views[2];
+   Player*     player;
+   bool        input_mode = false;
+   std::string scene_name;
+   bool        tmp_unstuck_things = false;
 };
 
 // @TODO

@@ -60,8 +60,8 @@ Ledge CL_perform_ledge_detection(Player* player, World* world)
          if(top_test.distance <= player->height || top_hitpoint.y - frontal_hitpoint.y > _front_ray_spacing)
             return ledge;
 
-         IM_RENDER.add_line(IMHASH, top_ray.origin, frontal_hitpoint, 1.2, false, COLOR_PURPLE_1);
-         IM_RENDER.add_point(IMHASH, top_hitpoint, 2.0, true, COLOR_PURPLE_1);
+         ImDraw::add_line(IMHASH, top_ray.origin, frontal_hitpoint, 1.2, false, COLOR_PURPLE_1);
+         ImDraw::add_point(IMHASH, top_hitpoint, 2.0, true, COLOR_PURPLE_1);
 
          // test edges
          vec3 edge1 = top_test.t.b - top_test.t.a; // 1
@@ -70,13 +70,13 @@ Ledge CL_perform_ledge_detection(Player* player, World* world)
 
          // for debug: show face normal
          vec3 front_face_center = get_barycenter(front_test.t);
-         IM_RENDER.add_line(IMHASH, front_face_center, front_face_center + 1.f * front_face_n, 2.0, false, COLOR_BLUE_1);
+         ImDraw::add_line(IMHASH, front_face_center, front_face_center + 1.f * front_face_n, 2.0, false, COLOR_BLUE_1);
 
          if(abs(dot(edge1, front_face_n)) < 0.0001)
          {
-            IM_RENDER.add_line(IMHASH, top_test.t.a, top_test.t.a + edge1, 2.0, true, COLOR_YELLOW_1);
-            IM_RENDER.add_point(IMHASH, top_test.t.a, 2.0, false, COLOR_YELLOW_1);
-            IM_RENDER.add_point(IMHASH, top_test.t.b, 2.0, false, COLOR_YELLOW_1);
+            ImDraw::add_line(IMHASH, top_test.t.a, top_test.t.a + edge1, 2.0, true, COLOR_YELLOW_1);
+            ImDraw::add_point(IMHASH, top_test.t.a, 2.0, false, COLOR_YELLOW_1);
+            ImDraw::add_point(IMHASH, top_test.t.b, 2.0, false, COLOR_YELLOW_1);
 
             ledge.a = top_test.t.a;
             ledge.b = top_test.t.b;
@@ -86,9 +86,9 @@ Ledge CL_perform_ledge_detection(Player* player, World* world)
          }
          else if(abs(dot(edge2, front_face_n)) < 0.0001)
          {
-            IM_RENDER.add_line(IMHASH, top_test.t.b, top_test.t.b + edge2, 2.0, true, COLOR_YELLOW_1);
-            IM_RENDER.add_point(IMHASH, top_test.t.b, 2.0, false, COLOR_YELLOW_1);
-            IM_RENDER.add_point(IMHASH, top_test.t.c, 2.0, false, COLOR_YELLOW_1);
+            ImDraw::add_line(IMHASH, top_test.t.b, top_test.t.b + edge2, 2.0, true, COLOR_YELLOW_1);
+            ImDraw::add_point(IMHASH, top_test.t.b, 2.0, false, COLOR_YELLOW_1);
+            ImDraw::add_point(IMHASH, top_test.t.c, 2.0, false, COLOR_YELLOW_1);
 
             ledge.a = top_test.t.b;
             ledge.b = top_test.t.c;
@@ -98,9 +98,9 @@ Ledge CL_perform_ledge_detection(Player* player, World* world)
          }
          else if(abs(dot(edge3, front_face_n)) < 0.0001)
          {
-            IM_RENDER.add_line(IMHASH, top_test.t.c, top_test.t.c + edge3, 2.0, true, COLOR_YELLOW_1);
-            IM_RENDER.add_point(IMHASH, top_test.t.c, 2.0, false, COLOR_YELLOW_1);
-            IM_RENDER.add_point(IMHASH, top_test.t.a, 2.0, false, COLOR_YELLOW_1);
+            ImDraw::add_line(IMHASH, top_test.t.c, top_test.t.c + edge3, 2.0, true, COLOR_YELLOW_1);
+            ImDraw::add_point(IMHASH, top_test.t.c, 2.0, false, COLOR_YELLOW_1);
+            ImDraw::add_point(IMHASH, top_test.t.a, 2.0, false, COLOR_YELLOW_1);
 
             ledge.a = top_test.t.c;
             ledge.b = top_test.t.a;

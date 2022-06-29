@@ -217,7 +217,7 @@ int main()
    Entity_Manager.pool.init();
 
    // Initialises immediate draw
-   IM_RENDER.init();
+   ImDraw::init();
 
    // loads initial scene
    G_CONFIG = load_configs();
@@ -375,8 +375,8 @@ int main()
             render_game_gui(player);
             break;
       }
-      IM_RENDER.render(G_SCENE_INFO.camera);
-      IM_RENDER.update(G_FRAME_INFO.duration);
+      ImDraw::render(G_SCENE_INFO.camera);
+      ImDraw::update(G_FRAME_INFO.duration);
       render_message_buffer_contents();
 
       // -------------
@@ -413,7 +413,7 @@ void simulate_gravity_trajectory()
    {
       vel += d_frame * grav;
       pos += vel * d_frame;
-      IM_RENDER.add_point(IM_ITERHASH(i), pos, 2.0, false, COLOR_GREEN_1, 1);
+      ImDraw::add_point(IM_ITERHASH(i), pos, 2.0, false, COLOR_GREEN_1, 1);
    }
 }
 
@@ -489,8 +489,8 @@ inline void update_scene_objects(World* world)
 		// Updates model matrix;	
 		entity->update();
       // auto[min,max] = entity->bounding_box.bounds();
-      // IM_RENDER.add_point(IMHASH, min, 3.0, true, vec3(0.964, 0.576, 0.215));
-      // IM_RENDER.add_point(IMHASH, max, 3.0, true, vec3(0.964, 0.576, 0.215));
+      // ImDraw::add_point(IMHASH, min, 3.0, true, vec3(0.964, 0.576, 0.215));
+      // ImDraw::add_point(IMHASH, max, 3.0, true, vec3(0.964, 0.576, 0.215));
 	}
 }
 

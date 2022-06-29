@@ -27,7 +27,7 @@ void GP_update_player_state(Player* &player, World* world)
 
          vec3 player_btm_sphere_center = player->entity_ptr->position + vec3(0, player->radius, 0);
          vec3 contact_point =  player_btm_sphere_center + -player->last_terrain_contact_normal * player->radius;
-         IM_RENDER.add_line(IMHASH, player_btm_sphere_center, contact_point, COLOR_YELLOW_1);
+         ImDraw::add_line(IMHASH, player_btm_sphere_center, contact_point, COLOR_YELLOW_1);
 
          /* Current system: Here we are looping at most twice on the:
             "Do stepover Vtrace, Adjust player's position to terrain, check collisions" loop
@@ -249,7 +249,7 @@ void GP_update_player_state(Player* &player, World* world)
 
       case PLAYER_STATE_SLIDING:
       {
-         IM_RENDER.add_line(IMHASH, player->entity_ptr->position, player->entity_ptr->position + 1.f * player->sliding_direction, COLOR_RED_2);
+         ImDraw::add_line(IMHASH, player->entity_ptr->position, player->entity_ptr->position + 1.f * player->sliding_direction, COLOR_RED_2);
 
          player->entity_ptr->velocity = player->v_dir * player->slide_speed;
 
@@ -335,8 +335,8 @@ void GP_update_player_state(Player* &player, World* world)
 //    {
 //       auto hitpoint = point_from_detection(vtrace_ray, vtrace);
 //       // draw arrow
-//       IM_RENDER.add_line (IMCUSTOMHASH(to_string(vtrace_origin)), hitpoint, vtrace_origin, debug_color);
-//       IM_RENDER.add_point(IMCUSTOMHASH(to_string(vtrace_origin)), hitpoint, debug_color);
+//       ImDraw::add_line (IMCUSTOMHASH(to_string(vtrace_origin)), hitpoint, vtrace_origin, debug_color);
+//       ImDraw::add_point(IMCUSTOMHASH(to_string(vtrace_origin)), hitpoint, debug_color);
 
 //       float delta_y = abs(terrain_baseline_height - hitpoint.y);
 //       if(delta_y <= PLAYER_STEPOVER_LIMIT)
@@ -491,7 +491,7 @@ void GP_check_player_grabbed_ledge(Player* player)
 //          {
 //             // checks if area above ledge is free for standing
 //             vec3 future_pos = CL_player_future_pos_obstacle(player, entity, test.normal_vec, dr - test.overlap);
-//             IM_RENDER.add_mesh(IMHASH, player->entity_ptr, future_pos);
+//             ImDraw::add_mesh(IMHASH, player->entity_ptr, future_pos);
 //             if(CL_test_in_mock_position(player, future_pos))
 //                continue;
 
@@ -534,7 +534,7 @@ void GP_check_player_grabbed_ledge(Player* player)
 //          {
 //             // checks if area above ledge is free for standing
 //             vec3 future_pos = CL_player_future_pos_obstacle(player, entity, test.normal_vec, dr - test.overlap);
-//             IM_RENDER.add_mesh(IMHASH, player->entity_ptr, future_pos);
+//             ImDraw::add_mesh(IMHASH, player->entity_ptr, future_pos);
 //             if(CL_test_in_mock_position(player, future_pos, entity))
 //                continue;
 
@@ -601,7 +601,7 @@ void GP_check_player_grabbed_ledge(Player* player)
 //       {
 //          // checks if area above ledge is free for standing
 //          vec3 future_pos = CL_player_future_pos_obstacle(player, entity, test.normal_vec, dr - test.overlap);
-//          // IM_RENDER.add_mesh(IMHASH, player->entity_ptr, future_pos);
+//          // ImDraw::add_mesh(IMHASH, player->entity_ptr, future_pos);
 //          if(CL_test_in_mock_position(player, future_pos))
 //          {
 //             editor_print("Vaulting failed.");

@@ -72,14 +72,14 @@ void update_missile(Player* player, Entity* missile)
 
    if(length(dist) < MIN_DODGE_DISTANCE)
    {
-      IM_RENDER.add_line(
+      ImDraw::add_line(
          IMHASH, missile->position + vec3(missile->scale.x / 2.0f, missile->scale.y / 2.0f, 0), 
          missile->position + dist, 2.0f, false, COLOR_GREEN_1
       );
    }
    else
    {
-      IM_RENDER.add_line(
+      ImDraw::add_line(
          IMHASH, missile->position + vec3(missile->scale.x / 2.0f, missile->scale.y / 2.0f, 0), 
          missile->position + dist, 1.2f, false, COLOR_RED_1
       );
@@ -87,6 +87,6 @@ void update_missile(Player* player, Entity* missile)
 
 
    // render vectors
-   // IM_RENDER.add_line(IMHASH, missile->position, missile->position + H * 2.f, 1.2f, false, COLOR_RED_1);
-   IM_RENDER.add_line(IMHASH, missile->position, missile->position + R * 2.f, 1.2f, false, COLOR_YELLOW_1);
+   // ImDraw::add_line(IMHASH, missile->position, missile->position + H * 2.f, 1.2f, false, COLOR_RED_1);
+   ImDraw::add_line(IMHASH, missile->position, missile->position + R * 2.f, 1.2f, false, COLOR_YELLOW_1);
 }

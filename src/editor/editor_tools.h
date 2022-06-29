@@ -799,7 +799,7 @@ void render_aabb_boundaries(Entity* entity);
 void render_aabb_boundaries(Entity* entity)
 {
    // auto bounds = entity->collision_geometry.aabb;
-   // IM_RENDER.add(
+   // ImDraw::add(
    //    IMHASH,
    //    std::vector<Vertex>{
    //       Vertex{vec3(bounds.x0,entity->position.y, bounds.z0)},

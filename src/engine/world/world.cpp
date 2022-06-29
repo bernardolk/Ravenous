@@ -353,7 +353,7 @@ RaycastTest World::linear_raycast_array(Ray first_ray, int qty, float spacing, P
          }
       }
 
-      IM_RENDER.add_line(IM_ITERHASH(i), ray.origin, ray.origin + ray.direction * player->grab_reach, 1.2, false, COLOR_GREEN_1);
+      ImDraw::add_line(IM_ITERHASH(i), ray.origin, ray.origin + ray.direction * player->grab_reach, 1.2, false, COLOR_GREEN_1);
 
       ray = Ray{ ray.origin + UNIT_Y * spacing, ray.direction };
    }
@@ -361,7 +361,7 @@ RaycastTest World::linear_raycast_array(Ray first_ray, int qty, float spacing, P
    if(best_hit_results.hit)
    {
       vec3 hitpoint = point_from_detection(best_hit_results.ray, best_hit_results);
-      IM_RENDER.add_point(IMHASH, hitpoint, 2.0, true, COLOR_RED_1);
+      ImDraw::add_point(IMHASH, hitpoint, 2.0, true, COLOR_RED_1);
    }
 
    return best_hit_results;

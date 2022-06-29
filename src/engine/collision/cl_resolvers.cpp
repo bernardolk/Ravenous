@@ -62,8 +62,8 @@ CL_VtraceResult CL_do_stepover_vtrace(Player* player, World* world)
    
     // draw arrow
    auto hitpoint = point_from_detection(downward_ray, raytest);
-   IM_RENDER.add_line(IMHASH, hitpoint, ray_origin, 1.0, true, COLOR_GREEN_1);
-   IM_RENDER.add_point(IMHASH, hitpoint, 1.0, true, COLOR_GREEN_3);
+   ImDraw::add_line(IMHASH, hitpoint, ray_origin, 1.0, true, COLOR_GREEN_1);
+   ImDraw::add_point(IMHASH, hitpoint, 1.0, true, COLOR_GREEN_3);
 
    if(abs(player->entity_ptr->position.y - hitpoint.y) <= PLAYER_STEPOVER_LIMIT)
       return CL_VtraceResult{ true, player->last_terrain_contact_point().y - hitpoint.y, raytest.entity };
@@ -86,14 +86,14 @@ bool GP_simulate_player_collision_in_falling_trajectory(Player* player, vec2 xz_
 
    float max_iterations = 120;
 
-   IM_RENDER.add_point(IMHASH, player->entity_ptr->position, 2.0, false, COLOR_GREEN_1, 1);
+   ImDraw::add_point(IMHASH, player->entity_ptr->position, 2.0, false, COLOR_GREEN_1, 1);
 
    int iteration = 0;
    while(true)
    {
       vel += d_frame * player->gravity; 
       player->entity_ptr->position += vel * d_frame;
-      IM_RENDER.add_point(IM_ITERHASH(iteration), player->entity_ptr->position, 2.0, true, COLOR_GREEN_1, 1);
+      ImDraw::add_point(IM_ITERHASH(iteration), player->entity_ptr->position, 2.0, true, COLOR_GREEN_1, 1);
 
       player->entity_ptr->update();
 
