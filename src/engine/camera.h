@@ -26,8 +26,8 @@ struct Camera {
 };
 
 // camera array indexes
-extern const u8 EDITOR_CAM;
-extern const u8 FPS_CAM; 
+const u8 EDITOR_CAM    = 0;
+const u8 FPS_CAM       = 1; 
 
 void camera_update_game                (Camera* camera, float viewportWidth, float viewportHeight, vec3 position);
 void camera_update_editor              (Camera* camera, float viewportWidth, float viewportHeight, vec3 position);

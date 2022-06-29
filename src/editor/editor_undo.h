@@ -7,7 +7,7 @@ struct DeletedEntityLog {
    {
       if(size + 1 == capacity)
       {
-         G_BUFFERS.rm_buffer->add("DeletedEntityLog is FULL!", 3000);
+         RVN::rm_buffer->add("DeletedEntityLog is FULL!", 3000);
          return;
       }
 
@@ -42,7 +42,7 @@ struct UndoStack {
 
       if(full)
       {
-         G_BUFFERS.rm_buffer->add("UNDO/REDO STACK FULL.", 800);
+         RVN::rm_buffer->add("UNDO/REDO STACK FULL.", 800);
          return;
       }
 

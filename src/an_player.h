@@ -12,7 +12,7 @@ void AN_animate_player(Player* player)
       return;
 
    // updates animation run time
-   player->anim_t += G_FRAME_INFO.duration * 1000;
+   player->anim_t += RVN::frame.duration * 1000;
 
    // check if animation is completed
    bool end_anim = false;
@@ -78,7 +78,7 @@ bool AN_p_anim_landing_update(Player* player)
 {
    // bool interrupt = false;
    // // add a linear height step of 0.5m per second
-   // float a_step = 0.5 * G_FRAME_INFO.duration; 
+   // float a_step = 0.5 * RVN::frame.duration; 
    // float new_half_height = player->half_height + a_step;
    // if(new_half_height >= player->height)
    // {
@@ -121,7 +121,7 @@ bool AN_p_anim_landing_fall_update(Player* player)
    // // standing part
    // else if(player->anim_t > landing_d)
    // {
-   //    float a_step = 0.5 * G_FRAME_INFO.duration; 
+   //    float a_step = 0.5 * RVN::frame.duration; 
    //    float new_half_height = player->half_height + a_step;
    //    if(new_half_height >= player->height)
    //    {
@@ -154,7 +154,7 @@ bool AN_p_anim_vaulting(Player* player)
 
    vec3 dist = player->anim_final_pos - p_pos;
    auto dist_sign  = vec3(sign(dist.x), sign(dist.y), sign(dist.z));
-   auto ds = vec3(v_xz * G_FRAME_INFO.duration, v_y  * G_FRAME_INFO.duration, v_xz * G_FRAME_INFO.duration);
+   auto ds = vec3(v_xz * RVN::frame.duration, v_y  * RVN::frame.duration, v_xz * RVN::frame.duration);
 
    // updates player position
    for(int i = 0; i < 3; i++)
@@ -188,14 +188,14 @@ bool AN_p_anim_vaulting(Player* player)
    }
 
    /*
-   editor_print("front: " + to_string(nrmlz(to2d_xz(pCam->Front))));
-   editor_print("final dir: " + to_string(player->anim_final_dir), 0, vec3(0.8, 0.8, 0.8));
-   editor_print("orig angle: " + to_string(orig_angle), 0, vec3(0.8, 0.8, 0.8));
-   editor_print("current angle: " +  to_string(updated_angle));
-   editor_print("sva cam-final: " +  to_string(updated_sva), 0, vec3(0,0.8,0.1));
-   editor_print("sva orig-final: " +  to_string(orig_sva), 0, vec3(0,0.8,0.1));
-   editor_print("orig sign: " +  to_string(orig_sign), 0, vec3(0.8,0.0,0.1));
-   editor_print("updated sign: " +  to_string(updated_sign), 0, vec3(0.8,0.0,0.1));
+   RVN::print_dynamic("front: " + to_string(nrmlz(to2d_xz(pCam->Front))));
+   RVN::print_dynamic("final dir: " + to_string(player->anim_final_dir), 0, vec3(0.8, 0.8, 0.8));
+   RVN::print_dynamic("orig angle: " + to_string(orig_angle), 0, vec3(0.8, 0.8, 0.8));
+   RVN::print_dynamic("current angle: " +  to_string(updated_angle));
+   RVN::print_dynamic("sva cam-final: " +  to_string(updated_sva), 0, vec3(0,0.8,0.1));
+   RVN::print_dynamic("sva orig-final: " +  to_string(orig_sva), 0, vec3(0,0.8,0.1));
+   RVN::print_dynamic("orig sign: " +  to_string(orig_sign), 0, vec3(0.8,0.0,0.1));
+   RVN::print_dynamic("updated sign: " +  to_string(updated_sign), 0, vec3(0.8,0.0,0.1));
    */
 
    if(is_equal(p_pos, player->anim_final_pos) && player->anim_finished_turning)

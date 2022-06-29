@@ -6,7 +6,7 @@
 #include <string>
 #include <map>
 #include <engine/core/rvn_types.h>
-#include <engine/configs.h>
+#include <engine/rvn.h>
 #include <engine/parser.h>
 #include <engine/logging.h>
 #include <engine/shader.h>

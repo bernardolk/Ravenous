@@ -15,4 +15,3 @@ struct RenderOptions
 };
 
 void render_mesh                    (Mesh* mesh, RenderOptions opts = RenderOptions{});
-void editor_print_buffer_contents   ();

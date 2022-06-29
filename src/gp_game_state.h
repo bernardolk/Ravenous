@@ -38,7 +38,7 @@ struct GameState {
 
          if(timer->active)
          {
-            editor_print("Remaining time: " + fmt_tostr(timer->remaining_time, 0));
+            RVN::print_dynamic("Remaining time: " + fmt_tostr(timer->remaining_time, 0));
             bool active = timer->update();
             if(!active)
             {

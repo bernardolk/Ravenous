@@ -203,13 +203,13 @@ void execute_command(std::string buffer_line, Player* &player, World* world, Cam
          auto current_scene = G_SCENE_INFO.scene_name;
          if(check_if_scene_exists(scene_name))
          {
-            G_BUFFERS.rm_buffer->add("Scene name already exists.", 3000);
+            RVN::rm_buffer->add("Scene name already exists.", 3000);
             return;
          }
 
          if(!load_scene_from_file(SCENE_TEMPLATE_FILENAME, world))
          {
-            G_BUFFERS.rm_buffer->add("Scene template not found.", 3000);
+            RVN::rm_buffer->add("Scene template not found.", 3000);
             return;
          }
 
@@ -221,7 +221,7 @@ void execute_command(std::string buffer_line, Player* &player, World* world, Cam
                assert(false);    // if this happens, weird!
             }
 
-            G_BUFFERS.rm_buffer->add("Couldnt save new scene.", 3000);
+            RVN::rm_buffer->add("Couldnt save new scene.", 3000);
          }
 
          player = G_SCENE_INFO.player; // not irrelevant! do not delete
@@ -232,7 +232,7 @@ void execute_command(std::string buffer_line, Player* &player, World* world, Cam
       }
       else
       {
-         G_BUFFERS.rm_buffer->add("Could not create new scene. Provide a name please.", 3000);
+         RVN::rm_buffer->add("Could not create new scene. Provide a name please.", 3000);
       }
    }
 

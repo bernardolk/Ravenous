@@ -1,7 +1,7 @@
 #include <string>
 #include <vector>
 #include <engine/core/rvn_types.h>
-#include <engine/configs.h>
+#include <engine/rvn.h>
 #include <rvn_macros.h>
 //#include <engine/camera.h>
 #include <engine/vertex.h>
@@ -15,7 +15,7 @@
 #include <engine/entity.h>
 //#include <engine/collision/primitives/ray.h>
 #include <engine/world/world.h>
-//#include <engine/configs.h>
+#include <engine/rvn.h>
 #include <engine/collision/simplex.h>
 #include <engine/collision/cl_gjk.h>
 #include <engine/collision/cl_epa.h>
@@ -57,7 +57,7 @@ void CL_recompute_collision_buffer_entities(Player* player)
 {
    // copies collision-check-relevant entity ptrs to a buffer
    // with metadata about the collision check for the entity
-   auto  collision_buffer  = G_BUFFERS.entity_buffer->buffer;
+   auto  collision_buffer  = RVN::entity_buffer->buffer;
    int   entity_count      = 0;
    for(int i = 0; i < player->entity_ptr->world_cells_count; i++)
    {
@@ -80,26 +80,26 @@ void CL_recompute_collision_buffer_entities(Player* player)
             collision_buffer[entity_count].entity           = entity;
             collision_buffer[entity_count].collision_check  = false;
             entity_count++;
-            if(entity_count > COLLISION_BUFFER_CAPACITY) assert(false);
+            if(entity_count > RVN::COLLISION_BUFFER_CAPACITY) assert(false);
          }
       }
    }
 
-   G_BUFFERS.entity_buffer->size = entity_count;
+   RVN::entity_buffer->size = entity_count;
 }
 
 
 void CL_reset_collision_buffer_checks()
 {
-   for(int i = 0; i < G_BUFFERS.entity_buffer->size; i++)
-      G_BUFFERS.entity_buffer->buffer[i].collision_check = false;
+   for(int i = 0; i < RVN::entity_buffer->size; i++)
+      RVN::entity_buffer->buffer[i].collision_check = false;
 }
 
 
 void CL_mark_entity_checked(Entity* entity)
 {
    // marks entity in entity buffer as checked so we dont check collisions for this entity twice (nor infinite loop)
-   auto entity_buffer         = G_BUFFERS.entity_buffer;
+   auto entity_buffer         = RVN::entity_buffer;
    auto entity_element        = entity_buffer->buffer;
    for(int i = 0; i < entity_buffer->size; ++i)
    {
@@ -129,7 +129,7 @@ CL_ResultsArray CL_test_and_resolve_collisions(Player* player)
 {
    // iterative collision detection
    auto results_array = CL_ResultsArray();
-   auto entity_buffer = G_BUFFERS.entity_buffer;
+   auto entity_buffer = RVN::entity_buffer;
    int c = -1;
    while(true)
    {
@@ -146,8 +146,8 @@ CL_ResultsArray CL_test_and_resolve_collisions(Player* player)
          // {
          //    if(result.entity->name == "missile")
          //    {
-         //       editor_print("Player took damage!", 2000, COLOR_RED_2);
-         //       editor_print("Missile exploded!", 2000, COLOR_YELLOW_1);
+         //       RVN::print_dynamic("Player took damage!", 2000, COLOR_RED_2);
+         //       RVN::print_dynamic("Missile exploded!", 2000, COLOR_YELLOW_1);
          //       Exploded = true;
          //    }
 
@@ -170,7 +170,7 @@ bool CL_test_collisions(Player* player)
 {
    // iterative collision detection
    bool any_collision = false;
-   auto entity_buffer = G_BUFFERS.entity_buffer;
+   auto entity_buffer = RVN::entity_buffer;
    while(true)
    {
       // places pointer back to start

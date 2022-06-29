@@ -11,7 +11,7 @@ void render_toolbar(World* world)
    ImGui::Text(scene_name.c_str());
    ImGui::NewLine();
 
-   ImGui::InputFloat("##timestep", &G_FRAME_INFO.time_step, 0.5, 1.0, "Timestep = %.1f x");
+   ImGui::InputFloat("##timestep", &RVN::frame.time_step, 0.5, 1.0, "Timestep = %.1f x");
 
    ImGui::NewLine();
 

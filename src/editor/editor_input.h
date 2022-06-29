@@ -23,7 +23,7 @@ void handle_input_flags(InputFlags flags, Player* &player, World* world, Camera*
       // set scene
       G_CONFIG.initial_scene = G_SCENE_INFO.scene_name;
       save_configs_to_file();
-      G_BUFFERS.rm_buffer->add("world state saved", 1200);
+      RVN::rm_buffer->add("world state saved", 1200);
       return;
    }
 
@@ -271,8 +271,8 @@ void handle_input_flags(InputFlags flags, Player* &player, World* world, Camera*
    // @TODO: this sucks
    float camera_speed =
       G_SCENE_INFO.camera->type == THIRD_PERSON ?
-      player->speed * G_FRAME_INFO.duration :
-      G_FRAME_INFO.real_duration * edCam->Acceleration;
+      player->speed * RVN::frame.duration :
+      RVN::frame.real_duration * edCam->Acceleration;
 
    if(flags.key_press & KEY_LEFT_SHIFT)
    {

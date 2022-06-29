@@ -38,7 +38,7 @@ struct EntityAnimation {
    {
       /* executes current keyframe in entity and updates runtimes, turns animation inactive once it ends. */
 
-      float frame_duration_ms = G_FRAME_INFO.duration * 1000;
+      float frame_duration_ms = RVN::frame.duration * 1000;
 
       auto kf = &keyframes[current_keyframe];
 

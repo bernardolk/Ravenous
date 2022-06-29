@@ -37,7 +37,7 @@
 
 #include <engine/core/rvn_types.h>
 #include <engine/logging.h>
-#include <engine/configs.h>
+#include <engine/rvn.h>
 #include <engine/render/text/character.h>
 
 // @todo temp for missile action
@@ -111,7 +111,6 @@ struct ProgramConfig {
 #include <engine/collision/raycast.h>
 #include <engine/world/world.h>
 #include <input_recorder.h>
-#include <globals.h>
 #include <entity_pool.h>
 #include <loaders.h>
 #include <entity_manager.h>
@@ -161,11 +160,7 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <compass.h>
 
 // globals
-GlobalBuffers     G_BUFFERS;
 GlobalSceneInfo   G_SCENE_INFO;
-GlobalFrameInfo   G_FRAME_INFO;
-// CollisionLog*     COLLISION_LOG;
-
 
 #define glCheckError() glCheckError_(__FILE__, __LINE__) 
 
@@ -209,8 +204,7 @@ int main()
    load_models();
 
    // Allocate buffers and logs
-   G_BUFFERS.entity_buffer = allocate_entity_buffer();
-   G_BUFFERS.rm_buffer     = allocate_render_message_buffer();
+   RVN::init();
    // COLLISION_LOG           = CL_allocate_collision_log();
    initialize_console_buffers();
 
@@ -333,7 +327,7 @@ int main()
      
       if(UPDATE_MISSILE && !Launch)
       {
-         editor_print("Missile launch!");
+         RVN::print_dynamic("Missile launch!");
          Launch = true;
       }
 
@@ -376,14 +370,14 @@ int main()
             break;
       }
       ImDraw::render(G_SCENE_INFO.camera);
-      ImDraw::update(G_FRAME_INFO.duration);
-      render_message_buffer_contents();
+      ImDraw::update(RVN::frame.duration);
+      RVN::rm_buffer->render();
 
       // -------------
       // FINISH FRAME
       // -------------
       Entity_Manager.safe_delete_marked_entities();
-      expire_render_messages_from_buffer();
+      RVN::rm_buffer->cleanup();
 		glfwSwapBuffers(G_DISPLAY_INFO.window);
       if(PROGRAM_MODE.current == EDITOR_MODE) 
          Editor::end_dear_imgui_frame();
@@ -422,24 +416,24 @@ void simulate_gravity_trajectory()
 
 void start_frame()
 {
-   float current_frame_time = glfwGetTime();
-   G_FRAME_INFO.real_duration = current_frame_time - G_FRAME_INFO.last_frame_time;
-   G_FRAME_INFO.duration = G_FRAME_INFO.real_duration * G_FRAME_INFO.time_step;
-   G_FRAME_INFO.last_frame_time = current_frame_time;
+   float current_frame_time         = glfwGetTime();
+   RVN::frame.real_duration       = current_frame_time - RVN::frame.last_frame_time;
+   RVN::frame.duration            = RVN::frame.real_duration * RVN::frame.time_step;
+   RVN::frame.last_frame_time     = current_frame_time;
 
    // forces framerate for simulation to be small
-   if(G_FRAME_INFO.duration > 0.02)
+   if(RVN::frame.duration > 0.02)
    {
-      G_FRAME_INFO.duration = 0.02;
+      RVN::frame.duration = 0.02;
    } 
 
-   G_FRAME_INFO.sub_second_counter += G_FRAME_INFO.real_duration;
-   G_FRAME_INFO.fps_counter        += 1;
-   if(G_FRAME_INFO.sub_second_counter > 1)
+   RVN::frame.sub_second_counter += RVN::frame.real_duration;
+   RVN::frame.fps_counter        += 1;
+   if(RVN::frame.sub_second_counter > 1)
    {
-      G_FRAME_INFO.fps                 = G_FRAME_INFO.fps_counter;
-      G_FRAME_INFO.fps_counter         = 0;
-      G_FRAME_INFO.sub_second_counter -= 1;
+      RVN::frame.fps                 = RVN::frame.fps_counter;
+      RVN::frame.fps_counter         = 0;
+      RVN::frame.sub_second_counter -= 1;
    }
 }
 
@@ -569,7 +563,7 @@ void toggle_program_modes(Player* player)
       glfwSetInputMode(G_DISPLAY_INFO.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
       Editor::end_dear_imgui_frame();
 
-      G_BUFFERS.rm_buffer->add("Game Mode", 2000);
+      RVN::rm_buffer->add("Game Mode", 2000);
    }
    else if(PROGRAM_MODE.current == GAME_MODE)
    {
@@ -580,7 +574,7 @@ void toggle_program_modes(Player* player)
       glfwSetInputMode(G_DISPLAY_INFO.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
       Editor::start_dear_imgui_frame();
 
-      G_BUFFERS.rm_buffer->add("Editor Mode", 2000);
+      RVN::rm_buffer->add("Editor Mode", 2000);
    }
 }
 

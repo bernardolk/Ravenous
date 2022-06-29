@@ -97,7 +97,7 @@ float get_compass_heading(Entity* entity)
    // ImDraw::add_line(IMHASH, center, center + glm::normalize(to3d_xz(north_xz))     * 1.5f, 3.0f, false, COLOR_YELLOW_2);
    // ImDraw::add_line(IMHASH, center, center + glm::normalize(to3d_xz(screen_up_xz)) * 1.5f, 3.0f, false, COLOR_BLUE_2);
 
-   // editor_print("Angle from north: " + to_string(angle));
+   // RVN::print_dynamic("Angle from north: " + to_string(angle));
 
    return angle;
 }

@@ -24,7 +24,7 @@ void update_missile(Player* player, Entity* missile)
    vec3 R      = normalize(cross(D, H));
 
    // update position
-   missile->position += normalize(H) * MISSILE_LIN_SPEED * G_FRAME_INFO.duration;
+   missile->position += normalize(H) * MISSILE_LIN_SPEED * RVN::frame.duration;
 
    if(!missile->dodged)
    {
@@ -37,7 +37,7 @@ void update_missile(Player* player, Entity* missile)
       else
       {
          // apply rotation along rotation axis R
-         float ang_speed  = -MISSILE_ANG_SPEED * G_FRAME_INFO.duration;
+         float ang_speed  = -MISSILE_ANG_SPEED * RVN::frame.duration;
          missile_rot = rotate(mat4identity, glm::radians(ang_speed), R) * missile_rot;
 
          // extract euler angles from new rot matrix using XYZ convention
@@ -56,9 +56,9 @@ void update_missile(Player* player, Entity* missile)
    }
    else
    {
-      missile->inv_period_timer += G_FRAME_INFO.duration;
+      missile->inv_period_timer += RVN::frame.duration;
 
-      editor_print("Player is invincible against missile right now!", 2000, COLOR_GREEN_2);
+      RVN::print_dynamic("Player is invincible against missile right now!", 2000, COLOR_GREEN_2);
 
       if(missile->inv_period_timer >= MISSILE_INV_PERIOD)
       {

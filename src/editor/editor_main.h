@@ -711,7 +711,7 @@ void render_text_overlay(Player* player, Camera* camera)
 
 
    // FPS
-   std::string fps = std::to_string(G_FRAME_INFO.fps);
+   std::string fps = std::to_string(RVN::frame.fps);
    std::string fps_gui = "FPS: " + fps;
    render_text(font, GlobalDisplayConfig::VIEWPORT_WIDTH - 110, 40, fps_gui);
 

@@ -203,7 +203,7 @@ void stretch_entity_to_reference(Entity* entity, Triangle t)
    // // assert triangles are axis aligned always
    // if(abs(normal.x) != 1 && abs(normal.y) != 1 && abs(normal.z) != 1) 
    // {
-   //    G_BUFFERS.rm_buffer->add("Stretch failed", 1200);
+   //    RVN::rm_buffer->add("Stretch failed", 1200);
    //    return;
    // }
 

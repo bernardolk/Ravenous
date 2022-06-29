@@ -12,7 +12,7 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <engine/render/text/face.h>
 #include <engine/logging.h>
-#include <engine/configs.h>
+#include <engine/rvn.h>
 #include <engine/render/text/text_renderer.h>
 
 #include <ft2build.h>

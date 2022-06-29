@@ -511,7 +511,7 @@ void entity_panel_update_entity_and_editor_context(EntityPanelContext* panel, u3
    panel->entity->update();
    auto update_cells = world->update_entity_world_cells(panel->entity);
    if(update_cells.status != CellUpdate_OK)
-      G_BUFFERS.rm_buffer->add(update_cells.message, 3500);
+      RVN::rm_buffer->add(update_cells.message, 3500);
 
    world->update_cells_in_use_list();
 }

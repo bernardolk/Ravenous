@@ -6,14 +6,11 @@ struct CL_Results;
 struct CL_ResultsArray;
 struct EntityBufferElement;
 
-// @TODO: temp include, delete when globals are dealt with
-#include <globals.h>
-
 CL_ResultsArray   CL_test_and_resolve_collisions                        (Player* player);
 CL_Results        CL_test_collision_buffer_entitites                    (Player* player,
-                                                                           EntityBufferElement* entity_iterator,
-                                                                           int entity_list_size,
-                                                                           bool iterative);
+                                                                         EntityBufferElement* entity_iterator,
+                                                                         int entity_list_size,
+                                                                         bool iterative);
 CL_Results        CL_test_player_vs_entity                              (Entity* entity, Player* player);
 void              CL_resolve_collision                                  (CL_Results results, Player* player);
 bool              CL_test_collisions                                    (Player* player);

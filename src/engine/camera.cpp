@@ -5,9 +5,6 @@
 #include <glm/gtx/compatibility.hpp>
 #include <engine/camera.h>
 
-extern const u8 EDITOR_CAM     = 0;
-extern const u8 FPS_CAM        = 1; 
-
 void set_camera_to_free_roam(Camera* camera)
 {
    camera->type = FREE_ROAM;

@@ -44,8 +44,8 @@ struct Timer {
    bool update()
    {
       /* Returns whether the timer is still active */
-      remaining_time -= G_FRAME_INFO.duration;
-      elapsed_time   += G_FRAME_INFO.duration;
+      remaining_time -= RVN::frame.duration;
+      elapsed_time   += RVN::frame.duration;
 
       if(type == TimerType_TimeAttackDoor)
          _update_time_attack_door_timer();

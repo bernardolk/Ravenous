@@ -173,42 +173,42 @@ void IN_handle_common_input(InputFlags flags, Player* &player)
 {
    if(pressed_once(flags, KEY_COMMA))
    {
-      if(G_FRAME_INFO.time_step > 0)
+      if(RVN::frame.time_step > 0)
       {
-         G_FRAME_INFO.time_step -= 0.025; 
+         RVN::frame.time_step -= 0.025; 
       }
    }
    if(pressed_once(flags, KEY_PERIOD))
    {
-      if(G_FRAME_INFO.time_step < 3)
+      if(RVN::frame.time_step < 3)
       {
-         G_FRAME_INFO.time_step += 0.025;
+         RVN::frame.time_step += 0.025;
       }
    }
    if(pressed_once(flags, KEY_1))
    {
-      G_BUFFERS.rm_buffer->add("TIME STEP x0.05", 1000);
-      G_FRAME_INFO.time_step = 0.05;
+      RVN::rm_buffer->add("TIME STEP x0.05", 1000);
+      RVN::frame.time_step = 0.05;
    }
    if(pressed_once(flags, KEY_2))
    {
-      G_BUFFERS.rm_buffer->add("TIME STEP x0.1", 1000);
-      G_FRAME_INFO.time_step = 0.1;
+      RVN::rm_buffer->add("TIME STEP x0.1", 1000);
+      RVN::frame.time_step = 0.1;
    }
    if(pressed_once(flags, KEY_3))
    {
-      G_BUFFERS.rm_buffer->add("TIME STEP x0.3", 1000);
-      G_FRAME_INFO.time_step = 0.3;
+      RVN::rm_buffer->add("TIME STEP x0.3", 1000);
+      RVN::frame.time_step = 0.3;
    }
    if(pressed_once(flags, KEY_4))
    {
-      G_BUFFERS.rm_buffer->add("TIME STEP x1.0", 1000);
-      G_FRAME_INFO.time_step = 1.0;
+      RVN::rm_buffer->add("TIME STEP x1.0", 1000);
+      RVN::frame.time_step = 1.0;
    }
    if(pressed_once(flags, KEY_5))
    {
-      G_BUFFERS.rm_buffer->add("TIME STEP x2.0", 1000);
-      G_FRAME_INFO.time_step = 2.0;
+      RVN::rm_buffer->add("TIME STEP x2.0", 1000);
+      RVN::frame.time_step = 2.0;
    }
    if(flags.key_press & KEY_K)
    {

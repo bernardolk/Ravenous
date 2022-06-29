@@ -108,10 +108,10 @@ void GP_update_player_state(Player* &player, World* world)
                      break;
                   }
                   else
-                     editor_print("Player won't fit if he falls here.", 1000);
+                     RVN::print_dynamic("Player won't fit if he falls here.", 1000);
                }
                else
-                     editor_print("We could fall but we are smarts", 1000);
+                     RVN::print_dynamic("We could fall but we are smarts", 1000);
 
                break;
             }
@@ -132,7 +132,7 @@ void GP_update_player_state(Player* &player, World* world)
          // Check interactions
          if(player->want_to_grab){
             GP_check_player_grabbed_ledge(player);
-            editor_persist_print("Ran check player grabbed ledge", 1000);
+            RVN::print("Ran check player grabbed ledge", 1000);
          }
 
          break;
@@ -141,8 +141,8 @@ void GP_update_player_state(Player* &player, World* world)
 
       case PLAYER_STATE_FALLING:
       {
-         player->entity_ptr->velocity += G_FRAME_INFO.duration * player->gravity; 
-         player->entity_ptr->position += player->entity_ptr->velocity * G_FRAME_INFO.duration;
+         player->entity_ptr->velocity += RVN::frame.duration * player->gravity; 
+         player->entity_ptr->position += player->entity_ptr->velocity * RVN::frame.duration;
          player->update();
 
          auto results = CL_test_and_resolve_collisions(player);
@@ -196,8 +196,8 @@ void GP_update_player_state(Player* &player, World* world)
             }
          }
 
-         v += G_FRAME_INFO.duration * player->gravity; 
-         player->entity_ptr->position += player->entity_ptr->velocity * G_FRAME_INFO.duration;
+         v += RVN::frame.duration * player->gravity; 
+         player->entity_ptr->position += player->entity_ptr->velocity * RVN::frame.duration;
          player->update();
 
          auto results = CL_test_and_resolve_collisions(player);
@@ -253,7 +253,7 @@ void GP_update_player_state(Player* &player, World* world)
 
          player->entity_ptr->velocity = player->v_dir * player->slide_speed;
 
-         player->entity_ptr->position += player->entity_ptr->velocity * G_FRAME_INFO.duration;
+         player->entity_ptr->position += player->entity_ptr->velocity * RVN::frame.duration;
          player->update();
 
 
@@ -360,7 +360,7 @@ vec3 GP_player_standing_get_next_position(Player* player)
 
    bool no_move_command = v_dir.x == 0 && v_dir.z == 0;
 
-   auto dt = G_FRAME_INFO.duration;
+   auto dt = RVN::frame.duration;
 
    if(v_dir.x != 0 || v_dir.y != 0 || v_dir.z != 0)
       player->v_dir_historic = v_dir;
@@ -415,7 +415,7 @@ void GP_check_trigger_interaction(Player* player, World* world)
       GJK_Result gjk_test = CL_run_GJK(&player->entity_ptr->collider, &trigger_collider);
       if(gjk_test.collision)
       {
-         editor_print("Trigger Interaction", 1000);
+         RVN::print_dynamic("Trigger Interaction", 1000);
 
          switch(interactable->type)
          {
@@ -463,9 +463,9 @@ void GP_check_player_grabbed_ledge(Player* player)
 //    auto camera_f = vec2(pCam->Front.x, pCam->Front.z);
 
 
-//    for(int i = 0; i < G_BUFFERS.entity_buffer->size; i++)
+//    for(int i = 0; i < RVN::entity_buffer->size; i++)
 //    {
-//       Entity* entity = G_BUFFERS.entity_buffer->buffer[i].entity;
+//       Entity* entity = RVN::entity_buffer->buffer[i].entity;
 
 //       if(entity->collision_geometry_type == COLLISION_ALIGNED_BOX)
 //       {
@@ -566,9 +566,9 @@ void GP_check_player_grabbed_ledge(Player* player)
 //    float player_y = player->entity_ptr->position.y;
 //    auto camera_f = vec2(pCam->Front.x, pCam->Front.z);
 
-//    for(int i = 0; i < G_BUFFERS.entity_buffer->size; i++)
+//    for(int i = 0; i < RVN::entity_buffer->size; i++)
 //    {
-//       Entity* entity = G_BUFFERS.entity_buffer->buffer[i].entity;
+//       Entity* entity = RVN::entity_buffer->buffer[i].entity;
 
 //       if(entity->collision_geometry_type != COLLISION_ALIGNED_BOX)
 //          continue;
@@ -604,7 +604,7 @@ void GP_check_player_grabbed_ledge(Player* player)
 //          // ImDraw::add_mesh(IMHASH, player->entity_ptr, future_pos);
 //          if(CL_test_in_mock_position(player, future_pos))
 //          {
-//             editor_print("Vaulting failed.");
+//             RVN::print_dynamic("Vaulting failed.");
 //             continue;
 //          }
          
@@ -627,7 +627,7 @@ void GP_check_player_grabbed_ledge(Player* player)
 //    // Player death
 //    if(player->lives <= 0)
 //    {
-//       G_BUFFERS.rm_buffer->add("PLAYER DIED (height:" + format_float_tostr(player->fall_height_log, 2) + " m)", 3000);
+//       RVN::rm_buffer->add("PLAYER DIED (height:" + format_float_tostr(player->fall_height_log, 2) + " m)", 3000);
 //       player->die();
 //       return;
 //    }

@@ -12,7 +12,7 @@
 #include <engine/collision/primitives/ray.h>
 #include <glm/gtx/quaternion.hpp>
 #include <engine/entity.h>
-#include <engine/configs.h>
+#include <engine/rvn.h>
 #include <engine/collision/raycast.h>
 
 // --------------------------

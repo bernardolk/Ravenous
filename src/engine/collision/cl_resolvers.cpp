@@ -2,6 +2,7 @@
 #include <vector>
 #include <engine/core/rvn_types.h>
 #include <rvn_macros.h>
+#include <engine/rvn.h>
 //#include <engine/camera.h>
 #include <engine/vertex.h>
 #include <engine/collision/primitives/bounding_box.h>
@@ -12,12 +13,10 @@
 #include <engine/collision/primitives/ray.h>
 #include <glm/gtx/quaternion.hpp>
 #include <engine/entity.h>
-//#include <engine/configs.h>
-#include <engine/configs.h>
+#include <engine/rvn.h>
 #include <player.h>
 #include <engine/world/world.h>
 #include <iostream>
-#include <globals.h>
 #include <engine/collision/cl_types.h>
 #include <colors.h>
 #include <engine/render/renderer.h>
@@ -147,7 +146,7 @@ bool CL_run_tests_for_fall_simulation(Player* player)
 { 
    // It basically the usual test but without collision resolving.
 
-   auto entity_buffer      = G_BUFFERS.entity_buffer;
+   auto entity_buffer      = RVN::entity_buffer;
    auto buffer             = entity_buffer->buffer;
    auto entity_list_size   = entity_buffer->size;
    bool terrain_collision  = false;
