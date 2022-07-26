@@ -27,7 +27,7 @@ struct Entity;
 
 using GLenum = unsigned int;
 
-std::hash<std::string> im_hasher;
+const std::hash<std::string> im_hasher;
 
 struct ImDrawElement {
    size_t         hash;
@@ -48,8 +48,8 @@ struct ImDrawSlot {
 };
 
 struct ImDraw {
-   static const int        IM_BUFFER_SIZE = 200;
-   static ImDrawElement*   list;
+   static const int                 IM_BUFFER_SIZE = 200;
+   inline static ImDrawElement*     list;
 
    static void init           ();
    static void update         (float frame_duration);
@@ -71,8 +71,7 @@ struct ImDraw {
    static void add_mesh       (size_t _hash, Entity* entity);
    static void add_mesh       (size_t _hash, Entity* entity, vec3 pos);
 
-private:
-   static ImDrawSlot _find_element_or_empty_slot(size_t hash);
+private:   
    static void _set_mesh          (int i, std::vector<Vertex> vertices, GLenum draw_method, RenderOptions opts);
    static void _set_mesh          (int i, Mesh* mesh, RenderOptions opts);
    static void _update_mesh       (int i, vec3 pos, vec3 rot, vec3 scale, vec3 color, int duration);
@@ -80,4 +79,6 @@ private:
    static mat4 _get_mat_model     (vec3 pos, vec3 rot, vec3 scale);
    static void _set_indices       (int i, std::vector<u32> indices);
    static void _empty_slot        (int i);
+
+   static ImDrawSlot _find_element_or_empty_slot(size_t hash);
 };

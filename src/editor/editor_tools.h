@@ -27,17 +27,15 @@ void editor_erase_entity(Entity* entity)
    EdContext.undo_stack.deletion_log.add(entity);
 }
 
-void editor_erase_light(int index, std::string type)
+void editor_erase_light(int index, std::string type, World* world)
 {
    if(type == "point")
    {
-      auto pointlights = &G_SCENE_INFO.active_scene->pointLights;
-      pointlights->erase(pointlights->begin() + index);
+      world->point_lights.erase(world->point_lights.begin() + index);
    }
    else if(type == "spot")
    {
-      auto spotlights = &G_SCENE_INFO.active_scene->spotLights;
-      spotlights->erase(spotlights->begin() + index);
+      world->spot_lights.erase(world->spot_lights.begin() + index);
    }
 
    if(EdContext.lights_panel.selected_light == index)
@@ -555,7 +553,7 @@ void move_entity_by_arrows(Entity* entity)
 // @todo: This will DISAPPEAR after lights become entities!
 //       We need to provide entity rights to lights too! revolution now!
 
-void move_light_with_mouse(std::string type, int index);
+void move_light_with_mouse(std::string type, int index, World* world);
 void activate_move_light_mode(std::string type, int index);
 void place_light(std::string type, int index);
 void open_lights_panel(std::string type, int index, bool focus_tab); //fwd
@@ -571,13 +569,13 @@ void activate_move_light_mode(std::string type, int index)
    EdContext.selected_light_type = type;
 }
 
-void move_light_with_mouse(std::string type, int index)
+void move_light_with_mouse(std::string type, int index, World* world)
 {
    vec3 position;
-   if(type == "point" && index > -1)
-      position = G_SCENE_INFO.active_scene->pointLights[index].position;
+   if (type == "point" && index > -1)
+      position = world->point_lights[index]->position;
    else if(type == "spot" && index > -1)
-      position = G_SCENE_INFO.active_scene->spotLights[index].position;
+      position = world->spot_lights[index]->position;
    else assert(false);
 
 
@@ -663,9 +661,9 @@ void move_light_with_mouse(std::string type, int index)
    }
 
    if(type == "point" && index > -1)
-      G_SCENE_INFO.active_scene->pointLights[index].position = position;
+      world->point_lights[index]->position = position;
    else if(type == "spot" && index > -1)
-      G_SCENE_INFO.active_scene->spotLights[index].position = position;
+      world->spot_lights[index]->position = position;
    else assert(false);
 }
 

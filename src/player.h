@@ -28,7 +28,7 @@ enum PlayerAnimationState {
    PlayerAnimationState_Vaulting       = 3
 };
 
-float PLAYER_ANIMATION_DURATIONS[] = {
+const float PLAYER_ANIMATION_DURATIONS[] = {
    400,                          // 0 - jumping
    200,                          // 1 - landing                  
    400,                          // 2 - landing fall   
@@ -38,9 +38,11 @@ float PLAYER_ANIMATION_DURATIONS[] = {
 // forward declarations
 struct   Player;
 struct   Entity;
-void     AN_p_anim_force_interrupt(Player* player);
-bool     CL_update_player_world_cells(Player* player);
-void     CL_recompute_collision_buffer_entities(Player* player);
+struct   World;
+
+void     AN_p_anim_force_interrupt                 (Player* player);
+bool     CL_update_player_world_cells              (Player* player, World* world);
+void     CL_recompute_collision_buffer_entities    (Player* player);
 
 
 struct Player {
@@ -128,11 +130,11 @@ struct Player {
    vec3 anim_orig_dir   = vec3(0);                           // original player orientation
    bool anim_finished_turning = false;                       // player has finished turning his camera
 
-   void update()
+   void update(World* world)
    {
       // perform updates to bounding boxes, colliders etc
       entity_ptr->update();
-      bool cells_updated = CL_update_player_world_cells(this);
+      bool cells_updated = CL_update_player_world_cells(this, world);
       if(cells_updated) 
       {
          CL_recompute_collision_buffer_entities(this);

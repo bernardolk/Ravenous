@@ -6,5 +6,3 @@ struct Character {
    glm::ivec2  size;        // Size of glyph
 	glm::ivec2  bearing;     // Offset from baseline to left/top of glyph
 };
-
-typedef std::map<char, Character> gl_charmap;

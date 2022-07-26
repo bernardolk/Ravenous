@@ -5,7 +5,6 @@ struct Scene;
 struct Camera;
 struct Entity;
 struct Player;
-struct FrameData;
 struct EntityBuffer;
 struct EntityBufferElement;
 struct GLFWwindow;
@@ -22,24 +21,6 @@ const static std::string   CONFIG_FILE_PATH                    = PROJECT_PATH + 
 const static std::string   SCENE_TEMPLATE_FILENAME             = "template_scene";
 const static std::string   INPUT_RECORDINGS_FOLDER_PATH        = PROJECT_PATH + "/recordings/";
 
-struct RVN {
-   static const size_t   COLLISION_LOG_BUFFER_CAPACITY         = 150;
-   static const size_t   COLLISION_LOG_CAPACITY                = 20;
-   static const size_t   COLLISION_BUFFER_CAPACITY             = 1000;
-   static const size_t   MESSAGE_BUFFER_CAPACITY               = 10;
-   static const int      MAX_MESSAGES_TO_RENDER                = 8;
-
-   static FrameData              frame;
-   static std::string            scene_name;
-
-   static EntityBuffer*          entity_buffer;
-   static RenderMessageBuffer*   rm_buffer;
-
-   static void                   init                             ();
-   static void                   print_dynamic                    (const std::string msg, float duration = 0, vec3 color = vec3(-1));
-   static void                   print                            (const std::string msg, float duration = 0, vec3 color = vec3(-1));
-};
-
 struct FrameData {
    float    duration;
    float    real_duration;
@@ -48,6 +29,24 @@ struct FrameData {
    int      fps_counter;
    float    sub_second_counter;
    float    time_step            = 1;
+};
+
+struct RVN {
+   static const size_t   COLLISION_LOG_BUFFER_CAPACITY         = 150;
+   static const size_t   COLLISION_LOG_CAPACITY                = 20;
+   static const size_t   COLLISION_BUFFER_CAPACITY             = 1000;
+   static const size_t   MESSAGE_BUFFER_CAPACITY               = 10;
+   static const int      MAX_MESSAGES_TO_RENDER                = 8;
+
+   inline static FrameData              frame;
+   inline static std::string            scene_name;
+
+   inline static EntityBuffer*          entity_buffer;
+   inline static RenderMessageBuffer*   rm_buffer;
+
+   static void init              ();
+   static void print_dynamic     (const std::string& msg, float duration = 0, vec3 color = vec3(-1));
+   static void print             (const std::string& msg, float duration = 0, vec3 color = vec3(-1));
 };
 
 struct GlobalSceneInfo {
@@ -80,7 +79,7 @@ struct EntityBufferElement {
 };
 
 struct EntityBuffer {
-   size_t               size           = 0;
+   size_t               size = 0;
    EntityBufferElement  buffer[RVN::COLLISION_BUFFER_CAPACITY];
 };
 
@@ -92,17 +91,19 @@ struct EntityBuffer {
 
 struct RenderMessageBufferElement {
    const std::string    message;
-   float                elapsed           = 0;
-   float                duration          = 0;
+   float                elapsed  = 0;
+   float                duration = 0;
    const vec3           color;
 };
 
 struct RenderMessageBuffer {
-   u16                         count = 0;
+   const u32   capacity   = RVN::MESSAGE_BUFFER_CAPACITY;
+   u16         count      = 0;
+
    RenderMessageBufferElement  buffer[RVN::MESSAGE_BUFFER_CAPACITY];
 
-   bool add          (const std::string& msg, float duration, vec3 color = vec3(-1));
-   bool add_unique   (const std::string& msg, float duration, vec3 color = vec3(-1));
+   bool add          (const std::string msg, float duration, vec3 color = vec3(-1));
+   bool add_unique   (const std::string msg, float duration, vec3 color = vec3(-1));
    void cleanup      ();
    void render       ();
 };

@@ -1,3 +1,5 @@
+#pragma once
+
 // -------------
 // ENTITY PANEL
 // -------------
@@ -6,8 +8,8 @@ void open_entity_panel(Entity* entity);
 void check_for_asset_changes();
 void update_entity_control_arrows(EntityPanelContext* panel);
 void render_entity_control_arrows(EntityPanelContext* panel);
-void render_entity_panel(EntityPanelContext* panel);
-void entity_panel_update_entity_and_editor_context(EntityPanelContext* panel, u32 action);
+void render_entity_panel(EntityPanelContext* panel, World* world);
+void entity_panel_update_entity_and_editor_context(EntityPanelContext* panel, u32 action, World* world);
 void entity_panel_track_entity_changes(EntityPanelContext* panel);
 
 
@@ -20,7 +22,7 @@ enum EntityPanelTrackableAction {
 };
 
 
-void render_entity_panel(EntityPanelContext* panel)
+void render_entity_panel(EntityPanelContext* panel, World* world)
 {
    auto& entity = panel->entity;
 
@@ -480,7 +482,7 @@ void render_entity_panel(EntityPanelContext* panel)
    ImGui::End();
 
    if(action_flags > 0)
-      entity_panel_update_entity_and_editor_context(panel, action_flags);
+      entity_panel_update_entity_and_editor_context(panel, action_flags, world);
    if(track)
       entity_panel_track_entity_changes(panel);
 }

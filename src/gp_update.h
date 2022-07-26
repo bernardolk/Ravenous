@@ -1,9 +1,9 @@
 #pragma once
 
-void GP_update_player_state                     (Player* &player);
+void GP_update_player_state                     (Player* &player, World* world);
 vec3 GP_player_standing_get_next_position       (Player* player);
 void GP_check_trigger_interaction               (Player* player, World* world);
-void GP_check_player_grabbed_ledge              (Player* player);
+void GP_check_player_grabbed_ledge              (Player* player, World* world);
 bool GP_check_player_vaulting                   (Player* player);
 bool GP_simulate_player_collision_in_falling_trajectory(Player* player, vec2 xz_velocity);
 // bool GP_scan_for_terrain(vec3 center, float radius, vec2 orientation0, float angle, int subdivisions);
@@ -23,10 +23,10 @@ void GP_update_player_state(Player* &player, World* world)
 
          // move player forward
          player->entity_ptr->position = next_position;
-         player->update();
+         player->update(world);
 
          vec3 player_btm_sphere_center = player->entity_ptr->position + vec3(0, player->radius, 0);
-         vec3 contact_point =  player_btm_sphere_center + -player->last_terrain_contact_normal * player->radius;
+         vec3 contact_point = player_btm_sphere_center + -player->last_terrain_contact_normal * player->radius;
          ImDraw::add_line(IMHASH, player_btm_sphere_center, contact_point, COLOR_YELLOW_1);
 
          /* Current system: Here we are looping at most twice on the:
@@ -45,7 +45,7 @@ void GP_update_player_state(Player* &player, World* world)
             if(vtrace.hit && (vtrace.delta_y > 0.0004 || vtrace.delta_y < 0))
             {
                player->entity_ptr->position.y -= vtrace.delta_y;
-               player->update();
+               player->update(world);
             }
             
             // resolve collisions
@@ -79,11 +79,11 @@ void GP_update_player_state(Player* &player, World* world)
                // first pass test to see if player fits in hole
                auto p_pos0 = player->entity_ptr->position;
                player->entity_ptr->position += player->v_dir_historic * player->radius;
-               player->update();
+               player->update(world);
                bool collided = CL_run_tests_for_fall_simulation(player);
 
                player->entity_ptr->position = p_pos0;
-               player->update();
+               player->update(world);
 
                if(!collided)
                {
@@ -104,7 +104,7 @@ void GP_update_player_state(Player* &player, World* world)
                   {
                      player->entity_ptr->velocity = to3d_xz(fall_momentum);
                      GP_change_player_state(player, PLAYER_STATE_FALLING);
-                     player->update();
+                     player->update(world);
                      break;
                   }
                   else
@@ -131,7 +131,7 @@ void GP_update_player_state(Player* &player, World* world)
 
          // Check interactions
          if(player->want_to_grab){
-            GP_check_player_grabbed_ledge(player);
+            GP_check_player_grabbed_ledge(player, world);
             RVN::print("Ran check player grabbed ledge", 1000);
          }
 
@@ -143,7 +143,7 @@ void GP_update_player_state(Player* &player, World* world)
       {
          player->entity_ptr->velocity += RVN::frame.duration * player->gravity; 
          player->entity_ptr->position += player->entity_ptr->velocity * RVN::frame.duration;
-         player->update();
+         player->update(world);
 
          auto results = CL_test_and_resolve_collisions(player);
          for (int i = 0; i < results.count; i ++)
@@ -198,7 +198,7 @@ void GP_update_player_state(Player* &player, World* world)
 
          v += RVN::frame.duration * player->gravity; 
          player->entity_ptr->position += player->entity_ptr->velocity * RVN::frame.duration;
-         player->update();
+         player->update(world);
 
          auto results = CL_test_and_resolve_collisions(player);
          for (int i = 0; i < results.count; i ++)
@@ -254,7 +254,7 @@ void GP_update_player_state(Player* &player, World* world)
          player->entity_ptr->velocity = player->v_dir * player->slide_speed;
 
          player->entity_ptr->position += player->entity_ptr->velocity * RVN::frame.duration;
-         player->update();
+         player->update(world);
 
 
          // RESOLVE COLLISIONS AND CHECK FOR TERRAIN CONTACT
@@ -437,9 +437,9 @@ void GP_check_trigger_interaction(Player* player, World* world)
 // -------------------
 // > LEDGE GRABBING
 // -------------------
-void GP_check_player_grabbed_ledge(Player* player)
+void GP_check_player_grabbed_ledge(Player* player, World* world)
 {
-   Ledge ledge = CL_perform_ledge_detection(player);
+   Ledge ledge = CL_perform_ledge_detection(player, world);
    if(ledge.empty)
       return;
    vec3 position = CL_get_final_position_ledge_vaulting(player, ledge);

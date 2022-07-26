@@ -160,7 +160,7 @@ void set_shader_light_variables(World* world, Shader* shader, Camera* camera)
          shader->setFloat(uniform_name  + ".constant",  light->intensity_constant);
          shader->setFloat(uniform_name  + ".linear",    light->intensity_linear);
          shader->setFloat(uniform_name  + ".quadratic", light->intensity_quadratic);
-         light++;
+         light_count++;
       }
       shader->setInt("num_point_lights", light_count);
    }

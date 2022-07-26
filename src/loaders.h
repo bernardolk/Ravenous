@@ -4,7 +4,7 @@
 #include <stb_image/stb_image.h>
 
 // prototypes
-using strVector = std::vector<std::string>;
+using StrVec = std::vector<std::string>;
 
 Mesh*             load_wavefront_obj_as_mesh          (std::string path, std::string name, bool setup_gl_data, GLenum render_method);
 unsigned int      load_texture_from_file              (std::string path, const std::string & directory, bool gamma = false);
@@ -13,7 +13,7 @@ void              attach_extra_data_to_mesh           (std::string filename, std
 void              load_mesh_extra_data                (std::string filename, Mesh* mesh);
 void              write_mesh_extra_data_file          (std::string filename, Mesh* mesh);
 void              load_textures_from_assets_folder    ();
-strVector         get_files_in_folder                 (std::string directory);
+StrVec            get_files_in_folder                 (std::string directory);
 
 
 
@@ -188,6 +188,8 @@ Mesh* load_wavefront_obj_as_mesh(
             mesh->indices.push_back(face_index + 2);
             mesh->indices.push_back(face_index + 3);
             mesh->indices.push_back(face_index + 0);
+
+            faces_count += 2;
          }
 
          else if(vertex_count > 4)
@@ -200,8 +202,11 @@ Mesh* load_wavefront_obj_as_mesh(
          {
             Quit_fatal("mesh file " + filename + ".obj contain at least one face with 2 or less vertices. Please review the geometry.\n");
          }
+         else
+         {
+             faces_count++;
+         }
 
-         faces_count++;
       }
 	}
 
@@ -282,9 +287,9 @@ unsigned int load_texture_from_file(std::string filename, const std::string & di
 }
 
 
-strVector get_files_in_folder(std::string directory)
+StrVec get_files_in_folder(std::string directory)
 {
-   strVector filenames;
+   StrVec filenames;
    std::string path_to_files = directory + "\\*";
    WIN32_FIND_DATA files;
    HANDLE find_files_handle = FindFirstFile(path_to_files.c_str(), &files);

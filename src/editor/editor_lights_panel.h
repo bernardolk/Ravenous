@@ -25,7 +25,7 @@ vec3 compute_direction_from_angles(float pitch, float yaw)
 }
 
 
-void render_lights_panel(LightsPanelContext* panel)
+void render_lights_panel(LightsPanelContext* panel, World* world)
 {
    ImGui::SetNextWindowPos(ImVec2(180, 80), ImGuiCond_Appearing);
    ImGui::Begin("Lights Panel", &panel->active, ImGuiWindowFlags_None);
@@ -42,7 +42,7 @@ void render_lights_panel(LightsPanelContext* panel)
    if(ImGui::BeginTabItem("Point Lights", NULL, point_flags))
    {
       int deleted_light_index = -1;
-      auto pointlights = &G_SCENE_INFO.active_scene->pointLights;
+      auto& pointlights = world->point_lights;
 
       // UNFOCUS TAB
       if(point_flags == ImGuiTabItemFlags_SetSelected) panel->focus_tab = false;
@@ -54,20 +54,20 @@ void render_lights_panel(LightsPanelContext* panel)
       if(ImGui::Button("Add new##point"))
       {
          // create new spotlight
-         PointLight new_pointlight;
-         pointlights->push_back(new_pointlight);
-         activate_move_light_mode("point", pointlights->size() - 1);
+         auto new_pointlight = new PointLight();
+         pointlights.push_back(new_pointlight);
+         activate_move_light_mode("point", pointlights.size() - 1);
       }
       ImGui::PopStyleColor(3);
 
-      for(int i = 0; i < pointlights->size(); i++)
+      for(int i = 0; i < pointlights.size(); i++)
       {
          std::string header = "point light source (" + std::to_string(i) + ")";
          bool is_active = panel->selected_light == i && panel->selected_light_type == "point";
          if(ImGui::CollapsingHeader(header.c_str(), ImGuiTreeNodeFlags_NoAutoOpenOnLog) || is_active)
          {
             // SHOW BUTTON
-            auto& light = (*pointlights)[i];
+            PointLight& light = *pointlights[i];
             auto show_name = "show##point" + std::to_string(i);
             if(ImGui::Checkbox(show_name.c_str(), &is_active))
             {
@@ -128,7 +128,7 @@ void render_lights_panel(LightsPanelContext* panel)
       }
 
       if(deleted_light_index > -1)
-         editor_erase_light(deleted_light_index, "point");
+         editor_erase_light(deleted_light_index, "point", world);
 
       ImGui::EndTabItem();
    }
@@ -141,7 +141,7 @@ void render_lights_panel(LightsPanelContext* panel)
    if(ImGui::BeginTabItem("Spot Lights", NULL, spot_flags))
    {
       int deleted_light_index = -1;
-      auto spotlights = &G_SCENE_INFO.active_scene->spotLights;
+      auto& spotlights = world->spot_lights;
 
       // UNFOCUS TAB
       if(spot_flags == ImGuiTabItemFlags_SetSelected) panel->focus_tab = false;
@@ -153,19 +153,19 @@ void render_lights_panel(LightsPanelContext* panel)
       if(ImGui::Button("Add new##spot"))
       {
          // create new spotlight
-         SpotLight new_spotlight;
-         spotlights->push_back(new_spotlight);
-         activate_move_light_mode("spot", spotlights->size() - 1);
+         auto new_spotlight = new SpotLight();
+         spotlights.push_back(new_spotlight);
+         activate_move_light_mode("spot", spotlights.size() - 1);
       }
       ImGui::PopStyleColor(3);
 
-      for(int i = 0; i < spotlights->size(); i++)
+      for(int i = 0; i < spotlights.size(); i++)
       {
          std::string header = "spot light source (" + std::to_string(i) + ")";
          bool is_active = panel->selected_light == i && panel->selected_light_type == "spot";
          if(ImGui::CollapsingHeader(header.c_str()) || is_active)
          {
-            auto& light = (*spotlights)[i];
+            SpotLight& light = *spotlights[i];
 
             // SHOW BUTTON
             auto show_name = "show##spot" + std::to_string(i);
@@ -258,7 +258,7 @@ void render_lights_panel(LightsPanelContext* panel)
       }
 
       if(deleted_light_index > -1) 
-         editor_erase_light(deleted_light_index, "spot");
+         editor_erase_light(deleted_light_index, "spot", world);
 
       ImGui::EndTabItem();
    }

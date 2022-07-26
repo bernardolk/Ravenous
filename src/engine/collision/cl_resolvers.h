@@ -19,7 +19,7 @@ void              CL_mark_entity_checked                                (Entity*
 
 
 // fwd decl.
-void        GP_update_player_state        (Player* &player);
+void        GP_update_player_state        (Player* &player, World* world);
 CL_Results  CL_test_player_vs_entity      (Entity* entity, Player* player);
 
 const static float PLAYER_STEPOVER_LIMIT = 0.21;

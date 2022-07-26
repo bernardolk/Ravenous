@@ -77,8 +77,12 @@ void Mesh::send_data_to_gl_buffer()
    glBindBuffer      (GL_ARRAY_BUFFER, this->gl_data.VBO);
    glBufferData      (GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), &(this->vertices[0]), GL_STATIC_DRAW);
    glBindBuffer      (GL_ELEMENT_ARRAY_BUFFER, this->gl_data.EBO);
-   glBufferData      (GL_ELEMENT_ARRAY_BUFFER, this->indices.size() * sizeof(unsigned int), &(this->indices[0]), GL_STATIC_DRAW);
 
+   if (this->indices.size() > 0)
+   {
+       glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices.size() * sizeof(unsigned int), &(this->indices[0]), GL_STATIC_DRAW);
+   }
+   // @TODO: Do we need to do this every time?
    // set the vertex attribute pointers
    // vertex positions
    glEnableVertexAttribArray(0);
@@ -160,6 +164,7 @@ BoundingBox Mesh::compute_bounding_box()
 
 void Mesh::compute_tangents_and_bitangents()
 {
+    // @TODO: This may lead to bugs, we currentyl assume here that faces = 2 triangles each, and while that may hold true with the current loader, that may not remain the case forever.
    For(this->faces_count)
    {
       Vertex v1 = this->vertices[indices[i * 3 + 0]];

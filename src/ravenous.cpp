@@ -4,6 +4,7 @@
    ==========================================
      By Bernardo L. Knackfuss - 2020 - 2022 
    ========================================== */
+#include <iostream>
 
 
 // DEPENDENCY INCLUDES
@@ -112,6 +113,10 @@ struct ProgramConfig {
 #include <engine/world/world.h>
 #include <input_recorder.h>
 #include <entity_pool.h>
+
+#include <editor/editor_im_macros.h>
+#include <engine/render/text/face.h>
+#include <engine/render/text/text_renderer.h>
 #include <loaders.h>
 #include <entity_manager.h>
 #include <geometry.h>
@@ -125,9 +130,7 @@ Camera* edCam;
 
 void toggle_program_modes(Player* player);
 void erase_entity(Scene* scene, Entity* entity);
-#include <editor/editor_im_macros.h>
-#include <engine/render/text/face.h>
-#include <engine/render/text/text_renderer.h>
+
 #include <engine/render/renderer.h>
 #include <render.h>
 #include <engine/render/im_render.h>
@@ -156,9 +159,6 @@ void erase_entity(Scene* scene, Entity* entity);
 
 #include <editor/editor_main.h>
 
-#include <missile.h>
-#include <compass.h>
-
 // globals
 GlobalSceneInfo   G_SCENE_INFO;
 
@@ -171,12 +171,12 @@ unsigned int texture, texture_specular;
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void setup_GLFW(bool debug);
 void render_ray();
-void update_scene_objects();
+void update_scene_objects(World* world);
 void initialize_shaders();
 GLenum glCheckError_(const char* file, int line);
 void start_frame();
-void check_all_entities_have_shaders();
-void check_all_entities_have_ids();
+void check_all_entities_have_shaders(World* world);
+void check_all_entities_have_ids(World* world);
 void check_all_geometry_has_gl_data();
 void setup_gl();
 void simulate_gravity_trajectory();
@@ -185,8 +185,10 @@ int main()
 {
    World world;
 
+   Entity_Manager.set_world(&world);
+
    // INITIAL GLFW AND GLAD SETUPS
-	setup_GLFW(true);
+   setup_GLFW(true);
    setup_gl();
 
    // create cameras
@@ -205,6 +207,7 @@ int main()
 
    // Allocate buffers and logs
    RVN::init();
+   std::cout << " BUFFER: " << RVN::entity_buffer;
    // COLLISION_LOG           = CL_allocate_collision_log();
    initialize_console_buffers();
 
@@ -212,6 +215,7 @@ int main()
 
    // Initialises immediate draw
    ImDraw::init();
+
 
    // loads initial scene
    G_CONFIG = load_configs();
@@ -221,8 +225,8 @@ int main()
 
    // set scene attrs from global config
    G_SCENE_INFO.camera->Acceleration               = G_CONFIG.camspeed;
-   G_SCENE_INFO.active_scene->ambient_light        = G_CONFIG.ambient_light;
-   G_SCENE_INFO.active_scene->ambient_intensity    = G_CONFIG.ambient_intensity;
+   world.ambient_light        = G_CONFIG.ambient_light;
+   world.ambient_intensity    = G_CONFIG.ambient_intensity;
 
    Entity_Manager.set_default_entity_attributes(            // sets some loaded assets from scene as
       "aabb", "model", "grey"                               // defaults for entity construction
@@ -237,8 +241,8 @@ int main()
    create_light_space_transform_matrices();
 
    // Pre-loop checks
-   check_all_entities_have_shaders();
-   check_all_entities_have_ids();
+   check_all_entities_have_shaders(&world);
+   check_all_entities_have_ids(&world);
    check_all_geometry_has_gl_data();
 
    // load pre recorded input recordings
@@ -251,11 +255,7 @@ int main()
    player->entity_ptr->flags |= EntityFlags_RenderWireframe;
 
    // Does a first update
-   update_scene_objects();
-
-   // -------------- MISSILE ------
-   Entity* Missile_Entity  = G_SCENE_INFO.active_scene->find_entity("missile");
-   Entity* Phone_Entity    = G_SCENE_INFO.active_scene->find_entity("phone");
+   update_scene_objects(&world);
 
 	// MAIN LOOP
 	while (!glfwWindowShouldClose(G_DISPLAY_INFO.window))
@@ -301,16 +301,6 @@ int main()
             break;
       }
 
-      // if(pressed_once(input_flags, KEY_U))
-      // {
-      //    UPDATE_MISSILE = !UPDATE_MISSILE;
-      // }
-
-      if(pressed_once(input_flags, KEY_U))
-      {
-         UPDATE_MISSILE = true;
-      }
-
       reset_input_flags(input_flags);
 
       // -------------
@@ -321,29 +311,12 @@ int main()
       else if(PROGRAM_MODE.current == EDITOR_MODE)
 		   camera_update_editor(G_SCENE_INFO.camera, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT, player->entity_ptr->position);
       Game_State.update_timers();
-      GP_update_player_state(player);
+      GP_update_player_state(player, &world);
       AN_animate_player(player);
       Entity_Animations.update_animations();
      
-      if(UPDATE_MISSILE && !Launch)
-      {
-         RVN::print_dynamic("Missile launch!");
-         Launch = true;
-      }
-
-      if(UPDATE_MISSILE && !Exploded)
-         update_missile(player, Missile_Entity);
-      else if(Exploded)
-      {
-         // Entity_Manager.mark_for_deletion(Missile_Entity);
-         Missile_Entity->flags |= EntityFlags_HiddenEntity;
-      }
-
-      get_compass_heading(Phone_Entity);
 
       //update_scene_objects();
-
-      // UPDATE_MISSILE = false;
 
       // simulate_gravity_trajectory();      
 
@@ -495,7 +468,7 @@ void setup_GLFW(bool debug) {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-   glfwWindowHint(GLFW_SAMPLES, 4);
+	glfwWindowHint(GLFW_SAMPLES, 4);
 
 	// Creates the window
 	G_DISPLAY_INFO.window = glfwCreateWindow(GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT, "Ravenous", NULL, NULL);

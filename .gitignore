@@ -21,3 +21,7 @@ recordings/*
 camera.txt
 src/ravenous.code-workspace
 lib/build/*
+lib/*
+tools/*
+recordings/*
+CppProperties.json

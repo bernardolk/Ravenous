@@ -238,7 +238,7 @@ void update(Player* player, World* world, Camera* camera)
       else
       {
          if(EdContext.selected_light > -1)
-            move_light_with_mouse(EdContext.selected_light_type, EdContext.selected_light);
+            move_light_with_mouse(EdContext.selected_light_type, EdContext.selected_light, world);
          else
             move_entity_with_mouse(EdContext.selected_entity);
       }
@@ -290,7 +290,7 @@ void update(Player* player, World* world, Camera* camera)
    // check for debug flags
    if(EdContext.debug_ledge_detection)
    {
-      CL_perform_ledge_detection(player);
+      CL_perform_ledge_detection(player, world);
    }
 }
 
@@ -428,7 +428,7 @@ void render(Player* player, World* world, Camera* camera)
    {
       auto& panel = EdContext.entity_panel;
 
-      render_entity_panel(&panel);
+      render_entity_panel(&panel, world);
       render_entity_control_arrows(&panel, world, camera);
       render_entity_rotation_gizmo(&panel, world, camera);
 
@@ -453,7 +453,7 @@ void render(Player* player, World* world, Camera* camera)
       render_palette_panel(&EdContext.palette_panel);
 
    if(EdContext.lights_panel.active)
-      render_lights_panel(&EdContext.lights_panel);
+      render_lights_panel(&EdContext.lights_panel, world);
 
    if(EdContext.input_recorder_panel.active)
       render_input_recorder_panel(&EdContext.input_recorder_panel);

@@ -46,6 +46,7 @@ bool CL_update_player_world_cells(Player* player, World* world)
    }
 
    return update_cells.entity_changed_cell;
+   std::cout << " CBUFFER: " << RVN::rm_buffer;
 }
 
 

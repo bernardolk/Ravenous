@@ -140,9 +140,9 @@ struct World {
    std::vector<Entity*>             interactables;
    std::vector<Entity*>             checkpoints;
 
-   const float global_shininess     = 17;
-   vec3 ambient_light               = vec3(1);
-   const float ambient_intensity    = 0;
+   float global_shininess     = 17;
+   float ambient_intensity    = 0;
+   vec3  ambient_light        = vec3(1);
 
    WorldCell      cells[W_CELLS_NUM_X][W_CELLS_NUM_Y][W_CELLS_NUM_Z];
    WorldCell*     cells_in_use[W_CELLS_NUM_X * W_CELLS_NUM_Y * W_CELLS_NUM_Z];

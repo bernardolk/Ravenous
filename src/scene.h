@@ -6,9 +6,9 @@ struct Scene {
    std::vector<Entity*>             interactables;
    std::vector<Entity*>             checkpoints;
 
-   float global_shininess = 17;
-   vec3 ambient_light = vec3(1);
-   float ambient_intensity = 0;
+   float global_shininess        = 17;
+   vec3  ambient_light           = vec3(1);
+   float ambient_intensity       = 0;
 
    bool search_name(std::string name)
    {

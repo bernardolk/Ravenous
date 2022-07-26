@@ -7,7 +7,7 @@ void render_toolbar(World* world)
    ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::VIEWPORT_WIDTH - 230, 180), ImGuiCond_Appearing);
    ImGui::Begin("Tools", &EdContext.toolbar_active, ImGuiWindowFlags_AlwaysAutoResize);
 
-  std::string scene_name = "Scene name: " + G_SCENE_INFO.scene_name;
+   std::string scene_name = "Scene name: " + G_SCENE_INFO.scene_name;
    ImGui::Text(scene_name.c_str());
    ImGui::NewLine();
 
@@ -25,23 +25,23 @@ void render_toolbar(World* world)
       
       // Ambient light control
       ImGui::Text("Ambient light");
-      auto ambient = G_SCENE_INFO.active_scene->ambient_light;
+      auto ambient = world->ambient_light;
       float colors[3] = { ambient.x, ambient.y, ambient.z};
       if(ImGui::ColorEdit3("##ambient-color", colors))
       {
-         G_SCENE_INFO.active_scene->ambient_light = vec3{colors[0], colors[1], colors[2]};
+         world->ambient_light = vec3{colors[0], colors[1], colors[2]};
       }
       track = track || ImGui::IsItemDeactivatedAfterEdit();
 
-      ImGui::SliderFloat("##ambient-intensity", &G_SCENE_INFO.active_scene->ambient_intensity, 0, 1, "intensity = %.2f");
+      ImGui::SliderFloat("##ambient-intensity", &world->ambient_intensity, 0, 1, "intensity = %.2f");
       track = track || ImGui::IsItemDeactivatedAfterEdit();
 
       // save to file changes in config variables
       if(track)
       {
-         G_CONFIG.camspeed = G_SCENE_INFO.camera->Acceleration;
-         G_CONFIG.ambient_intensity = G_SCENE_INFO.active_scene->ambient_intensity;
-         G_CONFIG.ambient_light = G_SCENE_INFO.active_scene->ambient_light;
+         G_CONFIG.camspeed             = G_SCENE_INFO.camera->Acceleration;
+         G_CONFIG.ambient_intensity    = world->ambient_intensity;
+         G_CONFIG.ambient_light        = world->ambient_light;
          save_configs_to_file();
       }
 

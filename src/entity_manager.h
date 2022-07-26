@@ -3,11 +3,11 @@
 struct World;
 
 struct EntityAttributes {
-  std::string name;
-  std::string mesh;
-  std::string shader;
-  std::string texture;
-  std::string collision_mesh;
+   std::string name;
+   std::string mesh;
+   std::string shader;
+   std::string texture;
+   std::string collision_mesh;
    EntityType type;
    vec3 scale = vec3{1.0f};
 };
@@ -134,6 +134,11 @@ struct EntityManager
    void set_interactables_registry(std::vector<Entity*>* registry)
    {
       interactables_registry = registry;
+   }
+
+   void set_world(World* world)
+   {
+      this->world = world;
    }
 
    // ------------------

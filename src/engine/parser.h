@@ -257,7 +257,8 @@ inline Parse parse_u64(Parse toparse)
 			int_buf[count++] = outparse.string[0];
 			outparse.string = &(outparse.string[1]);
 			outparse.size -= 1;
-		} while (isdigit(outparse.string[0]));
+		} while (isdigit(outparse.string[0]) && count < 15);
+
 		while (count > 0) 
       {
 			outparse.u64Token += (int_buf[count - 1] - '0') * ten_powers[rev_count];
@@ -277,11 +278,12 @@ inline Parse parse_float(Parse toparse)
 		100000, 1000000, 10000000, 100000000, 1000000000 };
 	float ten_inverse_powers[10]{ 0.1f, 0.01f, 0.001f, 0.0001f, 0.00001f,
 		0.000001f, 0.0000001f, 0.00000001f, 0.000000001f, 0.0000000001f};
-	char int_buf[10];
+	char int_buf[10]{0,0,0,0,0,0,0,0,0,0};
 	char float_buf[10];
 	int count = 0, fcount = 0;
 	int rev_count = 0;
 	int sign = 1;
+
 	if (outparse.string[0] == '-') 
    {
 		outparse.string = &(outparse.string[1]);

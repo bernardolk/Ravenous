@@ -64,7 +64,7 @@ void handle_input_flags(InputFlags flags, Player* &player, World* world, Camera*
       {
          if(EdContext.lights_panel.selected_light > -1)
          {
-            editor_erase_light(EdContext.lights_panel.selected_light, EdContext.lights_panel.selected_light_type);
+            editor_erase_light(EdContext.lights_panel.selected_light, EdContext.lights_panel.selected_light_type, world);
          }
          return;
       }
@@ -255,7 +255,7 @@ void handle_input_flags(InputFlags flags, Player* &player, World* world, Camera*
          player->player_state = PLAYER_STATE_STANDING;
          player->standing_entity_ptr = test.entity;
          player->entity_ptr->velocity = vec3(0, 0, 0);
-         player->update();
+         player->update(world);
       }
    }
 

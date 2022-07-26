@@ -7,12 +7,12 @@
 
 struct Vertex;
 
-void print_vec(vec3 vec, std::string prefix)
+inline void print_vec(vec3 vec, const std::string& prefix)
 {
    std::cout << prefix << ": (" << vec.x << ", " << vec.y << ", " << vec.z << ") \n";
 }
 
-void print_vertex_array_position(Vertex* vertex, size_t length, std::string title)
+inline void print_vertex_array_position(Vertex* vertex, size_t length, const std::string& title)
 {
    std::cout << title << "\n";
    for(int i = 0; i < length; i++)
