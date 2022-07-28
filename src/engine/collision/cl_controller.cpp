@@ -142,22 +142,10 @@ CL_ResultsArray CL_test_and_resolve_collisions(Player* player)
       if(result.collision)
       {
          CL_mark_entity_checked(result.entity);
-         // @todo delete later!
-         // if(!result.entity->dodged)
-         // {
-         //    if(result.entity->name == "missile")
-         //    {
-         //       RVN::print_dynamic("Player took damage!", 2000, COLOR_RED_2);
-         //       RVN::print_dynamic("Missile exploded!", 2000, COLOR_YELLOW_1);
-         //       Exploded = true;
-         //    }
-
-         //    CL_log_collision(result, c);   
-         //    CL_resolve_collision(result, player);
-         //    results_array.results[results_array.count] = result;
-         //    results_array.count++;
-         // }
-         
+         // CL_log_collision(result, c);   
+         CL_resolve_collision(result, player);
+         results_array.results[results_array.count] = result;
+         results_array.count++; 
       }
       else break;
    }
@@ -197,23 +185,20 @@ bool CL_test_collisions(Player* player)
 
 CL_Results CL_test_collision_buffer_entitites(
    Player* player,
-   EntityBufferElement* entity_iterator,
+   EntityBufferElement* buffer,
    int entity_list_size,
    bool iterative = true)
 {
 
    for (int i = 0; i < entity_list_size; i++)
    {
-	   Entity* &entity = entity_iterator->entity;
+	   Entity* entity = buffer[i]->entity;
 
-      bool entity_is_player            = entity->name == "Player",
-           checked                     = iterative && entity_iterator->collision_check;
+      bool entity_is_player = entity->name == "Player";
+      bool checked          = iterative && buffer->collision_check;
 
       if(entity_is_player || checked)
-      {
-         entity_iterator++;
          continue;
-      }
 
       // @todo - here should test for bounding box collision (or any geometric first pass test) 
       //          FIRST, then do the call below
@@ -222,8 +207,6 @@ CL_Results CL_test_collision_buffer_entitites(
 
       if(result.collision)
          return result;
-      
-      entity_iterator++;
    }
 
    return {};

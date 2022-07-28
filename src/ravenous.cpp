@@ -41,9 +41,6 @@
 #include <engine/rvn.h>
 #include <engine/render/text/character.h>
 
-// @todo temp for missile action
-bool Exploded = false;
-
 // GLOBAL STRUCT VARIABLES OR TYPES 
 enum ProgramModeEnum {
    GAME_MODE      = 0,
@@ -215,7 +212,6 @@ int main()
 
    // Initialises immediate draw
    ImDraw::init();
-
 
    // loads initial scene
    G_CONFIG = load_configs();

@@ -434,6 +434,7 @@ void render(Player* player, World* world, Camera* camera)
 
       if(panel.show_normals)
          render_entity_mesh_normals(&panel);
+      // @TODO: Some bug being caused in this call
       if(panel.show_collider)
          ImDraw::add_mesh(IMHASH, &panel.entity->collider, COLOR_PURPLE_1, 0);
       if(panel.show_bounding_box)

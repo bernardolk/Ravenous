@@ -25,3 +25,4 @@ lib/*
 tools/*
 recordings/*
 CppProperties.json
+imgui.ini
