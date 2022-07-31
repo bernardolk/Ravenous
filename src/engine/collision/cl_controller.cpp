@@ -192,7 +192,7 @@ CL_Results CL_test_collision_buffer_entitites(
 
    for (int i = 0; i < entity_list_size; i++)
    {
-	   Entity* entity = buffer[i]->entity;
+	   Entity* entity = buffer[i].entity;
 
       bool entity_is_player = entity->name == "Player";
       bool checked          = iterative && buffer->collision_check;
