@@ -233,7 +233,7 @@ void update(Player* player, World* world, Camera* camera)
          if(EdContext.selected_light > -1)
             place_light();
          else
-            place_entity();
+            place_entity(world);
       }
       else
       {
@@ -258,7 +258,7 @@ void update(Player* player, World* world, Camera* camera)
          move_entity_by_arrows(EdContext.selected_entity);
       // the below condition is to prevent from deactivating too early
       else if(!EdContext.mouse_click)
-         place_entity();
+         place_entity(world);
    }
 
    if(EdContext.rotate_entity_with_mouse)
@@ -267,14 +267,14 @@ void update(Player* player, World* world, Camera* camera)
          rotate_entity_with_mouse(EdContext.selected_entity);
       // the below condition is to prevent from deactivating too early
       else if(!EdContext.mouse_click)
-         place_entity();
+         place_entity(world);
    }
 
 
    if(EdContext.place_mode)
    {
       if(EdContext.mouse_click)
-         place_entity();
+         place_entity(world);
       else
          select_entity_placing_with_mouse_move(EdContext.selected_entity, world);
    }

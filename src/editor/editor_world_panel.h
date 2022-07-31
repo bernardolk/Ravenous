@@ -48,6 +48,8 @@ void render_world_panel(WorldPanelContext* panel, World* world, Player* player)
                std::string line = std::to_string(e_i + 1) + ". " + entity->name;
                ImGui::Text(line.c_str());
             }
+            else
+               break;
          }
       }
    } 

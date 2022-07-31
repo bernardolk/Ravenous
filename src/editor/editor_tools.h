@@ -346,7 +346,7 @@ void check_selection_to_locate_coords(World* world)
 // -------------
 // > MOVE TOOLS 
 // -------------
-void place_entity()
+void place_entity(World* world)
 {
    /* Common function for move/rotate/scale entity tools.
       Updates entity, tracks it state and updates world.
@@ -359,6 +359,7 @@ void place_entity()
    EdContext.move_entity_by_arrows_ref_point = vec3(0);
    
    EdContext.selected_entity->update();
+   world->update_entity_world_cells(EdContext.selected_entity);
    CL_recompute_collision_buffer_entities(G_SCENE_INFO.player);
    EdContext.undo_stack.track(EdContext.selected_entity);
 }

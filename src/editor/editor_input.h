@@ -186,11 +186,19 @@ void handle_input_flags(InputFlags flags, Player* &player, World* world, Camera*
    // ---------------
    // CLICK CONTROLS
    // ---------------
+
+   // TODO: Refactor this whole thing: This checks for a CLICK then for modes to decide what todo.
+   // I think this is not the best way to handle this, we should first check for MODE then for ACTION.
+   // We can set things in EdContext based on input flags, OR use flags directly.
+   // Either way, there is code for handling clicks and etc both here and at editor_main which is confusing
+   // and is, currently, causing some bugs in the editor.
+
    EdContext.mouse_click      = false;
    EdContext.mouse_dragging   = false;
 
    if(G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK)
    {
+      std::cout << "CLICK COUNT\n";
       if(EdContext.snap_mode)
       {
          check_selection_to_snap();
@@ -217,15 +225,12 @@ void handle_input_flags(InputFlags flags, Player* &player, World* world, Camera*
 
          if(EdContext.entity_panel.active)
          {
-            if(EdContext.select_entity_aux_mode)
-               return;
-
-            if(check_selection_to_grab_entity_arrows(camera))
-               return;
-
-            if(check_selection_to_grab_entity_rotation_gizmo(camera))
-               return;
+            if(EdContext.select_entity_aux_mode) return;
+            if(check_selection_to_grab_entity_arrows(camera)) return;
+            if(check_selection_to_grab_entity_rotation_gizmo(camera)) return;
          }
+
+         if(EdContext.move_mode || EdContext.place_mode) return;
 
          check_selection_to_open_panel(player, world, camera);
       }
