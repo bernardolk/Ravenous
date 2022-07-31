@@ -136,9 +136,9 @@ bool save_scene_to_file(std::string scene_name, Player* player, World* world, bo
             << light.specular.z << "\n";
    }
 
-   for(int it = 0; it < world->entities.size(); it++) 
+   for(int i = 0; i < world->entities.size(); i++) 
    {
-      Entity* entity = world->entities[0];
+      Entity* entity = world->entities[i];
       if(entity->name == "Player")
          continue;
 
