@@ -25,7 +25,7 @@
 #include <engine/collision/cl_resolvers.h>
 #include <engine/collision/cl_controller.h>
 // #include <cl_log.h>
-
+#include <chrono>
 
 // ----------------------------
 // > UPDATE PLAYER WORLD CELLS   
@@ -217,6 +217,8 @@ CL_Results CL_test_collision_buffer_entitites(
 
 CL_Results CL_test_player_vs_entity(Entity* entity, Player* player)
 {
+   using micro = std::chrono::microseconds;
+
    CL_Results cl_results;
    cl_results.entity = entity;
 
@@ -225,15 +227,28 @@ CL_Results CL_test_player_vs_entity(Entity* entity, Player* player)
    Mesh* entity_collider = &entity->collider;
    Mesh* player_collider = &player_entity->collider;
 
+   // auto start = std::chrono::high_resolution_clock::now(); 
    GJK_Result box_gjk_test = CL_run_GJK(entity_collider, player_collider);
-   
+   // auto finish = std::chrono::high_resolution_clock::now();
+
+   // std::cout << "CL_run_GJK() took "
+   //          << std::chrono::duration_cast<micro>(finish - start).count()
+   //          << " microseconds\n";
+
    bool b_gjk = false;
    bool b_epa = false;
    if(box_gjk_test.collision)
    {
       b_gjk = true;
+
+      // start = std::chrono::high_resolution_clock::now(); 
       EPA_Result epa = CL_run_EPA(box_gjk_test.simplex, entity_collider, player_collider);
+      // finish = std::chrono::high_resolution_clock::now();
       
+      // std::cout << "CL_run_EPA() took "
+      //    << std::chrono::duration_cast<micro>(finish - start).count()
+      //    << " microseconds\n";
+
       if(epa.collision)
       {
          b_epa = true;

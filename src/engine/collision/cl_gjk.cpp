@@ -11,6 +11,8 @@
 #include <engine/render/im_render.h>
 #include <engine/collision/simplex.h>
 #include <engine/collision/cl_gjk.h>
+#include <chrono>
+#include <iostream>
 
 vec3 Debug_Colors[] = {
    COLOR_RED_1,
@@ -64,37 +66,31 @@ GJK_Point CL_get_support_point(Mesh* collision_mesh_A, Mesh* collision_mesh_B, v
 /* -----------------------
   Update simplex calls
 ----------------------- */
-GJK_Iteration CL_update_line_simplex(GJK_Iteration gjk)
+void CL_update_line_simplex(GJK_Iteration* gjk)
 {
-   vec3 a = gjk.simplex[0];
-   vec3 b = gjk.simplex[1];
+   auto& a = gjk->simplex[0];
+   auto& b = gjk->simplex[1];
 
    vec3 ab = b - a;
    vec3 ao =   - a;
 
-   GJK_Iteration next;
-
-   if (CL_same_general_direction(ab, ao))
+   if(CL_same_general_direction(ab, ao))
    {
-      next.simplex   = gjk.simplex;
-      next.direction = cross(ab, ao, ab);
+      gjk->direction = cross(ab, ao, ab);
    }
-
    else
    {
-      next.simplex   = { a };
-      next.direction = ao;
+      gjk->simplex   = { a };
+      gjk->direction = ao;
    }
-
-   return next;
 }
 
 
-GJK_Iteration CL_update_triangle_simplex(GJK_Iteration gjk)
+void CL_update_triangle_simplex(GJK_Iteration* gjk)
 {
-   vec3 a = gjk.simplex[0];
-   vec3 b = gjk.simplex[1];
-   vec3 c = gjk.simplex[2];
+   auto& a = gjk->simplex[0];
+   auto& b = gjk->simplex[1];
+   auto& c = gjk->simplex[2];
 
    vec3 ab = b - a;
    vec3 ac = c - a;
@@ -102,60 +98,53 @@ GJK_Iteration CL_update_triangle_simplex(GJK_Iteration gjk)
    
    vec3 abc = glm::cross(ab, ac);
 
-   GJK_Iteration next;
-
    if(CL_same_general_direction(glm::cross(abc, ac), ao))
    {
       if(CL_same_general_direction(ac, ao))
       {
          // search in purple region
-         next.simplex   = { a, c };
-         next.direction = cross(ac, ao, ac);
+         gjk->simplex   = { a, c };
+         gjk->direction = cross(ac, ao, ac);
       }
       else
       {
          // search in navy/blue grey region
-         next.simplex   = { a, b };
-         next.direction = -ac + (-ab);
+         gjk->simplex   = { a, b };
+         gjk->direction = -ac + (-ab);
       }
    }
-
    else
    {
       if(CL_same_general_direction(glm::cross(ab, abc), ao))
       {
          // search in cyan region
-         next.simplex   = {a, b};
-         next.direction = glm::cross(ab, abc);
+         gjk->simplex   = {a, b};
+         gjk->direction = glm::cross(ab, abc);
       }
-
       else
       {
          if(CL_same_general_direction(abc, ao))
          {
             // search up
-            next.simplex   = gjk.simplex;
-            next.direction = abc;
+            gjk->direction = abc;
          }
          else
          {
             // search down
-            next.simplex   = { a, c, b };
-            next.direction = -abc;   
+            gjk->simplex   = { a, c, b };
+            gjk->direction = -abc;   
          }
       }
    }
-
-   return next;
 }
 
 
-GJK_Iteration CL_update_tetrahedron_simplex(GJK_Iteration gjk)
+void CL_update_tetrahedron_simplex(GJK_Iteration* gjk)
 {
-   vec3 a = gjk.simplex[0];
-	vec3 b = gjk.simplex[1];
-	vec3 c = gjk.simplex[2];
-	vec3 d = gjk.simplex[3];
+   auto& a = gjk->simplex[0];
+	auto& b = gjk->simplex[1];
+	auto& c = gjk->simplex[2];
+	auto& d = gjk->simplex[3];
 
 	vec3 ab = b - a;
 	vec3 ac = c - a;
@@ -166,42 +155,39 @@ GJK_Iteration CL_update_tetrahedron_simplex(GJK_Iteration gjk)
 	vec3 acd = glm::cross(ac, ad);
 	vec3 adb = glm::cross(ad, ab);
 
-   GJK_Iteration next;
-
    // check if mikowski's diff origin is pointing towards tetrahedron normal faces
    // (it shouldn't, since the origin should be contained in the shape and point down not up like the inclined faces's normals)
 
    if(CL_same_general_direction(abc, ao))
    {
-      next.simplex   = { a, b, c };
-      next.direction = abc; 
-      return CL_update_triangle_simplex(next);
+      gjk->simplex   = { a, b, c };
+      gjk->direction = abc; 
+      return CL_update_triangle_simplex(gjk);
    }
 
    if(CL_same_general_direction(acd, ao))
    {
-      next.simplex   = { a, c, d };
-      next.direction = acd; 
-      return CL_update_triangle_simplex(next);
+      gjk->simplex   = { a, c, d };
+      gjk->direction = acd; 
+      return CL_update_triangle_simplex(gjk);
    }
 
    if(CL_same_general_direction(adb, ao))
    {
-      next.simplex   = { a, d, b };
-      next.direction = adb; 
-      return CL_update_triangle_simplex(next);
+      gjk->simplex   = { a, d, b };
+      gjk->direction = adb; 
+      return CL_update_triangle_simplex(gjk);
    }
 
    // was not the case, found collision
-   next.simplex = gjk.simplex;
-   next.finished = true;
-   return next;
+   gjk->finished = true;
+   return;
 }
 
 
-GJK_Iteration CL_update_simplex_and_direction(GJK_Iteration gjk)
+void CL_update_simplex_and_direction(GJK_Iteration* gjk)
 {
-	switch(gjk.simplex.size())
+	switch(gjk->simplex.size())
    {
       case 2:
          return CL_update_line_simplex(gjk);
@@ -213,13 +199,35 @@ GJK_Iteration CL_update_simplex_and_direction(GJK_Iteration gjk)
 
    // something went wrong
    assert(false);
-   return gjk;
 }
 
 
 /* ------------------
    Run GJK
 ------------------ */
+static void get_time(int elapsed)
+{
+   static std::vector<int> times;
+   const int N = 100;
+
+   times.push_back(elapsed);
+
+
+   if(times.size() == N)
+   {
+      int sum = 0;
+      for(int i = 0; i < times.size(); i++)
+         sum += times[i];
+      
+      float average = sum * 1.0 / N;
+
+      std::cout << "Average time spent on GJK: " << average << "\n"; 
+
+      times.clear();
+   }
+}
+
+
 void _CL_debug_render_simplex(Simplex simplex)
 {
    for(int i = 0; i < simplex.size(); i++)
@@ -229,13 +237,13 @@ void _CL_debug_render_simplex(Simplex simplex)
 
 GJK_Result CL_run_GJK(Mesh* collider_A, Mesh* collider_B)
 {
-   GJK_Result result;
-   result.collision = false;
+   using micro = std::chrono::microseconds;
+   // auto start = std::chrono::high_resolution_clock::now(); 
 
    GJK_Point support = CL_get_support_point(collider_A, collider_B, UNIT_X);
 
    if(support.empty)
-      return result;
+      return {};
 
    GJK_Iteration gjk;
    gjk.simplex.push_front(support.point);
@@ -246,27 +254,43 @@ GJK_Result CL_run_GJK(Mesh* collider_A, Mesh* collider_B)
    int it_count = 0;
    while(true)
    {
+      // auto start_it = std::chrono::high_resolution_clock::now(); 
+
+      // auto start = std::chrono::high_resolution_clock::now(); 
       support = CL_get_support_point(collider_A, collider_B, gjk.direction);
+      // auto finish = std::chrono::high_resolution_clock::now();
+
+      // std::cout << "CL_get_support_point() took "
+      //          << std::chrono::duration_cast<micro>(finish - start).count()
+      //          << " microseconds\n";
 
       if(support.empty || !CL_same_general_direction(support.point, gjk.direction))
       {
          // _CL_debug_render_simplex(gjk.simplex);
-         return result;    // no collision
+         return {};    // no collision
       }
 
       gjk.simplex.push_front(support.point);
 
       // ImDraw::add_point(IM_ITERHASH(it_count), support.point, 2.0, true, Debug_Colors[it_count + 1]);
 
-      gjk = CL_update_simplex_and_direction(gjk);
+      CL_update_simplex_and_direction(&gjk);
+
+      // auto finish_it = std::chrono::high_resolution_clock::now();
+
+      // std::cout << "GJK Iteration took "
+      //          << std::chrono::duration_cast<micro>(finish_it - start_it).count()
+      //          << " microseconds\n";
 
       it_count++;
       if(gjk.finished)
       {
+         // auto finish = std::chrono::high_resolution_clock::now();
+         // int elapsed = std::chrono::duration_cast<micro>(finish - start).count();
+         // get_time(elapsed);
+
          //_CL_debug_render_simplex(gjk.simplex);
-         result.simplex = gjk.simplex;
-         result.collision = true;
-         return result;
+         return {.simplex = gjk.simplex, .collision = true};
       }
    }
 }

@@ -12,15 +12,36 @@ struct Simplex {
          points[2] = vec3(0);
          points[3] = vec3(0);
          p_size = 0;
-      }
+		}
 
-		Simplex& operator=(std::initializer_list<vec3> list) {
-			for (auto v = list.begin(); v != list.end(); v++) {
-				points[std::distance(list.begin(), v)] = *v;
-			}
-			p_size = list.size();
+		Simplex(vec3 a)
+		{
+			points[0] = a;
+			p_size = 1;
+		}
 
-			return *this;
+		Simplex(vec3 a, vec3 b)
+		{
+			points[0] = a;
+			points[1] = b;
+			p_size = 2;
+		}
+
+		Simplex(vec3 a, vec3 b, vec3 c)
+		{
+			points[0] = a;
+			points[1] = b;
+			points[2] = c;
+			p_size = 3;
+		}
+
+		Simplex(vec3 a, vec3 b, vec3 c, vec3 d)
+		{
+			points[0] = a;
+			points[1] = b;
+			points[2] = c;
+			points[3] = d;
+			p_size = 4;
 		}
 
 		void push_front(vec3 point);

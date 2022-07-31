@@ -24,7 +24,7 @@ struct GJK_Iteration {
 
 struct GJK_Result {
    Simplex  simplex;
-   bool     collision;
+   bool     collision = false;
 };
 
 struct GJK_Point {
@@ -34,11 +34,10 @@ struct GJK_Point {
 
 GJK_Point      CL_find_furthest_vertex          (Mesh* collision_mesh, vec3 direction);
 GJK_Point      CL_get_support_point             (Mesh* collision_mesh_A, Mesh* collision_mesh_B, vec3 direction);
-GJK_Iteration  CL_update_line_simplex           (GJK_Iteration gjk);
-
-GJK_Iteration  CL_update_triangle_simplex       (GJK_Iteration gjk);
-GJK_Iteration  CL_update_tetrahedron_simplex    (GJK_Iteration gjk);
-GJK_Iteration  CL_update_simplex_and_direction  (GJK_Iteration gjk);
+void           CL_update_line_simplex           (GJK_Iteration* gjk);
+void           CL_update_triangle_simplex       (GJK_Iteration* gjk);
+void           CL_update_tetrahedron_simplex    (GJK_Iteration* gjk);
+void           CL_update_simplex_and_direction  (GJK_Iteration* gjk);
 
 void           _CL_debug_render_simplex         (Simplex simplex);
 GJK_Result     CL_run_GJK                       (Mesh* collider_A, Mesh* collider_B);

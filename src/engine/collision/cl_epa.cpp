@@ -12,6 +12,8 @@
 #include <engine/collision/simplex.h>
 #include <engine/collision/cl_gjk.h>
 #include <engine/collision/cl_epa.h>
+#include <chrono>
+#include <iostream>
 
 extern const int CL_MAX_EPA_ITERATIONS = 100;
 
@@ -70,9 +72,34 @@ void CL_add_if_outer_edge(
 		edges.emplace_back(faces[a], faces[b]);
 }
 
+static void get_time(int elapsed)
+{
+   static std::vector<int> times;
+   const int N = 100;
+
+   times.push_back(elapsed);
+
+
+   if(times.size() == N)
+   {
+      int sum = 0;
+      for(int i = 0; i < times.size(); i++)
+         sum += times[i];
+      
+      float average = sum * 1.0 / N;
+
+      std::cout << "Average time spent on EPA: " << average << "\n"; 
+
+      times.clear();
+   }
+}
+
 
 EPA_Result CL_run_EPA(Simplex simplex, Mesh* collider_A, Mesh* collider_B)
 {
+   using micro = std::chrono::microseconds;
+   auto start = std::chrono::high_resolution_clock::now(); 
+
    std::vector<vec3> polytope;
    polytope.insert(polytope.begin(), std::begin(simplex.points), std::end(simplex.points));
 
@@ -204,6 +231,10 @@ EPA_Result CL_run_EPA(Simplex simplex, Mesh* collider_A, Mesh* collider_B)
       
 	result.direction = penetration_normal;
 	result.penetration = min_distance_to_face + 0.0001f;
+
+   auto finish = std::chrono::high_resolution_clock::now();
+   int elapsed = std::chrono::duration_cast<micro>(finish - start).count();
+   // get_time(elapsed);
 
 	return result;
 }

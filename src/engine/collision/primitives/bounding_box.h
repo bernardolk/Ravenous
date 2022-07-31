@@ -8,7 +8,7 @@ struct BoundingBox {
    float miny;
    float maxy;
 
-   auto bounds()
+   inline auto bounds()
    {
       struct {
          vec3 min, max;
@@ -19,7 +19,7 @@ struct BoundingBox {
       return bounds;
    }
 
-   void set(vec3 min, vec3 max)
+   inline void set(vec3 min, vec3 max)
    {
       minx = min.x;
       maxx = max.x;
@@ -29,7 +29,7 @@ struct BoundingBox {
       maxz = max.z;
    }
 
-   auto get_pos_and_scale()
+   inline auto get_pos_and_scale()
    {
       struct {
          vec3 pos;
@@ -42,7 +42,7 @@ struct BoundingBox {
       return result;
    }
 
-   vec3 get_centroid()
+   inline vec3 get_centroid()
    {
       return {
          (maxx + minx) / 2,
@@ -51,7 +51,7 @@ struct BoundingBox {
       };
    }
 
-   bool test(BoundingBox other)
+   inline bool test(BoundingBox other)
    {
       // Exit with no intersection if separated along an axis
       if (this->maxx < other.minx || this->minx > other.maxx) return false;
@@ -59,5 +59,28 @@ struct BoundingBox {
       if (this->maxz < other.minz || this->minz > other.maxz) return false;
       // Overlapping on all axes means AABBs are intersecting
       return true;
+   }
+
+   inline void translate(mat4 trans_mat)
+   {
+      vec4 trans_min = vec4(minx, miny, minz, 1) * trans_mat;
+      vec4 trans_max = vec4(maxx, maxy, maxz, 1) * trans_mat;
+
+      minx = trans_min.x;
+      miny = trans_min.y;
+      minz = trans_min.z;
+      maxx = trans_max.x;
+      maxy = trans_max.y;
+      maxz = trans_max.z;
+   }
+
+   inline void translate(vec3 offset)
+   {
+      minx += offset.x;
+      miny += offset.y;
+      minz += offset.z;
+      maxx += offset.x;
+      maxy += offset.y;
+      maxz += offset.z;
    }
 };
