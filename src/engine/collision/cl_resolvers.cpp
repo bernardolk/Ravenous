@@ -12,6 +12,7 @@
 #include <engine/collision/primitives/triangle.h>
 #include <engine/collision/primitives/ray.h>
 #include <glm/gtx/quaternion.hpp>
+#include <engine/collision/collision_mesh.h>
 #include <engine/entity.h>
 #include <engine/rvn.h>
 #include <player.h>
@@ -34,8 +35,13 @@
 void CL_resolve_collision(CL_Results results, Player* player)
 {
    // unstuck player
-   player->entity_ptr->position += results.normal * results.penetration;
-   player->entity_ptr->update();
+   vec3 offset = results.normal * results.penetration;
+   player->entity_ptr->position += offset;
+
+   // update, but don't update collider
+   player->entity_ptr->update_model_matrix();
+   player->entity_ptr->bounding_box.translate(offset);
+
 }
 
 

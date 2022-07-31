@@ -11,6 +11,16 @@ bool GP_simulate_player_collision_in_falling_trajectory(Player* player, vec2 xz_
 
 float SLOPE_MIN_ANGLE = 0.4;
 
+/*
+
+      BIG @TODO
+      player collider update is a mess, I've decoupled it from the main player update call, so now
+      we must update (translate) the player's AABB every time its position changes.
+
+      Lets fix this please.  
+
+*/
+
 
 void GP_update_player_state(Player* &player, World* world)
 {   
@@ -22,6 +32,7 @@ void GP_update_player_state(Player* &player, World* world)
          auto next_position = GP_player_standing_get_next_position(player);
 
          // move player forward
+         player->entity_ptr->bounding_box.translate(next_position - player->entity_ptr->position);
          player->entity_ptr->position = next_position;
          player->update(world);
 
@@ -45,6 +56,7 @@ void GP_update_player_state(Player* &player, World* world)
             if(vtrace.hit && (vtrace.delta_y > 0.0004 || vtrace.delta_y < 0))
             {
                player->entity_ptr->position.y -= vtrace.delta_y;
+               player->entity_ptr->bounding_box.translate(vec3(0, -vtrace.delta_y, 0));
                player->update(world);
             }
             
@@ -78,11 +90,15 @@ void GP_update_player_state(Player* &player, World* world)
 
                // first pass test to see if player fits in hole
                auto p_pos0 = player->entity_ptr->position;
-               player->entity_ptr->position += player->v_dir_historic * player->radius;
+               auto offset =  player->v_dir_historic * player->radius;
+               player->entity_ptr->bounding_box.translate(offset);
+               player->entity_ptr->position += offset;
                player->update(world);
                bool collided = CL_run_tests_for_fall_simulation(player);
 
+               offset = p_pos0 - player->entity_ptr->position;
                player->entity_ptr->position = p_pos0;
+               player->entity_ptr->bounding_box.translate(offset);
                player->update(world);
 
                if(!collided)
@@ -98,13 +114,14 @@ void GP_update_player_state(Player* &player, World* world)
                   fall_momentum_dir = to2d_xz(player->v_dir_historic);
                   vec2 fall_momentum = fall_momentum_dir * fall_momentum_intensity;
 
-                  bool can_fall = GP_simulate_player_collision_in_falling_trajectory(player, fall_momentum);
+                  // bool can_fall = GP_simulate_player_collision_in_falling_trajectory(player, fall_momentum);
+                  bool can_fall = false;
 
                   if(can_fall)
                   {
                      player->entity_ptr->velocity = to3d_xz(fall_momentum);
                      GP_change_player_state(player, PLAYER_STATE_FALLING);
-                     player->update(world);
+                     player->update(world, true);
                      break;
                   }
                   else
@@ -143,7 +160,7 @@ void GP_update_player_state(Player* &player, World* world)
       {
          player->entity_ptr->velocity += RVN::frame.duration * player->gravity; 
          player->entity_ptr->position += player->entity_ptr->velocity * RVN::frame.duration;
-         player->update(world);
+         player->update(world, true);
 
          auto results = CL_test_and_resolve_collisions(player);
          for (int i = 0; i < results.count; i ++)
@@ -198,7 +215,7 @@ void GP_update_player_state(Player* &player, World* world)
 
          v += RVN::frame.duration * player->gravity; 
          player->entity_ptr->position += player->entity_ptr->velocity * RVN::frame.duration;
-         player->update(world);
+         player->update(world, true);
 
          auto results = CL_test_and_resolve_collisions(player);
          for (int i = 0; i < results.count; i ++)
@@ -254,7 +271,7 @@ void GP_update_player_state(Player* &player, World* world)
          player->entity_ptr->velocity = player->v_dir * player->slide_speed;
 
          player->entity_ptr->position += player->entity_ptr->velocity * RVN::frame.duration;
-         player->update(world);
+         player->update(world, true);
 
 
          // RESOLVE COLLISIONS AND CHECK FOR TERRAIN CONTACT
@@ -411,7 +428,7 @@ void GP_check_trigger_interaction(Player* player, World* world)
       auto interactable = world->interactables[i];
 
       //@todo: do a cylinder vs cylinder or cylinder vs aabb test here
-      Mesh trigger_collider = interactable->get_trigger_collider();
+      CollisionMesh trigger_collider = interactable->get_trigger_collider();
       GJK_Result gjk_test = CL_run_GJK(&player->entity_ptr->collider, &trigger_collider);
       if(gjk_test.collision)
       {

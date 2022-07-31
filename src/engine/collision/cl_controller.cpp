@@ -12,6 +12,7 @@
 #include <glm/gtx/normal.hpp>
 #include <engine/collision/primitives/triangle.h>
 #include <glm/gtx/quaternion.hpp>
+#include <engine/collision/collision_mesh.h>
 #include <engine/entity.h>
 //#include <engine/collision/primitives/ray.h>
 #include <engine/world/world.h>
@@ -189,6 +190,7 @@ CL_Results CL_test_collision_buffer_entitites(
    bool iterative = true)
 {
 
+   bool test = false;
    for (int i = 0; i < entity_list_size; i++)
    {
 	   Entity* entity = buffer[i].entity;
@@ -201,6 +203,11 @@ CL_Results CL_test_collision_buffer_entitites(
 
       if(!entity->bounding_box.test(player->entity_ptr->bounding_box))
          continue;
+      else if(!test)
+      {
+         player->entity_ptr->update_collider();
+         test = true;
+      }
 
       auto result = CL_test_player_vs_entity(entity, player);
 
@@ -214,7 +221,6 @@ CL_Results CL_test_collision_buffer_entitites(
 // -------------------------
 // > TEST PLAYER VS ENTITY
 // -------------------------
-
 CL_Results CL_test_player_vs_entity(Entity* entity, Player* player)
 {
    using micro = std::chrono::microseconds;
@@ -224,8 +230,8 @@ CL_Results CL_test_player_vs_entity(Entity* entity, Player* player)
 
    Entity* player_entity = player->entity_ptr;
 
-   Mesh* entity_collider = &entity->collider;
-   Mesh* player_collider = &player_entity->collider;
+   CollisionMesh* entity_collider = &entity->collider;
+   CollisionMesh* player_collider = &player_entity->collider;
 
    // auto start = std::chrono::high_resolution_clock::now(); 
    GJK_Result box_gjk_test = CL_run_GJK(entity_collider, player_collider);

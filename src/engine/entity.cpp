@@ -12,6 +12,7 @@
 #include <engine/collision/primitives/bounding_box.h>
 #include <engine/mesh.h>
 #include <engine/logging.h>
+#include <engine/collision/collision_mesh.h>
 #include <engine/entity.h>
    
 void Entity::update()
@@ -36,7 +37,7 @@ void Entity::update_collider()
 
    // multiplies model matrix to collision mesh
    for (int i = 0; i < this->collision_mesh->vertices.size(); i++)
-      this->collider.vertices[i] = this->collision_mesh->vertices[i] * this->matModel;
+      this->collider.vertices[i] = vec3(vec4(this->collision_mesh->vertices[i], 1.0) * this->matModel);
 }
 
 
@@ -87,16 +88,16 @@ mat4 Entity::get_rotation_matrix()
    return rotation_matrix;
 }
 
-Mesh Entity::get_trigger_collider()
+CollisionMesh Entity::get_trigger_collider()
 {
-   Mesh trigger_collider;
-
-   // empty collider
-   trigger_collider.vertices.clear();
+   CollisionMesh trigger_collider;
 
    // multiplies model matrix to collision mesh
    for (int i = 0; i < this->trigger->vertices.size(); i++)
-      trigger_collider.vertices.push_back(Vertex{this->trigger->vertices[i] * this->trigger_matModel});
+      trigger_collider.vertices.push_back(vec3(vec4(this->trigger->vertices[i].position, 1) * this->trigger_matModel));
+   for (int i = 0; i < this->trigger->indices.size(); i++)
+      trigger_collider.indices.push_back(this->trigger->indices[i]);
+
 
    return trigger_collider;
 }

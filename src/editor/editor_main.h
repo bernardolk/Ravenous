@@ -3,6 +3,7 @@
 #include <editor/editor_colors.h>
 
 struct World;
+struct CollisionMesh;
 
 namespace Editor
 {
@@ -430,8 +431,8 @@ void render(Player* player, World* world, Camera* camera)
       if(panel.show_normals)
          render_entity_mesh_normals(&panel);
       // @TODO: Some bug being caused in this call
-      if(panel.show_collider)
-         ImDraw::add_mesh(IMHASH, &panel.entity->collider, COLOR_PURPLE_1, 0);
+      //if(panel.show_collider)
+      //   ImDraw::add_mesh(IMHASH, &panel.entity->collider, COLOR_PURPLE_1, 0);
       if(panel.show_bounding_box)
       {
          auto aabb = Geometry_Catalogue.find("aabb")->second;
@@ -583,14 +584,21 @@ void initialize()
    y_arrow->textures.push_back(Texture{green_tex, "texture_diffuse", "green.jpg", "green axis"});
    z_arrow->textures.push_back(Texture{blue_tex,  "texture_diffuse", "blue.jpg",  "blue axis"});
 
-   x_arrow->collision_mesh = axis_mesh;
-   x_arrow->collider = *axis_mesh;
+   // CollisionMesh
+   auto arrow_collider = new CollisionMesh();
+   For(axis_mesh->vertices.size())
+      arrow_collider->vertices.push_back(axis_mesh->vertices[i].position);
+   For(axis_mesh->indices.size())
+      arrow_collider->indices.push_back(axis_mesh->indices[i]);
 
-   y_arrow->collision_mesh = axis_mesh;
-   y_arrow->collider = *axis_mesh;
+   x_arrow->collision_mesh = arrow_collider;
+   x_arrow->collider = *arrow_collider;
 
-   z_arrow->collision_mesh = axis_mesh;
-   z_arrow->collider = *axis_mesh;
+   y_arrow->collision_mesh = arrow_collider;
+   y_arrow->collider = *arrow_collider;
+
+   z_arrow->collision_mesh = arrow_collider;
+   z_arrow->collider = *arrow_collider;
 
    EdContext.entity_panel.x_arrow = x_arrow;
    EdContext.entity_panel.y_arrow = y_arrow;

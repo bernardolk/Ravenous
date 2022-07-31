@@ -3,7 +3,7 @@
 // ---------------------------------------------
 // Uses the output of GJK to compute a penetration vector, useful for resolving collisions
 
-struct Mesh;
+struct CollisionMesh;
 struct Simplex;
 
 extern const int CL_MAX_EPA_ITERATIONS;
@@ -24,7 +24,7 @@ void CL_add_if_outer_edge(
 	size_t a,
 	size_t b);
 
-EPA_Result CL_run_EPA(Simplex simplex, Mesh* collider_A, Mesh* collider_B);
+EPA_Result CL_run_EPA(Simplex simplex, CollisionMesh* collider_A, CollisionMesh* collider_B);
 
 
 inline bool CL_support_is_in_polytope(std::vector<vec3> polytope, vec3 support_point)

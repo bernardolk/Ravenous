@@ -6,6 +6,7 @@
 #include <engine/collision/primitives/ray.h>
 #include <engine/vertex.h>
 #include <engine/mesh.h>
+#include <engine/collision/collision_mesh.h>
 #include <colors.h>
 #include <engine/render/renderer.h>
 #include <engine/render/im_render.h>
@@ -24,7 +25,7 @@ vec3 Debug_Colors[] = {
 /* -----------------------
   GJK Support Functions
 ----------------------- */
-GJK_Point CL_find_furthest_vertex(Mesh* collision_mesh, vec3 direction)
+GJK_Point CL_find_furthest_vertex(CollisionMesh* collision_mesh, vec3 direction)
 {
 	// Linearly scan the CollisionMesh doing dot products with the vertices and storing the one with max value, then return it
    // Note: sometimes, the dot product between two points equals the same, but there is always a right and a wrong pair 
@@ -37,7 +38,7 @@ GJK_Point CL_find_furthest_vertex(Mesh* collision_mesh, vec3 direction)
 
    for (int i = 0; i < collision_mesh->vertices.size(); i++)
    {
-      vec3 vertex_pos = collision_mesh->vertices[i].position;
+      vec3 vertex_pos = collision_mesh->vertices[i];
       float inner_p = glm::dot(vertex_pos, direction);
       if(inner_p > max_inner_p)
       {
@@ -50,17 +51,29 @@ GJK_Point CL_find_furthest_vertex(Mesh* collision_mesh, vec3 direction)
 }
 
 
-GJK_Point CL_get_support_point(Mesh* collision_mesh_A, Mesh* collision_mesh_B, vec3 direction)
+GJK_Point CL_get_support_point(CollisionMesh* collision_mesh_A, CollisionMesh* collision_mesh_B, vec3 direction)
 {
    // Gets a support point in the minkowski difference of both meshes, in the direction supplied.
 
+   // PRIOR METHOD
    GJK_Point gjk_point_a = CL_find_furthest_vertex(collision_mesh_A, direction);
    GJK_Point gjk_point_b = CL_find_furthest_vertex(collision_mesh_B, -direction);
 
    if (gjk_point_a.empty || gjk_point_b.empty)
       return gjk_point_a;
 
-   return GJK_Point{gjk_point_a.point - gjk_point_b.point, false};
+   vec3 gjk_support_point = gjk_point_a.point - gjk_point_b.point;
+
+   // NEW METHOD
+  /* GJK_Point gjk_point_a = CL_find_furthest_vertex(collision_mesh_A, direction);
+   GJK_Point gjk_point_b = CL_find_furthest_vertex(collision_mesh_B, -direction);
+
+   if (gjk_point_a.empty || gjk_point_b.empty)
+      return gjk_point_a;
+
+   vec3 gjk_support_point = gjk_point_a.point - gjk_point_b.point;*/
+
+   return GJK_Point{gjk_support_point, false};
 }
 
 /* -----------------------
@@ -235,7 +248,7 @@ void _CL_debug_render_simplex(Simplex simplex)
 }
 
 
-GJK_Result CL_run_GJK(Mesh* collider_A, Mesh* collider_B)
+GJK_Result CL_run_GJK(CollisionMesh* collider_A, CollisionMesh* collider_B)
 {
    using micro = std::chrono::microseconds;
    // auto start = std::chrono::high_resolution_clock::now(); 

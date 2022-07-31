@@ -93,16 +93,24 @@ Entity* parse_and_load_entity(
          p = parse_all_whitespace(p);
          p = parse_token(p);
          model_name = p.string_buffer;
-
-         auto find = Geometry_Catalogue.find(model_name);
-         if(find != Geometry_Catalogue.end())
-            new_entity->mesh = find->second;
+         
+         auto find_mesh = Geometry_Catalogue.find(model_name);
+         if(find_mesh != Geometry_Catalogue.end())
+            new_entity->mesh = find_mesh->second;
          else
             new_entity->mesh = load_wavefront_obj_as_mesh(MODELS_PATH, model_name);
-
+      
          // makes collision mesh equals to mesh
          // @TODO when we get REAL about this, collision mesh should be a separate mesh (of course).
-         new_entity->collision_mesh = new_entity->mesh;
+         auto find_c_mesh = Collision_Geometry_Catalogue.find(model_name);
+         if(find_c_mesh == Collision_Geometry_Catalogue.end())
+         {
+            auto c_mesh = cmesh_from_mesh(find_mesh->second);
+            Collision_Geometry_Catalogue.insert({ model_name, c_mesh });
+         }
+         else
+            new_entity->collision_mesh = find_c_mesh->second;
+         
       }
       
       else if(property == "texture")

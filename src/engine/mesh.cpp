@@ -11,9 +11,11 @@
 #include <iostream>
 #include <engine/logging.h>
 #include <engine/mesh.h>
+#include <engine/collision/collision_mesh.h>
 
-std::map<std::string, Mesh*>     Geometry_Catalogue;
-std::map<std::string, Texture>   Texture_Catalogue;
+std::map<std::string, Mesh*>              Geometry_Catalogue;
+std::map<std::string, CollisionMesh*>     Collision_Geometry_Catalogue;
+std::map<std::string, Texture>            Texture_Catalogue;
 
 void Mesh::setup_gl_data()
 {
@@ -272,6 +274,19 @@ Triangle get_triangle_for_collider_indexed_mesh(Mesh* mesh, int triangle_index)
    auto c = mesh->vertices[c_ind].position;
 
    return Triangle{a, b, c};
+}
+
+Triangle get_triangle_for_collider_indexed_mesh(CollisionMesh* mesh, int triangle_index)
+{
+   auto a_ind = mesh->indices[3 * triangle_index + 0];
+   auto b_ind = mesh->indices[3 * triangle_index + 1];
+   auto c_ind = mesh->indices[3 * triangle_index + 2];
+
+   auto a = mesh->vertices[a_ind];
+   auto b = mesh->vertices[b_ind];
+   auto c = mesh->vertices[c_ind];
+
+   return Triangle{ a, b, c };
 }
 
 // --------------------------------

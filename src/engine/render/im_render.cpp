@@ -13,6 +13,7 @@
 #include <engine/collision/primitives/triangle.h>
 #include <engine/collision/primitives/bounding_box.h>
 #include <glm/gtx/quaternion.hpp>
+#include <engine/collision/collision_mesh.h>
 #include <engine/entity.h>
 #include <engine/render/renderer.h>
 #include <engine/camera.h>

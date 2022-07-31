@@ -4,6 +4,7 @@
 struct WorldCell;
 struct Shader;
 struct Mesh;
+struct CollisionMesh;
 struct Texture;
 struct Entity;
 
@@ -95,9 +96,9 @@ struct Entity {
    vec3      velocity        = vec3(0.0f);
    glm::quat quaternion;
 
-   Mesh*        collision_mesh;        // static collision mesh vertex data
-   Mesh         collider;              // dynamic collision mesh, obtained by multiplying static collision mesh with model matrix
-   BoundingBox  bounding_box;          // computed using the collider mesh, used for fast first pass collision tests
+   CollisionMesh* collision_mesh;        // static collision mesh vertex data
+   CollisionMesh  collider;              // dynamic collision mesh, obtained by multiplying static collision mesh with model matrix
+   BoundingBox    bounding_box;          // computed using the collider mesh, used for fast first pass collision tests
 
    // collider settings
    bool slidable = false;
@@ -142,7 +143,7 @@ struct Entity {
    void update_trigger();
    void rotate_y(float angle);
    mat4 get_rotation_matrix();
-   Mesh get_trigger_collider();
+   CollisionMesh get_trigger_collider();
    bool is_interactable();
 
 };

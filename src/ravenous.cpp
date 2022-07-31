@@ -23,6 +23,7 @@
 #include <assert.h>
 #include <algorithm>
 #include <stdint.h>
+#include <chrono>
 
 #include <dearIMGUI/imgui.h>
 #include <dearIMGUI/imgui_impl_glfw.h>
@@ -99,6 +100,7 @@ struct ProgramConfig {
 #include <engine/mesh.h>
 #include <utils.h>
 #include <engine/shader.h>
+#include <engine/collision/collision_mesh.h>
 #include <engine/entity.h>
 #include <engine/lights.h>
 #include <scene.h>
@@ -178,6 +180,50 @@ void check_all_geometry_has_gl_data();
 void setup_gl();
 void simulate_gravity_trajectory();
 
+static void get_time_update(int elapsed)
+{
+   static std::vector<int> times;
+   const int N = 100;
+
+   times.push_back(elapsed);
+
+
+   if(times.size() == N)
+   {
+      int sum = 0;
+      for(int i = 0; i < times.size(); i++)
+         sum += times[i];
+      
+      float average = sum * 1.0 / N;
+
+      std::cout << "Average Update Time: " << average << "\n"; 
+
+      times.clear();
+   }
+}
+
+static void get_time_render(int elapsed)
+{
+   static std::vector<int> times;
+   const int N = 100;
+
+   times.push_back(elapsed);
+
+
+   if(times.size() == N)
+   {
+      int sum = 0;
+      for(int i = 0; i < times.size(); i++)
+         sum += times[i];
+      
+      float average = sum * 1.0 / N;
+
+      std::cout << "Average Render Time: " << average << "\n"; 
+
+      times.clear();
+   }
+}
+
 int main()
 {
    World world;
@@ -217,6 +263,7 @@ int main()
    G_CONFIG = load_configs();
    load_scene_from_file(G_CONFIG.initial_scene, &world);
    Player* player = G_SCENE_INFO.player;
+   world.player = player;
    player->checkpoint_pos = player->entity_ptr->position;   // set player initial checkpoint position
 
    // set scene attrs from global config
@@ -302,14 +349,20 @@ int main()
       // -------------
 		//	UPDATE PHASE
       // -------------
-      if(PROGRAM_MODE.current == GAME_MODE)
-		   camera_update_game(G_SCENE_INFO.camera, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT, player->eye());
-      else if(PROGRAM_MODE.current == EDITOR_MODE)
-		   camera_update_editor(G_SCENE_INFO.camera, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT, player->entity_ptr->position);
-      Game_State.update_timers();
-      GP_update_player_state(player, &world);
-      AN_animate_player(player);
-      Entity_Animations.update_animations();
+      {
+         auto start = std::chrono::high_resolution_clock::now();
+         if(PROGRAM_MODE.current == GAME_MODE)
+            camera_update_game(G_SCENE_INFO.camera, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT, player->eye());
+         else if(PROGRAM_MODE.current == EDITOR_MODE)
+            camera_update_editor(G_SCENE_INFO.camera, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT, player->entity_ptr->position);
+         Game_State.update_timers();
+         GP_update_player_state(player, &world);
+         AN_animate_player(player);
+         Entity_Animations.update_animations();
+         auto finish = std::chrono::high_resolution_clock::now();
+         int elapsed = std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count();
+         get_time_update(elapsed);
+      }
      
 
       //update_scene_objects();
@@ -319,28 +372,34 @@ int main()
       // -------------
 		//	RENDER PHASE
       // -------------
-		glClearColor(0.196, 0.298, 0.3607, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      render_depth_map(&world);
-      render_depth_cubemap(&world);
-		render_scene(&world, G_SCENE_INFO.camera);
-      //render_depth_map_debug();
-      switch(PROGRAM_MODE.current)
       {
-         case CONSOLE_MODE:
-            render_console();
-            break;
-         case EDITOR_MODE:
-            Editor::update(player, &world, G_SCENE_INFO.camera);
-            Editor::render(player, &world, G_SCENE_INFO.camera);
-            break;
-         case GAME_MODE:
-            render_game_gui(player);
-            break;
+         auto start = std::chrono::high_resolution_clock::now();
+         glClearColor(0.196, 0.298, 0.3607, 1.0f);
+         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+         render_depth_map(&world);
+         render_depth_cubemap(&world);
+         render_scene(&world, G_SCENE_INFO.camera);
+         //render_depth_map_debug();
+         switch(PROGRAM_MODE.current)
+         {
+            case CONSOLE_MODE:
+               render_console();
+               break;
+            case EDITOR_MODE:
+               Editor::update(player, &world, G_SCENE_INFO.camera);
+               Editor::render(player, &world, G_SCENE_INFO.camera);
+               break;
+            case GAME_MODE:
+               render_game_gui(player);
+               break;
+         }
+         ImDraw::render(G_SCENE_INFO.camera);
+         ImDraw::update(RVN::frame.duration);
+         RVN::rm_buffer->render();
+         auto finish = std::chrono::high_resolution_clock::now();
+         int elapsed = std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count();
+         get_time_render(elapsed);
       }
-      ImDraw::render(G_SCENE_INFO.camera);
-      ImDraw::update(RVN::frame.duration);
-      RVN::rm_buffer->render();
 
       // -------------
       // FINISH FRAME

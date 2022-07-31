@@ -95,7 +95,7 @@ static void get_time(int elapsed)
 }
 
 
-EPA_Result CL_run_EPA(Simplex simplex, Mesh* collider_A, Mesh* collider_B)
+EPA_Result CL_run_EPA(Simplex simplex, CollisionMesh* collider_A, CollisionMesh* collider_B)
 {
    using micro = std::chrono::microseconds;
    auto start = std::chrono::high_resolution_clock::now(); 

@@ -28,7 +28,7 @@ RaycastTest    test_ray_against_entity          (Ray ray, Entity* entity, RayCas
 RaycastTest    test_ray_against_entity          (Ray ray, Entity* entity);
 RaycastTest    test_ray_against_mesh            (Ray ray, Mesh* mesh, glm::mat4 matModel, RayCastType test_type);
 RaycastTest    test_ray_against_triangle        (Ray ray, Triangle triangle, bool test_both_sides = true);
-RaycastTest    test_ray_against_collider        (Ray ray, Mesh* collider, RayCastType test_type);
+RaycastTest    test_ray_against_collider        (Ray ray, CollisionMesh* collider, RayCastType test_type);
 vec3           point_from_detection             (Ray ray, RaycastTest result);
 vec3           get_triangle_normal              (Triangle t);
 bool           test_ray_against_aabb            (Ray ray, BoundingBox box);

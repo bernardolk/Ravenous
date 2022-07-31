@@ -11,9 +11,11 @@
 #include <engine/collision/primitives/triangle.h>
 #include <engine/collision/primitives/ray.h>
 #include <glm/gtx/quaternion.hpp>
+#include <engine/collision/collision_mesh.h>
 #include <engine/entity.h>
 #include <engine/rvn.h>
 #include <engine/collision/raycast.h>
+#include <engine/collision/collision_mesh.h>
 
 // --------------------------
 // > TEST RAY AGAINST AABB
@@ -59,7 +61,11 @@ RaycastTest test_ray_against_entity(
 
    // first check collision with bounding box
    if(test_ray_against_aabb(ray, entity->bounding_box))
+   {
+      //@TODO: We are not updating player's collider everytime now, so we must do it now on a raycast call
+      entity->update_collider();
       return test_ray_against_collider(ray, &entity->collider, test_type);
+   }
 
    return RaycastTest{false};
 }
@@ -74,8 +80,9 @@ RaycastTest test_ray_against_entity(Ray ray, Entity* entity)
 // > TEST RAY AGAINT COLLIDER
 // ---------------------------
 // This doesn't take a matModel
-RaycastTest test_ray_against_collider(Ray ray, Mesh* collider, RayCastType test_type)
+RaycastTest test_ray_against_collider(Ray ray, CollisionMesh* collider, RayCastType test_type)
 {
+   
    int triangles = collider->indices.size() / 3;
    float min_distance = MAX_FLOAT;
    RaycastTest min_hit_test{false, -1};

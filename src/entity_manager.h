@@ -1,6 +1,7 @@
 #pragma once
 
 struct World;
+struct CollisionMesh;
 
 struct EntityAttributes {
    std::string name;
@@ -21,9 +22,10 @@ struct EntityManager
    u64 editor_count = 0;
    EntityPool pool = EntityPool(200);
 
-   Shader*     default_shader;
-   Mesh*       default_mesh;
-   Texture     default_texture;
+   Shader*        default_shader;
+   Mesh*          default_mesh;
+   Texture        default_texture;
+   CollisionMesh* default_c_mesh;
 
    std::vector<Entity*>   deletion_stack;
    std::vector<Entity*>*  entity_registry;
@@ -42,27 +44,30 @@ struct EntityManager
          Texture textures[2];
          int textures_found = 0;
          Mesh* mesh;
-         Mesh* collision_mesh;
+         CollisionMesh* collision_mesh;
          Shader* shader;
       } attrs;
 
+      Mesh* _mesh;
       if(mesh != "")
       {
-         auto _mesh = Geometry_Catalogue.find(mesh);
-         if(_mesh == Geometry_Catalogue.end())
-         {
-            attrs.mesh = load_wavefront_obj_as_mesh(MODELS_PATH, mesh);
-         }
+         auto find_mesh = Geometry_Catalogue.find(mesh);
+         if(find_mesh == Geometry_Catalogue.end())
+            _mesh = load_wavefront_obj_as_mesh(MODELS_PATH, mesh);
          else
-            attrs.mesh = _mesh->second;
+            _mesh = find_mesh->second;
+
+         attrs.mesh = _mesh;
       }
       
       if(collision_mesh != "")
       {
-         auto _collision_mesh = Geometry_Catalogue.find(collision_mesh);
-         if(_collision_mesh == Geometry_Catalogue.end())
+         auto _collision_mesh = Collision_Geometry_Catalogue.find(collision_mesh);
+         if(_collision_mesh == Collision_Geometry_Catalogue.end())
          {
-            attrs.collision_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, collision_mesh);
+            auto c_mesh = cmesh_from_mesh(_mesh);
+            Collision_Geometry_Catalogue.insert({mesh, c_mesh});
+            attrs.collision_mesh = c_mesh;
          }
          else
             attrs.collision_mesh = _collision_mesh->second;
@@ -112,10 +117,11 @@ struct EntityManager
    // ---------------------------------
    void set_default_entity_attributes(std::string mesh,std::string shader,std::string texture)
    {
-      auto [_textures, _texture_count, _mesh, _,  _shader] = _find_entity_assets_in_catalogue(mesh, "", shader, texture);
+      auto [_textures, _texture_count, _mesh, _c_mesh,  _shader] = _find_entity_assets_in_catalogue(mesh, mesh, shader, texture);
       default_texture = _textures[0];
       default_shader  = _shader;
       default_mesh    = _mesh;
+      default_c_mesh = _c_mesh;
    }
 
    // ---------------------------------
@@ -176,8 +182,6 @@ struct EntityManager
       new_entity->scale                               = scale;
       new_entity->collision_mesh                      = _collision_mesh;
       new_entity->collider                            = *_collision_mesh;
-      new_entity->collider.name                       = name + "-collider";
-      new_entity->collider.setup_gl_data();
       For(_texture_count)
          new_entity->textures.push_back(_textures[i]);
 
@@ -227,7 +231,7 @@ struct EntityManager
          new_entity->textures.push_back(default_texture);
          new_entity->shader                  = default_shader;
          new_entity->mesh                    = default_mesh;
-         new_entity->collision_mesh          = default_mesh;
+         new_entity->collision_mesh          = default_c_mesh;
          register_in_world_and_scene(new_entity);
       }
       return new_entity;  
@@ -258,8 +262,6 @@ struct EntityManager
       new_entity->scale                               = scale;
       new_entity->collision_mesh                      = _collision_mesh;
       new_entity->collider                            = *_collision_mesh;
-      new_entity->collider.name                       = name + "-collider";
-      new_entity->collider.setup_gl_data();
       For(_texture_count)
          new_entity->textures.push_back(_textures[i]);
 
@@ -277,7 +279,6 @@ struct EntityManager
       *new_entity                   = *entity;
       new_entity->id                = next_entity_id++;
       new_entity->collider          = *new_entity->collision_mesh;
-      new_entity->collider.setup_gl_data();
       // tries new name with copy
      std::string new_name = new_entity->name;
       if(new_name != "NONAME")

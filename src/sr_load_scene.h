@@ -124,8 +124,6 @@ bool load_scene_from_file(std::string scene_name, World* world)
 
          // set up collider
          new_entity->collider       = *new_entity->collision_mesh;
-         new_entity->collider.name  = new_entity->name + "-collider";
-         new_entity->collider.setup_gl_data();
 
          // puts entity into entities list and update geometric properties
          Entity_Manager.register_in_world_and_scene(new_entity);

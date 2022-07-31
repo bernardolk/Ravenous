@@ -130,10 +130,16 @@ struct Player {
    vec3 anim_orig_dir   = vec3(0);                           // original player orientation
    bool anim_finished_turning = false;                       // player has finished turning his camera
 
-   void update(World* world)
+   inline void update(World* world, bool update_collider = false)
    {
       // perform updates to bounding boxes, colliders etc
-      entity_ptr->update();
+      entity_ptr->update_model_matrix();
+      if(update_collider)
+      {
+         entity_ptr->update_collider();
+         entity_ptr->update_bounding_box();
+      }
+      
       bool cells_updated = CL_update_player_world_cells(this, world);
       if(cells_updated) 
       {
