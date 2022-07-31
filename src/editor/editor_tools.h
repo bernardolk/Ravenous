@@ -544,6 +544,10 @@ void move_entity_by_arrows(Entity* entity)
    EdContext.move_entity_by_arrows_ref_point = pos;
 
    entity->update();
+
+   // TODO: We should _know_ when entities move and be able to act programatically upon that knowledge instead of randomly checking everywhere.
+   update_entity_control_arrows(&EdContext.entity_panel);
+   update_entity_rotation_gizmo(&EdContext.entity_panel);
 }
 
 
@@ -730,6 +734,10 @@ void rotate_entity_with_mouse(Entity* entity)
 
    EdContext.rotate_entity_with_mouse_mouse_coords_ref = mouse_coords;
    entity->update();
+
+   // TODO: We should _know_ when entities move and be able to act programatically upon that knowledge instead of randomly checking everywhere.
+   update_entity_control_arrows(&EdContext.entity_panel);
+   update_entity_rotation_gizmo(&EdContext.entity_panel);
 }
 
 

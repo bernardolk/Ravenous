@@ -184,12 +184,7 @@ void update(Player* player, World* world, Camera* camera)
    update_triaxis_gizmo();
 
    // ENTITY PANEL
-   if(EdContext.entity_panel.active)
-   {
-      update_entity_control_arrows(&EdContext.entity_panel);
-      update_entity_rotation_gizmo(&EdContext.entity_panel);
-   }
-   else
+   if(!EdContext.entity_panel.active)
    {
       EdContext.entity_panel.rename_buffer[0] = 0;
       EdContext.snap_mode = false;
@@ -1203,9 +1198,9 @@ void update_entity_control_arrows(EntityPanelContext* panel)
 {
    // arrow positioning settings
    float    angles[3]   = {270, 0, 90};
-   vec3     rot_axis[3] = {UNIT_Z, UNIT_X, UNIT_X};
    Entity*  arrows[3]   = {panel->x_arrow, panel->y_arrow, panel->z_arrow};
-   
+   vec3     rot_axis[3] = {UNIT_Z, UNIT_X, UNIT_X};
+
    auto  entity = panel->entity;
 
    if(panel->reverse_scale)
@@ -1215,20 +1210,21 @@ void update_entity_control_arrows(EntityPanelContext* panel)
    }
 
    // update arrow mat models doing correct matrix multiplication order
-   auto starting_model = translate(mat4identity, entity->position);
-   starting_model = rotate(starting_model, glm::radians(entity->rotation.x), UNIT_X);
-   starting_model = rotate(starting_model, glm::radians(entity->rotation.y), UNIT_Y);
-   starting_model = rotate(starting_model, glm::radians(entity->rotation.z), UNIT_Z);
+   auto starting_model  = translate(mat4identity, entity->position);
+   starting_model       = rotate(starting_model, glm::radians(entity->rotation.x), UNIT_X);
+   starting_model       = rotate(starting_model, glm::radians(entity->rotation.y), UNIT_Y);
+   starting_model       = rotate(starting_model, glm::radians(entity->rotation.z), UNIT_Z);
 
    float scale_value = _get_gizmo_scaling_factor(entity, 0.8, 3.0);
 
    for(int i = 0; i < 3; i++)
    {
+      auto arrow = arrows[i];
       auto model = rotate(starting_model, glm::radians(angles[i]), rot_axis[i]);
       model = scale(model, vec3(scale_value));
-      arrows[i]->matModel = model;
-      arrows[i]->update_collider();
-      arrows[i]->update_bounding_box();
+      arrow->matModel = model;
+      arrow->update_collider();
+      arrow->update_bounding_box();
    }
 }
 

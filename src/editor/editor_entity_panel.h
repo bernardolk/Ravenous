@@ -516,6 +516,10 @@ void entity_panel_update_entity_and_editor_context(EntityPanelContext* panel, u3
       RVN::rm_buffer->add(update_cells.message, 3500);
 
    world->update_cells_in_use_list();
+
+   // TODO: We should _know_ when entities move and be able to act programatically upon that knowledge instead of randomly checking everywhere.
+   update_entity_control_arrows(&EdContext.entity_panel);
+   update_entity_rotation_gizmo(&EdContext.entity_panel);
 }
 
 
@@ -523,7 +527,7 @@ void open_entity_panel(Entity* entity)
 {
    EdContext.selected_entity = entity;
 
-   auto &panel                      = EdContext.entity_panel;
+   auto& panel                      = EdContext.entity_panel;
    panel.active                     = true;
    panel.entity                     = entity;
    panel.reverse_scale_x            = false;
@@ -538,4 +542,8 @@ void open_entity_panel(Entity* entity)
    panel.related_entity             = nullptr;
    panel.entity_starting_state      = get_entity_state(entity);
    panel.empty_rename_buffer();
+
+   // TODO: We should _know_ when entities move and be able to act programatically upon that knowledge instead of randomly checking everywhere.
+   update_entity_control_arrows(&panel);
+   update_entity_rotation_gizmo(&panel);
 }
