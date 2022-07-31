@@ -36,7 +36,7 @@ void Entity::update_collider()
 
    // multiplies model matrix to collision mesh
    for (int i = 0; i < this->collision_mesh->vertices.size(); i++)
-      this->collider.vertices[i] = Vertex{this->collision_mesh->vertices[i] * this->matModel};
+      this->collider.vertices[i] = this->collision_mesh->vertices[i] * this->matModel;
 }
 
 
