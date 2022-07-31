@@ -142,7 +142,6 @@ CL_ResultsArray CL_test_and_resolve_collisions(Player* player)
       if(result.collision)
       {
          CL_mark_entity_checked(result.entity);
-         // CL_log_collision(result, c);   
          CL_resolve_collision(result, player);
          results_array.results[results_array.count] = result;
          results_array.count++; 
@@ -200,8 +199,8 @@ CL_Results CL_test_collision_buffer_entitites(
       if(entity_is_player || checked)
          continue;
 
-      // @todo - here should test for bounding box collision (or any geometric first pass test) 
-      //          FIRST, then do the call below
+      if(!entity->bounding_box.test(player->entity_ptr->bounding_box))
+         continue;
 
       auto result = CL_test_player_vs_entity(entity, player);
 

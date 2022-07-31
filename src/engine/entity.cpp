@@ -31,12 +31,12 @@ void Entity::update()
 
 void Entity::update_collider()
 {
-   // empty collider
-   this->collider.vertices.clear();
+   // // empty collider
+   // this->collider.vertices.clear();
 
    // multiplies model matrix to collision mesh
    for (int i = 0; i < this->collision_mesh->vertices.size(); i++)
-      this->collider.vertices.push_back(Vertex{this->collision_mesh->vertices[i] * this->matModel});
+      this->collider.vertices[i] = Vertex{this->collision_mesh->vertices[i] * this->matModel};
 }
 
 
