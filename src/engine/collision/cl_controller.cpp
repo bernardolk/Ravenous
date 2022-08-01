@@ -139,7 +139,7 @@ CL_ResultsArray CL_test_and_resolve_collisions(Player* player)
       // places pointer back to start
       auto buffer = entity_buffer->buffer;
       auto result = CL_test_collision_buffer_entitites(player, buffer, entity_buffer->size, true);
-
+         
       if(result.collision)
       {
          CL_mark_entity_checked(result.entity);
@@ -203,6 +203,7 @@ CL_Results CL_test_collision_buffer_entitites(
 
       if(!entity->bounding_box.test(player->entity_ptr->bounding_box))
          continue;
+
       else if(!test)
       {
          player->entity_ptr->update_collider();

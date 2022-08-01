@@ -100,17 +100,12 @@ Entity* parse_and_load_entity(
          else
             new_entity->mesh = load_wavefront_obj_as_mesh(MODELS_PATH, model_name);
       
-         // makes collision mesh equals to mesh
-         // @TODO when we get REAL about this, collision mesh should be a separate mesh (of course).
+         // @TODO: For now collision mesh is loaded from the same model as regular mesh.
          auto find_c_mesh = Collision_Geometry_Catalogue.find(model_name);
-         if(find_c_mesh == Collision_Geometry_Catalogue.end())
-         {
-            auto c_mesh = cmesh_from_mesh(find_mesh->second);
-            Collision_Geometry_Catalogue.insert({ model_name, c_mesh });
-         }
-         else
+         if(find_c_mesh != Collision_Geometry_Catalogue.end())
             new_entity->collision_mesh = find_c_mesh->second;
-         
+         else
+            new_entity->collision_mesh = load_wavefront_obj_as_collision_mesh(MODELS_PATH, model_name);
       }
       
       else if(property == "texture")

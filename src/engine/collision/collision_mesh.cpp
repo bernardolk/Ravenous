@@ -68,17 +68,17 @@ BoundingBox CollisionMesh::compute_bounding_box()
 }
 
 
-CollisionMesh* cmesh_from_mesh(Mesh* mesh)
-{
-   auto c_mesh = new CollisionMesh();
-   // copy positions
-   auto& mesh_v = mesh->vertices;
-   For(mesh_v.size())
-      c_mesh->vertices.push_back(mesh_v[i].position);
-   // copy
-   auto& mesh_i = mesh->indices;
-   For(mesh_i.size())
-      c_mesh->indices.push_back(mesh_i[i]);
+// CollisionMesh* cmesh_from_mesh(Mesh* mesh)
+// {
+//    auto c_mesh = new CollisionMesh();
+//    // copy positions
+//    auto& mesh_v = mesh->vertices;
+//    For(mesh_v.size())
+//       c_mesh->vertices.push_back(mesh_v[i].position);
+//    // copy
+//    auto& mesh_i = mesh->indices;
+//    For(mesh_i.size())
+//       c_mesh->indices.push_back(mesh_i[i]);
 
-   return c_mesh;
-}
+//    return c_mesh;
+// }

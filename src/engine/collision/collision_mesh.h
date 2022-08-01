@@ -10,4 +10,4 @@ struct CollisionMesh {
    BoundingBox compute_bounding_box();
 };
 
-CollisionMesh* cmesh_from_mesh(Mesh* mesh);
+// CollisionMesh* cmesh_from_mesh(Mesh* mesh);

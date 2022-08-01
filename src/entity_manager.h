@@ -52,25 +52,21 @@ struct EntityManager
       if(mesh != "")
       {
          auto find_mesh = Geometry_Catalogue.find(mesh);
-         if(find_mesh == Geometry_Catalogue.end())
-            _mesh = load_wavefront_obj_as_mesh(MODELS_PATH, mesh);
-         else
+         if(find_mesh != Geometry_Catalogue.end())
             _mesh = find_mesh->second;
+         else
+            _mesh = load_wavefront_obj_as_mesh(MODELS_PATH, mesh);
 
          attrs.mesh = _mesh;
       }
       
       if(collision_mesh != "")
       {
-         auto _collision_mesh = Collision_Geometry_Catalogue.find(collision_mesh);
-         if(_collision_mesh == Collision_Geometry_Catalogue.end())
-         {
-            auto c_mesh = cmesh_from_mesh(_mesh);
-            Collision_Geometry_Catalogue.insert({mesh, c_mesh});
-            attrs.collision_mesh = c_mesh;
-         }
+         auto find_c_mesh = Collision_Geometry_Catalogue.find(collision_mesh);
+         if(find_c_mesh != Collision_Geometry_Catalogue.end())
+            attrs.collision_mesh = find_c_mesh->second;
          else
-            attrs.collision_mesh = _collision_mesh->second;
+            attrs.collision_mesh = load_wavefront_obj_as_collision_mesh(MODELS_PATH, collision_mesh);
       }
 
       if(shader != "")

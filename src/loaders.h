@@ -129,9 +129,9 @@ Mesh* load_wavefront_obj_as_mesh(
             Note about indices (mesh->indices): They refer not to the index 'vi' but to the index of the vertex in the mesh->vertices array.
          */
 
-         int vertex_count = 0;
+         int number_of_vertexes_in_face = 0;
          
-         // we expect either faces with 3 or 4 vertices only.
+         // iterate over face's vertices. We expect either faces with 3 or 4 vertices only.
          while(true)
          {
             Vertex v;
@@ -173,32 +173,35 @@ Mesh* load_wavefront_obj_as_mesh(
             // adds vertex to mesh, finally
             mesh->vertices.push_back(v);
 
-            vertex_count++;
+            number_of_vertexes_in_face++;
          }
          
-         // face's triangle #1
-         int face_index = mesh->vertices.size() - vertex_count;
-         mesh->indices.push_back(face_index + 0);
-         mesh->indices.push_back(face_index + 1);
-         mesh->indices.push_back(face_index + 2);
 
-         if(vertex_count == 4)
+         // Creates the faces respecting winding order: Assumes that each face has unique vertices.
+         // Index vector reads like: T0_v0, T0_v1, T0_v2, T1_v0, T1_v1, T1_v2, T2_v0 ... where T is triangle and v is vertex.
+         // face's triangle #1
+         int first_vertex_index_in_face = mesh->vertices.size() - number_of_vertexes_in_face;
+         mesh->indices.push_back(first_vertex_index_in_face + 0);
+         mesh->indices.push_back(first_vertex_index_in_face + 1);
+         mesh->indices.push_back(first_vertex_index_in_face + 2);
+
+         if(number_of_vertexes_in_face == 4)
          { 
             // face's triangle #2
-            mesh->indices.push_back(face_index + 2);
-            mesh->indices.push_back(face_index + 3);
-            mesh->indices.push_back(face_index + 0);
+            mesh->indices.push_back(first_vertex_index_in_face + 2);
+            mesh->indices.push_back(first_vertex_index_in_face + 3);
+            mesh->indices.push_back(first_vertex_index_in_face + 0);
 
             faces_count += 2;
          }
 
-         else if(vertex_count > 4)
+         else if(number_of_vertexes_in_face > 4)
          {
             Quit_fatal("mesh file " + filename + 
                ".obj contain at least one face with unsupported ammount of vertices. Please triangulate or quadfy faces.\n");
          }
 
-         else if(vertex_count < 3)
+         else if(number_of_vertexes_in_face < 3)
          {
             Quit_fatal("mesh file " + filename + ".obj contain at least one face with 2 or less vertices. Please review the geometry.\n");
          }
@@ -236,6 +239,99 @@ Mesh* load_wavefront_obj_as_mesh(
 	return mesh;
 }
 
+CollisionMesh* load_wavefront_obj_as_collision_mesh(std::string path, std::string filename, std::string name = "")
+{
+   /* Loads a model from the provided path and filename and add it to the Collision_Geometry_Catalogue with provided name */
+
+   std::string full_path = path + filename + ".obj";
+	std::ifstream reader(full_path);
+
+   if(!reader.is_open())
+   {
+      std::cout << "Fatal: Could not find/open wavefront file at '" << full_path << "'.\n";
+      assert(false);
+   }
+
+	std::string line;
+	auto c_mesh = new CollisionMesh();
+
+   // Parses file
+	while (getline(reader, line)) 
+   {
+		const char* cline = line.c_str();
+		size_t size = line.size();
+
+		Parser::Parse p{ cline, size };
+		p = parse_token(p);
+      std::string attr = p.string_buffer;
+
+      if(!p.hasToken)
+         continue;
+
+      // vertex coordinates
+		if (attr == "v")
+      {
+         p = parse_vec3(p);
+         c_mesh->vertices.push_back(p.get_vec3_val());
+		}
+
+      // construct faces
+      else if (attr == "f")
+      {
+         int number_of_vertexes_in_face = 0;
+         int index_buffer[4];
+         // iterate over face's vertices
+         while(true)
+         {
+            Vertex v;
+            p = parse_all_whitespace(p);
+
+            // parses vertex index
+            {
+               p = parse_uint(p);
+               if(!p.hasToken) break;
+
+               // corrects from 1-first-element convention (from .obj file) to 0-first.
+               u32 index = p.uiToken - 1;
+               // c_mesh.index.push_back(index);
+               index_buffer[number_of_vertexes_in_face] = index;
+            }
+
+            // discard reamining face's vertex info
+            p = parse_symbol(p);
+            p = parse_uint(p);
+            p = parse_symbol(p);
+            p = parse_uint(p);
+
+            number_of_vertexes_in_face++;
+         }
+
+         // Creates the faces respecting winding order: Assumes that each face has unique vertices.
+         // Index vector reads like: T0_v0, T0_v1, T0_v2, T1_v0, T1_v1, T1_v2, T2_v0 ... where T is triangle and v is vertex position.
+         // face's triangle #1
+         c_mesh->indices.push_back(index_buffer[0]);
+         c_mesh->indices.push_back(index_buffer[1]);
+         c_mesh->indices.push_back(index_buffer[2]);
+
+         if(number_of_vertexes_in_face == 4)
+         { 
+            // face's triangle #2
+            c_mesh->indices.push_back(index_buffer[2]);
+            c_mesh->indices.push_back(index_buffer[3]);
+            c_mesh->indices.push_back(index_buffer[0]);
+         }
+      }
+	}
+
+   std::string       catalogue_name;
+   if (name != "")   catalogue_name = name;
+   else              catalogue_name = filename;
+
+   // adds to catalogue
+   Collision_Geometry_Catalogue.insert({catalogue_name, c_mesh });
+
+	return c_mesh;
+}
 
 unsigned int load_texture_from_file(std::string filename, const std::string & directory, bool gamma)
 {

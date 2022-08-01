@@ -13,6 +13,13 @@
 #include <engine/mesh.h>
 #include <engine/collision/collision_mesh.h>
 
+/*
+   Mesh vertex readme:
+   - Vertex count = N_quad_faces * 4
+   - Indices count = N_quad_faces * 6 or N_triang_faces * 3
+*/
+
+
 std::map<std::string, Mesh*>              Geometry_Catalogue;
 std::map<std::string, CollisionMesh*>     Collision_Geometry_Catalogue;
 std::map<std::string, Texture>            Texture_Catalogue;

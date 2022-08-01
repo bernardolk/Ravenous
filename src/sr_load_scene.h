@@ -123,8 +123,7 @@ bool load_scene_from_file(std::string scene_name, World* world)
          Entity* new_entity = parse_and_load_entity(p, &reader, line_count, path, &entity_relations);
 
          // set up collider
-         new_entity->collider       = *new_entity->collision_mesh;
-
+         new_entity->collider = *new_entity->collision_mesh;
          // puts entity into entities list and update geometric properties
          Entity_Manager.register_in_world_and_scene(new_entity);
       }
