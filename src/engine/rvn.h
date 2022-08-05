@@ -21,13 +21,20 @@ const static std::string   CONFIG_FILE_PATH                    = PROJECT_PATH + 
 const static std::string   SCENE_TEMPLATE_FILENAME             = "template_scene";
 const static std::string   INPUT_RECORDINGS_FOLDER_PATH        = PROJECT_PATH + "/recordings/";
 
+struct ProgramConfig {
+   std::string       initial_scene;
+   float             camspeed             = 1;
+   vec3              ambient_light{};
+   float             ambient_intensity    = 0;
+};
+
 struct FrameData {
-   float    duration;
-   float    real_duration;
-   float    last_frame_time;
-   int      fps;
-   int      fps_counter;
-   float    sub_second_counter;
+   float    duration             = 0;
+   float    real_duration        = 0;
+   float    last_frame_time      = 0;
+   int      fps                  = 0;
+   int      fps_counter          = 0;
+   float    sub_second_counter   = 0;
    float    time_step            = 1;
 };
 
@@ -50,13 +57,13 @@ struct RVN {
 };
 
 struct GlobalSceneInfo {
-   Scene*      active_scene = NULL;
-   Camera*     camera;
+   Scene*      active_scene         = nullptr;
+   Camera*     camera               = nullptr;
    Camera*     views[2];
-   Player*     player;
-   bool        input_mode = false;
+   Player*     player               = nullptr;
+   bool        input_mode           = false;
    std::string scene_name;
-   bool        tmp_unstuck_things = false;
+   bool        tmp_unstuck_things   = false;
 };
 
 // @TODO
@@ -74,8 +81,8 @@ struct GlobalDisplayConfig {
 ------------------ */
 // stores all relevant entity ptrs for collision detection with player during the frame
 struct EntityBufferElement {
-   Entity*  entity;
-   bool     collision_check = false;
+   Entity*  entity            = nullptr;
+   bool     collision_check   = false;
 };
 
 struct EntityBuffer {

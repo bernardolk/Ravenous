@@ -30,6 +30,8 @@
 #include <dearIMGUI/imgui_impl_opengl3.h>
 #include <dearIMGUI/imgui_stdlib.h>
 
+#include <stb_image/stb_image.h>
+
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/normal.hpp>
 #include <glm/gtx/rotate_vector.hpp>
@@ -74,13 +76,7 @@ struct GlobalInputInfo {
    bool              block_mouse_move           = false;
 } G_INPUT_INFO;
 
-
-struct ProgramConfig {
-   std::string       initial_scene;
-   float             camspeed;
-   vec3              ambient_light;
-   float             ambient_intensity;
-} G_CONFIG;
+ProgramConfig G_CONFIG;
 
 // should be conditional in the future to support multiple platforms and
 // we must abstract the function calls to a common layer which can interop
@@ -111,13 +107,13 @@ struct ProgramConfig {
 #include <engine/collision/raycast.h>
 #include <engine/world/world.h>
 #include <input_recorder.h>
-#include <entity_pool.h>
+#include <engine/entity_pool.h>
 
 #include <editor/editor_im_macros.h>
 #include <engine/render/text/face.h>
 #include <engine/render/text/text_renderer.h>
-#include <loaders.h>
-#include <entity_manager.h>
+#include <engine/loaders.h>
+#include <engine/entity_manager.h>
 #include <geometry.h>
 
 // entity manager and entity pool
@@ -159,7 +155,7 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <editor/editor_main.h>
 
 // globals
-GlobalSceneInfo   G_SCENE_INFO;
+GlobalSceneInfo G_SCENE_INFO{};
 
 #define glCheckError() glCheckError_(__FILE__, __LINE__) 
 

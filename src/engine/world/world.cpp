@@ -21,6 +21,9 @@
 #include <engine/entity.h>
 #include <player.h>
 #include <engine/lights.h>
+#include <engine/logging.h>
+#include <engine/entity_pool.h>
+#include <engine/entity_manager.h>
 #include <engine/world/world.h>
 
 
@@ -410,4 +413,52 @@ RaycastTest World::raycast_lights(Ray ray)
    }
 
    return closest_hit;
+}
+
+
+void World::clear(const EntityManager* manager)
+{
+   /*
+      This is the ~official~ world unloading/clearing procedure.
+      This sets all pool slots to free and removes all entities allocated with new.
+   */
+
+   // drops all entities
+   for(const auto& entity: this->entities)
+      manager->pool.free_slot(entity);
+
+   this->entities.clear();
+
+   // drops all lights
+   for(const auto& light: this->point_lights)
+      delete light;
+
+   this->point_lights.clear();
+
+   for(const auto& light: this->spot_lights)
+      delete light;
+
+   this->spot_lights.clear();
+
+   for(const auto& light: this->point_lights)
+      delete light;
+
+   this->point_lights.clear();
+
+   for(const auto& light: this->directional_lights)
+      delete light;
+
+   this->directional_lights.clear();
+
+   // drops all interactable entities
+   for(const auto& interactable: this->interactables)
+      delete interactable;
+
+   this->interactables.clear();
+
+   // drops all checkpoint entities
+   for(const auto& checkpoint: this->checkpoints)
+      delete checkpoint;
+
+   this->checkpoints.clear();
 }

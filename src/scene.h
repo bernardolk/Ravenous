@@ -1,3 +1,7 @@
+#pragma once
+
+struct ProgramConfig;
+
 struct Scene {
 	std::vector<Entity*>             entities;
 	std::vector<SpotLight>           spotLights;
@@ -36,7 +40,7 @@ struct Scene {
 
    void load_configs(ProgramConfig configs)
    {
-      ambient_light = configs.ambient_light;
-      ambient_intensity = configs.ambient_intensity;
+      ambient_light        = configs.ambient_light;
+      ambient_intensity    = configs.ambient_intensity;
    }
 };

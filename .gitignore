@@ -26,3 +26,5 @@ tools/*
 recordings/*
 CppProperties.json
 imgui.ini
+Ravenous.sln.DotSettings
+vc140.pdb

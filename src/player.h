@@ -49,10 +49,10 @@ struct Player {
    Entity* entity_ptr;
 
    // [start] DROP ALL THESE
-   Entity* standing_entity_ptr;
-   Entity* slope_player_was_ptr;
-   Entity* vaulting_entity_ptr;
-   Entity* skip_collision_with_floor = NULL;
+   Entity* standing_entity_ptr         = nullptr;;
+   Entity* slope_player_was_ptr        = nullptr;;
+   Entity* vaulting_entity_ptr         = nullptr;;
+   Entity* skip_collision_with_floor   = nullptr;
    // [end]
 
    // geometry
@@ -100,7 +100,7 @@ struct Player {
 
    vec3 orientation;
 
-   // gameplay system varibles
+   // gameplay system variables
    vec3 last_terrain_contact_normal = vec3(0, 1.f, 0);
    Entity* grabbing_entity = nullptr;
    float grab_reach        = 0.9;         // radius + arms reach, 0.5 + 0.4  
@@ -130,7 +130,7 @@ struct Player {
    vec3 anim_orig_dir   = vec3(0);                           // original player orientation
    bool anim_finished_turning = false;                       // player has finished turning his camera
 
-   inline void update(World* world, bool update_collider = false)
+   void update(World* world, bool update_collider = false)
    {
       // perform updates to bounding boxes, colliders etc
       entity_ptr->update_model_matrix();

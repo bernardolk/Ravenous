@@ -1,19 +1,4 @@
-
-
-Entity* create_player_entity()
-{
-   auto scale = vec3(1);
-   auto entity = Entity_Manager.create_entity(PLAYER_NAME, "capsule", "model", "pink", "capsule", scale);
-   return entity;
-}
-
-Player* create_player(Entity* player_entity)
-{
-   auto player = new Player();
-   player->entity_ptr   = player_entity;
-   return player;
-}
-
+#pragma once
 
 void parse_and_load_player_orientation(Parser::Parse p, std::ifstream* reader, int& line_count, std::string path, Player* player)
 {

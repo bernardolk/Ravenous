@@ -34,7 +34,7 @@ GJK_Point CL_find_furthest_vertex(CollisionMesh* collision_mesh, vec3 direction)
    // way.
 
    float max_inner_p = MIN_FLOAT;
-   vec3 furthest_vertex;
+   vec3 furthest_vertex{};
 
    for (int i = 0; i < collision_mesh->vertices.size(); i++)
    {

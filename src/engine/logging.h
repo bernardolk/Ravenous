@@ -10,7 +10,7 @@ enum RavenousLogLevel {
                               mmsx += "---------------------------------------------------\n"; \
                               mmsx += "> FATAL error occured. Error description:          \n"; \
                               mmsx += "---------------------------------------------------\n"; \
-                              std::cout << mmsx << x << "\n"; \
+                              std::cout << mmsx << (x) << "\n"; \
                               assert(false); }
 
 

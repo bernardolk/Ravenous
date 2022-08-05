@@ -53,6 +53,7 @@ struct   PointLight;
 struct   SpotLight;
 struct   DirectionalLight;
 struct   Player;
+struct   EntityManager;
 
 // -----------
 // WORLD CELL
@@ -169,4 +170,6 @@ struct World {
 
    RaycastTest linear_raycast_array       (Ray first_ray, int qty, float spacing, Player* player);
    RaycastTest raycast_lights             (Ray ray);
+
+   void clear(const EntityManager* manager);
 };

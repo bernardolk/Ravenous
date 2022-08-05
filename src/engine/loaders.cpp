@@ -1,21 +1,30 @@
-#pragma once
+// @TODO: abstract platform layer away
+#include <windows.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image/stb_image.h>
 
-// prototypes
-using StrVec = std::vector<std::string>;
-
-Mesh*             load_wavefront_obj_as_mesh          (std::string path, std::string name, bool setup_gl_data, GLenum render_method);
-unsigned int      load_texture_from_file              (std::string path, const std::string & directory, bool gamma = false);
-gl_charmap        load_text_textures                  (std::string font, int size);
-void              attach_extra_data_to_mesh           (std::string filename, std::string filepath, Mesh* mesh);
-void              load_mesh_extra_data                (std::string filename, Mesh* mesh);
-void              write_mesh_extra_data_file          (std::string filename, Mesh* mesh);
-void              load_textures_from_assets_folder    ();
-StrVec            get_files_in_folder                 (std::string directory);
-
-
+#include <iomanip>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <map>
+#include <iostream>
+#include <rvn_macros.h>
+#include <engine/core/rvn_types.h>
+#include <engine/rvn.h>
+#include <glm/gtx/normal.hpp>
+#include <engine/vertex.h>
+#include <engine/logging.h>
+#include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <engine/collision/primitives/triangle.h>
+#include <engine/collision/primitives/bounding_box.h>
+#include <engine/mesh.h>
+#include <engine/collision/collision_mesh.h>
+#include <glad/glad.h>
+#include <engine/parser.h>
+#include <engine/loaders.h>
 
 void load_textures_from_assets_folder()
 {
@@ -53,10 +62,13 @@ void load_textures_from_assets_folder()
    }
 }
 
-
 Mesh* load_wavefront_obj_as_mesh(
-   std::string path, std::string filename, std::string name = "", bool setup_gl_data = true, GLenum render_method = GL_TRIANGLES
-) {
+   const std::string& path,
+   const std::string& filename,
+   const std::string& name,
+   bool setup_gl_data,
+   RenderMethodEnum render_method)
+{
    /* Loads a model from the provided path and filename and add it to the Geometry_Catalogue with provided name */
 
    // @todo: Currently, we are loading each vertex using the .obj "f line", but that creates 3 vertex per faces.
@@ -124,7 +136,7 @@ Mesh* load_wavefront_obj_as_mesh(
       else if (attr == "f")
       {
          /* We are dealing now with the format: 'f 1/1/1 2/2/1 3/3/1 4/4/1' which follows the template 'vi/vt/vn' for each vertex.
-            We can then use the anticlock-wise winding order to use the 123 341 index convention to get triangles from each f line. 
+            We can then use the anticlockwise winding order to use the 123 341 index convention to get triangles from each f line. 
             If faces are triangulated, then we will have only 3 vertices per face instead of 4 like in the example above.
             Note about indices (mesh->indices): They refer not to the index 'vi' but to the index of the vertex in the mesh->vertices array.
          */
@@ -215,14 +227,8 @@ Mesh* load_wavefront_obj_as_mesh(
 
    mesh->faces_count = faces_count;
 
-   // sets texture name
-   std::string       catalogue_name;
-   if(name != "")    catalogue_name = name;
-   else              catalogue_name = filename;
-   mesh->name = catalogue_name;
-
    // load/computes tangents and bitangents
-   if(v_texels.size() > 0)
+   if(!v_texels.empty())
       attach_extra_data_to_mesh(filename, path, mesh);
 
    // setup gl data
@@ -230,16 +236,18 @@ Mesh* load_wavefront_obj_as_mesh(
       mesh->setup_gl_data();
 
    // sets render method for mesh
-   mesh->render_method = render_method;
+   mesh->render_method = (u32) render_method;
 
 
-   // adds to catalogue
+   // sets texture name and adds to catalogue
+   std::string catalogue_name = !name.empty()? name : filename;
+   mesh->name = catalogue_name;
    Geometry_Catalogue.insert({catalogue_name, mesh});
 
 	return mesh;
 }
 
-CollisionMesh* load_wavefront_obj_as_collision_mesh(std::string path, std::string filename, std::string name = "")
+CollisionMesh* load_wavefront_obj_as_collision_mesh(std::string path, std::string filename, std::string name)
 {
    /* Loads a model from the provided path and filename and add it to the Collision_Geometry_Catalogue with provided name */
 
@@ -283,7 +291,6 @@ CollisionMesh* load_wavefront_obj_as_collision_mesh(std::string path, std::strin
          // iterate over face's vertices
          while(true)
          {
-            Vertex v;
             p = parse_all_whitespace(p);
 
             // parses vertex index
@@ -297,7 +304,7 @@ CollisionMesh* load_wavefront_obj_as_collision_mesh(std::string path, std::strin
                index_buffer[number_of_vertexes_in_face] = index;
             }
 
-            // discard reamining face's vertex info
+            // discard remaining face's vertex info
             p = parse_symbol(p);
             p = parse_uint(p);
             p = parse_symbol(p);
@@ -333,7 +340,7 @@ CollisionMesh* load_wavefront_obj_as_collision_mesh(std::string path, std::strin
 	return c_mesh;
 }
 
-unsigned int load_texture_from_file(std::string filename, const std::string & directory, bool gamma)
+unsigned int load_texture_from_file(const std::string& filename, const std::string& directory, bool gamma)
 {
    // returns the gl_texture ID
    
@@ -365,6 +372,7 @@ unsigned int load_texture_from_file(std::string filename, const std::string & di
       case 4:
          format = GL_RGBA;
          break;
+      default: ;
    }
 
    unsigned int texture_id;
@@ -502,7 +510,7 @@ void attach_extra_data_to_mesh(std::string filename, std::string filepath, Mesh*
       WIN32_FIND_DATA find_data_mesh;
       HANDLE find_handle_mesh = FindFirstFileA(mesh_path.c_str(), &find_data_mesh);
       if(find_handle_mesh == INVALID_HANDLE_VALUE)
-         Quit_fatal("Unexpected: couldn't find file handle for mesh obj while checking for extra mesh data.");
+         Quit_fatal("Unexpected: couldn't find file handle for mesh obj while checking for extra mesh data.")
 
       if(CompareFileTime(&find_data_mesh.ftLastWriteTime, &find_data_extra_data.ftLastWriteTime) == 1)
          compute_extra_data = true;

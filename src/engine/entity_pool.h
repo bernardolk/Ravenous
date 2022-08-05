@@ -1,20 +1,18 @@
+#pragma once
 
 struct EntityPool {
 
-   Entity* pool;
+   Entity* pool      = nullptr;
    const int size;
-   int count = 0;
+   int count         = 0;
 
-   EntityPool(const int size) : size(size)
-   {
-
-   };
+   explicit EntityPool(const int size) : size(size) { }
 
    void init()
    {
       // allocate pool memory
       pool = (Entity*) malloc(size * sizeof(Entity));
-      if(pool == NULL)
+      if(pool == nullptr)
       {
          std::cout << "FATAL: failed to allocate memory for EntityPool.\n";
          assert(false);
@@ -28,8 +26,9 @@ struct EntityPool {
          pool[i].flags |= EntityFlags_EmptyEntity;
       }
    }
-   
-   Entity* get_next()
+
+   // @TODO: Refactor, this is stupid
+   [[nodiscard]] Entity* get_next() const
    {
       For(size)
       {
@@ -45,25 +44,22 @@ struct EntityPool {
       return nullptr;
    }
 
-   void free_slot(Entity* entity)
+   //@TODO: Refactor, this is stupid
+   void free_slot(const Entity* entity) const
    {
       Entity* cursor = pool;
-      bool deleted = false;
       For(size)
       {
          if(cursor->id == entity->id)
          {
-            // inits new entity with "placement new"
-            auto _ = new (cursor) Entity();
+            *cursor = Entity();
             cursor->flags |= EntityFlags_EmptyEntity;
-            deleted = true;
-            break;
+            return;
          }
          cursor++;
       }
 
-      if(!deleted)
-         log(LOG_WARNING, "Entity '" + entity->name + "' requested to be deleted couldn't be found in entity pool.");
+      log(LOG_WARNING, "Entity '" + entity->name + "' requested to be deleted couldn't be found in entity pool.");
    }
 };
 

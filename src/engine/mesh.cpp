@@ -116,7 +116,7 @@ void Mesh::send_data_to_gl_buffer()
 BoundingBox Mesh::compute_bounding_box()
 {
    // This returns a bounding box that contains the mesh
-   // Vertices of the bounding box do not necessarely match vertices in the mesh
+   // Vertices of the bounding box do not necessarily match vertices in the mesh
    // So, this does NOT return the min/max vertices of the mesh in axial direction
    // (support points)
 
@@ -166,7 +166,7 @@ BoundingBox Mesh::compute_bounding_box()
       }
    }
 
-   BoundingBox bb;
+   BoundingBox bb{};
    bb.set(vec3(minx, miny, minz), vec3(maxx, maxy, maxz));
    return bb;
 }

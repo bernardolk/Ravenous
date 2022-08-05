@@ -1,3 +1,5 @@
+#pragma once
+
 void handle_console_input(InputFlags flags, Player* &player, World* world, Camera* camera);
 void execute_command(std::string buffer_line, Player* &player, World* world, Camera* camera);
 void check_letter_key_presses(InputFlags flags);
@@ -21,7 +23,7 @@ struct GlobalConsoleState {
    u16 buffer_size_incr = 1;
    char scratch_buffer[max_chars];
    u16 c_ind = 0;
-} CONSOLE;
+} inline CONSOLE;
 
 void initialize_console_buffers()
 {
@@ -269,10 +271,12 @@ void execute_command(std::string buffer_line, Player* &player, World* world, Cam
       if(load_scene_from_file(G_SCENE_INFO.scene_name, world))
       {
          player = G_SCENE_INFO.player; // not irrelevant! do not delete
+         
          if(PROGRAM_MODE.last == EDITOR_MODE)
             player->entity_ptr->flags &= ~EntityFlags_InvisibleEntity;
          else
             player->entity_ptr->flags |= EntityFlags_InvisibleEntity;
+
          G_CONFIG = load_configs();
          G_SCENE_INFO.active_scene->load_configs(G_CONFIG);
          G_INPUT_INFO.block_mouse_move = false;
