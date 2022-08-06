@@ -231,8 +231,8 @@ int main()
    setup_gl();
 
    // create cameras
-	Camera* editor_camera               = new Camera();
-   Camera* first_person_camera         = new Camera();
+   const auto editor_camera            = new Camera();
+   const auto first_person_camera      = new Camera();
    G_SCENE_INFO.views[EDITOR_CAM]      = editor_camera;
    G_SCENE_INFO.views[FPS_CAM]         = first_person_camera;
    pCam = first_person_camera;
@@ -266,10 +266,7 @@ int main()
    G_SCENE_INFO.camera->Acceleration               = G_CONFIG.camspeed;
    world.ambient_light        = G_CONFIG.ambient_light;
    world.ambient_intensity    = G_CONFIG.ambient_intensity;
-
-   Entity_Manager.set_default_entity_attributes(            // sets some loaded assets from scene as
-      "aabb", "model", "grey"                               // defaults for entity construction
-   );  
+    
    world.update_entity_world_cells(player->entity_ptr);     // sets player to the world
    CL_recompute_collision_buffer_entities(player);          // populates collision buffer and others
    

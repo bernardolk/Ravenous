@@ -74,8 +74,13 @@ bool load_scene_from_file(const std::string& scene_name, World* world)
       *G_SCENE_INFO.player       = Player{};
    }
 
-   G_SCENE_INFO.player->entity_ptr = Entity_Manager.create_entity(
-      PLAYER_NAME, "capsule", "model", "pink", "capsule", vec3(1));
+   G_SCENE_INFO.player->entity_ptr = Entity_Manager.create_entity({
+      .name = PLAYER_NAME,
+      .mesh = "capsule",
+      .shader = "model",
+      .texture = "pink",
+      .collision_mesh = "capsule",
+      .scale = vec3(1)});
 
    // creates deferred load buffer for associating entities after loading them all
    auto entity_relations = DeferredEntityRelationBuffer();
@@ -173,7 +178,7 @@ bool load_scene_from_file(const std::string& scene_name, World* world)
       }
 
       if(deferred_entity == nullptr)
-         Quit_fatal("Entity with id '" + std::to_string(deferred_entity_id) + "' not found to stablish a defined entity relationship.");
+         Quit_fatal("Entity with id '" + std::to_string(deferred_entity_id) + "' not found to stablish a defined entity relationship.")
 
       switch(relation)
       {
@@ -206,8 +211,7 @@ bool load_scene_from_file(const std::string& scene_name, World* world)
    // assign IDs to entities missing them starting from max current id
    For(world->entities.size())
    {
-      auto entity = world->entities[i];
-      if(entity->name != PLAYER_NAME && entity->id == -1)
+      if(auto entity = world->entities[i]; entity->name != PLAYER_NAME && entity->id == -1)
       {
          entity->id = Entity_Manager.next_entity_id++;
       }

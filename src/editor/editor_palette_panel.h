@@ -12,10 +12,10 @@ void render_palette_panel(PalettePanelContext* panel)
    {
       if(ImGui::ImageButton((void*)(intptr_t)panel->textures[i], ImVec2(64,64)))
       {
-         auto attributes = panel->entity_palette[i];
-         auto new_entity = Entity_Manager.create_entity(&attributes);
-         new_entity->id = Entity_Manager.next_entity_id++;
-         new_entity->position = G_SCENE_INFO.camera->Position + (2.f * new_entity->scale + 5.f) * G_SCENE_INFO.camera->Front;
+         auto attributes         = panel->entity_palette[i];
+         const auto new_entity   = Entity_Manager.create_entity(attributes);
+         new_entity->id          = Entity_Manager.next_entity_id++;
+         new_entity->position    = G_SCENE_INFO.camera->Position + (2.f * new_entity->scale + 5.f) * G_SCENE_INFO.camera->Front;
          activate_move_mode(new_entity);
       }
    }
@@ -36,32 +36,32 @@ void initialize_palette(PalettePanelContext* panel)
 
    // 0
    panel->entity_palette[panel->count++] = EntityAttributes{
-      "NONAME", 
-      "aabb", 
-      "model", 
-      "grey",
-      "aabb", 
-      EntityType_Static
+      .name             = "NONAME", 
+      .mesh             = "aabb", 
+      .shader           = "model", 
+      .texture          = "grey",
+      .collision_mesh   = "aabb", 
+      .type             = EntityType_Static
    };
 
    // 1
    panel->entity_palette[panel->count++] = EntityAttributes{
-      "NONAME", 
-      "slope", 
-      "model", 
-      "grey",
-      "slope", 
-      EntityType_Static
+      .name             = "NONAME", 
+      .mesh             = "slope", 
+      .shader           = "model", 
+      .texture          = "grey",
+      .collision_mesh   = "slope", 
+      .type             = EntityType_Static
    };
 
    // 3
    panel->entity_palette[panel->count++] = EntityAttributes{
-      "NONAME-CHECKPOINT", 
-      "aabb", 
-      "model", 
-      "grey", 
-      "aabb", 
-      EntityType_Checkpoint,
-      vec3(0.3, 1.2, 0.3)
+      .name             = "NONAME-CHECKPOINT", 
+      .mesh             = "aabb", 
+      .shader           = "model", 
+      .texture          = "grey", 
+      .collision_mesh   = "aabb", 
+      .type             = EntityType_Checkpoint,
+      .scale            = vec3(0.3, 1.2, 0.3)
    };
 }

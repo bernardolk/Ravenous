@@ -41,30 +41,27 @@ auto EntityManager::_find_entity_assets_in_catalogue(const std::string& mesh, co
       Shader* shader{};
    } attrs;
 
-   Mesh* _mesh;
-   if (mesh != "")
+   if(!mesh.empty())
    {
-      auto find_mesh = Geometry_Catalogue.find(mesh);
+      const auto find_mesh = Geometry_Catalogue.find(mesh);
       if (find_mesh != Geometry_Catalogue.end())
-         _mesh = find_mesh->second;
+         attrs.mesh = find_mesh->second;
       else
-         _mesh = load_wavefront_obj_as_mesh(MODELS_PATH, mesh);
-
-      attrs.mesh = _mesh;
+         attrs.mesh = load_wavefront_obj_as_mesh(MODELS_PATH, mesh);
    }
 
-   if (collision_mesh != "")
+   if(!collision_mesh.empty())
    {
-      auto find_c_mesh = Collision_Geometry_Catalogue.find(collision_mesh);
+      const auto find_c_mesh = Collision_Geometry_Catalogue.find(collision_mesh);
       if (find_c_mesh != Collision_Geometry_Catalogue.end())
          attrs.collision_mesh = find_c_mesh->second;
       else
          attrs.collision_mesh = load_wavefront_obj_as_collision_mesh(MODELS_PATH, collision_mesh);
    }
 
-   if (shader != "")
+   if(!shader.empty())
    {
-      auto _shader = Shader_Catalogue.find(shader);
+      const auto _shader = Shader_Catalogue.find(shader);
       if (_shader == Shader_Catalogue.end())
       {
          std::cout << "FATAL: shader'" << shader << "' not found in shader catalogue.\n";
@@ -73,11 +70,11 @@ auto EntityManager::_find_entity_assets_in_catalogue(const std::string& mesh, co
       attrs.shader = _shader->second;
    }
 
-   if (texture != "")
+   if(!texture.empty())
    {
       // diffuse texture
       {
-         auto _texture = Texture_Catalogue.find(texture);
+         const auto _texture = Texture_Catalogue.find(texture);
          if (_texture == Texture_Catalogue.end())
          {
             std::cout << "FATAL: texture'" << texture << "' not found in texture catalogue.\n";
@@ -89,7 +86,7 @@ auto EntityManager::_find_entity_assets_in_catalogue(const std::string& mesh, co
 
       // normal texture
       {
-         auto _texture = Texture_Catalogue.find(texture + "_normal");
+         const auto _texture = Texture_Catalogue.find(texture + "_normal");
          if (_texture != Texture_Catalogue.end())
          {
             attrs.textures[1] = _texture->second;
@@ -99,18 +96,6 @@ auto EntityManager::_find_entity_assets_in_catalogue(const std::string& mesh, co
    }
 
    return attrs;
-}
-
-// ---------------------------------
-// > SET DEFAULT ENTITY ATTRIBUTES
-// ---------------------------------
-void EntityManager::set_default_entity_attributes(std::string mesh,std::string shader,std::string texture)
-{
-   auto [_textures, _texture_count, _mesh, _c_mesh,  _shader] = _find_entity_assets_in_catalogue(mesh, mesh, shader, texture);
-   default_texture = _textures[0];
-   default_shader  = _shader;
-   default_mesh    = _mesh;
-   default_c_mesh = _c_mesh;
 }
 
 // ---------------------------------
@@ -139,10 +124,10 @@ void EntityManager::set_world(World* world)
 // ------------------
 // > REGISTER ENTITY
 // ------------------
-void EntityManager::register_in_world_and_scene(Entity* entity)
+void EntityManager::register_in_world_and_scene(Entity* entity) const
 {
-   this->world->entities.push_back(entity);
    entity->update();
+   this->world->entities.push_back(entity);
    this->world->update_entity_world_cells(entity);
    this->world->update_cells_in_use_list();
 }
@@ -152,78 +137,32 @@ void EntityManager::register_in_world_and_scene(Entity* entity)
 // -----------------
 // Deals with entity creation. All entities created should be created through here.
 
-// MAIN FUNCTION
-Entity* EntityManager::create_entity(
-   const std::string& name,
-   const std::string& mesh,
-   const std::string& shader,
-   const std::string& texture,
-   const std::string& collision_mesh,
-   const vec3 scale)
+Entity* EntityManager::create_entity(const EntityAttributes& attrs)
 {
-   auto [_textures, _texture_count,  _mesh, _collision_mesh, _shader] = 
-      _find_entity_assets_in_catalogue(mesh, collision_mesh, shader, texture);
+   auto [
+      _textures,
+      _texture_count,
+      _mesh,
+      _collision_mesh,
+      _shader] = _find_entity_assets_in_catalogue(attrs.mesh, attrs.collision_mesh, attrs.shader, attrs.texture);
 
    Entity* new_entity                              = pool.get_next();
-   new_entity->name                                = name;
+   new_entity->name                                = attrs.name;
    new_entity->shader                              = _shader;
    new_entity->mesh                                = _mesh;
-   new_entity->scale                               = scale;
+   new_entity->scale                               = attrs.scale;
    new_entity->collision_mesh                      = _collision_mesh;
    new_entity->collider                            = *_collision_mesh;
+   
    For(_texture_count)
       new_entity->textures.push_back(_textures[i]);
 
    register_in_world_and_scene(new_entity);
-   return new_entity;
-}
-
-// ----------------------------------------
-// > > Creates based on attributes struct
-// ----------------------------------------
-Entity* EntityManager::create_entity(const EntityAttributes* attrs)
-{
-   const auto new_entity = create_entity(
-      attrs->name,
-      attrs->mesh,
-      attrs->shader,
-      attrs->texture,
-      attrs->collision_mesh,
-      attrs->scale
-   );
-
+   
    // sets new entity_type
-   set_type(new_entity, attrs->type);
+   set_type(new_entity, attrs.type);
 
    return new_entity;
-}
-
-// -----------------------------------------------------------
-// > > Creates with a said name and maybe defaults or blank
-// -----------------------------------------------------------
-Entity* EntityManager::create_entity(const std::string& name, const bool load_defaults)
-{
-   //warning: we don't check if name exists in registry
-   const auto new_entity = create_entity(load_defaults);
-   new_entity->name = name;
-   return new_entity;
-}
-
-// ------------------------------------
-// > > Creates with defaults or blank
-// ------------------------------------
-Entity* EntityManager::create_entity(const bool load_defaults)
-{
-   const auto new_entity = pool.get_next();
-   if(load_defaults)
-   {
-      new_entity->textures.push_back(default_texture);
-      new_entity->shader                  = default_shader;
-      new_entity->mesh                    = default_mesh;
-      new_entity->collision_mesh          = default_c_mesh;
-      register_in_world_and_scene(new_entity);
-   }
-   return new_entity;  
 }
 
 // -----------------------
@@ -232,25 +171,20 @@ Entity* EntityManager::create_entity(const bool load_defaults)
 // Editor entities can be created using this method. These entities have separate id's and are not
 //    registered into the world.
 
-Entity* EntityManager::create_editor_entity(
-   const std::string& name,
-   const std::string& mesh,
-   const std::string& shader,
-   const std::string& texture,
-   const std::string& collision_mesh,
-   const vec3 scale)
+Entity* EntityManager::create_editor_entity(const EntityAttributes& attrs)
 {
    auto [_textures, _texture_count, _mesh, _collision_mesh, _shader] =
-         _find_entity_assets_in_catalogue(mesh, collision_mesh, shader, texture);
+         _find_entity_assets_in_catalogue(attrs.mesh, attrs.collision_mesh, attrs.shader, attrs.texture);
 
    Entity* new_entity                              = pool.get_next();
    new_entity->id                                  = ++editor_count;
-   new_entity->name                                = name;
+   new_entity->name                                = attrs.name;
    new_entity->shader                              = _shader;
    new_entity->mesh                                = _mesh;
-   new_entity->scale                               = scale;
+   new_entity->scale                               = attrs.scale;
    new_entity->collision_mesh                      = _collision_mesh;
    new_entity->collider                            = *_collision_mesh;
+   
    For(_texture_count)
       new_entity->textures.push_back(_textures[i]);
 

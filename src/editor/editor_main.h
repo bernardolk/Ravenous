@@ -510,47 +510,46 @@ void terminate()
 
 void initialize()
 {
-   const char* glsl_version = "#version 330";
 	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
+	auto io = ImGui::GetIO();
 	ImGui_ImplGlfw_InitForOpenGL(G_DISPLAY_INFO.window, true);
-	ImGui_ImplOpenGL3_Init(glsl_version);
+	ImGui_ImplOpenGL3_Init("#version 330");
 
 	ImGui::StyleColorsDark();
 	EdContext.imStyle = &ImGui::GetStyle();
 	EdContext.imStyle->WindowRounding = 1.0f;
 
    // load tri axis gizmo
-   auto axis_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, "axis");
+   const auto axis_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, "axis");
 
-   auto x_axis = new Entity();
-   auto y_axis = new Entity();
-   auto z_axis = new Entity();
+   const auto x_axis = new Entity();
+   const auto y_axis = new Entity();
+   const auto z_axis = new Entity();
 
    x_axis->mesh = axis_mesh;
    y_axis->mesh = axis_mesh;
    z_axis->mesh = axis_mesh;
 
-   auto blue_tex  = load_texture_from_file("blue.jpg",   TEXTURES_PATH);
-   auto green_tex = load_texture_from_file("green.jpg",  TEXTURES_PATH);
-   auto red_tex  = load_texture_from_file("red.jpg",   TEXTURES_PATH);
+   const auto blue_tex     = load_texture_from_file("blue.jpg",   TEXTURES_PATH);
+   const auto green_tex    = load_texture_from_file("green.jpg",  TEXTURES_PATH);
+   const auto red_tex      = load_texture_from_file("red.jpg",   TEXTURES_PATH);
 
    x_axis->textures.push_back(Texture{red_tex,  "texture_diffuse", "red.jpg",  "red axis"});
    y_axis->textures.push_back(Texture{green_tex, "texture_diffuse", "green.jpg", "green axis"});
    z_axis->textures.push_back(Texture{blue_tex,  "texture_diffuse", "blue.jpg",  "blue axis"});
 
-   auto shader = Shader_Catalogue.find("ortho_gui")->second;
-   x_axis->shader = shader;
-   x_axis->scale = vec3{0.1, 0.1, 0.1};
-   x_axis->rotation = vec3{90, 0, 90};
+   const auto shader = Shader_Catalogue.find("ortho_gui")->second;
+   x_axis->shader       = shader;
+   x_axis->scale        = vec3{0.1, 0.1, 0.1};
+   x_axis->rotation     = vec3{90, 0, 90};
 
-   y_axis->shader = shader;
-   y_axis->scale = vec3{0.1, 0.1, 0.1};
-   y_axis->rotation = vec3{180, 0, 0};
+   y_axis->shader       = shader;
+   y_axis->scale        = vec3{0.1, 0.1, 0.1};
+   y_axis->rotation     = vec3{180, 0, 0};
 
-   z_axis->shader = shader;
-   z_axis->scale = vec3{0.1, 0.1, 0.1};
-   z_axis->rotation = vec3{90, 0, 180};
+   z_axis->shader       = shader;
+   z_axis->scale        = vec3{0.1, 0.1, 0.1};
+   z_axis->rotation     = vec3{90, 0, 180};
 
    EdContext.tri_axis[0] = x_axis;
    EdContext.tri_axis[1] = y_axis;
@@ -559,65 +558,74 @@ void initialize()
 
    // load entity panel axis arrows
    // @todo: refactor this to use the entity_manager
-   auto x_arrow = new Entity();
-   auto y_arrow = new Entity();
-   auto z_arrow = new Entity();
+   const auto x_arrow = new Entity();
+   const auto y_arrow = new Entity();
+   const auto z_arrow = new Entity();
 
    x_arrow->mesh = axis_mesh;
    y_arrow->mesh = axis_mesh;
    z_arrow->mesh = axis_mesh;
 
-   auto arrow_shader = Shader_Catalogue.find("ed_entity_arrow_shader")->second;
-   x_arrow->shader = arrow_shader;
-   x_arrow->scale = vec3(0.5,0.5,0.5);
-   x_arrow->rotation = vec3(0);
+   const auto arrow_shader = Shader_Catalogue.find("ed_entity_arrow_shader")->second;
+   x_arrow->shader      = arrow_shader;
+   x_arrow->scale       = vec3(0.5,0.5,0.5);
+   x_arrow->rotation    = vec3(0);
 
-   y_arrow->shader = arrow_shader;
-   y_arrow->scale = vec3(0.5,0.5,0.5);
-   y_arrow->rotation = vec3(0);
+   y_arrow->shader      = arrow_shader;
+   y_arrow->scale       = vec3(0.5,0.5,0.5);
+   y_arrow->rotation    = vec3(0);
 
-   z_arrow->shader = arrow_shader;
-   z_arrow->scale = vec3(0.5,0.5,0.5);
-   z_arrow->rotation = vec3(0);
+   z_arrow->shader      = arrow_shader;
+   z_arrow->scale       = vec3(0.5,0.5,0.5);
+   z_arrow->rotation    = vec3(0);
 
    x_arrow->textures.push_back(Texture{red_tex,  "texture_diffuse", "red.jpg",  "red axis"});
    y_arrow->textures.push_back(Texture{green_tex, "texture_diffuse", "green.jpg", "green axis"});
    z_arrow->textures.push_back(Texture{blue_tex,  "texture_diffuse", "blue.jpg",  "blue axis"});
 
    // CollisionMesh
-   auto arrow_collider = new CollisionMesh();
+   const auto arrow_collider = new CollisionMesh();
+   
    For(axis_mesh->vertices.size())
       arrow_collider->vertices.push_back(axis_mesh->vertices[i].position);
+   
    For(axis_mesh->indices.size())
       arrow_collider->indices.push_back(axis_mesh->indices[i]);
 
-   x_arrow->collision_mesh = arrow_collider;
-   x_arrow->collider = *arrow_collider;
+   x_arrow->collision_mesh          = arrow_collider;
+   x_arrow->collider                = *arrow_collider;
 
-   y_arrow->collision_mesh = arrow_collider;
-   y_arrow->collider = *arrow_collider;
+   y_arrow->collision_mesh          = arrow_collider;
+   y_arrow->collider                = *arrow_collider;
 
-   z_arrow->collision_mesh = arrow_collider;
-   z_arrow->collider = *arrow_collider;
+   z_arrow->collision_mesh          = arrow_collider;
+   z_arrow->collider                = *arrow_collider;
 
    EdContext.entity_panel.x_arrow = x_arrow;
    EdContext.entity_panel.y_arrow = y_arrow;
    EdContext.entity_panel.z_arrow = z_arrow;
 
    // creates entity rotation gizmos
-   auto rotation_gizmo_x = Entity_Manager.create_editor_entity(
-      "rotation_gizmo_x", "rotation_gizmo", "ed_entity_arrow_shader", "red", "rotation_gizmo_collision"
-   );
-   auto rotation_gizmo_y = Entity_Manager.create_editor_entity(
-      "rotation_gizmo_y", "rotation_gizmo", "ed_entity_arrow_shader", "green", "rotation_gizmo_collision"
-      );
-   auto rotation_gizmo_z = Entity_Manager.create_editor_entity(
-      "rotation_gizmo_z", "rotation_gizmo", "ed_entity_arrow_shader", "blue", "rotation_gizmo_collision"
-      );
-
-   EdContext.entity_panel.rotation_gizmo_x = rotation_gizmo_x;
-   EdContext.entity_panel.rotation_gizmo_y = rotation_gizmo_y;
-   EdContext.entity_panel.rotation_gizmo_z = rotation_gizmo_z;
+   EdContext.entity_panel.rotation_gizmo_x = Entity_Manager.create_editor_entity({
+      .name = "rotation_gizmo_x",
+      .mesh = "rotation_gizmo",
+      .shader = "ed_entity_arrow_shader",
+      .texture = "red",
+      .collision_mesh = "rotation_gizmo_collision"});
+   
+   EdContext.entity_panel.rotation_gizmo_y = Entity_Manager.create_editor_entity({
+      .name = "rotation_gizmo_y",
+      .mesh = "rotation_gizmo",
+      .shader = "ed_entity_arrow_shader",
+      .texture = "green",
+      .collision_mesh = "rotation_gizmo_collision"});
+   
+   EdContext.entity_panel.rotation_gizmo_z = Entity_Manager.create_editor_entity({
+      .name = "rotation_gizmo_z",
+      .mesh = "rotation_gizmo",
+      .shader = "ed_entity_arrow_shader",
+      .texture = "blue",
+      .collision_mesh = "rotation_gizmo_collision"});
 
 
    // palette panel

@@ -1,3 +1,4 @@
+#pragma once
 
 const std::string  SrLoadEntity_TypeNotSetErrorMsg = "Need to load entity type before loading type-specific data.";
 
@@ -12,7 +13,7 @@ Entity* parse_and_load_entity(
 
    bool type_set = false;
 
-   auto new_entity = Entity_Manager.create_entity();
+   auto new_entity = Entity_Manager.create_entity({});
    p = parse_name(p);
    new_entity->name = p.string_buffer;
 
