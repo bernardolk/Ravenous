@@ -149,7 +149,7 @@ struct InputRecorder {
 
             // starts reading
             std::string line;
-            Parser::Parse p;
+            Parser::ParseUnit p;
             while(parser_nextline(&reader, &line, &p))
             {
                p = parse_u64(p);

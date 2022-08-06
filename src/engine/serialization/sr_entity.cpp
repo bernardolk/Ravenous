@@ -1,22 +1,21 @@
-#pragma once
+#include <engine/core/rvn_types.h>
+#include <engine/logging.h>
+#include <engine/serialization/sr_entity.h>
+#include "engine/entity.h"
+#include <engine/entity_manager.h>
+#include "engine/parser.h"
 
-const std::string  SrLoadEntity_TypeNotSetErrorMsg = "Need to load entity type before loading type-specific data.";
 
-Entity* parse_and_load_entity(
-   Parser::Parse p, 
-   std::ifstream* reader, 
-   int& line_count, 
-   std::string path, 
-   DeferredEntityRelationBuffer* entity_relations)
+void EntitySerializer::parse(Parser& parser) const
 {
-   std::string line;
+   auto new_entity = manager.create_entity({});
+   auto& p = parser.p;
+   bool is_type_set = false;
 
-   bool type_set = false;
-
-   auto new_entity = Entity_Manager.create_entity({});
    p = parse_name(p);
    new_entity->name = p.string_buffer;
 
+   std::string line;
    while(parser_nextline(reader, &line, &p))
    {
       line_count ++;
@@ -181,7 +180,7 @@ Entity* parse_and_load_entity(
          else
             Quit_fatal("Entity type '" + entity_type + "' not identified.");
 
-         type_set = true;
+         is_type_set = true;
       }
 
       // ---------------------------------
@@ -190,7 +189,7 @@ Entity* parse_and_load_entity(
 
       else if(property == "timer_target")
       {
-         if(!type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
+         if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
          p = parse_all_whitespace(p);
          p = parse_u64(p);
@@ -205,7 +204,7 @@ Entity* parse_and_load_entity(
 
       else if(property == "timer_duration")
       {
-         if(!type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
+         if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
          p = parse_all_whitespace(p);
          p = parse_float(p);
@@ -214,7 +213,7 @@ Entity* parse_and_load_entity(
 
       else if(property == "timer_target_type")
       {
-         if(!type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
+         if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
          p = parse_all_whitespace(p);
          p = parse_uint(p);
@@ -224,7 +223,7 @@ Entity* parse_and_load_entity(
 
       else if(property == "timer_start_animation")
       {
-         if(!type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
+         if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
          p = parse_all_whitespace(p);
          p = parse_uint(p);
@@ -235,7 +234,7 @@ Entity* parse_and_load_entity(
 
       else if(property == "timer_stop_animation")
       {
-         if(!type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
+         if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
          p = parse_all_whitespace(p);
          p = parse_uint(p);
@@ -246,7 +245,7 @@ Entity* parse_and_load_entity(
 
       else if(property == "timer_marking")
       {
-         if(!type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
+         if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
          p = parse_all_whitespace(p);
          p = parse_uint(p);
@@ -296,4 +295,5 @@ Entity* parse_and_load_entity(
    }
 
    return new_entity;
+    
 }

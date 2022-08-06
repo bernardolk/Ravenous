@@ -145,10 +145,10 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <gp_game_state.h>
 #include <gp_update.h>
 
-#include <sr_common.h>
-#include <sr_save_scene.h>
-#include <sr_save_configs.h>
-#include <sr_load_scene.h>
+#include <engine/serialization/sr_common.h>
+#include <engine/serialization/sr_save_scene.h>
+#include <engine/serialization/sr_save_configs.h>
+#include <engine/serialization/sr_load_scene.h>
 #include <console.h>
 #include <in_handlers.h>
 
@@ -222,9 +222,12 @@ static void get_time_render(int elapsed)
 
 int main()
 {
-   World world;
+    World world;
 
-   Entity_Manager.set_world(&world);
+    Entity_Manager.set_world(&world);
+    Entity_Manager.set_entity_registry(&world.entities);
+    Entity_Manager.set_checkpoints_registry(&world.checkpoints);
+    Entity_Manager.set_interactables_registry(&world.interactables);
 
    // INITIAL GLFW AND GLAD SETUPS
    setup_GLFW(true);
@@ -254,6 +257,9 @@ int main()
 
    // Initialises immediate draw
    ImDraw::init();
+
+    G_SCENE_INFO.camera = G_SCENE_INFO.views[0]; // sets to editor camera
+
 
    // loads initial scene
    G_CONFIG = load_configs();
@@ -366,7 +372,7 @@ int main()
 		//	RENDER PHASE
       // -------------
       {
-         auto start = std::chrono::high_resolution_clock::now();
+        auto start = std::chrono::high_resolution_clock::now();
          glClearColor(0.196, 0.298, 0.3607, 1.0f);
          glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
          render_depth_map(&world);

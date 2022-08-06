@@ -1,5 +1,5 @@
 
-void parse_and_load_light_source(Parser::Parse p, std::ifstream* reader, int& line_count, std::string path, World* world)
+void parse_and_load_light_source(Parser::ParseUnit p, std::ifstream* reader, int& line_count, std::string path, World* world)
 {
   std::string line;
 

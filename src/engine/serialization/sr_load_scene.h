@@ -22,12 +22,12 @@ struct DeferredEntityRelationBuffer {
 // Prototypes
 bool load_scene_from_file(const std::string& scene_name, World* world);
 Entity* parse_and_load_entity(
-   Parser::Parse p, std::ifstream* reader, int& line_count, std::string path, DeferredEntityRelationBuffer* entity_relations
+   Parser::ParseUnit p, std::ifstream* reader, int& line_count, std::string path, DeferredEntityRelationBuffer* entity_relations
 );
-void parse_and_load_player_attribute(Parser::Parse p, std::ifstream* reader, int& line_count, std::string path, Player* player);
-void parse_and_load_light_source(Parser::Parse p, std::ifstream* reader, int& line_count,std::string path, World* world);
-void parse_and_load_camera_settings(Parser::Parse p, std::ifstream* reader, int& line_count, std::string path);
-void parse_and_load_player_orientation(Parser::Parse p, std::ifstream* reader, int& line_count, std::string path, Player* player);
+void parse_and_load_player_attribute(Parser::ParseUnit p, std::ifstream* reader, int& line_count, std::string path, Player* player);
+void parse_and_load_light_source(Parser::ParseUnit p, std::ifstream* reader, int& line_count,std::string path, World* world);
+void parse_and_load_camera_settings(Parser::ParseUnit p, std::ifstream* reader, int& line_count, std::string path);
+void parse_and_load_player_orientation(Parser::ParseUnit p, std::ifstream* reader, int& line_count, std::string path, Player* player);
 bool load_player_attributes_from_file();
 bool check_if_scene_exists();
 
@@ -35,10 +35,10 @@ ProgramConfig load_configs();
 bool save_configs_to_file();
 
 #include <iomanip>
-#include <sr_load_player.h>
-#include <sr_load_lights.h>
-#include <sr_load_configs.h>
-#include <sr_load_entity.h>
+#include <engine/serialization/sr_load_player.h>
+#include <engine/serialization/sr_load_lights.h>
+#include <engine/serialization/sr_load_configs.h>
+#include <engine/serialization/sr_load_entity.h>
 
 bool load_scene_from_file(const std::string& scene_name, World* world)
 {
@@ -87,7 +87,7 @@ bool load_scene_from_file(const std::string& scene_name, World* world)
 
    // starts reading
    std::string line;
-   Parser::Parse p{};
+   Parser::ParseUnit p{};
    int line_count = 0;
 
    // parses header

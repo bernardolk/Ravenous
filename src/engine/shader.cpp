@@ -261,7 +261,7 @@ void initialize_shaders()
    {
       count_line++;
       bool error = false, missing_comma = false, has_geometry_shader = false;
-      Parser::Parse p { line.c_str(), line.size() };
+      Parser::ParseUnit p { line.c_str(), line.size() };
 
       p = parse_token(p);
       if(!p.hasToken) error = true;

@@ -10,8 +10,8 @@ namespace Editor
 
 const static std::string EDITOR_ASSETS = PROJECT_PATH + "/assets/editor/";
 
-const static float TRIAXIS_SCREENPOS_X = -1.80;
-const static float TRIAXIS_SCREENPOS_Y = -1.80;
+constexpr static float TRIAXIS_SCREENPOS_X = -1.80f;
+constexpr static float TRIAXIS_SCREENPOS_Y = -1.80f;
 
 #include <editor/editor_undo.h>
 #include <editor/editor_panel_contexts.h>
@@ -23,7 +23,7 @@ enum EdToolCallback {
 
 struct EdToolCallbackArgs {
    Entity* entity;
-   union {
+   union {e
       EntityType entity_type;
    };
 };

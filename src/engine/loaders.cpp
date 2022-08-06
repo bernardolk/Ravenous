@@ -99,7 +99,7 @@ Mesh* load_wavefront_obj_as_mesh(
 		const char* cline = line.c_str();
 		size_t size = line.size();
 
-		Parser::Parse p{ cline, size };
+		Parser::ParseUnit p{ cline, size };
 		p = parse_token(p);
       std::string attr = p.string_buffer;
 
@@ -269,7 +269,7 @@ CollisionMesh* load_wavefront_obj_as_collision_mesh(std::string path, std::strin
 		const char* cline = line.c_str();
 		size_t size = line.size();
 
-		Parser::Parse p{ cline, size };
+		Parser::ParseUnit p{ cline, size };
 		p = parse_token(p);
       std::string attr = p.string_buffer;
 
@@ -465,7 +465,7 @@ void load_mesh_extra_data(std::string filename, Mesh* mesh)
       const char* cline = line.c_str();
 		size_t size = line.size();
 
-		Parser::Parse p{ cline, size };
+		Parser::ParseUnit p{ cline, size };
       p = parse_token(p);
       
       if(!p.hasToken)

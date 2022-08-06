@@ -4,15 +4,15 @@
 #include <glm/ext/vector_float3.hpp>
 #include <glm/ext/matrix_float4x4.hpp>
 
-typedef unsigned char u8;
-typedef unsigned short int u16;
-typedef unsigned int u32;
-typedef unsigned long long u64;
+using u8  = unsigned char;      
+using u16 = unsigned short int;
+using u32 = unsigned int;
+using u64 = unsigned long long;
 
-typedef glm::vec4 vec4;
-typedef glm::vec3 vec3;
-typedef glm::vec2 vec2;
-typedef glm::mat4 mat4;
+using vec4 = glm::vec4;
+using vec3 = glm::vec3;
+using vec2 = glm::vec2;
+using mat4 = glm::mat4;
 
 // globals
 const static float PI = 3.141592;

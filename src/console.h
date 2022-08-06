@@ -144,7 +144,7 @@ void clear_scratch_buffer()
 
 void execute_command(std::string buffer_line, Player* &player, World* world, Camera* camera)
 {
-   Parser::Parse p {buffer_line.c_str(), 50};
+   Parser::ParseUnit p {buffer_line.c_str(), 50};
    p = parse_token(p);
    const std::string command = p.string_buffer;
 

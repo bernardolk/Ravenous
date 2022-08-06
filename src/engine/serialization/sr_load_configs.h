@@ -1,4 +1,4 @@
-void parse_and_load_camera_settings(Parser::Parse p, std::ifstream* reader, int& line_count, std::string path)
+void parse_and_load_camera_settings(Parser::ParseUnit p, std::ifstream* reader, int& line_count, std::string path)
 {
       p = parse_all_whitespace(p);
       p = parse_vec3(p);
@@ -23,7 +23,7 @@ ProgramConfig load_configs()
 
    // starts reading
    std::string line;
-   Parser::Parse p;
+   Parser::ParseUnit p;
    int line_count = 0;
 
    while(parser_nextline(&reader, &line, &p))

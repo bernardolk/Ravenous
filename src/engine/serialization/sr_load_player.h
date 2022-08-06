@@ -1,6 +1,6 @@
 #pragma once
 
-void parse_and_load_player_orientation(Parser::Parse p, std::ifstream* reader, int& line_count, std::string path, Player* player)
+void parse_and_load_player_orientation(Parser::ParseUnit p, const int& line_count, const std::string& path, Player* player)
 {
    p = parse_token(p);
    std::string attribute = p.string_buffer;
@@ -17,13 +17,13 @@ void parse_and_load_player_orientation(Parser::Parse p, std::ifstream* reader, i
    if(attribute == "player_orientation")
    {
       p = parse_vec3(p);
-      auto orientation = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
+      const auto orientation = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
       G_SCENE_INFO.views[FPS_CAM]->Front = orientation;
       player->orientation = orientation;
    }
 }
 
-void parse_and_load_player_attribute(Parser::Parse p, std::ifstream* reader, int& line_count, std::string path, Player* player)
+void parse_and_load_player_attribute(Parser::ParseUnit p, const int& line_count, const std::string& path, Player* player)
 {
    p = parse_token(p);
    std::string attribute = p.string_buffer;
@@ -78,9 +78,9 @@ void parse_and_load_player_attribute(Parser::Parse p, std::ifstream* reader, int
    }
 }
 
-bool load_player_attributes_from_file(std::string scene_name, Player* player)
+bool load_player_attributes_from_file(const std::string& scene_name, Player* player)
 {
-   std::string path = SCENES_FOLDER_PATH + scene_name + ".txt";
+   const std::string path = SCENES_FOLDER_PATH + scene_name + ".txt";
    std::ifstream reader(path);
 
    if(!reader.is_open())
@@ -91,7 +91,7 @@ bool load_player_attributes_from_file(std::string scene_name, Player* player)
 
    // starts reading
    std::string line;
-   Parser::Parse p;
+   Parser::ParseUnit p{};
    int line_count = 0;
 
    while(parser_nextline(&reader, &line, &p))
@@ -100,7 +100,7 @@ bool load_player_attributes_from_file(std::string scene_name, Player* player)
       p = parse_symbol(p);
       if(p.cToken == '@')
       {
-         parse_and_load_player_attribute(p, &reader, line_count, path, G_SCENE_INFO.player);
+         parse_and_load_player_attribute(p, &reader, line_count, path, player);
       }
    }
 
