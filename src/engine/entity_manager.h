@@ -5,6 +5,7 @@ struct CollisionMesh;
 struct EntityPool;
 struct GlobalSceneInfo;
 struct EntityPool;
+struct Texture;
 
 extern GlobalSceneInfo G_SCENE_INFO;
 

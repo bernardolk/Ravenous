@@ -77,33 +77,3 @@ void parse_and_load_player_attribute(Parser::ParseUnit p, const int& line_count,
       std::cout << "UNRECOGNIZED ATTRIBUTE AT SCENE DESCRIPTION FILE ('" << path << "') LINE NUMBER " << line_count << "\n";
    }
 }
-
-bool load_player_attributes_from_file(const std::string& scene_name, Player* player)
-{
-   const std::string path = SCENES_FOLDER_PATH + scene_name + ".txt";
-   std::ifstream reader(path);
-
-   if(!reader.is_open())
-   {
-      std::cout << "WARNING: Loading player attributes from file failed.\n";
-      return false;
-   }
-
-   // starts reading
-   std::string line;
-   Parser::ParseUnit p{};
-   int line_count = 0;
-
-   while(parser_nextline(&reader, &line, &p))
-   {
-      line_count++;
-      p = parse_symbol(p);
-      if(p.cToken == '@')
-      {
-         parse_and_load_player_attribute(p, &reader, line_count, path, player);
-      }
-   }
-
-   reader.close();
-   return true;
-}

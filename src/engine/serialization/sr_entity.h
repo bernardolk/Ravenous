@@ -2,11 +2,8 @@
 
 struct EntityManager;
 struct Entity;
-
-namespace Parser
-{
-    struct ParseUnit;
-}
+struct Parser;
+struct World;
 
 enum SrEntityRelation {
     SrEntityRelation_TimerTarget    = 0,
@@ -25,9 +22,10 @@ struct DeferredEntityRelationBuffer {
 
 struct EntitySerializer
 {
-    EntityManager&                  manager;
-    DeferredEntityRelationBuffer    relations;
-    
-    void parse(Parser::ParseUnit p) const;
-    void save(Entity& entity) const;
+   static         EntityManager&                 manager;
+   inline static  DeferredEntityRelationBuffer   relations{};
+
+   static void parse(Parser& parser);
+   static void save(Entity& entity);
+   static void _clear_buffer();
 };

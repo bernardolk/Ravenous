@@ -1,6 +1,5 @@
 #pragma once
 
-const std::string  SrLoadEntity_TypeNotSetErrorMsg = "Need to load entity type before loading type-specific data.";
 
 Entity* parse_and_load_entity(
    Parser::ParseUnit p, 
@@ -14,19 +13,19 @@ Entity* parse_and_load_entity(
    bool type_set = false;
 
    auto new_entity = Entity_Manager.create_entity({});
-   p = parse_name(p);
+   p.parse_name();
    new_entity->name = p.string_buffer;
 
    while(parser_nextline(reader, &line, &p))
    {
       line_count ++;
-      p = parse_token(p);
+      p.parse_token();
       const std::string  property = p.string_buffer;
 
       if(property == "id")
       {
-         p = parse_all_whitespace(p);
-         p = parse_u64(p);
+         p.parse_all_whitespace();
+         p.parse_u64();
          new_entity->id = p.u64Token;
 
          if(Max_Entity_Id < p.u64Token)
@@ -35,19 +34,19 @@ Entity* parse_and_load_entity(
 
       else if(property == "position")
       {
-         p = parse_vec3(p);
+         p.parse_vec3();
          new_entity->position = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
       }
 
       else if(property == "rotation")
       {
-         p = parse_vec3(p);
+         p.parse_vec3();
          new_entity->rotation = vec3(p.vec3[0],p.vec3[1],p.vec3[2]);
       }
 
       else if(property == "scale")
       {
-         p = parse_vec3(p);
+         p.parse_vec3();
          if(p.vec3[0] < 0 || p.vec3[1] < 0 || p.vec3[2] < 0)
          {
             std::cout << "FATAL: ENTITY SCALE PROPERTY CANNOT BE NEGATIVE. AT '" << path
@@ -59,8 +58,8 @@ Entity* parse_and_load_entity(
       else if(property == "shader")
       {
          std::string shader_name;
-         p = parse_all_whitespace(p);
-         p = parse_token(p);
+         p.parse_all_whitespace();
+         p.parse_token();
          shader_name = p.string_buffer;
 
          auto find = Shader_Catalogue.find(shader_name);
@@ -71,8 +70,8 @@ Entity* parse_and_load_entity(
                new_entity->flags |= EntityFlags_RenderTiledTexture;
                For(6)
                {
-                  p = parse_all_whitespace(p);
-                  p = parse_int(p);
+                  p.parse_all_whitespace();
+                  p.parse_int();
                   if(!p.hasToken)
                      Quit_fatal("Scene description contain an entity with box tiled shader without full tile quantity description.");
 
@@ -91,8 +90,8 @@ Entity* parse_and_load_entity(
       else if(property == "mesh")
       {
          std::string model_name;
-         p = parse_all_whitespace(p);
-         p = parse_token(p);
+         p.parse_all_whitespace();
+         p.parse_token();
          model_name = p.string_buffer;
          
          auto find_mesh = Geometry_Catalogue.find(model_name);
@@ -113,12 +112,12 @@ Entity* parse_and_load_entity(
       {
          // @TODO def_2 is unnecessary now. After scene files don't contain it anymore, lets drop support.
          std::string texture_def_1, texture_def_2;
-         p = parse_all_whitespace(p);
-         p = parse_token(p);
+         p.parse_all_whitespace();
+         p.parse_token();
          texture_def_1 = p.string_buffer;
 
-         p = parse_all_whitespace(p);
-         p = parse_token(p);
+         p.parse_all_whitespace();
+         p.parse_token();
          texture_def_2 = p.string_buffer;
 
          // > texture definition error handling
@@ -159,8 +158,8 @@ Entity* parse_and_load_entity(
 
       else if(property == "type")
       {
-         p = parse_all_whitespace(p);
-         p = parse_token(p);
+         p.parse_all_whitespace();
+         p.parse_token();
          std::string entity_type = p.string_buffer;
 
          if (entity_type == SrStr_EntityType_Static)
@@ -192,8 +191,8 @@ Entity* parse_and_load_entity(
       {
          if(!type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
-         p = parse_all_whitespace(p);
-         p = parse_u64(p);
+         p.parse_all_whitespace();
+         p.parse_u64();
          auto timer_target_id = p.u64Token;
 
          int i                                     = entity_relations->count;
@@ -207,8 +206,8 @@ Entity* parse_and_load_entity(
       {
          if(!type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
-         p = parse_all_whitespace(p);
-         p = parse_float(p);
+         p.parse_all_whitespace();
+         p.parse_float();
          new_entity->timer_trigger_data.timer_duration = p.fToken;
       }
 
@@ -216,8 +215,8 @@ Entity* parse_and_load_entity(
       {
          if(!type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
-         p = parse_all_whitespace(p);
-         p = parse_uint(p);
+         p.parse_all_whitespace();
+         p.parse_uint();
          auto tt_type = (EntityTimerTargetType) p.uiToken;
          new_entity->timer_target_data.timer_target_type = tt_type;
       }
@@ -226,8 +225,8 @@ Entity* parse_and_load_entity(
       {
          if(!type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
-         p = parse_all_whitespace(p);
-         p = parse_uint(p);
+         p.parse_all_whitespace();
+         p.parse_uint();
 
          auto tsa = p.uiToken;
          new_entity->timer_target_data.timer_start_animation = tsa;
@@ -237,8 +236,8 @@ Entity* parse_and_load_entity(
       {
          if(!type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
-         p = parse_all_whitespace(p);
-         p = parse_uint(p);
+         p.parse_all_whitespace();
+         p.parse_uint();
 
          auto tsa = p.uiToken;
          new_entity->timer_target_data.timer_stop_animation = tsa;
@@ -248,12 +247,12 @@ Entity* parse_and_load_entity(
       {
          if(!type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
-         p = parse_all_whitespace(p);
-         p = parse_uint(p);
+         p.parse_all_whitespace();
+         p.parse_uint();
          auto marking_id = p.uiToken;
 
-         p = parse_all_whitespace(p);
-         p = parse_uint(p);
+         p.parse_all_whitespace();
+         p.parse_uint();
          auto marking_time_checkpoint = p.uiToken;
 
          int i                                     = entity_relations->count;
@@ -266,13 +265,13 @@ Entity* parse_and_load_entity(
 
       else if(property == "timer_marking_color_on")
       {
-         p = parse_vec3(p);
+         p.parse_vec3();
          new_entity->timer_marking_data.color_on = p.get_vec3_val();
       }
 
       else if(property == "timer_marking_color_off")
       {
-         p = parse_vec3(p);
+         p.parse_vec3();
          new_entity->timer_marking_data.color_off = p.get_vec3_val();
       }
 
@@ -280,7 +279,7 @@ Entity* parse_and_load_entity(
 
       else if(property == "trigger")
       {
-         p = parse_vec3(p);
+         p.parse_vec3();
          new_entity->trigger_scale = p.get_vec3_val();
       }
 

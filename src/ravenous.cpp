@@ -103,7 +103,6 @@ ProgramConfig G_CONFIG;
 #include <entity_state.h>
 #include <player.h>
 #include <engine/camera.h>
-#include <engine/parser.h>
 #include <engine/collision/raycast.h>
 #include <engine/world/world.h>
 #include <input_recorder.h>
@@ -145,10 +144,11 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <gp_game_state.h>
 #include <gp_update.h>
 
-#include <engine/serialization/sr_common.h>
-#include <engine/serialization/sr_save_scene.h>
-#include <engine/serialization/sr_save_configs.h>
-#include <engine/serialization/sr_load_scene.h>
+#include <engine/serialization/sr_config.h>
+#include <engine/serialization/sr_light.h>
+#include <engine/serialization/sr_player.h>
+#include <engine/serialization/sr_entity.h>
+#include <engine/serialization/sr_world.h>
 #include <console.h>
 #include <in_handlers.h>
 
@@ -229,6 +229,20 @@ int main()
     Entity_Manager.set_checkpoints_registry(&world.checkpoints);
     Entity_Manager.set_interactables_registry(&world.interactables);
 
+   // initialize serializers
+
+   //@TODO: This here is not working because EntityManager copy constructor was deleted. This is an issue
+   //    with using references it seems? A pointer would never complain about this. I should dig into this.
+   //    If I have to start writing extra code to use references then I can't justify using them.
+   WorldSerializer::world     = world;
+   WorldSerializer::manager   = Entity_Manager;
+   PlayerSerializer::world    = world;
+   PlayerSerializer::manager  = Entity_Manager;
+   LightSerializer::world     = world;
+   LightSerializer::manager   = Entity_Manager;
+   EntitySerializer::manager  = Entity_Manager;
+   ConfigSerializer::config   = G_SCENE_INFO;
+
    // INITIAL GLFW AND GLAD SETUPS
    setup_GLFW(true);
    setup_gl();
@@ -262,8 +276,8 @@ int main()
 
 
    // loads initial scene
-   G_CONFIG = load_configs();
-   load_scene_from_file(G_CONFIG.initial_scene, &world);
+   G_CONFIG = ConfigSerializer::load_configs();
+   WorldSerializer::load_from_file(G_CONFIG.initial_scene);
    Player* player = G_SCENE_INFO.player;
    world.player = player;
    player->checkpoint_pos = player->entity_ptr->position;   // set player initial checkpoint position

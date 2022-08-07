@@ -1,28 +1,12 @@
-
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <iostream>
+#include <rvn_macros.h>
+#include <engine/core/rvn_types.h>
+#include <engine/logging.h>
 #include <engine/serialization/parsing/parser.h>
-
-
-glm::vec3 Parser::get_vec3_val() const
-{
-	_check_has_val_error();
-	return glm::vec3{p.vec3[0], p.vec3[1], p.vec3[2]};
-}
-
-glm::vec2 Parser::get_vec2_val() const
-{
-    _check_has_val_error();
-    return glm::vec2{p.vec2[0], p.vec2[1]};
-}
-
-void Parser::_check_has_val_error() const
-{
-    if(p.hasToken == 0)
-    {
-        std::cout << "FATAL: Parse has no vec3 value to be retrieved. Check line being parsed.\n";
-        assert(false);
-    }
-}
-
 
 bool Parser::next_line()
 {
@@ -30,11 +14,17 @@ bool Parser::next_line()
 	std::string line;
 	if(getline(reader, line))
 	{
-		p.string	= line.c_str();
+		p.string		= line.c_str();
 		p.size		= line.size();
+		line_count++;
 		return true;
 	}
 	return false;
+}
+
+bool Parser::has_token() const
+{
+	return p.hasToken;
 }
 
 
@@ -83,7 +73,6 @@ void Parser::parse_symbol()
 	}
 }
 
-
 void Parser::parse_name_char()
 {
 	// parses letters, digits, space or underline character
@@ -97,7 +86,6 @@ void Parser::parse_name_char()
 		p.hasToken = 1;
 	}
 }
-
 
 void Parser::parse_name()
 {
@@ -116,7 +104,6 @@ void Parser::parse_name()
 	strcpy_s(p.string_buffer, &string_buffer[0]);
 }
 
-
 void Parser::parse_token_char()
 {
 	// parses chars for tokens (without spaces)
@@ -130,7 +117,6 @@ void Parser::parse_token_char()
 		p.hasToken = 1;
 	}
 }
-
 
 void Parser::parse_token()
 {
@@ -148,7 +134,6 @@ void Parser::parse_token()
 	if(sb_size > 0) p.hasToken = 1;
 	strcpy_s(p.string_buffer, &string_buffer[0]);
 }
-
 
 void Parser::parse_int() 
 {
@@ -178,7 +163,6 @@ void Parser::parse_int()
 	}
 }
 
-
 void Parser::parse_uint() 
 {
 	_clear_parse_buffer();
@@ -198,7 +182,6 @@ void Parser::parse_uint()
 		p.hasToken = 1;
 	}
 }
-
 
 void Parser::parse_u64() 
 {
@@ -220,7 +203,6 @@ void Parser::parse_u64()
 	}
 }
 
-
 void Parser::parse_float() 
 {
 	_clear_parse_buffer();
@@ -229,42 +211,41 @@ void Parser::parse_float()
 	float sign = 1.f;
 
 	if (p.string[0] == '-') 
-   {
+	{
 		p.advance_char();
 		sign = -1.f;
 	}
-	if (isdigit(p.string[0])) 
-   {
-	   int count = 0;
-	   int fcount = 0;
-	   char float_buf[10];
-		do{
-			int_buf[count++] = p.string[0];
-			p.advance_char();
-		} while (isdigit(p.string[0])); 
 
-		if(p.string[0] == '.')
+	int count = 0;
+	int fcount = 0;
+	char float_buf[10];
+	while (isdigit(p.string[0]))
+	{
+		int_buf[count++] = p.string[0];
+		p.advance_char();
+	} ; 
+
+	if(p.string[0] == '.')
+	{
+		p.advance_char();
+		while (isdigit(p.string[0]))
 		{
+			float_buf[fcount++] = p.string[0];
 			p.advance_char();
-			while (isdigit(p.string[0]))
-			{
-				float_buf[fcount++] = p.string[0];
-				p.advance_char();
-			}; 
-		}
-
-		//@TODO: We are losing precision here. Investigate at some point.
-		for(int i = 0; i < count; i ++) 
-			p.fToken += (int_buf[count - 1] - '0') * ten_powers[i];
-		
-		for(int i = 0; i < fcount; i ++) 
-			p.fToken += (float_buf[i] - '0') * ten_inverse_powers[i];
-		
-		p.fToken *= sign;
-		p.hasToken = 1;
+		}; 
 	}
-}
 
+	//@TODO: We are losing precision here. Investigate at some point.
+	for(int i = 0; i < count; i ++) 
+		p.fToken += (int_buf[count - 1] - '0') * ten_powers[i];
+	
+	for(int i = 0; i < fcount; i ++) 
+		p.fToken += (float_buf[i] - '0') * ten_inverse_powers[i];
+	
+	p.fToken *= sign;
+	p.hasToken = 1;
+	
+}
 
 void Parser::parse_vec3()
 {
@@ -289,7 +270,6 @@ void Parser::parse_vec3()
 	p.vec3[1] = y;
 	p.vec3[2] = z;
 }
-
 
 void Parser::parse_vec2()
 {
