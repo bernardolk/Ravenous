@@ -23,7 +23,7 @@ enum EdToolCallback {
 
 struct EdToolCallbackArgs {
    Entity* entity;
-   union {e
+   union {
       EntityType entity_type;
    };
 };

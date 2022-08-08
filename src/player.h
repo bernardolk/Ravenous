@@ -1,5 +1,7 @@
 #pragma once
 
+#include "engine/entity.h"
+
 enum PlayerState {
    PLAYER_STATE_FALLING,
    PLAYER_STATE_STANDING,

@@ -234,14 +234,12 @@ int main()
    //@TODO: This here is not working because EntityManager copy constructor was deleted. This is an issue
    //    with using references it seems? A pointer would never complain about this. I should dig into this.
    //    If I have to start writing extra code to use references then I can't justify using them.
-   WorldSerializer::world     = world;
-   WorldSerializer::manager   = Entity_Manager;
-   PlayerSerializer::world    = world;
-   PlayerSerializer::manager  = Entity_Manager;
-   LightSerializer::world     = world;
-   LightSerializer::manager   = Entity_Manager;
-   EntitySerializer::manager  = Entity_Manager;
-   ConfigSerializer::config   = G_SCENE_INFO;
+   WorldSerializer::world           = &world;
+   WorldSerializer::manager         = &Entity_Manager;
+   PlayerSerializer::world          = &world;
+   LightSerializer::world           = &world;
+   EntitySerializer::manager        = &Entity_Manager;
+   ConfigSerializer::scene_info     = &G_SCENE_INFO;
 
    // INITIAL GLFW AND GLAD SETUPS
    setup_GLFW(true);

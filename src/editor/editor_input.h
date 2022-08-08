@@ -19,10 +19,10 @@ void handle_input_flags(InputFlags flags, Player* &player, World* world, Camera*
    {
       // save scene
       player->checkpoint_pos = player->entity_ptr->position;
-      save_scene_to_file("", player, world, false);
+      WorldSerializer::save_to_file();
       // set scene
       G_CONFIG.initial_scene = G_SCENE_INFO.scene_name;
-      save_configs_to_file();
+      ConfigSerializer::save(G_CONFIG);
       RVN::rm_buffer->add("world state saved", 1200);
       return;
    }

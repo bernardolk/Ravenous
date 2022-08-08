@@ -1,7 +1,8 @@
 #pragma once
+#include "engine/serialization/parsing/parser.h"
 
 void handle_console_input(InputFlags flags, Player* &player, World* world, Camera* camera);
-void execute_command(std::string buffer_line, Player* &player, World* world, Camera* camera);
+void execute_command(const std::string& buffer_line, Player* &player, World* world, Camera* camera);
 void check_letter_key_presses(InputFlags flags);
 void clear_console_string_buffer();
 void render_console();
@@ -15,14 +16,14 @@ void copy_buffer_to_scratch_buffer();
 void clear_scratch_buffer();
 
 struct GlobalConsoleState {
-   u16 buffer_capacity = 20;
-   const static u16 max_chars = 50;
-   char** buffers;
-   u16 b_ind = 0;
-   u16 current_buffer_size = 0;
-   u16 buffer_size_incr = 1;
-   char scratch_buffer[max_chars];
-   u16 c_ind = 0;
+   u16 buffer_capacity                 = 20;
+   constexpr static u16 max_chars      = 50;
+   char** buffers;   
+   u16 b_ind                           = 0;
+   u16 current_buffer_size             = 0;
+   u16 buffer_size_incr                = 1;
+   char scratch_buffer[max_chars];  
+   u16 c_ind                           = 0;
 } inline CONSOLE;
 
 void initialize_console_buffers()
@@ -142,21 +143,21 @@ void clear_scratch_buffer()
    CONSOLE.c_ind = 0;
 }
 
-void execute_command(std::string buffer_line, Player* &player, World* world, Camera* camera)
+void execute_command(const std::string& buffer_line, Player* &player, World* world, Camera* camera)
 {
-   Parser::ParseUnit p {buffer_line.c_str(), 50};
-   p = parse_token(p);
-   const std::string command = p.string_buffer;
+   Parser p{buffer_line, 50};
+   p.parse_token();
+   const std::string command = get_parsed<std::string>(p);
 
    // ---------------
    // 'SAVE' COMMAND
    // ---------------
    if(command == "save")
    {
-      p = parse_whitespace(p);
-      p = parse_token(p);
-      const std::string argument = p.string_buffer;
-      save_scene_to_file(argument, player, world, false);
+      p.parse_whitespace();
+      p.parse_token();
+      const std::string argument = get_parsed<std::string>(p);
+      WorldSerializer::save_to_file(argument, false);
    }
 
    // ---------------
@@ -165,10 +166,10 @@ void execute_command(std::string buffer_line, Player* &player, World* world, Cam
    else if(command == "copy")
    {
       // if you dont want to switch to the new file when saving scene with a new name
-      p = parse_whitespace(p);
-      p = parse_token(p);
-      const std::string scene_name = p.string_buffer;
-      save_scene_to_file(scene_name, player, world, true);
+      p.parse_whitespace();
+      p.parse_token();
+      const std::string scene_name = get_parsed<std::string>(p);
+      WorldSerializer::save_to_file(scene_name, true);
    }
 
    // ---------------
@@ -176,18 +177,18 @@ void execute_command(std::string buffer_line, Player* &player, World* world, Cam
    // ---------------
    else if(command == "load")
    {
-      p = parse_whitespace(p);
-      p = parse_token(p);
-      const std::string scene_name = p.string_buffer;
+      p.parse_whitespace();
+      p.parse_token();
+      const std::string scene_name = get_parsed<std::string>(p);
       // updates scene with new one
-      if(load_scene_from_file(scene_name, world))
+      if(WorldSerializer::load_from_file(scene_name))
       {
          player = G_SCENE_INFO.player; // not irrelevant! do not delete
          if(PROGRAM_MODE.last == EDITOR_MODE)
             player->entity_ptr->flags &= ~EntityFlags_InvisibleEntity;
          else
             player->entity_ptr->flags |= EntityFlags_InvisibleEntity;
-         G_CONFIG = load_configs();
+         G_CONFIG = ConfigSerializer::load_configs();
          G_SCENE_INFO.active_scene->load_configs(G_CONFIG);
       }
    }
@@ -197,28 +198,28 @@ void execute_command(std::string buffer_line, Player* &player, World* world, Cam
    // --------------
    else if(command == "new")
    {
-      p = parse_whitespace(p);
-      p = parse_token(p);
-      const std::string scene_name = p.string_buffer;
+      p.parse_whitespace();
+      p.parse_token();
+      const std::string scene_name = get_parsed<std::string>(p);
       if(scene_name != "")
       {
          auto current_scene = G_SCENE_INFO.scene_name;
-         if(check_if_scene_exists(scene_name))
+         if(WorldSerializer::check_if_scene_exists(scene_name))
          {
             RVN::rm_buffer->add("Scene name already exists.", 3000);
             return;
          }
 
-         if(!load_scene_from_file(SCENE_TEMPLATE_FILENAME, world))
+         if(!WorldSerializer::load_from_file(SCENE_TEMPLATE_FILENAME))
          {
             RVN::rm_buffer->add("Scene template not found.", 3000);
             return;
          }
 
-         if(!save_scene_to_file(scene_name, player, world, false))
+         if(!WorldSerializer::save_to_file(scene_name, false))
          {
             // if couldnt save copy of template, falls back, so we dont edit the template by mistake
-            if(load_scene_from_file(current_scene, world))
+            if(WorldSerializer::load_from_file(current_scene))
             {
                assert(false);    // if this happens, weird!
             }
@@ -243,22 +244,22 @@ void execute_command(std::string buffer_line, Player* &player, World* world, Cam
    // --------------
    else if(command == "set")
    {
-      p = parse_whitespace(p);
-      p = parse_token(p);
-      const std::string argument = p.string_buffer;
+      p.parse_whitespace();
+      p.parse_token();
+      const std::string argument = get_parsed<std::string>(p);
       if(argument == "scene")
       {
          G_CONFIG.initial_scene = G_SCENE_INFO.scene_name;
-         save_configs_to_file();
+         ConfigSerializer::save(G_CONFIG);
       }
       else if(argument == "all")
       {
          // save scene
          player->checkpoint_pos = player->entity_ptr->position;
-         save_scene_to_file("", player, world, false);
+         WorldSerializer::save_to_file();
          // set scene
          G_CONFIG.initial_scene = G_SCENE_INFO.scene_name;
-         save_configs_to_file();
+         ConfigSerializer::save(G_CONFIG);
       }
       else std::cout << "you can set 'scene' or 'all'. dude. " << command << " won't work.\n";
    }
@@ -268,7 +269,7 @@ void execute_command(std::string buffer_line, Player* &player, World* world, Cam
    // -----------------
    else if(command == "reload")
    {
-      if(load_scene_from_file(G_SCENE_INFO.scene_name, world))
+      if(WorldSerializer::load_from_file(G_SCENE_INFO.scene_name))
       {
          player = G_SCENE_INFO.player; // not irrelevant! do not delete
          
@@ -277,7 +278,7 @@ void execute_command(std::string buffer_line, Player* &player, World* world, Cam
          else
             player->entity_ptr->flags |= EntityFlags_InvisibleEntity;
 
-         G_CONFIG = load_configs();
+         G_CONFIG = ConfigSerializer::load_configs();
          G_SCENE_INFO.active_scene->load_configs(G_CONFIG);
          G_INPUT_INFO.block_mouse_move = false;
       }
@@ -304,21 +305,16 @@ void execute_command(std::string buffer_line, Player* &player, World* world, Cam
    // ---------------
    else if(command == "move")
    {
-      p = parse_whitespace(p);
-      p = parse_token(p);
-      const std::string argument = p.string_buffer;
+      p.parse_whitespace();
+      p.parse_token();
+      const std::string argument = get_parsed<std::string>(p);
       if(argument == "cam")
       {
-         p = parse_vec3(p);
-         camera->Position.x = p.vec3[0];
-         camera->Position.y = p.vec3[1];
-         camera->Position.z = p.vec3[2];
+         p.parse_vec3();
+         camera->Position = get_parsed<glm::vec3>(p);
       }
-      else std::cout << "you can move cam only at the moment dude. I don't know what '" 
-         << command << " " << argument << "' means man.\n";
-      
+      else std::cout << "you can move cam only at the moment dude. I don't know what '" << command << " " << argument << "' means man.\n";
    }
-
    else std::cout << "what do you mean with " << command << " man?\n";
 }
 
@@ -332,7 +328,7 @@ void handle_console_input(InputFlags flags, Player* &player, World* world, Camer
          quit_console_mode();
          return;
       }
-      auto buffer_line = commit_buffer();
+      const auto buffer_line = commit_buffer();
       execute_command(buffer_line, player, world, camera);
       quit_console_mode();
    }

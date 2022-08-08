@@ -1,5 +1,7 @@
 #pragma once
 
+#include <engine/lights.h>
+
 struct ProgramConfig;
 
 struct Scene {

@@ -7,7 +7,7 @@
 #include <map>
 #include <engine/core/rvn_types.h>
 #include <engine/rvn.h>
-#include <engine/parser.h>
+#include <engine/serialization/parsing/parser.h>
 #include <engine/logging.h>
 #include <engine/shader.h>
 
@@ -112,7 +112,7 @@ Shader* create_shader_program(
 
    // OPTIONAL SHADERS
    bool build_geometry_shader = geometry_shader_filename != "";
-   int optional_shaders[5];
+   u32 optional_shaders[5];
    int optional_shaders_count = 0;
 
    bool problem = false;
@@ -247,52 +247,45 @@ void initialize_shaders()
    /* Parses shader program info from programs file, assembles each shader program and stores them into the
       shaders catalogue. */
       
-   std::ifstream programs_file(SHADERS_FOLDER_PATH + "programs.csv");
-   if(!programs_file.is_open())
-     Quit_fatal("Couldn't open shader programs file.");
-
-   std::string line;
+   Parser p{SHADERS_FOLDER_PATH + "programs.csv"};
 
    // discard header
-   getline(programs_file, line);
-
-   int count_line = 1;
-   while(getline(programs_file, line))
+   p.next_line();
+   
+   while(p.next_line())
    {
-      count_line++;
       bool error = false, missing_comma = false, has_geometry_shader = false;
-      Parser::ParseUnit p { line.c_str(), line.size() };
 
-      p = parse_token(p);
-      if(!p.hasToken) error = true;
-      std::string shader_name = p.string_buffer;
+      p.parse_token();
+      if(!p.has_token()) error = true;
+      const auto shader_name = get_parsed<std::string>(p);
 
-      p = parse_all_whitespace(p);
-      p = parse_symbol(p);
-      if(!p.hasToken) missing_comma = true;
+      p.parse_all_whitespace();
+      p.parse_symbol();
+      if(!p.has_token()) missing_comma = true;
 
-      p = parse_all_whitespace(p);
-      p = parse_token(p);
-      if(!p.hasToken) error = true;
-      std::string vertex_shader_name = p.string_buffer;
+      p.parse_all_whitespace();
+      p.parse_token();
+      if(!p.has_token()) error = true;
+      const auto vertex_shader_name = get_parsed<std::string>(p);
 
-      p = parse_all_whitespace(p);
-      p = parse_symbol(p);
-      if(!p.hasToken) missing_comma = true;
+      p.parse_all_whitespace();
+      p.parse_symbol();
+      if(!p.has_token()) missing_comma = true;
 
-      p = parse_all_whitespace(p);
-      p = parse_token(p);
-      if(p.hasToken) has_geometry_shader = true;
-      std::string geometry_shader_name = p.string_buffer;
+      p.parse_all_whitespace();
+      p.parse_token();
+      if(p.has_token()) has_geometry_shader = true;
+      const auto geometry_shader_name = get_parsed<std::string>(p);
 
-      p = parse_all_whitespace(p);
-      p = parse_symbol(p);
-      if(!p.hasToken) missing_comma = true;
+      p.parse_all_whitespace();
+      p.parse_symbol();
+      if(!p.has_token()) missing_comma = true;
 
-      p = parse_all_whitespace(p);
-      p = parse_token(p);
-      if(!p.hasToken) error = true;
-      std::string fragment_shader_name = p.string_buffer;
+      p.parse_all_whitespace();
+      p.parse_token();
+      if(!p.has_token()) error = true;
+      const auto fragment_shader_name = get_parsed<std::string>(p);
 
       // load shaders code and mounts program from parsed shader attributes
       Shader* shader;
@@ -304,12 +297,10 @@ void initialize_shaders()
       Shader_Catalogue.insert({shader->name, shader});
 
       if(error)
-         Quit_fatal("Error in shader programs file definition. Couldn't parse line " + std::to_string(count_line) + ".");
+         Quit_fatal("Error in shader programs file definition. Couldn't parse line " + std::to_string(p.line_count) + ".");
       if(missing_comma)
-         Quit_fatal("Error in shader programs file definition. There is a missing comma in line " + std::to_string(count_line) + ".");
+         Quit_fatal("Error in shader programs file definition. There is a missing comma in line " + std::to_string(p.line_count) + ".");
    }
-
-   programs_file.close();
 
    // setup for text shader
    auto text_shader = Shader_Catalogue.find("text")->second;

@@ -20,7 +20,7 @@ void camera_update_game(Camera* camera, float viewportWidth, float viewportHeigh
    camera->View4x4 = glm::lookAt(camera->Position, camera->Position + camera->Front, camera->Up);
 	camera->Projection4x4 = glm::perspective(
       glm::radians(camera->FOVy), 
-      viewportWidth / viewportHeight, 
+      viewportWidth / viewportHeight,
       camera->NearPlane, camera->FarPlane
    );
    

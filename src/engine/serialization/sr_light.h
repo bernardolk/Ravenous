@@ -7,8 +7,7 @@ struct PointLight;
 
 struct LightSerializer
 {
-   static World&         world;
-   static EntityManager& manager;
+   static inline World* world = nullptr;
 
    static void parse(Parser& p);
    static void _parse_point_light(Parser& p);

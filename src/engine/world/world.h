@@ -1,5 +1,7 @@
 #pragma once
 
+#include "engine/collision/primitives/bounding_box.h"
+
 auto world_coords_to_cells(float x, float y, float z);
 vec3 get_world_coordinates_from_world_cell_coordinates(int i, int j, int k);
 

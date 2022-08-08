@@ -1,19 +1,20 @@
 #pragma once
+#include <fstream>
 
 struct ParseUnit {
-	const char* string				= nullptr;
+	std::string string{};
 	size_t		size					= 0;
 	u8				hasToken				= 0;
 	union
 	{
 		char		string_buffer[50]{};
-		int		iToken{};
-		float		fToken{};
-		char		cToken{};
-		u32		uiToken{};
-		u64		u64Token{};
-		float		vec3[3]{};
-		float		vec2[2]{};
+		int		iToken;
+		float		fToken;
+		char		cToken;
+		u32		uiToken;
+		u64		u64Token;
+		float		vec3[3];
+		float		vec2[2];
 	};
 
 	void advance_char()
@@ -39,6 +40,12 @@ struct Parser
 			std::cout << "Couldn't open file '" + filepath + "', path NOT FOUND \n";
 			assert(false);
 		}
+	}
+
+	Parser(const std::string& text_buffer, const int buffer_size)
+	{
+		this->p.string		= text_buffer.c_str();
+		this->p.size		= buffer_size;
 	}
 
 	bool next_line();
@@ -74,7 +81,13 @@ struct Parser
 template <typename T>
 T get_parsed(Parser& parser)
 {
-	return static_cast<T>(parser.p.string_buffer);
+	return *reinterpret_cast<T*>(&parser.p.iToken);
+}
+
+template <>
+inline std::string get_parsed(Parser& parser)
+{
+	return parser.p.string_buffer;
 }
 
 template <>

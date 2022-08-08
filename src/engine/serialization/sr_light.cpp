@@ -1,13 +1,12 @@
 #include <string>
+#include <vector>
 #include <iostream>
 #include <engine/core/rvn_types.h>
+#include "rvn_macros.h"
 #include <engine/logging.h>
 #include <engine/serialization/sr_entity.h>
 #include <engine/collision/collision_mesh.h>
 #include "engine/entity.h"
-#include <engine/entity_manager.h>
-#include <engine/serialization/sr_common.h>
-#include "rvn_macros.h"
 #include <engine/lights.h>
 #include "engine/world/world.h"
 #include "engine/serialization/parsing/parser.h"
@@ -189,7 +188,7 @@ void LightSerializer::_parse_directional_light(Parser& p)
    world->directional_lights.push_back(&light);
 }
 
-void save(std::ofstream& writer, const PointLight* light)
+void LightSerializer::save(std::ofstream& writer, const PointLight* light)
 {
    writer << "\n$point\n"
            << "position "
@@ -212,7 +211,7 @@ void save(std::ofstream& writer, const PointLight* light)
            << light->intensity_quadratic << "\n";
 }
 
-void save(std::ofstream& writer, const SpotLight* light)
+void LightSerializer::save(std::ofstream& writer, const SpotLight* light)
 {
    writer << "\n$spot\n"
          << "position "
@@ -244,7 +243,7 @@ void save(std::ofstream& writer, const SpotLight* light)
 }
 
 
-void save(std::ofstream& writer, const DirectionalLight* light)
+void LightSerializer::save(std::ofstream& writer, const DirectionalLight* light)
 {
    writer << "\n$directional\n"
          << "direction "

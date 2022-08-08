@@ -1,5 +1,7 @@
 #pragma once
 
+#include "engine/entity_pool.h"
+
 struct World;
 struct CollisionMesh;
 struct EntityPool;
@@ -24,14 +26,9 @@ struct EntityManager
    // ------------------
    // > ENTITY MANAGER
    // ------------------ 
-   u64 next_entity_id = 1;
-   u64 editor_count = 0;
-   EntityPool pool = EntityPool(200);
-
-   Shader*        default_shader;
-   Mesh*          default_mesh;
-   Texture        default_texture;
-   CollisionMesh* default_c_mesh;
+   u64 next_entity_id   = 1;
+   u64 editor_count     = 0;
+   EntityPool pool      = EntityPool(200);
 
    std::vector<Entity*>   deletion_stack;
    std::vector<Entity*>*  entity_registry;

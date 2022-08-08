@@ -1,11 +1,18 @@
 #include <string>
+#include <vector>
+#include <map>
 #include <iostream>
 #include <engine/core/rvn_types.h>
 #include "engine/rvn.h"
+#include <rvn_macros.h>
 #include <engine/logging.h>
 #include <engine/serialization/sr_entity.h>
 #include <engine/collision/collision_mesh.h>
+#include <glm/gtx/quaternion.hpp>
+#include "engine/collision/primitives/bounding_box.h"
+#include "engine/mesh.h"
 #include "engine/entity.h"
+#include "engine/entity_pool.h"
 #include <engine/entity_manager.h>
 #include <engine/serialization/sr_common.h>
 #include "rvn_macros.h"
@@ -75,11 +82,11 @@ void ConfigSerializer::parse_camera_settings(Parser& p)
 {
       p.parse_all_whitespace();
       p.parse_vec3();
-      scene_info.camera->Position = get_parsed<glm::vec3>(p);
+      scene_info->camera->Position = get_parsed<glm::vec3>(p);
 
       p.parse_all_whitespace();
       p.parse_vec3();
-      camera_look_at(scene_info.camera, get_parsed<glm::vec3>(p), false);
+      camera_look_at(scene_info->camera, get_parsed<glm::vec3>(p), false);
 }
 
 

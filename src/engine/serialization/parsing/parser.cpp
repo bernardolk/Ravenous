@@ -10,15 +10,14 @@
 
 bool Parser::next_line()
 {
-	p = ParseUnit{};
-	std::string line;
-	if(getline(reader, line))
+	if(getline(reader, p.string))
 	{
-		p.string		= line.c_str();
-		p.size		= line.size();
+		p.size = p.string.size();
 		line_count++;
 		return true;
 	}
+
+	reader.close();
 	return false;
 }
 
@@ -156,7 +155,7 @@ void Parser::parse_int()
 		} while (isdigit(p.string[0]));
 		
 		for(int i = 0; i < count; i++) 
-			p.iToken += (int_buf[count - 1] - '0') * ten_powers[i];
+			p.iToken += (int_buf[count - (1 + i)] - '0') * ten_powers[i];
 		
 		p.iToken *= sign;
 		p.hasToken = 1;
@@ -177,7 +176,7 @@ void Parser::parse_uint()
 		} while (isdigit(p.string[0]));
 		
 		for(int i = 0; i < count; i++)
-			p.uiToken += (int_buf[count - 1] - '0') * ten_powers[i];
+			p.uiToken += (int_buf[count - (1 + i)] - '0') * ten_powers[i];
 		
 		p.hasToken = 1;
 	}
@@ -197,7 +196,7 @@ void Parser::parse_u64()
 		} while (isdigit(p.string[0]) && count < 15);
 		
 		for(int i = 0; i < count; i++)
-			p.u64Token += (int_buf[count - 1] - '0') * ten_powers[i];
+			p.u64Token += (int_buf[count - (1 + i)] - '0') * ten_powers[i];
 		
 		p.hasToken = 1;
 	}
@@ -223,7 +222,7 @@ void Parser::parse_float()
 	{
 		int_buf[count++] = p.string[0];
 		p.advance_char();
-	} ; 
+	} 
 
 	if(p.string[0] == '.')
 	{
@@ -232,12 +231,12 @@ void Parser::parse_float()
 		{
 			float_buf[fcount++] = p.string[0];
 			p.advance_char();
-		}; 
+		} 
 	}
 
 	//@TODO: We are losing precision here. Investigate at some point.
 	for(int i = 0; i < count; i ++) 
-		p.fToken += (int_buf[count - 1] - '0') * ten_powers[i];
+		p.fToken += (int_buf[count - (1 + i)] - '0') * ten_powers[i];
 	
 	for(int i = 0; i < fcount; i ++) 
 		p.fToken += (float_buf[i] - '0') * ten_inverse_powers[i];

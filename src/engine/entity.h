@@ -1,5 +1,10 @@
 #pragma once
 
+#include "engine/collision/collision_mesh.h"
+#include "engine/mesh.h"
+#include "engine/collision/primitives/bounding_box.h"
+#include <glm/gtx/quaternion.hpp>
+
 // forward declarations
 struct WorldCell;
 struct Shader;
@@ -7,6 +12,7 @@ struct Mesh;
 struct CollisionMesh;
 struct Texture;
 struct Entity;
+struct BoundingBox;
 
 const static size_t ENTITY_WOLRD_CELL_OCCUPATION_LIMIT = 50;
 const static std::string DEFAULT_ENTITY_SHADER = "model";
@@ -96,6 +102,7 @@ struct Entity {
    vec3      velocity        = vec3(0.0f);
    glm::quat quaternion;
 
+   //@TODO: Get rid of collider (and include)
    CollisionMesh* collision_mesh;        // static collision mesh vertex data
    CollisionMesh  collider;              // dynamic collision mesh, obtained by multiplying static collision mesh with model matrix
    BoundingBox    bounding_box;          // computed using the collider mesh, used for fast first pass collision tests

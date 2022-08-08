@@ -12,16 +12,11 @@ inline static u64 Max_Entity_Id = 0;
 
 struct WorldSerializer
 {
-   static World& world;
-   static EntityManager& manager;
-   static GlobalSceneInfo& config;
+   static inline World*          world   = nullptr;
+   static inline EntityManager*  manager = nullptr;
 
-   static bool load_from_file(const std::string& filename);
-   static bool save_to_file(const std::string& filename);
-   
-   static void _parse_entity(Parser& p);
-   static void _parse_light(Parser& p);
-   static void _parse_camera_settings(Parser& p);
-   static void _parse_player_attributes(Parser& p);
-   static void _parse_player_orientation(Parser& p);
+   static bool load_from_file          (const std::string& filename);
+   static bool check_if_scene_exists   (const std::string& scene_name);
+   static bool save_to_file            (const std::string& new_filename, bool do_copy);
+   static bool save_to_file            ();
 };

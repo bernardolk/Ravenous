@@ -22,10 +22,11 @@ struct DeferredEntityRelationBuffer {
 
 struct EntitySerializer
 {
-   static         EntityManager&                 manager;
+   inline static  EntityManager*                 manager = nullptr;
    inline static  DeferredEntityRelationBuffer   relations{};
 
-   static void parse(Parser& parser);
-   static void save(Entity& entity);
+   static void parse (Parser& parser);
+   static void save  (std::ofstream& writer, Entity& entity);
+   
    static void _clear_buffer();
 };

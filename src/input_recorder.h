@@ -3,6 +3,7 @@
 #include <iostream>
 #include <iomanip>
 #include <ctime>
+#include "engine/serialization/parsing/parser.h"
 
 const static int MAX_INPUT_RECORDINGS = 20;
 const std::string RECORDINGS_FILENAME_PREFIX = "rec-";
@@ -30,7 +31,7 @@ struct InputRecorder {
    void record(InputFlags flags)
    {
       recorded_inputs[recording_idx].history.push_back(flags);
-   };
+   }
 
    void stop_recording()
    {
@@ -68,7 +69,7 @@ struct InputRecorder {
          save(recording_idx);
          recording_idx ++;
       }
-   };
+   }
 
    void start_playing(int recording_id)
    {
@@ -86,7 +87,7 @@ struct InputRecorder {
          stop_playing();
 
       return record.history[playing_flag_idx++];
-   };
+   }
 
    void stop_playing()
    {
@@ -135,35 +136,26 @@ struct InputRecorder {
       {
          recording_idx = 0;
 
-         for (int i = 0; i < files.size(); i++)
+         for (auto& file : files)
          {
-            std::ifstream reader(files[i]);
-            if(!reader.is_open())
-            {
-               std::cout << "Could not open recording file '" + files[i] + ".\n";  
-               continue;
-            }
+            Parser p{file};
 
             auto& recording = recorded_inputs[recording_idx].history;
             recording.clear();
-
-            // starts reading
-            std::string line;
-            Parser::ParseUnit p;
-            while(parser_nextline(&reader, &line, &p))
+            
+            while(p.next_line())
             {
-               p = parse_u64(p);
-               u64 key_press = p.u64Token;
+               p.parse_u64();
+               const u64 key_press = get_parsed<u64>(p);
 
-               parser_nextline(&reader, &line, &p);
-               p = parse_u64(p);
-               u64 key_release = p.u64Token;
+               p.next_line();
+               p.parse_u64();
+               const u64 key_release = get_parsed<u64>(p);
 
                recording.push_back(InputFlags{key_press, key_release});
             }
 
             recording_idx++;
-            reader.close();
          }
       }
    }
@@ -183,4 +175,4 @@ struct InputRecorder {
    //    }
    // }
 
-} Input_Recorder;
+} inline Input_Recorder;

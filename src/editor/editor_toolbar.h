@@ -42,7 +42,7 @@ void render_toolbar(World* world)
          G_CONFIG.camspeed             = G_SCENE_INFO.camera->Acceleration;
          G_CONFIG.ambient_intensity    = world->ambient_intensity;
          G_CONFIG.ambient_light        = world->ambient_light;
-         save_configs_to_file();
+         ConfigSerializer::save(G_CONFIG);
       }
 
       ImGui::NewLine();

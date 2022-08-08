@@ -2,6 +2,7 @@
 #include <windows.h>
 
 #define STB_IMAGE_IMPLEMENTATION
+#include <fstream>
 #include <stb_image/stb_image.h>
 
 #include <iomanip>
@@ -23,7 +24,7 @@
 #include <engine/mesh.h>
 #include <engine/collision/collision_mesh.h>
 #include <glad/glad.h>
-#include <engine/parser.h>
+#include <engine/serialization/parsing/parser.h>
 #include <engine/loaders.h>
 
 void load_textures_from_assets_folder()
@@ -76,16 +77,10 @@ Mesh* load_wavefront_obj_as_mesh(
    //    triangle). This means we must use glDrawArrays instead of glDrawElements. One option is to code a custom
    //    exporter in blender to get just unique vertex data + indices, but maybe for now this is enough.
 
-   std::string full_path = path + filename + ".obj";
-	std::ifstream reader(full_path);
+   const auto full_path = path + filename + ".obj";
+	Parser p{full_path};
 
-   if(!reader.is_open())
-   {
-      std::cout << "Fatal: Could not find/open wavefront file at '" << full_path << "'.\n";
-      assert(false);
-   }
-
-	std::string line;
+   // @TODO: use a memory pool
 	auto mesh = new Mesh();
 
    std::vector<vec3> v_pos;
@@ -94,42 +89,37 @@ Mesh* load_wavefront_obj_as_mesh(
    int faces_count = 0;
 
    // Parses file
-	while (getline(reader, line)) 
+	while (p.next_line()) 
    {
-		const char* cline = line.c_str();
-		size_t size = line.size();
+		p.parse_token();
+      const auto attr = get_parsed<std::string>(p);
 
-		Parser::ParseUnit p{ cline, size };
-		p = parse_token(p);
-      std::string attr = p.string_buffer;
-
-      if(!p.hasToken)
+      if(!p.has_token())
          continue;
 
-      // ?
 		if (attr == "m")
       {
-
+		   // ?
 		}
 
       // vertex coordinates
 		else if (attr == "v")
       {
-         p = parse_vec3(p);
-         v_pos.push_back(p.get_vec3_val());
+         p.parse_vec3();
+         v_pos.push_back(get_parsed<glm::vec3>(p));
 		}
 
       // texture coordinates
       else if(attr == "vt")
       {
-         p = parse_vec2(p);
-         v_texels.push_back(p.get_vec2_val());
+         p.parse_vec2();
+         v_texels.push_back(get_parsed<glm::vec2>(p));
       }
 
       else if(attr == "vn")
       {
-         p = parse_vec3(p);
-         v_normals.push_back(p.get_vec3_val());
+         p.parse_vec3();
+         v_normals.push_back(get_parsed<glm::vec3>(p));
       }
 
       // construct faces
@@ -147,36 +137,36 @@ Mesh* load_wavefront_obj_as_mesh(
          while(true)
          {
             Vertex v;
-            p = parse_all_whitespace(p);
+            p.parse_all_whitespace();
 
             // parses vertex index
             {
-               p = parse_uint(p);
-               if(!p.hasToken) break;
+               p.parse_uint();
+               if(!p.has_token()) break;
 
-               u32 index = p.uiToken - 1;
+               u32 index = get_parsed<u32>(p) - 1;
                v.position = v_pos[index];
             }
 
-            p = parse_symbol(p);
-            if(p.hasToken || p.cToken == '/')
+            p.parse_symbol();
+            if(p.has_token() || get_parsed<char>(p) == '/')
             {
                // parses texel index
-               p = parse_uint(p);
-               if(p.hasToken && v_texels.size() > 0)
+               p.parse_uint();
+               if(p.has_token() && !v_texels.empty())
                {
-                  u32 index = p.uiToken - 1;
+                  u32 index = get_parsed<u32>(p) - 1;
                   v.tex_coords = v_texels[index];
                }
 
                // parses normal index
-               p = parse_symbol(p);
-               if(p.hasToken || p.cToken == '/')
+               p.parse_symbol();
+               if(p.has_token() || get_parsed<char>(p) == '/')
                {
-                  p = parse_uint(p);
-                  if(p.hasToken && v_normals.size() > 0)
+                  p.parse_uint();
+                  if(p.has_token() && !v_normals.empty())
                   {
-                     u32 index = p.uiToken - 1;
+                     u32 index = get_parsed<u32>(p) - 1;
                      v.normal = v_normals[index];
                   }
                }
@@ -251,64 +241,53 @@ CollisionMesh* load_wavefront_obj_as_collision_mesh(std::string path, std::strin
 {
    /* Loads a model from the provided path and filename and add it to the Collision_Geometry_Catalogue with provided name */
 
-   std::string full_path = path + filename + ".obj";
-	std::ifstream reader(full_path);
+   const auto full_path = path + filename + ".obj";
+   Parser p{full_path};
 
-   if(!reader.is_open())
-   {
-      std::cout << "Fatal: Could not find/open wavefront file at '" << full_path << "'.\n";
-      assert(false);
-   }
-
-	std::string line;
+   // @TODO: Use a memory pool
 	auto c_mesh = new CollisionMesh();
 
    // Parses file
-	while (getline(reader, line)) 
+	while (p.next_line()) 
    {
-		const char* cline = line.c_str();
-		size_t size = line.size();
+		p.parse_token();
+      const auto attr = get_parsed<std::string>(p);
 
-		Parser::ParseUnit p{ cline, size };
-		p = parse_token(p);
-      std::string attr = p.string_buffer;
-
-      if(!p.hasToken)
-         continue;
+      if(!p.has_token()) continue;
 
       // vertex coordinates
 		if (attr == "v")
       {
-         p = parse_vec3(p);
-         c_mesh->vertices.push_back(p.get_vec3_val());
+         p.parse_vec3();
+         c_mesh->vertices.push_back(get_parsed<glm::vec3>(p));
 		}
 
       // construct faces
       else if (attr == "f")
       {
          int number_of_vertexes_in_face = 0;
-         int index_buffer[4];
+         u32 index_buffer[4];
          // iterate over face's vertices
          while(true)
          {
-            p = parse_all_whitespace(p);
+            p.parse_all_whitespace();
 
             // parses vertex index
             {
-               p = parse_uint(p);
-               if(!p.hasToken) break;
+               p.parse_uint();
+               if(!p.has_token()) break;
 
                // corrects from 1-first-element convention (from .obj file) to 0-first.
-               u32 index = p.uiToken - 1;
+               const u32 index = get_parsed<u32>(p) - 1;
                // c_mesh.index.push_back(index);
                index_buffer[number_of_vertexes_in_face] = index;
             }
 
             // discard remaining face's vertex info
-            p = parse_symbol(p);
-            p = parse_uint(p);
-            p = parse_symbol(p);
-            p = parse_uint(p);
+            p.parse_symbol();
+            p.parse_uint();
+            p.parse_symbol();
+            p.parse_uint();
 
             number_of_vertexes_in_face++;
          }
@@ -330,11 +309,8 @@ CollisionMesh* load_wavefront_obj_as_collision_mesh(std::string path, std::strin
       }
 	}
 
-   std::string       catalogue_name;
-   if (name != "")   catalogue_name = name;
-   else              catalogue_name = filename;
-
    // adds to catalogue
+   const std::string catalogue_name = !name.empty()? name : filename;
    Collision_Geometry_Catalogue.insert({catalogue_name, c_mesh });
 
 	return c_mesh;
@@ -419,7 +395,7 @@ StrVec get_files_in_folder(std::string directory)
 
 void write_mesh_extra_data_file(std::string filename, Mesh* mesh)
 {
-   std::string extra_data_path  = MODELS_PATH + "extra_data/" + filename + ".objplus";
+   const auto extra_data_path  = MODELS_PATH + "extra_data/" + filename + ".objplus";
    std::ofstream writer(extra_data_path);
 
    if(!writer.is_open())
@@ -453,40 +429,31 @@ void write_mesh_extra_data_file(std::string filename, Mesh* mesh)
 
 void load_mesh_extra_data(std::string filename, Mesh* mesh)
 {
-   std::string extra_data_path  = MODELS_PATH + "extra_data/" + filename + ".objplus";
-   
-   std::ifstream reader(extra_data_path);
-   std::string line;
+   const auto extra_data_path  = MODELS_PATH + "extra_data/" + filename + ".objplus";
+   Parser p{extra_data_path};
 
    u32 vtan_i = 0;
    u32 vbitan_i = 0;
-   while(getline(reader, line))
+   while(p.next_line())
    {
-      const char* cline = line.c_str();
-		size_t size = line.size();
-
-		Parser::ParseUnit p{ cline, size };
-      p = parse_token(p);
+      p.parse_token();
       
-      if(!p.hasToken)
-         continue;
+      if(!p.has_token()) continue;
       
-      std::string attr = p.string_buffer;
+      std::string attr = get_parsed<std::string>(p);
 
       if(attr == "vtan")
       {
-         p = parse_vec3(p);
-         mesh->vertices[vtan_i++].tangent = p.get_vec3_val();
+         p.parse_vec3();
+         mesh->vertices[vtan_i++].tangent = get_parsed<glm::vec3>(p);
       }
 
       else if(attr == "vbitan")
       {
-         p = parse_vec3(p);
-         mesh->vertices[vbitan_i++].bitangent = p.get_vec3_val();   
+         p.parse_vec3();
+         mesh->vertices[vbitan_i++].bitangent = get_parsed<glm::vec3>(p);   
       }
    }
-
-   reader.close();
 }
 
 

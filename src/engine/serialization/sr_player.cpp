@@ -1,6 +1,9 @@
 #include <string>
+#include <vector>
 #include <iostream>
+#include <fstream>
 #include <engine/core/rvn_types.h>
+#include <rvn_macros.h>
 #include <engine/logging.h>
 #include <engine/serialization/sr_entity.h>
 #include <engine/collision/collision_mesh.h>
@@ -14,10 +17,9 @@
 #include "engine/serialization/sr_player.h"
 
 
-
 void PlayerSerializer::parse_attribute(Parser& p)
 {
-   Player* player = world.player;
+   Player* player = world->player;
    
    p.parse_token();
    const auto attribute = get_parsed<std::string>(p);
@@ -27,7 +29,7 @@ void PlayerSerializer::parse_attribute(Parser& p)
 
    if(get_parsed<char>(p) != '=')
    {
-      std::cout << "SYNTAX ERROR, MISSING '=' CHARACTER AT SCENE DESCRIPTION FILE ('" << p.filepath << "') LINE NUMBER " << line_count << "\n";
+      std::cout << "SYNTAX ERROR, MISSING '=' CHARACTER AT SCENE DESCRIPTION FILE ('" << p.filepath << "') LINE NUMBER " << p.line_count << "\n";
       assert(false);
    }
 
@@ -70,14 +72,13 @@ void PlayerSerializer::parse_attribute(Parser& p)
    }
    else
    {
-      std::cout << "UNRECOGNIZED ATTRIBUTE AT SCENE DESCRIPTION FILE ('" << p.filepath << "') LINE NUMBER " << line_count << "\n";
+      std::cout << "UNRECOGNIZED ATTRIBUTE AT SCENE DESCRIPTION FILE ('" << p.filepath << "') LINE NUMBER " << p.line_count << "\n";
    }
 }
 
-
 void PlayerSerializer::parse_orientation(Parser& p)
 {
-   Player* player = world.player;
+   Player* player = world->player;
    
    p.parse_token();
    if(get_parsed<std::string>(p) == "player_orientation")
@@ -87,7 +88,7 @@ void PlayerSerializer::parse_orientation(Parser& p)
 
       if(get_parsed<char>(p) != '=')
       {
-         std::cout << "SYNTAX ERROR, MISSING '=' CHARACTER AT SCENE DESCRIPTION FILE ('" << p.filepath << "') LINE NUMBER " << line_count << "\n";
+         std::cout << "SYNTAX ERROR, MISSING '=' CHARACTER AT SCENE DESCRIPTION FILE ('" << p.filepath << "') LINE NUMBER " << p.line_count << "\n";
          assert(false);
       }
 
@@ -97,8 +98,22 @@ void PlayerSerializer::parse_orientation(Parser& p)
    else assert(false);
 }
 
-
-void PlayerSerializer::save()
+void PlayerSerializer::save(std::ofstream& writer)
 {
-      
+   const auto player = world->player;
+   writer << "@player_position = " 
+               << player->entity_ptr->position.x << " " 
+               << player->entity_ptr->position.y << " "
+               << player->entity_ptr->position.z << "\n";
+   writer << "@player_initial_velocity = "
+               << player->initial_velocity.x << " " 
+               << player->initial_velocity.y << " "
+               << player->initial_velocity.z << "\n";
+
+   if(player->player_state == PLAYER_STATE_STANDING)
+      writer << "@player_state = " << PLAYER_STATE_STANDING << "\n"; 
+   else
+      writer << "@player_state = " << player->initial_player_state << "\n"; 
+
+   writer << "@player_fall_acceleration = " << player->fall_acceleration << "\n";
 }
