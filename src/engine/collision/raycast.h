@@ -8,13 +8,13 @@ struct Entity;
 
 struct RaycastTest {
    bool           hit               = false;
-   float          distance;
-   Entity*        entity            = NULL;
+   float          distance          = 0;
+   Entity*        entity            = nullptr;
    int            obj_hit_index     = -1;
-   std::string    obj_hit_type;
-   Ray            ray;
-   Triangle       t;
-   u16            t_index;
+   std::string    obj_hit_type{};
+   Ray            ray{};
+   Triangle       t{};
+   u16            t_index           = 0;
 };
 
 enum RayCastType {

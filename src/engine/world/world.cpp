@@ -37,7 +37,7 @@ void WorldCell::init(int ii, int ji, int ki)
    this->k = ki;
 
    // set physical world coordinates to bounding box
-   vec3 origin = get_world_coordinates_from_world_cell_coordinates(ii, ji, ki);
+   const vec3 origin = get_world_coordinates_from_world_cell_coordinates(ii, ji, ki);
    this->bounding_box.minx = origin.x;
    this->bounding_box.miny = origin.y;
    this->bounding_box.minz = origin.z;
@@ -67,7 +67,7 @@ CellUpdate WorldCell::add(Entity* entity)
 {
    if(count == WORLD_CELL_CAPACITY)
    {
-   std::string message = "World cell '" + this->coords_str() + "' is full.";
+      const auto message = "World cell '" + this->coords_str() + "' is full.";
       return CellUpdate{ CellUpdate_CELL_FULL, message };
    }
 
@@ -133,7 +133,7 @@ void WorldCell::defrag()
 }
 
 
-std::string WorldCell::coords_str()
+std::string WorldCell::coords_str() const
 {
    return "Cell [" + std::to_string(this->i) 
       + "," + std::to_string(this->j) + "," + std::to_string(this->k) 
@@ -141,13 +141,13 @@ std::string WorldCell::coords_str()
 }
 
 
-vec3 WorldCell::coords()
+vec3 WorldCell::coords() const
 {
    return vec3{this->i, this->j, this->k};
 }
 
 
-vec3 WorldCell::coords_meters()
+vec3 WorldCell::coords_meters() const
 {
    return get_world_coordinates_from_world_cell_coordinates(this->i, this->j, this->k);
 }
@@ -184,12 +184,9 @@ void World::update_cells_in_use_list()
    for(int j = 0; j < W_CELLS_NUM_Y; j++)
    for(int k = 0; k < W_CELLS_NUM_Z; k++)
    {
-      auto cell = &this->cells[i][j][k];
+      const auto cell = &this->cells[i][j][k];
       if(cell->count != 0)
-      {
-         cells_in_use[cells_in_use_count] = cell;
-         cells_in_use_count++;
-      }
+         cells_in_use[this->cells_in_use_count++] = cell;
    }
 }
 
@@ -296,24 +293,21 @@ CellUpdate World::update_entity_world_cells(Entity* entity)
 }
 
 
-RaycastTest World::raycast(Ray ray, RayCastType test_type, Entity* skip, float max_distance)
+RaycastTest World::raycast(const Ray ray, const RayCastType test_type, const Entity* skip, const float max_distance) const
 {
-   //@TODO: This should first test ray against world cells, then get the list of 
-   // entities from these world cells to test against 
+   //@TODO: This should first test ray against world cells, then get the list of entities from these world cells to test against 
    
    float min_distance = MAX_FLOAT;
    RaycastTest closest_hit{false, -1};
 
-	for(int i = 0; i < this->entities.size(); i++) 
+	for (const auto entity : this->entities)
    {
-	   auto entity = this->entities[i];
       if(test_type == RayCast_TestOnlyVisibleEntities && entity->flags & EntityFlags_InvisibleEntity)
          continue;
       if(skip != nullptr && entity->id == skip->id)
          continue;
          
-      auto test = test_ray_against_entity(ray, entity, test_type, max_distance);
-
+      const auto test = test_ray_against_entity(ray, entity, test_type, max_distance);
       if(test.hit && test.distance < min_distance && test.distance < max_distance)
       {
          closest_hit = test;
@@ -326,13 +320,13 @@ RaycastTest World::raycast(Ray ray, RayCastType test_type, Entity* skip, float m
 }
 
 
-RaycastTest World::raycast(Ray ray, Entity* skip, float max_distance)
+RaycastTest World::raycast(const Ray ray, const Entity* skip, const float max_distance) const
 {
    return this->raycast(ray, RayCast_TestOnlyFromOutsideIn, skip, max_distance);
 }
 
 
-RaycastTest World::linear_raycast_array(Ray first_ray, int qty, float spacing, Player* player)
+RaycastTest World::linear_raycast_array(const Ray first_ray, int qty, float spacing) const
 {
    /* 
       Casts multiple ray towards the first_ray direction, with dir pointing upwards,
@@ -357,7 +351,7 @@ RaycastTest World::linear_raycast_array(Ray first_ray, int qty, float spacing, P
          }
       }
 
-      ImDraw::add_line(IM_ITERHASH(i), ray.origin, ray.origin + ray.direction * player->grab_reach, 1.2, false, COLOR_GREEN_1);
+      ImDraw::add_line(IM_ITERHASH(i), ray.origin, ray.origin + ray.direction * player->grab_reach, 1.2f, false, COLOR_GREEN_1);
 
       ray = Ray{ ray.origin + UNIT_Y * spacing, ray.direction };
    }
@@ -371,12 +365,12 @@ RaycastTest World::linear_raycast_array(Ray first_ray, int qty, float spacing, P
    return best_hit_results;
 }
 
-RaycastTest World::raycast_lights(Ray ray)
+RaycastTest World::raycast_lights(const Ray ray) const
 {
    float min_distance = MAX_FLOAT;
-   RaycastTest closest_hit{false, -1};
+   RaycastTest closest_hit{.hit = false, .distance = -1};
 
-   auto aabb_mesh       = Geometry_Catalogue.find("aabb")->second;
+   const auto aabb_mesh = Geometry_Catalogue.find("aabb")->second;
 
    int point_c = 0;
 	for (auto& light : this->point_lights)
@@ -403,10 +397,12 @@ RaycastTest World::raycast_lights(Ray ray)
       auto aabb_model   = translate(mat4identity, position);
       aabb_model        = glm::scale(aabb_model, vec3{0.3f, 0.6f, 0.3f});
 
-      auto test = test_ray_against_mesh(ray, aabb_mesh, aabb_model, RayCast_TestBothSidesOfTriangle);
+      const auto test = test_ray_against_mesh(ray, aabb_mesh, aabb_model, RayCast_TestBothSidesOfTriangle);
       if(test.hit && test.distance < min_distance)
       {
-         closest_hit = {true, test.distance, NULL, spot_c, "spot"};
+         closest_hit = {
+            .hit = true, .distance = test.distance, .entity = nullptr, .obj_hit_index = spot_c, .obj_hit_type ="spot"
+         };
          min_distance = test.distance;
       }
       spot_c++;

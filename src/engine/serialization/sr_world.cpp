@@ -126,16 +126,15 @@ bool WorldSerializer::load_from_file(const std::string& filename)
    {
       //@TODO: wtf is going on with 2 entity vars being declared here?
       Entity* entity                = entity_relations.entities[i];
+      Entity* deferred_entity       = nullptr;
       auto relation                 = entity_relations.relations[i];
       auto deferred_entity_id       = entity_relations.deferred_entity_ids[i];
-      Entity* deferred_entity       = nullptr;
-
-      Forj(world->entities.size())
+      
+      for(auto const entity_b: world->entities)
       {  
-         Entity* entity = world->entities[j];
-         if(entity->id == deferred_entity_id)
+         if(entity_b->id == deferred_entity_id)
          {
-            deferred_entity = entity;
+            deferred_entity = entity_b;
             break;
          }
       }

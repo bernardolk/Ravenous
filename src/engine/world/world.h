@@ -41,9 +41,9 @@ enum CellUpdateStatus {
 };
 
 struct CellUpdate {
-   CellUpdateStatus status;
-  std::string message;
-   bool entity_changed_cell;
+   CellUpdateStatus status{};
+   std::string message{};
+   bool entity_changed_cell = false;
 };
 
 struct   Entity;
@@ -68,22 +68,22 @@ struct   EntityManager;
 // So index 0 is at -50 (e.g.) and the cell extends until -40 (when we have length = 10).
 
 struct WorldCell {
-   Entity* entities[WORLD_CELL_CAPACITY];
-   unsigned int count;
+   Entity* entities[WORLD_CELL_CAPACITY]{};
+   unsigned int count = 0;
    
    // logical coords
    int i = -1, j = -1, k = -1;
 
    // world coords / bounding box
-   BoundingBox bounding_box;
+   BoundingBox bounding_box{};
 
    void init(int ii, int ji, int ki);
    void remove(Entity* entity);
    CellUpdate add(Entity* entity);
    void defrag();
-   std::string coords_str();
-   vec3 coords();
-   vec3 coords_meters();
+   std::string coords_str() const;
+   vec3 coords() const;
+   vec3 coords_meters() const;
    std::string coords_meters_str();
 };
 
@@ -93,9 +93,9 @@ struct WorldCell {
 
 inline vec3 get_world_coordinates_from_world_cell_coordinates(int i, int j, int k)
 {
-   float world_x = (i - W_CELLS_OFFSET_X) * W_CELL_LEN_METERS;
-   float world_y = (j - W_CELLS_OFFSET_Y) * W_CELL_LEN_METERS;
-   float world_z = (k - W_CELLS_OFFSET_Z) * W_CELL_LEN_METERS;
+   const float world_x = ((float) i - W_CELLS_OFFSET_X) * W_CELL_LEN_METERS;
+   const float world_y = ((float) j - W_CELLS_OFFSET_Y) * W_CELL_LEN_METERS;
+   const float world_z = ((float) k - W_CELLS_OFFSET_Z) * W_CELL_LEN_METERS;
 
    return vec3{world_x, world_y, world_z};
 }
@@ -104,7 +104,7 @@ inline vec3 get_world_coordinates_from_world_cell_coordinates(int i, int j, int 
 inline auto world_coords_to_cells(float x, float y, float z)
 {
    struct {
-      int i, j, k;
+      int i = -1, j = -1, k = -1;
    } world_cell_coords;
 
    // if out of bounds return -1
@@ -152,7 +152,7 @@ struct World {
    vec3  ambient_light        = vec3(1);
 
    WorldCell      cells[W_CELLS_NUM_X][W_CELLS_NUM_Y][W_CELLS_NUM_Z];
-   WorldCell*     cells_in_use[W_CELLS_NUM_X * W_CELLS_NUM_Y * W_CELLS_NUM_Z];
+   WorldCell*     cells_in_use[W_CELLS_NUM_X * W_CELLS_NUM_Y * W_CELLS_NUM_Z]{};
    int            cells_in_use_count = 0;
 
    // methods
@@ -166,15 +166,15 @@ struct World {
    RaycastTest raycast(
       Ray ray,    
       RayCastType test_type, 
-      Entity* skip            = nullptr, 
+      const Entity* skip      = nullptr, 
       float max_distance      = MAX_FLOAT
-   );
+   ) const;
    RaycastTest raycast(
       Ray ray,    
-      Entity* skip            = nullptr, 
+      const Entity* skip      = nullptr, 
       float max_distance      = MAX_FLOAT
-   );
-   RaycastTest linear_raycast_array       (Ray first_ray, int qty, float spacing, Player* player);
-   RaycastTest raycast_lights             (Ray ray);
+   ) const ;
+   RaycastTest linear_raycast_array       (Ray first_ray, int qty, float spacing) const;
+   RaycastTest raycast_lights             (Ray ray) const;
    CellUpdate update_entity_world_cells   (Entity* entity);
 };
