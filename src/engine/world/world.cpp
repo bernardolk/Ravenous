@@ -440,11 +440,6 @@ void World::clear(const EntityManager* manager)
 
    this->spot_lights.clear();
 
-   for(const auto& light: this->point_lights)
-      delete light;
-
-   this->point_lights.clear();
-
    for(const auto& light: this->directional_lights)
       delete light;
 
@@ -461,4 +456,10 @@ void World::clear(const EntityManager* manager)
       delete checkpoint;
 
    this->checkpoints.clear();
+}
+
+void World::update_entities() const
+{
+   for(const auto& entity : this->entities)
+      entity->update();
 }

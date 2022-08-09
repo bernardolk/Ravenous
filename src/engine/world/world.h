@@ -136,14 +136,16 @@ inline auto world_coords_to_cells(vec3 position)
 // > WORLD
 // ----------------
 struct World {
+
+   // Entities lists
    std::vector<Entity*>             entities;
+   std::vector<Entity*>             interactables;
+   std::vector<Entity*>             checkpoints;
    std::vector<PointLight*>         point_lights;
    std::vector<SpotLight*>          spot_lights;
    std::vector<DirectionalLight*>   directional_lights;
-   std::vector<Entity*>             interactables;
-   std::vector<Entity*>             checkpoints;
 
-   Player* player;
+   Player* player             = nullptr;
 
    float global_shininess     = 17;
    float ambient_intensity    = 0;
@@ -153,25 +155,26 @@ struct World {
    WorldCell*     cells_in_use[W_CELLS_NUM_X * W_CELLS_NUM_Y * W_CELLS_NUM_Z];
    int            cells_in_use_count = 0;
 
-   World                                  ();
-   void        init                       ();
-   void        update_cells_in_use_list   ();
-   CellUpdate  update_entity_world_cells  (Entity* entity);
-   RaycastTest raycast                    (
+   // methods
+   World();
+   
+   void init                              ();
+   void update_cells_in_use_list          ();
+   void update_entities                   () const;
+   void clear                             (const EntityManager* manager);
+   
+   RaycastTest raycast(
       Ray ray,    
       RayCastType test_type, 
       Entity* skip            = nullptr, 
       float max_distance      = MAX_FLOAT
    );
-
-   RaycastTest raycast                    (
+   RaycastTest raycast(
       Ray ray,    
       Entity* skip            = nullptr, 
       float max_distance      = MAX_FLOAT
    );
-
    RaycastTest linear_raycast_array       (Ray first_ray, int qty, float spacing, Player* player);
    RaycastTest raycast_lights             (Ray ray);
-
-   void clear(const EntityManager* manager);
+   CellUpdate update_entity_world_cells   (Entity* entity);
 };

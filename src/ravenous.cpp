@@ -308,9 +308,6 @@ int main()
    //@TODO: better for debugging
    player->entity_ptr->flags |= EntityFlags_RenderWireframe;
 
-   // Does a first update
-   update_scene_objects(&world);
-
 	// MAIN LOOP
 	while (!glfwWindowShouldClose(G_DISPLAY_INFO.window))
 	{
@@ -511,20 +508,6 @@ void check_all_geometry_has_gl_data()
          assert(false);
       }
    }
-}
-
-
-inline void update_scene_objects(World* world) 
-{
-	for (int i = 0; i < world->entities.size(); i++) 
-   {
-      Entity* entity = world->entities[i];
-		// Updates model matrix;	
-		entity->update();
-      // auto[min,max] = entity->bounding_box.bounds();
-      // ImDraw::add_point(IMHASH, min, 3.0, true, vec3(0.964, 0.576, 0.215));
-      // ImDraw::add_point(IMHASH, max, 3.0, true, vec3(0.964, 0.576, 0.215));
-	}
 }
 
 

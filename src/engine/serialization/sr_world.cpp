@@ -182,13 +182,11 @@ bool WorldSerializer::load_from_file(const std::string& filename)
 
    // clear static relations buffer
    EntitySerializer::_clear_buffer();
-   
-   world->update_cells_in_use_list();
 
    G_SCENE_INFO.scene_name = filename;
 
-   // save backup
-   // save_scene_to_file("backup", G_SCENE_INFO.player, world, true);
+   world->update_cells_in_use_list();
+   world->update_entities();
 
    return true;
 }
@@ -201,7 +199,7 @@ bool WorldSerializer::save_to_file()
 
 bool WorldSerializer::save_to_file(const std::string& new_filename, const bool do_copy = false)
 {
-   std::string filename;
+   std::string filename = new_filename;
    if(new_filename.empty())
    {
       filename = G_SCENE_INFO.scene_name;

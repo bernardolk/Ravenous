@@ -129,29 +129,18 @@ void EntitySerializer::parse(Parser& parser)
       
       else if(property == "texture")
       {
-         // @TODO def_2 is unnecessary now. After scene files don't contain it anymore, lets drop support.
-         std::string texture_def_1, texture_def_2;
          p.parse_all_whitespace();
          p.parse_token();
-         texture_def_1 = get_parsed<std::string>(parser);
-
-         p.parse_all_whitespace();
-         p.parse_token();
-         texture_def_2 = get_parsed<std::string>(parser);
-
+         const auto texture_name = get_parsed<std::string>(parser);
+         
          // > texture definition error handling
          // >> check for missing info
-         if(texture_def_1.empty())
+         if(texture_name.empty())
          {
             std::cout << "Fatal: Texture for entity '" << new_entity->name << "' is missing name. \n"; 
             assert(false);
          }
          
-         // @TODO: for backwards compability
-        std::string texture_name = texture_def_1;
-         if(!texture_def_2.empty())
-            texture_name = texture_def_2;
-
          // fetches texture in catalogue
          auto texture = Texture_Catalogue.find(texture_name);
          if(texture == Texture_Catalogue.end())
@@ -160,6 +149,7 @@ void EntitySerializer::parse(Parser& parser)
             assert(false);
          }
 
+         new_entity->textures.clear();
          new_entity->textures.push_back(texture->second);
 
          // fetches texture normal in catalogue, if any
@@ -307,9 +297,6 @@ void EntitySerializer::parse(Parser& parser)
          break;
       }
    }
-
-   // Register entity in world
-   manager->register_in_world_and_scene(new_entity);
 }
 
 void EntitySerializer::save(std::ofstream& writer, Entity& entity)
