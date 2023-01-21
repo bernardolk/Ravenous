@@ -4,16 +4,16 @@
 struct ParseUnit
 {
 	std::string string{};
-	size_t      size = 0;
-	u8          hasToken = 0;
+	size_t size = 0;
+	u8 hasToken = 0;
 	union
 	{
-		char  string_buffer[50]{};
-		int   iToken;
+		char string_buffer[50]{};
+		int iToken;
 		float fToken;
-		char  cToken;
-		u32   uiToken;
-		u64   u64Token;
+		char cToken;
+		u32 uiToken;
+		u64 u64Token;
 		float vec3[3];
 		float vec2[2];
 	};
@@ -27,10 +27,10 @@ struct ParseUnit
 
 struct Parser
 {
-	int           line_count = 0;
+	int line_count = 0;
 	std::ifstream reader;
-	std::string   filepath;
-	ParseUnit     p{};
+	std::string filepath;
+	ParseUnit p{};
 
 	explicit Parser(const std::string& filepath)
 	{
@@ -69,13 +69,13 @@ struct Parser
 	bool has_token() const;
 
 	constexpr static u32 ten_powers[10]{
-		1, 10, 100, 1000, 10000,
-		100000, 1000000, 10000000, 100000000, 1000000000
+	1, 10, 100, 1000, 10000,
+	100000, 1000000, 10000000, 100000000, 1000000000
 	};
 
 	constexpr static float ten_inverse_powers[10]{
-		0.1f, 0.01f, 0.001f, 0.0001f, 0.00001f,
-		0.000001f, 0.0000001f, 0.00000001f, 0.000000001f, 0.0000000001f
+	0.1f, 0.01f, 0.001f, 0.0001f, 0.00001f,
+	0.000001f, 0.0000001f, 0.00000001f, 0.000000001f, 0.0000000001f
 	};
 };
 

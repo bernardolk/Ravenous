@@ -33,10 +33,10 @@ enum PlayerAnimationState
 };
 
 const float PLAYER_ANIMATION_DURATIONS[] = {
-	400,                          // 0 - jumping
-	200,                          // 1 - landing                  
-	400,                          // 2 - landing fall   
-	0                             // 3 - vaulting
+400, // 0 - jumping
+200, // 1 - landing                  
+400, // 2 - landing fall   
+0    // 3 - vaulting
 };
 
 // forward declarations
@@ -65,9 +65,9 @@ struct Player
 	float height = 1.75;
 
 	// movement variables
-	vec3  v_dir = vec3(0.f);          // intended movement direction
-	vec3  v_dir_historic = vec3(0.f);          // last non zero movement direction
-	float speed = 0;                           // accumulated speed scalar
+	vec3 v_dir = vec3(0.f);          // intended movement direction
+	vec3 v_dir_historic = vec3(0.f); // last non zero movement direction
+	float speed = 0;                 // accumulated speed scalar
 
 	// movement constants
 	float acceleration = 7.5;
@@ -84,7 +84,7 @@ struct Player
 	float slide_jump_speed = 6.7;
 	float slide_speed = 2.0;
 	float fall_from_edge_push_speed = 1.5;
-	vec3  gravity = vec3(0, -9.0, 0);
+	vec3 gravity = vec3(0, -9.0, 0);
 
 
 	// movement states
@@ -106,34 +106,34 @@ struct Player
 	vec3 orientation;
 
 	// gameplay system variables
-	vec3    last_terrain_contact_normal = vec3(0, 1.f, 0);
+	vec3 last_terrain_contact_normal = vec3(0, 1.f, 0);
 	Entity* grabbing_entity = nullptr;
-	float   grab_reach = 0.9;         // radius + arms reach, 0.5 + 0.4  
+	float grab_reach = 0.9; // radius + arms reach, 0.5 + 0.4  
 
 	// sliding
 	vec3 sliding_direction = vec3(0);
 	vec3 sliding_normal = vec3(0);
 
 	// health and hurting
-	int   initial_lives = 2;
-	int   lives = 2;
+	int initial_lives = 2;
+	int lives = 2;
 	float hurt_height_1 = 5.0;
 	float hurt_height_2 = 8.0;
 	float height_before_fall;
-	float fall_height_log = 0;                        // set when checking for fall, read-only!
+	float fall_height_log = 0; // set when checking for fall, read-only!
 
 	// checkpoints
 	Entity* checkpoint = nullptr;
-	vec3    checkpoint_pos;
+	vec3 checkpoint_pos;
 
 	// animation
-	float                anim_t = 0;                                         // animation timer
-	PlayerAnimationState anim_state = PlayerAnimationState_NoAnimation;         // animation state
-	vec3                 anim_final_pos = vec3(0);                           // final position after translation animation
-	vec3                 anim_orig_pos = vec3(0);                           // original position
-	vec3                 anim_final_dir = vec3(0);                           // final player orientation
-	vec3                 anim_orig_dir = vec3(0);                           // original player orientation
-	bool                 anim_finished_turning = false;                       // player has finished turning his camera
+	float anim_t = 0;                                                   // animation timer
+	PlayerAnimationState anim_state = PlayerAnimationState_NoAnimation; // animation state
+	vec3 anim_final_pos = vec3(0);                                      // final position after translation animation
+	vec3 anim_orig_pos = vec3(0);                                       // original position
+	vec3 anim_final_dir = vec3(0);                                      // final player orientation
+	vec3 anim_orig_dir = vec3(0);                                       // original player orientation
+	bool anim_finished_turning = false;                                 // player has finished turning his camera
 
 	void update(World* world, bool update_collider = false)
 	{

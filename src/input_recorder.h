@@ -5,7 +5,7 @@
 #include <ctime>
 #include "engine/serialization/parsing/parser.h"
 
-const static int  MAX_INPUT_RECORDINGS = 20;
+const static int MAX_INPUT_RECORDINGS = 20;
 const std::string RECORDINGS_FILENAME_PREFIX = "rec-";
 const std::string RECORDINGS_FILENAME_EXTENSION = ".txt";
 
@@ -21,9 +21,9 @@ struct InputRecorder
 	bool is_playing = false;
 
 	RecordedInput recorded_inputs[MAX_INPUT_RECORDINGS];
-	int           recording_idx = 0;
-	int           playing_idx = 0;
-	int           playing_flag_idx = 0;
+	int recording_idx = 0;
+	int playing_idx = 0;
+	int playing_flag_idx = 0;
 
 	void start_recording()
 	{
@@ -107,10 +107,10 @@ struct InputRecorder
 		std::stringstream timestamp_stream;
 		timestamp_stream << std::put_time(&tm, "%d-%m-%Y-%H-%M");
 
-		std::string   timestamp = timestamp_stream.str();
+		std::string timestamp = timestamp_stream.str();
 		std::ofstream writer(
-			INPUT_RECORDINGS_FOLDER_PATH + RECORDINGS_FILENAME_PREFIX
-			+ timestamp + RECORDINGS_FILENAME_EXTENSION
+		INPUT_RECORDINGS_FOLDER_PATH + RECORDINGS_FILENAME_PREFIX
+		+ timestamp + RECORDINGS_FILENAME_EXTENSION
 		);
 
 		if(!writer.is_open())

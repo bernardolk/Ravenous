@@ -12,8 +12,8 @@
 struct CollisionLogEntry
 {
 	Entity* entity;
-	float   penetration;
-	vec3    normal;
+	float penetration;
+	vec3 normal;
 };
 
 
@@ -22,11 +22,11 @@ struct CollisionLog
 	// buffers
 	CollisionLogEntry* main;
 	CollisionLogEntry* swap;
-	int                write_count = 0;
+	int write_count = 0;
 	// window
 	CollisionLogEntry* read;
 	CollisionLogEntry* write;
-	const size_t       window_size = COLLISION_LOG_CAPACITY;
+	const size_t window_size = COLLISION_LOG_CAPACITY;
 };
 
 
@@ -96,7 +96,7 @@ inline CollisionLogEntry* CL_read_collision_log_entry(int i)
 inline CollisionLog* CL_allocate_collision_log()
 {
 	size_t size = COLLISION_LOG_CAPACITY;
-	auto   collision_log = new CollisionLog;
+	auto collision_log = new CollisionLog;
 	collision_log->main = static_cast<CollisionLogEntry*>(malloc(sizeof(CollisionLogEntry) * size * 2));
 	collision_log->swap = collision_log->main + size;
 

@@ -49,9 +49,9 @@ bool test_ray_against_aabb(Ray ray, BoundingBox box)
 // > TEST RAY AGAINST ENTITY
 // --------------------------
 RaycastTest test_ray_against_entity(
-	Ray         ray, Entity* entity,
-	RayCastType test_type = RayCast_TestOnlyFromOutsideIn,
-	float       max_distance = MAX_FLOAT)
+Ray ray, Entity* entity,
+RayCastType test_type = RayCast_TestOnlyFromOutsideIn,
+float max_distance = MAX_FLOAT)
 {
 	// @TODO: when testing against player, we could:
 	//      a) find the closest point between player's column and the ray
@@ -83,14 +83,14 @@ RaycastTest test_ray_against_entity(Ray ray, Entity* entity)
 RaycastTest test_ray_against_collider(Ray ray, CollisionMesh* collider, RayCastType test_type)
 {
 
-	int         triangles = collider->indices.size() / 3;
-	float       min_distance = MAX_FLOAT;
+	int triangles = collider->indices.size() / 3;
+	float min_distance = MAX_FLOAT;
 	RaycastTest min_hit_test{false, -1};
 	for(int i = 0; i < triangles; i++)
 	{
 		Triangle t = get_triangle_for_collider_indexed_mesh(collider, i);
-		bool     test_both_sides = test_type == RayCast_TestBothSidesOfTriangle;
-		auto     test = test_ray_against_triangle(ray, t, test_both_sides);
+		bool test_both_sides = test_type == RayCast_TestBothSidesOfTriangle;
+		auto test = test_ray_against_triangle(ray, t, test_both_sides);
 		if(test.hit && test.distance < min_distance)
 		{
 			min_hit_test = test;
@@ -108,14 +108,14 @@ RaycastTest test_ray_against_collider(Ray ray, CollisionMesh* collider, RayCastT
 // This does take a matModel
 RaycastTest test_ray_against_mesh(Ray ray, Mesh* mesh, glm::mat4 matModel, RayCastType test_type)
 {
-	int         triangles = mesh->indices.size() / 3;
-	float       min_distance = MAX_FLOAT;
+	int triangles = mesh->indices.size() / 3;
+	float min_distance = MAX_FLOAT;
 	RaycastTest min_hit_test{false, -1};
 	for(int i = 0; i < triangles; i++)
 	{
 		Triangle t = get_triangle_for_indexed_mesh(mesh, matModel, i);
-		bool     test_both_sides = test_type == RayCast_TestBothSidesOfTriangle;
-		auto     test = test_ray_against_triangle(ray, t, test_both_sides);
+		bool test_both_sides = test_type == RayCast_TestBothSidesOfTriangle;
+		auto test = test_ray_against_triangle(ray, t, test_both_sides);
 		if(test.hit && test.distance < min_distance)
 		{
 			min_hit_test = test;
@@ -135,19 +135,19 @@ RaycastTest test_ray_against_triangle(Ray ray, Triangle triangle, bool test_both
 	auto& A = triangle.a;
 	auto& B = triangle.b;
 	auto& C = triangle.c;
-	vec3  E1 = B - A;
-	vec3  E2 = C - A;
-	vec3  AO = ray.origin - A;
+	vec3 E1 = B - A;
+	vec3 E2 = C - A;
+	vec3 AO = ray.origin - A;
 
 	// check hit with one side of triangle
-	vec3  N = cross(E1, E2);
+	vec3 N = cross(E1, E2);
 	float det = -dot(ray.direction, N);
 	float invdet = 1.0 / det;
-	vec3  DAO = cross(AO, ray.direction);
+	vec3 DAO = cross(AO, ray.direction);
 	float u = dot(E2, DAO) * invdet;
 	float v = -dot(E1, DAO) * invdet;
 	float t = dot(AO, N) * invdet;
-	bool  test = (det >= 1e-6 && t >= 0.0 && u >= 0.0 && v >= 0.0 && (u + v) <= 1.0);
+	bool test = (det >= 1e-6 && t >= 0.0 && u >= 0.0 && v >= 0.0 && (u + v) <= 1.0);
 
 	if(!test && test_both_sides)
 	{
@@ -189,13 +189,13 @@ Ray cast_pickray(Camera* camera, double screen_x, double screen_y)
 		/ (GlobalDisplayConfig::VIEWPORT_HEIGHT / 2)
 	);
 
-	auto      ray_clip = glm::vec4(screenX_normalized, screenY_normalized, -1.0, 1.0);
+	auto ray_clip = glm::vec4(screenX_normalized, screenY_normalized, -1.0, 1.0);
 	glm::mat4 inv_view = inverse(camera->View4x4);
 	glm::mat4 inv_proj = inverse(camera->Projection4x4);
-	vec3      ray_eye_3 = (inv_proj * ray_clip);
-	auto      ray_eye = glm::vec4(ray_eye_3.x, ray_eye_3.y, -1.0, 0.0);
-	auto      direction = normalize(inv_view * ray_eye);
-	auto      origin = camera->Position;
+	vec3 ray_eye_3 = (inv_proj * ray_clip);
+	auto ray_eye = glm::vec4(ray_eye_3.x, ray_eye_3.y, -1.0, 0.0);
+	auto direction = normalize(inv_view * ray_eye);
+	auto origin = camera->Position;
 
 	return Ray{origin, direction};
 }

@@ -7,11 +7,11 @@ enum TimerType
 struct Timer
 {
 	TimerType type = TimerType_Simple;
-	Entity*   target = nullptr;
-	Entity*   trigger = nullptr;
-	bool      active = false;
-	float     remaining_time = 0;
-	float     elapsed_time = 0;
+	Entity* target = nullptr;
+	Entity* trigger = nullptr;
+	bool active = false;
+	float remaining_time = 0;
+	float elapsed_time = 0;
 
 	void start(Entity* target, Entity* trigger, float duration)
 	{

@@ -60,7 +60,7 @@ void CL_recompute_collision_buffer_entities(Player* player)
 	// copies collision-check-relevant entity ptrs to a buffer
 	// with metadata about the collision check for the entity
 	auto collision_buffer = RVN::entity_buffer->buffer;
-	int  entity_count = 0;
+	int entity_count = 0;
 	for(int i = 0; i < player->entity_ptr->world_cells_count; i++)
 	{
 		auto cell = player->entity_ptr->world_cells[i];
@@ -133,7 +133,7 @@ CL_ResultsArray CL_test_and_resolve_collisions(Player* player)
 	// iterative collision detection
 	auto results_array = CL_ResultsArray();
 	auto entity_buffer = RVN::entity_buffer;
-	int  c = -1;
+	int c = -1;
 	while(true)
 	{
 		c++;
@@ -148,7 +148,8 @@ CL_ResultsArray CL_test_and_resolve_collisions(Player* player)
 			results_array.results[results_array.count] = result;
 			results_array.count++;
 		}
-		else break;
+		else
+			break;
 	}
 	CL_reset_collision_buffer_checks();
 
@@ -185,10 +186,10 @@ bool CL_test_collisions(Player* player)
 // ---------------------------
 
 CL_Results CL_test_collision_buffer_entitites(
-	Player*              player,
-	EntityBufferElement* buffer,
-	int                  entity_list_size,
-	bool                 iterative = true)
+Player* player,
+EntityBufferElement* buffer,
+int entity_list_size,
+bool iterative = true)
 {
 
 	bool test = false;

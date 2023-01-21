@@ -261,9 +261,9 @@ inline float get_random_float(int min, int max)
 inline vec3 get_random_color()
 {
 	return vec3(
-		get_random_float(0, 1),
-		get_random_float(0, 1),
-		get_random_float(0, 1)
+	get_random_float(0, 1),
+	get_random_float(0, 1),
+	get_random_float(0, 1)
 	);
 }
 
@@ -275,5 +275,5 @@ inline vec3 get_random_color()
 inline
 void tolower(std::string* data)
 {
-	std::transform(data->begin(), data->end(), data->begin(), [](unsigned char c){ return std::tolower(c); });
+	std::transform(data->begin(), data->end(), data->begin(), [](unsigned char c) { return std::tolower(c); });
 }

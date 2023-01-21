@@ -3,9 +3,9 @@
 bool WIN_list_files(std::string path, std::string mask, std::vector<std::string>& files)
 {
 
-	auto                    hFind = INVALID_HANDLE_VALUE;
-	WIN32_FIND_DATA         ffd;
-	std::string             spec;
+	auto hFind = INVALID_HANDLE_VALUE;
+	WIN32_FIND_DATA ffd;
+	std::string spec;
 	std::stack<std::string> directories;
 
 	directories.push(path);

@@ -6,15 +6,15 @@ struct ProgramConfig;
 
 struct Scene
 {
-	std::vector<Entity*>          entities;
-	std::vector<SpotLight>        spotLights;
+	std::vector<Entity*> entities;
+	std::vector<SpotLight> spotLights;
 	std::vector<DirectionalLight> directionalLights;
-	std::vector<PointLight>       pointLights;
-	std::vector<Entity*>          interactables;
-	std::vector<Entity*>          checkpoints;
+	std::vector<PointLight> pointLights;
+	std::vector<Entity*> interactables;
+	std::vector<Entity*> checkpoints;
 
 	float global_shininess = 17;
-	vec3  ambient_light = vec3(1);
+	vec3 ambient_light = vec3(1);
 	float ambient_intensity = 0;
 
 	bool search_name(std::string name)

@@ -16,10 +16,10 @@
 #include <iostream>
 
 vec3 Debug_Colors[] = {
-	COLOR_RED_1,
-	COLOR_GREEN_1,
-	COLOR_BLUE_1,
-	COLOR_PURPLE_1,
+COLOR_RED_1,
+COLOR_GREEN_1,
+COLOR_BLUE_1,
+COLOR_PURPLE_1,
 };
 
 /* -----------------------
@@ -34,11 +34,11 @@ GJK_Point CL_find_furthest_vertex(CollisionMesh* collision_mesh, vec3 direction)
 	// way.
 
 	float max_inner_p = MIN_FLOAT;
-	vec3  furthest_vertex{};
+	vec3 furthest_vertex{};
 
 	for(int i = 0; i < collision_mesh->vertices.size(); i++)
 	{
-		vec3  vertex_pos = collision_mesh->vertices[i];
+		vec3 vertex_pos = collision_mesh->vertices[i];
 		float inner_p = dot(vertex_pos, direction);
 		if(inner_p > max_inner_p)
 		{
@@ -220,7 +220,7 @@ void CL_update_simplex_and_direction(GJK_Iteration* gjk)
 static void get_time(int elapsed)
 {
 	static std::vector<int> times;
-	const int               N = 100;
+	const int N = 100;
 
 	times.push_back(elapsed);
 
@@ -279,7 +279,7 @@ GJK_Result CL_run_GJK(CollisionMesh* collider_A, CollisionMesh* collider_B)
 		if(support.empty || !CL_same_general_direction(support.point, gjk.direction))
 		{
 			// _CL_debug_render_simplex(gjk.simplex);
-			return {};    // no collision
+			return {}; // no collision
 		}
 
 		gjk.simplex.push_front(support.point);

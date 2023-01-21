@@ -17,7 +17,7 @@ void render_scene_objects_panel(World* world, SceneObjectsPanelContext* panel)
 
 	For(world->entities.size())
 	{
-		Entity*     entity = world->entities[i];
+		Entity* entity = world->entities[i];
 		std::string name = entity->name;
 		tolower(&name);
 

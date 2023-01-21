@@ -73,7 +73,7 @@ void Shader::setMatrix4(const std::string& name, glm::mat4 mat) const
 bool check_shader_compile_errors(Shader* shader, std::string type, unsigned int id)
 {
 	// returns true if we have a compilation problem in the shader program
-	int  success;
+	int success;
 	char infoLog[1024];
 
 	if(type != "PROGRAM")
@@ -105,18 +105,18 @@ bool check_shader_compile_errors(Shader* shader, std::string type, unsigned int 
 }
 
 Shader* create_shader_program(
-	std::string       name,
-	const std::string vertex_shader_filename,
-	const std::string geometry_shader_filename,
-	const std::string fragment_shader_filename)
+std::string name,
+const std::string vertex_shader_filename,
+const std::string geometry_shader_filename,
+const std::string fragment_shader_filename)
 {
 	auto shader = new Shader();
 	shader->name = name;
 
 	// OPTIONAL SHADERS
 	bool build_geometry_shader = geometry_shader_filename != "";
-	u32  optional_shaders[5];
-	int  optional_shaders_count = 0;
+	u32 optional_shaders[5];
+	int optional_shaders_count = 0;
 
 	bool problem = false;
 
@@ -260,34 +260,41 @@ void initialize_shaders()
 		bool error = false, missing_comma = false, has_geometry_shader = false;
 
 		p.parse_token();
-		if(!p.has_token()) error = true;
+		if(!p.has_token())
+			error = true;
 		const auto shader_name = get_parsed<std::string>(p);
 
 		p.parse_all_whitespace();
 		p.parse_symbol();
-		if(!p.has_token()) missing_comma = true;
+		if(!p.has_token())
+			missing_comma = true;
 
 		p.parse_all_whitespace();
 		p.parse_token();
-		if(!p.has_token()) error = true;
+		if(!p.has_token())
+			error = true;
 		const auto vertex_shader_name = get_parsed<std::string>(p);
 
 		p.parse_all_whitespace();
 		p.parse_symbol();
-		if(!p.has_token()) missing_comma = true;
+		if(!p.has_token())
+			missing_comma = true;
 
 		p.parse_all_whitespace();
 		p.parse_token();
-		if(p.has_token()) has_geometry_shader = true;
+		if(p.has_token())
+			has_geometry_shader = true;
 		const auto geometry_shader_name = get_parsed<std::string>(p);
 
 		p.parse_all_whitespace();
 		p.parse_symbol();
-		if(!p.has_token()) missing_comma = true;
+		if(!p.has_token())
+			missing_comma = true;
 
 		p.parse_all_whitespace();
 		p.parse_token();
-		if(!p.has_token()) error = true;
+		if(!p.has_token())
+			error = true;
 		const auto fragment_shader_name = get_parsed<std::string>(p);
 
 		// load shaders code and mounts program from parsed shader attributes

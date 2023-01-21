@@ -176,7 +176,8 @@ void handle_input_flags(InputFlags flags, Player* & player, World* world, Camera
 	// CAMERA TYPE TOGGLE
 	// -------------------
 	if(pressed_once(flags, KEY_T))
-	{  // toggle camera type
+	{
+		// toggle camera type
 		if(G_SCENE_INFO.camera->type == FREE_ROAM)
 			set_camera_to_third_person(G_SCENE_INFO.camera);
 		else if(G_SCENE_INFO.camera->type == THIRD_PERSON)
@@ -225,12 +226,16 @@ void handle_input_flags(InputFlags flags, Player* & player, World* world, Camera
 
 			if(EdContext.entity_panel.active)
 			{
-				if(EdContext.select_entity_aux_mode) return;
-				if(check_selection_to_grab_entity_arrows(camera)) return;
-				if(check_selection_to_grab_entity_rotation_gizmo(camera)) return;
+				if(EdContext.select_entity_aux_mode)
+					return;
+				if(check_selection_to_grab_entity_arrows(camera))
+					return;
+				if(check_selection_to_grab_entity_rotation_gizmo(camera))
+					return;
 			}
 
-			if(EdContext.move_mode || EdContext.place_mode) return;
+			if(EdContext.move_mode || EdContext.place_mode)
+				return;
 
 			check_selection_to_open_panel(player, world, camera);
 		}
@@ -267,7 +272,7 @@ void handle_input_flags(InputFlags flags, Player* & player, World* world, Camera
 	// --------------------------------------------
 	// CONTROL KEY USAGE BLOCKED FROM HERE ONWARDS
 	// --------------------------------------------
-	if(pressed(flags, KEY_LEFT_CTRL))         // this doesn't solve the full problem.
+	if(pressed(flags, KEY_LEFT_CTRL)) // this doesn't solve the full problem.
 		return;
 
 	// -------------------------

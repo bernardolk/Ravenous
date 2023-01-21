@@ -33,7 +33,7 @@ Ledge CL_perform_ledge_detection(Player* player, World* world)
 	// settings
 	constexpr float _front_ray_first_ray_delta_y = 0.6f;
 	constexpr float _front_ray_spacing = 0.03f;
-	constexpr int   _front_ray_qty = 24;
+	constexpr int _front_ray_qty = 24;
 
 	auto orientation_xz = to_xz(player->orientation);
 	auto first_ray = Ray{player->eye() - UNIT_Y * _front_ray_first_ray_delta_y, orientation_xz};
@@ -49,7 +49,7 @@ Ledge CL_perform_ledge_detection(Player* player, World* world)
 			return ledge;
 
 		constexpr float _top_ray_height = 2.0f;
-		auto            top_ray = Ray{frontal_hitpoint + front_test.ray.direction * 0.0001f + UNIT_Y * _top_ray_height, -UNIT_Y};
+		auto top_ray = Ray{frontal_hitpoint + front_test.ray.direction * 0.0001f + UNIT_Y * _top_ray_height, -UNIT_Y};
 
 		auto top_test = world->raycast(top_ray, RayCast_TestOnlyFromOutsideIn, player->entity_ptr, _top_ray_height);
 

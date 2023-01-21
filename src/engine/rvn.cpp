@@ -48,10 +48,10 @@ bool RenderMessageBuffer::add(const std::string msg, float duration, vec3 color)
 		if(item->message == "")
 		{
 			new(item) RenderMessageBufferElement{
-				.message = msg,
-				.elapsed = 0,
-				.duration = duration,
-				.color = color
+			.message = msg,
+			.elapsed = 0,
+			.duration = duration,
+			.color = color
 			};
 			count++;
 			break;
@@ -77,10 +77,10 @@ bool RenderMessageBuffer::add_unique(const std::string msg, float duration, vec3
 		if(item->message == "")
 		{
 			new(item) RenderMessageBufferElement{
-				.message = msg,
-				.elapsed = 0,
-				.duration = duration,
-				.color = color
+			.message = msg,
+			.elapsed = 0,
+			.duration = duration,
+			.color = color
 			};
 			count++;
 			break;
@@ -110,18 +110,19 @@ void RenderMessageBuffer::render()
 	for(int i = 0; i < capacity; i++)
 	{
 		auto& item = buffer[i];
-		if(items_rendered == RVN::MAX_MESSAGES_TO_RENDER) break;
+		if(items_rendered == RVN::MAX_MESSAGES_TO_RENDER)
+			break;
 
 		if(item.message != "")
 		{
 			items_rendered++;
 			render_text(
-				"consola20",
-				GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
-				GlobalDisplayConfig::VIEWPORT_HEIGHT - 120 - items_rendered * 25,
-				item.color == vec3(-1) ? vec3(0.8, 0.8, 0.2) : item.color,
-				true,
-				item.message
+			"consola20",
+			GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
+			GlobalDisplayConfig::VIEWPORT_HEIGHT - 120 - items_rendered * 25,
+			item.color == vec3(-1) ? vec3(0.8, 0.8, 0.2) : item.color,
+			true,
+			item.message
 			);
 		}
 	}

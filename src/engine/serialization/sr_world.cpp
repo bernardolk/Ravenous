@@ -46,12 +46,12 @@ bool WorldSerializer::load_from_file(const std::string& filename)
 	world->player = G_SCENE_INFO.player;
 
 	G_SCENE_INFO.player->entity_ptr = manager->create_entity({
-		.name = PLAYER_NAME,
-		.mesh = "capsule",
-		.shader = "model",
-		.texture = "pink",
-		.collision_mesh = "capsule",
-		.scale = vec3(1)});
+	.name = PLAYER_NAME,
+	.mesh = "capsule",
+	.shader = "model",
+	.texture = "pink",
+	.collision_mesh = "capsule",
+	.scale = vec3(1)});
 
 	// creates deferred load buffer for associating entities after loading them all
 	auto entity_relations = DeferredEntityRelationBuffer();
@@ -79,8 +79,10 @@ bool WorldSerializer::load_from_file(const std::string& filename)
 
 	// ENTITY IDs related code
 	bool recompute_next_entity_id = false;
-	if(!p.has_token()) recompute_next_entity_id = true;
-	else manager->next_entity_id = get_parsed<u64>(p);
+	if(!p.has_token())
+		recompute_next_entity_id = true;
+	else
+		manager->next_entity_id = get_parsed<u64>(p);
 
 	// -----------------------------------
 	//           Parse entities
@@ -127,8 +129,8 @@ bool WorldSerializer::load_from_file(const std::string& filename)
 		//@TODO: wtf is going on with 2 entity vars being declared here?
 		Entity* entity = entity_relations.entities[i];
 		Entity* deferred_entity = nullptr;
-		auto    relation = entity_relations.relations[i];
-		auto    deferred_entity_id = entity_relations.deferred_entity_ids[i];
+		auto relation = entity_relations.relations[i];
+		auto deferred_entity_id = entity_relations.deferred_entity_ids[i];
 
 		for(const auto entity_b : world->entities)
 		{
@@ -210,7 +212,7 @@ bool WorldSerializer::save_to_file(const std::string& new_filename, const bool d
 		}
 	}
 
-	const auto    path = SCENES_FOLDER_PATH + filename + ".txt";
+	const auto path = SCENES_FOLDER_PATH + filename + ".txt";
 	std::ofstream writer(path);
 
 	if(!writer.is_open())

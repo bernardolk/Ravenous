@@ -3,11 +3,12 @@
 struct EntityPool
 {
 
-	Entity*   pool = nullptr;
+	Entity* pool = nullptr;
 	const int size;
-	int       count = 0;
+	int count = 0;
 
-	explicit EntityPool(const int size) : size(size) { }
+	explicit EntityPool(const int size) :
+		size(size) { }
 
 	void init()
 	{

@@ -51,7 +51,8 @@ void ImDraw::render(Camera* camera)
 	for(int i = 0; i < IM_BUFFER_SIZE; i++)
 	{
 		auto& obj = list[i];
-		if(obj.empty) continue;
+		if(obj.empty)
+			continue;
 
 		vec3 color = obj.render_options.color.x == -1 ? vec3(0.9, 0.2, 0.0) : obj.render_options.color;
 
@@ -117,8 +118,8 @@ void ImDraw::add_line(size_t _hash, vec3 pointA, vec3 pointB, vec3 color)
 }
 
 
-void ImDraw::add_line(size_t _hash, vec3         pointA, vec3 pointB, float line_width,
-                      bool   always_on_top, vec3 color, float duration)
+void ImDraw::add_line(size_t _hash, vec3 pointA, vec3 pointB, float line_width,
+                      bool always_on_top, vec3 color, float duration)
 {
 	IM_R_FIND_SLOT();
 

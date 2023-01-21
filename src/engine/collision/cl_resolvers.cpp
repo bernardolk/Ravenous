@@ -52,8 +52,8 @@ CL_VtraceResult CL_do_stepover_vtrace(Player* player, World* world)
 	   Will cull out any results that are to be considered too high (is a wall) or too low (is a hole) considering
 	   player's current height. */
 
-	vec3        ray_origin = player->last_terrain_contact_point() + vec3(0, 0.21, 0);
-	auto        downward_ray = Ray{ray_origin, -UNIT_Y};
+	vec3 ray_origin = player->last_terrain_contact_point() + vec3(0, 0.21, 0);
+	auto downward_ray = Ray{ray_origin, -UNIT_Y};
 	RaycastTest raytest = world->raycast(downward_ray, RayCast_TestOnlyFromOutsideIn, player->entity_ptr);
 
 	if(!raytest.hit)

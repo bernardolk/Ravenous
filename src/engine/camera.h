@@ -24,7 +24,7 @@ struct Camera
 	glm::mat4 Projection4x4;
 
 	CameraType type = FREE_ROAM;
-	float      orbital_angle = 0;
+	float orbital_angle = 0;
 };
 
 // camera array indexes

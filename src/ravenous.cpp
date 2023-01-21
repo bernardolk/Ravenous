@@ -55,7 +55,7 @@ struct ProgramMode
 {
 	ProgramModeEnum current = EDITOR_MODE;
 	ProgramModeEnum last = EDITOR_MODE;
-}                   PROGRAM_MODE;
+} PROGRAM_MODE;
 
 
 GlobalDisplayConfig G_DISPLAY_INFO;
@@ -72,12 +72,12 @@ struct MouseCoordinates
 
 struct GlobalInputInfo
 {
-	bool             forget_last_mouse_coords = true;
+	bool forget_last_mouse_coords = true;
 	MouseCoordinates mouse_coords;
-	u64              key_state = 0;
-	u8               mouse_state = 0;
-	bool             block_mouse_move = false;
-}                    G_INPUT_INFO;
+	u64 key_state = 0;
+	u8 mouse_state = 0;
+	bool block_mouse_move = false;
+} G_INPUT_INFO;
 
 ProgramConfig G_CONFIG;
 
@@ -166,23 +166,23 @@ GlobalSceneInfo G_SCENE_INFO{};
 unsigned int texture, texture_specular;
 
 // FUNCTION PROTOTYPES
-void   framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void   setup_GLFW(bool debug);
-void   render_ray();
-void   update_scene_objects(World* world);
-void   initialize_shaders();
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void setup_GLFW(bool debug);
+void render_ray();
+void update_scene_objects(World* world);
+void initialize_shaders();
 GLenum glCheckError_(const char* file, int line);
-void   start_frame();
-void   check_all_entities_have_shaders(World* world);
-void   check_all_entities_have_ids(World* world);
-void   check_all_geometry_has_gl_data();
-void   setup_gl();
-void   simulate_gravity_trajectory();
+void start_frame();
+void check_all_entities_have_shaders(World* world);
+void check_all_entities_have_ids(World* world);
+void check_all_geometry_has_gl_data();
+void setup_gl();
+void simulate_gravity_trajectory();
 
 static void get_time_update(int elapsed)
 {
 	static std::vector<int> times;
-	const int               N = 100;
+	const int N = 100;
 
 	times.push_back(elapsed);
 
@@ -204,7 +204,7 @@ static void get_time_update(int elapsed)
 static void get_time_render(int elapsed)
 {
 	static std::vector<int> times;
-	const int               N = 100;
+	const int N = 100;
 
 	times.push_back(elapsed);
 
@@ -281,15 +281,15 @@ int main()
 	WorldSerializer::load_from_file(G_CONFIG.initial_scene);
 	Player* player = G_SCENE_INFO.player;
 	world.player = player;
-	player->checkpoint_pos = player->entity_ptr->position;   // set player initial checkpoint position
+	player->checkpoint_pos = player->entity_ptr->position; // set player initial checkpoint position
 
 	// set scene attrs from global config
 	G_SCENE_INFO.camera->Acceleration = G_CONFIG.camspeed;
 	world.ambient_light = G_CONFIG.ambient_light;
 	world.ambient_intensity = G_CONFIG.ambient_intensity;
 
-	world.update_entity_world_cells(player->entity_ptr);     // sets player to the world
-	CL_recompute_collision_buffer_entities(player);          // populates collision buffer and others
+	world.update_entity_world_cells(player->entity_ptr); // sets player to the world
+	CL_recompute_collision_buffer_entities(player);      // populates collision buffer and others
 
 	Editor::initialize();
 
@@ -371,7 +371,7 @@ int main()
 			AN_animate_player(player);
 			Entity_Animations.update_animations();
 			auto finish = std::chrono::high_resolution_clock::now();
-			int  elapsed = std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count();
+			int elapsed = std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count();
 			get_time_update(elapsed);
 		}
 
@@ -408,7 +408,7 @@ int main()
 			ImDraw::update(RVN::frame.duration);
 			RVN::rm_buffer->render();
 			auto finish = std::chrono::high_resolution_clock::now();
-			int  elapsed = std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count();
+			int elapsed = std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count();
 			get_time_render(elapsed);
 		}
 
@@ -430,11 +430,11 @@ int main()
 void simulate_gravity_trajectory()
 {
 	// configs
-	auto  initial_pos = vec3(2.0, 1.5, 6.5);
-	vec3  v_direction = -UNIT_X;
+	auto initial_pos = vec3(2.0, 1.5, 6.5);
+	vec3 v_direction = -UNIT_X;
 	float v_magnitude = 3;
-	auto  grav = vec3(0, -9.0, 0);          // m/s^2
-	int   iterations = 20;
+	auto grav = vec3(0, -9.0, 0); // m/s^2
+	int iterations = 20;
 	float d_frame = 0.02;
 
 	// state
@@ -564,17 +564,22 @@ GLenum glCheckError_(const char* file, int line)
 		std::string error;
 		switch(errorCode)
 		{
-		case GL_INVALID_ENUM: error = "INVALID_ENUM";
+		case GL_INVALID_ENUM:
+			error = "INVALID_ENUM";
 			break;
-		case GL_INVALID_VALUE: error = "INVALID_VALUE";
+		case GL_INVALID_VALUE:
+			error = "INVALID_VALUE";
 			break;
-		case GL_INVALID_OPERATION: error = "INVALID_OPERATION";
+		case GL_INVALID_OPERATION:
+			error = "INVALID_OPERATION";
 			break;
 		//case GL_STACK_OVERFLOW:                error = "STACK_OVERFLOW"; break;
 		//case GL_STACK_UNDERFLOW:               error = "STACK_UNDERFLOW"; break;
-		case GL_OUT_OF_MEMORY: error = "OUT_OF_MEMORY";
+		case GL_OUT_OF_MEMORY:
+			error = "OUT_OF_MEMORY";
 			break;
-		case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION";
+		case GL_INVALID_FRAMEBUFFER_OPERATION:
+			error = "INVALID_FRAMEBUFFER_OPERATION";
 			break;
 		}
 		std::cout << error << " | " << file << " (" << line << ")" << std::endl;

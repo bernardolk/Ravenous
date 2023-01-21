@@ -93,16 +93,18 @@ void Parser::parse_name()
 	// Names consists of alphanumeric or space chars
 	_clear_parse_buffer();
 
-	char   string_buffer[50];
+	char string_buffer[50];
 	size_t sb_size = 0;
 	do
 	{
 		parse_name_char();
-		if(p.hasToken) string_buffer[sb_size++] = p.cToken;
+		if(p.hasToken)
+			string_buffer[sb_size++] = p.cToken;
 	} while(p.hasToken);
 
 	string_buffer[sb_size] = '\0';
-	if(sb_size > 0) p.hasToken = 1;
+	if(sb_size > 0)
+		p.hasToken = 1;
 	strcpy_s(p.string_buffer, &string_buffer[0]);
 }
 
@@ -125,16 +127,18 @@ void Parser::parse_token()
 	// Tokens consists of alphanumeric or '_' or '.' chars
 	_clear_parse_buffer();
 
-	char   string_buffer[50];
+	char string_buffer[50];
 	size_t sb_size = 0;
 	do
 	{
 		parse_token_char();
-		if(p.hasToken) string_buffer[sb_size++] = p.cToken;
+		if(p.hasToken)
+			string_buffer[sb_size++] = p.cToken;
 	} while(p.hasToken);
 
 	string_buffer[sb_size] = '\0';
-	if(sb_size > 0) p.hasToken = 1;
+	if(sb_size > 0)
+		p.hasToken = 1;
 	strcpy_s(p.string_buffer, &string_buffer[0]);
 }
 
@@ -150,7 +154,7 @@ void Parser::parse_int()
 	}
 	if(isdigit(p.string[0]))
 	{
-		u16  count = 0;
+		u16 count = 0;
 		char int_buf[10];
 
 		do
@@ -173,7 +177,7 @@ void Parser::parse_uint()
 
 	if(isdigit(p.string[0]))
 	{
-		u16  count = 0;
+		u16 count = 0;
 		char int_buf[10];
 		do
 		{
@@ -194,7 +198,7 @@ void Parser::parse_u64()
 
 	if(isdigit(p.string[0]))
 	{
-		u16  count = 0;
+		u16 count = 0;
 		char int_buf[15];
 		do
 		{
@@ -213,7 +217,7 @@ void Parser::parse_float()
 {
 	_clear_parse_buffer();
 
-	char  int_buf[10]{};
+	char int_buf[10]{};
 	float sign = 1.f;
 
 	if(p.string[0] == '-')
@@ -222,8 +226,8 @@ void Parser::parse_float()
 		sign = -1.f;
 	}
 
-	int  count = 0;
-	int  fcount = 0;
+	int count = 0;
+	int fcount = 0;
 	char float_buf[10];
 	while(isdigit(p.string[0]))
 	{
@@ -259,17 +263,20 @@ void Parser::parse_vec3()
 
 	parse_all_whitespace();
 	parse_float();
-	if(!p.hasToken) return;
+	if(!p.hasToken)
+		return;
 	const float x = p.fToken;
 
 	parse_all_whitespace();
 	parse_float();
-	if(!p.hasToken) return;
+	if(!p.hasToken)
+		return;
 	const float y = p.fToken;
 
 	parse_all_whitespace();
 	parse_float();
-	if(!p.hasToken) return;
+	if(!p.hasToken)
+		return;
 	const float z = p.fToken;
 
 	p.vec3[0] = x;
@@ -283,12 +290,14 @@ void Parser::parse_vec2()
 
 	parse_all_whitespace();
 	parse_float();
-	if(!p.hasToken) return;
+	if(!p.hasToken)
+		return;
 	const float u = p.fToken;
 
 	parse_all_whitespace();
 	parse_float();
-	if(!p.hasToken) return;
+	if(!p.hasToken)
+		return;
 	const float v = p.fToken;
 
 	p.vec2[0] = u;

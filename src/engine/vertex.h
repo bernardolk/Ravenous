@@ -20,7 +20,7 @@ struct Vertex
 		return Vertex{n_position, n_normal, tex_coords, n_tangent, n_bitangent};
 	};
 
-	Vertex & operator*=(mat4 mat)
+	Vertex& operator*=(mat4 mat)
 	{
 		// should do something for tex_coords ???
 

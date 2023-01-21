@@ -41,11 +41,12 @@ void render_lights_panel(LightsPanelContext* panel, World* world)
 	ImGuiTabItemFlags_SetSelected : ImGuiTabItemFlags_None;
 	if(ImGui::BeginTabItem("Point Lights", nullptr, point_flags))
 	{
-		int   deleted_light_index = -1;
+		int deleted_light_index = -1;
 		auto& pointlights = world->point_lights;
 
 		// UNFOCUS TAB
-		if(point_flags == ImGuiTabItemFlags_SetSelected) panel->focus_tab = false;
+		if(point_flags == ImGuiTabItemFlags_SetSelected)
+			panel->focus_tab = false;
 
 		// ADD BUTTON
 		ImGui::PushStyleColor(ImGuiCol_Button, static_cast<ImVec4>(ImColor::HSV(0.42f, 0.6f, 0.6f)));
@@ -63,12 +64,12 @@ void render_lights_panel(LightsPanelContext* panel, World* world)
 		for(int i = 0; i < pointlights.size(); i++)
 		{
 			std::string header = "point light source (" + std::to_string(i) + ")";
-			bool        is_active = panel->selected_light == i && panel->selected_light_type == "point";
+			bool is_active = panel->selected_light == i && panel->selected_light_type == "point";
 			if(ImGui::CollapsingHeader(header.c_str(), ImGuiTreeNodeFlags_NoAutoOpenOnLog) || is_active)
 			{
 				// SHOW BUTTON
 				PointLight& light = *pointlights[i];
-				auto        show_name = "show##point" + std::to_string(i);
+				auto show_name = "show##point" + std::to_string(i);
 				if(ImGui::Checkbox(show_name.c_str(), &is_active))
 				{
 					panel->selected_light = is_active ? i : -1;
@@ -90,7 +91,7 @@ void render_lights_panel(LightsPanelContext* panel, World* world)
 				// position 
 				ImGui::NewLine();
 				float positions[]{light.position[0], light.position[1], light.position[2]};
-				auto  label_pos = "position##point" + std::to_string(i);
+				auto label_pos = "position##point" + std::to_string(i);
 				if(ImGui::DragFloat3(label_pos.c_str(), positions, 0.3, -10.0, 10.0))
 				{
 					light.position = vec3{positions[0], positions[1], positions[2]};
@@ -98,7 +99,7 @@ void render_lights_panel(LightsPanelContext* panel, World* world)
 
 				// diffuse color 
 				float diffuse[]{light.diffuse[0], light.diffuse[1], light.diffuse[2]};
-				auto  label_diffuse = "diffuse##point" + std::to_string(i);
+				auto label_diffuse = "diffuse##point" + std::to_string(i);
 				if(ImGui::ColorPicker3(label_diffuse.c_str(), diffuse, ImGuiColorEditFlags_NoAlpha))
 				{
 					light.diffuse = vec3{diffuse[0], diffuse[1], diffuse[2]};
@@ -106,7 +107,7 @@ void render_lights_panel(LightsPanelContext* panel, World* world)
 
 				// specular color 
 				float specular[]{light.specular[0], light.specular[1], light.specular[2]};
-				auto  label_specular = "specular##point" + std::to_string(i);
+				auto label_specular = "specular##point" + std::to_string(i);
 				if(ImGui::ColorPicker3(label_specular.c_str(), specular, ImGuiColorEditFlags_NoAlpha))
 				{
 					light.specular = vec3{specular[0], specular[1], specular[2]};
@@ -140,11 +141,12 @@ void render_lights_panel(LightsPanelContext* panel, World* world)
 	ImGuiTabItemFlags_SetSelected : ImGuiTabItemFlags_None;
 	if(ImGui::BeginTabItem("Spot Lights", nullptr, spot_flags))
 	{
-		int   deleted_light_index = -1;
+		int deleted_light_index = -1;
 		auto& spotlights = world->spot_lights;
 
 		// UNFOCUS TAB
-		if(spot_flags == ImGuiTabItemFlags_SetSelected) panel->focus_tab = false;
+		if(spot_flags == ImGuiTabItemFlags_SetSelected)
+			panel->focus_tab = false;
 
 		// ADD BUTTON
 		ImGui::PushStyleColor(ImGuiCol_Button, static_cast<ImVec4>(ImColor::HSV(0.42f, 0.6f, 0.6f)));
@@ -162,7 +164,7 @@ void render_lights_panel(LightsPanelContext* panel, World* world)
 		for(int i = 0; i < spotlights.size(); i++)
 		{
 			std::string header = "spot light source (" + std::to_string(i) + ")";
-			bool        is_active = panel->selected_light == i && panel->selected_light_type == "spot";
+			bool is_active = panel->selected_light == i && panel->selected_light_type == "spot";
 			if(ImGui::CollapsingHeader(header.c_str()) || is_active)
 			{
 				SpotLight& light = *spotlights[i];
@@ -191,7 +193,7 @@ void render_lights_panel(LightsPanelContext* panel, World* world)
 
 				// position 
 				float positions[]{light.position[0], light.position[1], light.position[2]};
-				auto  label_pos = "position##spot" + std::to_string(i);
+				auto label_pos = "position##spot" + std::to_string(i);
 				if(ImGui::DragFloat3(label_pos.c_str(), positions, 0.3, -10.0, 10.0))
 				{
 					light.position = vec3{positions[0], positions[1], positions[2]};
@@ -226,7 +228,7 @@ void render_lights_panel(LightsPanelContext* panel, World* world)
 
 				// diffuse color 
 				float diffuse[]{light.diffuse[0], light.diffuse[1], light.diffuse[2]};
-				auto  label_diffuse = "diffuse##spot" + std::to_string(i);
+				auto label_diffuse = "diffuse##spot" + std::to_string(i);
 				if(ImGui::ColorPicker3(label_diffuse.c_str(), diffuse, ImGuiColorEditFlags_NoAlpha))
 				{
 					light.diffuse = vec3{diffuse[0], diffuse[1], diffuse[2]};
@@ -234,7 +236,7 @@ void render_lights_panel(LightsPanelContext* panel, World* world)
 
 				// specular color 
 				float specular[]{light.specular[0], light.specular[1], light.specular[2]};
-				auto  label_specular = "specular##spot" + std::to_string(i);
+				auto label_specular = "specular##spot" + std::to_string(i);
 				if(ImGui::ColorPicker3(label_specular.c_str(), specular, ImGuiColorEditFlags_NoAlpha))
 				{
 					light.specular = vec3{specular[0], specular[1], specular[2]};

@@ -3,7 +3,7 @@ struct GameState
 
 	// Timed events (timers)
 	const static size_t timers_array_size = 64;
-	Timer               timers[timers_array_size];
+	Timer timers[timers_array_size];
 
 	EntityAnimationKeyframe tmp_kf;
 

@@ -42,7 +42,7 @@ void load_textures_from_assets_folder()
 				assert(false);
 			}
 
-			auto        ind = texture_filename.find('.');
+			auto ind = texture_filename.find('.');
 			std::string texture_name = texture_filename.substr(0, ind);
 
 			std::string texture_type = "texture_diffuse";
@@ -52,10 +52,10 @@ void load_textures_from_assets_folder()
 			}
 
 			Texture new_texture{
-				texture_id,
-				texture_type,
-				texture_filename,
-				texture_name
+			texture_id,
+			texture_type,
+			texture_filename,
+			texture_name
 			};
 
 			Texture_Catalogue.insert({texture_name, new_texture});
@@ -64,11 +64,11 @@ void load_textures_from_assets_folder()
 }
 
 Mesh* load_wavefront_obj_as_mesh(
-	const std::string& path,
-	const std::string& filename,
-	const std::string& name,
-	bool               setup_gl_data,
-	RenderMethodEnum   render_method)
+const std::string& path,
+const std::string& filename,
+const std::string& name,
+bool setup_gl_data,
+RenderMethodEnum render_method)
 {
 	/* Loads a model from the provided path and filename and add it to the Geometry_Catalogue with provided name */
 
@@ -78,7 +78,7 @@ Mesh* load_wavefront_obj_as_mesh(
 	//    exporter in blender to get just unique vertex data + indices, but maybe for now this is enough.
 
 	const auto full_path = path + filename + ".obj";
-	Parser     p{full_path};
+	Parser p{full_path};
 
 	// @TODO: use a memory pool
 	auto mesh = new Mesh();
@@ -86,7 +86,7 @@ Mesh* load_wavefront_obj_as_mesh(
 	std::vector<vec3> v_pos;
 	std::vector<vec2> v_texels;
 	std::vector<vec3> v_normals;
-	int               faces_count = 0;
+	int faces_count = 0;
 
 	// Parses file
 	while(p.next_line())
@@ -142,7 +142,8 @@ Mesh* load_wavefront_obj_as_mesh(
 				// parses vertex index
 				{
 					p.parse_uint();
-					if(!p.has_token()) break;
+					if(!p.has_token())
+						break;
 
 					u32 index = get_parsed<u32>(p) - 1;
 					v.position = v_pos[index];
@@ -200,7 +201,7 @@ Mesh* load_wavefront_obj_as_mesh(
 			else if(number_of_vertexes_in_face > 4)
 			{
 				Quit_fatal("mesh file " + filename +
-					".obj contain at least one face with unsupported ammount of vertices. Please triangulate or quadfy faces.\n");
+				".obj contain at least one face with unsupported ammount of vertices. Please triangulate or quadfy faces.\n");
 			}
 
 			else if(number_of_vertexes_in_face < 3)
@@ -242,7 +243,7 @@ CollisionMesh* load_wavefront_obj_as_collision_mesh(std::string path, std::strin
 	/* Loads a model from the provided path and filename and add it to the Collision_Geometry_Catalogue with provided name */
 
 	const auto full_path = path + filename + ".obj";
-	Parser     p{full_path};
+	Parser p{full_path};
 
 	// @TODO: Use a memory pool
 	auto c_mesh = new CollisionMesh();
@@ -253,7 +254,8 @@ CollisionMesh* load_wavefront_obj_as_collision_mesh(std::string path, std::strin
 		p.parse_token();
 		const auto attr = get_parsed<std::string>(p);
 
-		if(!p.has_token()) continue;
+		if(!p.has_token())
+			continue;
 
 		// vertex coordinates
 		if(attr == "v")
@@ -275,7 +277,8 @@ CollisionMesh* load_wavefront_obj_as_collision_mesh(std::string path, std::strin
 				// parses vertex index
 				{
 					p.parse_uint();
-					if(!p.has_token()) break;
+					if(!p.has_token())
+						break;
 
 					// corrects from 1-first-element convention (from .obj file) to 0-first.
 					const u32 index = get_parsed<u32>(p) - 1;
@@ -326,7 +329,7 @@ unsigned int load_texture_from_file(const std::string& filename, const std::stri
 	else
 		path = directory + "/" + filename;
 
-	int            width, height, nrComponents;
+	int width, height, nrComponents;
 	unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
 	if(!data)
 	{
@@ -369,10 +372,10 @@ unsigned int load_texture_from_file(const std::string& filename, const std::stri
 
 StrVec get_files_in_folder(std::string directory)
 {
-	StrVec          filenames;
-	std::string     path_to_files = directory + "\\*";
+	StrVec filenames;
+	std::string path_to_files = directory + "\\*";
 	WIN32_FIND_DATA files;
-	HANDLE          find_files_handle = FindFirstFile(path_to_files.c_str(), &files);
+	HANDLE find_files_handle = FindFirstFile(path_to_files.c_str(), &files);
 
 	if(find_files_handle == INVALID_HANDLE_VALUE)
 	{
@@ -396,7 +399,7 @@ StrVec get_files_in_folder(std::string directory)
 
 void write_mesh_extra_data_file(std::string filename, Mesh* mesh)
 {
-	const auto    extra_data_path = MODELS_PATH + "extra_data/" + filename + ".objplus";
+	const auto extra_data_path = MODELS_PATH + "extra_data/" + filename + ".objplus";
 	std::ofstream writer(extra_data_path);
 
 	if(!writer.is_open())
@@ -431,7 +434,7 @@ void write_mesh_extra_data_file(std::string filename, Mesh* mesh)
 void load_mesh_extra_data(std::string filename, Mesh* mesh)
 {
 	const auto extra_data_path = MODELS_PATH + "extra_data/" + filename + ".objplus";
-	Parser     p{extra_data_path};
+	Parser p{extra_data_path};
 
 	u32 vtan_i = 0;
 	u32 vbitan_i = 0;
@@ -439,7 +442,8 @@ void load_mesh_extra_data(std::string filename, Mesh* mesh)
 	{
 		p.parse_token();
 
-		if(!p.has_token()) continue;
+		if(!p.has_token())
+			continue;
 
 		auto attr = get_parsed<std::string>(p);
 
@@ -472,11 +476,11 @@ void attach_extra_data_to_mesh(std::string filename, std::string filepath, Mesh*
 
 	//@todo: platform dependency
 	WIN32_FIND_DATA find_data_extra_data;
-	HANDLE          find_handle = FindFirstFileA(extra_data_path.c_str(), &find_data_extra_data);
+	HANDLE find_handle = FindFirstFileA(extra_data_path.c_str(), &find_data_extra_data);
 	if(find_handle != INVALID_HANDLE_VALUE)
 	{
 		WIN32_FIND_DATA find_data_mesh;
-		HANDLE          find_handle_mesh = FindFirstFileA(mesh_path.c_str(), &find_data_mesh);
+		HANDLE find_handle_mesh = FindFirstFileA(mesh_path.c_str(), &find_data_mesh);
 		if(find_handle_mesh == INVALID_HANDLE_VALUE)
 			Quit_fatal("Unexpected: couldn't find file handle for mesh obj while checking for extra mesh data.")
 

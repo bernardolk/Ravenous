@@ -64,7 +64,7 @@ void GP_update_player_state(Player* & player, World* world)
 			auto results = CL_test_and_resolve_collisions(player);
 
 			// iterate on collision results
-			bool       collided_with_terrain = false;
+			bool collided_with_terrain = false;
 			CL_Results slope;
 			for(int i = 0; i < results.count; i ++)
 			{
@@ -411,7 +411,7 @@ vec3 GP_player_standing_get_next_position(Player* player)
 	if(speed > speed_limit)
 		speed = speed_limit;
 
-	v = speed * v_dir;     // if no movement command is issued, v_dir = 0,0,
+	v = speed * v_dir; // if no movement command is issued, v_dir = 0,0,
 
 	return player->entity_ptr->position + v * dt;
 }
@@ -429,7 +429,7 @@ void GP_check_trigger_interaction(Player* player, World* world)
 
 		//@todo: do a cylinder vs cylinder or cylinder vs aabb test here
 		CollisionMesh trigger_collider = interactable->get_trigger_collider();
-		GJK_Result    gjk_test = CL_run_GJK(&player->entity_ptr->collider, &trigger_collider);
+		GJK_Result gjk_test = CL_run_GJK(&player->entity_ptr->collider, &trigger_collider);
 		if(gjk_test.collision)
 		{
 			RVN::print_dynamic("Trigger Interaction", 1000);

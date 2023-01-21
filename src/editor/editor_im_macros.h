@@ -6,10 +6,10 @@
 struct ImmediateEditorValues
 {
 	float val_float = 0.f;
-	int   val_int = 0;
-	bool  btn = false;
-	bool  btn2 = false;
-}         IM_Values;
+	int val_int = 0;
+	bool btn = false;
+	bool btn2 = false;
+} IM_Values;
 
 
 #define _START_IM_ED() bool _active = true; \

@@ -28,7 +28,7 @@ void render_world_panel(WorldPanelContext* panel, World* world, Player* player)
 		std::string header = cell->coords_str() + player_indicator;
 		if(ImGui::CollapsingHeader(header.c_str()))
 		{
-			bool        is_active = panel->cell_coords == coords;
+			bool is_active = panel->cell_coords == coords;
 			std::string show_name = "show##" + std::to_string(i);
 			if(ImGui::Checkbox(show_name.c_str(), &is_active))
 			{

@@ -1,8 +1,8 @@
 struct DeletedEntityLog
 {
-	u8              size = 0;
+	u8 size = 0;
 	const static u8 capacity = 100;
-	int             entity_ids[capacity];
+	int entity_ids[capacity];
 
 	void add(Entity* entity)
 	{
@@ -18,21 +18,21 @@ struct DeletedEntityLog
 
 struct UndoStack
 {
-	u8               limit = 0;                             // index of last added item
-	u8               pos = 0;                               // current index
-	const static u8  capacity = 100;           // max items - 1 (pos = 0 is never assigned)
-	EntityState      stack[100];                   // actual stack
-	DeletedEntityLog deletion_log;            // stores ids of entities that have been deleted
-	bool             full = false;                        // helps avoid writing out of stack mem boundaries
+	u8 limit = 0;                   // index of last added item
+	u8 pos = 0;                     // current index
+	const static u8 capacity = 100; // max items - 1 (pos = 0 is never assigned)
+	EntityState stack[100];         // actual stack
+	DeletedEntityLog deletion_log;  // stores ids of entities that have been deleted
+	bool full = false;              // helps avoid writing out of stack mem boundaries
 
 	void track(Entity* entity)
 	{
 		auto state = EntityState{
-			entity,
-			entity->id,
-			entity->position,
-			entity->scale,
-			entity->rotation
+		entity,
+		entity->id,
+		entity->position,
+		entity->scale,
+		entity->rotation
 		};
 
 		track(state);

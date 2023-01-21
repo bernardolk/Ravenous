@@ -21,15 +21,15 @@ const static float W_CELL_LEN_METERS = 50.0f;
 const static int WORLD_CELL_CAPACITY = 150;
 
 const static vec3 W_UPPER_BOUNDS_METERS = {
-	W_CELLS_OFFSET_X * W_CELL_LEN_METERS,
-	W_CELLS_OFFSET_Y * W_CELL_LEN_METERS,
-	W_CELLS_OFFSET_Z * W_CELL_LEN_METERS
+W_CELLS_OFFSET_X * W_CELL_LEN_METERS,
+W_CELLS_OFFSET_Y * W_CELL_LEN_METERS,
+W_CELLS_OFFSET_Z * W_CELL_LEN_METERS
 };
 
 const static vec3 W_LOWER_BOUNDS_METERS = {
-	-1.0 * W_CELLS_OFFSET_X * W_CELL_LEN_METERS,
-	-1.0 * W_CELLS_OFFSET_X * W_CELL_LEN_METERS,
-	-1.0 * W_CELLS_OFFSET_X * W_CELL_LEN_METERS
+-1.0 * W_CELLS_OFFSET_X * W_CELL_LEN_METERS,
+-1.0 * W_CELLS_OFFSET_X * W_CELL_LEN_METERS,
+-1.0 * W_CELLS_OFFSET_X * W_CELL_LEN_METERS
 };
 
 enum CellUpdateStatus
@@ -44,8 +44,8 @@ enum CellUpdateStatus
 struct CellUpdate
 {
 	CellUpdateStatus status{};
-	std::string      message{};
-	bool             entity_changed_cell = false;
+	std::string message{};
+	bool entity_changed_cell = false;
 };
 
 struct Entity;
@@ -71,7 +71,7 @@ struct EntityManager;
 
 struct WorldCell
 {
-	Entity*      entities[WORLD_CELL_CAPACITY]{};
+	Entity* entities[WORLD_CELL_CAPACITY]{};
 	unsigned int count = 0;
 
 	// logical coords
@@ -80,13 +80,13 @@ struct WorldCell
 	// world coords / bounding box
 	BoundingBox bounding_box{};
 
-	void        init(int ii, int ji, int ki);
-	void        remove(Entity* entity);
-	CellUpdate  add(Entity* entity);
-	void        defrag();
+	void init(int ii, int ji, int ki);
+	void remove(Entity* entity);
+	CellUpdate add(Entity* entity);
+	void defrag();
 	std::string coords_str() const;
-	vec3        coords() const;
-	vec3        coords_meters() const;
+	vec3 coords() const;
+	vec3 coords_meters() const;
 	std::string coords_meters_str();
 };
 
@@ -109,7 +109,7 @@ inline auto world_coords_to_cells(float x, float y, float z)
 	struct
 	{
 		int i = -1, j = -1, k = -1;
-	}       world_cell_coords;
+	} world_cell_coords;
 
 	// if out of bounds return -1
 	if(x < W_LOWER_BOUNDS_METERS.x || x > W_UPPER_BOUNDS_METERS.x ||
@@ -143,22 +143,22 @@ struct World
 {
 
 	// Entities lists
-	std::vector<Entity*>           entities;
-	std::vector<Entity*>           interactables;
-	std::vector<Entity*>           checkpoints;
-	std::vector<PointLight*>       point_lights;
-	std::vector<SpotLight*>        spot_lights;
+	std::vector<Entity*> entities;
+	std::vector<Entity*> interactables;
+	std::vector<Entity*> checkpoints;
+	std::vector<PointLight*> point_lights;
+	std::vector<SpotLight*> spot_lights;
 	std::vector<DirectionalLight*> directional_lights;
 
 	Player* player = nullptr;
 
 	float global_shininess = 17;
 	float ambient_intensity = 0;
-	vec3  ambient_light = vec3(1);
+	vec3 ambient_light = vec3(1);
 
-	WorldCell  cells[W_CELLS_NUM_X][W_CELLS_NUM_Y][W_CELLS_NUM_Z];
+	WorldCell cells[W_CELLS_NUM_X][W_CELLS_NUM_Y][W_CELLS_NUM_Z];
 	WorldCell* cells_in_use[W_CELLS_NUM_X * W_CELLS_NUM_Y * W_CELLS_NUM_Z]{};
-	int        cells_in_use_count = 0;
+	int cells_in_use_count = 0;
 
 public:
 	World();
@@ -169,17 +169,17 @@ public:
 	void clear(const EntityManager* manager);
 
 	RaycastTest raycast(
-		Ray           ray,
-		RayCastType   test_type,
-		const Entity* skip = nullptr,
-		float         max_distance = MAX_FLOAT
+	Ray ray,
+	RayCastType test_type,
+	const Entity* skip = nullptr,
+	float max_distance = MAX_FLOAT
 	) const;
 	RaycastTest raycast(
-		Ray           ray,
-		const Entity* skip = nullptr,
-		float         max_distance = MAX_FLOAT
+	Ray ray,
+	const Entity* skip = nullptr,
+	float max_distance = MAX_FLOAT
 	) const;
 	RaycastTest linear_raycast_array(Ray first_ray, int qty, float spacing) const;
 	RaycastTest raycast_lights(Ray ray) const;
-	CellUpdate  update_entity_world_cells(Entity* entity);
+	CellUpdate update_entity_world_cells(Entity* entity);
 };

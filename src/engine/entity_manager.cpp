@@ -35,12 +35,12 @@ auto EntityManager::_find_entity_assets_in_catalogue(const std::string& mesh, co
 {
 	struct
 	{
-		Texture        textures[2];
-		int            textures_found = 0;
-		Mesh*          mesh{};
+		Texture textures[2];
+		int textures_found = 0;
+		Mesh* mesh{};
 		CollisionMesh* collision_mesh{};
-		Shader*        shader{};
-	}                  attrs;
+		Shader* shader{};
+	} attrs;
 
 	if(!mesh.empty())
 	{
@@ -289,13 +289,14 @@ void EntityManager::mark_for_deletion(Entity* entity)
 	For(entity_registry->size())
 	{
 		auto item = (*entity_registry)[i];
-		if(item->id == entity->id)             //@todo: maybe we could check here by ptr address directly
+		if(item->id == entity->id) //@todo: maybe we could check here by ptr address directly
 		{
 			index = i;
 			break;
 		}
 	}
-	if(index > -1) (*entity_registry).erase((*entity_registry).begin() + index);
+	if(index > -1)
+		(*entity_registry).erase((*entity_registry).begin() + index);
 
 	// remove from world cells
 	for(int i = 0; i < entity->world_cells_count; i++)

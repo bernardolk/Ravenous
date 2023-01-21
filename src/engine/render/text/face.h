@@ -6,7 +6,7 @@ struct Face
 {
 	Triangle a;
 	Triangle b;
-	vec3     center;
+	vec3 center;
 };
 
 

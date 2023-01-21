@@ -1,31 +1,31 @@
 #pragma once
 #include "engine/serialization/parsing/parser.h"
 
-void        handle_console_input(InputFlags flags, Player* & player, World* world, Camera* camera);
-void        execute_command(const std::string& buffer_line, Player* & player, World* world, Camera* camera);
-void        check_letter_key_presses(InputFlags flags);
-void        clear_console_string_buffer();
-void        render_console();
-void        start_console_mode();
-void        quit_console_mode();
-void        move_to_previous_buffer();
-void        move_to_next_buffer();
+void handle_console_input(InputFlags flags, Player* & player, World* world, Camera* camera);
+void execute_command(const std::string& buffer_line, Player* & player, World* world, Camera* camera);
+void check_letter_key_presses(InputFlags flags);
+void clear_console_string_buffer();
+void render_console();
+void start_console_mode();
+void quit_console_mode();
+void move_to_previous_buffer();
+void move_to_next_buffer();
 std::string commit_buffer();
-void        initialize_console_buffers();
-void        copy_buffer_to_scratch_buffer();
-void        clear_scratch_buffer();
+void initialize_console_buffers();
+void copy_buffer_to_scratch_buffer();
+void clear_scratch_buffer();
 
 struct GlobalConsoleState
 {
-	u16                  buffer_capacity = 20;
+	u16 buffer_capacity = 20;
 	constexpr static u16 max_chars = 50;
-	char**               buffers;
-	u16                  b_ind = 0;
-	u16                  current_buffer_size = 0;
-	u16                  buffer_size_incr = 1;
-	char                 scratch_buffer[max_chars];
-	u16                  c_ind = 0;
-} inline                 CONSOLE;
+	char** buffers;
+	u16 b_ind = 0;
+	u16 current_buffer_size = 0;
+	u16 buffer_size_incr = 1;
+	char scratch_buffer[max_chars];
+	u16 c_ind = 0;
+} inline CONSOLE;
 
 void initialize_console_buffers()
 {
@@ -68,7 +68,7 @@ void copy_buffer_to_scratch_buffer()
 {
 	clear_scratch_buffer();
 
-	int  char_ind = 0;
+	int char_ind = 0;
 	char scene_name[50] = {'\0'};
 	while(CONSOLE.buffers[CONSOLE.b_ind][char_ind] != '\0')
 	{
@@ -94,7 +94,7 @@ void quit_console_mode()
 std::string commit_buffer()
 {
 	// copy from scratch buffer to variable
-	int  char_ind = 0;
+	int char_ind = 0;
 	char input[50] = {'\0'};
 	while(CONSOLE.scratch_buffer[char_ind] != '\0')
 	{
@@ -222,7 +222,7 @@ void execute_command(const std::string& buffer_line, Player* & player, World* wo
 				// if couldnt save copy of template, falls back, so we dont edit the template by mistake
 				if(WorldSerializer::load_from_file(current_scene))
 				{
-					assert(false);    // if this happens, weird!
+					assert(false); // if this happens, weird!
 				}
 
 				RVN::rm_buffer->add("Couldnt save new scene.", 3000);
@@ -262,7 +262,8 @@ void execute_command(const std::string& buffer_line, Player* & player, World* wo
 			G_CONFIG.initial_scene = G_SCENE_INFO.scene_name;
 			ConfigSerializer::save(G_CONFIG);
 		}
-		else std::cout << "you can set 'scene' or 'all'. dude. " << command << " won't work.\n";
+		else
+			std::cout << "you can set 'scene' or 'all'. dude. " << command << " won't work.\n";
 	}
 
 	// -----------------
@@ -314,9 +315,11 @@ void execute_command(const std::string& buffer_line, Player* & player, World* wo
 			p.parse_vec3();
 			camera->Position = get_parsed<glm::vec3>(p);
 		}
-		else std::cout << "you can move cam only at the moment dude. I don't know what '" << command << " " << argument << "' means man.\n";
+		else
+			std::cout << "you can move cam only at the moment dude. I don't know what '" << command << " " << argument << "' means man.\n";
 	}
-	else std::cout << "what do you mean with " << command << " man?\n";
+	else
+		std::cout << "what do you mean with " << command << " man?\n";
 }
 
 void handle_console_input(InputFlags flags, Player* & player, World* world, Camera* camera)

@@ -27,7 +27,7 @@ void render_entity_panel(EntityPanelContext* panel, World* world)
 {
 	auto& entity = panel->entity;
 
-	u32  action_flags = 0;
+	u32 action_flags = 0;
 	bool track = false;
 
 	ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::VIEWPORT_WIDTH - 550, 200), ImGuiCond_Appearing);
@@ -318,7 +318,7 @@ void render_entity_panel(EntityPanelContext* panel, World* world)
 				if(entity->timer_trigger_data.timer_target->timer_target_data.timer_target_type == EntityTimerTargetType_VerticalSlidingDoor)
 				{
 					auto data = &entity->timer_trigger_data;
-					int  empty_slot = -1;
+					int empty_slot = -1;
 					bool there_is_at_least_one_marking = false;
 					For(data->size)
 					{
@@ -359,9 +359,9 @@ void render_entity_panel(EntityPanelContext* panel, World* world)
 							callback_args.entity_type = EntityType_TimerMarking;
 
 							activate_select_entity_aux_tool(
-								&data->markings[empty_slot],
-								EdToolCallback_EntityManagerSetType,
-								callback_args
+							&data->markings[empty_slot],
+							EdToolCallback_EntityManagerSetType,
+							callback_args
 							);
 						}
 					}

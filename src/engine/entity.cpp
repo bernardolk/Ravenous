@@ -60,7 +60,7 @@ void Entity::update_bounding_box()
 
 void Entity::update_trigger()
 {
-	auto      centroid = this->bounding_box.get_centroid();
+	auto centroid = this->bounding_box.get_centroid();
 	glm::mat4 model = translate(mat4identity, centroid);
 
 	// to avoid elipsoids

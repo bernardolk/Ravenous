@@ -85,7 +85,8 @@ void LightSerializer::_parse_point_light(Parser& p)
 			point_light.intensity_quadratic = get_parsed<float>(p);
 		}
 
-		else break;
+		else
+			break;
 	}
 
 	world->point_lights.push_back(&point_light);
@@ -151,7 +152,8 @@ void LightSerializer::_parse_spot_light(Parser& p)
 			p.parse_float();
 			spotlight.outercone = get_parsed<float>(p);
 		}
-		else break;
+		else
+			break;
 	}
 
 	world->spot_lights.push_back(&spotlight);
@@ -182,7 +184,8 @@ void LightSerializer::_parse_directional_light(Parser& p)
 			p.parse_vec3();
 			light.specular = get_parsed<glm::vec3>(p);
 		}
-		else break;
+		else
+			break;
 	}
 
 	world->directional_lights.push_back(&light);

@@ -12,7 +12,7 @@ inline static u64 Max_Entity_Id = 0;
 
 struct WorldSerializer
 {
-	static inline World*         world = nullptr;
+	static inline World* world = nullptr;
 	static inline EntityManager* manager = nullptr;
 
 	static bool load_from_file(const std::string& filename);

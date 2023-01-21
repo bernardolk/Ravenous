@@ -7,8 +7,8 @@ struct World;
 
 struct CL_VtraceResult
 {
-	bool    hit = false;
-	float   delta_y;
+	bool hit = false;
+	float delta_y;
 	Entity* entity;
 };
 
@@ -20,7 +20,7 @@ void CL_mark_entity_checked(Entity* entity);
 
 
 // fwd decl.
-void       GP_update_player_state(Player* & player, World* world);
+void GP_update_player_state(Player* & player, World* world);
 CL_Results CL_test_player_vs_entity(Entity* entity, Player* player);
 
 const static float PLAYER_STEPOVER_LIMIT = 0.21;

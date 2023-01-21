@@ -23,7 +23,7 @@ BoundingBox CollisionMesh::compute_bounding_box()
 
 	for(int i = 0; i < this->vertices.size(); i++)
 	{
-		vec3  vertex = this->vertices[i];
+		vec3 vertex = this->vertices[i];
 		float dotx = dot(vertex, vec3(1, 0, 0));
 		float doty = dot(vertex, vec3(0, 1, 0));
 		float dotz = dot(vertex, vec3(0, 0, 1));

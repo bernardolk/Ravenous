@@ -170,7 +170,7 @@ bool AN_p_anim_vaulting(Player* player)
 	// camera direction animation
 	if(!player->anim_finished_turning)
 	{
-		vec2  f_dir_xz = to2d_xz(player->anim_final_dir);
+		vec2 f_dir_xz = to2d_xz(player->anim_final_dir);
 		float orig_sva = vector_angle_signed(nrmlz(to2d_xz(player->anim_orig_dir)), f_dir_xz);
 		float orig_angle = glm::degrees(orig_sva);
 		float orig_sign = sign(orig_angle);

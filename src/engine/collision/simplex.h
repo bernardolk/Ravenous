@@ -4,7 +4,7 @@
 struct Simplex
 {
 	vec3 points[4];
-	u32  p_size;
+	u32 p_size;
 
 	Simplex()
 	{
@@ -45,7 +45,7 @@ struct Simplex
 		p_size = 4;
 	}
 
-	void   push_front(vec3 point);
-	vec3 & operator[](u32 i);
-	u32    size() const;
+	void push_front(vec3 point);
+	vec3& operator[](u32 i);
+	u32 size() const;
 };

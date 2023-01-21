@@ -24,9 +24,9 @@ const static std::string INPUT_RECORDINGS_FOLDER_PATH = PROJECT_PATH + "/recordi
 struct ProgramConfig
 {
 	std::string initial_scene;
-	float       camspeed = 1;
-	vec3        ambient_light{};
-	float       ambient_intensity = 0;
+	float camspeed = 1;
+	vec3 ambient_light{};
+	float ambient_intensity = 0;
 };
 
 struct FrameData
@@ -34,8 +34,8 @@ struct FrameData
 	float duration = 0;
 	float real_duration = 0;
 	float last_frame_time = 0;
-	int   fps = 0;
-	int   fps_counter = 0;
+	int fps = 0;
+	int fps_counter = 0;
 	float sub_second_counter = 0;
 	float time_step = 1;
 };
@@ -46,12 +46,12 @@ struct RVN
 	static const size_t COLLISION_LOG_CAPACITY = 20;
 	static const size_t COLLISION_BUFFER_CAPACITY = 1000;
 	static const size_t MESSAGE_BUFFER_CAPACITY = 10;
-	static const int    MAX_MESSAGES_TO_RENDER = 8;
+	static const int MAX_MESSAGES_TO_RENDER = 8;
 
-	inline static FrameData   frame;
+	inline static FrameData frame;
 	inline static std::string scene_name;
 
-	inline static EntityBuffer*        entity_buffer;
+	inline static EntityBuffer* entity_buffer;
 	inline static RenderMessageBuffer* rm_buffer;
 
 	static void init();
@@ -61,13 +61,13 @@ struct RVN
 
 struct GlobalSceneInfo
 {
-	Scene*      active_scene = nullptr;
-	Camera*     camera = nullptr;
-	Camera*     views[2];
-	Player*     player = nullptr;
-	bool        input_mode = false;
+	Scene* active_scene = nullptr;
+	Camera* camera = nullptr;
+	Camera* views[2];
+	Player* player = nullptr;
+	bool input_mode = false;
 	std::string scene_name;
-	bool        tmp_unstuck_things = false;
+	bool tmp_unstuck_things = false;
 };
 
 // @TODO
@@ -75,7 +75,7 @@ extern GlobalSceneInfo G_SCENE_INFO;
 
 struct GlobalDisplayConfig
 {
-	GLFWwindow*               window;
+	GLFWwindow* window;
 	const inline static float VIEWPORT_WIDTH = 1980;
 	const inline static float VIEWPORT_HEIGHT = 1080;
 };
@@ -88,12 +88,12 @@ struct GlobalDisplayConfig
 struct EntityBufferElement
 {
 	Entity* entity = nullptr;
-	bool    collision_check = false;
+	bool collision_check = false;
 };
 
 struct EntityBuffer
 {
-	size_t              size = 0;
+	size_t size = 0;
 	EntityBufferElement buffer[RVN::COLLISION_BUFFER_CAPACITY];
 };
 
@@ -106,15 +106,15 @@ struct EntityBuffer
 struct RenderMessageBufferElement
 {
 	const std::string message;
-	float             elapsed = 0;
-	float             duration = 0;
-	const vec3        color;
+	float elapsed = 0;
+	float duration = 0;
+	const vec3 color;
 };
 
 struct RenderMessageBuffer
 {
 	const u32 capacity = RVN::MESSAGE_BUFFER_CAPACITY;
-	u16       count = 0;
+	u16 count = 0;
 
 	RenderMessageBufferElement buffer[RVN::MESSAGE_BUFFER_CAPACITY];
 

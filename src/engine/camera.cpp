@@ -19,9 +19,9 @@ void camera_update_game(Camera* camera, float viewportWidth, float viewportHeigh
 {
 	camera->View4x4 = lookAt(camera->Position, camera->Position + camera->Front, camera->Up);
 	camera->Projection4x4 = glm::perspective(
-		glm::radians(camera->FOVy),
-		viewportWidth / viewportHeight,
-		camera->NearPlane, camera->FarPlane
+	glm::radians(camera->FOVy),
+	viewportWidth / viewportHeight,
+	camera->NearPlane, camera->FarPlane
 	);
 
 	camera->Position = position;
@@ -31,9 +31,9 @@ void camera_update_editor(Camera* camera, float viewportWidth, float viewportHei
 {
 	camera->View4x4 = lookAt(camera->Position, camera->Position + camera->Front, camera->Up);
 	camera->Projection4x4 = glm::perspective(
-		glm::radians(camera->FOVy),
-		viewportWidth / viewportHeight,
-		camera->NearPlane, camera->FarPlane
+	glm::radians(camera->FOVy),
+	viewportWidth / viewportHeight,
+	camera->NearPlane, camera->FarPlane
 	);
 
 	if(camera->type == THIRD_PERSON)
@@ -63,12 +63,16 @@ void camera_change_direction(Camera* camera, float yawOffset, float pitchOffset)
 	yaw += yawOffset;
 
 	// Unallows camera to perform a flip
-	if(pitch > 89.0f) pitch = 89.0f;
-	if(pitch < -89.0f) pitch = -89.0f;
+	if(pitch > 89.0f)
+		pitch = 89.0f;
+	if(pitch < -89.0f)
+		pitch = -89.0f;
 
 	// Make sure we don't overflow floats when camera is spinning indefinetely
-	if(yaw > 360.0f) yaw -= 360.0f;
-	if(yaw < -360.0f) yaw += 360.0f;
+	if(yaw > 360.0f)
+		yaw -= 360.0f;
+	if(yaw < -360.0f)
+		yaw += 360.0f;
 
 	camera->Front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
 	camera->Front.y = sin(glm::radians(pitch));
@@ -98,8 +102,12 @@ void compute_angles_from_direction(float& pitch, float& yaw, vec3 direction)
 {
 	pitch = glm::degrees(glm::asin(direction.y));
 	yaw = glm::degrees(atan2(direction.x, -1 * direction.z) - PI / 2);
-	if(pitch > 89.0f) pitch = 89.0f;
-	if(pitch < -89.0f) pitch = -89.0f;
-	if(yaw > 360.0f) yaw -= 360.0f;
-	if(yaw < -360.0f) yaw += 360.0f;
+	if(pitch > 89.0f)
+		pitch = 89.0f;
+	if(pitch < -89.0f)
+		pitch = -89.0f;
+	if(yaw > 360.0f)
+		yaw -= 360.0f;
+	if(yaw < -360.0f)
+		yaw += 360.0f;
 }

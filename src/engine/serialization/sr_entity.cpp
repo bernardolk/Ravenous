@@ -320,10 +320,12 @@ void EntitySerializer::save(std::ofstream& writer, Entity& entity)
 
 	// shader: If entity.s using tiled texture fragment shader, also writes number of tiles since we can change it through the editor
 	if(entity.flags & EntityFlags_RenderTiledTexture)
+	{
 		For(6)
 		{
 			writer << " " << entity.uv_tile_wrap[i];
 		}
+	}
 
 	writer << "\n";
 
@@ -370,7 +372,7 @@ void EntitySerializer::save(std::ofstream& writer, Entity& entity)
 		For(entity.timer_trigger_data.size)
 		{
 			const auto marking = entity.timer_trigger_data.markings[i];
-			const u32  time_checkpoint = entity.timer_trigger_data.time_checkpoints[i];
+			const u32 time_checkpoint = entity.timer_trigger_data.time_checkpoints[i];
 			if(marking != nullptr)
 				writer << "timer_marking " << marking->id << " " << time_checkpoint << "\n";
 		}

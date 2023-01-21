@@ -9,14 +9,15 @@ void render_collision_log_panel(CollisionLogPanelContext* panel)
 {
 	const u16 w_width = 450;
 	const u16 w_height = 320;
-	const u8  w_bottom_margin = 30;
-	const u8  table_items_to_show = 100;
+	const u8 w_bottom_margin = 30;
+	const u8 table_items_to_show = 100;
 	const u16 table_height = 120;
 
 	ImGui::SetNextWindowPos(
 		ImVec2(GlobalDisplayConfig::VIEWPORT_WIDTH - w_width, GlobalDisplayConfig::VIEWPORT_HEIGHT - w_height - w_bottom_margin),
 		ImGuiCond_Appearing
 	);
+	
 	ImGui::Begin("Collision Log Panel", &panel->active, ImGuiWindowFlags_None);
 	ImGui::SetWindowSize("Collision Log Panel", ImVec2(w_width, w_height), ImGuiCond_Once);
 	panel->focused = ImGui::IsWindowFocused();

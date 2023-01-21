@@ -13,7 +13,7 @@ enum EntityAnimationKeyframeFlags
 
 struct EntityAnimationKeyframe
 {
-	u32  duration;                  // expressed in milliseconds
+	u32 duration; // expressed in milliseconds
 	vec3 final_position;
 	vec3 final_rotation;
 	vec3 final_scale;
@@ -26,14 +26,14 @@ struct EntityAnimationKeyframe
 
 struct EntityAnimation
 {
-	std::string             description = "";
-	bool                    active = false;
-	Entity*                 entity = nullptr;
-	u32                     keyframes_count = 0;
+	std::string description = "";
+	bool active = false;
+	Entity* entity = nullptr;
+	u32 keyframes_count = 0;
 	EntityAnimationKeyframe keyframes[AN_MAX_ENTITY_ANIMATION_KEYFRAMES];
 
-	float runtime = 0;               // expressed in milliseconds
-	u32   current_keyframe = 0;
+	float runtime = 0; // expressed in milliseconds
+	u32 current_keyframe = 0;
 	float keyframe_runtime = 0;
 
 	void update()
@@ -111,7 +111,7 @@ struct EntityAnimation
 struct EntityAnimationBuffer
 {
 	const static size_t animation_buffer_array_size = 16;
-	EntityAnimation     animations[animation_buffer_array_size];
+	EntityAnimation animations[animation_buffer_array_size];
 
 	size_t _find_slot()
 	{

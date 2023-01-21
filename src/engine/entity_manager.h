@@ -18,8 +18,8 @@ struct EntityAttributes
 	std::string shader = "model";
 	std::string texture = "grey";
 	std::string collision_mesh = "aabb";
-	EntityType  type = EntityType_Static;
-	vec3        scale = vec3{1.0f};
+	EntityType type = EntityType_Static;
+	vec3 scale = vec3{1.0f};
 };
 
 struct EntityManager
@@ -27,11 +27,11 @@ struct EntityManager
 	// ------------------
 	// > ENTITY MANAGER
 	// ------------------ 
-	u64        next_entity_id = 1;
-	u64        editor_count = 0;
+	u64 next_entity_id = 1;
+	u64 editor_count = 0;
 	EntityPool pool = EntityPool(200);
 
-	std::vector<Entity*>  deletion_stack;
+	std::vector<Entity*> deletion_stack;
 	std::vector<Entity*>* entity_registry;
 	std::vector<Entity*>* checkpoints_registry;
 	std::vector<Entity*>* interactables_registry;
@@ -51,10 +51,10 @@ struct EntityManager
 
 
 	[[nodiscard]] auto _find_entity_assets_in_catalogue(
-		const std::string& mesh,
-		const std::string& collision_mesh,
-		const std::string& shader,
-		const std::string& texture) const;
+	const std::string& mesh,
+	const std::string& collision_mesh,
+	const std::string& shader,
+	const std::string& texture) const;
 
 	void _remove_from_checkpoint_registry(Entity* entity) const;
 	void _remove_interactivity(Entity* entity);

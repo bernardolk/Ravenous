@@ -75,7 +75,7 @@ void render_text(std::string font, float x, float y, vec3 color, float scale, bo
 
 	// Try finding font in catalogue, if doesn't find, tries loading it
 	gl_charmap charmap;
-	auto       font_query = Font_Catalogue.find(font);
+	auto font_query = Font_Catalogue.find(font);
 	if(font_query == Font_Catalogue.end())
 	{
 		// search for font size in font name (e.g. Consola12) and loads it
@@ -109,7 +109,7 @@ void render_text(std::string font, float x, float y, vec3 color, float scale, bo
 	if(center)
 	{
 		std::string::iterator it;
-		float                 x_sum = 0;
+		float x_sum = 0;
 		for(it = text.begin(); it != text.end(); ++it)
 		{
 			auto ch = charmap[*it];
@@ -131,12 +131,12 @@ void render_text(std::string font, float x, float y, vec3 color, float scale, bo
 		GLfloat h = ch.size.y * scale;
 		// Update VBO for each character
 		GLfloat vertices[6][4] = {
-			{xpos, ypos + h, 0.0, 0.0},
-			{xpos, ypos, 0.0, 1.0},
-			{xpos + w, ypos, 1.0, 1.0},
-			{xpos, ypos + h, 0.0, 0.0},
-			{xpos + w, ypos, 1.0, 1.0},
-			{xpos + w, ypos + h, 1.0, 0.0}
+		{xpos, ypos + h, 0.0, 0.0},
+		{xpos, ypos, 0.0, 1.0},
+		{xpos + w, ypos, 1.0, 1.0},
+		{xpos, ypos + h, 0.0, 0.0},
+		{xpos + w, ypos, 1.0, 1.0},
+		{xpos + w, ypos + h, 1.0, 0.0}
 		};
 
 		// Render glyph texture over quad
@@ -158,7 +158,7 @@ gl_charmap load_text_textures(std::string font, int size)
 	if(FT_Init_FreeType(&ft))
 		Quit_fatal("Freetype: Could not init FreeType Library");
 
-	FT_Face     face;
+	FT_Face face;
 	std::string filepath = FONTS_PATH + font;
 	if(FT_New_Face(ft, filepath.c_str(), 0, &face))
 		log(LOG_ERROR, "Freetype: Failed to load font");
@@ -180,15 +180,15 @@ gl_charmap load_text_textures(std::string font, int size)
 		glGenTextures(1, &gylphTexture);
 		glBindTexture(GL_TEXTURE_2D, gylphTexture);
 		glTexImage2D(
-			GL_TEXTURE_2D,
-			0,
-			GL_RED,
-			face->glyph->bitmap.width,
-			face->glyph->bitmap.rows,
-			0,
-			GL_RED,
-			GL_UNSIGNED_BYTE,
-			face->glyph->bitmap.buffer
+		GL_TEXTURE_2D,
+		0,
+		GL_RED,
+		face->glyph->bitmap.width,
+		face->glyph->bitmap.rows,
+		0,
+		GL_RED,
+		GL_UNSIGNED_BYTE,
+		face->glyph->bitmap.buffer
 		);
 		// Set texture options
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -197,17 +197,17 @@ gl_charmap load_text_textures(std::string font, int size)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		// Now store character for later use
 		Character character = {
-			.texture_id = gylphTexture,
-			.advance = static_cast<u32>(face->glyph->advance.x),
-			.size = glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-			.bearing = glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top)
+		.texture_id = gylphTexture,
+		.advance = static_cast<u32>(face->glyph->advance.x),
+		.size = glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+		.bearing = glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top)
 		};
 
 		font_charmap.insert(std::pair<GLchar, Character>(c, character));
 	}
 
 	// saves font chars to catalogue
-	auto        separator = font.find('.');
+	auto separator = font.find('.');
 	std::string font_name = font.substr(0, separator);
 	std::string font_catalogue_name = font_name + std::to_string(size);
 

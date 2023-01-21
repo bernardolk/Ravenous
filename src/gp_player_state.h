@@ -27,11 +27,11 @@ struct PlayerStateChangeArgs
 
 	// collision
 	Entity* entity = nullptr;
-	vec3    normal = vec3(0);
-	float   penetration = 0;
+	vec3 normal = vec3(0);
+	float penetration = 0;
 
 	// grabbing info
-	vec3  final_position = vec3(0);
+	vec3 final_position = vec3(0);
 	Ledge ledge;
 };
 
@@ -139,7 +139,7 @@ void GP_player_state_change_standing_to_jumping(Player* player)
 {
 	auto& v = player->entity_ptr->velocity;
 	auto& v_dir = player->v_dir;
-	bool  no_move_command = v_dir.x == 0 && v_dir.z == 0;
+	bool no_move_command = v_dir.x == 0 && v_dir.z == 0;
 
 	if(no_move_command)
 	{

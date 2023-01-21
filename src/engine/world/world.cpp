@@ -91,7 +91,7 @@ void WorldCell::defrag()
 
 	// initialize holes array
 	unsigned int hole_count = 0;
-	int          holes[WORLD_CELL_CAPACITY];
+	int holes[WORLD_CELL_CAPACITY];
 	for(int i = 0; i < WORLD_CELL_CAPACITY; i++)
 		holes[i] = -1;
 
@@ -297,7 +297,7 @@ RaycastTest World::raycast(const Ray ray, const RayCastType test_type, const Ent
 {
 	//@TODO: This should first test ray against world cells, then get the list of entities from these world cells to test against 
 
-	float       min_distance = MAX_FLOAT;
+	float min_distance = MAX_FLOAT;
 	RaycastTest closest_hit{false, -1};
 
 	for(const auto entity : this->entities)
@@ -333,9 +333,9 @@ RaycastTest World::linear_raycast_array(const Ray first_ray, int qty, float spac
 	   qty says how many rays to shoot and spacing, well, the spacing between each ray.
 	*/
 
-	Ray         ray = first_ray;
-	float       highest_y = MIN_FLOAT;
-	float       shortest_z = MAX_FLOAT;
+	Ray ray = first_ray;
+	float highest_y = MIN_FLOAT;
+	float shortest_z = MAX_FLOAT;
 	RaycastTest best_hit_results;
 
 	for_less(qty)
@@ -367,7 +367,7 @@ RaycastTest World::linear_raycast_array(const Ray first_ray, int qty, float spac
 
 RaycastTest World::raycast_lights(const Ray ray) const
 {
-	float       min_distance = MAX_FLOAT;
+	float min_distance = MAX_FLOAT;
 	RaycastTest closest_hit{.hit = false, .distance = -1};
 
 	const auto aabb_mesh = Geometry_Catalogue.find("aabb")->second;
@@ -401,7 +401,7 @@ RaycastTest World::raycast_lights(const Ray ray) const
 		if(test.hit && test.distance < min_distance)
 		{
 			closest_hit = {
-				.hit = true, .distance = test.distance, .entity = nullptr, .obj_hit_index = spot_c, .obj_hit_type = "spot"
+			.hit = true, .distance = test.distance, .entity = nullptr, .obj_hit_index = spot_c, .obj_hit_type = "spot"
 			};
 			min_distance = test.distance;
 		}

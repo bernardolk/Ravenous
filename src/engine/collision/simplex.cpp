@@ -12,5 +12,5 @@ void Simplex::push_front(vec3 point)
 	assert(this->p_size <= 4);
 }
 
-vec3 & Simplex::operator[](u32 i) { return this->points[i]; }
-u32    Simplex::size() const { return this->p_size; }
+vec3& Simplex::operator[](u32 i) { return this->points[i]; }
+u32 Simplex::size() const { return this->p_size; }

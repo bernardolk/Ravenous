@@ -6,7 +6,7 @@ struct Mesh;
 struct CollisionMesh
 {
 	std::vector<vec3> vertices;
-	std::vector<u32>  indices;
+	std::vector<u32> indices;
 
 	BoundingBox compute_bounding_box();
 };

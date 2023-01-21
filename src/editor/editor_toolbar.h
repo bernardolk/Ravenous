@@ -25,7 +25,7 @@ void render_toolbar(World* world)
 
 		// Ambient light control
 		ImGui::Text("Ambient light");
-		auto  ambient = world->ambient_light;
+		auto ambient = world->ambient_light;
 		float colors[3] = {ambient.x, ambient.y, ambient.z};
 		if(ImGui::ColorEdit3("##ambient-color", colors))
 		{

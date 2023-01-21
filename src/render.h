@@ -3,18 +3,18 @@
 struct Entity;
 
 const unsigned int R_SHADOW_BUFFER_WIDTH = 1920, R_SHADOW_BUFFER_HEIGHT = 1080;
-unsigned int       R_DEPTH_MAP_FBO;
-unsigned int       R_DEPTH_MAP;
+unsigned int R_DEPTH_MAP_FBO;
+unsigned int R_DEPTH_MAP;
 
 mat4 R_DIR_LIGHT_SPACE_MATRIX;
 vec3 R_DIRECTIONAL_LIGHT_POS = vec3{-2.0f, 4.0f, -1.0f};
 
 // depth cubemap (point light shadow)
 unsigned int R_DEPTH_CUBEMAP_FBO;
-mat4         R_POINT_LIGHT_SPACE_MATRICES[6];
+mat4 R_POINT_LIGHT_SPACE_MATRICES[6];
 unsigned int R_DEPTH_CUBEMAP_TEXTURE;
-float        R_CUBEMAP_NEAR_PLANE = 1.0f;
-float        R_CUBEMAP_FAR_PLANE = 25.0f;
+float R_CUBEMAP_NEAR_PLANE = 1.0f;
+float R_CUBEMAP_FAR_PLANE = 25.0f;
 
 
 void RenderEntity(Entity* entity);
@@ -212,7 +212,7 @@ void set_shader_light_variables(World* world, Shader* shader, Camera* camera)
 
 // leave for debugging
 std::string p_grab = "Grabbed: ";
-int         p_floor = -1;
+int p_floor = -1;
 
 // -------------------------
 // RENDER GAME GUI
@@ -258,7 +258,7 @@ void create_depth_buffer()
 	glGenTextures(1, &R_DEPTH_MAP);
 	glBindTexture(GL_TEXTURE_2D, R_DEPTH_MAP);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, R_SHADOW_BUFFER_WIDTH,
-		R_SHADOW_BUFFER_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr
+	             R_SHADOW_BUFFER_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr
 	);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -277,7 +277,7 @@ void create_depth_buffer()
 	glBindTexture(GL_TEXTURE_CUBE_MAP, R_DEPTH_CUBEMAP_TEXTURE);
 	for(unsigned int i = 0; i < 6; i++)
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT,
-			R_SHADOW_BUFFER_WIDTH, R_SHADOW_BUFFER_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr
+		             R_SHADOW_BUFFER_WIDTH, R_SHADOW_BUFFER_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr
 		);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -301,7 +301,7 @@ void create_light_space_transform_matrices()
 	far_plane = 7.5f;
 	mat4 light_projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
 	mat4 light_view = lookAt(
-		R_DIRECTIONAL_LIGHT_POS, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f)
+	R_DIRECTIONAL_LIGHT_POS, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f)
 	);
 	R_DIR_LIGHT_SPACE_MATRIX = light_projection * light_view;
 }
@@ -344,7 +344,7 @@ void render_depth_cubemap(World* world)
 	auto light = world->point_lights[0];
 
 	float aspect = static_cast<float>(R_SHADOW_BUFFER_WIDTH) / static_cast<float>(R_SHADOW_BUFFER_HEIGHT);
-	mat4  cubemap_proj = glm::perspective(glm::radians(90.0f), aspect, R_CUBEMAP_NEAR_PLANE, R_CUBEMAP_FAR_PLANE);
+	mat4 cubemap_proj = glm::perspective(glm::radians(90.0f), aspect, R_CUBEMAP_NEAR_PLANE, R_CUBEMAP_FAR_PLANE);
 	R_POINT_LIGHT_SPACE_MATRICES[0] =
 	cubemap_proj * lookAt(light->position, light->position + vec3(1.0, 0.0, 0.0), vec3(0.0, -1.0, 0.0));
 	R_POINT_LIGHT_SPACE_MATRICES[1] =

@@ -3,10 +3,10 @@
 struct Shader
 {
 	unsigned int gl_programId;
-	std::string  name;
-	std::string  vertex_path;
-	std::string  geometry_path;
-	std::string  fragment_path;
+	std::string name;
+	std::string vertex_path;
+	std::string geometry_path;
+	std::string fragment_path;
 
 	void use();
 
@@ -27,9 +27,9 @@ extern std::map<std::string, Shader*> Shader_Catalogue;
 bool check_shader_compile_errors(Shader* shader, std::string type, unsigned int id);
 
 Shader* create_shader_program(
-	std::string name,
-	std::string vertex_shader_filename,
-	std::string geometry_shader_filename,
-	std::string fragment_shader_filename);
+std::string name,
+std::string vertex_shader_filename,
+std::string geometry_shader_filename,
+std::string fragment_shader_filename);
 
 Shader* create_shader_program(std::string name, std::string vertex_shader_filename, std::string fragment_shader_filename);

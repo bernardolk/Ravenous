@@ -164,7 +164,7 @@ auto get_scale_and_position_change(float e_scale, float e_aligned, float e_oppos
 	{
 		float scale_f;
 		float pos_f = 0.f;
-	}         transform;
+	} transform;
 
 	float dif = e_aligned - t;
 
@@ -302,7 +302,8 @@ void check_selection_to_measure(World* world)
 	{
 		if(!EdContext.first_point_found || EdContext.second_point_found)
 		{
-			if(EdContext.second_point_found) EdContext.second_point_found = false;
+			if(EdContext.second_point_found)
+				EdContext.second_point_found = false;
 			EdContext.first_point_found = true;
 			EdContext.measure_from = point_from_detection(pickray, test);
 		}
@@ -370,13 +371,13 @@ RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* entity)
 	// create a big plane for placing entity in the world with the mouse using raycast from camera to mouse
 	// position. In the case of Y placement, we need to compute the plane considering the camera orientation.
 	Triangle t1, t2;
-	float    plane_size = 500.0f;
+	float plane_size = 500.0f;
 
 	switch(EdContext.move_axis)
 	{
-	case 0:  // XZ 
-	case 1:  // X
-	case 3:  // Z
+	case 0: // XZ 
+	case 1: // X
+	case 3: // Z
 		t1.a = vec3{entity->position.x - plane_size, entity->position.y, entity->position.z - plane_size};
 		t1.b = vec3{entity->position.x + plane_size, entity->position.y, entity->position.z - plane_size};
 		t1.c = vec3{entity->position.x + plane_size, entity->position.y, entity->position.z + plane_size};
@@ -384,7 +385,7 @@ RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* entity)
 		t2.b = vec3{entity->position.x - plane_size, entity->position.y, entity->position.z + plane_size};
 		t2.c = vec3{entity->position.x + plane_size, entity->position.y, entity->position.z + plane_size};
 		break;
-	case 2:  // Y
+	case 2: // Y
 	{
 		// creates vector from cam to entity in XZ
 		auto camera = G_SCENE_INFO.camera;
@@ -415,7 +416,7 @@ RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* entity)
 	}
 
 	// ray casts against created plane
-	auto        ray = cast_pickray(G_SCENE_INFO.camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
+	auto ray = cast_pickray(G_SCENE_INFO.camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
 	RaycastTest test;
 
 	test = test_ray_against_triangle(ray, t1);
@@ -470,23 +471,23 @@ void move_entity_with_mouse(Entity* entity)
 	if(!test.hit)
 		return;
 
-	Ray  ray = test.ray;
+	Ray ray = test.ray;
 	vec3 pos = ray.origin + ray.direction * test.distance;
 
 	// places entity accordingly
 	switch(EdContext.move_axis)
 	{
-	case 0:  // XZ 
+	case 0: // XZ 
 		entity->position.x = pos.x;
 		entity->position.z = pos.z;
 		break;
-	case 1:  // X
+	case 1: // X
 		entity->position.x = pos.x;
 		break;
-	case 2:  // Y
+	case 2: // Y
 		entity->position.y = pos.y;
 		break;
-	case 3:  // Z
+	case 3: // Z
 		entity->position.z = pos.z;
 		break;
 	}
@@ -518,7 +519,7 @@ void move_entity_by_arrows(Entity* entity)
 	if(!test.hit)
 		return;
 
-	Ray  ray = test.ray;
+	Ray ray = test.ray;
 	vec3 pos = ray.origin + ray.direction * test.distance;
 
 	// gets the offset from the mouse drag starting point, and not absolute position
@@ -527,17 +528,17 @@ void move_entity_by_arrows(Entity* entity)
 	// modifies entity position
 	switch(EdContext.move_axis)
 	{
-	case 0:  // XZ 
+	case 0: // XZ 
 		entity->position.x += diff.x;
 		entity->position.z += diff.z;
 		break;
 	case 1: // X
 		entity->position.x += diff.x;
 		break;
-	case 2:  // Y
+	case 2: // Y
 		entity->position.y += diff.y;
 		break;
-	case 3:  // Z
+	case 3: // Z
 		entity->position.z += diff.z;
 		break;
 	}
@@ -591,13 +592,13 @@ void move_light_with_mouse(std::string type, int index, World* world)
 	// create a big plane for placing entity in the world with the mouse using raycast from camera to mouse
 	// position. In the case of Y placement, we need to compute the plane considering the camera orientation.
 	Triangle t1, t2;
-	float    plane_size = 500.0f;
+	float plane_size = 500.0f;
 
 	switch(EdContext.move_axis)
 	{
-	case 0:  // XZ 
-	case 1:  // X
-	case 3:  // Z
+	case 0: // XZ 
+	case 1: // X
+	case 3: // Z
 		t1.a = vec3{position.x - plane_size, position.y, position.z - plane_size};
 		t1.b = vec3{position.x + plane_size, position.y, position.z - plane_size};
 		t1.c = vec3{position.x + plane_size, position.y, position.z + plane_size};
@@ -605,7 +606,7 @@ void move_light_with_mouse(std::string type, int index, World* world)
 		t2.b = vec3{position.x - plane_size, position.y, position.z + plane_size};
 		t2.c = vec3{position.x + plane_size, position.y, position.z + plane_size};
 		break;
-	case 2:  // Y
+	case 2: // Y
 	{
 		// creates vector from cam to entity in XZ
 		auto camera = G_SCENE_INFO.camera;
@@ -656,13 +657,13 @@ void move_light_with_mouse(std::string type, int index, World* world)
 		position.x = ray.origin.x + ray.direction.x * test.distance;
 		position.z = ray.origin.z + ray.direction.z * test.distance;
 		break;
-	case 1:  // X
+	case 1: // X
 		position.x = ray.origin.x + ray.direction.x * test.distance;
 		break;
-	case 2:  // Y
+	case 2: // Y
 		position.y = ray.origin.y + ray.direction.y * test.distance;
 		break;
-	case 3:  // Z
+	case 3: // Z
 		position.z = ray.origin.z + ray.direction.z * test.distance;
 		break;
 	}
@@ -685,17 +686,17 @@ void place_light()
 // ---------------------
 // > ROTATE ENTITY TOOL
 // ---------------------
-void  activate_rotate_entity_with_mouse(u8 move_axis);
+void activate_rotate_entity_with_mouse(u8 move_axis);
 float mouse_offset_to_angular_offset(float mouse_offset);
-void  rotate_entity_with_mouse(Entity* entity);
+void rotate_entity_with_mouse(Entity* entity);
 
 void activate_rotate_entity_with_mouse(u8 move_axis)
 {
 	EdContext.move_axis = move_axis;
 	EdContext.rotate_entity_with_mouse = true;
 	EdContext.rotate_entity_with_mouse_mouse_coords_ref = vec2(
-		G_INPUT_INFO.mouse_coords.x,
-		G_INPUT_INFO.mouse_coords.y
+	G_INPUT_INFO.mouse_coords.x,
+	G_INPUT_INFO.mouse_coords.y
 	);
 	EdContext.undo_stack.track(EdContext.selected_entity);
 }
@@ -719,14 +720,14 @@ void rotate_entity_with_mouse(Entity* entity)
 		entity->rotation.x += angular_diff;
 		break;
 	}
-	case 2:  // Y
+	case 2: // Y
 	{
 		float diff = mouse_coords.x - EdContext.rotate_entity_with_mouse_mouse_coords_ref.x;
 		float angular_diff = mouse_offset_to_angular_offset(diff);
 		entity->rotation.y += angular_diff;
 		break;
 	}
-	case 3:  // Z
+	case 3: // Z
 	{
 		float diff = mouse_coords.y - EdContext.rotate_entity_with_mouse_mouse_coords_ref.y;
 		float angular_diff = mouse_offset_to_angular_offset(diff);
@@ -758,9 +759,9 @@ void scale_entity_with_mouse(Entity* entity)
 // -----------------------
 // used in entity panel to select other entity to attribute 1 to 1 relationships
 void activate_select_entity_aux_tool(
-	Entity**           entity_slot,
-	EdToolCallback     callback = EdToolCallback_NoCallback,
-	EdToolCallbackArgs args = EdToolCallbackArgs{}
+Entity** entity_slot,
+EdToolCallback callback = EdToolCallback_NoCallback,
+EdToolCallbackArgs args = EdToolCallbackArgs{}
 )
 {
 	EdContext.select_entity_aux_mode = true;

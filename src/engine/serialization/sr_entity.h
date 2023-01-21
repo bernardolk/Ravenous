@@ -15,16 +15,16 @@ enum SrEntityRelation
 struct DeferredEntityRelationBuffer
 {
 	static constexpr int size = 64;
-	int                  count = 0;
-	Entity*              entities[size]{};
-	u64                  deferred_entity_ids[size]{};
-	SrEntityRelation     relations[size]{};
-	u32                  aux_uint_buffer[size]{};
+	int count = 0;
+	Entity* entities[size]{};
+	u64 deferred_entity_ids[size]{};
+	SrEntityRelation relations[size]{};
+	u32 aux_uint_buffer[size]{};
 };
 
 struct EntitySerializer
 {
-	inline static EntityManager*               manager = nullptr;
+	inline static EntityManager* manager = nullptr;
 	inline static DeferredEntityRelationBuffer relations{};
 
 	static void parse(Parser& parser);
