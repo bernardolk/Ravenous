@@ -1,3 +1,5 @@
+#pragma once
+
 struct EntityState
 {
 	Entity* entity = nullptr;
@@ -7,7 +9,7 @@ struct EntityState
 	vec3 rotation;
 };
 
-EntityState get_entity_state(Entity* entity)
+inline EntityState get_entity_state(Entity* entity)
 {
 	EntityState state;
 	state.position = entity->position;
@@ -18,7 +20,7 @@ EntityState get_entity_state(Entity* entity)
 	return state;
 }
 
-void apply_state(EntityState state)
+inline void apply_state(EntityState state)
 {
 	if(state.entity == nullptr)
 		return;
@@ -29,7 +31,7 @@ void apply_state(EntityState state)
 	state.entity->update();
 }
 
-bool compare_entity_states(EntityState state1, EntityState state2)
+inline bool compare_entity_states(EntityState state1, EntityState state2)
 {
 	return state1.id == state2.id
 	&& state1.position == state2.position
@@ -37,7 +39,7 @@ bool compare_entity_states(EntityState state1, EntityState state2)
 	&& state1.rotation == state2.rotation;
 }
 
-mat4 mat_model_from_entity_state(EntityState state)
+inline mat4 mat_model_from_entity_state(EntityState state)
 {
 	glm::mat4 model = translate(mat4identity, state.position);
 	model = rotate(model, glm::radians(state.rotation.x), vec3(1.0f, 0.0f, 0.0f));

@@ -2,7 +2,7 @@
 
 
 struct Parser;
-struct EntityManager;
+struct T_EntityManager;
 struct World;
 
 struct PlayerSerializer

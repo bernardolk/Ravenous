@@ -1,4 +1,6 @@
-void load_models()
+#pragma once
+
+inline void load_models()
 {
 	//TEXT
 	{

@@ -1,9 +1,9 @@
-#include<stack>
+#include <stack>
 
-bool WIN_list_files(std::string path, std::string mask, std::vector<std::string>& files)
+inline bool WIN_list_files(std::string path, std::string mask, std::vector<std::string>& files)
 {
 
-	auto hFind = INVALID_HANDLE_VALUE;
+	auto h_find = INVALID_HANDLE_VALUE;
 	WIN32_FIND_DATA ffd;
 	std::string spec;
 	std::stack<std::string> directories;
@@ -17,8 +17,8 @@ bool WIN_list_files(std::string path, std::string mask, std::vector<std::string>
 		spec = path + "\\" + mask;
 		directories.pop();
 
-		hFind = FindFirstFile(spec.c_str(), &ffd);
-		if(hFind == INVALID_HANDLE_VALUE)
+		h_find = FindFirstFile(spec.c_str(), &ffd);
+		if(h_find == INVALID_HANDLE_VALUE)
 		{
 			return false;
 		}
@@ -37,16 +37,16 @@ bool WIN_list_files(std::string path, std::string mask, std::vector<std::string>
 					files.push_back(path + "/" + ffd.cFileName);
 				}
 			}
-		} while(FindNextFile(hFind, &ffd) != 0);
+		} while(FindNextFile(h_find, &ffd) != 0);
 
 		if(GetLastError() != ERROR_NO_MORE_FILES)
 		{
-			FindClose(hFind);
+			FindClose(h_find);
 			return false;
 		}
 
-		FindClose(hFind);
-		hFind = INVALID_HANDLE_VALUE;
+		FindClose(h_find);
+		h_find = INVALID_HANDLE_VALUE;
 	}
 
 	return true;

@@ -36,20 +36,20 @@ void IN_process_move_keys(InputFlags flags, vec3& v_dir)
 {
 	if(pressed(flags, KEY_MOVE_UP))
 	{
-		v_dir += nrmlz(to_xz(pCam->Front));
+		v_dir += nrmlz(to_xz(PCam->Front));
 	}
 	if(pressed(flags, KEY_MOVE_LEFT))
 	{
-		vec3 onwards_vector = cross(pCam->Front, pCam->Up);
+		vec3 onwards_vector = cross(PCam->Front, PCam->Up);
 		v_dir -= nrmlz(to_xz(onwards_vector));
 	}
 	if(pressed(flags, KEY_MOVE_DOWN))
 	{
-		v_dir -= nrmlz(to_xz(pCam->Front));
+		v_dir -= nrmlz(to_xz(PCam->Front));
 	}
 	if(pressed(flags, KEY_MOVE_RIGHT))
 	{
-		vec3 onwards_vector = cross(pCam->Front, pCam->Up);
+		vec3 onwards_vector = cross(PCam->Front, PCam->Up);
 		v_dir += nrmlz(to_xz(onwards_vector));
 	}
 }
@@ -92,7 +92,7 @@ void IN_handle_movement_input(InputFlags flags, Player* & player, ProgramModeEnu
 			GP_change_player_state(player, PLAYER_STATE_JUMPING);
 
 		// VAULT
-		if(pressed(flags, KEY_LEFT_SHIFT) && G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK)
+		if(pressed(flags, KEY_LEFT_SHIFT) && GInputInfo.mouse_state & MOUSE_LB_CLICK)
 			player->want_to_grab = true;
 
 		// INTERACT
@@ -212,7 +212,7 @@ void IN_handle_common_input(InputFlags flags, Player* & player)
 	}
 	if(flags.key_press & KEY_K)
 	{
-		player->die();
+		player->Die();
 	}
 	if(pressed_once(flags, KEY_F))
 	{
@@ -224,11 +224,11 @@ void IN_handle_common_input(InputFlags flags, Player* & player)
 	}
 	if(flags.key_press & KEY_ESC && flags.key_press & KEY_LEFT_SHIFT)
 	{
-		glfwSetWindowShouldClose(G_DISPLAY_INFO.window, true);
+		glfwSetWindowShouldClose(GDisplayInfo.window, true);
 	}
 	if(pressed_once(flags, KEY_Y))
 	{
 		// for testing EPA collision resolve
-		G_SCENE_INFO.tmp_unstuck_things = true;
+		GSceneInfo.tmp_unstuck_things = true;
 	}
 }

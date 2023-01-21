@@ -32,11 +32,11 @@ void render_player_panel(PlayerPanelContext* panel)
 	ImGui::NewLine();
 
 	ImGui::Text("Speed: ");
-	ImGui::Text(fmt_tostr(player->speed, 3).c_str());
+	ImGui::Text(FmtTostr(player->speed, 3).c_str());
 	ImGui::NewLine();
 
 	ImGui::Text("Velocity: ");
-	ImGui::Text(to_string(player->entity_ptr->velocity).c_str());
+	ImGui::Text(ToString(player->entity_ptr->velocity).c_str());
 
 	ImGui::End();
 }

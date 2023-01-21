@@ -18,7 +18,7 @@ enum PlayerState
 	PLAYER_STATE_VAULTING
 };
 
-const static std::string PLAYER_NAME = "Player";
+const static std::string PlayerName = "Player";
 
 // ----------
 // Animation
@@ -32,7 +32,7 @@ enum PlayerAnimationState
 	PlayerAnimationState_Vaulting    = 3
 };
 
-const float PLAYER_ANIMATION_DURATIONS[] = {
+constexpr float PlayerAnimationDurations[] = {
 400, // 0 - jumping
 200, // 1 - landing                  
 400, // 2 - landing fall   
@@ -135,7 +135,7 @@ struct Player
 	vec3 anim_orig_dir = vec3(0);                                       // original player orientation
 	bool anim_finished_turning = false;                                 // player has finished turning his camera
 
-	void update(World* world, bool update_collider = false)
+	void Update(World* world, bool update_collider = false)
 	{
 		// perform updates to bounding boxes, colliders etc
 		entity_ptr->update_model_matrix();
@@ -145,35 +145,34 @@ struct Player
 			entity_ptr->update_bounding_box();
 		}
 
-		bool cells_updated = CL_update_player_world_cells(this, world);
-		if(cells_updated)
+		if(CL_update_player_world_cells(this, world))
 		{
 			CL_recompute_collision_buffer_entities(this);
 		}
 	}
 
-	vec3 feet()
+	vec3 Feet()
 	{
 		return entity_ptr->position;
 	}
 
-	vec3 top()
+	vec3 Top()
 	{
 		return entity_ptr->position + vec3(0.0f, height, 0.0f);
 	}
 
-	vec3 eye()
+	vec3 Eye()
 	{
 		return entity_ptr->position + vec3(0, height - 0.1, 0);
 	}
 
-	vec3 last_terrain_contact_point()
+	vec3 LastTerrainContactPoint()
 	{
 		vec3 player_btm_sphere_center = entity_ptr->position + vec3(0, radius, 0);
 		return player_btm_sphere_center + -last_terrain_contact_normal * radius;
 	}
 
-	bool maybe_hurt_from_fall()
+	bool MaybeHurtFromFall()
 	{
 		float fall_height = height_before_fall - entity_ptr->position.y;
 		fall_height_log = fall_height;
@@ -190,12 +189,12 @@ struct Player
 		return false;
 	}
 
-	void restore_health()
+	void RestoreHealth()
 	{
 		lives = initial_lives;
 	}
 
-	void set_checkpoint(Entity* entity)
+	void SetCheckpoint(Entity* entity)
 	{
 		if(entity->type != EntityType_Checkpoint)
 			assert(false);
@@ -204,27 +203,27 @@ struct Player
 		checkpoint = entity;
 	}
 
-	void goto_checkpoint()
+	void GotoCheckpoint()
 	{
 		entity_ptr->position = checkpoint_pos;
 	}
 
-	void die()
+	void Die()
 	{
 		lives = initial_lives;
 		entity_ptr->velocity = vec3(0);
 		player_state = PLAYER_STATE_STANDING;
 		AN_p_anim_force_interrupt(this);
-		goto_checkpoint();
+		GotoCheckpoint();
 	}
 
-	void brute_stop()
+	void BruteStop()
 	{
 		// bypass deaceleration steps. Stops player right on his tracks.
 		speed = 0;
 	}
 
-	void start_jump_animation()
+	static void StartJumpAnimation()
 	{ }
 
 

@@ -1,6 +1,7 @@
 // 1 = regular
 // 2 = darker
 // 3 = brighter
+#pragma once
 
 
 const vec3 COLOR_RED_1 = vec3(0.870, 0.231, 0.231);

@@ -13,7 +13,7 @@ struct ImmediateEditorValues
 
 
 #define _START_IM_ED() bool _active = true; \
-   if(PROGRAM_MODE.current == EDITOR_MODE) { \
+   if(ProgramMode.current == EDITOR_MODE) { \
    ImGui::SetNextWindowPos( \
       ImVec2(GlobalDisplayConfig::VIEWPORT_WIDTH / 2 - 200, GlobalDisplayConfig::VIEWPORT_HEIGHT - 100), ImGuiCond_Appearing \
    ); \

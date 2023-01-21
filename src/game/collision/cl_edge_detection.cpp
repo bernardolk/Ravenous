@@ -36,10 +36,10 @@ Ledge CL_perform_ledge_detection(Player* player, World* world)
 	constexpr int _front_ray_qty = 24;
 
 	auto orientation_xz = to_xz(player->orientation);
-	auto first_ray = Ray{player->eye() - UNIT_Y * _front_ray_first_ray_delta_y, orientation_xz};
+	auto first_ray = Ray{player->Eye() - UNIT_Y * _front_ray_first_ray_delta_y, orientation_xz};
 	ledge.detection_direction = first_ray.direction;
 
-	auto front_test = world->linear_raycast_array(first_ray, _front_ray_qty, _front_ray_spacing);
+	auto front_test = world->LinearRaycastArray(first_ray, _front_ray_qty, _front_ray_spacing);
 	if(front_test.hit)
 	{
 		vec3 frontal_hitpoint = point_from_detection(front_test.ray, front_test);
@@ -51,7 +51,7 @@ Ledge CL_perform_ledge_detection(Player* player, World* world)
 		constexpr float _top_ray_height = 2.0f;
 		auto top_ray = Ray{frontal_hitpoint + front_test.ray.direction * 0.0001f + UNIT_Y * _top_ray_height, -UNIT_Y};
 
-		auto top_test = world->raycast(top_ray, RayCast_TestOnlyFromOutsideIn, player->entity_ptr, _top_ray_height);
+		auto top_test = world->Raycast(top_ray, RayCast_TestOnlyFromOutsideIn, player->entity_ptr, _top_ray_height);
 
 		if(top_test.hit)
 		{

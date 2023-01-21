@@ -5,37 +5,37 @@
 #include <ctime>
 #include "engine/serialization/parsing/parser.h"
 
-const static int MAX_INPUT_RECORDINGS = 20;
-const std::string RECORDINGS_FILENAME_PREFIX = "rec-";
-const std::string RECORDINGS_FILENAME_EXTENSION = ".txt";
+constexpr static int MaxInputRecordings = 20;
+const std::string RecordingsFilenamePrefix = "rec-";
+const std::string RecordingsFilenameExtension = ".txt";
 
 struct RecordedInput
 {
 	std::vector<InputFlags> history;
 };
 
-struct InputRecorder
+// ReSharper disable once CppInconsistentNaming
+struct T_InputRecorder
 {
-
 	bool is_recording = false;
 	bool is_playing = false;
 
-	RecordedInput recorded_inputs[MAX_INPUT_RECORDINGS];
+	RecordedInput recorded_inputs[MaxInputRecordings];
 	int recording_idx = 0;
 	int playing_idx = 0;
 	int playing_flag_idx = 0;
 
-	void start_recording()
+	void StartRecording()
 	{
 		is_recording = true;
 	}
 
-	void record(InputFlags flags)
+	void Record(InputFlags flags)
 	{
 		recorded_inputs[recording_idx].history.push_back(flags);
 	}
 
-	void stop_recording()
+	void StopRecording()
 	{
 		is_recording = false;
 
@@ -70,12 +70,12 @@ struct InputRecorder
 
 		if(history.size() > 0)
 		{
-			save(recording_idx);
+			Save(recording_idx);
 			recording_idx ++;
 		}
 	}
 
-	void start_playing(int recording_id)
+	void StartPlaying(int recording_id)
 	{
 		if(recording_id == -1)
 			playing_idx = recording_idx - 1;
@@ -84,22 +84,22 @@ struct InputRecorder
 		is_playing = true;
 	}
 
-	InputFlags play()
+	InputFlags Play()
 	{
 		auto& record = recorded_inputs[playing_idx];
 		if(playing_flag_idx >= record.history.size() - 1 || record.history.size() == 0)
-			stop_playing();
+			StopPlaying();
 
 		return record.history[playing_flag_idx++];
 	}
 
-	void stop_playing()
+	void StopPlaying()
 	{
 		is_playing = false;
 		playing_flag_idx = 0;
 	}
 
-	void save(int recording_id)
+	void Save(int recording_id)
 	{
 		auto t = std::time(nullptr);
 		auto tm = *std::localtime(&t);
@@ -109,8 +109,8 @@ struct InputRecorder
 
 		std::string timestamp = timestamp_stream.str();
 		std::ofstream writer(
-		INPUT_RECORDINGS_FOLDER_PATH + RECORDINGS_FILENAME_PREFIX
-		+ timestamp + RECORDINGS_FILENAME_EXTENSION
+		INPUT_RECORDINGS_FOLDER_PATH + RecordingsFilenamePrefix
+		+ timestamp + RecordingsFilenameExtension
 		);
 
 		if(!writer.is_open())
@@ -129,7 +129,7 @@ struct InputRecorder
 
 	}
 
-	void load()
+	void Load()
 	{
 		// this will load up to memory the last MAX_INPUT_RECORDINGS recordings
 		// it will *wipe* all previous in-memory stored recordings.
@@ -179,4 +179,4 @@ struct InputRecorder
 	//    }
 	// }
 
-} inline Input_Recorder;
+} inline InputRecorder;

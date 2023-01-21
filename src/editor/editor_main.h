@@ -176,13 +176,13 @@ namespace Editor
 
 	void update(Player* player, World* world, Camera* camera)
 	{
-		if(EdContext.last_frame_scene != G_SCENE_INFO.scene_name)
+		if(EdContext.last_frame_scene != GSceneInfo.scene_name)
 		{
 			EdContext.entity_panel.active = false;
 			EdContext.world_panel.active = false;
 		}
 
-		EdContext.last_frame_scene = G_SCENE_INFO.scene_name;
+		EdContext.last_frame_scene = GSceneInfo.scene_name;
 
 		// check for asset changes
 		// check_for_asset_changes();
@@ -519,7 +519,7 @@ namespace Editor
 	{
 		ImGui::CreateContext();
 		auto& io = ImGui::GetIO();
-		ImGui_ImplGlfw_InitForOpenGL(G_DISPLAY_INFO.window, true);
+		ImGui_ImplGlfw_InitForOpenGL(GDisplayInfo.window, true);
 		ImGui_ImplOpenGL3_Init("#version 330");
 
 		ImGui::StyleColorsDark();
@@ -613,21 +613,21 @@ namespace Editor
 		EdContext.entity_panel.z_arrow = z_arrow;
 
 		// creates entity rotation gizmos
-		EdContext.entity_panel.rotation_gizmo_x = Entity_Manager.create_editor_entity({
+		EdContext.entity_panel.rotation_gizmo_x = EntityManager.create_editor_entity({
 		.name = "rotation_gizmo_x",
 		.mesh = "rotation_gizmo",
 		.shader = "ed_entity_arrow_shader",
 		.texture = "red",
 		.collision_mesh = "rotation_gizmo_collision"});
 
-		EdContext.entity_panel.rotation_gizmo_y = Entity_Manager.create_editor_entity({
+		EdContext.entity_panel.rotation_gizmo_y = EntityManager.create_editor_entity({
 		.name = "rotation_gizmo_y",
 		.mesh = "rotation_gizmo",
 		.shader = "ed_entity_arrow_shader",
 		.texture = "green",
 		.collision_mesh = "rotation_gizmo_collision"});
 
-		EdContext.entity_panel.rotation_gizmo_z = Entity_Manager.create_editor_entity({
+		EdContext.entity_panel.rotation_gizmo_z = EntityManager.create_editor_entity({
 		.name = "rotation_gizmo_z",
 		.mesh = "rotation_gizmo",
 		.shader = "ed_entity_arrow_shader",
@@ -638,7 +638,7 @@ namespace Editor
 		// palette panel
 		initialize_palette(&EdContext.palette_panel);
 
-		EdContext.last_frame_scene = G_SCENE_INFO.scene_name;
+		EdContext.last_frame_scene = GSceneInfo.scene_name;
 	}
 
 
@@ -658,20 +658,20 @@ namespace Editor
 
 		// CAMERA POSITION
 		std::string cam_p[3]{
-		format_float_tostr(camera->Position.x, 2),
-		format_float_tostr(camera->Position.y, 2),
-		format_float_tostr(camera->Position.z, 2),
+		FormatFloatTostr(camera->Position.x, 2),
+		FormatFloatTostr(camera->Position.y, 2),
+		FormatFloatTostr(camera->Position.z, 2),
 		};
 		std::string camera_position = "camera:   x: " + cam_p[0] + " y:" + cam_p[1] + " z:" + cam_p[2];
 		render_text(font, 235, 45, camera_position);
 
 
 		// PLAYER POSITION
-		vec3 p_feet = player->feet();
+		vec3 p_feet = player->Feet();
 		std::string player_p[3]{
-		format_float_tostr(p_feet.x, 1),
-		format_float_tostr(p_feet.y, 1),
-		format_float_tostr(p_feet.z, 1),
+		FormatFloatTostr(p_feet.x, 1),
+		FormatFloatTostr(p_feet.y, 1),
+		FormatFloatTostr(p_feet.z, 1),
 		};
 		std::string player_pos = "player:   x: " + player_p[0] + " y: " + player_p[1] + " z: " + player_p[2];
 		render_text(font, 235, 70, player_pos);
@@ -841,7 +841,7 @@ namespace Editor
 				centered_text_height_small,
 				vec3(0.8, 0.8, 0.2),
 				true,
-				"(" + format_float_tostr(abs(EdContext.measure_to - dist_ref), 2) + " m)"
+				"(" + FormatFloatTostr(abs(EdContext.measure_to - dist_ref), 2) + " m)"
 				);
 			}
 		}
@@ -933,9 +933,9 @@ namespace Editor
 			else
 			{
 				locate_coords_subtext =
-				"(x: " + format_float_tostr(EdContext.locate_coords_position[0], 2) +
-				", y: " + format_float_tostr(EdContext.locate_coords_position[1], 2) +
-				", z: " + format_float_tostr(EdContext.locate_coords_position[2], 2) + ")";
+				"(x: " + FormatFloatTostr(EdContext.locate_coords_position[0], 2) +
+				", y: " + FormatFloatTostr(EdContext.locate_coords_position[1], 2) +
+				", z: " + FormatFloatTostr(EdContext.locate_coords_position[2], 2) + ")";
 			}
 
 			render_text(
@@ -1023,9 +1023,9 @@ namespace Editor
 				opts.line_width = 1.5;
 				color = vec3(0.8, 0.4, 0.2);
 			}
-			else if((cell->i == W_CELLS_NUM_X || cell->i == 0) ||
-				(cell->j == W_CELLS_NUM_Y || cell->j == 0) ||
-				(cell->k == W_CELLS_NUM_Z || cell->k == 0))
+			else if((cell->i == WCellsNumX || cell->i == 0) ||
+				(cell->j == WCellsNumY || cell->j == 0) ||
+				(cell->k == WCellsNumZ || cell->k == 0))
 			{
 				color = vec3(0.0, 0.0, 0.0);
 			}
@@ -1037,7 +1037,7 @@ namespace Editor
 			cell->i, cell->j, cell->k
 			);
 			glm::mat4 model = translate(mat4identity, position);
-			model = scale(model, vec3{W_CELL_LEN_METERS, W_CELL_LEN_METERS, W_CELL_LEN_METERS});
+			model = scale(model, vec3{WCellLenMeters, WCellLenMeters, WCellLenMeters});
 
 			//render
 			shader->use();
@@ -1302,13 +1302,13 @@ namespace Editor
 
 	void check_selection_to_open_panel(Player* player, World* world, Camera* camera)
 	{
-		auto pickray = cast_pickray(camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
-		auto test = world->raycast(pickray, RayCast_TestOnlyVisibleEntities);
-		auto test_light = world->raycast_lights(pickray);
+		auto pickray = cast_pickray(camera, GInputInfo.mouse_coords.x, GInputInfo.mouse_coords.y);
+		auto test = world->Raycast(pickray, RayCast_TestOnlyVisibleEntities);
+		auto test_light = world->RaycastLights(pickray);
 
 		if(test.hit && (!test_light.hit || test_light.distance > test.distance))
 		{
-			if(test.entity->name == PLAYER_NAME)
+			if(test.entity->name == PlayerName)
 				open_player_panel(player);
 			else
 				open_entity_panel(test.entity);
@@ -1321,8 +1321,8 @@ namespace Editor
 
 	void check_selection_to_select_related_entity(World* world, Camera* camera)
 	{
-		auto pickray = cast_pickray(camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
-		auto test = world->raycast(pickray, RayCast_TestOnlyVisibleEntities);
+		auto pickray = cast_pickray(camera, GInputInfo.mouse_coords.x, GInputInfo.mouse_coords.y);
+		auto test = world->Raycast(pickray, RayCast_TestOnlyVisibleEntities);
 		if(test.hit)
 		{
 			EdContext.select_entity_aux_mode = false;
@@ -1334,7 +1334,7 @@ namespace Editor
 				{
 				case EdToolCallback_EntityManagerSetType:
 				{
-					Entity_Manager.set_type(
+					EntityManager.set_type(
 					*EdContext.select_entity_aux_mode_entity_slot,
 					EdContext.select_entity_aux_mode_callback_args.entity_type
 					);
@@ -1348,9 +1348,9 @@ namespace Editor
 
 	void check_selection_to_move_entity(World* world, Camera* camera)
 	{
-		auto pickray = cast_pickray(camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
-		auto test = world->raycast(pickray, RayCast_TestOnlyVisibleEntities);
-		auto test_light = world->raycast_lights(pickray);
+		auto pickray = cast_pickray(camera, GInputInfo.mouse_coords.x, GInputInfo.mouse_coords.y);
+		auto test = world->Raycast(pickray, RayCast_TestOnlyVisibleEntities);
+		auto test_light = world->RaycastLights(pickray);
 		if(test.hit && (!test_light.hit || test_light.distance > test.distance))
 			activate_move_mode(test.entity);
 		else if(test_light.hit)
@@ -1360,7 +1360,7 @@ namespace Editor
 
 	bool check_selection_to_grab_entity_arrows(Camera* camera)
 	{
-		auto pickray = cast_pickray(camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
+		auto pickray = cast_pickray(camera, GInputInfo.mouse_coords.x, GInputInfo.mouse_coords.y);
 		RaycastTest test;
 
 		Entity* arrows[3] = {EdContext.entity_panel.x_arrow, EdContext.entity_panel.y_arrow, EdContext.entity_panel.z_arrow};
@@ -1381,7 +1381,7 @@ namespace Editor
 
 	bool check_selection_to_grab_entity_rotation_gizmo(Camera* camera)
 	{
-		auto pickray = cast_pickray(camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
+		auto pickray = cast_pickray(camera, GInputInfo.mouse_coords.x, GInputInfo.mouse_coords.y);
 		RaycastTest test;
 
 		Entity* rot_gizmos[3] = {

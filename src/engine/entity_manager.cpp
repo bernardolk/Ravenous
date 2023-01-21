@@ -31,7 +31,7 @@
 // --------------------------------------
 
 // @TODO: Refactor this into methods of catalogues
-auto EntityManager::_find_entity_assets_in_catalogue(const std::string& mesh, const std::string& collision_mesh, const std::string& shader, const std::string& texture) const
+auto T_EntityManager::_find_entity_assets_in_catalogue(const std::string& mesh, const std::string& collision_mesh, const std::string& shader, const std::string& texture) const
 {
 	struct
 	{
@@ -102,22 +102,22 @@ auto EntityManager::_find_entity_assets_in_catalogue(const std::string& mesh, co
 // ---------------------------------
 // > SET REGISTRIES
 // ---------------------------------
-void EntityManager::set_entity_registry(std::vector<Entity*>* registry)
+void T_EntityManager::set_entity_registry(std::vector<Entity*>* registry)
 {
 	entity_registry = registry;
 }
 
-void EntityManager::set_checkpoints_registry(std::vector<Entity*>* registry)
+void T_EntityManager::set_checkpoints_registry(std::vector<Entity*>* registry)
 {
 	checkpoints_registry = registry;
 }
 
-void EntityManager::set_interactables_registry(std::vector<Entity*>* registry)
+void T_EntityManager::set_interactables_registry(std::vector<Entity*>* registry)
 {
 	interactables_registry = registry;
 }
 
-void EntityManager::set_world(World* world)
+void T_EntityManager::set_world(World* world)
 {
 	this->world = world;
 }
@@ -125,12 +125,12 @@ void EntityManager::set_world(World* world)
 // ------------------
 // > REGISTER ENTITY
 // ------------------
-void EntityManager::register_in_world_and_scene(Entity* entity) const
+void T_EntityManager::register_in_world_and_scene(Entity* entity) const
 {
 	entity->update();
 	this->world->entities.push_back(entity);
-	this->world->update_entity_world_cells(entity);
-	this->world->update_cells_in_use_list();
+	this->world->UpdateEntityWorldCells(entity);
+	this->world->UpdateCellsInUseList();
 }
 
 // -----------------
@@ -138,7 +138,7 @@ void EntityManager::register_in_world_and_scene(Entity* entity) const
 // -----------------
 // Deals with entity creation. All entities created should be created through here.
 
-Entity* EntityManager::create_entity(const EntityAttributes& attrs)
+Entity* T_EntityManager::create_entity(const EntityAttributes& attrs)
 {
 	auto [
 		_textures,
@@ -172,7 +172,7 @@ Entity* EntityManager::create_entity(const EntityAttributes& attrs)
 // Editor entities can be created using this method. These entities have separate id's and are not
 //    registered into the world.
 
-Entity* EntityManager::create_editor_entity(const EntityAttributes& attrs)
+Entity* T_EntityManager::create_editor_entity(const EntityAttributes& attrs)
 {
 	auto [_textures, _texture_count, _mesh, _collision_mesh, _shader] =
 	_find_entity_assets_in_catalogue(attrs.mesh, attrs.collision_mesh, attrs.shader, attrs.texture);
@@ -196,7 +196,7 @@ Entity* EntityManager::create_editor_entity(const EntityAttributes& attrs)
 // ---------------
 // > COPY ENTITY
 // ---------------
-Entity* EntityManager::copy_entity(Entity* entity)
+Entity* T_EntityManager::copy_entity(Entity* entity)
 {
 	// allocate entity with new id
 	auto new_entity = pool.get_next();
@@ -209,13 +209,13 @@ Entity* EntityManager::copy_entity(Entity* entity)
 	{
 		new_name = new_name + " copy";
 		// if exists already, keep increasing the number inside parenthesis
-		if(G_SCENE_INFO.active_scene->search_name(new_name))
+		if(GSceneInfo.active_scene->SearchName(new_name))
 		{
 			unsigned int n_count = 1;
 			do
 			{
 				new_name = new_name + "(" + std::to_string(n_count++) + ")";
-			} while(G_SCENE_INFO.active_scene->search_name(new_name));
+			} while(GSceneInfo.active_scene->SearchName(new_name));
 		}
 	}
 	new_entity->name = new_name;
@@ -223,7 +223,7 @@ Entity* EntityManager::copy_entity(Entity* entity)
 	return new_entity;
 }
 
-void EntityManager::set_type(Entity* entity, const EntityType type)
+void T_EntityManager::set_type(Entity* entity, const EntityType type)
 {
 	_unset_all_type_related_configurations(entity);
 
@@ -282,7 +282,7 @@ void EntityManager::set_type(Entity* entity, const EntityType type)
 // ----------------
 // > DELETE ENTITY
 // ----------------
-void EntityManager::mark_for_deletion(Entity* entity)
+void T_EntityManager::mark_for_deletion(Entity* entity)
 {
 	// remove from scene render list
 	int index = -1;
@@ -300,7 +300,7 @@ void EntityManager::mark_for_deletion(Entity* entity)
 
 	// remove from world cells
 	for(int i = 0; i < entity->world_cells_count; i++)
-		entity->world_cells[i]->remove(entity);
+		entity->world_cells[i]->Remove(entity);
 
 	// remove from checkpoint registry if checkpoint
 	if(entity->type == EntityType_Checkpoint)
@@ -312,7 +312,7 @@ void EntityManager::mark_for_deletion(Entity* entity)
 	deletion_stack.push_back(entity);
 }
 
-void EntityManager::safe_delete_marked_entities()
+void T_EntityManager::safe_delete_marked_entities()
 {
 	// WARNING: ONLY EXECUTE AT THE END OF THE FRAME
 	while(deletion_stack.size() > 0)
@@ -330,7 +330,7 @@ void EntityManager::safe_delete_marked_entities()
 // ------------------
 // > SET ENTITY TYPE
 // ------------------
-void EntityManager::_remove_from_checkpoint_registry(Entity* entity) const
+void T_EntityManager::_remove_from_checkpoint_registry(Entity* entity) const
 {
 	int index = -1;
 	For(checkpoints_registry->size())
@@ -346,7 +346,7 @@ void EntityManager::_remove_from_checkpoint_registry(Entity* entity) const
 		checkpoints_registry->erase(checkpoints_registry->begin() + index);
 }
 
-void EntityManager::_remove_interactivity(Entity* entity)
+void T_EntityManager::_remove_interactivity(Entity* entity)
 {
 	int index = -1;
 	For(interactables_registry->size())
@@ -365,7 +365,7 @@ void EntityManager::_remove_interactivity(Entity* entity)
 	entity->trigger = nullptr;
 }
 
-void EntityManager::_make_interactable(Entity* entity)
+void T_EntityManager::_make_interactable(Entity* entity)
 {
 	auto find = Geometry_Catalogue.find("trigger");
 	if(find == Geometry_Catalogue.end())
@@ -375,7 +375,7 @@ void EntityManager::_make_interactable(Entity* entity)
 	interactables_registry->push_back(entity);
 }
 
-void EntityManager::_unset_all_type_related_configurations(Entity* entity)
+void T_EntityManager::_unset_all_type_related_configurations(Entity* entity)
 {
 	_remove_from_checkpoint_registry(entity);
 	_remove_interactivity(entity);

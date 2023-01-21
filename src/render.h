@@ -2,19 +2,19 @@
 
 struct Entity;
 
-const unsigned int R_SHADOW_BUFFER_WIDTH = 1920, R_SHADOW_BUFFER_HEIGHT = 1080;
-unsigned int R_DEPTH_MAP_FBO;
-unsigned int R_DEPTH_MAP;
+constexpr unsigned int RShadowBufferWidth = 1920, RShadowBufferHeight = 1080;
+inline unsigned int RDepthMapFbo;
+inline unsigned int RDepthMap;
 
-mat4 R_DIR_LIGHT_SPACE_MATRIX;
-vec3 R_DIRECTIONAL_LIGHT_POS = vec3{-2.0f, 4.0f, -1.0f};
+inline mat4 RDirLightSpaceMatrix;
+inline vec3 RDirectionalLightPos = vec3{-2.0f, 4.0f, -1.0f};
 
 // depth cubemap (point light shadow)
-unsigned int R_DEPTH_CUBEMAP_FBO;
-mat4 R_POINT_LIGHT_SPACE_MATRICES[6];
-unsigned int R_DEPTH_CUBEMAP_TEXTURE;
-float R_CUBEMAP_NEAR_PLANE = 1.0f;
-float R_CUBEMAP_FAR_PLANE = 25.0f;
+inline unsigned int RDepthCubemapFbo;
+inline mat4 RPointLightSpaceMatrices[6];
+inline unsigned int RDepthCubemapTexture;
+inline float RCubemapNearPlane = 1.0f;
+inline float RCubemapFarPlane = 25.0f;
 
 
 void RenderEntity(Entity* entity);
@@ -25,7 +25,7 @@ void set_shader_light_variables(World* world, Shader* shader, Camera* camera);
 // --------------
 // RENDER ENTITY
 // --------------
-void RenderEntity(Entity* entity)
+inline void RenderEntity(Entity* entity)
 {
 	entity->shader->use();
 	entity->shader->setMatrix4("model", entity->matModel);
@@ -64,13 +64,13 @@ void RenderEntity(Entity* entity)
 		// shadow map texture
 		glActiveTexture(GL_TEXTURE0 + i);
 		glUniform1i(glGetUniformLocation(entity->shader->gl_programId, "shadowMap"), i);
-		glBindTexture(GL_TEXTURE_2D, R_DEPTH_MAP);
+		glBindTexture(GL_TEXTURE_2D, RDepthMap);
 		i++;
 
 		// shadow cubemap texture
 		glActiveTexture(GL_TEXTURE0 + i);
 		glUniform1i(glGetUniformLocation(entity->shader->gl_programId, "shadowCubemap"), i);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, R_DEPTH_CUBEMAP_TEXTURE);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, RDepthCubemapTexture);
 		i++;
 	}
 
@@ -100,7 +100,7 @@ void RenderEntity(Entity* entity)
 }
 
 
-void render_editor_entity(Entity* entity, World* world, Camera* camera)
+inline void render_editor_entity(Entity* entity, World* world, Camera* camera)
 {
 	entity->shader->use();
 	// important that the gizmo dont have a position set.
@@ -119,7 +119,7 @@ void render_editor_entity(Entity* entity, World* world, Camera* camera)
 // -------------
 // RENDER SCENE
 // -------------
-void render_scene(World* world, Camera* camera)
+inline void render_scene(World* world, Camera* camera)
 {
 	// set shader settings that are common to the scene
 	// both to "normal" model shader and to tiled model shader
@@ -143,7 +143,7 @@ void render_scene(World* world, Camera* camera)
 }
 
 
-void set_shader_light_variables(World* world, Shader* shader, Camera* camera)
+inline void set_shader_light_variables(World* world, Shader* shader, Camera* camera)
 {
 	shader->use();
 
@@ -206,38 +206,38 @@ void set_shader_light_variables(World* world, Shader* shader, Camera* camera)
 	shader->setFloat("shininess", world->global_shininess);
 	shader->setFloat3("ambient", world->ambient_light);
 	shader->setFloat("ambient_intensity", world->ambient_intensity);
-	shader->setMatrix4("lightSpaceMatrix", R_DIR_LIGHT_SPACE_MATRIX);
-	shader->setFloat("cubemap_far_plane", R_CUBEMAP_FAR_PLANE);
+	shader->setMatrix4("lightSpaceMatrix", RDirLightSpaceMatrix);
+	shader->setFloat("cubemap_far_plane", RCubemapFarPlane);
 }
 
 // leave for debugging
-std::string p_grab = "Grabbed: ";
-int p_floor = -1;
+inline std::string PGrab = "Grabbed: ";
+inline int PFloor = -1;
 
 // -------------------------
 // RENDER GAME GUI
 // -------------------------
-void render_game_gui(Player* player)
+inline void render_game_gui(Player* player)
 {
 	auto color = player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1};
 	render_text("consola42", 25, 75, color, std::to_string(player->lives));
 
 	if(player->grabbing_entity != nullptr)
 	{
-		p_grab = "Grabbed: ";
+		PGrab = "Grabbed: ";
 		std::string last_grabbed = player->grabbing_entity->name;
-		p_grab += "'" + last_grabbed + "'";
+		PGrab += "'" + last_grabbed + "'";
 	}
-	render_text(GlobalDisplayConfig::VIEWPORT_WIDTH - 400, 45, p_grab);
+	render_text(GlobalDisplayConfig::VIEWPORT_WIDTH - 400, 45, PGrab);
 
 	std::string player_floor = "player floor: ";
 	if(player->standing_entity_ptr != nullptr)
 	{
 		player_floor += player->standing_entity_ptr->name;
-		if(p_floor != player->standing_entity_ptr->id)
+		if(PFloor != player->standing_entity_ptr->id)
 		{
-			p_floor = player->standing_entity_ptr->id;
-			std::cout << "new floor: " << p_floor << "\n";
+			PFloor = player->standing_entity_ptr->id;
+			std::cout << "new floor: " << PFloor << "\n";
 		}
 	}
 	render_text(GlobalDisplayConfig::VIEWPORT_WIDTH - 400, 60, player_floor);
@@ -247,18 +247,18 @@ void render_game_gui(Player* player)
 // RENDER FEATURES
 // ----------------
 
-void create_depth_buffer()
+inline void create_depth_buffer()
 {
 	// create framebuffer objects
-	glGenFramebuffers(1, &R_DEPTH_MAP_FBO);
-	glGenFramebuffers(1, &R_DEPTH_CUBEMAP_FBO);
+	glGenFramebuffers(1, &RDepthMapFbo);
+	glGenFramebuffers(1, &RDepthCubemapFbo);
 
 	// for directional lights:
 	// create framebuffer depth buffer texture
-	glGenTextures(1, &R_DEPTH_MAP);
-	glBindTexture(GL_TEXTURE_2D, R_DEPTH_MAP);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, R_SHADOW_BUFFER_WIDTH,
-	             R_SHADOW_BUFFER_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr
+	glGenTextures(1, &RDepthMap);
+	glBindTexture(GL_TEXTURE_2D, RDepthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, RShadowBufferWidth,
+	             RShadowBufferHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr
 	);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -266,18 +266,18 @@ void create_depth_buffer()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
 	// bind texture to framebuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, R_DEPTH_MAP_FBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, R_DEPTH_MAP, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, RDepthMapFbo);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, RDepthMap, 0);
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// for point lights:
-	glGenTextures(1, &R_DEPTH_CUBEMAP_TEXTURE);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, R_DEPTH_CUBEMAP_TEXTURE);
+	glGenTextures(1, &RDepthCubemapTexture);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, RDepthCubemapTexture);
 	for(unsigned int i = 0; i < 6; i++)
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT,
-		             R_SHADOW_BUFFER_WIDTH, R_SHADOW_BUFFER_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr
+		             RShadowBufferWidth, RShadowBufferHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr
 		);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -285,14 +285,14 @@ void create_depth_buffer()
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, R_DEPTH_CUBEMAP_FBO);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, R_DEPTH_CUBEMAP_TEXTURE, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, RDepthCubemapFbo);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, RDepthCubemapTexture, 0);
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void create_light_space_transform_matrices()
+inline void create_light_space_transform_matrices()
 {
 	float near_plane, far_plane;
 
@@ -301,24 +301,24 @@ void create_light_space_transform_matrices()
 	far_plane = 7.5f;
 	mat4 light_projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
 	mat4 light_view = lookAt(
-	R_DIRECTIONAL_LIGHT_POS, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f)
+	RDirectionalLightPos, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f)
 	);
-	R_DIR_LIGHT_SPACE_MATRIX = light_projection * light_view;
+	RDirLightSpaceMatrix = light_projection * light_view;
 }
 
 // -----------------
 // RENDER DEPTH MAP
 // -----------------
-void render_depth_map(World* world)
+inline void render_depth_map(World* world)
 {
 	// setup
-	glViewport(0, 0, R_SHADOW_BUFFER_WIDTH, R_SHADOW_BUFFER_HEIGHT);
-	glBindFramebuffer(GL_FRAMEBUFFER, R_DEPTH_MAP_FBO);
+	glViewport(0, 0, RShadowBufferWidth, RShadowBufferHeight);
+	glBindFramebuffer(GL_FRAMEBUFFER, RDepthMapFbo);
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 	auto depth_shader = Shader_Catalogue.find("depth")->second;
 	depth_shader->use();
-	depth_shader->setMatrix4("lightSpaceMatrix", R_DIR_LIGHT_SPACE_MATRIX);
+	depth_shader->setMatrix4("lightSpaceMatrix", RDirLightSpaceMatrix);
 
 	for(int it = 0; it < world->entities.size(); it++)
 	{
@@ -335,7 +335,7 @@ void render_depth_map(World* world)
 	glViewport(0, 0, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT);
 }
 
-void render_depth_cubemap(World* world)
+inline void render_depth_cubemap(World* world)
 {
 	// for now, testing, we are doing this just for the first point light source
 	if(world->point_lights.size() == 0)
@@ -343,33 +343,33 @@ void render_depth_cubemap(World* world)
 
 	auto light = world->point_lights[0];
 
-	float aspect = static_cast<float>(R_SHADOW_BUFFER_WIDTH) / static_cast<float>(R_SHADOW_BUFFER_HEIGHT);
-	mat4 cubemap_proj = glm::perspective(glm::radians(90.0f), aspect, R_CUBEMAP_NEAR_PLANE, R_CUBEMAP_FAR_PLANE);
-	R_POINT_LIGHT_SPACE_MATRICES[0] =
+	float aspect = static_cast<float>(RShadowBufferWidth) / static_cast<float>(RShadowBufferHeight);
+	mat4 cubemap_proj = glm::perspective(glm::radians(90.0f), aspect, RCubemapNearPlane, RCubemapFarPlane);
+	RPointLightSpaceMatrices[0] =
 	cubemap_proj * lookAt(light->position, light->position + vec3(1.0, 0.0, 0.0), vec3(0.0, -1.0, 0.0));
-	R_POINT_LIGHT_SPACE_MATRICES[1] =
+	RPointLightSpaceMatrices[1] =
 	cubemap_proj * lookAt(light->position, light->position + vec3(-1.0, 0.0, 0.0), vec3(0.0, -1.0, 0.0));
-	R_POINT_LIGHT_SPACE_MATRICES[2] =
+	RPointLightSpaceMatrices[2] =
 	cubemap_proj * lookAt(light->position, light->position + vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0));
-	R_POINT_LIGHT_SPACE_MATRICES[3] =
+	RPointLightSpaceMatrices[3] =
 	cubemap_proj * lookAt(light->position, light->position + vec3(0.0, -1.0, 0.0), vec3(0.0, 0.0, -1.0));
-	R_POINT_LIGHT_SPACE_MATRICES[4] =
+	RPointLightSpaceMatrices[4] =
 	cubemap_proj * lookAt(light->position, light->position + vec3(0.0, 0.0, 1.0), vec3(0.0, -1.0, 0.0));
-	R_POINT_LIGHT_SPACE_MATRICES[5] =
+	RPointLightSpaceMatrices[5] =
 	cubemap_proj * lookAt(light->position, light->position + vec3(0.0, 0.0, -1.0), vec3(0.0, -1.0, 0.0));
 
 	// setup
-	glViewport(0, 0, R_SHADOW_BUFFER_WIDTH, R_SHADOW_BUFFER_HEIGHT);
-	glBindFramebuffer(GL_FRAMEBUFFER, R_DEPTH_CUBEMAP_FBO);
+	glViewport(0, 0, RShadowBufferWidth, RShadowBufferHeight);
+	glBindFramebuffer(GL_FRAMEBUFFER, RDepthCubemapFbo);
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 	auto depth_shader = Shader_Catalogue.find("depth_cubemap")->second;
 	depth_shader->use();
 
 	for(unsigned int i = 0; i < 6; ++i)
-		depth_shader->setMatrix4("shadowMatrices[" + std::to_string(i) + "]", R_POINT_LIGHT_SPACE_MATRICES[i]);
+		depth_shader->setMatrix4("shadowMatrices[" + std::to_string(i) + "]", RPointLightSpaceMatrices[i]);
 
-	depth_shader->setFloat("cubemap_far_plane", R_CUBEMAP_FAR_PLANE);
+	depth_shader->setFloat("cubemap_far_plane", RCubemapFarPlane);
 	depth_shader->setFloat3("lightPos", light->position);
 
 	for(int i = 0; i < world->entities.size(); i++)
@@ -387,7 +387,7 @@ void render_depth_cubemap(World* world)
 	glViewport(0, 0, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT);
 }
 
-void render_depth_map_debug()
+inline void render_depth_map_debug()
 {
 	glViewport(0, 0, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT);
 	//glClearColor(0.196, 0.298, 0.3607, 1.0f);

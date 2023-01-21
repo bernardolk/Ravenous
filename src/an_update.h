@@ -1,8 +1,10 @@
 // Catalogue
-struct EntityAnimation;
-std::map<u32, EntityAnimation> Animation_Catalogue;
+#pragma once
 
-const static u32 AN_MAX_ENTITY_ANIMATION_KEYFRAMES = 16;
+struct EntityAnimation;
+inline std::map<u32, EntityAnimation> AnimationCatalogue;
+
+constexpr static u32 AnMaxEntityAnimationKeyframes = 16;
 
 enum EntityAnimationKeyframeFlags
 {
@@ -30,13 +32,13 @@ struct EntityAnimation
 	bool active = false;
 	Entity* entity = nullptr;
 	u32 keyframes_count = 0;
-	EntityAnimationKeyframe keyframes[AN_MAX_ENTITY_ANIMATION_KEYFRAMES];
+	EntityAnimationKeyframe keyframes[AnMaxEntityAnimationKeyframes];
 
 	float runtime = 0; // expressed in milliseconds
 	u32 current_keyframe = 0;
 	float keyframe_runtime = 0;
 
-	void update()
+	void Update()
 	{
 		/* executes current keyframe in entity and updates runtimes, turns animation inactive once it ends. */
 
@@ -108,12 +110,12 @@ struct EntityAnimation
 	}
 };
 
-struct EntityAnimationBuffer
+inline struct EntityAnimationBuffer
 {
-	const static size_t animation_buffer_array_size = 16;
+	constexpr static size_t animation_buffer_array_size = 16;
 	EntityAnimation animations[animation_buffer_array_size];
 
-	size_t _find_slot()
+	size_t FindSlot()
 	{
 		For(animation_buffer_array_size)
 		{
@@ -129,11 +131,11 @@ struct EntityAnimationBuffer
 		return 0;
 	}
 
-	void start_animation(Entity* entity, EntityAnimation* animation)
+	void StartAnimation(Entity* entity, EntityAnimation* animation)
 	{
 		// makes a copy of the animation to the Entity_Animations buffer
 
-		auto i = _find_slot();
+		auto i = FindSlot();
 		auto _animation = &animations[i];
 
 		*_animation = *animation;
@@ -141,21 +143,21 @@ struct EntityAnimationBuffer
 		_animation->entity = entity;
 	}
 
-	void update_animations()
+	static void UpdateAnimations()
 	{
-		For(Entity_Animations.animation_buffer_array_size)
+		For(EntityAnimations.animation_buffer_array_size)
 		{
-			auto anim = &Entity_Animations.animations[i];
+			auto anim = &EntityAnimations.animations[i];
 
 			if(anim->active)
-				anim->update();
+				anim->Update();
 		}
 	}
 
-} Entity_Animations;
+} EntityAnimations;
 
 
-void AN_create_hardcoded_animations()
+inline void AN_create_hardcoded_animations()
 {
 
 	// >> VERTICAL DOOR 
@@ -174,7 +176,7 @@ void AN_create_hardcoded_animations()
 			anim.keyframes_count = 1;
 			anim.keyframes[0] = kf;
 
-			Animation_Catalogue.insert({1, anim});
+			AnimationCatalogue.insert({1, anim});
 		}
 
 		// > SLIDING DOWN
@@ -191,7 +193,7 @@ void AN_create_hardcoded_animations()
 			anim.keyframes_count = 1;
 			anim.keyframes[0] = kf;
 
-			Animation_Catalogue.insert({2, anim});
+			AnimationCatalogue.insert({2, anim});
 		}
 	}
 }

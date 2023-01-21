@@ -9,7 +9,7 @@ bool GP_simulate_player_collision_in_falling_trajectory(Player* player, vec2 xz_
 // bool GP_scan_for_terrain(vec3 center, float radius, vec2 orientation0, float angle, int subdivisions);
 // bool GP_do_vtrace_for_terrain(vec3 vtrace_origin, float terrain_baseline_height, vec3 debug_color);
 
-float SLOPE_MIN_ANGLE = 0.4;
+inline float SlopeMinAngle = 0.4;
 
 /*
 
@@ -22,7 +22,7 @@ float SLOPE_MIN_ANGLE = 0.4;
 */
 
 
-void GP_update_player_state(Player* & player, World* world)
+inline void GP_update_player_state(Player* & player, World* world)
 {
 	switch(player->player_state)
 	{
@@ -34,7 +34,7 @@ void GP_update_player_state(Player* & player, World* world)
 		// move player forward
 		player->entity_ptr->bounding_box.translate(next_position - player->entity_ptr->position);
 		player->entity_ptr->position = next_position;
-		player->update(world);
+		player->Update(world);
 
 		vec3 player_btm_sphere_center = player->entity_ptr->position + vec3(0, player->radius, 0);
 		vec3 contact_point = player_btm_sphere_center + -player->last_terrain_contact_normal * player->radius;
@@ -57,7 +57,7 @@ void GP_update_player_state(Player* & player, World* world)
 			{
 				player->entity_ptr->position.y -= vtrace.delta_y;
 				player->entity_ptr->bounding_box.translate(vec3(0, -vtrace.delta_y, 0));
-				player->update(world);
+				player->Update(world);
 			}
 
 			// resolve collisions
@@ -75,7 +75,7 @@ void GP_update_player_state(Player* & player, World* world)
 				if(collided_with_terrain)
 					player->last_terrain_contact_normal = result.normal;
 
-				bool collided_with_slope = dot(result.normal, UNIT_Y) >= SLOPE_MIN_ANGLE;
+				bool collided_with_slope = dot(result.normal, UNIT_Y) >= SlopeMinAngle;
 				if(collided_with_slope && result.entity->slidable)
 					slope = result;
 			}
@@ -93,13 +93,13 @@ void GP_update_player_state(Player* & player, World* world)
 				auto offset = player->v_dir_historic * player->radius;
 				player->entity_ptr->bounding_box.translate(offset);
 				player->entity_ptr->position += offset;
-				player->update(world);
+				player->Update(world);
 				bool collided = CL_run_tests_for_fall_simulation(player);
 
 				offset = p_pos0 - player->entity_ptr->position;
 				player->entity_ptr->position = p_pos0;
 				player->entity_ptr->bounding_box.translate(offset);
-				player->update(world);
+				player->Update(world);
 
 				if(!collided)
 				{
@@ -121,7 +121,7 @@ void GP_update_player_state(Player* & player, World* world)
 					{
 						player->entity_ptr->velocity = to3d_xz(fall_momentum);
 						GP_change_player_state(player, PLAYER_STATE_FALLING);
-						player->update(world, true);
+						player->Update(world, true);
 						break;
 					}
 					RVN::print_dynamic("Player won't fit if he falls here.", 1000);
@@ -160,7 +160,7 @@ void GP_update_player_state(Player* & player, World* world)
 	{
 		player->entity_ptr->velocity += RVN::frame.duration * player->gravity;
 		player->entity_ptr->position += player->entity_ptr->velocity * RVN::frame.duration;
-		player->update(world, true);
+		player->Update(world, true);
 
 		auto results = CL_test_and_resolve_collisions(player);
 		for(int i = 0; i < results.count; i ++)
@@ -169,7 +169,7 @@ void GP_update_player_state(Player* & player, World* world)
 
 			// slope collision
 			{
-				bool collided_with_slope = dot(result.normal, UNIT_Y) >= SLOPE_MIN_ANGLE;
+				bool collided_with_slope = dot(result.normal, UNIT_Y) >= SlopeMinAngle;
 				if(collided_with_slope && result.entity->slidable)
 				{
 					PlayerStateChangeArgs args;
@@ -215,7 +215,7 @@ void GP_update_player_state(Player* & player, World* world)
 
 		v += RVN::frame.duration * player->gravity;
 		player->entity_ptr->position += player->entity_ptr->velocity * RVN::frame.duration;
-		player->update(world, true);
+		player->Update(world, true);
 
 		auto results = CL_test_and_resolve_collisions(player);
 		for(int i = 0; i < results.count; i ++)
@@ -225,7 +225,7 @@ void GP_update_player_state(Player* & player, World* world)
 			// collision with terrain while jumping should be super rare I guess ...
 			// slope collision
 			{
-				bool collided_with_slope = dot(result.normal, UNIT_Y) >= SLOPE_MIN_ANGLE;
+				bool collided_with_slope = dot(result.normal, UNIT_Y) >= SlopeMinAngle;
 				if(collided_with_slope && result.entity->slidable)
 				{
 					PlayerStateChangeArgs args;
@@ -271,7 +271,7 @@ void GP_update_player_state(Player* & player, World* world)
 		player->entity_ptr->velocity = player->v_dir * player->slide_speed;
 
 		player->entity_ptr->position += player->entity_ptr->velocity * RVN::frame.duration;
-		player->update(world, true);
+		player->Update(world, true);
 
 
 		// RESOLVE COLLISIONS AND CHECK FOR TERRAIN CONTACT
@@ -301,6 +301,7 @@ void GP_update_player_state(Player* & player, World* world)
 
 		break;
 	}
+	default: break;
 	}
 
 }
@@ -368,7 +369,7 @@ void GP_update_player_state(Player* & player, World* world)
 // }
 
 
-vec3 GP_player_standing_get_next_position(Player* player)
+inline vec3 GP_player_standing_get_next_position(Player* player)
 {
 	// updates player position
 	auto& v = player->entity_ptr->velocity;
@@ -382,7 +383,7 @@ vec3 GP_player_standing_get_next_position(Player* player)
 	if(v_dir.x != 0 || v_dir.y != 0 || v_dir.z != 0)
 		player->v_dir_historic = v_dir;
 	else if(player->v_dir_historic == vec3(0))
-		player->v_dir_historic = normalize(to_xz(G_SCENE_INFO.views[FPS_CAM]->Front));
+		player->v_dir_historic = normalize(to_xz(GSceneInfo.views[FPS_CAM]->Front));
 
 	if(player->speed < 0.f || no_move_command)
 		player->speed = 0;
@@ -421,7 +422,7 @@ vec3 GP_player_standing_get_next_position(Player* player)
 // > ACTION
 // -------------------
 
-void GP_check_trigger_interaction(Player* player, World* world)
+inline void GP_check_trigger_interaction(Player* player, World* world)
 {
 	For(world->interactables.size())
 	{
@@ -438,12 +439,12 @@ void GP_check_trigger_interaction(Player* player, World* world)
 			{
 			case EntityType_Checkpoint:
 			{
-				player->set_checkpoint(interactable);
+				player->SetCheckpoint(interactable);
 				break;
 			}
 			case EntityType_TimerTrigger:
 			{
-				Game_State.start_timer(interactable);
+				GameState.StartTimer(interactable);
 				break;
 			}
 			}
@@ -454,7 +455,7 @@ void GP_check_trigger_interaction(Player* player, World* world)
 // -------------------
 // > LEDGE GRABBING
 // -------------------
-void GP_check_player_grabbed_ledge(Player* player, World* world)
+inline void GP_check_player_grabbed_ledge(Player* player, World* world)
 {
 	Ledge ledge = CL_perform_ledge_detection(player, world);
 	if(ledge.empty)

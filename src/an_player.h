@@ -1,3 +1,5 @@
+#pragma once
+
 void AN_animate_player(Player* player);
 void AN_p_anim_force_interrupt(Player* player);
 bool AN_p_anim_jumping_update(Player* player);
@@ -6,7 +8,7 @@ bool AN_p_anim_landing_fall_update(Player* player);
 bool AN_p_anim_vaulting(Player* player);
 
 
-void AN_animate_player(Player* player)
+inline void AN_animate_player(Player* player)
 {
 	if(player->anim_state == PlayerAnimationState_NoAnimation)
 		return;
@@ -16,7 +18,7 @@ void AN_animate_player(Player* player)
 
 	// check if animation is completed
 	bool end_anim = false;
-	auto anim_duration = PLAYER_ANIMATION_DURATIONS[player->anim_state];
+	auto anim_duration = PlayerAnimationDurations[player->anim_state];
 	if(anim_duration > 0 && player->anim_t >= anim_duration)
 	{
 		player->anim_t = anim_duration;
@@ -55,7 +57,7 @@ void AN_animate_player(Player* player)
 }
 
 
-bool AN_p_anim_jumping_update(Player* player)
+inline bool AN_p_anim_jumping_update(Player* player)
 {
 	// // interpolate between 0 and duration the player's height
 	// float anim_d            = PLAYER_ANIMATION_DURATIONS[PlayerAnimationState_Jumping];
@@ -74,7 +76,7 @@ bool AN_p_anim_jumping_update(Player* player)
 }
 
 
-bool AN_p_anim_landing_update(Player* player)
+inline bool AN_p_anim_landing_update(Player* player)
 {
 	// bool interrupt = false;
 	// // add a linear height step of 0.5m per second
@@ -98,7 +100,7 @@ bool AN_p_anim_landing_update(Player* player)
 }
 
 
-bool AN_p_anim_landing_fall_update(Player* player)
+inline bool AN_p_anim_landing_fall_update(Player* player)
 {
 	// float anim_d = PLAYER_ANIMATION_DURATIONS[PlayerAnimationState_LandingFall];
 	// bool interrupt = false;
@@ -142,7 +144,7 @@ bool AN_p_anim_landing_fall_update(Player* player)
 }
 
 
-bool AN_p_anim_vaulting(Player* player)
+inline bool AN_p_anim_vaulting(Player* player)
 {
 	vec3& p_pos = player->entity_ptr->position;
 
@@ -175,14 +177,14 @@ bool AN_p_anim_vaulting(Player* player)
 		float orig_angle = glm::degrees(orig_sva);
 		float orig_sign = sign(orig_angle);
 		float turn_angle = 0.5 * orig_sign;
-		camera_change_direction(pCam, turn_angle, 0.f);
+		camera_change_direction(PCam, turn_angle, 0.f);
 
-		float updated_sva = vector_angle_signed(nrmlz(to2d_xz(pCam->Front)), f_dir_xz);
+		float updated_sva = vector_angle_signed(nrmlz(to2d_xz(PCam->Front)), f_dir_xz);
 		float updated_angle = glm::degrees(updated_sva);
 		float updated_sign = sign(updated_angle);
 		if(updated_sign != orig_sign)
 		{
-			camera_change_direction(pCam, -1.0 * updated_angle, 0.f);
+			camera_change_direction(PCam, -1.0 * updated_angle, 0.f);
 			player->anim_finished_turning = true;
 		}
 	}
@@ -200,16 +202,13 @@ bool AN_p_anim_vaulting(Player* player)
 
 	if(is_equal(p_pos, player->anim_final_pos) && player->anim_finished_turning)
 	{
-
 		return true;
 	}
 	return false;
-	return false;
-
 }
 
 
-void AN_p_anim_force_interrupt(Player* player)
+inline void AN_p_anim_force_interrupt(Player* player)
 {
 	// player->anim_state = PlayerAnimationState_NoAnimation;
 	// player->anim_t = 0;

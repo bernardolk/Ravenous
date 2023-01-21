@@ -51,14 +51,15 @@ enum ProgramModeEnum
 	CONSOLE_MODE = 2,
 };
 
-struct ProgramMode
+// ReSharper disable once CppInconsistentNaming
+struct T_ProgramMode
 {
 	ProgramModeEnum current = EDITOR_MODE;
 	ProgramModeEnum last = EDITOR_MODE;
-} PROGRAM_MODE;
+} ProgramMode;
 
 
-GlobalDisplayConfig G_DISPLAY_INFO;
+GlobalDisplayConfig GDisplayInfo;
 
 struct MouseCoordinates
 {
@@ -77,9 +78,9 @@ struct GlobalInputInfo
 	u64 key_state = 0;
 	u8 mouse_state = 0;
 	bool block_mouse_move = false;
-} G_INPUT_INFO;
+} GInputInfo;
 
-ProgramConfig G_CONFIG;
+ProgramConfig GConfig;
 
 // should be conditional in the future to support multiple platforms and
 // we must abstract the function calls to a common layer which can interop
@@ -119,11 +120,11 @@ ProgramConfig G_CONFIG;
 #include <geometry.h>
 
 // entity manager and entity pool
-EntityManager Entity_Manager;
+T_EntityManager EntityManager;
 
 // camera handles
-Camera* pCam;
-Camera* edCam;
+Camera* PCam;
+Camera* EdCam;
 
 void toggle_program_modes(Player* player);
 void erase_entity(Scene* scene, Entity* entity);
@@ -158,7 +159,7 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <editor/editor_main.h>
 
 // globals
-GlobalSceneInfo G_SCENE_INFO{};
+GlobalSceneInfo GSceneInfo;
 
 #define glCheckError() glCheckError_(__FILE__, __LINE__)
 
@@ -227,10 +228,10 @@ int main()
 {
 	World world;
 
-	Entity_Manager.set_world(&world);
-	Entity_Manager.set_entity_registry(&world.entities);
-	Entity_Manager.set_checkpoints_registry(&world.checkpoints);
-	Entity_Manager.set_interactables_registry(&world.interactables);
+	EntityManager.set_world(&world);
+	EntityManager.set_entity_registry(&world.entities);
+	EntityManager.set_checkpoints_registry(&world.checkpoints);
+	EntityManager.set_interactables_registry(&world.interactables);
 
 	// initialize serializers
 
@@ -238,11 +239,11 @@ int main()
 	//    with using references it seems? A pointer would never complain about this. I should dig into this.
 	//    If I have to start writing extra code to use references then I can't justify using them.
 	WorldSerializer::world = &world;
-	WorldSerializer::manager = &Entity_Manager;
+	WorldSerializer::manager = &EntityManager;
 	PlayerSerializer::world = &world;
 	LightSerializer::world = &world;
-	EntitySerializer::manager = &Entity_Manager;
-	ConfigSerializer::scene_info = &G_SCENE_INFO;
+	EntitySerializer::manager = &EntityManager;
+	ConfigSerializer::scene_info = &GSceneInfo;
 
 	// INITIAL GLFW AND GLAD SETUPS
 	setup_GLFW(true);
@@ -251,10 +252,10 @@ int main()
 	// create cameras
 	const auto editor_camera = new Camera();
 	const auto first_person_camera = new Camera();
-	G_SCENE_INFO.views[EDITOR_CAM] = editor_camera;
-	G_SCENE_INFO.views[FPS_CAM] = first_person_camera;
-	pCam = first_person_camera;
-	edCam = editor_camera;
+	GSceneInfo.views[EDITOR_CAM] = editor_camera;
+	GSceneInfo.views[FPS_CAM] = first_person_camera;
+	PCam = first_person_camera;
+	EdCam = editor_camera;
 
 	// load shaders, textures and geometry
 	stbi_set_flip_vertically_on_load(true);
@@ -268,27 +269,27 @@ int main()
 	// COLLISION_LOG           = CL_allocate_collision_log();
 	initialize_console_buffers();
 
-	Entity_Manager.pool.init();
+	EntityManager.pool.init();
 
 	// Initialises immediate draw
 	ImDraw::init();
 
-	G_SCENE_INFO.camera = G_SCENE_INFO.views[0]; // sets to editor camera
+	GSceneInfo.camera = GSceneInfo.views[0]; // sets to editor camera
 
 
 	// loads initial scene
-	G_CONFIG = ConfigSerializer::load_configs();
-	WorldSerializer::load_from_file(G_CONFIG.initial_scene);
-	Player* player = G_SCENE_INFO.player;
+	GConfig = ConfigSerializer::load_configs();
+	WorldSerializer::load_from_file(GConfig.initial_scene);
+	Player* player = GSceneInfo.player;
 	world.player = player;
 	player->checkpoint_pos = player->entity_ptr->position; // set player initial checkpoint position
 
 	// set scene attrs from global config
-	G_SCENE_INFO.camera->Acceleration = G_CONFIG.camspeed;
-	world.ambient_light = G_CONFIG.ambient_light;
-	world.ambient_intensity = G_CONFIG.ambient_intensity;
+	GSceneInfo.camera->Acceleration = GConfig.camspeed;
+	world.ambient_light = GConfig.ambient_light;
+	world.ambient_intensity = GConfig.ambient_intensity;
 
-	world.update_entity_world_cells(player->entity_ptr); // sets player to the world
+	world.UpdateEntityWorldCells(player->entity_ptr); // sets player to the world
 	CL_recompute_collision_buffer_entities(player);      // populates collision buffer and others
 
 	Editor::initialize();
@@ -303,7 +304,7 @@ int main()
 	check_all_geometry_has_gl_data();
 
 	// load pre recorded input recordings
-	Input_Recorder.load();
+	InputRecorder.Load();
 
 	// create hardcoded animations
 	AN_create_hardcoded_animations();
@@ -312,7 +313,7 @@ int main()
 	player->entity_ptr->flags |= EntityFlags_RenderWireframe;
 
 	// MAIN LOOP
-	while(!glfwWindowShouldClose(G_DISPLAY_INFO.window))
+	while(!glfwWindowShouldClose(GDisplayInfo.window))
 	{
 		// -------------
 		//	INPUT PHASE
@@ -321,28 +322,28 @@ int main()
 		auto input_flags = input_phase();
 
 		// Input recorder
-		if(Input_Recorder.is_recording)
-			Input_Recorder.record(input_flags);
-		else if(Input_Recorder.is_playing)
-			input_flags = Input_Recorder.play();
+		if(InputRecorder.is_recording)
+			InputRecorder.Record(input_flags);
+		else if(InputRecorder.is_playing)
+			input_flags = InputRecorder.Play();
 
 		// -------------
 		// START FRAME
 		// -------------
 		start_frame();
-		if(PROGRAM_MODE.current == EDITOR_MODE)
+		if(ProgramMode.current == EDITOR_MODE)
 			Editor::start_dear_imgui_frame();
 
 		// ---------------
 		// INPUT HANDLING
 		// ---------------
-		switch(PROGRAM_MODE.current)
+		switch(ProgramMode.current)
 		{
 		case CONSOLE_MODE:
-			handle_console_input(input_flags, player, &world, G_SCENE_INFO.camera);
+			handle_console_input(input_flags, player, &world, GSceneInfo.camera);
 			break;
 		case EDITOR_MODE:
-			Editor::handle_input_flags(input_flags, player, &world, G_SCENE_INFO.camera);
+			Editor::handle_input_flags(input_flags, player, &world, GSceneInfo.camera);
 			if(!ImGui::GetIO().WantCaptureKeyboard)
 			{
 				IN_handle_movement_input(input_flags, player, EDITOR_MODE, &world);
@@ -362,14 +363,14 @@ int main()
 		// -------------
 		{
 			auto start = std::chrono::high_resolution_clock::now();
-			if(PROGRAM_MODE.current == GAME_MODE)
-				camera_update_game(G_SCENE_INFO.camera, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT, player->eye());
-			else if(PROGRAM_MODE.current == EDITOR_MODE)
-				camera_update_editor(G_SCENE_INFO.camera, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT, player->entity_ptr->position);
-			Game_State.update_timers();
+			if(ProgramMode.current == GAME_MODE)
+				camera_update_game(GSceneInfo.camera, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT, player->Eye());
+			else if(ProgramMode.current == EDITOR_MODE)
+				camera_update_editor(GSceneInfo.camera, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT, player->entity_ptr->position);
+			GameState.UpdateTimers();
 			GP_update_player_state(player, &world);
 			AN_animate_player(player);
-			Entity_Animations.update_animations();
+			EntityAnimations.UpdateAnimations();
 			auto finish = std::chrono::high_resolution_clock::now();
 			int elapsed = std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count();
 			get_time_update(elapsed);
@@ -389,22 +390,22 @@ int main()
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			render_depth_map(&world);
 			render_depth_cubemap(&world);
-			render_scene(&world, G_SCENE_INFO.camera);
+			render_scene(&world, GSceneInfo.camera);
 			//render_depth_map_debug();
-			switch(PROGRAM_MODE.current)
+			switch(ProgramMode.current)
 			{
 			case CONSOLE_MODE:
 				render_console();
 				break;
 			case EDITOR_MODE:
-				Editor::update(player, &world, G_SCENE_INFO.camera);
-				Editor::render(player, &world, G_SCENE_INFO.camera);
+				Editor::update(player, &world, GSceneInfo.camera);
+				Editor::render(player, &world, GSceneInfo.camera);
 				break;
 			case GAME_MODE:
 				render_game_gui(player);
 				break;
 			}
-			ImDraw::render(G_SCENE_INFO.camera);
+			ImDraw::render(GSceneInfo.camera);
 			ImDraw::update(RVN::frame.duration);
 			RVN::rm_buffer->render();
 			auto finish = std::chrono::high_resolution_clock::now();
@@ -415,10 +416,10 @@ int main()
 		// -------------
 		// FINISH FRAME
 		// -------------
-		Entity_Manager.safe_delete_marked_entities();
+		EntityManager.safe_delete_marked_entities();
 		RVN::rm_buffer->cleanup();
-		glfwSwapBuffers(G_DISPLAY_INFO.window);
-		if(PROGRAM_MODE.current == EDITOR_MODE)
+		glfwSwapBuffers(GDisplayInfo.window);
+		if(ProgramMode.current == EDITOR_MODE)
 			Editor::end_dear_imgui_frame();
 	}
 
@@ -435,7 +436,6 @@ void simulate_gravity_trajectory()
 	float v_magnitude = 3;
 	auto grav = vec3(0, -9.0, 0); // m/s^2
 	int iterations = 20;
-	float d_frame = 0.02;
 
 	// state
 	vec3 vel = v_direction * v_magnitude;
@@ -444,6 +444,7 @@ void simulate_gravity_trajectory()
 
 	for(int i = 0; i < iterations; i++)
 	{
+		float d_frame = 0.02;
 		vel += d_frame * grav;
 		pos += vel * d_frame;
 		ImDraw::add_point(IM_ITERHASH(i), pos, 2.0, false, COLOR_GREEN_1, 1);
@@ -496,7 +497,7 @@ void check_all_entities_have_ids(World* world)
 	{
 		auto entity = world->entities[i];
 
-		if(entity->name != PLAYER_NAME && entity->id == -1)
+		if(entity->name != PlayerName && entity->id == -1)
 			Quit_fatal("There are entities without IDs. Check scene loading code for a flaw.");
 	}
 }
@@ -524,13 +525,13 @@ void setup_GLFW(bool debug)
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
 	// Creates the window
-	G_DISPLAY_INFO.window = glfwCreateWindow(GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT, "Ravenous", nullptr, nullptr);
-	if(G_DISPLAY_INFO.window == nullptr)
+	GDisplayInfo.window = glfwCreateWindow(GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT, "Ravenous", nullptr, nullptr);
+	if(GDisplayInfo.window == nullptr)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
 	}
-	glfwMakeContextCurrent(G_DISPLAY_INFO.window);
+	glfwMakeContextCurrent(GDisplayInfo.window);
 
 	if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -539,10 +540,10 @@ void setup_GLFW(bool debug)
 
 	// Setups openGL viewport
 	glViewport(0, 0, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT);
-	glfwSetFramebufferSizeCallback(G_DISPLAY_INFO.window, framebuffer_size_callback);
-	glfwSetCursorPosCallback(G_DISPLAY_INFO.window, on_mouse_move);
-	glfwSetScrollCallback(G_DISPLAY_INFO.window, on_mouse_scroll);
-	glfwSetMouseButtonCallback(G_DISPLAY_INFO.window, on_mouse_btn);
+	glfwSetFramebufferSizeCallback(GDisplayInfo.window, framebuffer_size_callback);
+	glfwSetCursorPosCallback(GDisplayInfo.window, on_mouse_move);
+	glfwSetScrollCallback(GDisplayInfo.window, on_mouse_scroll);
+	glfwSetMouseButtonCallback(GDisplayInfo.window, on_mouse_btn);
 
 	if(debug)
 	{
@@ -558,11 +559,11 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 GLenum glCheckError_(const char* file, int line)
 {
-	GLenum errorCode;
-	while((errorCode = glGetError()) != GL_NO_ERROR)
+	GLenum error_code;
+	while((error_code = glGetError()) != GL_NO_ERROR)
 	{
 		std::string error;
-		switch(errorCode)
+		switch(error_code)
 		{
 		case GL_INVALID_ENUM:
 			error = "INVALID_ENUM";
@@ -581,34 +582,35 @@ GLenum glCheckError_(const char* file, int line)
 		case GL_INVALID_FRAMEBUFFER_OPERATION:
 			error = "INVALID_FRAMEBUFFER_OPERATION";
 			break;
+		default: break;
 		}
 		std::cout << error << " | " << file << " (" << line << ")" << std::endl;
 	}
-	return errorCode;
+	return error_code;
 }
 
 void toggle_program_modes(Player* player)
 {
-	G_INPUT_INFO.forget_last_mouse_coords = true;
+	GInputInfo.forget_last_mouse_coords = true;
 
-	if(PROGRAM_MODE.current == EDITOR_MODE)
+	if(ProgramMode.current == EDITOR_MODE)
 	{
-		PROGRAM_MODE.last = PROGRAM_MODE.current;
-		PROGRAM_MODE.current = GAME_MODE;
-		G_SCENE_INFO.camera = G_SCENE_INFO.views[1];
+		ProgramMode.last = ProgramMode.current;
+		ProgramMode.current = GAME_MODE;
+		GSceneInfo.camera = GSceneInfo.views[1];
 		player->entity_ptr->flags |= EntityFlags_InvisibleEntity;
-		glfwSetInputMode(G_DISPLAY_INFO.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetInputMode(GDisplayInfo.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		Editor::end_dear_imgui_frame();
 
 		RVN::rm_buffer->add("Game Mode", 2000);
 	}
-	else if(PROGRAM_MODE.current == GAME_MODE)
+	else if(ProgramMode.current == GAME_MODE)
 	{
-		PROGRAM_MODE.last = PROGRAM_MODE.current;
-		PROGRAM_MODE.current = EDITOR_MODE;
-		G_SCENE_INFO.camera = G_SCENE_INFO.views[0];
+		ProgramMode.last = ProgramMode.current;
+		ProgramMode.current = EDITOR_MODE;
+		GSceneInfo.camera = GSceneInfo.views[0];
 		player->entity_ptr->flags &= ~EntityFlags_InvisibleEntity;
-		glfwSetInputMode(G_DISPLAY_INFO.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		glfwSetInputMode(GDisplayInfo.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		Editor::start_dear_imgui_frame();
 
 		RVN::rm_buffer->add("Editor Mode", 2000);

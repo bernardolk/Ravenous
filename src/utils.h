@@ -7,12 +7,12 @@
 
 struct Vertex;
 
-inline void print_vec(vec3 vec, const std::string& prefix)
+inline void PrintVec(vec3 vec, const std::string& prefix)
 {
 	std::cout << prefix << ": (" << vec.x << ", " << vec.y << ", " << vec.z << ") \n";
 }
 
-inline void print_vertex_array_position(Vertex* vertex, size_t length, const std::string& title)
+inline void PrintVertexArrayPosition(Vertex* vertex, size_t length, const std::string& title)
 {
 	std::cout << title << "\n";
 	for(int i = 0; i < length; i++)
@@ -22,23 +22,23 @@ inline void print_vertex_array_position(Vertex* vertex, size_t length, const std
 	}
 }
 
-inline std::string format_float_tostr(float num, int precision = 3)
+inline std::string FormatFloatTostr(float num, int precision = 3)
 {
 	std::string temp = std::to_string(num);
 	return temp.substr(0, temp.find(".") + precision);
 }
 
-inline std::string fmt_tostr(float num, int precision)
+inline std::string FmtTostr(float num, int precision)
 {
-	return format_float_tostr(num, precision);
+	return FormatFloatTostr(num, precision);
 }
 
-inline std::string to_string(vec3 vec)
+inline std::string ToString(vec3 vec)
 {
 	return "(" + std::to_string(vec.x) + ", " + std::to_string(vec.y) + ", " + std::to_string(vec.z) + ")";
 }
 
-inline std::string to_string(vec2 vec)
+inline std::string ToString(vec2 vec)
 {
 	return "(" + std::to_string(vec.x) + ", " + std::to_string(vec.y) + ")";
 }
@@ -52,7 +52,7 @@ enum FloatTolerance
 	FloatTolerance_6_000001 = 3,
 };
 
-inline bool are_equal_floats(float x, float y, FloatTolerance tolerance = FloatTolerance_5_00001)
+inline bool AreEqualFloats(float x, float y, FloatTolerance tolerance = FloatTolerance_5_00001)
 {
 	/* checks if two floats are equal within a certain tolerance level */
 	float tolerances[] = {0.001f, 0.0001f, 0.00001f, 0.000001f};

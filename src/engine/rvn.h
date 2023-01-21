@@ -71,7 +71,7 @@ struct GlobalSceneInfo
 };
 
 // @TODO
-extern GlobalSceneInfo G_SCENE_INFO;
+extern GlobalSceneInfo GSceneInfo;
 
 struct GlobalDisplayConfig
 {

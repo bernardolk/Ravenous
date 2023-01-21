@@ -27,7 +27,7 @@
 #include <engine/world/world.h>
 
 
-void WorldCell::init(int ii, int ji, int ki)
+void WorldCell::Init(int ii, int ji, int ki)
 {
 	this->count = 0;
 
@@ -41,37 +41,37 @@ void WorldCell::init(int ii, int ji, int ki)
 	this->bounding_box.minx = origin.x;
 	this->bounding_box.miny = origin.y;
 	this->bounding_box.minz = origin.z;
-	this->bounding_box.maxx = origin.x + W_CELL_LEN_METERS;
-	this->bounding_box.maxy = origin.y + W_CELL_LEN_METERS;
-	this->bounding_box.maxz = origin.z + W_CELL_LEN_METERS;
+	this->bounding_box.maxx = origin.x + WCellLenMeters;
+	this->bounding_box.maxy = origin.y + WCellLenMeters;
+	this->bounding_box.maxz = origin.z + WCellLenMeters;
 
 	// initialize entities list
-	for(int i = 0; i < WORLD_CELL_CAPACITY; i++)
+	for(int i = 0; i < WorldCellCapacity; i++)
 		this->entities[i] = nullptr;
 }
 
 
-void WorldCell::remove(Entity* entity)
+void WorldCell::Remove(Entity* entity)
 {
-	for(int i = 0; i < WORLD_CELL_CAPACITY; i++)
+	for(int i = 0; i < WorldCellCapacity; i++)
 		if(this->entities[i] == entity)
 		{
 			this->entities[i] = nullptr;
-			this->defrag();
+			this->Defrag();
 			return;
 		}
 }
 
 
-CellUpdate WorldCell::add(Entity* entity)
+CellUpdate WorldCell::Add(Entity* entity)
 {
-	if(count == WORLD_CELL_CAPACITY)
+	if(count == WorldCellCapacity)
 	{
-		const auto message = "World cell '" + this->coords_str() + "' is full.";
+		const auto message = "World cell '" + this->CoordsStr() + "' is full.";
 		return CellUpdate{CellUpdate_CELL_FULL, message};
 	}
 
-	for(int i = 0; i < WORLD_CELL_CAPACITY; i++)
+	for(int i = 0; i < WorldCellCapacity; i++)
 		if(this->entities[i] == nullptr)
 		{
 			this->entities[i] = entity;
@@ -84,15 +84,15 @@ CellUpdate WorldCell::add(Entity* entity)
 
 
 //@TODO: Refactor this whole thing to use mempool
-void WorldCell::defrag()
+void WorldCell::Defrag()
 {
 	if(this->count == 0)
 		return;
 
 	// initialize holes array
 	unsigned int hole_count = 0;
-	int holes[WORLD_CELL_CAPACITY];
-	for(int i = 0; i < WORLD_CELL_CAPACITY; i++)
+	int holes[WorldCellCapacity];
+	for(int i = 0; i < WorldCellCapacity; i++)
 		holes[i] = -1;
 
 	// find holes and store in array
@@ -133,7 +133,7 @@ void WorldCell::defrag()
 }
 
 
-std::string WorldCell::coords_str() const
+std::string WorldCell::CoordsStr() const
 {
 	return "Cell [" + std::to_string(this->i)
 	+ "," + std::to_string(this->j) + "," + std::to_string(this->k)
@@ -141,48 +141,48 @@ std::string WorldCell::coords_str() const
 }
 
 
-vec3 WorldCell::coords() const
+vec3 WorldCell::Coords() const
 {
 	return vec3{this->i, this->j, this->k};
 }
 
 
-vec3 WorldCell::coords_meters() const
+vec3 WorldCell::CoordsMeters() const
 {
 	return get_world_coordinates_from_world_cell_coordinates(this->i, this->j, this->k);
 }
 
 
-std::string WorldCell::coords_meters_str()
+std::string WorldCell::CoordsMetersStr()
 {
-	vec3 mcoords = this->coords_meters();
-	return "[x: " + format_float_tostr(mcoords[0], 1)
-	+ ", y: " + format_float_tostr(mcoords[1], 1) + ", z: " + format_float_tostr(mcoords[2], 1)
+	vec3 mcoords = this->CoordsMeters();
+	return "[x: " + FormatFloatTostr(mcoords[0], 1)
+	+ ", y: " + FormatFloatTostr(mcoords[1], 1) + ", z: " + FormatFloatTostr(mcoords[2], 1)
 	+ "]";
 }
 
 
 World::World()
 {
-	this->init();
+	this->Init();
 }
 
 
-void World::init()
+void World::Init()
 {
-	for(int i = 0; i < W_CELLS_NUM_X; i++)
-		for(int j = 0; j < W_CELLS_NUM_Y; j++)
-			for(int k = 0; k < W_CELLS_NUM_Z; k++)
-				this->cells[i][j][k].init(i, j, k);
+	for(int i = 0; i < WCellsNumX; i++)
+		for(int j = 0; j < WCellsNumY; j++)
+			for(int k = 0; k < WCellsNumZ; k++)
+				this->cells[i][j][k].Init(i, j, k);
 }
 
 
-void World::update_cells_in_use_list()
+void World::UpdateCellsInUseList()
 {
 	this->cells_in_use_count = 0;
-	for(int i = 0; i < W_CELLS_NUM_X; i++)
-		for(int j = 0; j < W_CELLS_NUM_Y; j++)
-			for(int k = 0; k < W_CELLS_NUM_Z; k++)
+	for(int i = 0; i < WCellsNumX; i++)
+		for(int j = 0; j < WCellsNumY; j++)
+			for(int k = 0; k < WCellsNumZ; k++)
 			{
 				const auto cell = &this->cells[i][j][k];
 				if(cell->count != 0)
@@ -191,7 +191,7 @@ void World::update_cells_in_use_list()
 }
 
 
-CellUpdate World::update_entity_world_cells(Entity* entity)
+CellUpdate World::UpdateEntityWorldCells(Entity* entity)
 {
 	std::string message;
 
@@ -263,7 +263,7 @@ CellUpdate World::update_entity_world_cells(Entity* entity)
 	for(int i = 0; i < cells_to_remove_from.size(); i++)
 	{
 		auto cell = cells_to_remove_from[i];
-		cell->remove(entity);
+		cell->Remove(entity);
 	}
 
 	// add entity to new cells
@@ -271,7 +271,7 @@ CellUpdate World::update_entity_world_cells(Entity* entity)
 	for(int i = 0; i < cells_to_add_to.size(); i++)
 	{
 		auto cell = cells_to_add_to[i];
-		auto cell_update = cell->add(entity);
+		auto cell_update = cell->Add(entity);
 		if(cell_update.status != CellUpdate_OK)
 		{
 			return cell_update;
@@ -293,7 +293,7 @@ CellUpdate World::update_entity_world_cells(Entity* entity)
 }
 
 
-RaycastTest World::raycast(const Ray ray, const RayCastType test_type, const Entity* skip, const float max_distance) const
+RaycastTest World::Raycast(const Ray ray, const RayCastType test_type, const Entity* skip, const float max_distance) const
 {
 	//@TODO: This should first test ray against world cells, then get the list of entities from these world cells to test against 
 
@@ -320,13 +320,13 @@ RaycastTest World::raycast(const Ray ray, const RayCastType test_type, const Ent
 }
 
 
-RaycastTest World::raycast(const Ray ray, const Entity* skip, const float max_distance) const
+RaycastTest World::Raycast(const Ray ray, const Entity* skip, const float max_distance) const
 {
-	return this->raycast(ray, RayCast_TestOnlyFromOutsideIn, skip, max_distance);
+	return this->Raycast(ray, RayCast_TestOnlyFromOutsideIn, skip, max_distance);
 }
 
 
-RaycastTest World::linear_raycast_array(const Ray first_ray, int qty, float spacing) const
+RaycastTest World::LinearRaycastArray(const Ray first_ray, int qty, float spacing) const
 {
 	/* 
 	   Casts multiple ray towards the first_ray direction, with dir pointing upwards,
@@ -340,10 +340,10 @@ RaycastTest World::linear_raycast_array(const Ray first_ray, int qty, float spac
 
 	for_less(qty)
 	{
-		auto test = this->raycast(ray, RayCast_TestOnlyFromOutsideIn, player->entity_ptr, player->grab_reach);
+		auto test = this->Raycast(ray, RayCast_TestOnlyFromOutsideIn, player->entity_ptr, player->grab_reach);
 		if(test.hit)
 		{
-			if(test.distance < shortest_z || (are_equal_floats(test.distance, shortest_z) && highest_y < ray.origin.y))
+			if(test.distance < shortest_z || (AreEqualFloats(test.distance, shortest_z) && highest_y < ray.origin.y))
 			{
 				highest_y = ray.origin.y;
 				shortest_z = test.distance;
@@ -365,7 +365,7 @@ RaycastTest World::linear_raycast_array(const Ray first_ray, int qty, float spac
 	return best_hit_results;
 }
 
-RaycastTest World::raycast_lights(const Ray ray) const
+RaycastTest World::RaycastLights(const Ray ray) const
 {
 	float min_distance = MAX_FLOAT;
 	RaycastTest closest_hit{.hit = false, .distance = -1};
@@ -412,7 +412,7 @@ RaycastTest World::raycast_lights(const Ray ray) const
 }
 
 
-void World::clear(const EntityManager* manager)
+void World::Clear(const T_EntityManager* manager)
 {
 	/*
 	   This is the ~official~ world unloading/clearing procedure.
@@ -454,7 +454,7 @@ void World::clear(const EntityManager* manager)
 	this->checkpoints.clear();
 }
 
-void World::update_entities() const
+void World::UpdateEntities() const
 {
 	for(const auto& entity : this->entities)
 		entity->update();

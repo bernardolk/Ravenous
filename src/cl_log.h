@@ -9,6 +9,8 @@
 // a moving window. Once both are completely filled, we just swap the read and write buffers so we always start reading at
 // the the tail and writing at the head with the same number of total entries. 
 
+struct Entity;
+
 struct CollisionLogEntry
 {
 	Entity* entity;

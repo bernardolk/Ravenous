@@ -188,7 +188,7 @@ void render_entity_panel(EntityPanelContext* panel, World* world)
 			for(int i = 0; i < entity->world_cells_count; i++)
 			{
 				auto cell = entity->world_cells[i];
-				ImGui::Text(cell->coords_str().c_str());
+				ImGui::Text(cell->CoordsStr().c_str());
 			}
 		}
 
@@ -208,7 +208,7 @@ void render_entity_panel(EntityPanelContext* panel, World* world)
 			if(ImGui::Button("Duplicate", ImVec2(82, 18)))
 			{
 				action_flags |= EntityPanelTA_Duplicate;
-				auto new_entity = Entity_Manager.copy_entity(entity);
+				auto new_entity = EntityManager.copy_entity(entity);
 				open_entity_panel(new_entity);
 			}
 
@@ -240,35 +240,35 @@ void render_entity_panel(EntityPanelContext* panel, World* world)
 		bool is_static = entity->type == EntityType_Static;
 		if(ImGui::RadioButton("Static", is_static))
 		{
-			Entity_Manager.set_type(entity, EntityType_Static);
+			EntityManager.set_type(entity, EntityType_Static);
 		}
 
 		// EntityType_Checkpoint
 		bool is_checkpoint = entity->type == EntityType_Checkpoint;
 		if(ImGui::RadioButton("Checkpoint", is_checkpoint))
 		{
-			Entity_Manager.set_type(entity, EntityType_Checkpoint);
+			EntityManager.set_type(entity, EntityType_Checkpoint);
 		}
 
 		// EntityType_TimerTrigger
 		bool is_timer_trigger = entity->type == EntityType_TimerTrigger;
 		if(ImGui::RadioButton("Timer Trigger", is_timer_trigger))
 		{
-			Entity_Manager.set_type(entity, EntityType_TimerTrigger);
+			EntityManager.set_type(entity, EntityType_TimerTrigger);
 		}
 
 		// EntityType_TimerTarget
 		bool is_timer_target = entity->type == EntityType_TimerTarget;
 		if(ImGui::RadioButton("Timer Target", is_timer_target))
 		{
-			Entity_Manager.set_type(entity, EntityType_TimerTarget);
+			EntityManager.set_type(entity, EntityType_TimerTarget);
 		}
 
 		// EntityType_TimerMarking
 		bool is_timer_marking = entity->type == EntityType_TimerMarking;
 		if(ImGui::RadioButton("Timer Marking", is_timer_marking))
 		{
-			Entity_Manager.set_type(entity, EntityType_TimerMarking);
+			EntityManager.set_type(entity, EntityType_TimerMarking);
 		}
 
 		ImGui::NewLine();
@@ -512,11 +512,11 @@ void entity_panel_update_entity_and_editor_context(EntityPanelContext* panel, u3
 		deactivate_editor_modes();
 
 	panel->entity->update();
-	auto update_cells = world->update_entity_world_cells(panel->entity);
+	auto update_cells = world->UpdateEntityWorldCells(panel->entity);
 	if(update_cells.status != CellUpdate_OK)
 		RVN::rm_buffer->add(update_cells.message, 3500);
 
-	world->update_cells_in_use_list();
+	world->UpdateCellsInUseList();
 
 	// TODO: We should _know_ when entities move and be able to act programatically upon that knowledge instead of randomly checking everywhere.
 	update_entity_control_arrows(&EdContext.entity_panel);

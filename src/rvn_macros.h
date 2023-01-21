@@ -1,4 +1,5 @@
 // macros
+#pragma once
 
 #define For(x) for (int i = 0; i < x; i ++)
 #define Forj(x) for (int j = 0; j < x; j ++)

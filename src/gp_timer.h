@@ -1,3 +1,5 @@
+#pragma once
+
 enum TimerType
 {
 	TimerType_Simple         = 0,
@@ -13,7 +15,7 @@ struct Timer
 	float remaining_time = 0;
 	float elapsed_time = 0;
 
-	void start(Entity* target, Entity* trigger, float duration)
+	void Start(Entity* target, Entity* trigger, float duration)
 	{
 		this->target = target;
 		this->trigger = trigger;
@@ -25,15 +27,15 @@ struct Timer
 		if(target->timer_target_data.timer_target_type == EntityTimerTargetType_VerticalSlidingDoor)
 		{
 			type = TimerType_TimeAttackDoor;
-			_start_time_attack_door_timer();
+			StartTimeAttackDoorTimer();
 		}
 	}
 
-	void stop()
+	void Stop()
 	{
 		// specific stop procedures first
 		if(type == TimerType_TimeAttackDoor)
-			_stop_time_attack_door_timer();
+			StopTimeAttackDoorTimer();
 
 		target = nullptr;
 		trigger = nullptr;
@@ -43,22 +45,22 @@ struct Timer
 		type = TimerType_Simple;
 	}
 
-	bool update()
+	bool Update()
 	{
 		/* Returns whether the timer is still active */
 		remaining_time -= RVN::frame.duration;
 		elapsed_time += RVN::frame.duration;
 
 		if(type == TimerType_TimeAttackDoor)
-			_update_time_attack_door_timer();
+			UpdateTimeAttackDoorTimer();
 
 		if(remaining_time <= 0)
 			return false;
 		return true;
 	}
 
-
-	void _start_time_attack_door_timer()
+private:
+	void StartTimeAttackDoorTimer()
 	{
 		// not sure this should live here and not in the entity.h file. But ok.
 		auto data = &trigger->timer_trigger_data;
@@ -74,7 +76,7 @@ struct Timer
 	}
 
 
-	void _update_time_attack_door_timer()
+	void UpdateTimeAttackDoorTimer()
 	{
 		auto data = &trigger->timer_trigger_data;
 		For(data->size)
@@ -89,7 +91,7 @@ struct Timer
 		}
 	}
 
-	void _stop_time_attack_door_timer()
+	void StopTimeAttackDoorTimer()
 	{
 		auto data = &trigger->timer_trigger_data;
 		For(data->size)

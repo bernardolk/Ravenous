@@ -1,3 +1,5 @@
+#pragma once
+
 struct InputFlags
 {
 	u64 key_press = 0;

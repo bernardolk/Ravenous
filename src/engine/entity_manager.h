@@ -9,7 +9,7 @@ struct GlobalSceneInfo;
 struct EntityPool;
 struct Texture;
 
-extern GlobalSceneInfo G_SCENE_INFO;
+extern GlobalSceneInfo GSceneInfo;
 
 struct EntityAttributes
 {
@@ -22,7 +22,7 @@ struct EntityAttributes
 	vec3 scale = vec3{1.0f};
 };
 
-struct EntityManager
+struct T_EntityManager
 {
 	// ------------------
 	// > ENTITY MANAGER

@@ -21,8 +21,8 @@ void handle_input_flags(InputFlags flags, Player* & player, World* world, Camera
 		player->checkpoint_pos = player->entity_ptr->position;
 		WorldSerializer::save_to_file();
 		// set scene
-		G_CONFIG.initial_scene = G_SCENE_INFO.scene_name;
-		ConfigSerializer::save(G_CONFIG);
+		GConfig.initial_scene = GSceneInfo.scene_name;
+		ConfigSerializer::save(GConfig);
 		RVN::rm_buffer->add("world state saved", 1200);
 		return;
 	}
@@ -178,10 +178,10 @@ void handle_input_flags(InputFlags flags, Player* & player, World* world, Camera
 	if(pressed_once(flags, KEY_T))
 	{
 		// toggle camera type
-		if(G_SCENE_INFO.camera->type == FREE_ROAM)
-			set_camera_to_third_person(G_SCENE_INFO.camera);
-		else if(G_SCENE_INFO.camera->type == THIRD_PERSON)
-			set_camera_to_free_roam(G_SCENE_INFO.camera);
+		if(GSceneInfo.camera->type == FREE_ROAM)
+			set_camera_to_third_person(GSceneInfo.camera);
+		else if(GSceneInfo.camera->type == THIRD_PERSON)
+			set_camera_to_free_roam(GSceneInfo.camera);
 	}
 
 	// ---------------
@@ -197,7 +197,7 @@ void handle_input_flags(InputFlags flags, Player* & player, World* world, Camera
 	EdContext.mouse_click = false;
 	EdContext.mouse_dragging = false;
 
-	if(G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK)
+	if(GInputInfo.mouse_state & MOUSE_LB_CLICK)
 	{
 		std::cout << "CLICK COUNT\n";
 		if(EdContext.snap_mode)
@@ -241,11 +241,11 @@ void handle_input_flags(InputFlags flags, Player* & player, World* world, Camera
 		}
 	}
 
-	else if(G_INPUT_INFO.mouse_state & MOUSE_LB_DRAGGING)
+	else if(GInputInfo.mouse_state & MOUSE_LB_DRAGGING)
 	{
 		EdContext.mouse_dragging = true;
 	}
-	else if(G_INPUT_INFO.mouse_state & MOUSE_LB_HOLD)
+	else if(GInputInfo.mouse_state & MOUSE_LB_HOLD)
 	{
 		EdContext.mouse_dragging = true;
 	}
@@ -256,8 +256,8 @@ void handle_input_flags(InputFlags flags, Player* & player, World* world, Camera
 	// -------------------------------
 	if(pressed_once(flags, KEY_C))
 	{
-		auto pickray = cast_pickray(G_SCENE_INFO.camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
-		auto test = world->raycast(pickray, player->entity_ptr);
+		auto pickray = cast_pickray(GSceneInfo.camera, GInputInfo.mouse_coords.x, GInputInfo.mouse_coords.y);
+		auto test = world->Raycast(pickray, player->entity_ptr);
 		if(test.hit)
 		{
 			auto surface_point = point_from_detection(pickray, test);
@@ -265,7 +265,7 @@ void handle_input_flags(InputFlags flags, Player* & player, World* world, Camera
 			player->player_state = PLAYER_STATE_STANDING;
 			player->standing_entity_ptr = test.entity;
 			player->entity_ptr->velocity = vec3(0, 0, 0);
-			player->update(world);
+			player->Update(world);
 		}
 	}
 
@@ -280,9 +280,9 @@ void handle_input_flags(InputFlags flags, Player* & player, World* world, Camera
 	// -------------------------
 	// @TODO: this sucks
 	float camera_speed =
-	G_SCENE_INFO.camera->type == THIRD_PERSON ?
+	GSceneInfo.camera->type == THIRD_PERSON ?
 	player->speed * RVN::frame.duration :
-	RVN::frame.real_duration * edCam->Acceleration;
+	RVN::frame.real_duration * EdCam->Acceleration;
 
 	if(flags.key_press & KEY_LEFT_SHIFT)
 	{
@@ -291,37 +291,37 @@ void handle_input_flags(InputFlags flags, Player* & player, World* world, Camera
 
 	if(flags.key_press & KEY_W)
 	{
-		G_SCENE_INFO.camera->Position += camera_speed * G_SCENE_INFO.camera->Front;
+		GSceneInfo.camera->Position += camera_speed * GSceneInfo.camera->Front;
 	}
 	if(flags.key_press & KEY_A)
 	{
 		// @TODO: this sucks too
-		if(G_SCENE_INFO.camera->type == FREE_ROAM)
-			G_SCENE_INFO.camera->Position -= camera_speed * normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
-		else if(G_SCENE_INFO.camera->type == THIRD_PERSON)
-			G_SCENE_INFO.camera->orbital_angle -= 0.025;
+		if(GSceneInfo.camera->type == FREE_ROAM)
+			GSceneInfo.camera->Position -= camera_speed * normalize(glm::cross(GSceneInfo.camera->Front, GSceneInfo.camera->Up));
+		else if(GSceneInfo.camera->type == THIRD_PERSON)
+			GSceneInfo.camera->orbital_angle -= 0.025;
 	}
 	if(pressed(flags, KEY_S))
 	{
-		G_SCENE_INFO.camera->Position -= camera_speed * G_SCENE_INFO.camera->Front;
+		GSceneInfo.camera->Position -= camera_speed * GSceneInfo.camera->Front;
 	}
 	if(flags.key_press & KEY_D)
 	{
-		if(G_SCENE_INFO.camera->type == FREE_ROAM)
-			G_SCENE_INFO.camera->Position += camera_speed * normalize(glm::cross(G_SCENE_INFO.camera->Front, G_SCENE_INFO.camera->Up));
-		else if(G_SCENE_INFO.camera->type == THIRD_PERSON)
-			G_SCENE_INFO.camera->orbital_angle += 0.025;
+		if(GSceneInfo.camera->type == FREE_ROAM)
+			GSceneInfo.camera->Position += camera_speed * normalize(glm::cross(GSceneInfo.camera->Front, GSceneInfo.camera->Up));
+		else if(GSceneInfo.camera->type == THIRD_PERSON)
+			GSceneInfo.camera->orbital_angle += 0.025;
 	}
 	if(flags.key_press & KEY_Q)
 	{
-		G_SCENE_INFO.camera->Position -= camera_speed * G_SCENE_INFO.camera->Up;
+		GSceneInfo.camera->Position -= camera_speed * GSceneInfo.camera->Up;
 	}
 	if(flags.key_press & KEY_E)
 	{
-		G_SCENE_INFO.camera->Position += camera_speed * G_SCENE_INFO.camera->Up;
+		GSceneInfo.camera->Position += camera_speed * GSceneInfo.camera->Up;
 	}
 	if(flags.key_press & KEY_O)
 	{
-		camera_look_at(G_SCENE_INFO.camera, vec3(0.0f, 0.0f, 0.0f), true);
+		camera_look_at(GSceneInfo.camera, vec3(0.0f, 0.0f, 0.0f), true);
 	}
 }

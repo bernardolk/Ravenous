@@ -69,7 +69,7 @@ u16 MOUSE_RB_HOLD = 1 << 4;
 u16 MOUSE_LB_DRAGGING = 1 << 5;
 
 
-InputFlags input_phase()
+inline InputFlags input_phase()
 {
 	// first, check if last frame we had a click, if so, 
 	// se it as btn hold (so we dont register clicks more than one time)
@@ -80,13 +80,13 @@ InputFlags input_phase()
 	// then respond to all glfw callbacks
 	glfwPollEvents();
 	// set the flags and return
-	auto key_press_flags = process_keyboard_input_key_press(G_DISPLAY_INFO.window);
-	auto key_release_flags = process_keyboard_input_key_release(G_DISPLAY_INFO.window);
+	auto key_press_flags = process_keyboard_input_key_press(GDisplayInfo.window);
+	auto key_release_flags = process_keyboard_input_key_release(GDisplayInfo.window);
 	return InputFlags{key_press_flags, key_release_flags};
 }
 
 
-u64 process_keyboard_input_key_press(GLFWwindow* window)
+inline u64 process_keyboard_input_key_press(GLFWwindow* window)
 {
 	u64 flags = 0;
 
@@ -244,7 +244,7 @@ u64 process_keyboard_input_key_press(GLFWwindow* window)
 }
 
 
-u64 process_keyboard_input_key_release(GLFWwindow* window)
+inline u64 process_keyboard_input_key_release(GLFWwindow* window)
 {
 	u64 flags = 0;
 
@@ -396,77 +396,77 @@ u64 process_keyboard_input_key_release(GLFWwindow* window)
 }
 
 
-void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
+inline void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 {
-	if(PROGRAM_MODE.current == EDITOR_MODE && ImGui::GetIO().WantCaptureMouse)
+	if(ProgramMode.current == EDITOR_MODE && ImGui::GetIO().WantCaptureMouse)
 		return;
 
 	// activates mouse dragging if clicking and current mouse position has changed a certain ammount
-	if(!(G_INPUT_INFO.mouse_state & MOUSE_RB_DRAGGING) && G_INPUT_INFO.mouse_state & MOUSE_RB_HOLD)
+	if(!(GInputInfo.mouse_state & MOUSE_RB_DRAGGING) && GInputInfo.mouse_state & MOUSE_RB_HOLD)
 	{
-		auto offset_from_click_x = abs(G_INPUT_INFO.mouse_coords.click_x - G_INPUT_INFO.mouse_coords.x);
-		auto offset_from_click_y = abs(G_INPUT_INFO.mouse_coords.click_y - G_INPUT_INFO.mouse_coords.y);
+		auto offset_from_click_x = abs(GInputInfo.mouse_coords.click_x - GInputInfo.mouse_coords.x);
+		auto offset_from_click_y = abs(GInputInfo.mouse_coords.click_y - GInputInfo.mouse_coords.y);
 		if(offset_from_click_x > 2 || offset_from_click_y > 2)
 		{
-			G_INPUT_INFO.mouse_state |= MOUSE_RB_DRAGGING;
+			GInputInfo.mouse_state |= MOUSE_RB_DRAGGING;
 		}
 	}
 
 	// do the same for LB
-	if(!(G_INPUT_INFO.mouse_state & MOUSE_LB_DRAGGING) && G_INPUT_INFO.mouse_state & MOUSE_LB_HOLD)
+	if(!(GInputInfo.mouse_state & MOUSE_LB_DRAGGING) && GInputInfo.mouse_state & MOUSE_LB_HOLD)
 	{
-		auto offset_from_click_x = abs(G_INPUT_INFO.mouse_coords.click_x - G_INPUT_INFO.mouse_coords.x);
-		auto offset_from_click_y = abs(G_INPUT_INFO.mouse_coords.click_y - G_INPUT_INFO.mouse_coords.y);
+		auto offset_from_click_x = abs(GInputInfo.mouse_coords.click_x - GInputInfo.mouse_coords.x);
+		auto offset_from_click_y = abs(GInputInfo.mouse_coords.click_y - GInputInfo.mouse_coords.y);
 		if(offset_from_click_x > 2 || offset_from_click_y > 2)
 		{
-			G_INPUT_INFO.mouse_state |= MOUSE_LB_DRAGGING;
+			GInputInfo.mouse_state |= MOUSE_LB_DRAGGING;
 		}
 	}
 
 	// @todo: should refactor this out of here
 	// MOVE CAMERA WITH MOUSE IF APPROPRIATE
-	if(PROGRAM_MODE.current == GAME_MODE || (G_INPUT_INFO.mouse_state & MOUSE_RB_DRAGGING))
+	if(ProgramMode.current == GAME_MODE || (GInputInfo.mouse_state & MOUSE_RB_DRAGGING))
 	{
-		if(G_INPUT_INFO.block_mouse_move)
+		if(GInputInfo.block_mouse_move)
 			return;
 
 		// 'teleports' stored coordinates to current mouse coordinates
-		if(G_INPUT_INFO.forget_last_mouse_coords)
+		if(GInputInfo.forget_last_mouse_coords)
 		{
-			G_INPUT_INFO.mouse_coords.last_x = xpos;
-			G_INPUT_INFO.mouse_coords.last_y = ypos;
-			G_INPUT_INFO.forget_last_mouse_coords = false;
+			GInputInfo.mouse_coords.last_x = xpos;
+			GInputInfo.mouse_coords.last_y = ypos;
+			GInputInfo.forget_last_mouse_coords = false;
 			return;
 		}
 
 		// calculates offsets and updates last x and y pos
-		float xoffset = xpos - G_INPUT_INFO.mouse_coords.last_x;
-		float yoffset = G_INPUT_INFO.mouse_coords.last_y - ypos;
-		G_INPUT_INFO.mouse_coords.last_x = xpos;
-		G_INPUT_INFO.mouse_coords.last_y = ypos;
+		float xoffset = xpos - GInputInfo.mouse_coords.last_x;
+		float yoffset = GInputInfo.mouse_coords.last_y - ypos;
+		GInputInfo.mouse_coords.last_x = xpos;
+		GInputInfo.mouse_coords.last_y = ypos;
 
-		xoffset *= G_SCENE_INFO.camera->Sensitivity;
-		yoffset *= G_SCENE_INFO.camera->Sensitivity;
+		xoffset *= GSceneInfo.camera->Sensitivity;
+		yoffset *= GSceneInfo.camera->Sensitivity;
 
-		camera_change_direction(G_SCENE_INFO.camera, xoffset, yoffset);
+		camera_change_direction(GSceneInfo.camera, xoffset, yoffset);
 	}
 
 	// updates mouse position
-	G_INPUT_INFO.mouse_coords.x = xpos;
-	G_INPUT_INFO.mouse_coords.y = ypos;
+	GInputInfo.mouse_coords.x = xpos;
+	GInputInfo.mouse_coords.y = ypos;
 }
 
 
-void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset)
+inline void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset)
 {
 	if(ImGui::GetIO().WantCaptureMouse)
 		return;
 
-	G_SCENE_INFO.camera->Position += static_cast<float>(3 * yoffset) * G_SCENE_INFO.camera->Front;
+	GSceneInfo.camera->Position += static_cast<float>(3 * yoffset) * GSceneInfo.camera->Front;
 }
 
 
-void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
+inline void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
 {
 	// @todo: need to refactor registering mouse click into the KeyInput struct and having it
 	// acknowledge whether you are clicking or dragging or what
@@ -479,13 +479,13 @@ void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
 	{
 		if(action == GLFW_PRESS)
 		{
-			G_INPUT_INFO.mouse_state |= MOUSE_LB_CLICK;
+			GInputInfo.mouse_state |= MOUSE_LB_CLICK;
 		}
 		else if(action == GLFW_RELEASE)
 		{
-			G_INPUT_INFO.mouse_state &= ~(MOUSE_LB_CLICK);
-			G_INPUT_INFO.mouse_state &= ~(MOUSE_LB_HOLD);
-			G_INPUT_INFO.mouse_state &= ~(MOUSE_LB_DRAGGING);
+			GInputInfo.mouse_state &= ~(MOUSE_LB_CLICK);
+			GInputInfo.mouse_state &= ~(MOUSE_LB_HOLD);
+			GInputInfo.mouse_state &= ~(MOUSE_LB_DRAGGING);
 		}
 		break;
 	}
@@ -493,19 +493,21 @@ void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
 	{
 		if(action == GLFW_PRESS)
 		{
-			G_INPUT_INFO.mouse_state |= MOUSE_RB_CLICK;
-			G_INPUT_INFO.forget_last_mouse_coords = true;
-			G_INPUT_INFO.mouse_coords.click_x = G_INPUT_INFO.mouse_coords.x;
-			G_INPUT_INFO.mouse_coords.click_y = G_INPUT_INFO.mouse_coords.y;
+			GInputInfo.mouse_state |= MOUSE_RB_CLICK;
+			GInputInfo.forget_last_mouse_coords = true;
+			GInputInfo.mouse_coords.click_x = GInputInfo.mouse_coords.x;
+			GInputInfo.mouse_coords.click_y = GInputInfo.mouse_coords.y;
 		}
 		else if(action == GLFW_RELEASE)
 		{
-			G_INPUT_INFO.mouse_state &= ~(MOUSE_RB_CLICK);
-			G_INPUT_INFO.mouse_state &= ~(MOUSE_RB_HOLD);
-			G_INPUT_INFO.mouse_state &= ~(MOUSE_RB_DRAGGING);
+			GInputInfo.mouse_state &= ~(MOUSE_RB_CLICK);
+			GInputInfo.mouse_state &= ~(MOUSE_RB_HOLD);
+			GInputInfo.mouse_state &= ~(MOUSE_RB_DRAGGING);
 		}
 		break;
 	}
+	default:
+		break;
 	}
 }
 
@@ -513,14 +515,14 @@ void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
 inline
 bool pressed_once(InputFlags flags, u64 key)
 {
-	return flags.key_press & key && !(G_INPUT_INFO.key_state & key);
+	return flags.key_press & key && !(GInputInfo.key_state & key);
 }
 
 
 inline
 bool pressed_only(InputFlags flags, u64 key)
 {
-	return flags.key_press == key && !(G_INPUT_INFO.key_state & key);
+	return flags.key_press == key && !(GInputInfo.key_state & key);
 }
 
 
@@ -531,24 +533,24 @@ bool pressed(InputFlags flags, u64 key)
 }
 
 
-void check_mouse_click_hold()
+inline void check_mouse_click_hold()
 {
-	if((G_INPUT_INFO.mouse_state & MOUSE_LB_CLICK))
+	if((GInputInfo.mouse_state & MOUSE_LB_CLICK))
 	{
-		G_INPUT_INFO.mouse_state &= ~(MOUSE_LB_CLICK);
-		G_INPUT_INFO.mouse_state |= MOUSE_LB_HOLD;
+		GInputInfo.mouse_state &= ~(MOUSE_LB_CLICK);
+		GInputInfo.mouse_state |= MOUSE_LB_HOLD;
 	}
-	if((G_INPUT_INFO.mouse_state & MOUSE_RB_CLICK))
+	if((GInputInfo.mouse_state & MOUSE_RB_CLICK))
 	{
-		G_INPUT_INFO.mouse_state &= ~(MOUSE_RB_CLICK);
-		G_INPUT_INFO.mouse_state |= MOUSE_RB_HOLD;
+		GInputInfo.mouse_state &= ~(MOUSE_RB_CLICK);
+		GInputInfo.mouse_state |= MOUSE_RB_HOLD;
 	}
 }
 
 
-void reset_input_flags(InputFlags flags)
+inline void reset_input_flags(InputFlags flags)
 {
 	// here we record a history for if keys were last pressed or released, so to enable smooth toggle
-	G_INPUT_INFO.key_state |= flags.key_press;
-	G_INPUT_INFO.key_state &= ~(flags.key_release);
+	GInputInfo.key_state |= flags.key_press;
+	GInputInfo.key_state &= ~(flags.key_release);
 }
