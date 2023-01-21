@@ -1,20 +1,21 @@
 #pragma once
 #include <fstream>
 
-struct ParseUnit {
+struct ParseUnit
+{
 	std::string string{};
-	size_t		size					= 0;
-	u8				hasToken				= 0;
+	size_t      size = 0;
+	u8          hasToken = 0;
 	union
 	{
-		char		string_buffer[50]{};
-		int		iToken;
-		float		fToken;
-		char		cToken;
-		u32		uiToken;
-		u64		u64Token;
-		float		vec3[3];
-		float		vec2[2];
+		char  string_buffer[50]{};
+		int   iToken;
+		float fToken;
+		char  cToken;
+		u32   uiToken;
+		u64   u64Token;
+		float vec3[3];
+		float vec2[2];
 	};
 
 	void advance_char()
@@ -26,15 +27,15 @@ struct ParseUnit {
 
 struct Parser
 {
-	int				line_count = 0;
-	std::ifstream	reader;
-	std::string		filepath;
-	ParseUnit p{};
+	int           line_count = 0;
+	std::ifstream reader;
+	std::string   filepath;
+	ParseUnit     p{};
 
 	explicit Parser(const std::string& filepath)
 	{
-		this->filepath	= filepath;
-		this->reader	= std::ifstream(filepath);
+		this->filepath = filepath;
+		this->reader = std::ifstream(filepath);
 		if(!this->reader.is_open())
 		{
 			std::cout << "Couldn't open file '" + filepath + "', path NOT FOUND \n";
@@ -44,15 +45,15 @@ struct Parser
 
 	Parser(const std::string& text_buffer, const int buffer_size)
 	{
-		this->p.string		= text_buffer.c_str();
-		this->p.size		= buffer_size;
+		this->p.string = text_buffer.c_str();
+		this->p.size = buffer_size;
 	}
 
 	bool next_line();
 	void parse_whitespace();
 	void parse_all_whitespace();
 	void parse_letter();
-	void parse_symbol(); 
+	void parse_symbol();
 	void parse_name_char();
 	void parse_name();
 	void parse_token_char();
@@ -63,7 +64,7 @@ struct Parser
 	void parse_float();
 	void parse_vec3();
 	void parse_vec2();
-	
+
 	void _clear_parse_buffer();
 	bool has_token() const;
 
@@ -78,19 +79,19 @@ struct Parser
 	};
 };
 
-template <typename T>
+template<typename T>
 T get_parsed(Parser& parser)
 {
 	return *reinterpret_cast<T*>(&parser.p.iToken);
 }
 
-template <>
+template<>
 inline std::string get_parsed(Parser& parser)
 {
 	return parser.p.string_buffer;
 }
 
-template <>
+template<>
 inline glm::vec3 get_parsed(Parser& parser)
 {
 	if(parser.p.hasToken == 0)
@@ -99,10 +100,10 @@ inline glm::vec3 get_parsed(Parser& parser)
 		assert(false);
 	}
 
-	return  glm::vec3{parser.p.vec3[0], parser.p.vec3[1], parser.p.vec3[2]};
+	return glm::vec3{parser.p.vec3[0], parser.p.vec3[1], parser.p.vec3[2]};
 }
 
-template <>
+template<>
 inline glm::vec2 get_parsed(Parser& parser)
 {
 	if(parser.p.hasToken == 0)

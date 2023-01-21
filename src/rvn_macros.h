@@ -1,4 +1,3 @@
-
 // macros
 
 #define For(x) for (int i = 0; i < x; i ++)

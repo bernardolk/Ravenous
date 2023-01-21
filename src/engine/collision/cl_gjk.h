@@ -17,34 +17,37 @@
 struct Simplex;
 struct CollisionMesh;
 
-struct GJK_Iteration {
-   Simplex  simplex;
-   vec3     direction;
-   bool     finished       = false;
+struct GJK_Iteration
+{
+	Simplex simplex;
+	vec3    direction;
+	bool    finished = false;
 };
 
-struct GJK_Result {
-   Simplex  simplex;
-   bool     collision = false;
+struct GJK_Result
+{
+	Simplex simplex;
+	bool    collision = false;
 };
 
-struct GJK_Point {
-   vec3     point;
-   bool     empty;
+struct GJK_Point
+{
+	vec3 point;
+	bool empty;
 };
 
-GJK_Point      CL_find_furthest_vertex          (CollisionMesh* collision_mesh, vec3 direction);
-GJK_Point      CL_get_support_point             (CollisionMesh* collision_mesh_A, CollisionMesh* collision_mesh_B, vec3 direction);
-void           CL_update_line_simplex           (GJK_Iteration* gjk);
-void           CL_update_triangle_simplex       (GJK_Iteration* gjk);
-void           CL_update_tetrahedron_simplex    (GJK_Iteration* gjk);
-void           CL_update_simplex_and_direction  (GJK_Iteration* gjk);
+GJK_Point CL_find_furthest_vertex(CollisionMesh* collision_mesh, vec3 direction);
+GJK_Point CL_get_support_point(CollisionMesh* collision_mesh_A, CollisionMesh* collision_mesh_B, vec3 direction);
+void      CL_update_line_simplex(GJK_Iteration* gjk);
+void      CL_update_triangle_simplex(GJK_Iteration* gjk);
+void      CL_update_tetrahedron_simplex(GJK_Iteration* gjk);
+void      CL_update_simplex_and_direction(GJK_Iteration* gjk);
 
-void           _CL_debug_render_simplex         (Simplex simplex);
-GJK_Result     CL_run_GJK                       (CollisionMesh* collider_A, CollisionMesh* collider_B);
+void       _CL_debug_render_simplex(Simplex simplex);
+GJK_Result CL_run_GJK(CollisionMesh* collider_A, CollisionMesh* collider_B);
 
 
 inline bool CL_same_general_direction(vec3 a, vec3 b)
 {
-   return glm::dot(a, b) > 0;
+	return dot(a, b) > 0;
 }

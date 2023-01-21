@@ -1,7 +1,7 @@
 #include "file_browser_modal.h"
 
 #include <limits>
-#include <imgui/imgui.h>
+#include <dearIMGUI/imgui.h>
 using namespace imgui_ext;
 
 static void get_files_in_path(const fs::path& path, std::vector<file>& files, const char* filter) {

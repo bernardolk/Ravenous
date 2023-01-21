@@ -1,45 +1,53 @@
 #include<stack>
 
-bool WIN_list_files(std::string path, std::string mask, std::vector<std::string>& files) {
-   
-    HANDLE hFind = INVALID_HANDLE_VALUE;
-    WIN32_FIND_DATA ffd;
-    std::string spec;
-    std::stack<std::string> directories;
+bool WIN_list_files(std::string path, std::string mask, std::vector<std::string>& files)
+{
 
-    directories.push(path);
-    files.clear();
+	auto                    hFind = INVALID_HANDLE_VALUE;
+	WIN32_FIND_DATA         ffd;
+	std::string             spec;
+	std::stack<std::string> directories;
 
-    while (!directories.empty()) {
-        path = directories.top();
-        spec = path + "\\" + mask;
-        directories.pop();
+	directories.push(path);
+	files.clear();
 
-        hFind = FindFirstFile(spec.c_str(), &ffd);
-        if (hFind == INVALID_HANDLE_VALUE)  {
-            return false;
-        } 
+	while(!directories.empty())
+	{
+		path = directories.top();
+		spec = path + "\\" + mask;
+		directories.pop();
 
-        do {
-            if (strcmp(ffd.cFileName, ".") != 0 && 
-                strcmp(ffd.cFileName, "..") != 0) {
-                if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-                    directories.push(path + "\\" + ffd.cFileName);
-                }
-                else {
-                    files.push_back(path + "/" + ffd.cFileName);
-                }
-            }
-        } while (FindNextFile(hFind, &ffd) != 0);
+		hFind = FindFirstFile(spec.c_str(), &ffd);
+		if(hFind == INVALID_HANDLE_VALUE)
+		{
+			return false;
+		}
 
-        if (GetLastError() != ERROR_NO_MORE_FILES) {
-            FindClose(hFind);
-            return false;
-        }
+		do
+		{
+			if(strcmp(ffd.cFileName, ".") != 0 &&
+				strcmp(ffd.cFileName, "..") != 0)
+			{
+				if(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+				{
+					directories.push(path + "\\" + ffd.cFileName);
+				}
+				else
+				{
+					files.push_back(path + "/" + ffd.cFileName);
+				}
+			}
+		} while(FindNextFile(hFind, &ffd) != 0);
 
-        FindClose(hFind);
-        hFind = INVALID_HANDLE_VALUE;
-    }
+		if(GetLastError() != ERROR_NO_MORE_FILES)
+		{
+			FindClose(hFind);
+			return false;
+		}
 
-    return true;
+		FindClose(hFind);
+		hFind = INVALID_HANDLE_VALUE;
+	}
+
+	return true;
 }
