@@ -43,6 +43,28 @@
 #include <engine/rvn.h>
 #include <engine/render/text/character.h>
 
+
+/**
+ *	Refactor plan:
+ *	
+ *	1. Create a engine/core.h and put all essentials there (including fwd declarations of common types)
+ *	2. Start moving methods from outer scope to static types that implement a "static T* Get()" and refactor global instances to use that method
+ *	3. Refactor ravenous.cpp: Delete unused code, make core loop very high level (refactor input/update/render loops into its own Engine methods)
+ *	4. Implement cpp files for header-only code (excluding editor code) and move them into proper place in file structure
+ *	5. Make inputs work in this build
+ *
+ *	Next steps plan:
+ *
+ *	1. Finish reflection system to work with multiple inheritance
+ *	2. Implement the MemoryArena and EntityManager code from the loose files into here
+ *	3. Refactor current entity types (doors, markings, etc) into actual entity types
+ *	4. Make se/deserialization work for these types
+ *	5. Profit $$$
+ *	
+ */
+
+
+
 // GLOBAL STRUCT VARIABLES OR TYPES 
 enum ProgramModeEnum
 {
