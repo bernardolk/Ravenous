@@ -1,3 +1,5 @@
+#pragma once
+
 void on_mouse_btn(GLFWwindow* window, int button, int action, int mods);
 void on_mouse_move(GLFWwindow* window, double xpos, double ypos);
 u64 process_keyboard_input_key_press(GLFWwindow* window);

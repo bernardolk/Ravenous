@@ -19,6 +19,8 @@
 
 #include "engine/world/scene_manager.h"
 
+#include "engine/engine_state.h"
+
 
 /**
  *	Refactor plan:
@@ -81,81 +83,6 @@ ProgramConfig GConfig;
 void tmp_fwd_end_dear_imgui_frame();
 void tmp_fwd_start_dear_imgui_frame();
 
-struct EngineState
-{
-	enum class ProgramMode : u8
-	{
-		Game,
-		Editor,
-		Console
-	};
-
-	ProgramMode current_mode = ProgramMode::Editor;
-	ProgramMode last_mode = ProgramMode::Editor;
-
-public:
-	static EngineState* Get()
-	{
-		static EngineState instance;
-		return &instance;
-	}
-
-	static bool IsInGameMode()
-	{
-		return Get()->current_mode == ProgramMode::Game;
-	}
-
-	static bool IsInEditorMode()
-	{
-		return Get()->current_mode == ProgramMode::Editor;
-	}
-
-	static bool IsInConsoleMode()
-	{
-		return Get()->current_mode == ProgramMode::Console;
-	}
-
-
-	static void ToggleProgramMode()
-	{
-		auto* GII = GlobalInputInfo::Get();
-		auto* GDC = GlobalDisplayConfig::Get();
-
-		auto* player = Player::Get();
-
-		GII->forget_last_mouse_coords = true;
-		auto* ES = Get();
-		auto* GSI = GlobalSceneInfo::Get();
-
-		if(ES->current_mode == ProgramMode::Editor)
-		{
-			ES->last_mode = ES->current_mode;
-			ES->current_mode = ProgramMode::Game;
-			GSI->camera = GSI->views[1];
-
-			player->MakeInvisible();
-
-			glfwSetInputMode(GDC->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-			tmp_fwd_end_dear_imgui_frame();
-
-			Rvn::rm_buffer->Add("Game Mode", 2000);
-		}
-
-		else if(ES->current_mode == ProgramMode::Game)
-		{
-			ES->last_mode = ES->current_mode;
-			ES->current_mode = ProgramMode::Editor;
-			GSI->camera = GSI->views[0];
-
-			player->MakeVisible();
-
-			glfwSetInputMode(GDC->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-			tmp_fwd_start_dear_imgui_frame();
-
-			Rvn::rm_buffer->Add("Editor Mode", 2000);
-		}
-	}
-};
 
 // camera handles
 Camera* PCam;
@@ -222,50 +149,6 @@ void check_all_entities_have_ids(World* world);
 void check_all_geometry_has_gl_data();
 void setup_gl();
 void simulate_gravity_trajectory();
-
-static void get_time_update(int elapsed)
-{
-	static std::vector<int> times;
-	const int N = 100;
-
-	times.push_back(elapsed);
-
-
-	if(times.size() == N)
-	{
-		int sum = 0;
-		for(int i = 0; i < times.size(); i++)
-			sum += times[i];
-
-		float average = sum * 1.0 / N;
-
-		std::cout << "Average Update Time: " << average << "\n";
-
-		times.clear();
-	}
-}
-
-static void get_time_render(int elapsed)
-{
-	static std::vector<int> times;
-	const int N = 100;
-
-	times.push_back(elapsed);
-
-
-	if(times.size() == N)
-	{
-		int sum = 0;
-		for(int i = 0; i < times.size(); i++)
-			sum += times[i];
-
-		float average = sum * 1.0 / N;
-
-		std::cout << "Average Render Time: " << average << "\n";
-
-		times.clear();
-	}
-}
 
 int main()
 {
@@ -412,7 +295,6 @@ int main()
 		//	UPDATE PHASE
 		// -------------
 		{
-			auto start = std::chrono::high_resolution_clock::now();
 			if(ES->current_mode == EngineState::ProgramMode::Game)
 				camera_update_game(GSI->camera, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->Eye());
 			else if(ES->current_mode == EngineState::ProgramMode::Editor)
@@ -421,9 +303,6 @@ int main()
 			GP_update_player_state(player, &world);
 			AN_animate_player(player);
 			EntityAnimations.UpdateAnimations();
-			auto finish = std::chrono::high_resolution_clock::now();
-			int elapsed = std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count();
-			get_time_update(elapsed);
 		}
 
 
@@ -435,7 +314,6 @@ int main()
 		//	RENDER PHASE
 		// -------------
 		{
-			auto start = std::chrono::high_resolution_clock::now();
 			glClearColor(0.196, 0.298, 0.3607, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			render_depth_map(&world);
@@ -458,9 +336,6 @@ int main()
 			ImDraw::Render(GSI->camera);
 			ImDraw::Update(Rvn::frame.duration);
 			Rvn::rm_buffer->Render();
-			auto finish = std::chrono::high_resolution_clock::now();
-			int elapsed = std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count();
-			get_time_render(elapsed);
 		}
 
 		// -------------
