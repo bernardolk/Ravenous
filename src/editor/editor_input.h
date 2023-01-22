@@ -8,6 +8,7 @@ inline void handle_input_flags(InputFlags flags, Player* & player, World* world,
 	// commands that return once detected,
 	// not allowing for more than one at a time
 	// to be issued.
+	auto* GSI = GlobalSceneInfo::Get();
 
 	if(pressed(flags, KEY_LEFT_CTRL) && pressed_once(flags, KEY_Z))
 	{
@@ -23,7 +24,7 @@ inline void handle_input_flags(InputFlags flags, Player* & player, World* world,
 		player->checkpoint_pos = player->entity_ptr->position;
 		WorldSerializer::save_to_file();
 		// set scene
-		GConfig.initial_scene = GSceneInfo.scene_name;
+		GConfig.initial_scene = GSI->scene_name;
 		ConfigSerializer::save(GConfig);
 		Rvn::rm_buffer->Add("world state saved", 1200);
 		return;
@@ -180,10 +181,10 @@ inline void handle_input_flags(InputFlags flags, Player* & player, World* world,
 	if(pressed_once(flags, KEY_T))
 	{
 		// toggle camera type
-		if(GSceneInfo.camera->type == FREE_ROAM)
-			set_camera_to_third_person(GSceneInfo.camera);
-		else if(GSceneInfo.camera->type == THIRD_PERSON)
-			set_camera_to_free_roam(GSceneInfo.camera);
+		if(GSI->camera->type == FREE_ROAM)
+			set_camera_to_third_person(GSI->camera);
+		else if(GSI->camera->type == THIRD_PERSON)
+			set_camera_to_free_roam(GSI->camera);
 	}
 
 	// ---------------
@@ -260,7 +261,7 @@ inline void handle_input_flags(InputFlags flags, Player* & player, World* world,
 	// -------------------------------
 	if(pressed_once(flags, KEY_C))
 	{
-		auto pickray = cast_pickray(GSceneInfo.camera, GII->mouse_coords.x, GII->mouse_coords.y);
+		auto pickray = cast_pickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		auto test = world->Raycast(pickray, player->entity_ptr);
 		if(test.hit)
 		{
@@ -284,7 +285,7 @@ inline void handle_input_flags(InputFlags flags, Player* & player, World* world,
 	// -------------------------
 	// @TODO: this sucks
 	float camera_speed =
-	GSceneInfo.camera->type == THIRD_PERSON ?
+	GSI->camera->type == THIRD_PERSON ?
 	player->speed * Rvn::frame.duration :
 	Rvn::frame.real_duration * EdCam->acceleration;
 
@@ -295,37 +296,37 @@ inline void handle_input_flags(InputFlags flags, Player* & player, World* world,
 
 	if(flags.key_press & KEY_W)
 	{
-		GSceneInfo.camera->position += camera_speed * GSceneInfo.camera->front;
+		GSI->camera->position += camera_speed * GSI->camera->front;
 	}
 	if(flags.key_press & KEY_A)
 	{
 		// @TODO: this sucks too
-		if(GSceneInfo.camera->type == FREE_ROAM)
-			GSceneInfo.camera->position -= camera_speed * normalize(glm::cross(GSceneInfo.camera->front, GSceneInfo.camera->up));
-		else if(GSceneInfo.camera->type == THIRD_PERSON)
-			GSceneInfo.camera->orbital_angle -= 0.025;
+		if(GSI->camera->type == FREE_ROAM)
+			GSI->camera->position -= camera_speed * normalize(glm::cross(GSI->camera->front, GSI->camera->up));
+		else if(GSI->camera->type == THIRD_PERSON)
+			GSI->camera->orbital_angle -= 0.025;
 	}
 	if(pressed(flags, KEY_S))
 	{
-		GSceneInfo.camera->position -= camera_speed * GSceneInfo.camera->front;
+		GSI->camera->position -= camera_speed * GSI->camera->front;
 	}
 	if(flags.key_press & KEY_D)
 	{
-		if(GSceneInfo.camera->type == FREE_ROAM)
-			GSceneInfo.camera->position += camera_speed * normalize(glm::cross(GSceneInfo.camera->front, GSceneInfo.camera->up));
-		else if(GSceneInfo.camera->type == THIRD_PERSON)
-			GSceneInfo.camera->orbital_angle += 0.025;
+		if(GSI->camera->type == FREE_ROAM)
+			GSI->camera->position += camera_speed * normalize(glm::cross(GSI->camera->front, GSI->camera->up));
+		else if(GSI->camera->type == THIRD_PERSON)
+			GSI->camera->orbital_angle += 0.025;
 	}
 	if(flags.key_press & KEY_Q)
 	{
-		GSceneInfo.camera->position -= camera_speed * GSceneInfo.camera->up;
+		GSI->camera->position -= camera_speed * GSI->camera->up;
 	}
 	if(flags.key_press & KEY_E)
 	{
-		GSceneInfo.camera->position += camera_speed * GSceneInfo.camera->up;
+		GSI->camera->position += camera_speed * GSI->camera->up;
 	}
 	if(flags.key_press & KEY_O)
 	{
-		camera_look_at(GSceneInfo.camera, vec3(0.0f, 0.0f, 0.0f), true);
+		camera_look_at(GSI->camera, vec3(0.0f, 0.0f, 0.0f), true);
 	}
 }

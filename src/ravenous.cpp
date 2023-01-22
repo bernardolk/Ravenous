@@ -10,11 +10,14 @@
 #include "engine/core/core.h"
 
 #include <engine/core/ui.h>
+#include "engine/io/input.h"
+#include "engine/io/display.h"
 
-#include <engine/core/types.h>
 #include <engine/logging.h>
 #include <engine/rvn.h>
 #include <engine/render/text/character.h>
+
+#include "engine/world/scene_manager.h"
 
 
 /**
@@ -36,33 +39,6 @@
  *	
  */
 
-
-GlobalDisplayConfig GDisplayInfo;
-
-struct MouseCoordinates
-{
-	double last_x = 0;
-	double last_y = 0;
-	double click_x;
-	double click_y;
-	double x;
-	double y;
-};
-
-struct GlobalInputInfo
-{
-	bool forget_last_mouse_coords = true;
-	MouseCoordinates mouse_coords;
-	u64 key_state = 0;
-	u8 mouse_state = 0;
-	bool block_mouse_move = false;
-
-	static GlobalInputInfo* Get()
-	{
-		static GlobalInputInfo instance;
-		return &instance;
-	}
-};
 
 ProgramConfig GConfig;
 
@@ -143,20 +119,23 @@ public:
 	static void ToggleProgramMode()
 	{
 		auto* GII = GlobalInputInfo::Get();
+		auto* GDC = GlobalDisplayConfig::Get();
+
 		auto* player = Player::Get();
 
 		GII->forget_last_mouse_coords = true;
 		auto* ES = Get();
+		auto* GSI = GlobalSceneInfo::Get();
 
 		if(ES->current_mode == ProgramMode::Editor)
 		{
 			ES->last_mode = ES->current_mode;
 			ES->current_mode = ProgramMode::Game;
-			GSceneInfo.camera = GSceneInfo.views[1];
+			GSI->camera = GSI->views[1];
 
 			player->MakeInvisible();
 
-			glfwSetInputMode(GDisplayInfo.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			glfwSetInputMode(GDC->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			tmp_fwd_end_dear_imgui_frame();
 
 			Rvn::rm_buffer->Add("Game Mode", 2000);
@@ -166,11 +145,11 @@ public:
 		{
 			ES->last_mode = ES->current_mode;
 			ES->current_mode = ProgramMode::Editor;
-			GSceneInfo.camera = GSceneInfo.views[0];
+			GSI->camera = GSI->views[0];
 
 			player->MakeVisible();
 
-			glfwSetInputMode(GDisplayInfo.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			glfwSetInputMode(GDC->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			tmp_fwd_start_dear_imgui_frame();
 
 			Rvn::rm_buffer->Add("Editor Mode", 2000);
@@ -224,9 +203,6 @@ void tmp_fwd_start_dear_imgui_frame()
 	Editor::start_dear_imgui_frame();
 }
 
-
-// globals
-GlobalSceneInfo GSceneInfo;
 
 #define glCheckError() glCheckError_(__FILE__, __LINE__)
 
@@ -312,7 +288,7 @@ int main()
 	PlayerSerializer::world = &world;
 	LightSerializer::world = &world;
 	EntitySerializer::manager = EM;
-	ConfigSerializer::scene_info = &GSceneInfo;
+	ConfigSerializer::scene_info = GlobalSceneInfo::Get();
 
 	// INITIAL GLFW AND GLAD SETUPS
 	setup_GLFW(true);
@@ -321,8 +297,10 @@ int main()
 	// create cameras
 	const auto editor_camera = new Camera();
 	const auto first_person_camera = new Camera();
-	GSceneInfo.views[EditorCam] = editor_camera;
-	GSceneInfo.views[GameCam] = first_person_camera;
+	auto* GSI = GlobalSceneInfo::Get();
+
+	GSI->views[EditorCam] = editor_camera;
+	GSI->views[GameCam] = first_person_camera;
 	PCam = first_person_camera;
 	EdCam = editor_camera;
 
@@ -343,18 +321,18 @@ int main()
 	// Initialises immediate draw
 	ImDraw::Init();
 
-	GSceneInfo.camera = GSceneInfo.views[0]; // sets to editor camera
+	GSI->camera = GSI->views[0]; // sets to editor camera
 
 
 	// loads initial scene
 	GConfig = ConfigSerializer::load_configs();
 	WorldSerializer::load_from_file(GConfig.initial_scene);
-	Player* player = GSceneInfo.player;
+	Player* player = GSI->player;
 	world.player = player;
 	player->checkpoint_pos = player->entity_ptr->position; // set player initial checkpoint position
 
 	// set scene attrs from global config
-	GSceneInfo.camera->acceleration = GConfig.camspeed;
+	GSI->camera->acceleration = GConfig.camspeed;
 	world.ambient_light = GConfig.ambient_light;
 	world.ambient_intensity = GConfig.ambient_intensity;
 
@@ -382,7 +360,7 @@ int main()
 	player->entity_ptr->flags |= EntityFlags_RenderWireframe;
 
 	// MAIN LOOP
-	while(!glfwWindowShouldClose(GDisplayInfo.window))
+	while(!glfwWindowShouldClose(GlobalDisplayConfig::GetWindow()))
 	{
 		// -------------
 		//	INPUT PHASE
@@ -408,13 +386,13 @@ int main()
 		// ---------------
 		if(EngineState::IsInConsoleMode())
 		{
-			handle_console_input(input_flags, player, &world, GSceneInfo.camera);
+			handle_console_input(input_flags, player, &world, GSI->camera);
 		}
 		else
 		{
 			if(EngineState::IsInEditorMode())
 			{
-				Editor::handle_input_flags(input_flags, player, &world, GSceneInfo.camera);
+				Editor::handle_input_flags(input_flags, player, &world, GSI->camera);
 				if(!ImGui::GetIO().WantCaptureKeyboard)
 				{
 					IN_handle_movement_input(input_flags, player, &world);
@@ -436,9 +414,9 @@ int main()
 		{
 			auto start = std::chrono::high_resolution_clock::now();
 			if(ES->current_mode == EngineState::ProgramMode::Game)
-				camera_update_game(GSceneInfo.camera, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->Eye());
+				camera_update_game(GSI->camera, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->Eye());
 			else if(ES->current_mode == EngineState::ProgramMode::Editor)
-				camera_update_editor(GSceneInfo.camera, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->entity_ptr->position);
+				camera_update_editor(GSI->camera, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->entity_ptr->position);
 			GameState.UpdateTimers();
 			GP_update_player_state(player, &world);
 			AN_animate_player(player);
@@ -462,7 +440,7 @@ int main()
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			render_depth_map(&world);
 			render_depth_cubemap(&world);
-			render_scene(&world, GSceneInfo.camera);
+			render_scene(&world, GSI->camera);
 			//render_depth_map_debug();
 			switch(ES->current_mode)
 			{
@@ -470,14 +448,14 @@ int main()
 					render_console();
 					break;
 				case EngineState::ProgramMode::Editor:
-					Editor::update(player, &world, GSceneInfo.camera);
-					Editor::render(player, &world, GSceneInfo.camera);
+					Editor::update(player, &world, GSI->camera);
+					Editor::render(player, &world, GSI->camera);
 					break;
 				case EngineState::ProgramMode::Game:
 					render_game_gui(player);
 					break;
 			}
-			ImDraw::Render(GSceneInfo.camera);
+			ImDraw::Render(GSI->camera);
 			ImDraw::Update(Rvn::frame.duration);
 			Rvn::rm_buffer->Render();
 			auto finish = std::chrono::high_resolution_clock::now();
@@ -490,7 +468,7 @@ int main()
 		// -------------
 		EM->SafeDeleteMarkedEntities();
 		Rvn::rm_buffer->Cleanup();
-		glfwSwapBuffers(GDisplayInfo.window);
+		glfwSwapBuffers(GlobalDisplayConfig::GetWindow());
 		if(ES->current_mode == EngineState::ProgramMode::Editor)
 			Editor::end_dear_imgui_frame();
 	}
@@ -597,13 +575,14 @@ void setup_GLFW(bool debug)
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
 	// Creates the window
-	GDisplayInfo.window = glfwCreateWindow(GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, "Ravenous", nullptr, nullptr);
-	if(GDisplayInfo.window == nullptr)
+	auto* GDC = GlobalDisplayConfig::Get();
+	GDC->window = glfwCreateWindow(GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, "Ravenous", nullptr, nullptr);
+	if(GDC->window == nullptr)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
 	}
-	glfwMakeContextCurrent(GDisplayInfo.window);
+	glfwMakeContextCurrent(GDC->window);
 
 	if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -612,10 +591,10 @@ void setup_GLFW(bool debug)
 
 	// Setups openGL viewport
 	glViewport(0, 0, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height);
-	glfwSetFramebufferSizeCallback(GDisplayInfo.window, framebuffer_size_callback);
-	glfwSetCursorPosCallback(GDisplayInfo.window, on_mouse_move);
-	glfwSetScrollCallback(GDisplayInfo.window, on_mouse_scroll);
-	glfwSetMouseButtonCallback(GDisplayInfo.window, on_mouse_btn);
+	glfwSetFramebufferSizeCallback(GDC->window, framebuffer_size_callback);
+	glfwSetCursorPosCallback(GDC->window, on_mouse_move);
+	glfwSetScrollCallback(GDC->window, on_mouse_scroll);
+	glfwSetMouseButtonCallback(GDC->window, on_mouse_btn);
 
 	if(debug)
 	{

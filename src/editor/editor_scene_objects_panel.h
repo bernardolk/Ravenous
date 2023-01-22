@@ -30,7 +30,7 @@ inline void render_scene_objects_panel(const World* world, SceneObjectsPanelCont
 				panel->active = false;
 
 				if(entity->name == PlayerName)
-					open_player_panel(GSceneInfo.player);
+					open_player_panel(Player::Get());
 				else
 					open_entity_panel(entity);
 			}

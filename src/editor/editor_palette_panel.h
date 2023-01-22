@@ -10,6 +10,8 @@ inline void render_palette_panel(PalettePanelContext* panel)
 	ImGui::Begin("Palette", &panel->active, ImGuiWindowFlags_NoResize);
 	ImGui::SetWindowSize("Palette", ImVec2(90, 500), ImGuiCond_Always);
 	auto* EM = EntityManager::Get();
+	auto* GSI = GlobalSceneInfo::Get();
+
 	for(unsigned int i = 0; i < panel->count; i++)
 	{
 		if(ImGui::ImageButton((void*)static_cast<intptr_t>(panel->textures[i]), ImVec2(64, 64)))
@@ -17,7 +19,7 @@ inline void render_palette_panel(PalettePanelContext* panel)
 			auto attributes = panel->entity_palette[i];
 			const auto new_entity = EM->CreateEntity(attributes);
 			new_entity->id = EM->next_entity_id++;
-			new_entity->position = GSceneInfo.camera->position + (2.f * new_entity->scale + 5.f) * GSceneInfo.camera->front;
+			new_entity->position = GSI->camera->position + (2.f * new_entity->scale + 5.f) * GSI->camera->front;
 			activate_move_mode(new_entity);
 		}
 	}

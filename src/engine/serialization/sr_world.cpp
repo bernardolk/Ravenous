@@ -19,6 +19,8 @@
 #include <engine/serialization/parsing/parser.h>
 #include <engine/serialization/sr_world.h>
 
+#include "engine/world/scene_manager.h"
+
 
 bool WorldSerializer::load_from_file(const std::string& filename)
 {
@@ -31,26 +33,18 @@ bool WorldSerializer::load_from_file(const std::string& filename)
 	world->Init();
 
 	// Either creates new scene or resets current structures
-	if(GSceneInfo.active_scene == nullptr)
-	{
-		GSceneInfo.active_scene = new Scene();
-		GSceneInfo.player = Player::Get();
-	}
-	else
-	{
-		*GSceneInfo.active_scene = Scene{};
-		GSceneInfo.player = Player::ResetPlayer();
-	}
+	GlobalSceneInfo::RefreshActiveScene();
+	world->player = Player::Get();
 
-	world->player = GSceneInfo.player;
-
-	GSceneInfo.player->entity_ptr = manager->CreateEntity({
-	.name = PlayerName,
-	.mesh = "capsule",
-	.shader = "model",
-	.texture = "pink",
-	.collision_mesh = "capsule",
-	.scale = vec3(1)});
+	// Creates player
+	Player::Get()->entity_ptr = manager->CreateEntity({
+		.name = PlayerName,
+		.mesh = "capsule",
+		.shader = "model",
+		.texture = "pink",
+		.collision_mesh = "capsule",
+		.scale = vec3(1)
+	});
 
 	// creates deferred load buffer for associating entities after loading them all
 	auto entity_relations = DeferredEntityRelationBuffer();
@@ -114,7 +108,7 @@ bool WorldSerializer::load_from_file(const std::string& filename)
 	//          Post parse steps
 	// -----------------------------------
 	world->player->Update(world, true);
-	CL_update_player_world_cells(GSceneInfo.player, world);
+	CL_update_player_world_cells(Player::Get(), world);
 
 	// connects entities using deferred load buffer
 	For(entity_relations.count)
@@ -177,7 +171,7 @@ bool WorldSerializer::load_from_file(const std::string& filename)
 	// clear static relations buffer
 	EntitySerializer::_clear_buffer();
 
-	GSceneInfo.scene_name = filename;
+	GlobalSceneInfo::Get()->scene_name = filename;
 
 	world->UpdateCellsInUseList();
 	world->UpdateEntities();
@@ -195,8 +189,8 @@ bool WorldSerializer::save_to_file(const std::string& new_filename, const bool d
 {
 	std::string filename = new_filename;
 	if(new_filename.empty())
-	{
-		filename = GSceneInfo.scene_name;
+	{			
+		filename = GlobalSceneInfo::Get()->scene_name;
 
 		if(do_copy)
 		{
@@ -234,7 +228,7 @@ bool WorldSerializer::save_to_file(const std::string& new_filename, const bool d
 
 	// @TODO: Refactor this at some point
 	// write player orientation
-	const auto fps_cam = GSceneInfo.views[GameCam];
+	const auto fps_cam = GlobalSceneInfo::Get()->views[GameCam];
 	writer << "&player_orientation = "
 	<< fps_cam->front.x << " "
 	<< fps_cam->front.y << " "
@@ -268,7 +262,7 @@ bool WorldSerializer::save_to_file(const std::string& new_filename, const bool d
 	else if(!new_filename.empty())
 	{
 		log(LOG_INFO, "Scene saved successfully as '" + filename + ".txt' (now editing it)");
-		GSceneInfo.scene_name = filename;
+		GlobalSceneInfo::Get()->scene_name = filename;
 	}
 	else
 		log(LOG_INFO, "Scene saved successfully.");

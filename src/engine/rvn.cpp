@@ -4,6 +4,7 @@
 #include <map>
 #include <engine/render/text/text_renderer.h>
 #include <engine/rvn.h>
+#include "engine/io/display.h"
 
 void Rvn::Init()
 {

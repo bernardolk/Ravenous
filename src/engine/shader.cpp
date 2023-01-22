@@ -10,6 +10,7 @@
 #include <engine/serialization/parsing/parser.h>
 #include <engine/logging.h>
 #include <engine/shader.h>
+#include "engine/io/display.h"
 
 std::map<std::string, Shader*> ShaderCatalogue;
 

@@ -151,6 +151,7 @@ inline void execute_command(const std::string& buffer_line, Player* & player, Wo
 	Parser p{buffer_line, 50};
 	p.ParseToken();
 	const std::string command = get_parsed<std::string>(p);
+	auto* GSI = GlobalSceneInfo::Get();
 
 	// ---------------
 	// 'SAVE' COMMAND
@@ -186,14 +187,13 @@ inline void execute_command(const std::string& buffer_line, Player* & player, Wo
 		// updates scene with new one
 		if(WorldSerializer::load_from_file(scene_name))
 		{
-			
-			player = GSceneInfo.player; // not irrelevant! do not delete
+			player = GSI->player; // not irrelevant! do not delete
 			if(EngineState::IsInEditorMode())
 				player->entity_ptr->flags &= ~EntityFlags_InvisibleEntity;
 			else
 				player->entity_ptr->flags |= EntityFlags_InvisibleEntity;
 			GConfig = ConfigSerializer::load_configs();
-			GSceneInfo.active_scene->LoadConfigs(GConfig);
+			GSI->active_scene->LoadConfigs(GConfig);
 		}
 	}
 
@@ -207,7 +207,7 @@ inline void execute_command(const std::string& buffer_line, Player* & player, Wo
 		const std::string scene_name = get_parsed<std::string>(p);
 		if(scene_name != "")
 		{
-			auto current_scene = GSceneInfo.scene_name;
+			auto current_scene = GSI->scene_name;
 			if(WorldSerializer::check_if_scene_exists(scene_name))
 			{
 				Rvn::rm_buffer->Add("Scene name already exists.", 3000);
@@ -231,7 +231,7 @@ inline void execute_command(const std::string& buffer_line, Player* & player, Wo
 				Rvn::rm_buffer->Add("Couldnt save new scene.", 3000);
 			}
 
-			player = GSceneInfo.player; // not irrelevant! do not delete
+			player = GSI->player; // not irrelevant! do not delete
 			if(EngineState::IsInEditorMode())
 				player->entity_ptr->flags &= ~EntityFlags_InvisibleEntity;
 			else
@@ -253,7 +253,7 @@ inline void execute_command(const std::string& buffer_line, Player* & player, Wo
 		const std::string argument = get_parsed<std::string>(p);
 		if(argument == "scene")
 		{
-			GConfig.initial_scene = GSceneInfo.scene_name;
+			GConfig.initial_scene = GSI->scene_name;
 			ConfigSerializer::save(GConfig);
 		}
 		else if(argument == "all")
@@ -262,7 +262,7 @@ inline void execute_command(const std::string& buffer_line, Player* & player, Wo
 			player->checkpoint_pos = player->entity_ptr->position;
 			WorldSerializer::save_to_file();
 			// set scene
-			GConfig.initial_scene = GSceneInfo.scene_name;
+			GConfig.initial_scene = GSI->scene_name;
 			ConfigSerializer::save(GConfig);
 		}
 		else
@@ -274,9 +274,9 @@ inline void execute_command(const std::string& buffer_line, Player* & player, Wo
 	// -----------------
 	else if(command == "reload")
 	{
-		if(WorldSerializer::load_from_file(GSceneInfo.scene_name))
+		if(WorldSerializer::load_from_file(GSI->scene_name))
 		{
-			player = GSceneInfo.player; // not irrelevant! do not delete
+			player = GSI->player; // not irrelevant! do not delete
 
 			if(EngineState::IsInEditorMode())
 				player->entity_ptr->flags &= ~EntityFlags_InvisibleEntity;
@@ -284,7 +284,7 @@ inline void execute_command(const std::string& buffer_line, Player* & player, Wo
 				player->entity_ptr->flags |= EntityFlags_InvisibleEntity;
 
 			GConfig = ConfigSerializer::load_configs();
-			GSceneInfo.active_scene->LoadConfigs(GConfig);
+			GSI->active_scene->LoadConfigs(GConfig);
 			GlobalInputInfo::Get()->block_mouse_move = false;
 		}
 	}

@@ -80,8 +80,9 @@ inline InputFlags input_phase()
 	// then respond to all glfw callbacks
 	glfwPollEvents();
 	// set the flags and return
-	auto key_press_flags = process_keyboard_input_key_press(GDisplayInfo.window);
-	auto key_release_flags = process_keyboard_input_key_release(GDisplayInfo.window);
+	auto* GDC = GlobalDisplayConfig::Get();
+	auto key_press_flags = process_keyboard_input_key_press(GDC->window);
+	auto key_release_flags = process_keyboard_input_key_release(GDC->window);
 	return InputFlags{key_press_flags, key_release_flags};
 }
 
@@ -448,10 +449,11 @@ inline void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 		GII->mouse_coords.last_x = xpos;
 		GII->mouse_coords.last_y = ypos;
 
-		xoffset *= GSceneInfo.camera->sensitivity;
-		yoffset *= GSceneInfo.camera->sensitivity;
+		auto* GSI = GlobalSceneInfo::Get();
+		xoffset *= GSI->camera->sensitivity;
+		yoffset *= GSI->camera->sensitivity;
 
-		camera_change_direction(GSceneInfo.camera, xoffset, yoffset);
+		camera_change_direction(GSI->camera, xoffset, yoffset);
 	}
 
 	// updates mouse position
@@ -465,7 +467,8 @@ inline void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset)
 	if(ImGui::GetIO().WantCaptureMouse)
 		return;
 
-	GSceneInfo.camera->position += static_cast<float>(3 * yoffset) * GSceneInfo.camera->front;
+	auto* GSI = GlobalSceneInfo::Get();
+	GSI->camera->position += static_cast<float>(3 * yoffset) * GSI->camera->front;
 }
 
 

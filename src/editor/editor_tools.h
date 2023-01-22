@@ -300,8 +300,9 @@ inline void activate_measure_mode(u8 axis)
 inline void check_selection_to_measure(const World* world)
 {
 	auto* GII = GlobalInputInfo::Get();
+	auto* GSI = GlobalSceneInfo::Get();
 
-	auto pickray = cast_pickray(GSceneInfo.camera, GII->mouse_coords.x, GII->mouse_coords.y);
+	auto pickray = cast_pickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
 	auto test = world->Raycast(pickray);
 	if(test.hit)
 	{
@@ -342,8 +343,9 @@ inline void activate_locate_coords_mode()
 inline void check_selection_to_locate_coords(const World* world)
 {
 	auto* GII = GlobalInputInfo::Get();
+	auto* GSI = GlobalSceneInfo::Get();
 
-	auto pickray = cast_pickray(GSceneInfo.camera, GII->mouse_coords.x, GII->mouse_coords.y);
+	auto pickray = cast_pickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
 	auto test = world->Raycast(pickray);
 	if(test.hit)
 	{
@@ -360,6 +362,7 @@ inline void place_entity(World* world)
 	/* Common function for move/rotate/scale entity tools.
 	   Updates entity, tracks it state and updates world.
 	   To be called at the end of entity modification operation. */
+	auto* GSI = GlobalSceneInfo::Get();
 
 	EdContext.move_mode = false;
 	EdContext.move_entity_by_arrows = false;
@@ -369,7 +372,7 @@ inline void place_entity(World* world)
 
 	EdContext.selected_entity->Update();
 	world->UpdateEntityWorldCells(EdContext.selected_entity);
-	CL_recompute_collision_buffer_entities(GSceneInfo.player);
+	CL_recompute_collision_buffer_entities(GSI->player);
 	EdContext.undo_stack.Track(EdContext.selected_entity);
 }
 
@@ -379,6 +382,7 @@ inline RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* 
 	// position. In the case of Y placement, we need to compute the plane considering the camera orientation.
 	Triangle t1, t2;
 	float plane_size = 500.0f;
+	auto* GSI = GlobalSceneInfo::Get();
 
 	switch(EdContext.move_axis)
 	{
@@ -395,7 +399,7 @@ inline RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* 
 		case 2: // Y
 		{
 			// creates vector from cam to entity in XZ
-			auto camera = GSceneInfo.camera;
+			auto camera = GSI->camera;
 			vec3 cam_to_entity = camera->position - entity->position;
 			cam_to_entity.y = camera->position.y;
 			cam_to_entity = normalize(cam_to_entity);
@@ -425,7 +429,7 @@ inline RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* 
 	// ray casts against created plane
 	auto* GII = GlobalInputInfo::Get();
 
-	auto ray = cast_pickray(GSceneInfo.camera, GII->mouse_coords.x, GII->mouse_coords.y);
+	auto ray = cast_pickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
 	RaycastTest test;
 
 	test = test_ray_against_triangle(ray, t1);
@@ -453,8 +457,9 @@ inline void activate_place_mode(Entity* entity)
 inline void select_entity_placing_with_mouse_move(Entity* entity, const World* world)
 {
 	auto* GII = GlobalInputInfo::Get();
+	auto* GSI = GlobalSceneInfo::Get();
 
-	auto pickray = cast_pickray(GSceneInfo.camera, GII->mouse_coords.x, GII->mouse_coords.y);
+	auto pickray = cast_pickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
 	auto test = world->Raycast(pickray, entity);
 	if(test.hit)
 	{
@@ -598,8 +603,9 @@ inline void move_light_with_mouse(std::string type, int index, World* world)
 		assert(false);
 
 	auto* GII = GlobalInputInfo::Get();
+	auto* GSI = GlobalSceneInfo::Get();
 
-	auto ray = cast_pickray(GSceneInfo.camera, GII->mouse_coords.x, GII->mouse_coords.y);
+	auto ray = cast_pickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
 
 	// create a big plane for placing entity in the world with the mouse using raycast from camera to mouse
 	// position. In the case of Y placement, we need to compute the plane considering the camera orientation.
@@ -621,7 +627,7 @@ inline void move_light_with_mouse(std::string type, int index, World* world)
 		case 2: // Y
 		{
 			// creates vector from cam to entity in XZ
-			auto camera = GSceneInfo.camera;
+			auto camera = GSI->camera;
 			vec3 cam_to_entity = camera->position - position;
 			cam_to_entity.y = camera->position.y;
 			cam_to_entity = normalize(cam_to_entity);

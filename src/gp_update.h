@@ -383,7 +383,7 @@ inline vec3 GP_player_standing_get_next_position(Player* player)
 	if(v_dir.x != 0 || v_dir.y != 0 || v_dir.z != 0)
 		player->v_dir_historic = v_dir;
 	else if(player->v_dir_historic == vec3(0))
-		player->v_dir_historic = normalize(to_xz(GSceneInfo.views[GameCam]->front));
+		player->v_dir_historic = normalize(to_xz(GlobalSceneInfo::Get()->views[GameCam]->front));
 
 	if(player->speed < 0.f || no_move_command)
 		player->speed = 0;

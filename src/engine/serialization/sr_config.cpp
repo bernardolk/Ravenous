@@ -22,6 +22,8 @@
 
 #include <fstream>
 
+#include "engine/world/scene_manager.h"
+
 
 ProgramConfig ConfigSerializer::load_configs()
 {
@@ -78,13 +80,15 @@ ProgramConfig ConfigSerializer::load_configs()
 
 void ConfigSerializer::parse_camera_settings(Parser& p)
 {
+	auto* GSI = GlobalSceneInfo::Get();
+	
 	p.ParseAllWhitespace();
 	p.ParseVec3();
-	scene_info->camera->position = get_parsed<glm::vec3>(p);
+	GSI->camera->position = get_parsed<glm::vec3>(p);
 
 	p.ParseAllWhitespace();
 	p.ParseVec3();
-	camera_look_at(scene_info->camera, get_parsed<glm::vec3>(p), false);
+	camera_look_at(GSI->camera, get_parsed<glm::vec3>(p), false);
 }
 
 

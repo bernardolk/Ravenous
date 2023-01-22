@@ -261,7 +261,7 @@ struct Player
 	// }
 
 private:
-	friend struct WorldSerializer;
+	friend struct GlobalSceneInfo;
 	
 	Player() = default;
 	Player(const Player& other) = delete;

@@ -25,6 +25,8 @@
 #include <engine/entity_pool.h>
 #include <engine/entity_manager.h>
 
+#include "world/scene_manager.h"
+
 // --------------------------------------
 // > FIND ASSETS IN CATALOGUES
 // --------------------------------------
@@ -206,15 +208,17 @@ Entity* EntityManager::CopyEntity(Entity* entity)
 	std::string new_name = new_entity->name;
 	if(new_name != "NONAME")
 	{
+		auto* GSI = GlobalSceneInfo::Get();
+
 		new_name = new_name + " copy";
 		// if exists already, keep increasing the number inside parenthesis
-		if(GSceneInfo.active_scene->SearchName(new_name))
+		if(GSI->active_scene->SearchName(new_name))
 		{
 			unsigned int n_count = 1;
 			do
 			{
 				new_name = new_name + "(" + std::to_string(n_count++) + ")";
-			} while(GSceneInfo.active_scene->SearchName(new_name));
+			} while(GSI->active_scene->SearchName(new_name));
 		}
 	}
 	new_entity->name = new_name;

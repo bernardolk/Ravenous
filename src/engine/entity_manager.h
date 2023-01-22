@@ -3,8 +3,6 @@
 #include "engine/core/core.h"
 #include "engine/entity_pool.h"
 
-extern GlobalSceneInfo GSceneInfo;
-
 struct EntityAttributes
 {
 	std::string name = "NONAME";

@@ -1,13 +1,6 @@
 #pragma once
 
-struct RenderMessageBuffer;
-struct Scene;
-struct Camera;
-struct Entity;
-struct Player;
-struct EntityBuffer;
-struct EntityBufferElement;
-struct GLFWwindow;
+#include "engine/core/core.h"
 
 namespace Paths
 {
@@ -62,26 +55,6 @@ struct Rvn
 	static void Print(const std::string& msg, float duration = 0, vec3 color = vec3(-1));
 };
 
-struct GlobalSceneInfo
-{
-	Scene* active_scene = nullptr;
-	Camera* camera = nullptr;
-	Camera* views[2];
-	Player* player = nullptr;
-	bool input_mode = false;
-	std::string scene_name;
-	bool tmp_unstuck_things = false;
-};
-
-// @TODO
-extern GlobalSceneInfo GSceneInfo;
-
-struct GlobalDisplayConfig
-{
-	GLFWwindow* window;
-	constexpr inline static float viewport_width = 1980;
-	constexpr inline static float viewport_height = 1080;
-};
 
 
 /* ------------------

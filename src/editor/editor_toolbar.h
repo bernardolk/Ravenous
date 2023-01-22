@@ -9,7 +9,8 @@ inline void render_toolbar(World* world)
 	ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::viewport_width - 230, 180), ImGuiCond_Appearing);
 	ImGui::Begin("Tools", &EdContext.toolbar_active, ImGuiWindowFlags_AlwaysAutoResize);
 
-	std::string scene_name = "Scene name: " + GSceneInfo.scene_name;
+	auto* GSI = GlobalSceneInfo::Get();
+	std::string scene_name = "Scene name: " + GSI->scene_name;
 	ImGui::Text(scene_name.c_str());
 	ImGui::NewLine();
 
@@ -22,7 +23,7 @@ inline void render_toolbar(World* world)
 		bool track = false;
 
 		ImGui::Text("Cam speed");
-		ImGui::DragFloat("##camspeed", &GSceneInfo.camera->acceleration, 0.1, 0.2, MaxFloat);
+		ImGui::DragFloat("##camspeed", &GSI->camera->acceleration, 0.1, 0.2, MaxFloat);
 		track = track || ImGui::IsItemDeactivatedAfterEdit();
 
 		// Ambient light control
@@ -41,7 +42,7 @@ inline void render_toolbar(World* world)
 		// save to file changes in config variables
 		if(track)
 		{
-			GConfig.camspeed = GSceneInfo.camera->acceleration;
+			GConfig.camspeed = GSI->camera->acceleration;
 			GConfig.ambient_intensity = world->ambient_intensity;
 			GConfig.ambient_light = world->ambient_light;
 			ConfigSerializer::save(GConfig);

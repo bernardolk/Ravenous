@@ -174,13 +174,15 @@ namespace Editor
 
 	void update(Player* player, World* world, Camera* camera)
 	{
-		if(EdContext.last_frame_scene != GSceneInfo.scene_name)
+		auto* GSI = GlobalSceneInfo::Get();
+
+		if(EdContext.last_frame_scene != GSI->scene_name)
 		{
 			EdContext.entity_panel.active = false;
 			EdContext.world_panel.active = false;
 		}
 
-		EdContext.last_frame_scene = GSceneInfo.scene_name;
+		EdContext.last_frame_scene = GSI->scene_name;
 
 		// check for asset changes
 		// check_for_asset_changes();
@@ -517,7 +519,7 @@ namespace Editor
 	{
 		ImGui::CreateContext();
 		auto& io = ImGui::GetIO();
-		ImGui_ImplGlfw_InitForOpenGL(GDisplayInfo.window, true);
+		ImGui_ImplGlfw_InitForOpenGL(GlobalDisplayConfig::GetWindow(), true);
 		ImGui_ImplOpenGL3_Init("#version 330");
 
 		ImGui::StyleColorsDark();
@@ -637,7 +639,8 @@ namespace Editor
 		// palette panel
 		initialize_palette(&EdContext.palette_panel);
 
-		EdContext.last_frame_scene = GSceneInfo.scene_name;
+		auto* GSI = GlobalSceneInfo::Get();
+		EdContext.last_frame_scene = GSI->scene_name;
 	}
 
 

@@ -225,11 +225,12 @@ void IN_handle_common_input(InputFlags flags, Player* & player)
 	}
 	if(flags.key_press & KEY_ESC && flags.key_press & KEY_LEFT_SHIFT)
 	{
-		glfwSetWindowShouldClose(GDisplayInfo.window, true);
+		auto* GDC = GlobalDisplayConfig::Get();
+		glfwSetWindowShouldClose(GDC->window, true);
 	}
 	if(pressed_once(flags, KEY_Y))
 	{
 		// for testing EPA collision resolve
-		GSceneInfo.tmp_unstuck_things = true;
+		GlobalSceneInfo::Get()->tmp_unstuck_things = true;
 	}
 }
