@@ -9,64 +9,57 @@ struct GlobalSceneInfo;
 struct EntityPool;
 struct Texture;
 
-extern GlobalSceneInfo G_SCENE_INFO;
+extern GlobalSceneInfo GSceneInfo;
 
-struct EntityAttributes {
-   std::string name                = "NONAME";
-   std::string mesh                = "aabb";
-   std::string shader              = "model";
-   std::string texture             = "grey";
-   std::string collision_mesh      = "aabb";
-   EntityType type                 = EntityType_Static;
-   vec3 scale                      = vec3{1.0f};
-};
-
-struct EntityManager
+struct EntityAttributes
 {
-   // ------------------
-   // > ENTITY MANAGER
-   // ------------------ 
-   u64 next_entity_id   = 1;
-   u64 editor_count     = 0;
-   EntityPool pool      = EntityPool(200);
-
-   std::vector<Entity*>   deletion_stack;
-   std::vector<Entity*>*  entity_registry;
-   std::vector<Entity*>*  checkpoints_registry;
-   std::vector<Entity*>*  interactables_registry;
-
-   World* world;
-   
-   // methods
-   void set_entity_registry            (std::vector<Entity*>* registry);
-   void set_checkpoints_registry       (std::vector<Entity*>* registry);
-   void set_interactables_registry     (std::vector<Entity*>* registry);
-   void set_world                      (World* world);
-   void register_in_world_and_scene    (Entity* entity) const;
-
-   Entity* create_editor_entity        (const EntityAttributes& attrs);
-   Entity* create_entity               (const EntityAttributes& attrs);
-   Entity* copy_entity                 (Entity* entity);
-   
-
-   [[nodiscard]] auto _find_entity_assets_in_catalogue(
-      const std::string& mesh,
-      const std::string& collision_mesh,
-      const std::string& shader,
-      const std::string& texture) const;
-   
-   void _remove_from_checkpoint_registry        (Entity* entity) const;
-   void _remove_interactivity                   (Entity* entity);
-   void _make_interactable                      (Entity* entity);
-   void _unset_all_type_related_configurations  (Entity* entity);
-   void set_type                                (Entity* entity, EntityType type);
-   void mark_for_deletion                       (Entity* entity);
-   void safe_delete_marked_entities             ();
+	std::string name = "NONAME";
+	std::string mesh = "aabb";
+	std::string shader = "model";
+	std::string texture = "grey";
+	std::string collision_mesh = "aabb";
+	EntityType type = EntityType_Static;
+	vec3 scale = vec3{1.0f};
 };
 
+struct T_EntityManager
+{
+	// ------------------
+	// > ENTITY MANAGER
+	// ------------------ 
+	u64 next_entity_id = 1;
+	u64 editor_count = 0;
+	EntityPool pool = EntityPool(200);
 
+	std::vector<Entity*> deletion_stack;
+	std::vector<Entity*>* entity_registry;
+	std::vector<Entity*>* checkpoints_registry;
+	std::vector<Entity*>* interactables_registry;
 
+	World* world;
 
+	// methods
+	void SetEntityRegistry(std::vector<Entity*>* registry);
+	void SetCheckpointsRegistry(std::vector<Entity*>* registry);
+	void SetInteractablesRegistry(std::vector<Entity*>* registry);
+	void SetWorld(World* world);
+	void RegisterInWorldAndScene(Entity* entity) const;
 
+	Entity* CreateEditorEntity(const EntityAttributes& attrs);
+	Entity* CreateEntity(const EntityAttributes& attrs);
+	Entity* CopyEntity(Entity* entity);
+	
+	[[nodiscard]] static auto FindEntityAssetsInCatalogue(
+	const std::string& mesh,
+	const std::string& collision_mesh,
+	const std::string& shader,
+	const std::string& texture);
 
-
+	void RemoveFromCheckpointRegistry(Entity* entity) const;
+	void RemoveInteractivity(Entity* entity);
+	void MakeInteractable(Entity* entity);
+	void UnsetAllTypeRelatedConfigurations(Entity* entity);
+	void SetType(Entity* entity, EntityType type);
+	void MarkForDeletion(Entity* entity);
+	void SafeDeleteMarkedEntities();
+};

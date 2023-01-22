@@ -24,6 +24,8 @@ lib/build/*
 lib/*
 tools/*
 recordings/*
+.idea/*
+x64/*
 CppProperties.json
 imgui.ini
 Ravenous.sln.DotSettings

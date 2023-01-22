@@ -4,17 +4,18 @@
 #include "setup.hpp"
 #include <limits>
 
-namespace glm{
-namespace detail
+namespace glm
 {
-	template <typename T, bool isFloat>
-	struct compute_equal
+	namespace detail
 	{
-		GLM_FUNC_QUALIFIER GLM_CONSTEXPR static bool call(T a, T b)
+		template<typename T, bool isFloat>
+		struct compute_equal
 		{
-			return a == b;
-		}
-	};
+			GLM_FUNC_QUALIFIER GLM_CONSTEXPR static bool call(T a, T b)
+			{
+				return a == b;
+			}
+		};
 /*
 	template <typename T>
 	struct compute_equal<T, true>
@@ -26,5 +27,5 @@ namespace detail
 		}
 	};
 */
-}//namespace detail
+	}//namespace detail
 }//namespace glm

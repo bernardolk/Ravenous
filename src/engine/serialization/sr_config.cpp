@@ -27,89 +27,89 @@
 
 ProgramConfig ConfigSerializer::load_configs()
 {
-   auto p = Parser{CONFIG_FILE_PATH};
-   auto config = ProgramConfig();
+	auto p = Parser{Paths::Config};
+	auto config = ProgramConfig();
 
-   while(p.next_line())
-   {
-      p.parse_token();
-      const auto attribute = get_parsed<std::string>(p);
+	while(p.NextLine())
+	{
+		p.ParseToken();
+		const auto attribute = get_parsed<std::string>(p);
 
-      p.parse_all_whitespace();
-      p.parse_symbol();
-      
-      if(get_parsed<char>(p) != '=')
-      {
-         std::cout << 
-            "SYNTAX ERROR, MISSING '=' CHARACTER AT SCENE DESCRIPTION FILE ('" << 
-            CONFIG_FILE_PATH  << 
-            "') LINE NUMBER " << 
-            p.line_count << "\n";
-            
-         assert(false);
-      }
-      
-      if(attribute == "scene")
-      {
-         p.parse_all_whitespace();
-         p.parse_token();
-         config.initial_scene = get_parsed<std::string>(p);
-      }
-      else if(attribute == "camspeed")
-      {
-         p.parse_all_whitespace();
-         p.parse_float();
-         config.camspeed = get_parsed<float>(p);
-      }
-      else if(attribute == "ambient_light")
-      {
-         p.parse_all_whitespace();
-         p.parse_vec3();
-         config.ambient_light = get_parsed<glm::vec3>(p);
-      }
-      else if(attribute == "ambient_intensity")
-      {
-         p.parse_all_whitespace();
-         p.parse_float();
-         config.ambient_intensity = get_parsed<float>(p);;
-      }
-   }
+		p.ParseAllWhitespace();
+		p.ParseSymbol();
 
-   return config;
+		if(get_parsed<char>(p) != '=')
+		{
+			std::cout <<
+			"SYNTAX ERROR, MISSING '=' CHARACTER AT SCENE DESCRIPTION FILE ('" <<
+			Paths::Config <<
+			"') LINE NUMBER " <<
+			p.line_count << "\n";
+
+			assert(false);
+		}
+
+		if(attribute == "scene")
+		{
+			p.ParseAllWhitespace();
+			p.ParseToken();
+			config.initial_scene = get_parsed<std::string>(p);
+		}
+		else if(attribute == "camspeed")
+		{
+			p.ParseAllWhitespace();
+			p.ParseFloat();
+			config.camspeed = get_parsed<float>(p);
+		}
+		else if(attribute == "ambient_light")
+		{
+			p.ParseAllWhitespace();
+			p.ParseVec3();
+			config.ambient_light = get_parsed<glm::vec3>(p);
+		}
+		else if(attribute == "ambient_intensity")
+		{
+			p.ParseAllWhitespace();
+			p.ParseFloat();
+			config.ambient_intensity = get_parsed<float>(p);
+		}
+	}
+
+	return config;
 }
 
 void ConfigSerializer::parse_camera_settings(Parser& p)
 {
-      p.parse_all_whitespace();
-      p.parse_vec3();
-      scene_info->camera->Position = get_parsed<glm::vec3>(p);
+	p.ParseAllWhitespace();
+	p.ParseVec3();
+	scene_info->camera->position = get_parsed<glm::vec3>(p);
 
-      p.parse_all_whitespace();
-      p.parse_vec3();
-      camera_look_at(scene_info->camera, get_parsed<glm::vec3>(p), false);
+	p.ParseAllWhitespace();
+	p.ParseVec3();
+	camera_look_at(scene_info->camera, get_parsed<glm::vec3>(p), false);
 }
 
 
 bool ConfigSerializer::save(const ProgramConfig& config)
 {
-   std::ofstream writer(CONFIG_FILE_PATH);
-   if(!writer.is_open())
-   {
-      std::cout << "Saving config file failed.\n";
-      return false;
-   }
+	std::ofstream writer(Paths::Config);
+	if(!writer.is_open())
+	{
+		std::cout << "Saving config file failed.\n";
+		return false;
+	}
 
-   writer << "scene = " << config.initial_scene << "\n";
-   writer << "camspeed = " << config.camspeed << "\n";
-   writer << "ambient_light = " 
-      << config.ambient_light.x << " "
-      << config.ambient_light.y << " "
-      << config.ambient_light.z << "\n";
-      
-   writer << "ambient_intensity = " << config.ambient_intensity << "\n";
+	writer << "scene = " << config.initial_scene << "\n";
+	writer << "camspeed = " << config.camspeed << "\n";
+	writer << "ambient_light = "
+	<< config.ambient_light.x << " "
+	<< config.ambient_light.y << " "
+	<< config.ambient_light.z << "\n";
 
-   writer.close();
-   std::cout << "Config file saved succesfully.\n";
+	writer << "ambient_intensity = " << config.ambient_intensity << "\n";
 
-   return true;
+	writer.close();
+	std::cout << "Config file saved succesfully.\n";
+
+	return true;
 }

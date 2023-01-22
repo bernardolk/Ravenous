@@ -17,245 +17,248 @@
 
 void LightSerializer::parse(Parser& p)
 {
-   p.parse_token();
-   const auto type = get_parsed<std::string>(p);
+	p.ParseToken();
+	const auto type = get_parsed<std::string>(p);
 
-   if (type == "point")
-      _parse_point_light(p);
+	if(type == "point")
+		_parse_point_light(p);
 
-   else if (type == "spot")
-      _parse_spot_light(p);
+	else if(type == "spot")
+		_parse_spot_light(p);
 
-   else if (type == "directional")
-      _parse_directional_light(p);
+	else if(type == "directional")
+		_parse_directional_light(p);
 
-   else
-   {
-      std::cout << "FATAL: Unrecognized light source in scene file '" << p.filepath << "', line " << p.line_count << ".\n";
-      assert(false);
-   }
+	else
+	{
+		std::cout << "FATAL: Unrecognized light source in scene file '" << p.filepath << "', line " << p.line_count << ".\n";
+		assert(false);
+	}
 }
 
 void LightSerializer::_parse_point_light(Parser& p)
 {
-   //@TODO: Deal with this with a memory pool (?)
-   PointLight& point_light = *(new PointLight());
+	//@TODO: Deal with this with a memory pool (?)
+	PointLight& point_light = *(new PointLight());
 
-   while(p.next_line())
-   {
-      p.parse_token();
-      const std::string property = get_parsed<std::string>(p);
+	while(p.NextLine())
+	{
+		p.ParseToken();
+		const std::string property = get_parsed<std::string>(p);
 
-      if(property == "position")
-      {
-         p.parse_vec3();
-         point_light.position = get_parsed<glm::vec3>(p);
-      }
-      
-      else if(property == "diffuse")
-      {
-         p.parse_vec3();
-         point_light.diffuse = get_parsed<glm::vec3>(p);
-      }
-      
-      else if(property == "specular")
-      {
-         p.parse_vec3();
-         point_light.specular = get_parsed<glm::vec3>(p);
-      }
-      
-      else if(property == "constant")
-      {
-         p.parse_all_whitespace();
-         p.parse_float();
-         point_light.intensity_constant = get_parsed<float>(p);
-      }
-      
-      else if(property == "linear")
-      {
-         p.parse_all_whitespace();
-         p.parse_float();
-         point_light.intensity_linear = get_parsed<float>(p);
-      }
-      
-      else if(property == "quadratic")
-      {
-         p.parse_all_whitespace();
-         p.parse_float();
-         point_light.intensity_quadratic = get_parsed<float>(p);
-      }
-      
-      else break;
-   }
+		if(property == "position")
+		{
+			p.ParseVec3();
+			point_light.position = get_parsed<glm::vec3>(p);
+		}
 
-   world->point_lights.push_back(&point_light);
+		else if(property == "diffuse")
+		{
+			p.ParseVec3();
+			point_light.diffuse = get_parsed<glm::vec3>(p);
+		}
+
+		else if(property == "specular")
+		{
+			p.ParseVec3();
+			point_light.specular = get_parsed<glm::vec3>(p);
+		}
+
+		else if(property == "constant")
+		{
+			p.ParseAllWhitespace();
+			p.ParseFloat();
+			point_light.intensity_constant = get_parsed<float>(p);
+		}
+
+		else if(property == "linear")
+		{
+			p.ParseAllWhitespace();
+			p.ParseFloat();
+			point_light.intensity_linear = get_parsed<float>(p);
+		}
+
+		else if(property == "quadratic")
+		{
+			p.ParseAllWhitespace();
+			p.ParseFloat();
+			point_light.intensity_quadratic = get_parsed<float>(p);
+		}
+
+		else
+			break;
+	}
+
+	world->point_lights.push_back(&point_light);
 }
 
 void LightSerializer::_parse_spot_light(Parser& p)
 {
-   //@TODO: Deal with this with a memory pool (?)
-   SpotLight& spotlight = *(new SpotLight());
+	//@TODO: Deal with this with a memory pool (?)
+	SpotLight& spotlight = *(new SpotLight());
 
-   while(p.next_line())
-   {
-      p.parse_token();
-      const auto property = get_parsed<std::string>(p);
+	while(p.NextLine())
+	{
+		p.ParseToken();
+		const auto property = get_parsed<std::string>(p);
 
-      if(property == "position")
-      {
-         p.parse_vec3();
-         spotlight.position = get_parsed<glm::vec3>(p);;
-      }
-      else if(property == "direction")
-      {
-         p.parse_vec3();
-         spotlight.direction = get_parsed<glm::vec3>(p);;
-      }
-      else if(property == "diffuse")
-      {
-         p.parse_vec3();
-         spotlight.diffuse = get_parsed<glm::vec3>(p);;
-      }
-      else if(property == "specular")
-      {
-         p.parse_vec3();
-         spotlight.specular = get_parsed<glm::vec3>(p);;
-      }
-      else if(property == "constant")
-      {
-         p.parse_all_whitespace();
-         p.parse_float();
-         spotlight.intensity_constant = get_parsed<float>(p);
-      }
-      else if(property == "linear")
-      {
-         p.parse_all_whitespace();
-         p.parse_float();
-         spotlight.intensity_linear = get_parsed<float>(p);
-      }
-      else if(property == "quadratic")
-      {
-         p.parse_all_whitespace();
-         p.parse_float();
-         spotlight.intensity_quadratic = get_parsed<float>(p);
-      }
-      else if(property == "innercone")
-      {
-         p.parse_all_whitespace();
-         p.parse_float();
-         spotlight.innercone = get_parsed<float>(p);
-      }
-      else if(property == "outercone")
-      {
-         p.parse_all_whitespace();
-         p.parse_float();
-         spotlight.outercone = get_parsed<float>(p);
-      }
-      else break;
-   }
+		if(property == "position")
+		{
+			p.ParseVec3();
+			spotlight.position = get_parsed<glm::vec3>(p);
+		}
+		else if(property == "direction")
+		{
+			p.ParseVec3();
+			spotlight.direction = get_parsed<glm::vec3>(p);
+		}
+		else if(property == "diffuse")
+		{
+			p.ParseVec3();
+			spotlight.diffuse = get_parsed<glm::vec3>(p);
+		}
+		else if(property == "specular")
+		{
+			p.ParseVec3();
+			spotlight.specular = get_parsed<glm::vec3>(p);
+		}
+		else if(property == "constant")
+		{
+			p.ParseAllWhitespace();
+			p.ParseFloat();
+			spotlight.intensity_constant = get_parsed<float>(p);
+		}
+		else if(property == "linear")
+		{
+			p.ParseAllWhitespace();
+			p.ParseFloat();
+			spotlight.intensity_linear = get_parsed<float>(p);
+		}
+		else if(property == "quadratic")
+		{
+			p.ParseAllWhitespace();
+			p.ParseFloat();
+			spotlight.intensity_quadratic = get_parsed<float>(p);
+		}
+		else if(property == "innercone")
+		{
+			p.ParseAllWhitespace();
+			p.ParseFloat();
+			spotlight.innercone = get_parsed<float>(p);
+		}
+		else if(property == "outercone")
+		{
+			p.ParseAllWhitespace();
+			p.ParseFloat();
+			spotlight.outercone = get_parsed<float>(p);
+		}
+		else
+			break;
+	}
 
-   world->spot_lights.push_back(&spotlight);
+	world->spot_lights.push_back(&spotlight);
 }
 
 void LightSerializer::_parse_directional_light(Parser& p)
 {
-   //@TODO: Deal with this with a memory pool (?)
-   DirectionalLight& light = *(new DirectionalLight());
+	//@TODO: Deal with this with a memory pool (?)
+	DirectionalLight& light = *(new DirectionalLight());
 
-   while(p.next_line())
-   {
-      p.parse_token();
-      const auto property = get_parsed<std::string>(p);;
+	while(p.NextLine())
+	{
+		p.ParseToken();
+		const auto property = get_parsed<std::string>(p);
 
-      if(property == "direction")
-      {
-         p.parse_vec3();
-         light.direction = get_parsed<glm::vec3>(p);;
-      }
-      else if(property == "diffuse")
-      {
-         p.parse_vec3();
-         light.diffuse = get_parsed<glm::vec3>(p);;
-      }
-      else if(property == "specular")
-      {
-         p.parse_vec3();
-         light.specular = get_parsed<glm::vec3>(p);;
-      }
-      else break;
-   }
+		if(property == "direction")
+		{
+			p.ParseVec3();
+			light.direction = get_parsed<glm::vec3>(p);
+		}
+		else if(property == "diffuse")
+		{
+			p.ParseVec3();
+			light.diffuse = get_parsed<glm::vec3>(p);
+		}
+		else if(property == "specular")
+		{
+			p.ParseVec3();
+			light.specular = get_parsed<glm::vec3>(p);
+		}
+		else
+			break;
+	}
 
-   world->directional_lights.push_back(&light);
+	world->directional_lights.push_back(&light);
 }
 
 void LightSerializer::save(std::ofstream& writer, const PointLight* light)
 {
-   writer << "\n$point\n"
-           << "position "
-           << light->position.x << " "
-           << light->position.y << " "
-           << light->position.z << "\n"
-           << "diffuse "
-           << light->diffuse.x << " "
-           << light->diffuse.y << " "
-           << light->diffuse.z << "\n"
-           << "specular "
-           << light->specular.x << " "
-           << light->specular.y << " "
-           << light->specular.z << "\n"
-           << "constant "
-           << light->intensity_constant << "\n"
-           << "linear "
-           << light->intensity_linear << "\n"
-           << "quadratic "
-           << light->intensity_quadratic << "\n";
+	writer << "\n$point\n"
+	<< "position "
+	<< light->position.x << " "
+	<< light->position.y << " "
+	<< light->position.z << "\n"
+	<< "diffuse "
+	<< light->diffuse.x << " "
+	<< light->diffuse.y << " "
+	<< light->diffuse.z << "\n"
+	<< "specular "
+	<< light->specular.x << " "
+	<< light->specular.y << " "
+	<< light->specular.z << "\n"
+	<< "constant "
+	<< light->intensity_constant << "\n"
+	<< "linear "
+	<< light->intensity_linear << "\n"
+	<< "quadratic "
+	<< light->intensity_quadratic << "\n";
 }
 
 void LightSerializer::save(std::ofstream& writer, const SpotLight* light)
 {
-   writer << "\n$spot\n"
-         << "position "
-         << light->position.x << " "
-         << light->position.y << " "
-         << light->position.z << "\n"
-         << "direction "
-         << light->direction.x << " "
-         << light->direction.y << " "
-         << light->direction.z << "\n"
-         << "diffuse "
-         << light->diffuse.x << " "
-         << light->diffuse.y << " "
-         << light->diffuse.z << "\n"
-         << "specular "
-         << light->specular.x << " "
-         << light->specular.y << " "
-         << light->specular.z << "\n"
-         << "innercone "
-         << light->innercone << "\n"
-         << "outercone "
-         << light->outercone << "\n"
-         << "constant "
-         << light->intensity_constant << "\n"
-         << "linear "
-         << light->intensity_linear << "\n"
-         << "quadratic "
-         << light->intensity_quadratic << "\n";
+	writer << "\n$spot\n"
+	<< "position "
+	<< light->position.x << " "
+	<< light->position.y << " "
+	<< light->position.z << "\n"
+	<< "direction "
+	<< light->direction.x << " "
+	<< light->direction.y << " "
+	<< light->direction.z << "\n"
+	<< "diffuse "
+	<< light->diffuse.x << " "
+	<< light->diffuse.y << " "
+	<< light->diffuse.z << "\n"
+	<< "specular "
+	<< light->specular.x << " "
+	<< light->specular.y << " "
+	<< light->specular.z << "\n"
+	<< "innercone "
+	<< light->innercone << "\n"
+	<< "outercone "
+	<< light->outercone << "\n"
+	<< "constant "
+	<< light->intensity_constant << "\n"
+	<< "linear "
+	<< light->intensity_linear << "\n"
+	<< "quadratic "
+	<< light->intensity_quadratic << "\n";
 }
 
 
 void LightSerializer::save(std::ofstream& writer, const DirectionalLight* light)
 {
-   writer << "\n$directional\n"
-         << "direction "
-         << light->direction.x << " "
-         << light->direction.y << " "
-         << light->direction.z << "\n"
-         << "diffuse "
-         << light->diffuse.x << " "
-         << light->diffuse.y << " "
-         << light->diffuse.z << "\n"
-         << "specular "
-         << light->specular.x << " "
-         << light->specular.y << " "
-         << light->specular.z << "\n";
+	writer << "\n$directional\n"
+	<< "direction "
+	<< light->direction.x << " "
+	<< light->direction.y << " "
+	<< light->direction.z << "\n"
+	<< "diffuse "
+	<< light->diffuse.x << " "
+	<< light->diffuse.y << " "
+	<< light->diffuse.z << "\n"
+	<< "specular "
+	<< light->specular.x << " "
+	<< light->specular.y << " "
+	<< light->specular.z << "\n";
 }

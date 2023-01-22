@@ -9,62 +9,62 @@
 #include <engine/collision/collision_mesh.h>
 
 
-BoundingBox CollisionMesh::compute_bounding_box()
+BoundingBox CollisionMesh::ComputeBoundingBox()
 {
-   // This returns a bounding box that contains the mesh
-   // Vertices of the bounding box do not necessarely match vertices in the mesh
-   // So, this does NOT return the min/max vertices of the mesh in axial direction
-   // (support points)
+	// This returns a bounding box that contains the mesh
+	// Vertices of the bounding box do not necessarely match vertices in the mesh
+	// So, this does NOT return the min/max vertices of the mesh in axial direction
+	// (support points)
 
-   vec3 max_d = vec3(MIN_FLOAT, MIN_FLOAT, MIN_FLOAT);
-   vec3 min_d = vec3(MAX_FLOAT, MAX_FLOAT, MAX_FLOAT);
+	auto max_d = vec3(MinFloat, MinFloat, MinFloat);
+	auto min_d = vec3(MaxFloat, MaxFloat, MaxFloat);
 
-   float maxx, minx, maxy, miny, maxz, minz;
+	float maxx = 0.f, minx = 0.f, maxy = 0.f, miny = 0.f, maxz = 0.f, minz = 0.f;
 
-   for (int i = 0; i < this->vertices.size(); i++)
-   {
-      vec3 vertex = this->vertices[i];
-      float dotx = glm::dot(vertex, vec3(1,0,0));
-      float doty = glm::dot(vertex, vec3(0,1,0));
-      float dotz = glm::dot(vertex, vec3(0,0,1));
+	for(int i = 0; i < this->vertices.size(); i++)
+	{
+		vec3 vertex = this->vertices[i];
+		float dotx = dot(vertex, vec3(1, 0, 0));
+		float doty = dot(vertex, vec3(0, 1, 0));
+		float dotz = dot(vertex, vec3(0, 0, 1));
 
-      if(dotx < min_d.x)
-      {
-         minx    = vertex.x;
-         min_d.x = dotx;
-      }
-      if(dotx > max_d.x)
-      {
-         maxx    = vertex.x;
-         max_d.x = dotx;
-      }
+		if(dotx < min_d.x)
+		{
+			minx = vertex.x;
+			min_d.x = dotx;
+		}
+		if(dotx > max_d.x)
+		{
+			maxx = vertex.x;
+			max_d.x = dotx;
+		}
 
-      if(doty < min_d.y)
-      {
-         miny    = vertex.y;
-         min_d.y = doty;
-      }
-      if(doty > max_d.y)
-      {
-         maxy    = vertex.y;
-         max_d.y = doty;
-      }
+		if(doty < min_d.y)
+		{
+			miny = vertex.y;
+			min_d.y = doty;
+		}
+		if(doty > max_d.y)
+		{
+			maxy = vertex.y;
+			max_d.y = doty;
+		}
 
-      if(dotz < min_d.z)
-      {
-         minz    = vertex.z;
-         min_d.z = dotz;
-      }
-      if(dotz > max_d.z)
-      {
-         maxz    = vertex.z;
-         max_d.z = dotz;
-      }
-   }
+		if(dotz < min_d.z)
+		{
+			minz = vertex.z;
+			min_d.z = dotz;
+		}
+		if(dotz > max_d.z)
+		{
+			maxz = vertex.z;
+			max_d.z = dotz;
+		}
+	}
 
-   BoundingBox bb;
-   bb.set(vec3(minx, miny, minz), vec3(maxx, maxy, maxz));
-   return bb;
+	BoundingBox bb;
+	bb.Set(vec3(minx, miny, minz), vec3(maxx, maxy, maxz));
+	return bb;
 }
 
 

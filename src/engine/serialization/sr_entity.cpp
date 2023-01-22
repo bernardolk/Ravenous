@@ -22,399 +22,402 @@
 #include "engine/shader.h"
 #include "engine/serialization/sr_entity.h"
 
-const std::string  SrLoadEntity_TypeNotSetErrorMsg = "Need to load entity type before loading type-specific data.";
+const std::string SrLoadEntity_TypeNotSetErrorMsg = "Need to load entity type before loading type-specific data.";
 
 void EntitySerializer::parse(Parser& parser)
 {
-   auto new_entity   = manager->create_entity({});
-   bool is_type_set  = false;
-   
-   auto& p = parser;
-   p.parse_name();
-   new_entity->name = get_parsed<std::string>(parser);
+	auto new_entity = manager->CreateEntity({});
+	bool is_type_set = false;
 
-   while(parser.next_line())
-   {
-      p.parse_token();
-      const auto property = get_parsed<std::string>(parser);
+	auto& p = parser;
+	p.ParseName();
+	new_entity->name = get_parsed<std::string>(parser);
 
-      if(property == "id")
-      {
-         p.parse_all_whitespace();
-         p.parse_u64();
-         u64 id = get_parsed<u64>(parser);
-         new_entity->id = id;
+	while(parser.NextLine())
+	{
+		p.ParseToken();
+		const auto property = get_parsed<std::string>(parser);
 
-         if(manager->next_entity_id < id)
-            manager->next_entity_id = id;
-      }
+		if(property == "id")
+		{
+			p.ParseAllWhitespace();
+			p.ParseU64();
+			u64 id = get_parsed<u64>(parser);
+			new_entity->id = id;
 
-      else if(property == "position")
-      {
-         p.parse_vec3();
-         new_entity->position = get_parsed<glm::vec3>(parser);
-      }
+			if(manager->next_entity_id < id)
+				manager->next_entity_id = id;
+		}
 
-      else if(property == "rotation")
-      {
-         p.parse_vec3();
-         new_entity->rotation = get_parsed<glm::vec3>(parser);
-      }
+		else if(property == "position")
+		{
+			p.ParseVec3();
+			new_entity->position = get_parsed<glm::vec3>(parser);
+		}
 
-      else if(property == "scale")
-      {
-         p.parse_vec3();
-         const auto s = get_parsed<glm::vec3>(parser);
-         
-         if(s.x < 0 || s.y < 0 || s.z < 0)
-         {
-            std::cout << "FATAL: ENTITY SCALE PROPERTY CANNOT BE NEGATIVE. AT '" << parser.filepath
-                        << "' LINE NUMBER " << parser.line_count << "\n";
-         }
-         new_entity->scale = s;
-      }
+		else if(property == "rotation")
+		{
+			p.ParseVec3();
+			new_entity->rotation = get_parsed<glm::vec3>(parser);
+		}
 
-      else if(property == "shader")
-      {
-         p.parse_all_whitespace();
-         p.parse_token();
-         const auto shader_name = get_parsed<std::string>(parser);
+		else if(property == "scale")
+		{
+			p.ParseVec3();
+			const auto s = get_parsed<glm::vec3>(parser);
 
-         auto find = Shader_Catalogue.find(shader_name);
-         if(find != Shader_Catalogue.end())
-         {
-            if(shader_name == "tiledTextureModel")
-            {
-               new_entity->flags |= EntityFlags_RenderTiledTexture;
-               For(6)
-               {
-                  p.parse_all_whitespace();
-                  p.parse_int();
-                  if(!p.has_token())
-                     Quit_fatal("Scene description contain an entity with box tiled shader without full tile quantity description.");
+			if(s.x < 0 || s.y < 0 || s.z < 0)
+			{
+				std::cout << "FATAL: ENTITY SCALE PROPERTY CANNOT BE NEGATIVE. AT '" << parser.filepath
+				<< "' LINE NUMBER " << parser.line_count << "\n";
+			}
+			new_entity->scale = s;
+		}
 
-                  new_entity->uv_tile_wrap[i] = get_parsed<int>(parser);
-               }
-            }
-            new_entity->shader = find->second;
-         }
-         else
-         {
-            std::cout << "SHADER '" << shader_name << "' NOT FOUND WHILE LOADING SCENE DESCRIPTION FILE \n"; 
-            assert(false);
-         }   
-      }
+		else if(property == "shader")
+		{
+			p.ParseAllWhitespace();
+			p.ParseToken();
+			const auto shader_name = get_parsed<std::string>(parser);
 
-      else if(property == "mesh")
-      {
-         p.parse_all_whitespace();
-         p.parse_token();
-         const auto model_name = get_parsed<std::string>(parser);
-         
-         auto find_mesh = Geometry_Catalogue.find(model_name);
-         if(find_mesh != Geometry_Catalogue.end())
-            new_entity->mesh = find_mesh->second;
-         else
-            new_entity->mesh = load_wavefront_obj_as_mesh(MODELS_PATH, model_name);
-      
-         // @TODO: For now collision mesh is loaded from the same model as regular mesh.
-         auto find_c_mesh = Collision_Geometry_Catalogue.find(model_name);
-         if(find_c_mesh != Collision_Geometry_Catalogue.end())
-            new_entity->collision_mesh = find_c_mesh->second;
-         else
-            new_entity->collision_mesh = load_wavefront_obj_as_collision_mesh(MODELS_PATH, model_name);
+			auto find = ShaderCatalogue.find(shader_name);
+			if(find != ShaderCatalogue.end())
+			{
+				if(shader_name == "tiledTextureModel")
+				{
+					new_entity->flags |= EntityFlags_RenderTiledTexture;
+					For(6)
+					{
+						p.ParseAllWhitespace();
+						p.ParseInt();
+						if(!p.HasToken())
+							Quit_fatal("Scene description contain an entity with box tiled shader without full tile quantity description.");
 
-         new_entity->collider = *new_entity->collision_mesh;
-      }
-      
-      else if(property == "texture")
-      {
-         p.parse_all_whitespace();
-         p.parse_token();
-         const auto texture_name = get_parsed<std::string>(parser);
-         
-         // > texture definition error handling
-         // >> check for missing info
-         if(texture_name.empty())
-         {
-            std::cout << "Fatal: Texture for entity '" << new_entity->name << "' is missing name. \n"; 
-            assert(false);
-         }
-         
-         // fetches texture in catalogue
-         auto texture = Texture_Catalogue.find(texture_name);
-         if(texture == Texture_Catalogue.end())
-         {
-            std::cout<<"Fatal: '"<< texture_name <<"' was not found (not pre-loaded) inside Texture Catalogue \n"; 
-            assert(false);
-         }
+						new_entity->uv_tile_wrap[i] = get_parsed<int>(parser);
+					}
+				}
+				new_entity->shader = find->second;
+			}
+			else
+			{
+				std::cout << "SHADER '" << shader_name << "' NOT FOUND WHILE LOADING SCENE DESCRIPTION FILE \n";
+				assert(false);
+			}
+		}
 
-         new_entity->textures.clear();
-         new_entity->textures.push_back(texture->second);
+		else if(property == "mesh")
+		{
+			p.ParseAllWhitespace();
+			p.ParseToken();
+			const auto model_name = get_parsed<std::string>(parser);
 
-         // fetches texture normal in catalogue, if any
-         auto normal = Texture_Catalogue.find(texture_name + "_normal");
-         if(normal != Texture_Catalogue.end())
-         {
-            new_entity->textures.push_back(normal->second);
-         }
-      }
+			auto find_mesh = GeometryCatalogue.find(model_name);
+			if(find_mesh != GeometryCatalogue.end())
+				new_entity->mesh = find_mesh->second;
+			else
+				new_entity->mesh = load_wavefront_obj_as_mesh(Paths::Models, model_name);
 
-      else if(property == "hidden")
-      {
-         new_entity->flags |= EntityFlags_HiddenEntity;
-      }
+			// @TODO: For now collision mesh is loaded from the same model as regular mesh.
+			auto find_c_mesh = CollisionGeometryCatalogue.find(model_name);
+			if(find_c_mesh != CollisionGeometryCatalogue.end())
+				new_entity->collision_mesh = find_c_mesh->second;
+			else
+				new_entity->collision_mesh = load_wavefront_obj_as_collision_mesh(Paths::Models, model_name);
 
-      else if(property == "type")
-      {
-         p.parse_all_whitespace();
-         p.parse_token();
-         const auto entity_type = get_parsed<std::string>(parser);
+			new_entity->collider = *new_entity->collision_mesh;
+		}
 
-         if (entity_type == SrStr_EntityType_Static)
-            manager->set_type(new_entity, EntityType_Static);
+		else if(property == "texture")
+		{
+			p.ParseAllWhitespace();
+			p.ParseToken();
+			const auto texture_name = get_parsed<std::string>(parser);
 
-         else if(entity_type == SrStr_EntityType_Checkpoint)
-            manager->set_type(new_entity, EntityType_Checkpoint);
+			// > texture definition error handling
+			// >> check for missing info
+			if(texture_name.empty())
+			{
+				std::cout << "Fatal: Texture for entity '" << new_entity->name << "' is missing name. \n";
+				assert(false);
+			}
 
-         else if(entity_type == SrStr_EntityType_TimerTrigger)
-            manager->set_type(new_entity, EntityType_TimerTrigger);
+			// fetches texture in catalogue
+			auto texture = TextureCatalogue.find(texture_name);
+			if(texture == TextureCatalogue.end())
+			{
+				std::cout << "Fatal: '" << texture_name << "' was not found (not pre-loaded) inside Texture Catalogue \n";
+				assert(false);
+			}
 
-         else if(entity_type == SrStr_EntityType_TimerTarget)
-            manager->set_type(new_entity, EntityType_TimerTarget);
+			new_entity->textures.clear();
+			new_entity->textures.push_back(texture->second);
 
-         else if(entity_type == SrStr_EntityType_TimerMarking)
-            manager->set_type(new_entity, EntityType_TimerMarking);
+			// fetches texture normal in catalogue, if any
+			auto normal = TextureCatalogue.find(texture_name + "_normal");
+			if(normal != TextureCatalogue.end())
+			{
+				new_entity->textures.push_back(normal->second);
+			}
+		}
 
-         else
-            Quit_fatal("Entity type '" + entity_type + "' not identified.");
+		else if(property == "hidden")
+		{
+			new_entity->flags |= EntityFlags_HiddenEntity;
+		}
 
-         is_type_set = true;
-      }
+		else if(property == "type")
+		{
+			p.ParseAllWhitespace();
+			p.ParseToken();
+			const auto entity_type = get_parsed<std::string>(parser);
 
-      // ---------------------------------
-      // > entity type related properties
-      // ---------------------------------
+			if(entity_type == SrEntityType::Static)
+				manager->SetType(new_entity, EntityType_Static);
 
-      else if(property == "timer_target")
-      {
-         if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
+			else if(entity_type == SrEntityType::Checkpoint)
+				manager->SetType(new_entity, EntityType_Checkpoint);
 
-         p.parse_all_whitespace();
-         p.parse_u64();
-         auto timer_target_id = get_parsed<u64>(parser);
+			else if(entity_type == SrEntityType::TimerTrigger)
+				manager->SetType(new_entity, EntityType_TimerTrigger);
 
-         int i = relations.count;
-         relations.deferred_entity_ids[i]  = timer_target_id;
-         relations.entities[i]             = new_entity;
-         relations.relations[i]            = SrEntityRelation_TimerTarget;
-         relations.count++;
-      }
+			else if(entity_type == SrEntityType::TimerTarget)
+				manager->SetType(new_entity, EntityType_TimerTarget);
 
-      else if(property == "timer_duration")
-      {
-         if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
+			else if(entity_type == SrEntityType::TimerMarking)
+				manager->SetType(new_entity, EntityType_TimerMarking);
 
-         p.parse_all_whitespace();
-         p.parse_float();
-         new_entity->timer_trigger_data.timer_duration = get_parsed<int>(parser);
-      }
+			else
+				Quit_fatal("Entity type '" + entity_type + "' not identified.");
 
-      else if(property == "timer_target_type")
-      {
-         if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
+			is_type_set = true;
+		}
 
-         p.parse_all_whitespace();
-         p.parse_uint();
-         new_entity->timer_target_data.timer_target_type = (EntityTimerTargetType) get_parsed<u32>(parser);
-      }
+		// ---------------------------------
+		// > entity type related properties
+		// ---------------------------------
 
-      else if(property == "timer_start_animation")
-      {
-         if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
+		else if(property == "timer_target")
+		{
+			if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
-         p.parse_all_whitespace();
-         p.parse_uint();
-         new_entity->timer_target_data.timer_start_animation = get_parsed<u32>(parser);
-      }
+			p.ParseAllWhitespace();
+			p.ParseU64();
+			auto timer_target_id = get_parsed<u64>(parser);
 
-      else if(property == "timer_stop_animation")
-      {
-         if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
+			int i = relations.count;
+			relations.deferred_entity_ids[i] = timer_target_id;
+			relations.entities[i] = new_entity;
+			relations.relations[i] = SrEntityRelation_TimerTarget;
+			relations.count++;
+		}
 
-         p.parse_all_whitespace();
-         p.parse_uint();
-         new_entity->timer_target_data.timer_stop_animation = get_parsed<u32>(parser);
-      }
+		else if(property == "timer_duration")
+		{
+			if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
-      else if(property == "timer_marking")
-      {
-         if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
+			p.ParseAllWhitespace();
+			p.ParseFloat();
+			new_entity->timer_trigger_data.timer_duration = get_parsed<int>(parser);
+		}
 
-         p.parse_all_whitespace();
-         p.parse_uint();
-         const auto marking_id = get_parsed<u32>(parser);
+		else if(property == "timer_target_type")
+		{
+			if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
-         p.parse_all_whitespace();
-         p.parse_uint();
-         const auto marking_time_checkpoint = get_parsed<u32>(parser);
+			p.ParseAllWhitespace();
+			p.ParseUint();
+			new_entity->timer_target_data.timer_target_type = static_cast<EntityTimerTargetType>(get_parsed<u32>(parser));
+		}
 
-         int i = relations.count;
-         relations.deferred_entity_ids[i]  = marking_id;
-         relations.entities[i]             = new_entity;
-         relations.relations[i]            = SrEntityRelation_TimerMarking;
-         relations.aux_uint_buffer[i]      = marking_time_checkpoint;
-         relations.count++;
-      }
+		else if(property == "timer_start_animation")
+		{
+			if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
-      else if(property == "timer_marking_color_on")
-      {
-         p.parse_vec3();
-         new_entity->timer_marking_data.color_on = get_parsed<glm::vec3>(parser);
-      }
+			p.ParseAllWhitespace();
+			p.ParseUint();
+			new_entity->timer_target_data.timer_start_animation = get_parsed<u32>(parser);
+		}
 
-      else if(property == "timer_marking_color_off")
-      {
-         p.parse_vec3();
-         new_entity->timer_marking_data.color_off = get_parsed<glm::vec3>(parser);
-      }
+		else if(property == "timer_stop_animation")
+		{
+			if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
-      // ---------------------------------
+			p.ParseAllWhitespace();
+			p.ParseUint();
+			new_entity->timer_target_data.timer_stop_animation = get_parsed<u32>(parser);
+		}
 
-      else if(property == "trigger")
-      {
-         p.parse_vec3();
-         new_entity->trigger_scale = get_parsed<glm::vec3>(parser);
-      }
+		else if(property == "timer_marking")
+		{
+			if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
-      else if(property == "slidable")
-      {
-         new_entity->slidable = true;
-      }
+			p.ParseAllWhitespace();
+			p.ParseUint();
+			const auto marking_id = get_parsed<u32>(parser);
 
-      else
-      {
-         break;
-      }
-   }
+			p.ParseAllWhitespace();
+			p.ParseUint();
+			const auto marking_time_checkpoint = get_parsed<u32>(parser);
+
+			int i = relations.count;
+			relations.deferred_entity_ids[i] = marking_id;
+			relations.entities[i] = new_entity;
+			relations.relations[i] = SrEntityRelation_TimerMarking;
+			relations.aux_uint_buffer[i] = marking_time_checkpoint;
+			relations.count++;
+		}
+
+		else if(property == "timer_marking_color_on")
+		{
+			p.ParseVec3();
+			new_entity->timer_marking_data.color_on = get_parsed<glm::vec3>(parser);
+		}
+
+		else if(property == "timer_marking_color_off")
+		{
+			p.ParseVec3();
+			new_entity->timer_marking_data.color_off = get_parsed<glm::vec3>(parser);
+		}
+
+		// ---------------------------------
+
+		else if(property == "trigger")
+		{
+			p.ParseVec3();
+			new_entity->trigger_scale = get_parsed<glm::vec3>(parser);
+		}
+
+		else if(property == "slidable")
+		{
+			new_entity->slidable = true;
+		}
+
+		else
+		{
+			break;
+		}
+	}
 }
 
 void EntitySerializer::save(std::ofstream& writer, Entity& entity)
 {
-   writer << "\n#" << entity.name << "\n";
-   writer << "id " << entity.id << "\n";
-   writer << "position " 
-            << entity.position.x << " "
-            << entity.position.y << " "
-            << entity.position.z << "\n";
-   writer << "rotation " 
-            << entity.rotation.x << " "
-            << entity.rotation.y << " "
-            << entity.rotation.z << "\n";
-   writer << "scale " 
-            << entity.scale.x << " "
-            << entity.scale.y << " "
-            << entity.scale.z << "\n";
-   writer << "mesh " << entity.mesh->name << "\n";
-   writer << "shader " << entity.shader->name;
+	writer << "\n#" << entity.name << "\n";
+	writer << "id " << entity.id << "\n";
+	writer << "position "
+	<< entity.position.x << " "
+	<< entity.position.y << " "
+	<< entity.position.z << "\n";
+	writer << "rotation "
+	<< entity.rotation.x << " "
+	<< entity.rotation.y << " "
+	<< entity.rotation.z << "\n";
+	writer << "scale "
+	<< entity.scale.x << " "
+	<< entity.scale.y << " "
+	<< entity.scale.z << "\n";
+	writer << "mesh " << entity.mesh->name << "\n";
+	writer << "shader " << entity.shader->name;
 
-   // shader: If entity.s using tiled texture fragment shader, also writes number of tiles since we can change it through the editor
-   if(entity.flags & EntityFlags_RenderTiledTexture)
-      For(6) {
-         writer << " " << entity.uv_tile_wrap[i];
-      }
+	// shader: If entity.s using tiled texture fragment shader, also writes number of tiles since we can change it through the editor
+	if(entity.flags & EntityFlags_RenderTiledTexture)
+	{
+		For(6)
+		{
+			writer << " " << entity.uv_tile_wrap[i];
+		}
+	}
 
-   writer << "\n";
+	writer << "\n";
 
-   int textures =  entity.textures.size();
-   For(textures)
-   {
-      Texture texture = entity.textures[i];
-      if(texture.type == "texture_diffuse")
-         writer << "texture " << texture.name << "\n";
-   }
+	int textures = entity.textures.size();
+	For(textures)
+	{
+		Texture texture = entity.textures[i];
+		if(texture.type == "texture_diffuse")
+			writer << "texture " << texture.name << "\n";
+	}
 
-   if(entity.flags & EntityFlags_RenderWireframe)
-      writer << "hidden\n";
+	if(entity.flags & EntityFlags_RenderWireframe)
+		writer << "hidden\n";
 
-   switch(entity.type)
-   {
-      case EntityType_Static:
-      {
-         writer << "type static\n";
-         break;
-      }
+	switch(entity.type)
+	{
+	case EntityType_Static:
+	{
+		writer << "type static\n";
+		break;
+	}
 
-      case EntityType_Checkpoint:
-      {
-         writer << "type checkpoint\n";
-         writer << "trigger " 
-            << entity.trigger_scale.x << " "
-            << entity.trigger_scale.y << " "
-            << entity.trigger_scale.z << "\n";
-         break;
-      }
+	case EntityType_Checkpoint:
+	{
+		writer << "type checkpoint\n";
+		writer << "trigger "
+		<< entity.trigger_scale.x << " "
+		<< entity.trigger_scale.y << " "
+		<< entity.trigger_scale.z << "\n";
+		break;
+	}
 
-      case EntityType_TimerTrigger:
-      {
-         writer << "type timer_trigger\n";
-         writer << "trigger " 
-            << entity.trigger_scale.x << " "
-            << entity.trigger_scale.y << " "
-            << entity.trigger_scale.z << "\n";
-         if(entity.timer_trigger_data.timer_target != nullptr)
-            writer << "timer_target " << entity.timer_trigger_data.timer_target->id << "\n";
-         writer << "timer_duration " << entity.timer_trigger_data.timer_duration << "\n";
+	case EntityType_TimerTrigger:
+	{
+		writer << "type timer_trigger\n";
+		writer << "trigger "
+		<< entity.trigger_scale.x << " "
+		<< entity.trigger_scale.y << " "
+		<< entity.trigger_scale.z << "\n";
+		if(entity.timer_trigger_data.timer_target != nullptr)
+			writer << "timer_target " << entity.timer_trigger_data.timer_target->id << "\n";
+		writer << "timer_duration " << entity.timer_trigger_data.timer_duration << "\n";
 
-         For(entity.timer_trigger_data.size)
-         {
-            const auto marking            = entity.timer_trigger_data.markings[i];
-            const u32  time_checkpoint    = entity.timer_trigger_data.time_checkpoints[i];
-            if(marking != nullptr)
-               writer << "timer_marking " << marking->id << " " << time_checkpoint << "\n";
-         }
+		For(entity.timer_trigger_data.size)
+		{
+			const auto marking = entity.timer_trigger_data.markings[i];
+			const u32 time_checkpoint = entity.timer_trigger_data.time_checkpoints[i];
+			if(marking != nullptr)
+				writer << "timer_marking " << marking->id << " " << time_checkpoint << "\n";
+		}
 
-         break;
-      }
+		break;
+	}
 
-      case EntityType_TimerTarget:
-      {
-         writer << "type timer_target\n";
-         writer << "timer_target_type " << entity.timer_target_data.timer_target_type << "\n";
+	case EntityType_TimerTarget:
+	{
+		writer << "type timer_target\n";
+		writer << "timer_target_type " << entity.timer_target_data.timer_target_type << "\n";
 
-         if(entity.timer_target_data.timer_start_animation != 0)
-            writer << "timer_start_animation " << entity.timer_target_data.timer_start_animation << "\n";
+		if(entity.timer_target_data.timer_start_animation != 0)
+			writer << "timer_start_animation " << entity.timer_target_data.timer_start_animation << "\n";
 
-         if(entity.timer_target_data.timer_stop_animation != 0)
-            writer << "timer_stop_animation " << entity.timer_target_data.timer_stop_animation << "\n";
+		if(entity.timer_target_data.timer_stop_animation != 0)
+			writer << "timer_stop_animation " << entity.timer_target_data.timer_stop_animation << "\n";
 
-         break;
-      }
+		break;
+	}
 
-      case EntityType_TimerMarking:
-      {
-         writer << "type timer_marking\n";
-         writer << "timer_marking_color_on "
-            << entity.timer_marking_data.color_on.x << " "
-            << entity.timer_marking_data.color_on.y << " "
-            << entity.timer_marking_data.color_on.z << "\n";
+	case EntityType_TimerMarking:
+	{
+		writer << "type timer_marking\n";
+		writer << "timer_marking_color_on "
+		<< entity.timer_marking_data.color_on.x << " "
+		<< entity.timer_marking_data.color_on.y << " "
+		<< entity.timer_marking_data.color_on.z << "\n";
 
-         writer << "timer_marking_color_off "
-            << entity.timer_marking_data.color_off.x << " "
-            << entity.timer_marking_data.color_off.y << " "
-            << entity.timer_marking_data.color_off.z << "\n";
+		writer << "timer_marking_color_off "
+		<< entity.timer_marking_data.color_off.x << " "
+		<< entity.timer_marking_data.color_off.y << " "
+		<< entity.timer_marking_data.color_off.z << "\n";
 
-         break;
-      }
-   }
+		break;
+	}
+	}
 
-   if(entity.slidable)
-   {
-      writer << "slidable \n";
-   }
+	if(entity.slidable)
+	{
+		writer << "slidable \n";
+	}
 }
 
 void EntitySerializer::_clear_buffer()
 {
-   relations = DeferredEntityRelationBuffer{};
+	relations = DeferredEntityRelationBuffer{};
 }

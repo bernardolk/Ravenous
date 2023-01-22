@@ -18,48 +18,48 @@ namespace glm
 			aligned = aligned_highp, ///< By default aligned qualifier is also high precision
 #		endif
 
-		highp = packed_highp, ///< By default highp qualifier is also packed
+		highp   = packed_highp, ///< By default highp qualifier is also packed
 		mediump = packed_mediump, ///< By default mediump qualifier is also packed
-		lowp = packed_lowp, ///< By default lowp qualifier is also packed
-		packed = packed_highp, ///< By default packed qualifier is also high precision
+		lowp    = packed_lowp, ///< By default lowp qualifier is also packed
+		packed  = packed_highp, ///< By default packed qualifier is also high precision
 
 #		if GLM_CONFIG_ALIGNED_GENTYPES == GLM_ENABLE && defined(GLM_FORCE_DEFAULT_ALIGNED_GENTYPES)
 			defaultp = aligned_highp
 #		else
-			defaultp = highp
+		defaultp = highp
 #		endif
 	};
 
-	typedef qualifier precision;
+	using precision = qualifier;
 
 	template<length_t L, typename T, qualifier Q = defaultp> struct vec;
 	template<length_t C, length_t R, typename T, qualifier Q = defaultp> struct mat;
 	template<typename T, qualifier Q = defaultp> struct qua;
 
 #	if GLM_HAS_TEMPLATE_ALIASES
-		template <typename T, qualifier Q = defaultp> using tvec1 = vec<1, T, Q>;
-		template <typename T, qualifier Q = defaultp> using tvec2 = vec<2, T, Q>;
-		template <typename T, qualifier Q = defaultp> using tvec3 = vec<3, T, Q>;
-		template <typename T, qualifier Q = defaultp> using tvec4 = vec<4, T, Q>;
-		template <typename T, qualifier Q = defaultp> using tmat2x2 = mat<2, 2, T, Q>;
-		template <typename T, qualifier Q = defaultp> using tmat2x3 = mat<2, 3, T, Q>;
-		template <typename T, qualifier Q = defaultp> using tmat2x4 = mat<2, 4, T, Q>;
-		template <typename T, qualifier Q = defaultp> using tmat3x2 = mat<3, 2, T, Q>;
-		template <typename T, qualifier Q = defaultp> using tmat3x3 = mat<3, 3, T, Q>;
-		template <typename T, qualifier Q = defaultp> using tmat3x4 = mat<3, 4, T, Q>;
-		template <typename T, qualifier Q = defaultp> using tmat4x2 = mat<4, 2, T, Q>;
-		template <typename T, qualifier Q = defaultp> using tmat4x3 = mat<4, 3, T, Q>;
-		template <typename T, qualifier Q = defaultp> using tmat4x4 = mat<4, 4, T, Q>;
-		template <typename T, qualifier Q = defaultp> using tquat = qua<T, Q>;
+	template<typename T, qualifier Q = defaultp> using tvec1 = vec<1, T, Q>;
+	template<typename T, qualifier Q = defaultp> using tvec2 = vec<2, T, Q>;
+	template<typename T, qualifier Q = defaultp> using tvec3 = vec<3, T, Q>;
+	template<typename T, qualifier Q = defaultp> using tvec4 = vec<4, T, Q>;
+	template<typename T, qualifier Q = defaultp> using tmat2x2 = mat<2, 2, T, Q>;
+	template<typename T, qualifier Q = defaultp> using tmat2x3 = mat<2, 3, T, Q>;
+	template<typename T, qualifier Q = defaultp> using tmat2x4 = mat<2, 4, T, Q>;
+	template<typename T, qualifier Q = defaultp> using tmat3x2 = mat<3, 2, T, Q>;
+	template<typename T, qualifier Q = defaultp> using tmat3x3 = mat<3, 3, T, Q>;
+	template<typename T, qualifier Q = defaultp> using tmat3x4 = mat<3, 4, T, Q>;
+	template<typename T, qualifier Q = defaultp> using tmat4x2 = mat<4, 2, T, Q>;
+	template<typename T, qualifier Q = defaultp> using tmat4x3 = mat<4, 3, T, Q>;
+	template<typename T, qualifier Q = defaultp> using tmat4x4 = mat<4, 4, T, Q>;
+	template<typename T, qualifier Q = defaultp> using tquat = qua<T, Q>;
 #	endif
 
-namespace detail
-{
-	template<glm::qualifier P>
-	struct is_aligned
+	namespace detail
 	{
-		static const bool value = false;
-	};
+		template<qualifier P>
+		struct is_aligned
+		{
+			static const bool value = false;
+		};
 
 #	if GLM_CONFIG_ALIGNED_GENTYPES == GLM_ENABLE
 		template<>
@@ -81,29 +81,32 @@ namespace detail
 		};
 #	endif
 
-	template<length_t L, typename T, bool is_aligned>
-	struct storage
-	{
-		typedef struct type {
-			T data[L];
-		} type;
-	};
+		template<length_t L, typename T, bool is_aligned>
+		struct storage
+		{
+			using type = struct type
+			{
+				T data[L];
+			};
+		};
 
 #	if GLM_HAS_ALIGNOF
 		template<length_t L, typename T>
 		struct storage<L, T, true>
 		{
-			typedef struct alignas(L * sizeof(T)) type {
+			using type = struct alignas(L * sizeof(T)) type
+			{
 				T data[L];
-			} type;
+			};
 		};
 
 		template<typename T>
 		struct storage<3, T, true>
 		{
-			typedef struct alignas(4 * sizeof(T)) type {
+			using type = struct alignas(4 * sizeof(T)) type
+			{
 				T data[4];
-			} type;
+			};
 		};
 #	endif
 
@@ -187,44 +190,43 @@ namespace detail
 	};
 #	endif
 
-	enum genTypeEnum
-	{
-		GENTYPE_VEC,
-		GENTYPE_MAT,
-		GENTYPE_QUAT
-	};
-
-	template <typename genType>
-	struct genTypeTrait
-	{};
-
-	template <length_t C, length_t R, typename T>
-	struct genTypeTrait<mat<C, R, T> >
-	{
-		static const genTypeEnum GENTYPE = GENTYPE_MAT;
-	};
-
-	template<typename genType, genTypeEnum type>
-	struct init_gentype
-	{
-	};
-
-	template<typename genType>
-	struct init_gentype<genType, GENTYPE_QUAT>
-	{
-		GLM_FUNC_QUALIFIER GLM_CONSTEXPR static genType identity()
+		enum genTypeEnum
 		{
-			return genType(1, 0, 0, 0);
-		}
-	};
+			GENTYPE_VEC,
+			GENTYPE_MAT,
+			GENTYPE_QUAT
+		};
 
-	template<typename genType>
-	struct init_gentype<genType, GENTYPE_MAT>
-	{
-		GLM_FUNC_QUALIFIER GLM_CONSTEXPR static genType identity()
+		template<typename genType>
+		struct genTypeTrait
+		{};
+
+		template<length_t C, length_t R, typename T>
+		struct genTypeTrait<mat<C, R, T> >
 		{
-			return genType(1);
-		}
-	};
-}//namespace detail
+			static const genTypeEnum GENTYPE = GENTYPE_MAT;
+		};
+
+		template<typename genType, genTypeEnum type>
+		struct init_gentype
+		{ };
+
+		template<typename genType>
+		struct init_gentype<genType, GENTYPE_QUAT>
+		{
+			GLM_FUNC_QUALIFIER GLM_CONSTEXPR static genType identity()
+			{
+				return genType(1, 0, 0, 0);
+			}
+		};
+
+		template<typename genType>
+		struct init_gentype<genType, GENTYPE_MAT>
+		{
+			GLM_FUNC_QUALIFIER GLM_CONSTEXPR static genType identity()
+			{
+				return genType(1);
+			}
+		};
+	}//namespace detail
 }//namespace glm
