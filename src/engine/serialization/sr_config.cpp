@@ -25,10 +25,10 @@
 #include "engine/world/scene_manager.h"
 
 
-ProgramConfig ConfigSerializer::load_configs()
+void ConfigSerializer::LoadGlobalConfigs()
 {
 	auto p = Parser{Paths::Config};
-	auto config = ProgramConfig();
+	auto& config = *ProgramConfig::Get();
 
 	while(p.NextLine())
 	{
@@ -74,8 +74,6 @@ ProgramConfig ConfigSerializer::load_configs()
 			config.ambient_intensity = get_parsed<float>(p);
 		}
 	}
-
-	return config;
 }
 
 void ConfigSerializer::parse_camera_settings(Parser& p)

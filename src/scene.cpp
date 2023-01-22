@@ -26,8 +26,9 @@ Entity* Scene::FindEntity(std::string name)
 	return nullptr;
 }
 
-void Scene::LoadConfigs(ProgramConfig configs)
+void Scene::ReloadGlobalConfigs()
 {
-	ambient_light = configs.ambient_light;
-	ambient_intensity = configs.ambient_intensity;
+	auto* configs = ProgramConfig::Get();
+	ambient_light = configs->ambient_light;
+	ambient_intensity = configs->ambient_intensity;
 }

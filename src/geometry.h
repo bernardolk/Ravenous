@@ -1,5 +1,9 @@
 #pragma once
 
+#include "engine/core/core.h"
+#include "engine/mesh.h"
+#include "engine/loaders.h"
+
 inline void load_models()
 {
 	//TEXT

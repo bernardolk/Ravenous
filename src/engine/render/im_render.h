@@ -1,3 +1,5 @@
+#pragma once
+
 /* --------------------------- 
    > Instructions         
 /* --------------------------- */
@@ -11,9 +13,11 @@
    as in every iteration the item being added would be replaced because it would have the same hash always.
    Put a prefix + i from the loop in it and you should be fine.
 */
-#pragma once
 
 #include "engine/core/core.h"
+#include "renderer.h"
+#include "engine/mesh.h"
+#include "colors.h"
 
 #define IMCUSTOMHASH(x) ImHasher(x)
 #define IM_ITERHASH(x) ImHasher(std::string(__FILE__) + "-" + std::to_string(__LINE__) + "-" + std::to_string(x))
@@ -21,14 +25,9 @@
 #define IM_R_FIND_SLOT() ImDrawSlot slot = FindElementOrEmptySlot(_hash); \
                          if(slot.empty && slot.index == -1) return;
 
-struct Mesh;
-struct Vertex;
-struct RenderOptions;
-struct Camera;
-struct ImDraw;
-struct Entity;
 
-constexpr std::hash<std::string> ImHasher;
+struct RenderOptions;
+constexpr inline std::hash<std::string> ImHasher;
 
 struct ImDrawElement
 {

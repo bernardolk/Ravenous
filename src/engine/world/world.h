@@ -160,8 +160,7 @@ struct World
 	int cells_in_use_count = 0;
 
 public:
-	World();
-
+	static World* Get() { static World instance; return &instance; }
 	void Init();
 	void UpdateCellsInUseList();
 	void UpdateEntities() const;
@@ -172,4 +171,8 @@ public:
 	RaycastTest LinearRaycastArray(Ray first_ray, int qty, float spacing) const;
 	RaycastTest RaycastLights(Ray ray) const;
 	CellUpdate UpdateEntityWorldCells(Entity* entity);
+
+private:
+	World();
+	World(const World& other) = delete;
 };

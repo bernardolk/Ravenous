@@ -1,5 +1,7 @@
 #pragma once
 
+#include "engine/core/core.h"
+
 // -------------------
 // > LEDGE
 // -------------------
@@ -16,6 +18,8 @@ struct Ledge
 	vec3 detection_direction; // The direction of the ray / rays that detected the ledge
 	vec3 surface_point;       // The point in the horizontal surface that proves this is an actual ledge
 };
+
+struct RaycastTest;
 
 RaycastTest CL_get_top_hit_from_multiple_raycasts(Ray first_ray, int qty, float spacing, Player* player);
 Ledge CL_perform_ledge_detection(Player* player, World* world);

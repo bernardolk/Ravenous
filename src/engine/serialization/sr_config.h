@@ -12,6 +12,6 @@ struct ConfigSerializer
 	static inline GlobalSceneInfo* scene_info = nullptr;
 
 	static void parse_camera_settings(Parser& p);
-	static ProgramConfig load_configs();
+	static void LoadGlobalConfigs();
 	static bool save(const ProgramConfig& config);
 };

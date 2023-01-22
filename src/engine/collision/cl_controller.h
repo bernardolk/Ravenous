@@ -1,16 +1,20 @@
 #pragma once
+#include "engine/core/core.h"
+#include "cl_resolvers.h"
 
-struct Entity;
-struct Player;
 struct ClResults;
 struct ClResultsArray;
 struct EntityBufferElement;
 
 ClResultsArray CL_test_and_resolve_collisions(Player* player);
-ClResults CL_test_collision_buffer_entitites(Player* player,
-                                             EntityBufferElement* entity_iterator,
-                                             int entity_list_size,
-                                             bool iterative);
+
+ClResults CL_test_collision_buffer_entitites(
+	Player* player,
+	EntityBufferElement* entity_iterator,
+	int entity_list_size,
+	bool iterative
+);
+
 ClResults CL_test_player_vs_entity(Entity* entity, Player* player);
 void CL_resolve_collision(ClResults results, Player* player);
 bool CL_test_collisions(Player* player);

@@ -1,11 +1,7 @@
 #pragma once
 
-struct Entity;
-struct World;
-struct EntityManager;
-struct EntitySerializer;
-struct PlayerSerializer;
-struct LightSerializer;
+#include "engine/core/core.h"
+
 
 // Global variable to control entity IDs
 inline static u64 Max_Entity_Id = 0;

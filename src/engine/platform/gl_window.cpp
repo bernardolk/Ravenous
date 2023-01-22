@@ -1,8 +1,7 @@
-#include "gl.h"
-
+#include "gl_window.h"
 #include <glad.h>
 #include <glfw3.h>
-#include "in_phase.h"
+#include "engine/loop/input_phase.h"
 #include "engine/io/display.h"
 
 

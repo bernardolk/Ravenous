@@ -21,5 +21,5 @@ public:
 	bool SearchName(std::string name);
 	int EntityIndex(Entity* entity);
 	Entity* FindEntity(std::string name);
-	void LoadConfigs(struct ProgramConfig configs);
+	void ReloadGlobalConfigs();
 };

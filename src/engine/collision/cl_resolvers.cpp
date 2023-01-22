@@ -1,30 +1,17 @@
-#include <string>
-#include <vector>
-#include <engine/core/types.h>
+#include <engine/collision/cl_resolvers.h>
 #include <engine/rvn.h>
-//#include <engine/camera.h>
-#include <engine/vertex.h>
 #include <engine/collision/primitives/bounding_box.h>
-#include <map>
-#include <engine/mesh.h>
 #include <glm/gtx/normal.hpp>
-#include <engine/collision/primitives/triangle.h>
 #include <engine/collision/primitives/ray.h>
 #include <glm/gtx/quaternion.hpp>
-#include <engine/collision/collision_mesh.h>
 #include "engine/entities/entity.h"
-#include <engine/rvn.h>
 #include <player.h>
 #include <engine/world/world.h>
-#include <iostream>
 #include <engine/collision/cl_types.h>
 #include <colors.h>
-#include <engine/render/renderer.h>
 #include <engine/render/im_render.h>
 #include <engine/collision/raycast.h>
-#include <algorithm>
 #include <utils.h>
-#include <engine/collision/cl_resolvers.h>
 
 
 // ---------------------

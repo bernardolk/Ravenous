@@ -1,25 +1,12 @@
 #pragma once
 
-// @todo: get rid of this include
+#include "engine/core/core.h"
+
 #include <ctime>
-
-// @todo: KILL this file!
-
-struct Vertex;
 
 inline void PrintVec(vec3 vec, const std::string& prefix)
 {
 	std::cout << prefix << ": (" << vec.x << ", " << vec.y << ", " << vec.z << ") \n";
-}
-
-inline void PrintVertexArrayPosition(Vertex* vertex, size_t length, const std::string& title)
-{
-	std::cout << title << "\n";
-	for(int i = 0; i < length; i++)
-	{
-		vec3 pos = vertex[i].position;
-		std::cout << "[" << i << "] : (" << pos.x << ", " << pos.y << ", " << pos.z << ") \n";
-	}
 }
 
 inline std::string FormatFloatTostr(float num, int precision = 3)
@@ -256,7 +243,6 @@ inline float get_random_float(int min, int max)
 	return get_random_int(min * 1000, max * 1000) / 1000.f;
 }
 
-
 // colors
 inline vec3 get_random_color()
 {
@@ -272,8 +258,7 @@ inline vec3 get_random_color()
 // #TODO: remove this include at some point ... 
 #include <cctype>
 
-inline
-void tolower(std::string* data)
+inline void tolower(std::string* data)
 {
 	std::transform(data->begin(), data->end(), data->begin(), [](unsigned char c) { return std::tolower(c); });
 }

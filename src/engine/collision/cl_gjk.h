@@ -1,3 +1,5 @@
+#pragma once
+
 // -----------------------------------------------
 //    GJK - Gilbert–Johnson–Keerthi Algorithm
 // -----------------------------------------------
@@ -13,10 +15,9 @@
 // discard one or another point inside the simplex by computing where the origin is in relation
 // to each face/region delimited by the current simplex. The direction mentioned is the direction
 // in which we will try picking the furthest point in the minkowski's difference shape.
-#pragma once
 
-struct Simplex;
-struct CollisionMesh;
+#include "engine/core/core.h"
+#include "simplex.h"
 
 struct GJK_Iteration
 {

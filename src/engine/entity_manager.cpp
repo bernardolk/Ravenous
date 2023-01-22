@@ -15,9 +15,9 @@
 #include <engine/collision/primitives/triangle.h>
 #include <colors.h>
 #include <engine/collision/collision_mesh.h>
-#include <engine/entity.h>
+#include <engine/entities/entity.h>
 #include <engine/lights.h>
-#include <engine/shader.h>
+#include <engine/render/shader.h>
 #include <scene.h>
 #include <engine/loaders.h>
 #include <engine/world/world.h>

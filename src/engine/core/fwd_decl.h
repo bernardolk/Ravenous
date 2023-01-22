@@ -28,3 +28,7 @@ struct Texture;
 
 struct World;
 struct WorldCell;
+
+struct PointLight;
+struct DirectionalLight;
+struct SpotLight;

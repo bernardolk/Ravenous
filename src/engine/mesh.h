@@ -1,11 +1,7 @@
 #pragma once
 
-#include <map>
-
-struct Vertex;
-struct BoundingBox;
-struct Triangle;
-struct CollisionMesh;
+#include "engine/core/core.h"
+#include "vertex.h"
 
 struct GLData
 {

@@ -2,6 +2,7 @@
 
 #include "engine/core/core.h"
 #include "engine/entity_pool.h"
+#include "entities/entity.h"
 
 struct EntityAttributes
 {

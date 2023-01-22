@@ -1,26 +1,11 @@
-#include <string>
-#include <vector>
-#include <map>
-#include <iostream>
-#include <algorithm>
-#include <engine/core/types.h>
-#include <engine/collision/primitives/ray.h>
-#include <engine/collision/primitives/bounding_box.h>
-#include <engine/world/world.h>
-#include <glm/gtx/normal.hpp>
-#include <engine/collision/primitives/triangle.h>
-#include <glm/gtx/quaternion.hpp>
-#include <engine/vertex.h>
-#include <engine/mesh.h>
-#include <engine/collision/collision_mesh.h>
-#include "engine/entities/entity.h"
-#include <colors.h>
-#include <engine/render/renderer.h>
-#include <engine/render/im_render.h>
-#include <utils.h>
-#include <engine/collision/raycast.h>
-#include <player.h>
-#include <game/collision/cl_edge_detection.h>
+#include "cl_edge_detection.h"
+
+#include "player.h"
+#include "utils.h"
+#include "engine/collision/raycast.h"
+#include "engine/collision/primitives/ray.h"
+#include "engine/render/im_render.h"
+#include "engine/world/world.h"
 
 
 Ledge CL_perform_ledge_detection(Player* player, World* world)

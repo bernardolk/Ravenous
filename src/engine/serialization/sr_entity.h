@@ -1,9 +1,8 @@
 #pragma once
 
-struct EntityManager;
-struct Entity;
+#include "engine/core/core.h"
+
 struct Parser;
-struct World;
 
 enum SrEntityRelation
 {

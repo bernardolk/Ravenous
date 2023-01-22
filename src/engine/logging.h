@@ -1,5 +1,7 @@
 #pragma once
 
+#include "engine/core/core.h"
+
 enum RavenousLogLevel
 {
 	LOG_INFO    = 1,

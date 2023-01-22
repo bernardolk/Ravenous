@@ -1,9 +1,8 @@
 #pragma once
 
+#include "engine/core/core.h"
+
 struct Parser;
-struct EntityManager;
-struct World;
-struct PointLight;
 
 struct LightSerializer
 {

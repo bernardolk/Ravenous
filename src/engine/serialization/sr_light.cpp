@@ -1,17 +1,7 @@
-#include <string>
-#include <vector>
-#include <iostream>
-#include <engine/core/types.h>
-#include <engine/logging.h>
-#include <engine/serialization/sr_entity.h>
-#include <engine/collision/collision_mesh.h>
-#include "engine/entities/entity.h"
+#include "engine/serialization/sr_light.h"
 #include <engine/lights.h>
 #include "engine/world/world.h"
 #include "engine/serialization/parsing/parser.h"
-#include "engine/serialization/sr_light.h"
-
-#include <fstream>
 
 
 void LightSerializer::parse(Parser& p)

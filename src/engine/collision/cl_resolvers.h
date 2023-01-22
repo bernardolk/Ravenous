@@ -1,9 +1,8 @@
 #pragma once
 
-struct Entity;
-struct Player;
+#include "engine/core/core.h"
+
 struct ClResults;
-struct World;
 
 struct ClVtraceResult
 {

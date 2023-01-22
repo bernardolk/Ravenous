@@ -6,7 +6,7 @@
 #include "engine/io/display.h"
 #include "player.h"
 #include "engine/world/scene_manager.h"
-#include "editor/editor_interface.h"
+#include "editor/editor.h"
 #include "rvn.h"
 
 bool EngineState::IsInGameMode()

@@ -1,25 +1,17 @@
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <string>
-#include <vector>
-#include <engine/core/types.h>
-#include <engine/logging.h>
-#include <engine/rvn.h>
-#include <player.h>
-#include "engine/entities/entity.h"
-#include "engine/camera.h"
-#include <scene.h>
-#include <engine/world/world.h>
-#include <engine/entity_manager.h>
-#include <engine/serialization/sr_entity.h>
-#include <engine/serialization/sr_player.h>
-#include <engine/serialization/sr_light.h>
-#include <engine/serialization/sr_config.h>
-#include <engine/serialization/parsing/parser.h>
-#include <engine/serialization/sr_world.h>
+#include "sr_world.h"
 
+#include "player.h"
+#include "sr_config.h"
+#include "sr_entity.h"
+#include "sr_light.h"
+#include "sr_player.h"
+#include "engine/camera.h"
+#include "engine/entity_manager.h"
+#include "engine/logging.h"
+#include "engine/rvn.h"
 #include "engine/world/scene_manager.h"
+#include "engine/world/world.h"
+#include "parsing/parser.h"
 
 
 bool WorldSerializer::load_from_file(const std::string& filename)

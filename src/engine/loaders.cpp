@@ -13,6 +13,8 @@
 #include <engine/serialization/parsing/parser.h>
 #include <engine/loaders.h>
 #include "rvn.h"
+#include "io/display.h"
+#include "render/shader.h"
 
 void load_textures_from_assets_folder()
 {
@@ -488,4 +490,78 @@ void attach_extra_data_to_mesh(std::string filename, std::string filepath, Mesh*
 	}
 
 	FindClose(find_handle);
+}
+
+
+void load_shaders()
+{
+	/* Parses shader program info from programs file, assembles each shader program and stores them into the
+	   shaders catalogue. */
+
+	Parser p{Paths::Shaders + "programs.csv"};
+
+	// discard header
+	p.NextLine();
+
+	while(p.NextLine())
+	{
+		bool error = false, missing_comma = false, has_geometry_shader = false;
+
+		p.ParseToken();
+		if(!p.HasToken())
+			error = true;
+		const auto shader_name = get_parsed<std::string>(p);
+
+		p.ParseAllWhitespace();
+		p.ParseSymbol();
+		if(!p.HasToken())
+			missing_comma = true;
+
+		p.ParseAllWhitespace();
+		p.ParseToken();
+		if(!p.HasToken())
+			error = true;
+		const auto vertex_shader_name = get_parsed<std::string>(p);
+
+		p.ParseAllWhitespace();
+		p.ParseSymbol();
+		if(!p.HasToken())
+			missing_comma = true;
+
+		p.ParseAllWhitespace();
+		p.ParseToken();
+		if(p.HasToken())
+			has_geometry_shader = true;
+		const auto geometry_shader_name = get_parsed<std::string>(p);
+
+		p.ParseAllWhitespace();
+		p.ParseSymbol();
+		if(!p.HasToken())
+			missing_comma = true;
+
+		p.ParseAllWhitespace();
+		p.ParseToken();
+		if(!p.HasToken())
+			error = true;
+		const auto fragment_shader_name = get_parsed<std::string>(p);
+
+		// load shaders code and mounts program from parsed shader attributes
+		Shader* shader;
+		if(has_geometry_shader)
+			shader = create_shader_program(shader_name, vertex_shader_name, geometry_shader_name, fragment_shader_name);
+		else
+			shader = create_shader_program(shader_name, vertex_shader_name, fragment_shader_name);
+
+		ShaderCatalogue.insert({shader->name, shader});
+
+		if(error)
+			Quit_fatal("Error in shader programs file definition. Couldn't parse line " + std::to_string(p.line_count) + ".");
+		if(missing_comma)
+			Quit_fatal("Error in shader programs file definition. There is a missing comma in line " + std::to_string(p.line_count) + ".");
+	}
+
+	// setup for text shader
+	auto text_shader = ShaderCatalogue.find("text")->second;
+	text_shader->Use();
+	text_shader->SetMatrix4("projection", glm::ortho(0.0f, GlobalDisplayConfig::viewport_width, 0.0f, GlobalDisplayConfig::viewport_height));
 }

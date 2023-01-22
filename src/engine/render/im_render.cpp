@@ -1,22 +1,11 @@
-#include <string>
-#include <map>
-#include <vector>
-#include <iostream>
-#include <engine/core/types.h>
-#include <colors.h>
-#include "engine/render/shader.h"
-#include <engine/vertex.h>
-#include <engine/mesh.h>
-#include <glad/glad.h>
-#include <glm/gtx/normal.hpp>
-#include <engine/collision/primitives/triangle.h>
-#include <engine/collision/primitives/bounding_box.h>
-#include <glm/gtx/quaternion.hpp>
-#include <engine/collision/collision_mesh.h>
+#include "im_render.h"
+#include "shader.h"
+#include "engine/camera.h"
+#include "engine/mesh.h"
+#include "engine/collision/primitives/triangle.h"
 #include "engine/entities/entity.h"
-#include <engine/render/renderer.h>
-#include <engine/camera.h>
-#include <engine/render/im_render.h>
+#include <glad.h>
+#include "engine/vertex.h"
 
 void ImDraw::Init()
 {
