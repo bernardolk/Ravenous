@@ -299,7 +299,9 @@ inline void activate_measure_mode(u8 axis)
 
 inline void check_selection_to_measure(const World* world)
 {
-	auto pickray = cast_pickray(GSceneInfo.camera, GInputInfo.mouse_coords.x, GInputInfo.mouse_coords.y);
+	auto* GII = GlobalInputInfo::Get();
+
+	auto pickray = cast_pickray(GSceneInfo.camera, GII->mouse_coords.x, GII->mouse_coords.y);
 	auto test = world->Raycast(pickray);
 	if(test.hit)
 	{
@@ -339,7 +341,9 @@ inline void activate_locate_coords_mode()
 
 inline void check_selection_to_locate_coords(const World* world)
 {
-	auto pickray = cast_pickray(GSceneInfo.camera, GInputInfo.mouse_coords.x, GInputInfo.mouse_coords.y);
+	auto* GII = GlobalInputInfo::Get();
+
+	auto pickray = cast_pickray(GSceneInfo.camera, GII->mouse_coords.x, GII->mouse_coords.y);
 	auto test = world->Raycast(pickray);
 	if(test.hit)
 	{
@@ -419,7 +423,9 @@ inline RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* 
 	}
 
 	// ray casts against created plane
-	auto ray = cast_pickray(GSceneInfo.camera, GInputInfo.mouse_coords.x, GInputInfo.mouse_coords.y);
+	auto* GII = GlobalInputInfo::Get();
+
+	auto ray = cast_pickray(GSceneInfo.camera, GII->mouse_coords.x, GII->mouse_coords.y);
 	RaycastTest test;
 
 	test = test_ray_against_triangle(ray, t1);
@@ -446,7 +452,9 @@ inline void activate_place_mode(Entity* entity)
 
 inline void select_entity_placing_with_mouse_move(Entity* entity, const World* world)
 {
-	auto pickray = cast_pickray(GSceneInfo.camera, GInputInfo.mouse_coords.x, GInputInfo.mouse_coords.y);
+	auto* GII = GlobalInputInfo::Get();
+
+	auto pickray = cast_pickray(GSceneInfo.camera, GII->mouse_coords.x, GII->mouse_coords.y);
 	auto test = world->Raycast(pickray, entity);
 	if(test.hit)
 	{
@@ -589,8 +597,9 @@ inline void move_light_with_mouse(std::string type, int index, World* world)
 	else
 		assert(false);
 
+	auto* GII = GlobalInputInfo::Get();
 
-	auto ray = cast_pickray(GSceneInfo.camera, GInputInfo.mouse_coords.x, GInputInfo.mouse_coords.y);
+	auto ray = cast_pickray(GSceneInfo.camera, GII->mouse_coords.x, GII->mouse_coords.y);
 
 	// create a big plane for placing entity in the world with the mouse using raycast from camera to mouse
 	// position. In the case of Y placement, we need to compute the plane considering the camera orientation.
@@ -694,11 +703,13 @@ void rotate_entity_with_mouse(Entity* entity);
 
 inline void activate_rotate_entity_with_mouse(u8 move_axis)
 {
+	auto* GII = GlobalInputInfo::Get();
+
 	EdContext.move_axis = move_axis;
 	EdContext.rotate_entity_with_mouse = true;
 	EdContext.rotate_entity_with_mouse_mouse_coords_ref = vec2(
-		GInputInfo.mouse_coords.x,
-		GInputInfo.mouse_coords.y
+		GII->mouse_coords.x,
+		GII->mouse_coords.y
 	);
 	EdContext.undo_stack.Track(EdContext.selected_entity);
 }
@@ -711,7 +722,8 @@ inline float mouse_offset_to_angular_offset(float mouse_offset)
 
 inline void rotate_entity_with_mouse(Entity* entity)
 {
-	auto mouse_coords = vec2(GInputInfo.mouse_coords.x, GInputInfo.mouse_coords.y);
+	auto* GII = GlobalInputInfo::Get();
+	auto mouse_coords = vec2(GII->mouse_coords.x, GII->mouse_coords.y);
 
 	switch(EdContext.move_axis)
 	{

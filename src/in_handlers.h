@@ -1,31 +1,34 @@
 #pragma once
 
+#include "engine/core/core.h"
+
 void IN_handle_common_input(InputFlags flags, Player* & player);
-void IN_handle_movement_input(InputFlags flags, Player* & player, ProgramModeEnum pm, World* world);
+void IN_handle_movement_input(InputFlags flags, Player* & player, World* world);
 
 u64 KEY_MOVE_UP, KEY_MOVE_DOWN, KEY_MOVE_LEFT, KEY_MOVE_RIGHT, KEY_DASH, KEY_WALK, KEY_ACTION;
 
 
-void IN_assign_keys_to_actions(ProgramModeEnum pm)
+void IN_assign_keys_to_actions()
 {
-	switch(pm)
+	if(EngineState::IsInEditorMode())
 	{
-		case EDITOR_MODE: KEY_MOVE_UP = KEY_UP;
-			KEY_MOVE_DOWN = KEY_DOWN;
-			KEY_MOVE_LEFT = KEY_LEFT;
-			KEY_MOVE_RIGHT = KEY_RIGHT;
-			KEY_DASH = KEY_Z;
-			KEY_WALK = KEY_X;
-			KEY_ACTION = KEY_J;
-			break;
-		case GAME_MODE: KEY_MOVE_UP = KEY_W;
-			KEY_MOVE_DOWN = KEY_S;
-			KEY_MOVE_LEFT = KEY_A;
-			KEY_MOVE_RIGHT = KEY_D;
-			KEY_DASH = KEY_LEFT_SHIFT;
-			KEY_WALK = KEY_LEFT_CTRL;
-			KEY_ACTION = KEY_E;
-			break;
+		KEY_MOVE_UP = KEY_UP;
+		KEY_MOVE_DOWN = KEY_DOWN;
+		KEY_MOVE_LEFT = KEY_LEFT;
+		KEY_MOVE_RIGHT = KEY_RIGHT;
+		KEY_DASH = KEY_Z;
+		KEY_WALK = KEY_X;
+		KEY_ACTION = KEY_J;
+	}
+	else if(EngineState::IsInGameMode())
+	{
+		KEY_MOVE_UP = KEY_W;
+		KEY_MOVE_DOWN = KEY_S;
+		KEY_MOVE_LEFT = KEY_A;
+		KEY_MOVE_RIGHT = KEY_D;
+		KEY_DASH = KEY_LEFT_SHIFT;
+		KEY_WALK = KEY_LEFT_CTRL;
+		KEY_ACTION = KEY_E;
 	}
 }
 
@@ -53,12 +56,12 @@ void IN_process_move_keys(InputFlags flags, vec3& v_dir)
 }
 
 
-void IN_handle_movement_input(InputFlags flags, Player* & player, ProgramModeEnum pm, World* world)
+void IN_handle_movement_input(InputFlags flags, Player* & player, World* world)
 {
 	player->dodge_btn = false;
 
 	// assign keys
-	IN_assign_keys_to_actions(pm);
+	IN_assign_keys_to_actions();
 
 	// reset player movement intention state
 	player->dashing = false;
@@ -90,7 +93,7 @@ void IN_handle_movement_input(InputFlags flags, Player* & player, ProgramModeEnu
 				GP_change_player_state(player, PLAYER_STATE_JUMPING);
 
 			// VAULT
-			if(pressed(flags, KEY_LEFT_SHIFT) && GInputInfo.mouse_state & MOUSE_LB_CLICK)
+			if(pressed(flags, KEY_LEFT_SHIFT) && GlobalInputInfo::Get()->mouse_state & MOUSE_LB_CLICK)
 				player->want_to_grab = true;
 
 			// INTERACT
@@ -214,7 +217,7 @@ void IN_handle_common_input(InputFlags flags, Player* & player)
 	}
 	if(pressed_once(flags, KEY_F))
 	{
-		toggle_program_modes(player);
+		EngineState::ToggleProgramMode();
 	}
 	if(pressed_once(flags, KEY_GRAVE_TICK))
 	{

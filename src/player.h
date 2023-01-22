@@ -135,6 +135,8 @@ struct Player
 	vec3 anim_orig_dir = vec3(0);                                       // original player orientation
 	bool anim_finished_turning = false;                                 // player has finished turning his camera
 
+	static Player* Get() { static Player instance; return &instance; }
+	
 	void Update(World* world, bool update_collider = false)
 	{
 		// perform updates to bounding boxes, colliders etc
@@ -226,6 +228,16 @@ struct Player
 	static void StartJumpAnimation()
 	{ }
 
+	void MakeInvisible()
+	{
+		entity_ptr->MakeInvisible();
+	}
+
+	void MakeVisible()
+	{
+		entity_ptr->MakeVisible();
+	}
+	
 
 	// // pass through methods
 	// vec3 position()
@@ -247,4 +259,18 @@ struct Player
 	// {
 	//    return entity_ptr->velocity;
 	// }
+
+private:
+	friend struct WorldSerializer;
+	
+	Player() = default;
+	Player(const Player& other) = delete;
+
+	static Player* ResetPlayer()
+	{
+		auto* player = Get();
+		*player = Player{};
+		return player;
+	}
+	
 };

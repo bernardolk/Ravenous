@@ -234,7 +234,8 @@ inline void GP_player_state_change_grabbing_to_vaulting(Player* player)
 
 inline void GP_player_state_change_standing_to_vaulting(Player* player, Ledge ledge, vec3 final_position)
 {
-	GInputInfo.block_mouse_move = true;
+	auto* GII = GlobalInputInfo::Get();
+	GII->block_mouse_move = true;
 
 	player->player_state = PLAYER_STATE_VAULTING;
 	player->anim_state = PlayerAnimationState_Vaulting;
@@ -251,8 +252,10 @@ inline void GP_player_state_change_standing_to_vaulting(Player* player, Ledge le
 // DONE
 inline void GP_player_state_change_vaulting_to_standing(Player* player)
 {
-	GInputInfo.forget_last_mouse_coords = true;
-	GInputInfo.block_mouse_move = false;
+	auto* GII = GlobalInputInfo::Get();
+	
+	GII->forget_last_mouse_coords = true;
+	GII->block_mouse_move = false;
 	player->player_state = PLAYER_STATE_STANDING;
 	player->standing_entity_ptr = player->vaulting_entity_ptr;
 	player->vaulting_entity_ptr = nullptr;

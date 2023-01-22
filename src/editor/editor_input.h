@@ -198,8 +198,10 @@ inline void handle_input_flags(InputFlags flags, Player* & player, World* world,
 
 	EdContext.mouse_click = false;
 	EdContext.mouse_dragging = false;
+	
+	auto* GII = GlobalInputInfo::Get();
 
-	if(GInputInfo.mouse_state & MOUSE_LB_CLICK)
+	if(GII->mouse_state & MOUSE_LB_CLICK)
 	{
 		std::cout << "CLICK COUNT\n";
 		if(EdContext.snap_mode)
@@ -243,11 +245,11 @@ inline void handle_input_flags(InputFlags flags, Player* & player, World* world,
 		}
 	}
 
-	else if(GInputInfo.mouse_state & MOUSE_LB_DRAGGING)
+	else if(GII->mouse_state & MOUSE_LB_DRAGGING)
 	{
 		EdContext.mouse_dragging = true;
 	}
-	else if(GInputInfo.mouse_state & MOUSE_LB_HOLD)
+	else if(GII->mouse_state & MOUSE_LB_HOLD)
 	{
 		EdContext.mouse_dragging = true;
 	}
@@ -258,7 +260,7 @@ inline void handle_input_flags(InputFlags flags, Player* & player, World* world,
 	// -------------------------------
 	if(pressed_once(flags, KEY_C))
 	{
-		auto pickray = cast_pickray(GSceneInfo.camera, GInputInfo.mouse_coords.x, GInputInfo.mouse_coords.y);
+		auto pickray = cast_pickray(GSceneInfo.camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		auto test = world->Raycast(pickray, player->entity_ptr);
 		if(test.hit)
 		{

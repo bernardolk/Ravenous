@@ -1,9 +1,7 @@
-#include <glm/gtx/matrix_decompose.hpp>
-#include <glm/gtx/quaternion.hpp>
-#include <editor/editor_colors.h>
+#pragma once
 
-struct World;
-struct CollisionMesh;
+#include "engine/core/core.h"
+#include "editor_colors.h"
 
 namespace Editor
 {
@@ -1286,7 +1284,8 @@ namespace Editor
 
 	void check_selection_to_open_panel(Player* player, World* world, Camera* camera)
 	{
-		auto pickray = cast_pickray(camera, GInputInfo.mouse_coords.x, GInputInfo.mouse_coords.y);
+		auto* GII = GlobalInputInfo::Get();
+		auto pickray = cast_pickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		auto test = world->Raycast(pickray, RayCast_TestOnlyVisibleEntities);
 		auto test_light = world->RaycastLights(pickray);
 
@@ -1306,7 +1305,9 @@ namespace Editor
 	void check_selection_to_select_related_entity(World* world, Camera* camera)
 	{
 		auto* EM = EntityManager::Get();
-		auto pickray = cast_pickray(camera, GInputInfo.mouse_coords.x, GInputInfo.mouse_coords.y);
+		auto* GII = GlobalInputInfo::Get();
+
+		auto pickray = cast_pickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		auto test = world->Raycast(pickray, RayCast_TestOnlyVisibleEntities);
 		if(test.hit)
 		{
@@ -1333,7 +1334,9 @@ namespace Editor
 
 	void check_selection_to_move_entity(World* world, Camera* camera)
 	{
-		auto pickray = cast_pickray(camera, GInputInfo.mouse_coords.x, GInputInfo.mouse_coords.y);
+		auto* GII = GlobalInputInfo::Get();
+
+		auto pickray = cast_pickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		auto test = world->Raycast(pickray, RayCast_TestOnlyVisibleEntities);
 		auto test_light = world->RaycastLights(pickray);
 		if(test.hit && (!test_light.hit || test_light.distance > test.distance))
@@ -1345,7 +1348,9 @@ namespace Editor
 
 	bool check_selection_to_grab_entity_arrows(Camera* camera)
 	{
-		auto pickray = cast_pickray(camera, GInputInfo.mouse_coords.x, GInputInfo.mouse_coords.y);
+		auto* GII = GlobalInputInfo::Get();
+
+		auto pickray = cast_pickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		RaycastTest test;
 
 		Entity* arrows[3] = {EdContext.entity_panel.x_arrow, EdContext.entity_panel.y_arrow, EdContext.entity_panel.z_arrow};
@@ -1366,7 +1371,9 @@ namespace Editor
 
 	bool check_selection_to_grab_entity_rotation_gizmo(Camera* camera)
 	{
-		auto pickray = cast_pickray(camera, GInputInfo.mouse_coords.x, GInputInfo.mouse_coords.y);
+		auto* GII = GlobalInputInfo::Get();
+
+		auto pickray = cast_pickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		RaycastTest test;
 
 		Entity* rot_gizmos[3] = {

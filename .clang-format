@@ -7,7 +7,7 @@ AlignConsecutiveAssignments: false
 AlignConsecutiveDeclarations: false
 AlignOperands: false
 AlignTrailingComments: true
-AllowShortCaseLabelsOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: false
 AlwaysBreakAfterDefinitionReturnType: false
 AlwaysBreakAfterReturnType: None
 AlwaysBreakTemplateDeclarations: MultiLine

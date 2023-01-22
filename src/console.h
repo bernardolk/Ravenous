@@ -81,14 +81,16 @@ inline void copy_buffer_to_scratch_buffer()
 
 inline void start_console_mode()
 {
-	ProgramMode.last = ProgramMode.current;
-	ProgramMode.current = CONSOLE_MODE;
+	auto* ES = EngineState::Get();
+	ES->last_mode = ES->current_mode;
+	ES->current_mode = EngineState::ProgramMode::Console;
 }
 
 inline void quit_console_mode()
 {
-	ProgramMode.current = ProgramMode.last;
-	ProgramMode.last = CONSOLE_MODE;
+	auto* ES = EngineState::Get();
+	ES->current_mode = ES->last_mode;
+	ES->last_mode = EngineState::ProgramMode::Console;
 }
 
 inline std::string commit_buffer()
@@ -184,8 +186,9 @@ inline void execute_command(const std::string& buffer_line, Player* & player, Wo
 		// updates scene with new one
 		if(WorldSerializer::load_from_file(scene_name))
 		{
+			
 			player = GSceneInfo.player; // not irrelevant! do not delete
-			if(ProgramMode.last == EDITOR_MODE)
+			if(EngineState::IsInEditorMode())
 				player->entity_ptr->flags &= ~EntityFlags_InvisibleEntity;
 			else
 				player->entity_ptr->flags |= EntityFlags_InvisibleEntity;
@@ -229,7 +232,7 @@ inline void execute_command(const std::string& buffer_line, Player* & player, Wo
 			}
 
 			player = GSceneInfo.player; // not irrelevant! do not delete
-			if(ProgramMode.last == EDITOR_MODE)
+			if(EngineState::IsInEditorMode())
 				player->entity_ptr->flags &= ~EntityFlags_InvisibleEntity;
 			else
 				player->entity_ptr->flags |= EntityFlags_InvisibleEntity;
@@ -275,14 +278,14 @@ inline void execute_command(const std::string& buffer_line, Player* & player, Wo
 		{
 			player = GSceneInfo.player; // not irrelevant! do not delete
 
-			if(ProgramMode.last == EDITOR_MODE)
+			if(EngineState::IsInEditorMode())
 				player->entity_ptr->flags &= ~EntityFlags_InvisibleEntity;
 			else
 				player->entity_ptr->flags |= EntityFlags_InvisibleEntity;
 
 			GConfig = ConfigSerializer::load_configs();
 			GSceneInfo.active_scene->LoadConfigs(GConfig);
-			GInputInfo.block_mouse_move = false;
+			GlobalInputInfo::Get()->block_mouse_move = false;
 		}
 	}
 

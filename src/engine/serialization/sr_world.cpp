@@ -34,12 +34,12 @@ bool WorldSerializer::load_from_file(const std::string& filename)
 	if(GSceneInfo.active_scene == nullptr)
 	{
 		GSceneInfo.active_scene = new Scene();
-		GSceneInfo.player = new Player();
+		GSceneInfo.player = Player::Get();
 	}
 	else
 	{
 		*GSceneInfo.active_scene = Scene{};
-		*GSceneInfo.player = Player{};
+		GSceneInfo.player = Player::ResetPlayer();
 	}
 
 	world->player = GSceneInfo.player;

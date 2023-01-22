@@ -36,21 +36,6 @@
  *	
  */
 
-// GLOBAL STRUCT VARIABLES OR TYPES 
-enum ProgramModeEnum
-{
-	GAME_MODE    = 0,
-	EDITOR_MODE  = 1,
-	CONSOLE_MODE = 2,
-};
-
-// ReSharper disable once CppInconsistentNaming
-struct T_ProgramMode
-{
-	ProgramModeEnum current = EDITOR_MODE;
-	ProgramModeEnum last = EDITOR_MODE;
-} ProgramMode;
-
 
 GlobalDisplayConfig GDisplayInfo;
 
@@ -71,7 +56,13 @@ struct GlobalInputInfo
 	u64 key_state = 0;
 	u8 mouse_state = 0;
 	bool block_mouse_move = false;
-} GInputInfo;
+
+	static GlobalInputInfo* Get()
+	{
+		static GlobalInputInfo instance;
+		return &instance;
+	}
+};
 
 ProgramConfig GConfig;
 
@@ -104,12 +95,88 @@ ProgramConfig GConfig;
 #include <input_recorder.h>
 #include <engine/entity_pool.h>
 
-#include <editor/editor_im_macros.h>
 #include <engine/render/text/face.h>
 #include <engine/render/text/text_renderer.h>
 #include <engine/loaders.h>
 #include <engine/entity_manager.h>
 #include <geometry.h>
+
+// TODO: remove after refactor is done
+void tmp_fwd_end_dear_imgui_frame();
+void tmp_fwd_start_dear_imgui_frame();
+
+struct EngineState
+{
+	enum class ProgramMode : u8
+	{
+		Game,
+		Editor,
+		Console
+	};
+
+	ProgramMode current_mode = ProgramMode::Editor;
+	ProgramMode last_mode = ProgramMode::Editor;
+
+public:
+	static EngineState* Get()
+	{
+		static EngineState instance;
+		return &instance;
+	}
+
+	static bool IsInGameMode()
+	{
+		return Get()->current_mode == ProgramMode::Game;
+	}
+
+	static bool IsInEditorMode()
+	{
+		return Get()->current_mode == ProgramMode::Editor;
+	}
+
+	static bool IsInConsoleMode()
+	{
+		return Get()->current_mode == ProgramMode::Console;
+	}
+
+
+	static void ToggleProgramMode()
+	{
+		auto* GII = GlobalInputInfo::Get();
+		auto* player = Player::Get();
+
+		GII->forget_last_mouse_coords = true;
+		auto* ES = Get();
+
+		if(ES->current_mode == ProgramMode::Editor)
+		{
+			ES->last_mode = ES->current_mode;
+			ES->current_mode = ProgramMode::Game;
+			GSceneInfo.camera = GSceneInfo.views[1];
+
+			player->MakeInvisible();
+
+			glfwSetInputMode(GDisplayInfo.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			tmp_fwd_end_dear_imgui_frame();
+
+			Rvn::rm_buffer->Add("Game Mode", 2000);
+		}
+
+		else if(ES->current_mode == ProgramMode::Game)
+		{
+			ES->last_mode = ES->current_mode;
+			ES->current_mode = ProgramMode::Editor;
+			GSceneInfo.camera = GSceneInfo.views[0];
+
+			player->MakeVisible();
+
+			glfwSetInputMode(GDisplayInfo.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			tmp_fwd_start_dear_imgui_frame();
+
+			Rvn::rm_buffer->Add("Editor Mode", 2000);
+		}
+	}
+};
 
 // camera handles
 Camera* PCam;
@@ -146,6 +213,17 @@ void erase_entity(Scene* scene, Entity* entity);
 #include <in_handlers.h>
 
 #include <editor/editor_main.h>
+
+// TODO: Remove after refactor
+void tmp_fwd_end_dear_imgui_frame()
+{
+	Editor::end_dear_imgui_frame();
+}
+void tmp_fwd_start_dear_imgui_frame()
+{
+	Editor::start_dear_imgui_frame();
+}
+
 
 // globals
 GlobalSceneInfo GSceneInfo;
@@ -215,6 +293,7 @@ static void get_time_render(int elapsed)
 
 int main()
 {
+	auto* ES = EngineState::Get();
 	World world;
 
 	auto* EM = EntityManager::Get();
@@ -321,28 +400,34 @@ int main()
 		// START FRAME
 		// -------------
 		start_frame();
-		if(ProgramMode.current == EDITOR_MODE)
+		if(ES->current_mode == EngineState::ProgramMode::Editor)
 			Editor::start_dear_imgui_frame();
 
 		// ---------------
 		// INPUT HANDLING
 		// ---------------
-		switch(ProgramMode.current)
+		if(EngineState::IsInConsoleMode())
 		{
-			case CONSOLE_MODE: handle_console_input(input_flags, player, &world, GSceneInfo.camera);
-				break;
-			case EDITOR_MODE: Editor::handle_input_flags(input_flags, player, &world, GSceneInfo.camera);
+			handle_console_input(input_flags, player, &world, GSceneInfo.camera);
+		}
+		else
+		{
+			if(EngineState::IsInEditorMode())
+			{
+				Editor::handle_input_flags(input_flags, player, &world, GSceneInfo.camera);
 				if(!ImGui::GetIO().WantCaptureKeyboard)
 				{
-					IN_handle_movement_input(input_flags, player, EDITOR_MODE, &world);
+					IN_handle_movement_input(input_flags, player, &world);
 					IN_handle_common_input(input_flags, player);
 				}
-				break;
-			case GAME_MODE: IN_handle_movement_input(input_flags, player, GAME_MODE, &world);
-				IN_handle_common_input(input_flags, player);
-				break;
-		}
+			}
+			else if(EngineState::IsInGameMode())
+			{
+				IN_handle_movement_input(input_flags, player, &world);
+			}
 
+			IN_handle_common_input(input_flags, player);
+		}
 		reset_input_flags(input_flags);
 
 		// -------------
@@ -350,9 +435,9 @@ int main()
 		// -------------
 		{
 			auto start = std::chrono::high_resolution_clock::now();
-			if(ProgramMode.current == GAME_MODE)
+			if(ES->current_mode == EngineState::ProgramMode::Game)
 				camera_update_game(GSceneInfo.camera, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->Eye());
-			else if(ProgramMode.current == EDITOR_MODE)
+			else if(ES->current_mode == EngineState::ProgramMode::Editor)
 				camera_update_editor(GSceneInfo.camera, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->entity_ptr->position);
 			GameState.UpdateTimers();
 			GP_update_player_state(player, &world);
@@ -379,14 +464,17 @@ int main()
 			render_depth_cubemap(&world);
 			render_scene(&world, GSceneInfo.camera);
 			//render_depth_map_debug();
-			switch(ProgramMode.current)
+			switch(ES->current_mode)
 			{
-				case CONSOLE_MODE: render_console();
+				case EngineState::ProgramMode::Console:
+					render_console();
 					break;
-				case EDITOR_MODE: Editor::update(player, &world, GSceneInfo.camera);
+				case EngineState::ProgramMode::Editor:
+					Editor::update(player, &world, GSceneInfo.camera);
 					Editor::render(player, &world, GSceneInfo.camera);
 					break;
-				case GAME_MODE: render_game_gui(player);
+				case EngineState::ProgramMode::Game:
+					render_game_gui(player);
 					break;
 			}
 			ImDraw::Render(GSceneInfo.camera);
@@ -403,7 +491,7 @@ int main()
 		EM->SafeDeleteMarkedEntities();
 		Rvn::rm_buffer->Cleanup();
 		glfwSwapBuffers(GDisplayInfo.window);
-		if(ProgramMode.current == EDITOR_MODE)
+		if(ES->current_mode == EngineState::ProgramMode::Editor)
 			Editor::end_dear_imgui_frame();
 	}
 
@@ -549,51 +637,28 @@ GLenum glCheckError_(const char* file, int line)
 		std::string error;
 		switch(error_code)
 		{
-			case GL_INVALID_ENUM: error = "INVALID_ENUM";
-				break;
-			case GL_INVALID_VALUE: error = "INVALID_VALUE";
-				break;
-			case GL_INVALID_OPERATION: error = "INVALID_OPERATION";
-				break;
+			case GL_INVALID_ENUM:
+				error = "INVALID_ENUM";
+			break;
+			case GL_INVALID_VALUE:
+				error = "INVALID_VALUE";
+			break;
+			case GL_INVALID_OPERATION:
+				error = "INVALID_OPERATION";
+			break;
 			//case GL_STACK_OVERFLOW:                error = "STACK_OVERFLOW"; break;
 			//case GL_STACK_UNDERFLOW:               error = "STACK_UNDERFLOW"; break;
-			case GL_OUT_OF_MEMORY: error = "OUT_OF_MEMORY";
-				break;
-			case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION";
-				break;
+			case GL_OUT_OF_MEMORY:
+				error = "OUT_OF_MEMORY";
+			break;
+			case GL_INVALID_FRAMEBUFFER_OPERATION:
+				error = "INVALID_FRAMEBUFFER_OPERATION";
+			break;
 			default: break;
 		}
 		std::cout << error << " | " << file << " (" << line << ")" << std::endl;
 	}
 	return error_code;
-}
-
-void toggle_program_modes(Player* player)
-{
-	GInputInfo.forget_last_mouse_coords = true;
-
-	if(ProgramMode.current == EDITOR_MODE)
-	{
-		ProgramMode.last = ProgramMode.current;
-		ProgramMode.current = GAME_MODE;
-		GSceneInfo.camera = GSceneInfo.views[1];
-		player->entity_ptr->flags |= EntityFlags_InvisibleEntity;
-		glfwSetInputMode(GDisplayInfo.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		Editor::end_dear_imgui_frame();
-
-		Rvn::rm_buffer->Add("Game Mode", 2000);
-	}
-	else if(ProgramMode.current == GAME_MODE)
-	{
-		ProgramMode.last = ProgramMode.current;
-		ProgramMode.current = EDITOR_MODE;
-		GSceneInfo.camera = GSceneInfo.views[0];
-		player->entity_ptr->flags &= ~EntityFlags_InvisibleEntity;
-		glfwSetInputMode(GDisplayInfo.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-		Editor::start_dear_imgui_frame();
-
-		Rvn::rm_buffer->Add("Editor Mode", 2000);
-	}
 }
 
 void setup_gl()
@@ -609,3 +674,4 @@ void setup_gl()
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glEnable(GL_MULTISAMPLE);
 }
+

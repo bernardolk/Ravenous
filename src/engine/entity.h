@@ -153,4 +153,7 @@ struct Entity
 	CollisionMesh GetTriggerCollider();
 	bool IsInteractable();
 
+	void MakeInvisible();
+	void MakeVisible();
+
 };

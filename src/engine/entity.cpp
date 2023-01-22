@@ -123,3 +123,19 @@ void TimerTriggerData::DeleteMarking(int i)
 	notification_mask[i] = false;
 	time_checkpoints[i] = 0;
 }
+
+
+/** Other */
+
+void Entity::MakeInvisible()
+{
+	flags |= EntityFlags_InvisibleEntity;
+}
+
+void Entity::MakeVisible()
+{
+	flags &= ~EntityFlags_InvisibleEntity;
+}
+
+
+

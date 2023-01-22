@@ -398,52 +398,55 @@ inline u64 process_keyboard_input_key_release(GLFWwindow* window)
 
 inline void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 {
-	if(ProgramMode.current == EDITOR_MODE && ImGui::GetIO().WantCaptureMouse)
+	auto* GII = GlobalInputInfo::Get();
+	auto* ES = EngineState::Get();
+	
+	if(ES->current_mode == EngineState::ProgramMode::Editor && ImGui::GetIO().WantCaptureMouse)
 		return;
 
 	// activates mouse dragging if clicking and current mouse position has changed a certain ammount
-	if(!(GInputInfo.mouse_state & MOUSE_RB_DRAGGING) && GInputInfo.mouse_state & MOUSE_RB_HOLD)
+	if(!(GII->mouse_state & MOUSE_RB_DRAGGING) && GII->mouse_state & MOUSE_RB_HOLD)
 	{
-		auto offset_from_click_x = abs(GInputInfo.mouse_coords.click_x - GInputInfo.mouse_coords.x);
-		auto offset_from_click_y = abs(GInputInfo.mouse_coords.click_y - GInputInfo.mouse_coords.y);
+		auto offset_from_click_x = abs(GII->mouse_coords.click_x - GII->mouse_coords.x);
+		auto offset_from_click_y = abs(GII->mouse_coords.click_y - GII->mouse_coords.y);
 		if(offset_from_click_x > 2 || offset_from_click_y > 2)
 		{
-			GInputInfo.mouse_state |= MOUSE_RB_DRAGGING;
+			GII->mouse_state |= MOUSE_RB_DRAGGING;
 		}
 	}
 
 	// do the same for LB
-	if(!(GInputInfo.mouse_state & MOUSE_LB_DRAGGING) && GInputInfo.mouse_state & MOUSE_LB_HOLD)
+	if(!(GII->mouse_state & MOUSE_LB_DRAGGING) && GII->mouse_state & MOUSE_LB_HOLD)
 	{
-		auto offset_from_click_x = abs(GInputInfo.mouse_coords.click_x - GInputInfo.mouse_coords.x);
-		auto offset_from_click_y = abs(GInputInfo.mouse_coords.click_y - GInputInfo.mouse_coords.y);
+		auto offset_from_click_x = abs(GII->mouse_coords.click_x - GII->mouse_coords.x);
+		auto offset_from_click_y = abs(GII->mouse_coords.click_y - GII->mouse_coords.y);
 		if(offset_from_click_x > 2 || offset_from_click_y > 2)
 		{
-			GInputInfo.mouse_state |= MOUSE_LB_DRAGGING;
+			GII->mouse_state |= MOUSE_LB_DRAGGING;
 		}
 	}
 
 	// @todo: should refactor this out of here
 	// MOVE CAMERA WITH MOUSE IF APPROPRIATE
-	if(ProgramMode.current == GAME_MODE || (GInputInfo.mouse_state & MOUSE_RB_DRAGGING))
+	if(ES->current_mode == EngineState::ProgramMode::Game || (GII->mouse_state & MOUSE_RB_DRAGGING))
 	{
-		if(GInputInfo.block_mouse_move)
+		if(GII->block_mouse_move)
 			return;
 
 		// 'teleports' stored coordinates to current mouse coordinates
-		if(GInputInfo.forget_last_mouse_coords)
+		if(GII->forget_last_mouse_coords)
 		{
-			GInputInfo.mouse_coords.last_x = xpos;
-			GInputInfo.mouse_coords.last_y = ypos;
-			GInputInfo.forget_last_mouse_coords = false;
+			GII->mouse_coords.last_x = xpos;
+			GII->mouse_coords.last_y = ypos;
+			GII->forget_last_mouse_coords = false;
 			return;
 		}
 
 		// calculates offsets and updates last x and y pos
-		float xoffset = xpos - GInputInfo.mouse_coords.last_x;
-		float yoffset = GInputInfo.mouse_coords.last_y - ypos;
-		GInputInfo.mouse_coords.last_x = xpos;
-		GInputInfo.mouse_coords.last_y = ypos;
+		float xoffset = xpos - GII->mouse_coords.last_x;
+		float yoffset = GII->mouse_coords.last_y - ypos;
+		GII->mouse_coords.last_x = xpos;
+		GII->mouse_coords.last_y = ypos;
 
 		xoffset *= GSceneInfo.camera->sensitivity;
 		yoffset *= GSceneInfo.camera->sensitivity;
@@ -452,8 +455,8 @@ inline void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 	}
 
 	// updates mouse position
-	GInputInfo.mouse_coords.x = xpos;
-	GInputInfo.mouse_coords.y = ypos;
+	GII->mouse_coords.x = xpos;
+	GII->mouse_coords.y = ypos;
 }
 
 
@@ -468,6 +471,8 @@ inline void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset)
 
 inline void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
 {
+	auto* GII = GlobalInputInfo::Get();
+
 	// @todo: need to refactor registering mouse click into the KeyInput struct and having it
 	// acknowledge whether you are clicking or dragging or what
 	if(ImGui::GetIO().WantCaptureMouse)
@@ -479,13 +484,13 @@ inline void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
 		{
 			if(action == GLFW_PRESS)
 			{
-				GInputInfo.mouse_state |= MOUSE_LB_CLICK;
+				GII->mouse_state |= MOUSE_LB_CLICK;
 			}
 			else if(action == GLFW_RELEASE)
 			{
-				GInputInfo.mouse_state &= ~(MOUSE_LB_CLICK);
-				GInputInfo.mouse_state &= ~(MOUSE_LB_HOLD);
-				GInputInfo.mouse_state &= ~(MOUSE_LB_DRAGGING);
+				GII->mouse_state &= ~(MOUSE_LB_CLICK);
+				GII->mouse_state &= ~(MOUSE_LB_HOLD);
+				GII->mouse_state &= ~(MOUSE_LB_DRAGGING);
 			}
 			break;
 		}
@@ -493,16 +498,16 @@ inline void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
 		{
 			if(action == GLFW_PRESS)
 			{
-				GInputInfo.mouse_state |= MOUSE_RB_CLICK;
-				GInputInfo.forget_last_mouse_coords = true;
-				GInputInfo.mouse_coords.click_x = GInputInfo.mouse_coords.x;
-				GInputInfo.mouse_coords.click_y = GInputInfo.mouse_coords.y;
+				GII->mouse_state |= MOUSE_RB_CLICK;
+				GII->forget_last_mouse_coords = true;
+				GII->mouse_coords.click_x = GII->mouse_coords.x;
+				GII->mouse_coords.click_y = GII->mouse_coords.y;
 			}
 			else if(action == GLFW_RELEASE)
 			{
-				GInputInfo.mouse_state &= ~(MOUSE_RB_CLICK);
-				GInputInfo.mouse_state &= ~(MOUSE_RB_HOLD);
-				GInputInfo.mouse_state &= ~(MOUSE_RB_DRAGGING);
+				GII->mouse_state &= ~(MOUSE_RB_CLICK);
+				GII->mouse_state &= ~(MOUSE_RB_HOLD);
+				GII->mouse_state &= ~(MOUSE_RB_DRAGGING);
 			}
 			break;
 		}
@@ -514,14 +519,16 @@ inline void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
 inline
 bool pressed_once(InputFlags flags, u64 key)
 {
-	return flags.key_press & key && !(GInputInfo.key_state & key);
+	auto* GII = GlobalInputInfo::Get();
+	return flags.key_press & key && !(GII->key_state & key);
 }
 
 
 inline
 bool pressed_only(InputFlags flags, u64 key)
 {
-	return flags.key_press == key && !(GInputInfo.key_state & key);
+	auto* GII = GlobalInputInfo::Get();
+	return flags.key_press == key && !(GII->key_state & key);
 }
 
 
@@ -534,22 +541,24 @@ bool pressed(InputFlags flags, u64 key)
 
 inline void check_mouse_click_hold()
 {
-	if((GInputInfo.mouse_state & MOUSE_LB_CLICK))
+	auto* GII = GlobalInputInfo::Get();
+	if((GII->mouse_state & MOUSE_LB_CLICK))
 	{
-		GInputInfo.mouse_state &= ~(MOUSE_LB_CLICK);
-		GInputInfo.mouse_state |= MOUSE_LB_HOLD;
+		GII->mouse_state &= ~(MOUSE_LB_CLICK);
+		GII->mouse_state |= MOUSE_LB_HOLD;
 	}
-	if((GInputInfo.mouse_state & MOUSE_RB_CLICK))
+	if((GII->mouse_state & MOUSE_RB_CLICK))
 	{
-		GInputInfo.mouse_state &= ~(MOUSE_RB_CLICK);
-		GInputInfo.mouse_state |= MOUSE_RB_HOLD;
+		GII->mouse_state &= ~(MOUSE_RB_CLICK);
+		GII->mouse_state |= MOUSE_RB_HOLD;
 	}
 }
 
 
 inline void reset_input_flags(InputFlags flags)
 {
+	auto* GII = GlobalInputInfo::Get();
 	// here we record a history for if keys were last pressed or released, so to enable smooth toggle
-	GInputInfo.key_state |= flags.key_press;
-	GInputInfo.key_state &= ~(flags.key_release);
+	GII->key_state |= flags.key_press;
+	GII->key_state &= ~flags.key_release;
 }
