@@ -258,7 +258,7 @@ inline void create_depth_buffer()
 	glGenTextures(1, &RDepthMap);
 	glBindTexture(GL_TEXTURE_2D, RDepthMap);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, RShadowBufferWidth,
-	             RShadowBufferHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr
+		RShadowBufferHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr
 	);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -277,7 +277,7 @@ inline void create_depth_buffer()
 	glBindTexture(GL_TEXTURE_CUBE_MAP, RDepthCubemapTexture);
 	for(unsigned int i = 0; i < 6; i++)
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT,
-		             RShadowBufferWidth, RShadowBufferHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr
+			RShadowBufferWidth, RShadowBufferHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr
 		);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -301,7 +301,7 @@ inline void create_light_space_transform_matrices()
 	far_plane = 7.5f;
 	mat4 light_projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
 	mat4 light_view = lookAt(
-	RDirectionalLightPos, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f)
+		RDirectionalLightPos, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f)
 	);
 	RDirLightSpaceMatrix = light_projection * light_view;
 }

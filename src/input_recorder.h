@@ -109,8 +109,8 @@ struct T_InputRecorder
 
 		std::string timestamp = timestamp_stream.str();
 		std::ofstream writer(
-		Paths::InputRecordings + RecordingsFilenamePrefix
-		+ timestamp + RecordingsFilenameExtension
+			Paths::InputRecordings + RecordingsFilenamePrefix
+			+ timestamp + RecordingsFilenameExtension
 		);
 
 		if(!writer.is_open())

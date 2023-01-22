@@ -10,11 +10,11 @@ enum class RenderMethodEnum
 using StrVec = std::vector<std::string>;
 
 Mesh* load_wavefront_obj_as_mesh(
-const std::string& path,
-const std::string& filename,
-const std::string& name = "",
-bool setup_gl_data = true,
-RenderMethodEnum render_method = RenderMethodEnum::triangles);
+	const std::string& path,
+	const std::string& filename,
+	const std::string& name = "",
+	bool setup_gl_data = true,
+	RenderMethodEnum render_method = RenderMethodEnum::triangles);
 
 CollisionMesh* load_wavefront_obj_as_collision_mesh(std::string path, std::string filename, std::string name = "");
 unsigned int load_texture_from_file(const std::string& filename, const std::string& directory, bool gamma = false);

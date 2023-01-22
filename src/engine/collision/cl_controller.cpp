@@ -185,10 +185,10 @@ bool CL_test_collisions(Player* player)
 // ---------------------------
 
 ClResults CL_test_collision_buffer_entitites(
-Player* player,
-EntityBufferElement* buffer,
-int entity_list_size,
-bool iterative = true)
+	Player* player,
+	EntityBufferElement* buffer,
+	int entity_list_size,
+	bool iterative = true)
 {
 
 	bool test = false;

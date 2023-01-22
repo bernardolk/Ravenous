@@ -48,7 +48,7 @@ extern const float VecComparePrecision;
 extern const float MaxFloat;
 extern const float MinFloat;
 
-inline const vec3 UnitX = vec3(1, 0, 0); 
+inline const vec3 UnitX = vec3(1, 0, 0);
 inline const vec3 UnitY = vec3(0, 1, 0);
 inline const vec3 UnitZ = vec3(0, 0, 1);
 

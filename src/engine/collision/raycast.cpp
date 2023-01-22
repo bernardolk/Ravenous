@@ -1,4 +1,3 @@
-
 #include <engine/collision/raycast.h>
 #include <engine/camera.h>
 #include <engine/collision/primitives/bounding_box.h>
@@ -43,9 +42,9 @@ bool test_ray_against_aabb(Ray ray, BoundingBox box)
 // > TEST RAY AGAINST ENTITY
 // --------------------------
 RaycastTest test_ray_against_entity(
-Ray ray, Entity* entity,
-RayCastType test_type = RayCast_TestOnlyFromOutsideIn,
-float max_distance = MaxFloat)
+	Ray ray, Entity* entity,
+	RayCastType test_type = RayCast_TestOnlyFromOutsideIn,
+	float max_distance = MaxFloat)
 {
 	// @TODO: when testing against player, we could:
 	//      a) find the closest point between player's column and the ray

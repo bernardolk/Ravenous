@@ -378,44 +378,44 @@ inline RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* 
 
 	switch(EdContext.move_axis)
 	{
-	case 0: // XZ 
-	case 1: // X
-	case 3: // Z
-		t1.a = vec3{entity->position.x - plane_size, entity->position.y, entity->position.z - plane_size};
-		t1.b = vec3{entity->position.x + plane_size, entity->position.y, entity->position.z - plane_size};
-		t1.c = vec3{entity->position.x + plane_size, entity->position.y, entity->position.z + plane_size};
-		t2.a = vec3{entity->position.x - plane_size, entity->position.y, entity->position.z - plane_size};
-		t2.b = vec3{entity->position.x - plane_size, entity->position.y, entity->position.z + plane_size};
-		t2.c = vec3{entity->position.x + plane_size, entity->position.y, entity->position.z + plane_size};
-		break;
-	case 2: // Y
-	{
-		// creates vector from cam to entity in XZ
-		auto camera = GSceneInfo.camera;
-		vec3 cam_to_entity = camera->position - entity->position;
-		cam_to_entity.y = camera->position.y;
-		cam_to_entity = normalize(cam_to_entity);
-		// finds vector that lie in plane considering cam to entity vector as normal to it
-		vec3 up_vec = normalize(vec3{camera->position.x, 1.0f, camera->position.z});
-		vec3 vec_in_plane = glm::cross(up_vec, cam_to_entity);
+		case 0: // XZ 
+		case 1: // X
+		case 3: // Z
+			t1.a = vec3{entity->position.x - plane_size, entity->position.y, entity->position.z - plane_size};
+			t1.b = vec3{entity->position.x + plane_size, entity->position.y, entity->position.z - plane_size};
+			t1.c = vec3{entity->position.x + plane_size, entity->position.y, entity->position.z + plane_size};
+			t2.a = vec3{entity->position.x - plane_size, entity->position.y, entity->position.z - plane_size};
+			t2.b = vec3{entity->position.x - plane_size, entity->position.y, entity->position.z + plane_size};
+			t2.c = vec3{entity->position.x + plane_size, entity->position.y, entity->position.z + plane_size};
+			break;
+		case 2: // Y
+		{
+			// creates vector from cam to entity in XZ
+			auto camera = GSceneInfo.camera;
+			vec3 cam_to_entity = camera->position - entity->position;
+			cam_to_entity.y = camera->position.y;
+			cam_to_entity = normalize(cam_to_entity);
+			// finds vector that lie in plane considering cam to entity vector as normal to it
+			vec3 up_vec = normalize(vec3{camera->position.x, 1.0f, camera->position.z});
+			vec3 vec_in_plane = glm::cross(up_vec, cam_to_entity);
 
-		// creates plane
-		t1.a = entity->position + (vec_in_plane * -1.0f * plane_size);
-		t1.a.y = camera->position.y + -1.0f * plane_size;
+			// creates plane
+			t1.a = entity->position + (vec_in_plane * -1.0f * plane_size);
+			t1.a.y = camera->position.y + -1.0f * plane_size;
 
-		t1.b = entity->position + (vec_in_plane * plane_size);
-		t1.b.y = camera->position.y + -1.0f * plane_size;
+			t1.b = entity->position + (vec_in_plane * plane_size);
+			t1.b.y = camera->position.y + -1.0f * plane_size;
 
-		t1.c = entity->position + (vec_in_plane * plane_size);
-		t1.c.y = camera->position.y + plane_size;
+			t1.c = entity->position + (vec_in_plane * plane_size);
+			t1.c.y = camera->position.y + plane_size;
 
-		t2.a = t1.a;
-		t2.b = entity->position + (vec_in_plane * -1.0f * plane_size);
-		t2.b.y = camera->position.y + plane_size;
-		t2.c = t1.c;
+			t2.a = t1.a;
+			t2.b = entity->position + (vec_in_plane * -1.0f * plane_size);
+			t2.b.y = camera->position.y + plane_size;
+			t2.c = t1.c;
 
-		break;
-	}
+			break;
+		}
 	}
 
 	// ray casts against created plane
@@ -480,19 +480,19 @@ inline void move_entity_with_mouse(Entity* entity)
 	// places entity accordingly
 	switch(EdContext.move_axis)
 	{
-	case 0: // XZ 
-		entity->position.x = pos.x;
-		entity->position.z = pos.z;
-		break;
-	case 1: // X
-		entity->position.x = pos.x;
-		break;
-	case 2: // Y
-		entity->position.y = pos.y;
-		break;
-	case 3: // Z
-		entity->position.z = pos.z;
-		break;
+		case 0: // XZ 
+			entity->position.x = pos.x;
+			entity->position.z = pos.z;
+			break;
+		case 1: // X
+			entity->position.x = pos.x;
+			break;
+		case 2: // Y
+			entity->position.y = pos.y;
+			break;
+		case 3: // Z
+			entity->position.z = pos.z;
+			break;
 	}
 
 	entity->Update();
@@ -531,19 +531,19 @@ inline void move_entity_by_arrows(Entity* entity)
 	// modifies entity position
 	switch(EdContext.move_axis)
 	{
-	case 0: // XZ 
-		entity->position.x += diff.x;
-		entity->position.z += diff.z;
-		break;
-	case 1: // X
-		entity->position.x += diff.x;
-		break;
-	case 2: // Y
-		entity->position.y += diff.y;
-		break;
-	case 3: // Z
-		entity->position.z += diff.z;
-		break;
+		case 0: // XZ 
+			entity->position.x += diff.x;
+			entity->position.z += diff.z;
+			break;
+		case 1: // X
+			entity->position.x += diff.x;
+			break;
+		case 2: // Y
+			entity->position.y += diff.y;
+			break;
+		case 3: // Z
+			entity->position.z += diff.z;
+			break;
 	}
 
 	EdContext.move_entity_by_arrows_ref_point = pos;
@@ -599,44 +599,44 @@ inline void move_light_with_mouse(std::string type, int index, World* world)
 
 	switch(EdContext.move_axis)
 	{
-	case 0: // XZ 
-	case 1: // X
-	case 3: // Z
-		t1.a = vec3{position.x - plane_size, position.y, position.z - plane_size};
-		t1.b = vec3{position.x + plane_size, position.y, position.z - plane_size};
-		t1.c = vec3{position.x + plane_size, position.y, position.z + plane_size};
-		t2.a = vec3{position.x - plane_size, position.y, position.z - plane_size};
-		t2.b = vec3{position.x - plane_size, position.y, position.z + plane_size};
-		t2.c = vec3{position.x + plane_size, position.y, position.z + plane_size};
-		break;
-	case 2: // Y
-	{
-		// creates vector from cam to entity in XZ
-		auto camera = GSceneInfo.camera;
-		vec3 cam_to_entity = camera->position - position;
-		cam_to_entity.y = camera->position.y;
-		cam_to_entity = normalize(cam_to_entity);
-		// finds vector that lie in plane considering cam to entity vector as normal to it
-		vec3 up_vec = normalize(vec3{camera->position.x, 1.0f, camera->position.z});
-		vec3 vec_in_plane = glm::cross(up_vec, cam_to_entity);
+		case 0: // XZ 
+		case 1: // X
+		case 3: // Z
+			t1.a = vec3{position.x - plane_size, position.y, position.z - plane_size};
+			t1.b = vec3{position.x + plane_size, position.y, position.z - plane_size};
+			t1.c = vec3{position.x + plane_size, position.y, position.z + plane_size};
+			t2.a = vec3{position.x - plane_size, position.y, position.z - plane_size};
+			t2.b = vec3{position.x - plane_size, position.y, position.z + plane_size};
+			t2.c = vec3{position.x + plane_size, position.y, position.z + plane_size};
+			break;
+		case 2: // Y
+		{
+			// creates vector from cam to entity in XZ
+			auto camera = GSceneInfo.camera;
+			vec3 cam_to_entity = camera->position - position;
+			cam_to_entity.y = camera->position.y;
+			cam_to_entity = normalize(cam_to_entity);
+			// finds vector that lie in plane considering cam to entity vector as normal to it
+			vec3 up_vec = normalize(vec3{camera->position.x, 1.0f, camera->position.z});
+			vec3 vec_in_plane = glm::cross(up_vec, cam_to_entity);
 
-		// creates plane
-		t1.a = position + (vec_in_plane * -1.0f * plane_size);
-		t1.a.y = camera->position.y + -1.0f * plane_size;
+			// creates plane
+			t1.a = position + (vec_in_plane * -1.0f * plane_size);
+			t1.a.y = camera->position.y + -1.0f * plane_size;
 
-		t1.b = position + (vec_in_plane * plane_size);
-		t1.b.y = camera->position.y + -1.0f * plane_size;
+			t1.b = position + (vec_in_plane * plane_size);
+			t1.b.y = camera->position.y + -1.0f * plane_size;
 
-		t1.c = position + (vec_in_plane * plane_size);
-		t1.c.y = camera->position.y + plane_size;
+			t1.c = position + (vec_in_plane * plane_size);
+			t1.c.y = camera->position.y + plane_size;
 
-		t2.a = t1.a;
-		t2.b = position + (vec_in_plane * -1.0f * plane_size);
-		t2.b.y = camera->position.y + plane_size;
-		t2.c = t1.c;
+			t2.a = t1.a;
+			t2.b = position + (vec_in_plane * -1.0f * plane_size);
+			t2.b.y = camera->position.y + plane_size;
+			t2.c = t1.c;
 
-		break;
-	}
+			break;
+		}
 	}
 
 	// ray casts against created plane
@@ -656,19 +656,18 @@ inline void move_light_with_mouse(std::string type, int index, World* world)
 	// places entity accordingly
 	switch(EdContext.move_axis)
 	{
-	case 0:
-		position.x = ray.origin.x + ray.direction.x * test.distance;
-		position.z = ray.origin.z + ray.direction.z * test.distance;
-		break;
-	case 1: // X
-		position.x = ray.origin.x + ray.direction.x * test.distance;
-		break;
-	case 2: // Y
-		position.y = ray.origin.y + ray.direction.y * test.distance;
-		break;
-	case 3: // Z
-		position.z = ray.origin.z + ray.direction.z * test.distance;
-		break;
+		case 0: position.x = ray.origin.x + ray.direction.x * test.distance;
+			position.z = ray.origin.z + ray.direction.z * test.distance;
+			break;
+		case 1: // X
+			position.x = ray.origin.x + ray.direction.x * test.distance;
+			break;
+		case 2: // Y
+			position.y = ray.origin.y + ray.direction.y * test.distance;
+			break;
+		case 3: // Z
+			position.z = ray.origin.z + ray.direction.z * test.distance;
+			break;
 	}
 
 	if(type == "point" && index > -1)
@@ -698,8 +697,8 @@ inline void activate_rotate_entity_with_mouse(u8 move_axis)
 	EdContext.move_axis = move_axis;
 	EdContext.rotate_entity_with_mouse = true;
 	EdContext.rotate_entity_with_mouse_mouse_coords_ref = vec2(
-	GInputInfo.mouse_coords.x,
-	GInputInfo.mouse_coords.y
+		GInputInfo.mouse_coords.x,
+		GInputInfo.mouse_coords.y
 	);
 	EdContext.undo_stack.Track(EdContext.selected_entity);
 }
@@ -716,27 +715,27 @@ inline void rotate_entity_with_mouse(Entity* entity)
 
 	switch(EdContext.move_axis)
 	{
-	case 1: // X
-	{
-		float diff = mouse_coords.y - EdContext.rotate_entity_with_mouse_mouse_coords_ref.y;
-		float angular_diff = mouse_offset_to_angular_offset(diff);
-		entity->rotation.x += angular_diff;
-		break;
-	}
-	case 2: // Y
-	{
-		float diff = mouse_coords.x - EdContext.rotate_entity_with_mouse_mouse_coords_ref.x;
-		float angular_diff = mouse_offset_to_angular_offset(diff);
-		entity->rotation.y += angular_diff;
-		break;
-	}
-	case 3: // Z
-	{
-		float diff = mouse_coords.y - EdContext.rotate_entity_with_mouse_mouse_coords_ref.y;
-		float angular_diff = mouse_offset_to_angular_offset(diff);
-		entity->rotation.z += angular_diff;
-		break;
-	}
+		case 1: // X
+		{
+			float diff = mouse_coords.y - EdContext.rotate_entity_with_mouse_mouse_coords_ref.y;
+			float angular_diff = mouse_offset_to_angular_offset(diff);
+			entity->rotation.x += angular_diff;
+			break;
+		}
+		case 2: // Y
+		{
+			float diff = mouse_coords.x - EdContext.rotate_entity_with_mouse_mouse_coords_ref.x;
+			float angular_diff = mouse_offset_to_angular_offset(diff);
+			entity->rotation.y += angular_diff;
+			break;
+		}
+		case 3: // Z
+		{
+			float diff = mouse_coords.y - EdContext.rotate_entity_with_mouse_mouse_coords_ref.y;
+			float angular_diff = mouse_offset_to_angular_offset(diff);
+			entity->rotation.z += angular_diff;
+			break;
+		}
 	}
 
 	EdContext.rotate_entity_with_mouse_mouse_coords_ref = mouse_coords;
@@ -762,9 +761,9 @@ inline void scale_entity_with_mouse(Entity* entity)
 // -----------------------
 // used in entity panel to select other entity to attribute 1 to 1 relationships
 inline void activate_select_entity_aux_tool(
-Entity** entity_slot,
-EdToolCallback callback = EdToolCallback_NoCallback,
-EdToolCallbackArgs args = EdToolCallbackArgs{}
+	Entity** entity_slot,
+	EdToolCallback callback = EdToolCallback_NoCallback,
+	EdToolCallbackArgs args = EdToolCallbackArgs{}
 )
 {
 	EdContext.select_entity_aux_mode = true;

@@ -91,28 +91,22 @@ bool WorldSerializer::load_from_file(const std::string& filename)
 		p.ParseSymbol();
 		switch(get_parsed<char>(p))
 		{
-		case '#':
-			EntitySerializer::parse(p);
-			break;
+			case '#': EntitySerializer::parse(p);
+				break;
 
-		case '@':
-			PlayerSerializer::parse_attribute(p);
-			break;
+			case '@': PlayerSerializer::parse_attribute(p);
+				break;
 
-		case '$':
-			LightSerializer::parse(p);
-			break;
+			case '$': LightSerializer::parse(p);
+				break;
 
-		case '*':
-			ConfigSerializer::parse_camera_settings(p);
-			break;
+			case '*': ConfigSerializer::parse_camera_settings(p);
+				break;
 
-		case '&':
-			PlayerSerializer::parse_orientation(p);
-			break;
+			case '&': PlayerSerializer::parse_orientation(p);
+				break;
 
-		default:
-			break;
+			default: break;
 		}
 	}
 
@@ -145,18 +139,18 @@ bool WorldSerializer::load_from_file(const std::string& filename)
 
 		switch(relation)
 		{
-		case SrEntityRelation_TimerTarget:
-		{
-			entity->timer_trigger_data.timer_target = deferred_entity;
-			break;
-		}
+			case SrEntityRelation_TimerTarget:
+			{
+				entity->timer_trigger_data.timer_target = deferred_entity;
+				break;
+			}
 
-		case SrEntityRelation_TimerMarking:
-		{
-			u32 time_checkpoint = entity_relations.aux_uint_buffer[i];
-			entity->timer_trigger_data.AddMarking(deferred_entity, time_checkpoint);
-			break;
-		}
+			case SrEntityRelation_TimerMarking:
+			{
+				u32 time_checkpoint = entity_relations.aux_uint_buffer[i];
+				entity->timer_trigger_data.AddMarking(deferred_entity, time_checkpoint);
+				break;
+			}
 		}
 	}
 

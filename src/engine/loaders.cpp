@@ -51,11 +51,11 @@ void load_textures_from_assets_folder()
 }
 
 Mesh* load_wavefront_obj_as_mesh(
-const std::string& path,
-const std::string& filename,
-const std::string& name,
-bool setup_gl_data,
-RenderMethodEnum render_method)
+	const std::string& path,
+	const std::string& filename,
+	const std::string& name,
+	bool setup_gl_data,
+	RenderMethodEnum render_method)
 {
 	/* Loads a model from the provided path and filename and add it to the Geometry_Catalogue with provided name */
 
@@ -188,7 +188,7 @@ RenderMethodEnum render_method)
 			else if(number_of_vertexes_in_face > 4)
 			{
 				Quit_fatal("mesh file " + filename +
-				".obj contain at least one face with unsupported ammount of vertices. Please triangulate or quadfy faces.\n");
+					".obj contain at least one face with unsupported ammount of vertices. Please triangulate or quadfy faces.\n");
 			}
 
 			else if(number_of_vertexes_in_face < 3)
@@ -329,16 +329,13 @@ unsigned int load_texture_from_file(const std::string& filename, const std::stri
 	GLenum format;
 	switch(nr_components)
 	{
-	case 1:
-		format = GL_RED;
-		break;
-	case 3:
-		format = GL_RGB;
-		break;
-	case 4:
-		format = GL_RGBA;
-		break;
-	default: ;
+		case 1: format = GL_RED;
+			break;
+		case 3: format = GL_RGB;
+			break;
+		case 4: format = GL_RGBA;
+			break;
+		default: ;
 	}
 
 	unsigned int texture_id;

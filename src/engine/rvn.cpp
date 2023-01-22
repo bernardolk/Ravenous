@@ -117,12 +117,12 @@ void RenderMessageBuffer::Render()
 		{
 			items_rendered++;
 			render_text(
-			"consola20",
-			GlobalDisplayConfig::viewport_width / 2,
-			GlobalDisplayConfig::viewport_height - 120 - items_rendered * 25,
-			item.color == vec3(-1) ? vec3(0.8, 0.8, 0.2) : item.color,
-			true,
-			item.message
+				"consola20",
+				GlobalDisplayConfig::viewport_width / 2,
+				GlobalDisplayConfig::viewport_height - 120 - items_rendered * 25,
+				item.color == vec3(-1) ? vec3(0.8, 0.8, 0.2) : item.color,
+				true,
+				item.message
 			);
 		}
 	}

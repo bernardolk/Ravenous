@@ -10,24 +10,22 @@ void IN_assign_keys_to_actions(ProgramModeEnum pm)
 {
 	switch(pm)
 	{
-	case EDITOR_MODE:
-		KEY_MOVE_UP = KEY_UP;
-		KEY_MOVE_DOWN = KEY_DOWN;
-		KEY_MOVE_LEFT = KEY_LEFT;
-		KEY_MOVE_RIGHT = KEY_RIGHT;
-		KEY_DASH = KEY_Z;
-		KEY_WALK = KEY_X;
-		KEY_ACTION = KEY_J;
-		break;
-	case GAME_MODE:
-		KEY_MOVE_UP = KEY_W;
-		KEY_MOVE_DOWN = KEY_S;
-		KEY_MOVE_LEFT = KEY_A;
-		KEY_MOVE_RIGHT = KEY_D;
-		KEY_DASH = KEY_LEFT_SHIFT;
-		KEY_WALK = KEY_LEFT_CTRL;
-		KEY_ACTION = KEY_E;
-		break;
+		case EDITOR_MODE: KEY_MOVE_UP = KEY_UP;
+			KEY_MOVE_DOWN = KEY_DOWN;
+			KEY_MOVE_LEFT = KEY_LEFT;
+			KEY_MOVE_RIGHT = KEY_RIGHT;
+			KEY_DASH = KEY_Z;
+			KEY_WALK = KEY_X;
+			KEY_ACTION = KEY_J;
+			break;
+		case GAME_MODE: KEY_MOVE_UP = KEY_W;
+			KEY_MOVE_DOWN = KEY_S;
+			KEY_MOVE_LEFT = KEY_A;
+			KEY_MOVE_RIGHT = KEY_D;
+			KEY_DASH = KEY_LEFT_SHIFT;
+			KEY_WALK = KEY_LEFT_CTRL;
+			KEY_ACTION = KEY_E;
+			break;
 	}
 }
 
@@ -74,91 +72,91 @@ void IN_handle_movement_input(InputFlags flags, Player* & player, ProgramModeEnu
 	switch(player->player_state)
 	{
 
-	case PLAYER_STATE_STANDING:
-	{
-		// MOVE
-		IN_process_move_keys(flags, v_dir);
-
-		// DASH
-		if(flags.key_press & KEY_DASH)
-			player->dashing = true;
-
-		// WALK
-		if(flags.key_press & KEY_WALK)
-			player->walking = true;
-
-		// JUMP
-		if(flags.key_press & KEY_SPACE)
-			GP_change_player_state(player, PLAYER_STATE_JUMPING);
-
-		// VAULT
-		if(pressed(flags, KEY_LEFT_SHIFT) && GInputInfo.mouse_state & MOUSE_LB_CLICK)
-			player->want_to_grab = true;
-
-		// INTERACT
-		if(pressed_once(flags, KEY_ACTION))
+		case PLAYER_STATE_STANDING:
 		{
-			GP_check_trigger_interaction(player, world);
-			player->dodge_btn = true;
-		}
-
-		break;
-	}
-
-	case PLAYER_STATE_JUMPING:
-	{
-		// MID-AIR CONTROL IF JUMPING UP
-		if(player->jumping_upwards)
+			// MOVE
 			IN_process_move_keys(flags, v_dir);
 
-		if(pressed(flags, KEY_DASH))
-			player->action = true;
+			// DASH
+			if(flags.key_press & KEY_DASH)
+				player->dashing = true;
 
-		break;
-	}
+			// WALK
+			if(flags.key_press & KEY_WALK)
+				player->walking = true;
 
-	case PLAYER_STATE_FALLING:
-	{
-		if(pressed(flags, KEY_DASH))
-			player->action = true;
+			// JUMP
+			if(flags.key_press & KEY_SPACE)
+				GP_change_player_state(player, PLAYER_STATE_JUMPING);
 
-		break;
-	}
+			// VAULT
+			if(pressed(flags, KEY_LEFT_SHIFT) && GInputInfo.mouse_state & MOUSE_LB_CLICK)
+				player->want_to_grab = true;
 
-	case PLAYER_STATE_SLIDING:
-	{
-		player->v_dir = player->sliding_direction;
+			// INTERACT
+			if(pressed_once(flags, KEY_ACTION))
+			{
+				GP_check_trigger_interaction(player, world);
+				player->dodge_btn = true;
+			}
 
-		if(flags.key_press & KEY_MOVE_LEFT)
-		{
-			auto left_dir = cross(player->sliding_normal, player->sliding_direction);
-			player->v_dir += left_dir;
-			player->v_dir = normalize(player->v_dir);
-
-		}
-		if(flags.key_press & KEY_MOVE_RIGHT)
-		{
-			auto right_dir = cross(player->sliding_direction, player->sliding_normal);
-			player->v_dir += right_dir;
-			player->v_dir = normalize(player->v_dir);
-		}
-		if(flags.key_press & KEY_SPACE)
-			GP_change_player_state(player, PLAYER_STATE_JUMPING);
-
-		break;
-	}
-	case PLAYER_STATE_GRABBING:
-	{
-		if(pressed(flags, KEY_DASH))
-		{
-			player->action = true;
-
-			if(pressed(flags, KEY_MOVE_UP))
-				GP_change_player_state(player, PLAYER_STATE_VAULTING);
+			break;
 		}
 
-		break;
-	}
+		case PLAYER_STATE_JUMPING:
+		{
+			// MID-AIR CONTROL IF JUMPING UP
+			if(player->jumping_upwards)
+				IN_process_move_keys(flags, v_dir);
+
+			if(pressed(flags, KEY_DASH))
+				player->action = true;
+
+			break;
+		}
+
+		case PLAYER_STATE_FALLING:
+		{
+			if(pressed(flags, KEY_DASH))
+				player->action = true;
+
+			break;
+		}
+
+		case PLAYER_STATE_SLIDING:
+		{
+			player->v_dir = player->sliding_direction;
+
+			if(flags.key_press & KEY_MOVE_LEFT)
+			{
+				auto left_dir = cross(player->sliding_normal, player->sliding_direction);
+				player->v_dir += left_dir;
+				player->v_dir = normalize(player->v_dir);
+
+			}
+			if(flags.key_press & KEY_MOVE_RIGHT)
+			{
+				auto right_dir = cross(player->sliding_direction, player->sliding_normal);
+				player->v_dir += right_dir;
+				player->v_dir = normalize(player->v_dir);
+			}
+			if(flags.key_press & KEY_SPACE)
+				GP_change_player_state(player, PLAYER_STATE_JUMPING);
+
+			break;
+		}
+		case PLAYER_STATE_GRABBING:
+		{
+			if(pressed(flags, KEY_DASH))
+			{
+				player->action = true;
+
+				if(pressed(flags, KEY_MOVE_UP))
+					GP_change_player_state(player, PLAYER_STATE_VAULTING);
+			}
+
+			break;
+		}
 	}
 
 	if(!(v_dir.x == 0.f && v_dir.y == 0.f && v_dir.z == 0.f))

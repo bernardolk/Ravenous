@@ -1,4 +1,3 @@
-
 #include <engine/camera.h>
 
 void set_camera_to_free_roam(Camera* camera)
@@ -15,9 +14,9 @@ void camera_update_game(Camera* camera, float viewport_width, float viewport_hei
 {
 	camera->mat_view = lookAt(camera->position, camera->position + camera->front, camera->up);
 	camera->mat_projection = glm::perspective(
-	glm::radians(camera->fov_y),
-	viewport_width / viewport_height,
-	camera->near_plane, camera->far_plane
+		glm::radians(camera->fov_y),
+		viewport_width / viewport_height,
+		camera->near_plane, camera->far_plane
 	);
 
 	camera->position = position;
@@ -27,9 +26,9 @@ void camera_update_editor(Camera* camera, float viewport_width, float viewport_h
 {
 	camera->mat_view = lookAt(camera->position, camera->position + camera->front, camera->up);
 	camera->mat_projection = glm::perspective(
-	glm::radians(camera->fov_y),
-	viewport_width / viewport_height,
-	camera->near_plane, camera->far_plane
+		glm::radians(camera->fov_y),
+		viewport_width / viewport_height,
+		camera->near_plane, camera->far_plane
 	);
 
 	if(camera->type == THIRD_PERSON)

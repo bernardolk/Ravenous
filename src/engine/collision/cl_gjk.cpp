@@ -16,10 +16,10 @@
 #include <iostream>
 
 vec3 DebugColors[] = {
-	COLOR_RED_1,
-	COLOR_GREEN_1,
-	COLOR_BLUE_1,
-	COLOR_PURPLE_1,
+COLOR_RED_1,
+COLOR_GREEN_1,
+COLOR_BLUE_1,
+COLOR_PURPLE_1,
 };
 
 /* -----------------------
@@ -201,12 +201,9 @@ void CL_update_simplex_and_direction(GJK_Iteration* gjk)
 {
 	switch(gjk->simplex.size())
 	{
-	case 2:
-		return CL_update_line_simplex(gjk);
-	case 3:
-		return CL_update_triangle_simplex(gjk);
-	case 4:
-		return CL_update_tetrahedron_simplex(gjk);
+		case 2: return CL_update_line_simplex(gjk);
+		case 3: return CL_update_triangle_simplex(gjk);
+		case 4: return CL_update_tetrahedron_simplex(gjk);
 	}
 
 	// something went wrong

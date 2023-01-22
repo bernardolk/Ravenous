@@ -29,25 +29,24 @@ void render_mesh(const Mesh* mesh, RenderOptions opts)
 	// draw
 	switch(mesh->render_method)
 	{
-	case GL_TRIANGLE_STRIP:
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, mesh->vertices.size());
-		break;
-	case GL_LINE_LOOP:
-		glDrawArrays(GL_LINE_LOOP, 0, mesh->vertices.size());
-		break;
-	case GL_POINTS:
-		glDrawArrays(GL_POINTS, 0, mesh->vertices.size());
-		break;
-	case GL_LINES:
-		glDrawArrays(GL_LINES, 0, mesh->vertices.size());
-		break;
-	case GL_TRIANGLES:
-		glDrawElements(GL_TRIANGLES, mesh->indices.size(), GL_UNSIGNED_INT, nullptr);
-	//glDrawArrays(GL_TRIANGLES, 0, mesh->vertices.size());
-		break;
-	default:
-		std::cout << "WARNING: no drawing method set for mesh '" << mesh->name << "', " <<
-		"it won't be rendered!\n";
+		case GL_TRIANGLE_STRIP:
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, mesh->vertices.size());
+			break;
+		case GL_LINE_LOOP:
+			glDrawArrays(GL_LINE_LOOP, 0, mesh->vertices.size());
+			break;
+		case GL_POINTS:
+			glDrawArrays(GL_POINTS, 0, mesh->vertices.size());
+			break;
+		case GL_LINES:
+			glDrawArrays(GL_LINES, 0, mesh->vertices.size());
+			break;
+		case GL_TRIANGLES:
+			glDrawElements(GL_TRIANGLES, mesh->indices.size(), GL_UNSIGNED_INT, nullptr);
+		//glDrawArrays(GL_TRIANGLES, 0, mesh->vertices.size());
+			break;
+		default: std::cout << "WARNING: no drawing method set for mesh '" << mesh->name << "', " <<
+			"it won't be rendered!\n";
 	}
 
 	// set to defaults

@@ -261,9 +261,9 @@ inline float get_random_float(int min, int max)
 inline vec3 get_random_color()
 {
 	return vec3(
-	get_random_float(0, 1),
-	get_random_float(0, 1),
-	get_random_float(0, 1)
+		get_random_float(0, 1),
+		get_random_float(0, 1),
+		get_random_float(0, 1)
 	);
 }
 

@@ -200,7 +200,7 @@ inline void render_entity_panel(EntityPanelContext* panel, World* world)
 		ImGui::Checkbox("Collider", &panel->show_collider);
 		ImGui::SameLine();
 		ImGui::Checkbox("Bounding box", &panel->show_bounding_box);
-		
+
 		// ENTITY INSTANCE CONTROLS
 		{
 			ImGui::NewLine();
@@ -359,9 +359,9 @@ inline void render_entity_panel(EntityPanelContext* panel, World* world)
 							callback_args.entity_type = EntityType_TimerMarking;
 
 							activate_select_entity_aux_tool(
-							&data->markings[empty_slot],
-							EdToolCallback_EntityManagerSetType,
-							callback_args
+								&data->markings[empty_slot],
+								EdToolCallback_EntityManagerSetType,
+								callback_args
 							);
 						}
 					}

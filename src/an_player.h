@@ -29,23 +29,19 @@ inline void AN_animate_player(Player* player)
 	bool interrupt = false;
 	switch(player->anim_state)
 	{
-	case PlayerAnimationState_Jumping:
-		interrupt = AN_p_anim_jumping_update(player);
-		break;
+		case PlayerAnimationState_Jumping: interrupt = AN_p_anim_jumping_update(player);
+			break;
 
-	case PlayerAnimationState_Landing:
-		interrupt = AN_p_anim_landing_update(player);
-		break;
+		case PlayerAnimationState_Landing: interrupt = AN_p_anim_landing_update(player);
+			break;
 
-	case PlayerAnimationState_LandingFall:
-		interrupt = AN_p_anim_landing_fall_update(player);
-		break;
+		case PlayerAnimationState_LandingFall: interrupt = AN_p_anim_landing_fall_update(player);
+			break;
 
-	case PlayerAnimationState_Vaulting:
-		interrupt = AN_p_anim_vaulting(player);
-		if(interrupt)
-			GP_change_player_state(player, PLAYER_STATE_STANDING);
-		break;
+		case PlayerAnimationState_Vaulting: interrupt = AN_p_anim_vaulting(player);
+			if(interrupt)
+				GP_change_player_state(player, PLAYER_STATE_STANDING);
+			break;
 	}
 
 	// stop animation if completed or interrupted

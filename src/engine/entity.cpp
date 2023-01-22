@@ -1,4 +1,3 @@
-
 #include <engine/entity.h>
 #include <glm/gtx/normal.hpp>
 #include <glm/gtx/quaternion.hpp>

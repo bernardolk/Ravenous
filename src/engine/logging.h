@@ -20,21 +20,21 @@ inline void log(RavenousLogLevel level, const std::string& message)
 	std::string message_header = "\n";
 	switch(level)
 	{
-	case LOG_INFO:
-	{
-		message_header += "> INFO message: ";
-		break;
-	}
-	case LOG_WARNING:
-	{
-		message_header += "> WARNING message: ";
-		break;
-	}
-	case LOG_ERROR:
-	{
-		message_header += "> ERROR message: ";
-		break;
-	}
+		case LOG_INFO:
+		{
+			message_header += "> INFO message: ";
+			break;
+		}
+		case LOG_WARNING:
+		{
+			message_header += "> WARNING message: ";
+			break;
+		}
+		case LOG_ERROR:
+		{
+			message_header += "> ERROR message: ";
+			break;
+		}
 	}
 
 	std::cout << message_header << message << "\n";

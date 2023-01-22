@@ -33,8 +33,12 @@ struct EntityManager
 	World* world;
 
 	// methods
-	static EntityManager* Get(){ static EntityManager instance; return &instance; }
-	
+	static EntityManager* Get()
+	{
+		static EntityManager instance;
+		return &instance;
+	}
+
 	void SetEntityRegistry(std::vector<Entity*>* registry);
 	void SetCheckpointsRegistry(std::vector<Entity*>* registry);
 	void SetInteractablesRegistry(std::vector<Entity*>* registry);
@@ -44,12 +48,12 @@ struct EntityManager
 	Entity* CreateEditorEntity(const EntityAttributes& attrs);
 	Entity* CreateEntity(const EntityAttributes& attrs);
 	Entity* CopyEntity(Entity* entity);
-	
+
 	[[nodiscard]] static auto FindEntityAssetsInCatalogue(
-	const std::string& mesh,
-	const std::string& collision_mesh,
-	const std::string& shader,
-	const std::string& texture);
+		const std::string& mesh,
+		const std::string& collision_mesh,
+		const std::string& shader,
+		const std::string& texture);
 
 	void RemoveFromCheckpointRegistry(Entity* entity) const;
 	void RemoveInteractivity(Entity* entity);

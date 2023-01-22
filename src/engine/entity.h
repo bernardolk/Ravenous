@@ -141,8 +141,8 @@ struct Entity
 	// > methods
 	// ---------------------------
 
-	Entity(){};
-	
+	Entity() {};
+
 	void Update();
 	void UpdateCollider();
 	void UpdateModelMatrix();

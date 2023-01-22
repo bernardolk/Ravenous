@@ -105,10 +105,10 @@ bool check_shader_compile_errors(Shader* shader, std::string type, unsigned int 
 }
 
 Shader* create_shader_program(
-std::string name,
-const std::string vertex_shader_filename,
-const std::string geometry_shader_filename,
-const std::string fragment_shader_filename)
+	std::string name,
+	const std::string vertex_shader_filename,
+	const std::string geometry_shader_filename,
+	const std::string fragment_shader_filename)
 {
 	auto shader = new Shader();
 	shader->name = name;

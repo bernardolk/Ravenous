@@ -8,4 +8,3 @@ namespace SrEntityType
 	const std::string TimerTarget = "timer_target";
 	const std::string TimerMarking = "timer_marking";
 };
-

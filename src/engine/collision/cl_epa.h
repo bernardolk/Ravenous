@@ -17,14 +17,14 @@ struct EPA_Result
 };
 
 std::pair<std::vector<vec4>, size_t> CL_EPA_get_face_normals_and_closest_face(
-const std::vector<vec3>& polytope,
-const std::vector<size_t>& faces);
+	const std::vector<vec3>& polytope,
+	const std::vector<size_t>& faces);
 
 void CL_add_if_outer_edge(
-std::vector<std::pair<size_t, size_t> >& edges,
-const std::vector<size_t>& faces,
-size_t a,
-size_t b);
+	std::vector<std::pair<size_t, size_t> >& edges,
+	const std::vector<size_t>& faces,
+	size_t a,
+	size_t b);
 
 EPA_Result CL_run_EPA(Simplex simplex, CollisionMesh* collider_a, CollisionMesh* collider_b);
 

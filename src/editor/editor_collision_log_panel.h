@@ -19,7 +19,7 @@ inline void render_collision_log_panel(CollisionLogPanelContext* panel)
 		ImVec2(GlobalDisplayConfig::viewport_width - w_width, GlobalDisplayConfig::viewport_height - w_height - w_bottom_margin),
 		ImGuiCond_Appearing
 	);
-	
+
 	ImGui::Begin("Collision Log Panel", &panel->active, ImGuiWindowFlags_None);
 	ImGui::SetWindowSize("Collision Log Panel", ImVec2(w_width, w_height), ImGuiCond_Once);
 	panel->focused = ImGui::IsWindowFocused();

@@ -118,7 +118,7 @@ void ImDraw::AddLine(size_t _hash, vec3 pointA, vec3 pointB, vec3 color)
 
 
 void ImDraw::AddLine(size_t _hash, vec3 pointA, vec3 pointB, float line_width,
-                      bool always_on_top, vec3 color, float duration)
+                     bool always_on_top, vec3 color, float duration)
 {
 	IM_R_FIND_SLOT();
 

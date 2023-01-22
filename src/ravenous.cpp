@@ -280,7 +280,7 @@ int main()
 	world.ambient_intensity = GConfig.ambient_intensity;
 
 	world.UpdateEntityWorldCells(player->entity_ptr); // sets player to the world
-	CL_recompute_collision_buffer_entities(player);      // populates collision buffer and others
+	CL_recompute_collision_buffer_entities(player);   // populates collision buffer and others
 
 	Editor::initialize();
 
@@ -329,21 +329,18 @@ int main()
 		// ---------------
 		switch(ProgramMode.current)
 		{
-		case CONSOLE_MODE:
-			handle_console_input(input_flags, player, &world, GSceneInfo.camera);
-			break;
-		case EDITOR_MODE:
-			Editor::handle_input_flags(input_flags, player, &world, GSceneInfo.camera);
-			if(!ImGui::GetIO().WantCaptureKeyboard)
-			{
-				IN_handle_movement_input(input_flags, player, EDITOR_MODE, &world);
+			case CONSOLE_MODE: handle_console_input(input_flags, player, &world, GSceneInfo.camera);
+				break;
+			case EDITOR_MODE: Editor::handle_input_flags(input_flags, player, &world, GSceneInfo.camera);
+				if(!ImGui::GetIO().WantCaptureKeyboard)
+				{
+					IN_handle_movement_input(input_flags, player, EDITOR_MODE, &world);
+					IN_handle_common_input(input_flags, player);
+				}
+				break;
+			case GAME_MODE: IN_handle_movement_input(input_flags, player, GAME_MODE, &world);
 				IN_handle_common_input(input_flags, player);
-			}
-			break;
-		case GAME_MODE:
-			IN_handle_movement_input(input_flags, player, GAME_MODE, &world);
-			IN_handle_common_input(input_flags, player);
-			break;
+				break;
 		}
 
 		reset_input_flags(input_flags);
@@ -384,16 +381,13 @@ int main()
 			//render_depth_map_debug();
 			switch(ProgramMode.current)
 			{
-			case CONSOLE_MODE:
-				render_console();
-				break;
-			case EDITOR_MODE:
-				Editor::update(player, &world, GSceneInfo.camera);
-				Editor::render(player, &world, GSceneInfo.camera);
-				break;
-			case GAME_MODE:
-				render_game_gui(player);
-				break;
+				case CONSOLE_MODE: render_console();
+					break;
+				case EDITOR_MODE: Editor::update(player, &world, GSceneInfo.camera);
+					Editor::render(player, &world, GSceneInfo.camera);
+					break;
+				case GAME_MODE: render_game_gui(player);
+					break;
 			}
 			ImDraw::Render(GSceneInfo.camera);
 			ImDraw::Update(Rvn::frame.duration);
@@ -555,24 +549,19 @@ GLenum glCheckError_(const char* file, int line)
 		std::string error;
 		switch(error_code)
 		{
-		case GL_INVALID_ENUM:
-			error = "INVALID_ENUM";
-			break;
-		case GL_INVALID_VALUE:
-			error = "INVALID_VALUE";
-			break;
-		case GL_INVALID_OPERATION:
-			error = "INVALID_OPERATION";
-			break;
-		//case GL_STACK_OVERFLOW:                error = "STACK_OVERFLOW"; break;
-		//case GL_STACK_UNDERFLOW:               error = "STACK_UNDERFLOW"; break;
-		case GL_OUT_OF_MEMORY:
-			error = "OUT_OF_MEMORY";
-			break;
-		case GL_INVALID_FRAMEBUFFER_OPERATION:
-			error = "INVALID_FRAMEBUFFER_OPERATION";
-			break;
-		default: break;
+			case GL_INVALID_ENUM: error = "INVALID_ENUM";
+				break;
+			case GL_INVALID_VALUE: error = "INVALID_VALUE";
+				break;
+			case GL_INVALID_OPERATION: error = "INVALID_OPERATION";
+				break;
+			//case GL_STACK_OVERFLOW:                error = "STACK_OVERFLOW"; break;
+			//case GL_STACK_UNDERFLOW:               error = "STACK_UNDERFLOW"; break;
+			case GL_OUT_OF_MEMORY: error = "OUT_OF_MEMORY";
+				break;
+			case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION";
+				break;
+			default: break;
 		}
 		std::cout << error << " | " << file << " (" << line << ")" << std::endl;
 	}

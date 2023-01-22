@@ -228,53 +228,53 @@ void EntityManager::SetType(Entity* entity, const EntityType type)
 
 	switch(type)
 	{
-	// CHECKPOINT
-	case EntityType_Checkpoint:
-	{
-		MakeInteractable(entity);
-		checkpoints_registry->push_back(entity);
-		entity->type = EntityType_Checkpoint;
-		break;
-	}
+		// CHECKPOINT
+		case EntityType_Checkpoint:
+		{
+			MakeInteractable(entity);
+			checkpoints_registry->push_back(entity);
+			entity->type = EntityType_Checkpoint;
+			break;
+		}
 
-	// STATIC
-	case EntityType_Static:
-	{
-		entity->type = EntityType_Static;
-		break;
-	}
+		// STATIC
+		case EntityType_Static:
+		{
+			entity->type = EntityType_Static;
+			break;
+		}
 
-	// TIMER TRIGGER
-	case EntityType_TimerTrigger:
-	{
-		MakeInteractable(entity);
-		entity->type = EntityType_TimerTrigger;
-		// initialize union member
-		new(&entity->timer_trigger_data) TimerTriggerData();
-		break;
-	}
+		// TIMER TRIGGER
+		case EntityType_TimerTrigger:
+		{
+			MakeInteractable(entity);
+			entity->type = EntityType_TimerTrigger;
+			// initialize union member
+			new(&entity->timer_trigger_data) TimerTriggerData();
+			break;
+		}
 
-	// TIMER TARGET
-	case EntityType_TimerTarget:
-	{
-		entity->type = EntityType_TimerTarget;
-		new(&entity->timer_trigger_data) TimerTargetData();
-		break;
-	}
+		// TIMER TARGET
+		case EntityType_TimerTarget:
+		{
+			entity->type = EntityType_TimerTarget;
+			new(&entity->timer_trigger_data) TimerTargetData();
+			break;
+		}
 
-	// TIMER MARKING
-	case EntityType_TimerMarking:
-	{
-		entity->type = EntityType_TimerMarking;
-		new(&entity->timer_marking_data) TimerMarkingData();
+		// TIMER MARKING
+		case EntityType_TimerMarking:
+		{
+			entity->type = EntityType_TimerMarking;
+			new(&entity->timer_marking_data) TimerMarkingData();
 
-		const auto shader = ShaderCatalogue.find(EntityShaderMarking)->second;
-		entity->shader = shader;
-		break;
-	}
+			const auto shader = ShaderCatalogue.find(EntityShaderMarking)->second;
+			entity->shader = shader;
+			break;
+		}
 
-	default:
-		Quit_fatal("Entity manager doesn't know what entity type '" + std::to_string(type) + "' should be.")
+		default:
+			Quit_fatal("Entity manager doesn't know what entity type '" + std::to_string(type) + "' should be.")
 	}
 }
 

@@ -340,73 +340,73 @@ void EntitySerializer::save(std::ofstream& writer, Entity& entity)
 
 	switch(entity.type)
 	{
-	case EntityType_Static:
-	{
-		writer << "type static\n";
-		break;
-	}
-
-	case EntityType_Checkpoint:
-	{
-		writer << "type checkpoint\n";
-		writer << "trigger "
-		<< entity.trigger_scale.x << " "
-		<< entity.trigger_scale.y << " "
-		<< entity.trigger_scale.z << "\n";
-		break;
-	}
-
-	case EntityType_TimerTrigger:
-	{
-		writer << "type timer_trigger\n";
-		writer << "trigger "
-		<< entity.trigger_scale.x << " "
-		<< entity.trigger_scale.y << " "
-		<< entity.trigger_scale.z << "\n";
-		if(entity.timer_trigger_data.timer_target != nullptr)
-			writer << "timer_target " << entity.timer_trigger_data.timer_target->id << "\n";
-		writer << "timer_duration " << entity.timer_trigger_data.timer_duration << "\n";
-
-		For(entity.timer_trigger_data.size)
+		case EntityType_Static:
 		{
-			const auto marking = entity.timer_trigger_data.markings[i];
-			const u32 time_checkpoint = entity.timer_trigger_data.time_checkpoints[i];
-			if(marking != nullptr)
-				writer << "timer_marking " << marking->id << " " << time_checkpoint << "\n";
+			writer << "type static\n";
+			break;
 		}
 
-		break;
-	}
+		case EntityType_Checkpoint:
+		{
+			writer << "type checkpoint\n";
+			writer << "trigger "
+			<< entity.trigger_scale.x << " "
+			<< entity.trigger_scale.y << " "
+			<< entity.trigger_scale.z << "\n";
+			break;
+		}
 
-	case EntityType_TimerTarget:
-	{
-		writer << "type timer_target\n";
-		writer << "timer_target_type " << entity.timer_target_data.timer_target_type << "\n";
+		case EntityType_TimerTrigger:
+		{
+			writer << "type timer_trigger\n";
+			writer << "trigger "
+			<< entity.trigger_scale.x << " "
+			<< entity.trigger_scale.y << " "
+			<< entity.trigger_scale.z << "\n";
+			if(entity.timer_trigger_data.timer_target != nullptr)
+				writer << "timer_target " << entity.timer_trigger_data.timer_target->id << "\n";
+			writer << "timer_duration " << entity.timer_trigger_data.timer_duration << "\n";
 
-		if(entity.timer_target_data.timer_start_animation != 0)
-			writer << "timer_start_animation " << entity.timer_target_data.timer_start_animation << "\n";
+			For(entity.timer_trigger_data.size)
+			{
+				const auto marking = entity.timer_trigger_data.markings[i];
+				const u32 time_checkpoint = entity.timer_trigger_data.time_checkpoints[i];
+				if(marking != nullptr)
+					writer << "timer_marking " << marking->id << " " << time_checkpoint << "\n";
+			}
 
-		if(entity.timer_target_data.timer_stop_animation != 0)
-			writer << "timer_stop_animation " << entity.timer_target_data.timer_stop_animation << "\n";
+			break;
+		}
 
-		break;
-	}
+		case EntityType_TimerTarget:
+		{
+			writer << "type timer_target\n";
+			writer << "timer_target_type " << entity.timer_target_data.timer_target_type << "\n";
 
-	case EntityType_TimerMarking:
-	{
-		writer << "type timer_marking\n";
-		writer << "timer_marking_color_on "
-		<< entity.timer_marking_data.color_on.x << " "
-		<< entity.timer_marking_data.color_on.y << " "
-		<< entity.timer_marking_data.color_on.z << "\n";
+			if(entity.timer_target_data.timer_start_animation != 0)
+				writer << "timer_start_animation " << entity.timer_target_data.timer_start_animation << "\n";
 
-		writer << "timer_marking_color_off "
-		<< entity.timer_marking_data.color_off.x << " "
-		<< entity.timer_marking_data.color_off.y << " "
-		<< entity.timer_marking_data.color_off.z << "\n";
+			if(entity.timer_target_data.timer_stop_animation != 0)
+				writer << "timer_stop_animation " << entity.timer_target_data.timer_stop_animation << "\n";
 
-		break;
-	}
+			break;
+		}
+
+		case EntityType_TimerMarking:
+		{
+			writer << "type timer_marking\n";
+			writer << "timer_marking_color_on "
+			<< entity.timer_marking_data.color_on.x << " "
+			<< entity.timer_marking_data.color_on.y << " "
+			<< entity.timer_marking_data.color_on.z << "\n";
+
+			writer << "timer_marking_color_off "
+			<< entity.timer_marking_data.color_off.x << " "
+			<< entity.timer_marking_data.color_off.y << " "
+			<< entity.timer_marking_data.color_off.z << "\n";
+
+			break;
+		}
 	}
 
 	if(entity.slidable)

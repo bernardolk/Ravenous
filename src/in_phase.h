@@ -475,39 +475,38 @@ inline void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
 
 	switch(button)
 	{
-	case GLFW_MOUSE_BUTTON_LEFT:
-	{
-		if(action == GLFW_PRESS)
+		case GLFW_MOUSE_BUTTON_LEFT:
 		{
-			GInputInfo.mouse_state |= MOUSE_LB_CLICK;
+			if(action == GLFW_PRESS)
+			{
+				GInputInfo.mouse_state |= MOUSE_LB_CLICK;
+			}
+			else if(action == GLFW_RELEASE)
+			{
+				GInputInfo.mouse_state &= ~(MOUSE_LB_CLICK);
+				GInputInfo.mouse_state &= ~(MOUSE_LB_HOLD);
+				GInputInfo.mouse_state &= ~(MOUSE_LB_DRAGGING);
+			}
+			break;
 		}
-		else if(action == GLFW_RELEASE)
+		case GLFW_MOUSE_BUTTON_RIGHT:
 		{
-			GInputInfo.mouse_state &= ~(MOUSE_LB_CLICK);
-			GInputInfo.mouse_state &= ~(MOUSE_LB_HOLD);
-			GInputInfo.mouse_state &= ~(MOUSE_LB_DRAGGING);
+			if(action == GLFW_PRESS)
+			{
+				GInputInfo.mouse_state |= MOUSE_RB_CLICK;
+				GInputInfo.forget_last_mouse_coords = true;
+				GInputInfo.mouse_coords.click_x = GInputInfo.mouse_coords.x;
+				GInputInfo.mouse_coords.click_y = GInputInfo.mouse_coords.y;
+			}
+			else if(action == GLFW_RELEASE)
+			{
+				GInputInfo.mouse_state &= ~(MOUSE_RB_CLICK);
+				GInputInfo.mouse_state &= ~(MOUSE_RB_HOLD);
+				GInputInfo.mouse_state &= ~(MOUSE_RB_DRAGGING);
+			}
+			break;
 		}
-		break;
-	}
-	case GLFW_MOUSE_BUTTON_RIGHT:
-	{
-		if(action == GLFW_PRESS)
-		{
-			GInputInfo.mouse_state |= MOUSE_RB_CLICK;
-			GInputInfo.forget_last_mouse_coords = true;
-			GInputInfo.mouse_coords.click_x = GInputInfo.mouse_coords.x;
-			GInputInfo.mouse_coords.click_y = GInputInfo.mouse_coords.y;
-		}
-		else if(action == GLFW_RELEASE)
-		{
-			GInputInfo.mouse_state &= ~(MOUSE_RB_CLICK);
-			GInputInfo.mouse_state &= ~(MOUSE_RB_HOLD);
-			GInputInfo.mouse_state &= ~(MOUSE_RB_DRAGGING);
-		}
-		break;
-	}
-	default:
-		break;
+		default: break;
 	}
 }
 
