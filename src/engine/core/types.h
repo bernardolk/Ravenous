@@ -4,10 +4,12 @@
 #include <algorithm>
 #include <assert.h>
 #include <chrono>
+#include <ctime>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
 #include <map>
+#include <stack>
 #include <sstream>
 #include <stdint.h>
 #include <stdio.h>
@@ -113,3 +115,5 @@ using string = std::string;
 
 template<typename T>
 using vector = std::vector<T>;
+
+using GLenum = unsigned int;

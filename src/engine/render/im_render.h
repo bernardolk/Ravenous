@@ -13,6 +13,8 @@
 */
 #pragma once
 
+#include "engine/core/core.h"
+
 #define IMCUSTOMHASH(x) ImHasher(x)
 #define IM_ITERHASH(x) ImHasher(std::string(__FILE__) + "-" + std::to_string(__LINE__) + "-" + std::to_string(x))
 #define IMHASH ImHasher(std::string(__FILE__) + "-" + std::to_string(__LINE__))
@@ -25,8 +27,6 @@ struct RenderOptions;
 struct Camera;
 struct ImDraw;
 struct Entity;
-
-using GLenum = unsigned int;
 
 constexpr std::hash<std::string> ImHasher;
 

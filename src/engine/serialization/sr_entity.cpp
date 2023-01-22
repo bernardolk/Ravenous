@@ -10,14 +10,14 @@
 #include <glm/gtx/quaternion.hpp>
 #include "engine/collision/primitives/bounding_box.h"
 #include "engine/mesh.h"
-#include "engine/entity.h"
+#include "engine/entities/entity.h"
 #include "engine/entity_pool.h"
 #include <engine/entity_manager.h>
 #include <engine/serialization/sr_common.h>
 #include "engine/serialization/parsing/parser.h"
 #include "engine/loaders.h"
 #include "engine/mesh.h"
-#include "engine/shader.h"
+#include "engine/render/shader.h"
 #include "engine/serialization/sr_entity.h"
 
 const std::string SrLoadEntity_TypeNotSetErrorMsg = "Need to load entity type before loading type-specific data.";

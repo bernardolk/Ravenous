@@ -6,7 +6,7 @@
 #include <engine/logging.h>
 #include <engine/serialization/sr_entity.h>
 #include <engine/collision/collision_mesh.h>
-#include "engine/entity.h"
+#include "engine/entities/entity.h"
 #include <engine/entity_manager.h>
 #include <engine/serialization/sr_common.h>
 #include "player.h"

@@ -7,7 +7,7 @@
 #include <engine/logging.h>
 #include <engine/rvn.h>
 #include <player.h>
-#include <engine/entity.h>
+#include "engine/entities/entity.h"
 #include "engine/camera.h"
 #include <scene.h>
 #include <engine/world/world.h>

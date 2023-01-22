@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/entity.h"
+#include "engine/entities/entity.h"
 
 enum PlayerState
 {

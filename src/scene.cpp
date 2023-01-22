@@ -1,5 +1,5 @@
 #include "scene.h"
-#include "engine/entity.h"
+#include "engine/entities/entity.h"
 #include "engine/rvn.h"
 
 bool Scene::SearchName(std::string name)

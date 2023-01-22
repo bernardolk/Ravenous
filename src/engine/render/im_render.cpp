@@ -4,7 +4,7 @@
 #include <iostream>
 #include <engine/core/types.h>
 #include <colors.h>
-#include <engine/shader.h>
+#include "engine/render/shader.h"
 #include <engine/vertex.h>
 #include <engine/mesh.h>
 #include <glad/glad.h>
@@ -13,7 +13,7 @@
 #include <engine/collision/primitives/bounding_box.h>
 #include <glm/gtx/quaternion.hpp>
 #include <engine/collision/collision_mesh.h>
-#include <engine/entity.h>
+#include "engine/entities/entity.h"
 #include <engine/render/renderer.h>
 #include <engine/camera.h>
 #include <engine/render/im_render.h>

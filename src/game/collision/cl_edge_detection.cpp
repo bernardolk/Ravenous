@@ -13,7 +13,7 @@
 #include <engine/vertex.h>
 #include <engine/mesh.h>
 #include <engine/collision/collision_mesh.h>
-#include <engine/entity.h>
+#include "engine/entities/entity.h"
 #include <colors.h>
 #include <engine/render/renderer.h>
 #include <engine/render/im_render.h>

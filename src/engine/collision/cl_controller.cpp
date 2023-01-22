@@ -12,7 +12,7 @@
 #include <engine/collision/primitives/triangle.h>
 #include <glm/gtx/quaternion.hpp>
 #include <engine/collision/collision_mesh.h>
-#include <engine/entity.h>
+#include "engine/entities/entity.h"
 //#include <engine/collision/primitives/ray.h>
 #include <engine/world/world.h>
 #include <engine/rvn.h>

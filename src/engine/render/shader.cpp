@@ -1,15 +1,9 @@
+#include "shader.h"
 #include <glad/glad.h>
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <glm/gtc/type_ptr.hpp>
-#include <string>
-#include <map>
 #include <engine/core/types.h>
 #include <engine/rvn.h>
 #include <engine/serialization/parsing/parser.h>
 #include <engine/logging.h>
-#include <engine/shader.h>
 #include "engine/io/display.h"
 
 std::map<std::string, Shader*> ShaderCatalogue;

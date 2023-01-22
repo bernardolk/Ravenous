@@ -1,5 +1,7 @@
 #pragma once
 
+#include "engine/core/core.h"
+
 struct Shader
 {
 	unsigned int gl_program_id;

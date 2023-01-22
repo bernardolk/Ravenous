@@ -1,4 +1,4 @@
-#include <engine/entity.h>
+#include "entity.h"
 #include <glm/gtx/normal.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <engine/vertex.h>

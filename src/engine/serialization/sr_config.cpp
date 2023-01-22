@@ -10,7 +10,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include "engine/collision/primitives/bounding_box.h"
 #include "engine/mesh.h"
-#include "engine/entity.h"
+#include "engine/entities/entity.h"
 #include "engine/entity_pool.h"
 #include <engine/entity_manager.h>
 #include <engine/serialization/sr_common.h>

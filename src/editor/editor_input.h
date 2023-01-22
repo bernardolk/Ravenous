@@ -284,10 +284,11 @@ inline void handle_input_flags(InputFlags flags, Player* & player, World* world,
 	// CAMERA MOVEMENT CONTROLS
 	// -------------------------
 	// @TODO: this sucks
+	auto* editor_camera = GlobalSceneInfo::GetEditorCam();
 	float camera_speed =
-	GSI->camera->type == THIRD_PERSON ?
-	player->speed * Rvn::frame.duration :
-	Rvn::frame.real_duration * EdCam->acceleration;
+		GSI->camera->type == THIRD_PERSON ?
+		player->speed * Rvn::frame.duration :
+		Rvn::frame.real_duration * editor_camera->acceleration;
 
 	if(flags.key_press & KEY_LEFT_SHIFT)
 	{
