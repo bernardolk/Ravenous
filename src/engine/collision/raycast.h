@@ -1,10 +1,8 @@
 #pragma once
 
-struct Triangle;
-struct Ray;
-struct Mesh;
-struct BoundingBox;
-struct Entity;
+#include "engine/core/core.h"
+#include "primitives/ray.h"
+#include "primitives/triangle.h"
 
 struct RaycastTest
 {

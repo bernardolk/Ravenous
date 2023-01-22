@@ -1,8 +1,4 @@
-#include <string>
-#include <map>
-#include <engine/core/rvn_types.h>
-#include <glm/ext/matrix_transform.hpp>
-#include <glm/gtx/compatibility.hpp>
+
 #include <engine/camera.h>
 
 void set_camera_to_free_roam(Camera* camera)

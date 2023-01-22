@@ -1,7 +1,7 @@
 #pragma once
 
 struct Parser;
-struct T_EntityManager;
+struct EntityManager;
 struct World;
 struct PointLight;
 

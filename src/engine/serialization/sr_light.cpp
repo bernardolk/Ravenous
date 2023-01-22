@@ -1,8 +1,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include <engine/core/rvn_types.h>
-#include "rvn_macros.h"
+#include <engine/core/types.h>
 #include <engine/logging.h>
 #include <engine/serialization/sr_entity.h>
 #include <engine/collision/collision_mesh.h>

@@ -3,8 +3,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <engine/core/rvn_types.h>
-#include <rvn_macros.h>
+#include <engine/core/types.h>
 #include <engine/logging.h>
 #include <engine/rvn.h>
 #include <player.h>

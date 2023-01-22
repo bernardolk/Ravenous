@@ -1,11 +1,7 @@
-#include <string>
-#include <vector>
-#include <engine/core/rvn_types.h>
-#include <rvn_macros.h>
+
+#include <engine/collision/raycast.h>
 #include <engine/camera.h>
-#include <engine/vertex.h>
 #include <engine/collision/primitives/bounding_box.h>
-#include <map>
 #include <engine/mesh.h>
 #include <glm/gtx/normal.hpp>
 #include <engine/collision/primitives/triangle.h>
@@ -14,8 +10,6 @@
 #include <engine/collision/collision_mesh.h>
 #include <engine/entity.h>
 #include <engine/rvn.h>
-#include <engine/collision/raycast.h>
-#include <engine/collision/collision_mesh.h>
 
 // --------------------------
 // > TEST RAY AGAINST AABB

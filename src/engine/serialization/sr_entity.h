@@ -1,6 +1,6 @@
 #pragma once
 
-struct T_EntityManager;
+struct EntityManager;
 struct Entity;
 struct Parser;
 struct World;
@@ -24,7 +24,7 @@ struct DeferredEntityRelationBuffer
 
 struct EntitySerializer
 {
-	inline static T_EntityManager* manager = nullptr;
+	inline static EntityManager* manager = nullptr;
 	inline static DeferredEntityRelationBuffer relations{};
 
 	static void parse(Parser& parser);

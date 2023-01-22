@@ -1,10 +1,9 @@
-#include <engine/core/rvn_types.h>
+#include <engine/core/types.h>
 #include <iostream> // utils
 #include <string>
 #include <engine/vertex.h> // utils
 #include <algorithm> // utils
 #include <utils.h>
-#include <rvn_macros.h>
 #include <engine/collision/primitives/bounding_box.h>
 #include <vector>
 #include <glm/gtx/quaternion.hpp>
@@ -338,7 +337,7 @@ RaycastTest World::LinearRaycastArray(const Ray first_ray, int qty, float spacin
 	float shortest_z = MaxFloat;
 	RaycastTest best_hit_results;
 
-	for_less(qty)
+	ForLess(qty)
 	{
 		auto test = this->Raycast(ray, RayCast_TestOnlyFromOutsideIn, player->entity_ptr, player->grab_reach);
 		if(test.hit)
@@ -412,7 +411,7 @@ RaycastTest World::RaycastLights(const Ray ray) const
 }
 
 
-void World::Clear(const T_EntityManager* manager)
+void World::Clear(const EntityManager* manager)
 {
 	/*
 	   This is the ~official~ world unloading/clearing procedure.

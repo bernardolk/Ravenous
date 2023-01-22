@@ -1,5 +1,7 @@
 #pragma once
 
+#include "engine/core/core.h"
+
 struct Player;
 
 enum CameraType

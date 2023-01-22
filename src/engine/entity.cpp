@@ -1,19 +1,12 @@
-#include <rvn_macros.h>
-#include <iostream>
-#include <vector>
-#include <engine/core/rvn_types.h>
+
+#include <engine/entity.h>
 #include <glm/gtx/normal.hpp>
-#include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <engine/vertex.h>
-#include <string>
-#include <map>
-#include <engine/collision/primitives/triangle.h>
 #include <engine/collision/primitives/bounding_box.h>
 #include <engine/mesh.h>
 #include <engine/logging.h>
 #include <engine/collision/collision_mesh.h>
-#include <engine/entity.h>
 
 void Entity::Update()
 {

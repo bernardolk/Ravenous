@@ -1,8 +1,4 @@
-#include <rvn_macros.h>
-#include <map>
-#include <vector>
-#include <string>
-#include <engine/core/rvn_types.h>
+#include <engine/core/core.h>
 #include <glad/glad.h>
 #include <engine/collision/primitives/bounding_box.h>
 #include <glm/gtx/normal.hpp>

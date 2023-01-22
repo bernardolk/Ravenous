@@ -25,6 +25,7 @@ enum EntityPanelTrackableAction
 
 inline void render_entity_panel(EntityPanelContext* panel, World* world)
 {
+	auto* EM = EntityManager::Get();
 	auto& entity = panel->entity;
 
 	u32 action_flags = 0;
@@ -199,8 +200,7 @@ inline void render_entity_panel(EntityPanelContext* panel, World* world)
 		ImGui::Checkbox("Collider", &panel->show_collider);
 		ImGui::SameLine();
 		ImGui::Checkbox("Bounding box", &panel->show_bounding_box);
-
-
+		
 		// ENTITY INSTANCE CONTROLS
 		{
 			ImGui::NewLine();
@@ -208,7 +208,7 @@ inline void render_entity_panel(EntityPanelContext* panel, World* world)
 			if(ImGui::Button("Duplicate", ImVec2(82, 18)))
 			{
 				action_flags |= EntityPanelTA_Duplicate;
-				auto new_entity = EntityManager.CopyEntity(entity);
+				auto new_entity = EM->CopyEntity(entity);
 				open_entity_panel(new_entity);
 			}
 
@@ -240,35 +240,35 @@ inline void render_entity_panel(EntityPanelContext* panel, World* world)
 		bool is_static = entity->type == EntityType_Static;
 		if(ImGui::RadioButton("Static", is_static))
 		{
-			EntityManager.SetType(entity, EntityType_Static);
+			EM->SetType(entity, EntityType_Static);
 		}
 
 		// EntityType_Checkpoint
 		bool is_checkpoint = entity->type == EntityType_Checkpoint;
 		if(ImGui::RadioButton("Checkpoint", is_checkpoint))
 		{
-			EntityManager.SetType(entity, EntityType_Checkpoint);
+			EM->SetType(entity, EntityType_Checkpoint);
 		}
 
 		// EntityType_TimerTrigger
 		bool is_timer_trigger = entity->type == EntityType_TimerTrigger;
 		if(ImGui::RadioButton("Timer Trigger", is_timer_trigger))
 		{
-			EntityManager.SetType(entity, EntityType_TimerTrigger);
+			EM->SetType(entity, EntityType_TimerTrigger);
 		}
 
 		// EntityType_TimerTarget
 		bool is_timer_target = entity->type == EntityType_TimerTarget;
 		if(ImGui::RadioButton("Timer Target", is_timer_target))
 		{
-			EntityManager.SetType(entity, EntityType_TimerTarget);
+			EM->SetType(entity, EntityType_TimerTarget);
 		}
 
 		// EntityType_TimerMarking
 		bool is_timer_marking = entity->type == EntityType_TimerMarking;
 		if(ImGui::RadioButton("Timer Marking", is_timer_marking))
 		{
-			EntityManager.SetType(entity, EntityType_TimerMarking);
+			EM->SetType(entity, EntityType_TimerMarking);
 		}
 
 		ImGui::NewLine();

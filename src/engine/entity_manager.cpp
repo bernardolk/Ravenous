@@ -1,4 +1,4 @@
-#include <engine/core/rvn_types.h>
+#include <engine/core/types.h>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -6,7 +6,6 @@
 #include <algorithm> //utils
 #include <engine/vertex.h> //utils
 #include <utils.h>
-#include <rvn_macros.h>
 #include <engine/logging.h>
 #include <engine/rvn.h>
 #include <engine/collision/primitives/bounding_box.h>
@@ -31,7 +30,7 @@
 // --------------------------------------
 
 // @TODO: Refactor this into methods of catalogues
-auto T_EntityManager::FindEntityAssetsInCatalogue(const std::string& mesh, const std::string& collision_mesh, const std::string& shader, const std::string& texture)
+auto EntityManager::FindEntityAssetsInCatalogue(const std::string& mesh, const std::string& collision_mesh, const std::string& shader, const std::string& texture)
 {
 	struct
 	{
@@ -102,22 +101,22 @@ auto T_EntityManager::FindEntityAssetsInCatalogue(const std::string& mesh, const
 // ---------------------------------
 // > SET REGISTRIES
 // ---------------------------------
-void T_EntityManager::SetEntityRegistry(std::vector<Entity*>* registry)
+void EntityManager::SetEntityRegistry(std::vector<Entity*>* registry)
 {
 	entity_registry = registry;
 }
 
-void T_EntityManager::SetCheckpointsRegistry(std::vector<Entity*>* registry)
+void EntityManager::SetCheckpointsRegistry(std::vector<Entity*>* registry)
 {
 	checkpoints_registry = registry;
 }
 
-void T_EntityManager::SetInteractablesRegistry(std::vector<Entity*>* registry)
+void EntityManager::SetInteractablesRegistry(std::vector<Entity*>* registry)
 {
 	interactables_registry = registry;
 }
 
-void T_EntityManager::SetWorld(World* world)
+void EntityManager::SetWorld(World* world)
 {
 	this->world = world;
 }
@@ -125,7 +124,7 @@ void T_EntityManager::SetWorld(World* world)
 // ------------------
 // > REGISTER ENTITY
 // ------------------
-void T_EntityManager::RegisterInWorldAndScene(Entity* entity) const
+void EntityManager::RegisterInWorldAndScene(Entity* entity) const
 {
 	entity->Update();
 	this->world->entities.push_back(entity);
@@ -138,7 +137,7 @@ void T_EntityManager::RegisterInWorldAndScene(Entity* entity) const
 // -----------------
 // Deals with entity creation. All entities created should be created through here.
 
-Entity* T_EntityManager::CreateEntity(const EntityAttributes& attrs)
+Entity* EntityManager::CreateEntity(const EntityAttributes& attrs)
 {
 	auto [
 		_textures,
@@ -172,7 +171,7 @@ Entity* T_EntityManager::CreateEntity(const EntityAttributes& attrs)
 // Editor entities can be created using this method. These entities have separate id's and are not
 //    registered into the world.
 
-Entity* T_EntityManager::CreateEditorEntity(const EntityAttributes& attrs)
+Entity* EntityManager::CreateEditorEntity(const EntityAttributes& attrs)
 {
 	auto [_textures, _texture_count, _mesh, _collision_mesh, _shader] =
 	FindEntityAssetsInCatalogue(attrs.mesh, attrs.collision_mesh, attrs.shader, attrs.texture);
@@ -196,7 +195,7 @@ Entity* T_EntityManager::CreateEditorEntity(const EntityAttributes& attrs)
 // ---------------
 // > COPY ENTITY
 // ---------------
-Entity* T_EntityManager::CopyEntity(Entity* entity)
+Entity* EntityManager::CopyEntity(Entity* entity)
 {
 	// allocate entity with new id
 	auto new_entity = pool.GetNext();
@@ -223,7 +222,7 @@ Entity* T_EntityManager::CopyEntity(Entity* entity)
 	return new_entity;
 }
 
-void T_EntityManager::SetType(Entity* entity, const EntityType type)
+void EntityManager::SetType(Entity* entity, const EntityType type)
 {
 	UnsetAllTypeRelatedConfigurations(entity);
 
@@ -282,7 +281,7 @@ void T_EntityManager::SetType(Entity* entity, const EntityType type)
 // ----------------
 // > DELETE ENTITY
 // ----------------
-void T_EntityManager::MarkForDeletion(Entity* entity)
+void EntityManager::MarkForDeletion(Entity* entity)
 {
 	// remove from scene render list
 	int index = -1;
@@ -312,7 +311,7 @@ void T_EntityManager::MarkForDeletion(Entity* entity)
 	deletion_stack.push_back(entity);
 }
 
-void T_EntityManager::SafeDeleteMarkedEntities()
+void EntityManager::SafeDeleteMarkedEntities()
 {
 	// WARNING: ONLY EXECUTE AT THE END OF THE FRAME
 	while(deletion_stack.size() > 0)
@@ -330,7 +329,7 @@ void T_EntityManager::SafeDeleteMarkedEntities()
 // ------------------
 // > SET ENTITY TYPE
 // ------------------
-void T_EntityManager::RemoveFromCheckpointRegistry(Entity* entity) const
+void EntityManager::RemoveFromCheckpointRegistry(Entity* entity) const
 {
 	int index = -1;
 	For(checkpoints_registry->size())
@@ -346,7 +345,7 @@ void T_EntityManager::RemoveFromCheckpointRegistry(Entity* entity) const
 		checkpoints_registry->erase(checkpoints_registry->begin() + index);
 }
 
-void T_EntityManager::RemoveInteractivity(Entity* entity)
+void EntityManager::RemoveInteractivity(Entity* entity)
 {
 	int index = -1;
 	For(interactables_registry->size())
@@ -365,7 +364,7 @@ void T_EntityManager::RemoveInteractivity(Entity* entity)
 	entity->trigger = nullptr;
 }
 
-void T_EntityManager::MakeInteractable(Entity* entity)
+void EntityManager::MakeInteractable(Entity* entity)
 {
 	auto find = GeometryCatalogue.find("trigger");
 	if(find == GeometryCatalogue.end())
@@ -375,7 +374,7 @@ void T_EntityManager::MakeInteractable(Entity* entity)
 	interactables_registry->push_back(entity);
 }
 
-void T_EntityManager::UnsetAllTypeRelatedConfigurations(Entity* entity)
+void EntityManager::UnsetAllTypeRelatedConfigurations(Entity* entity)
 {
 	RemoveFromCheckpointRegistry(entity);
 	RemoveInteractivity(entity);

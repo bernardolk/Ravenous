@@ -23,6 +23,7 @@ namespace Paths
 	const static std::string SceneTemplate = "template_scene";
 	const static std::string InputRecordings = Project + "/recordings/";
 }
+
 struct ProgramConfig
 {
 	std::string initial_scene;

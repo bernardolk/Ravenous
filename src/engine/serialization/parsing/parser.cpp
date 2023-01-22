@@ -3,8 +3,7 @@
 #include <sstream>
 #include <vector>
 #include <iostream>
-#include <rvn_macros.h>
-#include <engine/core/rvn_types.h>
+#include <engine/core/types.h>
 #include <engine/logging.h>
 #include <engine/serialization/parsing/parser.h>
 

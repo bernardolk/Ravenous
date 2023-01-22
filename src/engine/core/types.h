@@ -1,36 +1,56 @@
 #pragma once
+
+/** STD INCLUDES */
+#include <algorithm>
+#include <assert.h>
+#include <chrono>
+#include <fstream>
+#include <iostream>
+#include <iomanip>
+#include <map>
+#include <sstream>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <vector>
+
+
+/** GLM TYPE INCLUDES */
 #include <glm/glm.hpp>
 #include <glm/ext/vector_float2.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/ext/matrix_float4x4.hpp>
+#include <glm/gtx/norm.hpp>
+#include <glm/gtx/normal.hpp>
+#include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/euler_angles.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/gtx/compatibility.hpp>
+#include <glm/gtx/quaternion.hpp>
 
+
+/** Primitive types */
 using u8 = unsigned char;
 using u16 = unsigned short int;
 using u32 = unsigned int;
 using u64 = unsigned long long;
 
+/** GLM type aliases */
 using vec4 = glm::vec4;
 using vec3 = glm::vec3;
 using vec2 = glm::vec2;
 using mat4 = glm::mat4;
 
-// globals
-constexpr static float PI = 3.141592;
-
-const static mat4 Mat4Identity(
-	1.0f, 0.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f, 0.0f,
-	0.0f, 0.0f, 1.0f, 0.0f,
-	0.0f, 0.0f, 0.0f, 1.0f
-);
-
 extern const float VecComparePrecision;
 extern const float MaxFloat;
 extern const float MinFloat;
 
-extern const vec3 UnitX;
-extern const vec3 UnitY;
-extern const vec3 UnitZ;
+inline const vec3 UnitX = vec3(1, 0, 0); 
+inline const vec3 UnitY = vec3(0, 1, 0);
+inline const vec3 UnitZ = vec3(0, 0, 1);
 
 inline bool is_equal(vec2 vec1, vec2 vec2)
 {
@@ -88,3 +108,8 @@ inline vec3 toVec3(vec4 vec)
 {
 	return vec3(vec.x, vec.y, vec.z);
 }
+
+using string = std::string;
+
+template<typename T>
+using vector = std::vector<T>;

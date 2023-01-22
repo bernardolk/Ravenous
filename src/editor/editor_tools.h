@@ -25,7 +25,8 @@ inline bool check_modes_are_active()
 
 inline void editor_erase_entity(Entity* entity)
 {
-	EntityManager.MarkForDeletion(entity);
+	auto* EM = EntityManager::Get();
+	EM->MarkForDeletion(entity);
 	EdContext.undo_stack.deletion_log.Add(entity);
 }
 

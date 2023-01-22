@@ -1,8 +1,7 @@
 #include <string>
 #include <vector>
-#include <engine/core/rvn_types.h>
+#include <engine/core/types.h>
 #include <engine/rvn.h>
-#include <rvn_macros.h>
 //#include <engine/camera.h>
 #include <engine/vertex.h>
 #include <engine/collision/primitives/bounding_box.h>

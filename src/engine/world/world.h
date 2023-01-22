@@ -57,7 +57,7 @@ struct PointLight;
 struct SpotLight;
 struct DirectionalLight;
 struct Player;
-struct T_EntityManager;
+struct EntityManager;
 
 // -----------
 // WORLD CELL
@@ -165,7 +165,7 @@ public:
 	void Init();
 	void UpdateCellsInUseList();
 	void UpdateEntities() const;
-	void Clear(const T_EntityManager* manager);
+	void Clear(const EntityManager* manager);
 
 	RaycastTest Raycast(Ray ray, RayCastType test_type, const Entity* skip = nullptr, float max_distance = MaxFloat) const;
 	RaycastTest Raycast(Ray ray, const Entity* skip = nullptr, float max_distance = MaxFloat) const;

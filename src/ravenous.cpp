@@ -1,44 +1,17 @@
 /* ==========================================
                      RAVENOUS
    ==========================================
-     By Bernardo L. Knackfuss - 2020 - 2022 
+     By Bernardo L. Knackfuss - 2020 - 2023 
    ========================================== */
-#include <iostream>
 
 
 // DEPENDENCY INCLUDES
-#include <windows.h>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "engine/core/platform.h"
+#include "engine/core/core.h"
 
-#include <sstream>
-#include <iostream>
-#include <fstream>
-#include <map>
-#include <vector>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
-#include <assert.h>
-#include <algorithm>
-#include <stdint.h>
-#include <chrono>
+#include <engine/core/ui.h>
 
-#include <dearIMGUI/imgui.h>
-#include <dearIMGUI/imgui_impl_glfw.h>
-#include <dearIMGUI/imgui_impl_opengl3.h>
-#include <dearIMGUI/imgui_stdlib.h>
-
-#include <stb_image/stb_image.h>
-
-#include <glm/gtx/norm.hpp>
-#include <glm/gtx/normal.hpp>
-#include <glm/gtx/rotate_vector.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/euler_angles.hpp>
-#include <glm/gtx/quaternion.hpp>
-
-#include <engine/core/rvn_types.h>
+#include <engine/core/types.h>
 #include <engine/logging.h>
 #include <engine/rvn.h>
 #include <engine/render/text/character.h>
@@ -62,8 +35,6 @@
  *	5. Profit $$$
  *	
  */
-
-
 
 // GLOBAL STRUCT VARIABLES OR TYPES 
 enum ProgramModeEnum
@@ -111,7 +82,6 @@ ProgramConfig GConfig;
 
 
 // SOURCE INCLUDES
-#include <rvn_macros.h>
 #include <colors.h>
 #include <in_flags.h>
 #include <engine/collision/cl_types.h>
@@ -140,9 +110,6 @@ ProgramConfig GConfig;
 #include <engine/loaders.h>
 #include <engine/entity_manager.h>
 #include <geometry.h>
-
-// entity manager and entity pool
-T_EntityManager EntityManager;
 
 // camera handles
 Camera* PCam;
@@ -186,7 +153,7 @@ GlobalSceneInfo GSceneInfo;
 #define glCheckError() glCheckError_(__FILE__, __LINE__)
 
 // OPENGL OBJECTS
-unsigned int texture, texture_specular;
+unsigned int Texture, TextureSpecular;
 
 // FUNCTION PROTOTYPES
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -250,10 +217,11 @@ int main()
 {
 	World world;
 
-	EntityManager.SetWorld(&world);
-	EntityManager.SetEntityRegistry(&world.entities);
-	EntityManager.SetCheckpointsRegistry(&world.checkpoints);
-	EntityManager.SetInteractablesRegistry(&world.interactables);
+	auto* EM = EntityManager::Get();
+	EM->SetWorld(&world);
+	EM->SetEntityRegistry(&world.entities);
+	EM->SetCheckpointsRegistry(&world.checkpoints);
+	EM->SetInteractablesRegistry(&world.interactables);
 
 	// initialize serializers
 
@@ -261,10 +229,10 @@ int main()
 	//    with using references it seems? A pointer would never complain about this. I should dig into this.
 	//    If I have to start writing extra code to use references then I can't justify using them.
 	WorldSerializer::world = &world;
-	WorldSerializer::manager = &EntityManager;
+	WorldSerializer::manager = EM;
 	PlayerSerializer::world = &world;
 	LightSerializer::world = &world;
-	EntitySerializer::manager = &EntityManager;
+	EntitySerializer::manager = EM;
 	ConfigSerializer::scene_info = &GSceneInfo;
 
 	// INITIAL GLFW AND GLAD SETUPS
@@ -291,7 +259,7 @@ int main()
 	// COLLISION_LOG           = CL_allocate_collision_log();
 	initialize_console_buffers();
 
-	EntityManager.pool.Init();
+	EM->pool.Init();
 
 	// Initialises immediate draw
 	ImDraw::Init();
@@ -438,7 +406,7 @@ int main()
 		// -------------
 		// FINISH FRAME
 		// -------------
-		EntityManager.SafeDeleteMarkedEntities();
+		EM->SafeDeleteMarkedEntities();
 		Rvn::rm_buffer->Cleanup();
 		glfwSwapBuffers(GDisplayInfo.window);
 		if(ProgramMode.current == EDITOR_MODE)

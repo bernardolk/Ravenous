@@ -2,30 +2,17 @@
 #include <windows.h>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include <fstream>
 #include <stb_image/stb_image.h>
 
-#include <iomanip>
-#include <iostream>
-#include <vector>
-#include <string>
-#include <map>
-#include <iostream>
-#include <rvn_macros.h>
-#include <engine/core/rvn_types.h>
-#include <engine/rvn.h>
-#include <glm/gtx/normal.hpp>
 #include <engine/vertex.h>
 #include <engine/logging.h>
-#include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/quaternion.hpp>
-#include <engine/collision/primitives/triangle.h>
-#include <engine/collision/primitives/bounding_box.h>
 #include <engine/mesh.h>
 #include <engine/collision/collision_mesh.h>
 #include <glad/glad.h>
 #include <engine/serialization/parsing/parser.h>
 #include <engine/loaders.h>
+#include "rvn.h"
 
 void load_textures_from_assets_folder()
 {

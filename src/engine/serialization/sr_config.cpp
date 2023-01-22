@@ -2,9 +2,8 @@
 #include <vector>
 #include <map>
 #include <iostream>
-#include <engine/core/rvn_types.h>
+#include <engine/core/types.h>
 #include "engine/rvn.h"
-#include <rvn_macros.h>
 #include <engine/logging.h>
 #include <engine/serialization/sr_entity.h>
 #include <engine/collision/collision_mesh.h>
@@ -15,7 +14,6 @@
 #include "engine/entity_pool.h"
 #include <engine/entity_manager.h>
 #include <engine/serialization/sr_common.h>
-#include "rvn_macros.h"
 #include "player.h"
 #include "engine/world/world.h"
 #include "engine/camera.h"

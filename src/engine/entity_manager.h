@@ -1,13 +1,7 @@
 #pragma once
 
+#include "engine/core/core.h"
 #include "engine/entity_pool.h"
-
-struct World;
-struct CollisionMesh;
-struct EntityPool;
-struct GlobalSceneInfo;
-struct EntityPool;
-struct Texture;
 
 extern GlobalSceneInfo GSceneInfo;
 
@@ -22,7 +16,7 @@ struct EntityAttributes
 	vec3 scale = vec3{1.0f};
 };
 
-struct T_EntityManager
+struct EntityManager
 {
 	// ------------------
 	// > ENTITY MANAGER
@@ -39,6 +33,8 @@ struct T_EntityManager
 	World* world;
 
 	// methods
+	static EntityManager* Get(){ static EntityManager instance; return &instance; }
+	
 	void SetEntityRegistry(std::vector<Entity*>* registry);
 	void SetCheckpointsRegistry(std::vector<Entity*>* registry);
 	void SetInteractablesRegistry(std::vector<Entity*>* registry);

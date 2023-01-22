@@ -484,13 +484,13 @@ namespace Editor
 				second_point = vec3(EdContext.measure_from.x, EdContext.measure_from.y, EdContext.measure_to);
 
 			ImDraw::Add(
-			IMHASH,
-			std::vector<Vertex>{
-			Vertex{EdContext.measure_from},
-			Vertex{second_point}
-			},
-			GL_LINE_LOOP,
-			render_opts
+				IMHASH,
+				std::vector<Vertex>{
+				Vertex{EdContext.measure_from},
+				Vertex{second_point}
+				},
+				GL_LINE_LOOP,
+				render_opts
 			);
 		}
 
@@ -612,22 +612,23 @@ namespace Editor
 		EdContext.entity_panel.y_arrow = y_arrow;
 		EdContext.entity_panel.z_arrow = z_arrow;
 
+		auto* EM = EntityManager::Get();
 		// creates entity rotation gizmos
-		EdContext.entity_panel.rotation_gizmo_x = EntityManager.CreateEditorEntity({
+		EdContext.entity_panel.rotation_gizmo_x = EM->CreateEditorEntity({
 		.name = "rotation_gizmo_x",
 		.mesh = "rotation_gizmo",
 		.shader = "ed_entity_arrow_shader",
 		.texture = "red",
 		.collision_mesh = "rotation_gizmo_collision"});
 
-		EdContext.entity_panel.rotation_gizmo_y = EntityManager.CreateEditorEntity({
+		EdContext.entity_panel.rotation_gizmo_y = EM->CreateEditorEntity({
 		.name = "rotation_gizmo_y",
 		.mesh = "rotation_gizmo",
 		.shader = "ed_entity_arrow_shader",
 		.texture = "green",
 		.collision_mesh = "rotation_gizmo_collision"});
 
-		EdContext.entity_panel.rotation_gizmo_z = EntityManager.CreateEditorEntity({
+		EdContext.entity_panel.rotation_gizmo_z = EM->CreateEditorEntity({
 		.name = "rotation_gizmo_z",
 		.mesh = "rotation_gizmo",
 		.shader = "ed_entity_arrow_shader",
@@ -680,11 +681,11 @@ namespace Editor
 		// PLAYER LIVES
 		std::string lives = std::to_string(player->lives);
 		render_text(
-		font,
-		GlobalDisplayConfig::viewport_width - 400,
-		90,
-		player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1},
-		lives
+			font,
+			GlobalDisplayConfig::viewport_width - 400,
+			90,
+			player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1},
+			lives
 		);
 
 
@@ -693,27 +694,20 @@ namespace Editor
 		std::string player_state_text;
 		switch(player->player_state)
 		{
-		case PLAYER_STATE_STANDING:
-			player_state_text = "PLAYER STANDING";
-			break;
-		case PLAYER_STATE_FALLING:
-			player_state_text = "PLAYER FALLING";
-			break;
-		case PLAYER_STATE_FALLING_FROM_EDGE:
-			player_state_text = "PLAYER FALLING FROM EDGE";
-			break;
-		case PLAYER_STATE_JUMPING:
-			player_state_text = "PLAYER JUMPING";
-			break;
-		case PLAYER_STATE_SLIDING:
-			player_state_text = "PLAYER SLIDING";
-			break;
-		case PLAYER_STATE_SLIDE_FALLING:
-			player_state_text = "PLAYER SLIDE FALLING";
-			break;
-		case PLAYER_STATE_EVICTED_FROM_SLOPE:
-			player_state_text = "PLAYER EVICTED FROM SLOPE";
-			break;
+			case PLAYER_STATE_STANDING: player_state_text = "PLAYER STANDING";
+				break;
+			case PLAYER_STATE_FALLING: player_state_text = "PLAYER FALLING";
+				break;
+			case PLAYER_STATE_FALLING_FROM_EDGE: player_state_text = "PLAYER FALLING FROM EDGE";
+				break;
+			case PLAYER_STATE_JUMPING: player_state_text = "PLAYER JUMPING";
+				break;
+			case PLAYER_STATE_SLIDING: player_state_text = "PLAYER SLIDING";
+				break;
+			case PLAYER_STATE_SLIDE_FALLING: player_state_text = "PLAYER SLIDE FALLING";
+				break;
+			case PLAYER_STATE_EVICTED_FROM_SLOPE: player_state_text = "PLAYER EVICTED FROM SLOPE";
+				break;
 		}
 		render_text("consola18", GlobalDisplayConfig::viewport_width - 400, 30, player_state_text_color, player_state_text);
 
@@ -745,29 +739,23 @@ namespace Editor
 			std::string snap_cycle;
 			switch(EdContext.snap_cycle)
 			{
-			case 0:
-				snap_cycle = "top";
-				break;
-			case 1:
-				snap_cycle = "mid";
-				break;
-			case 2:
-				snap_cycle = "bottom";
-				break;
+				case 0: snap_cycle = "top";
+					break;
+				case 1: snap_cycle = "mid";
+					break;
+				case 2: snap_cycle = "bottom";
+					break;
 			}
 
 			std::string snap_axis;
 			switch(EdContext.snap_axis)
 			{
-			case 0:
-				snap_axis = "X";
-				break;
-			case 1:
-				snap_axis = "Y";
-				break;
-			case 2:
-				snap_axis = "Z";
-				break;
+				case 0: snap_axis = "X";
+					break;
+				case 1: snap_axis = "Y";
+					break;
+				case 2: snap_axis = "Z";
+					break;
 			}
 
 			// if position is changed and not commited, render text yellow
@@ -791,21 +779,21 @@ namespace Editor
 				sub_text = "press Enter to commit position. x/y/z to change axis.";
 
 			render_text(
-			font_center,
-			GlobalDisplayConfig::viewport_width / 2,
-			centered_text_height,
-			tool_text_color_yellow,
-			true,
-			"SNAP MODE (" + snap_axis + "-" + snap_cycle + ")"
+				font_center,
+				GlobalDisplayConfig::viewport_width / 2,
+				centered_text_height,
+				tool_text_color_yellow,
+				true,
+				"SNAP MODE (" + snap_axis + "-" + snap_cycle + ")"
 			);
 
 			render_text(
-			font_center_small,
-			GlobalDisplayConfig::viewport_width / 2,
-			centered_text_height_small,
-			snap_mode_subtext_color,
-			true,
-			sub_text
+				font_center_small,
+				GlobalDisplayConfig::viewport_width / 2,
+				centered_text_height_small,
+				snap_mode_subtext_color,
+				true,
+				sub_text
 			);
 		}
 
@@ -820,12 +808,12 @@ namespace Editor
 			"z";
 
 			render_text(
-			font_center,
-			GlobalDisplayConfig::viewport_width / 2,
-			centered_text_height,
-			vec3(0.8, 0.8, 0.2),
-			true,
-			"MEASURE MODE (" + axis + ")"
+				font_center,
+				GlobalDisplayConfig::viewport_width / 2,
+				centered_text_height,
+				vec3(0.8, 0.8, 0.2),
+				true,
+				"MEASURE MODE (" + axis + ")"
 			);
 
 			if(EdContext.second_point_found)
@@ -836,12 +824,12 @@ namespace Editor
 				EdContext.measure_from.z;
 
 				render_text(
-				font_center,
-				GlobalDisplayConfig::viewport_width / 2,
-				centered_text_height_small,
-				vec3(0.8, 0.8, 0.2),
-				true,
-				"(" + FormatFloatTostr(abs(EdContext.measure_to - dist_ref), 2) + " m)"
+					font_center,
+					GlobalDisplayConfig::viewport_width / 2,
+					centered_text_height_small,
+					vec3(0.8, 0.8, 0.2),
+					true,
+					"(" + FormatFloatTostr(abs(EdContext.measure_to - dist_ref), 2) + " m)"
 				);
 			}
 		}
@@ -854,36 +842,32 @@ namespace Editor
 			std::string move_axis;
 			switch(EdContext.move_axis)
 			{
-			case 0:
-				move_axis = "XZ";
-				break;
-			case 1:
-				move_axis = "X";
-				break;
-			case 2:
-				move_axis = "Y";
-				break;
-			case 3:
-				move_axis = "Z";
-				break;
+				case 0: move_axis = "XZ";
+					break;
+				case 1: move_axis = "X";
+					break;
+				case 2: move_axis = "Y";
+					break;
+				case 3: move_axis = "Z";
+					break;
 			}
 
 			render_text(
-			font_center,
-			GlobalDisplayConfig::viewport_width / 2,
-			centered_text_height,
-			vec3(0.8, 0.8, 0.2),
-			true,
-			"MOVE MODE (" + move_axis + ")"
+				font_center,
+				GlobalDisplayConfig::viewport_width / 2,
+				centered_text_height,
+				vec3(0.8, 0.8, 0.2),
+				true,
+				"MOVE MODE (" + move_axis + ")"
 			);
 
 			render_text(
-			font_center,
-			GlobalDisplayConfig::viewport_width / 2,
-			centered_text_height_small,
-			vec3(0.8, 0.8, 0.2),
-			true,
-			"press M to alternate between move and place modes"
+				font_center,
+				GlobalDisplayConfig::viewport_width / 2,
+				centered_text_height_small,
+				vec3(0.8, 0.8, 0.2),
+				true,
+				"press M to alternate between move and place modes"
 			);
 		}
 
@@ -893,21 +877,21 @@ namespace Editor
 		if(EdContext.place_mode)
 		{
 			render_text(
-			font_center,
-			GlobalDisplayConfig::viewport_width / 2,
-			centered_text_height,
-			vec3(0.8, 0.8, 0.2),
-			true,
-			"PLACE MODE"
+				font_center,
+				GlobalDisplayConfig::viewport_width / 2,
+				centered_text_height,
+				vec3(0.8, 0.8, 0.2),
+				true,
+				"PLACE MODE"
 			);
 
 			render_text(
-			font_center_small,
-			GlobalDisplayConfig::viewport_width / 2,
-			centered_text_height_small,
-			vec3(0.8, 0.8, 0.2),
-			true,
-			"press M to alternate between move and place modes"
+				font_center_small,
+				GlobalDisplayConfig::viewport_width / 2,
+				centered_text_height_small,
+				vec3(0.8, 0.8, 0.2),
+				true,
+				"press M to alternate between move and place modes"
 			);
 		}
 
@@ -917,12 +901,12 @@ namespace Editor
 		if(EdContext.locate_coords_mode)
 		{
 			render_text(
-			font_center,
-			GlobalDisplayConfig::viewport_width / 2,
-			centered_text_height,
-			vec3(0.8, 0.8, 0.2),
-			true,
-			"LOCATE COORDS MODE"
+				font_center,
+				GlobalDisplayConfig::viewport_width / 2,
+				centered_text_height,
+				vec3(0.8, 0.8, 0.2),
+				true,
+				"LOCATE COORDS MODE"
 			);
 
 			std::string locate_coords_subtext;
@@ -939,12 +923,12 @@ namespace Editor
 			}
 
 			render_text(
-			font_center_small,
-			GlobalDisplayConfig::viewport_width / 2,
-			centered_text_height - 40,
-			tool_text_color_green,
-			true,
-			locate_coords_subtext
+				font_center_small,
+				GlobalDisplayConfig::viewport_width / 2,
+				centered_text_height - 40,
+				tool_text_color_green,
+				true,
+				locate_coords_subtext
 			);
 		}
 
@@ -954,12 +938,12 @@ namespace Editor
 		if(EdContext.stretch_mode)
 		{
 			render_text(
-			font_center,
-			GlobalDisplayConfig::viewport_width / 2,
-			centered_text_height,
-			vec3(0.8, 0.8, 0.2),
-			true,
-			"STRETCH MODE"
+				font_center,
+				GlobalDisplayConfig::viewport_width / 2,
+				centered_text_height,
+				vec3(0.8, 0.8, 0.2),
+				true,
+				"STRETCH MODE"
 			);
 		}
 
@@ -969,12 +953,12 @@ namespace Editor
 		if(EdContext.select_entity_aux_mode)
 		{
 			render_text(
-			font_center,
-			GlobalDisplayConfig::viewport_width / 2,
-			centered_text_height,
-			vec3(0.8, 0.8, 0.2),
-			true,
-			"SELECT RELATED ENTITY"
+				font_center,
+				GlobalDisplayConfig::viewport_width / 2,
+				centered_text_height,
+				vec3(0.8, 0.8, 0.2),
+				true,
+				"SELECT RELATED ENTITY"
 			);
 		}
 	}
@@ -1034,7 +1018,7 @@ namespace Editor
 
 			// creates model matrix
 			vec3 position = get_world_coordinates_from_world_cell_coordinates(
-			cell->i, cell->j, cell->k
+				cell->i, cell->j, cell->k
 			);
 			glm::mat4 model = translate(Mat4Identity, position);
 			model = scale(model, vec3{WCellLenMeters, WCellLenMeters, WCellLenMeters});
@@ -1321,6 +1305,7 @@ namespace Editor
 
 	void check_selection_to_select_related_entity(World* world, Camera* camera)
 	{
+		auto* EM = EntityManager::Get();
 		auto pickray = cast_pickray(camera, GInputInfo.mouse_coords.x, GInputInfo.mouse_coords.y);
 		auto test = world->Raycast(pickray, RayCast_TestOnlyVisibleEntities);
 		if(test.hit)
@@ -1332,14 +1317,14 @@ namespace Editor
 			{
 				switch(EdContext.select_entity_aux_mode_callback)
 				{
-				case EdToolCallback_EntityManagerSetType:
-				{
-					EntityManager.SetType(
-					*EdContext.select_entity_aux_mode_entity_slot,
-					EdContext.select_entity_aux_mode_callback_args.entity_type
-					);
-					break;
-				}
+					case EdToolCallback_EntityManagerSetType:
+					{
+						EM->SetType(
+							*EdContext.select_entity_aux_mode_entity_slot,
+							EdContext.select_entity_aux_mode_callback_args.entity_type
+						);
+						break;
+					}
 				}
 			}
 		}

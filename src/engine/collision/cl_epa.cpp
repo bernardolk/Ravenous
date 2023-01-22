@@ -1,7 +1,7 @@
 #include <vector>
 #include <string>
 #include <map>
-#include <engine/core/rvn_types.h>
+#include <engine/core/types.h>
 #include <engine/collision/primitives/bounding_box.h>
 #include <engine/collision/primitives/ray.h>
 #include <engine/vertex.h>

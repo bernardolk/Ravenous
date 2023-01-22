@@ -1,6 +1,6 @@
 #pragma once
 
-struct Mesh;
+#include <engine/core/core.h>
 
 enum class RenderMethodEnum
 {

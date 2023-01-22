@@ -3,8 +3,7 @@
 #include <map>
 #include <iostream>
 #include <algorithm>
-#include <engine/core/rvn_types.h>
-#include <rvn_macros.h>
+#include <engine/core/types.h>
 #include <engine/collision/primitives/ray.h>
 #include <engine/collision/primitives/bounding_box.h>
 #include <engine/world/world.h>

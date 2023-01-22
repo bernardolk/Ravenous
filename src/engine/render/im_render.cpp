@@ -2,8 +2,7 @@
 #include <map>
 #include <vector>
 #include <iostream>
-#include <engine/core/rvn_types.h>
-#include <rvn_macros.h>
+#include <engine/core/types.h>
 #include <colors.h>
 #include <engine/shader.h>
 #include <engine/vertex.h>

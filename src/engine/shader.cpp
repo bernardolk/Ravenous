@@ -5,7 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <string>
 #include <map>
-#include <engine/core/rvn_types.h>
+#include <engine/core/types.h>
 #include <engine/rvn.h>
 #include <engine/serialization/parsing/parser.h>
 #include <engine/logging.h>
