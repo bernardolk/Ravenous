@@ -1,9 +1,8 @@
 #pragma once
 
-#include "editor_context.h"
-#include "editor_panel_contexts.h"
-#include "engine/collision/raycast.h"
 #include "engine/core/core.h"
+#include "editor/editor_context.h"
+#include "engine/collision/raycast.h"
 
 namespace Editor
 {

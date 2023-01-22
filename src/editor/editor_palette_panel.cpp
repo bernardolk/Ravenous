@@ -3,7 +3,7 @@
 #include <stb_image/stb_image.h>
 #include "editor.h"
 #include "editor_panel_contexts.h"
-#include "editor_tools.h"
+#include "tools/editor_tools.h"
 #include "engine/camera.h"
 #include "engine/loaders.h"
 #include "engine/world/scene_manager.h"

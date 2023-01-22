@@ -2,7 +2,7 @@
 #include "editor_toolbar.h"
 #include <imgui.h>
 #include "editor.h"
-#include "editor_tools.h"
+#include "tools/editor_tools.h"
 #include "engine/camera.h"
 #include "engine/io/display.h"
 #include "engine/serialization/sr_config.h"

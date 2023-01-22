@@ -1,7 +1,7 @@
 #include "editor_lights_panel.h"
 #include <imgui.h>
 #include "editor.h"
-#include "editor_tools.h"
+#include "tools/editor_tools.h"
 #include "engine/camera.h"
 #include "engine/lights.h"
 #include "engine/world/world.h"

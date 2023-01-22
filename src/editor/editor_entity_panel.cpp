@@ -4,7 +4,7 @@
 
 #include "editor.h"
 #include "editor_panel_contexts.h"
-#include "editor_tools.h"
+#include "tools/editor_tools.h"
 #include "engine/io/display.h"
 #include "engine/render/shader.h"
 #include "engine/world/world.h"

@@ -3,7 +3,7 @@
 #include "editor.h"
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
-#include <editor/editor_tools.h>
+#include "tools/editor_tools.h"
 #include <editor/editor_toolbar.h>
 #include <editor/editor_entity_panel.h>
 #include <editor/editor_player_panel.h>

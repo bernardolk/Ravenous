@@ -1,6 +1,6 @@
 #pragma once
 
-#include "editor/editor_tools.h"
+#include "editor_tools.h"
 #include "editor/editor.h"
 #include "editor/editor_entity_panel.h"
 #include "engine/camera.h"
