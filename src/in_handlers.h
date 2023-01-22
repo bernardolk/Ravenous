@@ -35,22 +35,24 @@ void IN_assign_keys_to_actions()
 
 void IN_process_move_keys(InputFlags flags, vec3& v_dir)
 {
+	auto* player_camera = GlobalSceneInfo::GetGameCam();
+
 	if(pressed(flags, KEY_MOVE_UP))
 	{
-		v_dir += nrmlz(to_xz(PCam->front));
+		v_dir += nrmlz(to_xz(player_camera->front));
 	}
 	if(pressed(flags, KEY_MOVE_LEFT))
 	{
-		vec3 onwards_vector = cross(PCam->front, PCam->up);
+		vec3 onwards_vector = cross(player_camera->front, player_camera->up);
 		v_dir -= nrmlz(to_xz(onwards_vector));
 	}
 	if(pressed(flags, KEY_MOVE_DOWN))
 	{
-		v_dir -= nrmlz(to_xz(PCam->front));
+		v_dir -= nrmlz(to_xz(player_camera->front));
 	}
 	if(pressed(flags, KEY_MOVE_RIGHT))
 	{
-		vec3 onwards_vector = cross(PCam->front, PCam->up);
+		vec3 onwards_vector = cross(player_camera->front, player_camera->up);
 		v_dir += nrmlz(to_xz(onwards_vector));
 	}
 }

@@ -236,13 +236,14 @@ inline void GP_player_state_change_standing_to_vaulting(Player* player, Ledge le
 {
 	auto* GII = GlobalInputInfo::Get();
 	GII->block_mouse_move = true;
-
+	auto* player_camera = GlobalSceneInfo::GetGameCam();
+	
 	player->player_state = PLAYER_STATE_VAULTING;
 	player->anim_state = PlayerAnimationState_Vaulting;
 	player->entity_ptr->velocity = vec3(0);
 
 	player->anim_orig_pos = player->entity_ptr->position;
-	player->anim_orig_dir = normalize(to_xz(PCam->front));
+	player->anim_orig_dir = normalize(to_xz(player_camera->front));
 
 	auto inward_normal = normalize(cross(ledge.a - ledge.b, UnitY));
 	player->anim_final_pos = final_position;

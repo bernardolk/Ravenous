@@ -15,4 +15,10 @@ struct GlobalSceneInfo
 	static GlobalSceneInfo* Get() { static GlobalSceneInfo instance; return &instance; }
 
 	static void RefreshActiveScene();
+	static Camera* GetGameCam();
+	static Camera* GetEditorCam();
+
+private:
+	GlobalSceneInfo();
+	GlobalSceneInfo(const GlobalSceneInfo& other) = delete;
 };

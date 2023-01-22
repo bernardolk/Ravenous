@@ -120,17 +120,6 @@ void erase_entity(Scene* scene, Entity* entity);
 
 #include <editor/editor_main.h>
 
-// TODO: Remove after refactor
-void tmp_fwd_end_dear_imgui_frame()
-{
-	Editor::end_dear_imgui_frame();
-}
-void tmp_fwd_start_dear_imgui_frame()
-{
-	Editor::start_dear_imgui_frame();
-}
-
-
 #define glCheckError() glCheckError_(__FILE__, __LINE__)
 
 // OPENGL OBJECTS
@@ -178,14 +167,8 @@ int main()
 	setup_gl();
 
 	// create cameras
-	const auto editor_camera = new Camera();
-	const auto first_person_camera = new Camera();
-	auto* GSI = GlobalSceneInfo::Get();
 
-	GSI->views[EditorCam] = editor_camera;
-	GSI->views[GameCam] = first_person_camera;
-	PCam = first_person_camera;
-	EdCam = editor_camera;
+	auto* GSI = GlobalSceneInfo::Get();
 
 	// load shaders, textures and geometry
 	stbi_set_flip_vertically_on_load(true);
@@ -203,9 +186,6 @@ int main()
 
 	// Initialises immediate draw
 	ImDraw::Init();
-
-	GSI->camera = GSI->views[0]; // sets to editor camera
-
 
 	// loads initial scene
 	GConfig = ConfigSerializer::load_configs();
@@ -352,29 +332,6 @@ int main()
 	glfwTerminate();
 }
 
-//    ----------------------------------------------------------------
-void simulate_gravity_trajectory()
-{
-	// configs
-	auto initial_pos = vec3(2.0, 1.5, 6.5);
-	vec3 v_direction = -UnitX;
-	float v_magnitude = 3;
-	auto grav = vec3(0, -9.0, 0); // m/s^2
-	int iterations = 20;
-
-	// state
-	vec3 vel = v_direction * v_magnitude;
-	vec3 pos = initial_pos;
-
-
-	for(int i = 0; i < iterations; i++)
-	{
-		float d_frame = 0.02;
-		vel += d_frame * grav;
-		pos += vel * d_frame;
-		ImDraw::AddPoint(IM_ITERHASH(i), pos, 2.0, false, COLOR_GREEN_1, 1);
-	}
-}
 
 //    ----------------------------------------------------------------
 
