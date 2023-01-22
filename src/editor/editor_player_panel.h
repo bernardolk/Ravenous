@@ -1,3 +1,5 @@
+#pragma once
+
 // -------------
 // PLAYER PANEL
 // -------------
@@ -6,12 +8,12 @@ void render_player_panel(PlayerPanelContext* panel);
 void open_player_panel(Player* player);
 
 
-void render_player_panel(PlayerPanelContext* panel)
+inline void render_player_panel(PlayerPanelContext* panel)
 {
 	auto& entity = panel->player->entity_ptr;
 	auto& player = panel->player;
 
-	ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::VIEWPORT_WIDTH - 550, 370), ImGuiCond_Appearing);
+	ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::viewport_width - 550, 370), ImGuiCond_Appearing);
 
 	ImGui::Begin("Player Panel", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
 	panel->focused = ImGui::IsWindowFocused();
@@ -41,7 +43,7 @@ void render_player_panel(PlayerPanelContext* panel)
 	ImGui::End();
 }
 
-void open_player_panel(Player* player)
+inline void open_player_panel(Player* player)
 {
 	EdContext.selected_entity = player->entity_ptr;
 

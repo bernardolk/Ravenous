@@ -19,17 +19,17 @@
 #include <engine/camera.h>
 #include <engine/render/im_render.h>
 
-void ImDraw::init()
+void ImDraw::Init()
 {
 	list = new ImDrawElement[IM_BUFFER_SIZE];
 	for(int i = 0; i < IM_BUFFER_SIZE; i++)
 	{
-		_empty_slot(i);
-		list[i].mesh.setup_gl_buffers();
+		EmptySlot(i);
+		list[i].mesh.SetupGLBuffers();
 	}
 }
 
-void ImDraw::update(float frame_duration)
+void ImDraw::Update(float frame_duration)
 {
 	for(int i = 0; i < IM_BUFFER_SIZE; i++)
 	{
@@ -39,14 +39,14 @@ void ImDraw::update(float frame_duration)
 
 		obj.duration -= frame_duration * 1000.0;
 		if(obj.duration <= 0)
-			_empty_slot(i);
+			EmptySlot(i);
 	}
 }
 
-void ImDraw::render(Camera* camera)
+void ImDraw::Render(Camera* camera)
 {
-	Shader* im_point_shader = Shader_Catalogue.find("immediate_point")->second;
-	Shader* im_mesh_shader = Shader_Catalogue.find("im_mesh")->second;
+	Shader* im_point_shader = ShaderCatalogue.find("immediate_point")->second;
+	Shader* im_mesh_shader = ShaderCatalogue.find("im_mesh")->second;
 	Shader* shader = im_point_shader;
 	for(int i = 0; i < IM_BUFFER_SIZE; i++)
 	{
@@ -59,27 +59,27 @@ void ImDraw::render(Camera* camera)
 		if(obj.is_mesh)
 		{
 			shader = im_mesh_shader;
-			shader->use();
+			shader->Use();
 			if(!obj.is_multpl_by_matmodel)
 			{
-				auto matModel = _get_mat_model(obj.pos, obj.rot, obj.scale);
-				shader->setMatrix4("model", matModel);
+				auto matModel = GetMatModel(obj.pos, obj.rot, obj.scale);
+				shader->SetMatrix4("model", matModel);
 			}
 			else
 			{
-				shader->setMatrix4("model", mat4identity);
+				shader->SetMatrix4("model", Mat4Identity);
 			}
 		}
 		else
 		{
 			shader = im_point_shader;
-			shader->use();
+			shader->Use();
 		}
 
-		shader->setMatrix4("view", camera->View4x4);
-		shader->setMatrix4("projection", camera->Projection4x4);
-		shader->setFloat("opacity", obj.render_options.opacity);
-		shader->setFloat3("color", obj.render_options.color);
+		shader->SetMatrix4("view", camera->mat_view);
+		shader->SetMatrix4("projection", camera->mat_projection);
+		shader->SetFloat("opacity", obj.render_options.opacity);
+		shader->SetFloat3("color", obj.render_options.color);
 
 		render_mesh(&(list[i].mesh), obj.render_options);
 	}
@@ -89,15 +89,15 @@ void ImDraw::render(Camera* camera)
 /* --------------------------- */
 /*      > Add primitives       */
 /* --------------------------- */
-void ImDraw::add(size_t _hash, std::vector<Vertex> vertex_vec, GLenum draw_method, RenderOptions opts)
+void ImDraw::Add(size_t _hash, std::vector<Vertex> vertex_vec, GLenum draw_method, RenderOptions opts)
 {
 	IM_R_FIND_SLOT();
 
-	_set_mesh(slot.index, vertex_vec, draw_method, opts);
+	SetMesh(slot.index, vertex_vec, draw_method, opts);
 }
 
 
-void ImDraw::add(size_t _hash, std::vector<Triangle> triangles, GLenum draw_method = GL_LINE_LOOP, RenderOptions opts = RenderOptions{})
+void ImDraw::Add(size_t _hash, std::vector<Triangle> triangles, GLenum draw_method = GL_LINE_LOOP, RenderOptions opts = RenderOptions{})
 {
 	IM_R_FIND_SLOT();
 
@@ -109,16 +109,16 @@ void ImDraw::add(size_t _hash, std::vector<Triangle> triangles, GLenum draw_meth
 		vertex_vec.push_back(Vertex{triangles[i].c});
 	}
 
-	_set_mesh(slot.index, vertex_vec, draw_method, opts);
+	SetMesh(slot.index, vertex_vec, draw_method, opts);
 }
 
-void ImDraw::add_line(size_t _hash, vec3 pointA, vec3 pointB, vec3 color)
+void ImDraw::AddLine(size_t _hash, vec3 pointA, vec3 pointB, vec3 color)
 {
-	add_line(_hash, pointA, pointB, 1.0, false, color);
+	AddLine(_hash, pointA, pointB, 1.0, false, color);
 }
 
 
-void ImDraw::add_line(size_t _hash, vec3 pointA, vec3 pointB, float line_width,
+void ImDraw::AddLine(size_t _hash, vec3 pointA, vec3 pointB, float line_width,
                       bool always_on_top, vec3 color, float duration)
 {
 	IM_R_FIND_SLOT();
@@ -138,11 +138,11 @@ void ImDraw::add_line(size_t _hash, vec3 pointA, vec3 pointB, float line_width,
 		obj.duration = duration;
 	}
 
-	_set_mesh(slot.index, vertex_vec, GL_LINES, opts);
+	SetMesh(slot.index, vertex_vec, GL_LINES, opts);
 }
 
 
-void ImDraw::add_line_loop(size_t _hash, std::vector<vec3> points, float line_width, bool always_on_top)
+void ImDraw::AddLineLoop(size_t _hash, std::vector<vec3> points, float line_width, bool always_on_top)
 {
 	IM_R_FIND_SLOT();
 
@@ -155,11 +155,11 @@ void ImDraw::add_line_loop(size_t _hash, std::vector<vec3> points, float line_wi
 	opts.always_on_top = always_on_top;
 	opts.dont_cull_face = true;
 
-	_set_mesh(slot.index, vertex_vec, GL_LINE_LOOP, opts);
+	SetMesh(slot.index, vertex_vec, GL_LINE_LOOP, opts);
 }
 
 
-void ImDraw::add_point(size_t _hash, vec3 point, float point_size, bool always_on_top, vec3 color, float duration)
+void ImDraw::AddPoint(size_t _hash, vec3 point, float point_size, bool always_on_top, vec3 color, float duration)
 {
 	IM_R_FIND_SLOT();
 
@@ -177,16 +177,16 @@ void ImDraw::add_point(size_t _hash, vec3 point, float point_size, bool always_o
 	opts.always_on_top = always_on_top;
 	opts.color = color;
 
-	_set_mesh(slot.index, vertex_vec, GL_POINTS, opts);
+	SetMesh(slot.index, vertex_vec, GL_POINTS, opts);
 }
 
-void ImDraw::add_point(size_t _hash, vec3 point, vec3 color)
+void ImDraw::AddPoint(size_t _hash, vec3 point, vec3 color)
 {
-	add_point(_hash, point, 1.0, false, color);
+	AddPoint(_hash, point, 1.0, false, color);
 }
 
 
-void ImDraw::add_triangle(size_t _hash, Triangle t, float line_width, bool always_on_top, vec3 color)
+void ImDraw::AddTriangle(size_t _hash, Triangle t, float line_width, bool always_on_top, vec3 color)
 {
 	IM_R_FIND_SLOT();
 
@@ -198,21 +198,21 @@ void ImDraw::add_triangle(size_t _hash, Triangle t, float line_width, bool alway
 	opts.always_on_top = always_on_top;
 	opts.color = color;
 
-	_set_mesh(slot.index, vertex_vec, GL_TRIANGLES, opts);
-	_set_indices(slot.index, indices);
+	SetMesh(slot.index, vertex_vec, GL_TRIANGLES, opts);
+	SetIndices(slot.index, indices);
 }
 
 
 /* --------------------------- */
 /*        > Add Mesh           */
 /* --------------------------- */
-void ImDraw::add_mesh(size_t _hash, Mesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color, int duration)
+void ImDraw::AddMesh(size_t _hash, Mesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color, int duration)
 {
 	IM_R_FIND_SLOT();
 
 	if(!slot.empty)
 	{
-		_update_mesh(slot.index, pos, rot, scale, color, duration);
+		UpdateMesh(slot.index, pos, rot, scale, color, duration);
 		return;
 	}
 
@@ -227,17 +227,17 @@ void ImDraw::add_mesh(size_t _hash, Mesh* mesh, vec3 pos, vec3 rot, vec3 scale, 
 	obj.rot = rot;
 	obj.scale = scale;
 
-	_set_mesh(slot.index, mesh, opts);
+	SetMesh(slot.index, mesh, opts);
 }
 
 
-void ImDraw::add_mesh(size_t _hash, Mesh* mesh, vec3 color, float duration)
+void ImDraw::AddMesh(size_t _hash, Mesh* mesh, vec3 color, float duration)
 {
 	IM_R_FIND_SLOT();
 
 	if(!slot.empty)
 	{
-		_update_mesh(slot.index, color, duration);
+		UpdateMesh(slot.index, color, duration);
 		return;
 	}
 
@@ -250,31 +250,31 @@ void ImDraw::add_mesh(size_t _hash, Mesh* mesh, vec3 color, float duration)
 	obj.duration = duration;
 	obj.is_multpl_by_matmodel = true;
 
-	_set_mesh(slot.index, mesh, opts);
+	SetMesh(slot.index, mesh, opts);
 }
 
 
-void ImDraw::add_mesh(size_t _hash, Entity* entity, int duration)
+void ImDraw::AddMesh(size_t _hash, Entity* entity, int duration)
 {
-	add_mesh(_hash, entity->mesh, entity->position, entity->rotation, entity->scale, vec3(1.0, 0, 0), duration);
+	AddMesh(_hash, entity->mesh, entity->position, entity->rotation, entity->scale, vec3(1.0, 0, 0), duration);
 }
 
 
-void ImDraw::add_mesh(size_t _hash, Entity* entity)
+void ImDraw::AddMesh(size_t _hash, Entity* entity)
 {
-	add_mesh(_hash, entity->mesh, entity->position, entity->rotation, entity->scale);
+	AddMesh(_hash, entity->mesh, entity->position, entity->rotation, entity->scale);
 }
 
 
-void ImDraw::add_mesh(size_t _hash, Entity* entity, vec3 pos)
+void ImDraw::AddMesh(size_t _hash, Entity* entity, vec3 pos)
 {
-	add_mesh(_hash, entity->mesh, pos, entity->rotation, entity->scale);
+	AddMesh(_hash, entity->mesh, pos, entity->rotation, entity->scale);
 }
 
 /* --------------------------- */
 /*     > Private functions     */
 /* --------------------------- */
-void ImDraw::_empty_slot(int i)
+void ImDraw::EmptySlot(int i)
 {
 	auto& obj = list[i];
 	obj.mesh.indices.clear();
@@ -290,7 +290,7 @@ void ImDraw::_empty_slot(int i)
 }
 
 
-ImDrawSlot ImDraw::_find_element_or_empty_slot(size_t hash)
+ImDrawSlot ImDraw::FindElementOrEmptySlot(size_t hash)
 {
 	int slot = -1;
 	for(int i = 0; i < IM_BUFFER_SIZE; i++)
@@ -308,7 +308,7 @@ ImDrawSlot ImDraw::_find_element_or_empty_slot(size_t hash)
 }
 
 
-void ImDraw::_set_mesh(int i, std::vector<Vertex> vertices, GLenum draw_method, RenderOptions opts)
+void ImDraw::SetMesh(int i, std::vector<Vertex> vertices, GLenum draw_method, RenderOptions opts)
 {
 	auto& obj = list[i];
 	obj.mesh.vertices = vertices;
@@ -316,22 +316,22 @@ void ImDraw::_set_mesh(int i, std::vector<Vertex> vertices, GLenum draw_method, 
 	obj.render_options = opts;
 	obj.empty = false;
 
-	obj.mesh.send_data_to_gl_buffer();
+	obj.mesh.SendDataToGLBuffer();
 }
 
 
-void ImDraw::_set_mesh(int i, Mesh* mesh, RenderOptions opts)
+void ImDraw::SetMesh(int i, Mesh* mesh, RenderOptions opts)
 {
 	auto& obj = list[i];
 	obj.mesh = *mesh;
 	obj.render_options = opts;
 	obj.is_mesh = true;
 	obj.empty = false;
-	obj.mesh.send_data_to_gl_buffer();
+	obj.mesh.SendDataToGLBuffer();
 }
 
 
-void ImDraw::_update_mesh(int i, vec3 pos, vec3 rot, vec3 scale, vec3 color, int duration)
+void ImDraw::UpdateMesh(int i, vec3 pos, vec3 rot, vec3 scale, vec3 color, int duration)
 {
 	auto& obj = list[i];
 	obj.render_options.color = color;
@@ -342,7 +342,7 @@ void ImDraw::_update_mesh(int i, vec3 pos, vec3 rot, vec3 scale, vec3 color, int
 }
 
 
-void ImDraw::_update_mesh(int i, vec3 color, int duration)
+void ImDraw::UpdateMesh(int i, vec3 color, int duration)
 {
 	auto& obj = list[i];
 	obj.render_options.color = color;
@@ -351,9 +351,9 @@ void ImDraw::_update_mesh(int i, vec3 color, int duration)
 
 
 //@TODO: Probably redundant code
-mat4 ImDraw::_get_mat_model(vec3 pos, vec3 rot, vec3 scale)
+mat4 ImDraw::GetMatModel(vec3 pos, vec3 rot, vec3 scale)
 {
-	glm::mat4 model = translate(mat4identity, pos);
+	glm::mat4 model = translate(Mat4Identity, pos);
 	model = rotate(model, glm::radians(rot.x), vec3(1.0f, 0.0f, 0.0f));
 	model = rotate(model, glm::radians(rot.y), vec3(0.0f, 1.0f, 0.0f));
 	model = rotate(model, glm::radians(rot.z), vec3(0.0f, 0.0f, 1.0f));
@@ -362,7 +362,7 @@ mat4 ImDraw::_get_mat_model(vec3 pos, vec3 rot, vec3 scale)
 }
 
 
-void ImDraw::_set_indices(int i, std::vector<u32> indices)
+void ImDraw::SetIndices(int i, std::vector<u32> indices)
 {
 	list[i].mesh.indices = indices;
 }

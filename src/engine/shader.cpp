@@ -11,61 +11,61 @@
 #include <engine/logging.h>
 #include <engine/shader.h>
 
-std::map<std::string, Shader*> Shader_Catalogue;
+std::map<std::string, Shader*> ShaderCatalogue;
 
-void Shader::use()
+void Shader::Use()
 {
-	glUseProgram(this->gl_programId);
+	glUseProgram(this->gl_program_id);
 }
 
-void Shader::setBool(const std::string& name, bool value) const
+void Shader::SetBool(const std::string& name, bool value) const
 {
-	glUniform1i(glGetUniformLocation(this->gl_programId, name.c_str()), static_cast<int>(value));
+	glUniform1i(glGetUniformLocation(this->gl_program_id, name.c_str()), static_cast<int>(value));
 }
 
-void Shader::setInt(const std::string& name, int value) const
+void Shader::SetInt(const std::string& name, int value) const
 {
-	glUniform1i(glGetUniformLocation(this->gl_programId, name.c_str()), value);
+	glUniform1i(glGetUniformLocation(this->gl_program_id, name.c_str()), value);
 }
 
-void Shader::setFloat(const std::string& name, float value) const
+void Shader::SetFloat(const std::string& name, float value) const
 {
-	glUniform1f(glGetUniformLocation(this->gl_programId, name.c_str()), value);
+	glUniform1f(glGetUniformLocation(this->gl_program_id, name.c_str()), value);
 }
 
-void Shader::setFloat2(const std::string& name, float value0, float value1) const
+void Shader::SetFloat2(const std::string& name, float value0, float value1) const
 {
-	glUniform2f(glGetUniformLocation(this->gl_programId, name.c_str()), value0, value1);
+	glUniform2f(glGetUniformLocation(this->gl_program_id, name.c_str()), value0, value1);
 }
 
-void Shader::setFloat2(const std::string& name, vec2 vec) const
+void Shader::SetFloat2(const std::string& name, vec2 vec) const
 {
-	glUniform2f(glGetUniformLocation(this->gl_programId, name.c_str()), vec.x, vec.y);
+	glUniform2f(glGetUniformLocation(this->gl_program_id, name.c_str()), vec.x, vec.y);
 }
 
-void Shader::setFloat3(const std::string& name, float value0, float value1, float value2) const
+void Shader::SetFloat3(const std::string& name, float value0, float value1, float value2) const
 {
-	glUniform3f(glGetUniformLocation(this->gl_programId, name.c_str()), value0, value1, value2);
+	glUniform3f(glGetUniformLocation(this->gl_program_id, name.c_str()), value0, value1, value2);
 }
 
-void Shader::setFloat3(const std::string& name, vec3 vec) const
+void Shader::SetFloat3(const std::string& name, vec3 vec) const
 {
-	glUniform3f(glGetUniformLocation(this->gl_programId, name.c_str()), vec.x, vec.y, vec.z);
+	glUniform3f(glGetUniformLocation(this->gl_program_id, name.c_str()), vec.x, vec.y, vec.z);
 }
 
-void Shader::setFloat4(const std::string& name, float value0, float value1, float value2, float value3) const
+void Shader::SetFloat4(const std::string& name, float value0, float value1, float value2, float value3) const
 {
-	glUniform4f(glGetUniformLocation(this->gl_programId, name.c_str()), value0, value1, value2, value3);
+	glUniform4f(glGetUniformLocation(this->gl_program_id, name.c_str()), value0, value1, value2, value3);
 }
 
-void Shader::setFloat4(const std::string& name, glm::vec4 vec) const
+void Shader::SetFloat4(const std::string& name, glm::vec4 vec) const
 {
-	glUniform4f(glGetUniformLocation(this->gl_programId, name.c_str()), vec.x, vec.y, vec.z, vec.w);
+	glUniform4f(glGetUniformLocation(this->gl_program_id, name.c_str()), vec.x, vec.y, vec.z, vec.w);
 }
 
-void Shader::setMatrix4(const std::string& name, glm::mat4 mat) const
+void Shader::SetMatrix4(const std::string& name, glm::mat4 mat) const
 {
-	glUniformMatrix4fv(glGetUniformLocation(this->gl_programId, name.c_str()), 1, GL_FALSE, value_ptr(mat));
+	glUniformMatrix4fv(glGetUniformLocation(this->gl_program_id, name.c_str()), 1, GL_FALSE, value_ptr(mat));
 }
 
 
@@ -124,7 +124,7 @@ const std::string fragment_shader_filename)
 	// >> VERTEX
 	std::string vertexCode;
 	{
-		shader->vertex_path = SHADERS_FOLDER_PATH + vertex_shader_filename + SHADERS_FILE_EXTENSION;
+		shader->vertex_path = Paths::Shaders + vertex_shader_filename + Paths::ShaderFileExtension;
 		std::ifstream vShaderFile;
 
 		vShaderFile.open(shader->vertex_path);
@@ -140,7 +140,7 @@ const std::string fragment_shader_filename)
 	// >> FRAGMENT
 	std::string fragmentCode;
 	{
-		shader->fragment_path = SHADERS_FOLDER_PATH + fragment_shader_filename + SHADERS_FILE_EXTENSION;
+		shader->fragment_path = Paths::Shaders + fragment_shader_filename + Paths::ShaderFileExtension;
 		std::ifstream fShaderFile;
 		fShaderFile.open(shader->fragment_path);
 		std::stringstream fShaderStream;
@@ -176,9 +176,9 @@ const std::string fragment_shader_filename)
 	}
 
 	// > ATTACH SHADERS TO PROGRAM
-	shader->gl_programId = glCreateProgram();
-	glAttachShader(shader->gl_programId, vertex);
-	glAttachShader(shader->gl_programId, fragment);
+	shader->gl_program_id = glCreateProgram();
+	glAttachShader(shader->gl_program_id, vertex);
+	glAttachShader(shader->gl_program_id, fragment);
 
 
 	// > LOAD, COMPILE AND ATTACH OPTIONAL SHADERS 
@@ -188,7 +188,7 @@ const std::string fragment_shader_filename)
 		// >>> LOAD
 		std::string geometryCode;
 		{
-			shader->geometry_path = SHADERS_FOLDER_PATH + geometry_shader_filename + SHADERS_FILE_EXTENSION;
+			shader->geometry_path = Paths::Shaders + geometry_shader_filename + Paths::ShaderFileExtension;
 			std::ifstream gShaderFile;
 
 			gShaderFile.open(shader->geometry_path);
@@ -213,15 +213,15 @@ const std::string fragment_shader_filename)
 		}
 
 		// >>> ATTACH
-		glAttachShader(shader->gl_programId, geometry);
+		glAttachShader(shader->gl_program_id, geometry);
 		optional_shaders[0] = geometry;
 		optional_shaders_count++;
 	}
 
 
 	// > LINK PROGRAM
-	glLinkProgram(shader->gl_programId);
-	problem = problem || check_shader_compile_errors(shader, "PROGRAM", shader->gl_programId);
+	glLinkProgram(shader->gl_program_id);
+	problem = problem || check_shader_compile_errors(shader, "PROGRAM", shader->gl_program_id);
 
 
 	// > DELETE SHADERS
@@ -250,50 +250,50 @@ void initialize_shaders()
 	/* Parses shader program info from programs file, assembles each shader program and stores them into the
 	   shaders catalogue. */
 
-	Parser p{SHADERS_FOLDER_PATH + "programs.csv"};
+	Parser p{Paths::Shaders + "programs.csv"};
 
 	// discard header
-	p.next_line();
+	p.NextLine();
 
-	while(p.next_line())
+	while(p.NextLine())
 	{
 		bool error = false, missing_comma = false, has_geometry_shader = false;
 
-		p.parse_token();
-		if(!p.has_token())
+		p.ParseToken();
+		if(!p.HasToken())
 			error = true;
 		const auto shader_name = get_parsed<std::string>(p);
 
-		p.parse_all_whitespace();
-		p.parse_symbol();
-		if(!p.has_token())
+		p.ParseAllWhitespace();
+		p.ParseSymbol();
+		if(!p.HasToken())
 			missing_comma = true;
 
-		p.parse_all_whitespace();
-		p.parse_token();
-		if(!p.has_token())
+		p.ParseAllWhitespace();
+		p.ParseToken();
+		if(!p.HasToken())
 			error = true;
 		const auto vertex_shader_name = get_parsed<std::string>(p);
 
-		p.parse_all_whitespace();
-		p.parse_symbol();
-		if(!p.has_token())
+		p.ParseAllWhitespace();
+		p.ParseSymbol();
+		if(!p.HasToken())
 			missing_comma = true;
 
-		p.parse_all_whitespace();
-		p.parse_token();
-		if(p.has_token())
+		p.ParseAllWhitespace();
+		p.ParseToken();
+		if(p.HasToken())
 			has_geometry_shader = true;
 		const auto geometry_shader_name = get_parsed<std::string>(p);
 
-		p.parse_all_whitespace();
-		p.parse_symbol();
-		if(!p.has_token())
+		p.ParseAllWhitespace();
+		p.ParseSymbol();
+		if(!p.HasToken())
 			missing_comma = true;
 
-		p.parse_all_whitespace();
-		p.parse_token();
-		if(!p.has_token())
+		p.ParseAllWhitespace();
+		p.ParseToken();
+		if(!p.HasToken())
 			error = true;
 		const auto fragment_shader_name = get_parsed<std::string>(p);
 
@@ -304,7 +304,7 @@ void initialize_shaders()
 		else
 			shader = create_shader_program(shader_name, vertex_shader_name, fragment_shader_name);
 
-		Shader_Catalogue.insert({shader->name, shader});
+		ShaderCatalogue.insert({shader->name, shader});
 
 		if(error)
 			Quit_fatal("Error in shader programs file definition. Couldn't parse line " + std::to_string(p.line_count) + ".");
@@ -313,7 +313,7 @@ void initialize_shaders()
 	}
 
 	// setup for text shader
-	auto text_shader = Shader_Catalogue.find("text")->second;
-	text_shader->use();
-	text_shader->setMatrix4("projection", glm::ortho(0.0f, GlobalDisplayConfig::VIEWPORT_WIDTH, 0.0f, GlobalDisplayConfig::VIEWPORT_HEIGHT));
+	auto text_shader = ShaderCatalogue.find("text")->second;
+	text_shader->Use();
+	text_shader->SetMatrix4("projection", glm::ortho(0.0f, GlobalDisplayConfig::viewport_width, 0.0f, GlobalDisplayConfig::viewport_height));
 }

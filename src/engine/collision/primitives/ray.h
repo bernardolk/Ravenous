@@ -1,3 +1,5 @@
+#pragma once
+
 struct Ray
 {
 	vec3 origin;
@@ -5,7 +7,7 @@ struct Ray
 	vec3 inv;
 	bool inv_set = false;
 
-	vec3 get_inv()
+	vec3 GetInv()
 	{
 		if(!inv_set)
 		{

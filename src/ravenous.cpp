@@ -228,10 +228,10 @@ int main()
 {
 	World world;
 
-	EntityManager.set_world(&world);
-	EntityManager.set_entity_registry(&world.entities);
-	EntityManager.set_checkpoints_registry(&world.checkpoints);
-	EntityManager.set_interactables_registry(&world.interactables);
+	EntityManager.SetWorld(&world);
+	EntityManager.SetEntityRegistry(&world.entities);
+	EntityManager.SetCheckpointsRegistry(&world.checkpoints);
+	EntityManager.SetInteractablesRegistry(&world.interactables);
 
 	// initialize serializers
 
@@ -252,8 +252,8 @@ int main()
 	// create cameras
 	const auto editor_camera = new Camera();
 	const auto first_person_camera = new Camera();
-	GSceneInfo.views[EDITOR_CAM] = editor_camera;
-	GSceneInfo.views[FPS_CAM] = first_person_camera;
+	GSceneInfo.views[EditorCam] = editor_camera;
+	GSceneInfo.views[GameCam] = first_person_camera;
 	PCam = first_person_camera;
 	EdCam = editor_camera;
 
@@ -264,15 +264,15 @@ int main()
 	load_models();
 
 	// Allocate buffers and logs
-	RVN::init();
-	std::cout << " BUFFER: " << RVN::entity_buffer;
+	Rvn::Init();
+	std::cout << " BUFFER: " << Rvn::entity_buffer;
 	// COLLISION_LOG           = CL_allocate_collision_log();
 	initialize_console_buffers();
 
-	EntityManager.pool.init();
+	EntityManager.pool.Init();
 
 	// Initialises immediate draw
-	ImDraw::init();
+	ImDraw::Init();
 
 	GSceneInfo.camera = GSceneInfo.views[0]; // sets to editor camera
 
@@ -285,7 +285,7 @@ int main()
 	player->checkpoint_pos = player->entity_ptr->position; // set player initial checkpoint position
 
 	// set scene attrs from global config
-	GSceneInfo.camera->Acceleration = GConfig.camspeed;
+	GSceneInfo.camera->acceleration = GConfig.camspeed;
 	world.ambient_light = GConfig.ambient_light;
 	world.ambient_intensity = GConfig.ambient_intensity;
 
@@ -364,9 +364,9 @@ int main()
 		{
 			auto start = std::chrono::high_resolution_clock::now();
 			if(ProgramMode.current == GAME_MODE)
-				camera_update_game(GSceneInfo.camera, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT, player->Eye());
+				camera_update_game(GSceneInfo.camera, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->Eye());
 			else if(ProgramMode.current == EDITOR_MODE)
-				camera_update_editor(GSceneInfo.camera, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT, player->entity_ptr->position);
+				camera_update_editor(GSceneInfo.camera, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->entity_ptr->position);
 			GameState.UpdateTimers();
 			GP_update_player_state(player, &world);
 			AN_animate_player(player);
@@ -405,9 +405,9 @@ int main()
 				render_game_gui(player);
 				break;
 			}
-			ImDraw::render(GSceneInfo.camera);
-			ImDraw::update(RVN::frame.duration);
-			RVN::rm_buffer->render();
+			ImDraw::Render(GSceneInfo.camera);
+			ImDraw::Update(Rvn::frame.duration);
+			Rvn::rm_buffer->Render();
 			auto finish = std::chrono::high_resolution_clock::now();
 			int elapsed = std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count();
 			get_time_render(elapsed);
@@ -416,8 +416,8 @@ int main()
 		// -------------
 		// FINISH FRAME
 		// -------------
-		EntityManager.safe_delete_marked_entities();
-		RVN::rm_buffer->cleanup();
+		EntityManager.SafeDeleteMarkedEntities();
+		Rvn::rm_buffer->Cleanup();
 		glfwSwapBuffers(GDisplayInfo.window);
 		if(ProgramMode.current == EDITOR_MODE)
 			Editor::end_dear_imgui_frame();
@@ -432,7 +432,7 @@ void simulate_gravity_trajectory()
 {
 	// configs
 	auto initial_pos = vec3(2.0, 1.5, 6.5);
-	vec3 v_direction = -UNIT_X;
+	vec3 v_direction = -UnitX;
 	float v_magnitude = 3;
 	auto grav = vec3(0, -9.0, 0); // m/s^2
 	int iterations = 20;
@@ -447,7 +447,7 @@ void simulate_gravity_trajectory()
 		float d_frame = 0.02;
 		vel += d_frame * grav;
 		pos += vel * d_frame;
-		ImDraw::add_point(IM_ITERHASH(i), pos, 2.0, false, COLOR_GREEN_1, 1);
+		ImDraw::AddPoint(IM_ITERHASH(i), pos, 2.0, false, COLOR_GREEN_1, 1);
 	}
 }
 
@@ -457,23 +457,23 @@ void simulate_gravity_trajectory()
 void start_frame()
 {
 	float current_frame_time = glfwGetTime();
-	RVN::frame.real_duration = current_frame_time - RVN::frame.last_frame_time;
-	RVN::frame.duration = RVN::frame.real_duration * RVN::frame.time_step;
-	RVN::frame.last_frame_time = current_frame_time;
+	Rvn::frame.real_duration = current_frame_time - Rvn::frame.last_frame_time;
+	Rvn::frame.duration = Rvn::frame.real_duration * Rvn::frame.time_step;
+	Rvn::frame.last_frame_time = current_frame_time;
 
 	// forces framerate for simulation to be small
-	if(RVN::frame.duration > 0.02)
+	if(Rvn::frame.duration > 0.02)
 	{
-		RVN::frame.duration = 0.02;
+		Rvn::frame.duration = 0.02;
 	}
 
-	RVN::frame.sub_second_counter += RVN::frame.real_duration;
-	RVN::frame.fps_counter += 1;
-	if(RVN::frame.sub_second_counter > 1)
+	Rvn::frame.sub_second_counter += Rvn::frame.real_duration;
+	Rvn::frame.fps_counter += 1;
+	if(Rvn::frame.sub_second_counter > 1)
 	{
-		RVN::frame.fps = RVN::frame.fps_counter;
-		RVN::frame.fps_counter = 0;
-		RVN::frame.sub_second_counter -= 1;
+		Rvn::frame.fps = Rvn::frame.fps_counter;
+		Rvn::frame.fps_counter = 0;
+		Rvn::frame.sub_second_counter -= 1;
 	}
 }
 
@@ -504,7 +504,7 @@ void check_all_entities_have_ids(World* world)
 
 void check_all_geometry_has_gl_data()
 {
-	ForIt(Geometry_Catalogue)
+	ForIt(GeometryCatalogue)
 	{
 		auto item = it->second;
 		if(item->gl_data.VAO == 0 || item->gl_data.VBO == 0)
@@ -525,7 +525,7 @@ void setup_GLFW(bool debug)
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
 	// Creates the window
-	GDisplayInfo.window = glfwCreateWindow(GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT, "Ravenous", nullptr, nullptr);
+	GDisplayInfo.window = glfwCreateWindow(GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, "Ravenous", nullptr, nullptr);
 	if(GDisplayInfo.window == nullptr)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -539,7 +539,7 @@ void setup_GLFW(bool debug)
 	}
 
 	// Setups openGL viewport
-	glViewport(0, 0, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT);
+	glViewport(0, 0, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height);
 	glfwSetFramebufferSizeCallback(GDisplayInfo.window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(GDisplayInfo.window, on_mouse_move);
 	glfwSetScrollCallback(GDisplayInfo.window, on_mouse_scroll);
@@ -602,7 +602,7 @@ void toggle_program_modes(Player* player)
 		glfwSetInputMode(GDisplayInfo.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		Editor::end_dear_imgui_frame();
 
-		RVN::rm_buffer->add("Game Mode", 2000);
+		Rvn::rm_buffer->Add("Game Mode", 2000);
 	}
 	else if(ProgramMode.current == GAME_MODE)
 	{
@@ -613,7 +613,7 @@ void toggle_program_modes(Player* player)
 		glfwSetInputMode(GDisplayInfo.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		Editor::start_dear_imgui_frame();
 
-		RVN::rm_buffer->add("Editor Mode", 2000);
+		Rvn::rm_buffer->Add("Editor Mode", 2000);
 	}
 }
 

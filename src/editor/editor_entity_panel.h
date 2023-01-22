@@ -9,7 +9,7 @@ void check_for_asset_changes();
 void update_entity_control_arrows(EntityPanelContext* panel);
 void render_entity_control_arrows(EntityPanelContext* panel);
 void render_entity_panel(EntityPanelContext* panel, World* world);
-void entity_panel_update_entity_and_editor_context(EntityPanelContext* panel, u32 action, World* world);
+void entity_panel_update_entity_and_editor_context(const EntityPanelContext* panel, u32 action, World* world);
 void entity_panel_track_entity_changes(EntityPanelContext* panel);
 
 
@@ -23,14 +23,14 @@ enum EntityPanelTrackableAction
 };
 
 
-void render_entity_panel(EntityPanelContext* panel, World* world)
+inline void render_entity_panel(EntityPanelContext* panel, World* world)
 {
 	auto& entity = panel->entity;
 
 	u32 action_flags = 0;
 	bool track = false;
 
-	ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::VIEWPORT_WIDTH - 550, 200), ImGuiCond_Appearing);
+	ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::viewport_width - 550, 200), ImGuiCond_Appearing);
 	ImGui::Begin("Entity Panel", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
 	panel->focused = ImGui::IsWindowFocused();
 
@@ -57,10 +57,10 @@ void render_entity_panel(EntityPanelContext* panel, World* world)
 			ImGui::InputText("New name", &panel->rename_buffer[0], 100);
 			if(ImGui::Button("Apply", ImVec2(64, 18)))
 			{
-				if(panel->validate_rename_buffer_contents())
+				if(panel->ValidateRenameBufferContents())
 				{
 					entity->name = panel->rename_buffer;
-					panel->empty_rename_buffer();
+					panel->EmptyRenameBuffer();
 					panel->rename_option_active = false;
 				}
 			}
@@ -110,7 +110,7 @@ void render_entity_panel(EntityPanelContext* panel, World* world)
 		// SCALE
 		{
 			float scaling[]{entity->scale.x, entity->scale.y, entity->scale.z};
-			if(ImGui::DragFloat3("Scale", scaling, 0.05, 0, MAX_FLOAT, nullptr))
+			if(ImGui::DragFloat3("Scale", scaling, 0.05, 0, MaxFloat, nullptr))
 				action_flags |= EntityPanelTA_Scale;
 
 			track = track || ImGui::IsItemDeactivatedAfterEdit();
@@ -122,7 +122,7 @@ void render_entity_panel(EntityPanelContext* panel, World* world)
 			{
 				if(panel->reverse_scale)
 				{
-					auto rot_matrix = entity->get_rotation_matrix();
+					auto rot_matrix = entity->GetRotationMatrix();
 
 					if(scaling[0] != entity->scale.x)
 						entity->position -= toVec3(rot_matrix * vec4(scaling[0] - entity->scale.x, 0.f, 0.f, 1.f));
@@ -208,7 +208,7 @@ void render_entity_panel(EntityPanelContext* panel, World* world)
 			if(ImGui::Button("Duplicate", ImVec2(82, 18)))
 			{
 				action_flags |= EntityPanelTA_Duplicate;
-				auto new_entity = EntityManager.copy_entity(entity);
+				auto new_entity = EntityManager.CopyEntity(entity);
 				open_entity_panel(new_entity);
 			}
 
@@ -240,35 +240,35 @@ void render_entity_panel(EntityPanelContext* panel, World* world)
 		bool is_static = entity->type == EntityType_Static;
 		if(ImGui::RadioButton("Static", is_static))
 		{
-			EntityManager.set_type(entity, EntityType_Static);
+			EntityManager.SetType(entity, EntityType_Static);
 		}
 
 		// EntityType_Checkpoint
 		bool is_checkpoint = entity->type == EntityType_Checkpoint;
 		if(ImGui::RadioButton("Checkpoint", is_checkpoint))
 		{
-			EntityManager.set_type(entity, EntityType_Checkpoint);
+			EntityManager.SetType(entity, EntityType_Checkpoint);
 		}
 
 		// EntityType_TimerTrigger
 		bool is_timer_trigger = entity->type == EntityType_TimerTrigger;
 		if(ImGui::RadioButton("Timer Trigger", is_timer_trigger))
 		{
-			EntityManager.set_type(entity, EntityType_TimerTrigger);
+			EntityManager.SetType(entity, EntityType_TimerTrigger);
 		}
 
 		// EntityType_TimerTarget
 		bool is_timer_target = entity->type == EntityType_TimerTarget;
 		if(ImGui::RadioButton("Timer Target", is_timer_target))
 		{
-			EntityManager.set_type(entity, EntityType_TimerTarget);
+			EntityManager.SetType(entity, EntityType_TimerTarget);
 		}
 
 		// EntityType_TimerMarking
 		bool is_timer_marking = entity->type == EntityType_TimerMarking;
 		if(ImGui::RadioButton("Timer Marking", is_timer_marking))
 		{
-			EntityManager.set_type(entity, EntityType_TimerMarking);
+			EntityManager.SetType(entity, EntityType_TimerMarking);
 		}
 
 		ImGui::NewLine();
@@ -295,7 +295,7 @@ void render_entity_panel(EntityPanelContext* panel, World* world)
 			bool b = ImGui::SliderFloat("height", &entity->trigger_scale.y, 0, 10);
 
 			if(a || b)
-				entity->update();
+				entity->Update();
 		}
 
 		else if(is_timer_trigger)
@@ -306,7 +306,7 @@ void render_entity_panel(EntityPanelContext* panel, World* world)
 			bool b = ImGui::SliderFloat("height", &entity->trigger_scale.y, 0, 10);
 
 			if(a || b)
-				entity->update();
+				entity->Update();
 
 			ImGui::NewLine();
 
@@ -337,7 +337,7 @@ void render_entity_panel(EntityPanelContext* panel, World* world)
 							ImGui::DragInt(dint_id.c_str(), (int*)&data->time_checkpoints[i], 1, 0, 10000);
 							if(ImGui::Button("Delete", ImVec2(32, 18)))
 							{
-								data->delete_marking(i);
+								data->DeleteMarking(i);
 							}
 						}
 						else if(empty_slot == -1)
@@ -428,7 +428,7 @@ void render_entity_panel(EntityPanelContext* panel, World* world)
 	// ----------------
 	if(ImGui::BeginTabItem("Textures", nullptr, ImGuiTabItemFlags_None))
 	{
-		for(const auto& texture : Texture_Catalogue)
+		for(const auto& texture : TextureCatalogue)
 		{
 			bool in_use = entity->textures[0].name == texture.second.name;
 			if(ImGui::RadioButton(texture.second.name.c_str(), in_use))
@@ -442,9 +442,9 @@ void render_entity_panel(EntityPanelContext* panel, World* world)
 		{
 			entity->flags ^= EntityFlags_RenderTiledTexture;
 			if(_tiled_texture)
-				entity->shader = Shader_Catalogue.find("tiledTextureModel")->second;
+				entity->shader = ShaderCatalogue.find("tiledTextureModel")->second;
 			else
-				entity->shader = Shader_Catalogue.find("model")->second;
+				entity->shader = ShaderCatalogue.find("model")->second;
 		}
 
 		if(entity->flags & EntityFlags_RenderTiledTexture)
@@ -466,7 +466,7 @@ void render_entity_panel(EntityPanelContext* panel, World* world)
 	// ---------------
 	if(ImGui::BeginTabItem("Shaders", nullptr, ImGuiTabItemFlags_None))
 	{
-		for(const auto& shader : Shader_Catalogue)
+		for(const auto& shader : ShaderCatalogue)
 		{
 			bool in_use = entity->shader->name == shader.second->name;
 			if(ImGui::RadioButton(shader.second->name.c_str(), in_use))
@@ -489,32 +489,32 @@ void render_entity_panel(EntityPanelContext* panel, World* world)
 }
 
 
-void entity_panel_track_entity_changes(EntityPanelContext* panel)
+inline void entity_panel_track_entity_changes(EntityPanelContext* panel)
 {
 	// the following block makes sure that we track the entity original state if necessary.
 	// if we already tracked it or we used an external tool from the panel, like grab/move tool, 
 	// we don't track, since these tools have their own tracking calls.
 	if(!panel->tracked_once)
 	{
-		EntityState last_recorded_state = EdContext.undo_stack.check();
+		EntityState last_recorded_state = EdContext.undo_stack.Check();
 		if(last_recorded_state.entity == nullptr || last_recorded_state.entity->id != panel->entity->id)
-			EdContext.undo_stack.track(panel->entity_starting_state);
+			EdContext.undo_stack.Track(panel->entity_starting_state);
 		panel->tracked_once = true;
 	}
 
-	EdContext.undo_stack.track(panel->entity);
+	EdContext.undo_stack.Track(panel->entity);
 }
 
 
-void entity_panel_update_entity_and_editor_context(EntityPanelContext* panel, u32 action, World* world)
+inline void entity_panel_update_entity_and_editor_context(const EntityPanelContext* panel, u32 action, World* world)
 {
 	if(!(action & EntityPanelTA_Duplicate || action & EntityPanelTA_Delete))
 		deactivate_editor_modes();
 
-	panel->entity->update();
+	panel->entity->Update();
 	auto update_cells = world->UpdateEntityWorldCells(panel->entity);
 	if(update_cells.status != CellUpdate_OK)
-		RVN::rm_buffer->add(update_cells.message, 3500);
+		Rvn::rm_buffer->Add(update_cells.message, 3500);
 
 	world->UpdateCellsInUseList();
 
@@ -524,7 +524,7 @@ void entity_panel_update_entity_and_editor_context(EntityPanelContext* panel, u3
 }
 
 
-void open_entity_panel(Entity* entity)
+inline void open_entity_panel(Entity* entity)
 {
 	EdContext.selected_entity = entity;
 
@@ -542,7 +542,7 @@ void open_entity_panel(Entity* entity)
 	panel.show_related_entity = false;
 	panel.related_entity = nullptr;
 	panel.entity_starting_state = get_entity_state(entity);
-	panel.empty_rename_buffer();
+	panel.EmptyRenameBuffer();
 
 	// TODO: We should _know_ when entities move and be able to act programatically upon that knowledge instead of randomly checking everywhere.
 	update_entity_control_arrows(&panel);

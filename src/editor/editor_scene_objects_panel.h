@@ -1,10 +1,12 @@
+#pragma once
+
 // --------------------
 // SCENE OBJECTS PANEL
 // --------------------
 
-void render_scene_objects_panel(World* world, SceneObjectsPanelContext* panel)
+inline void render_scene_objects_panel(const World* world, SceneObjectsPanelContext* panel)
 {
-	ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::VIEWPORT_WIDTH - 600, 50), ImGuiCond_Appearing);
+	ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::viewport_width - 600, 50), ImGuiCond_Appearing);
 	ImGui::Begin("Scene objects", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
 
 	ImGui::InputText("Search", &panel->search_text);

@@ -200,8 +200,8 @@ inline void GP_player_state_change_any_to_sliding(Player* player, vec3 normal)
 
 	player->player_state = PLAYER_STATE_SLIDING;
 
-	auto down_vec_into_n = project_vec_into_ref(-UNIT_Y, normal);
-	auto sliding_direction = normalize(-UNIT_Y - down_vec_into_n);
+	auto down_vec_into_n = project_vec_into_ref(-UnitY, normal);
+	auto sliding_direction = normalize(-UnitY - down_vec_into_n);
 	player->sliding_direction = sliding_direction;
 	player->sliding_normal = normal;
 
@@ -260,9 +260,9 @@ inline void GP_player_state_change_standing_to_vaulting(Player* player, Ledge le
 	player->entity_ptr->velocity = vec3(0);
 
 	player->anim_orig_pos = player->entity_ptr->position;
-	player->anim_orig_dir = normalize(to_xz(PCam->Front));
+	player->anim_orig_dir = normalize(to_xz(PCam->front));
 
-	auto inward_normal = normalize(cross(ledge.a - ledge.b, UNIT_Y));
+	auto inward_normal = normalize(cross(ledge.a - ledge.b, UnitY));
 	player->anim_final_pos = final_position;
 	player->anim_final_dir = inward_normal;
 }

@@ -445,8 +445,8 @@ inline void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 		GInputInfo.mouse_coords.last_x = xpos;
 		GInputInfo.mouse_coords.last_y = ypos;
 
-		xoffset *= GSceneInfo.camera->Sensitivity;
-		yoffset *= GSceneInfo.camera->Sensitivity;
+		xoffset *= GSceneInfo.camera->sensitivity;
+		yoffset *= GSceneInfo.camera->sensitivity;
 
 		camera_change_direction(GSceneInfo.camera, xoffset, yoffset);
 	}
@@ -462,7 +462,7 @@ inline void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset)
 	if(ImGui::GetIO().WantCaptureMouse)
 		return;
 
-	GSceneInfo.camera->Position += static_cast<float>(3 * yoffset) * GSceneInfo.camera->Front;
+	GSceneInfo.camera->position += static_cast<float>(3 * yoffset) * GSceneInfo.camera->front;
 }
 
 

@@ -10,7 +10,7 @@
 #include <engine/collision/primitives/triangle.h>
 #include <engine/render/renderer.h>
 
-void render_mesh(Mesh* mesh, RenderOptions opts)
+void render_mesh(const Mesh* mesh, RenderOptions opts)
 {
 	glBindVertexArray(mesh->gl_data.VAO);
 

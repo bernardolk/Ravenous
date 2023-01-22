@@ -27,22 +27,22 @@
 
 ProgramConfig ConfigSerializer::load_configs()
 {
-	auto p = Parser{CONFIG_FILE_PATH};
+	auto p = Parser{Paths::Config};
 	auto config = ProgramConfig();
 
-	while(p.next_line())
+	while(p.NextLine())
 	{
-		p.parse_token();
+		p.ParseToken();
 		const auto attribute = get_parsed<std::string>(p);
 
-		p.parse_all_whitespace();
-		p.parse_symbol();
+		p.ParseAllWhitespace();
+		p.ParseSymbol();
 
 		if(get_parsed<char>(p) != '=')
 		{
 			std::cout <<
 			"SYNTAX ERROR, MISSING '=' CHARACTER AT SCENE DESCRIPTION FILE ('" <<
-			CONFIG_FILE_PATH <<
+			Paths::Config <<
 			"') LINE NUMBER " <<
 			p.line_count << "\n";
 
@@ -51,26 +51,26 @@ ProgramConfig ConfigSerializer::load_configs()
 
 		if(attribute == "scene")
 		{
-			p.parse_all_whitespace();
-			p.parse_token();
+			p.ParseAllWhitespace();
+			p.ParseToken();
 			config.initial_scene = get_parsed<std::string>(p);
 		}
 		else if(attribute == "camspeed")
 		{
-			p.parse_all_whitespace();
-			p.parse_float();
+			p.ParseAllWhitespace();
+			p.ParseFloat();
 			config.camspeed = get_parsed<float>(p);
 		}
 		else if(attribute == "ambient_light")
 		{
-			p.parse_all_whitespace();
-			p.parse_vec3();
+			p.ParseAllWhitespace();
+			p.ParseVec3();
 			config.ambient_light = get_parsed<glm::vec3>(p);
 		}
 		else if(attribute == "ambient_intensity")
 		{
-			p.parse_all_whitespace();
-			p.parse_float();
+			p.ParseAllWhitespace();
+			p.ParseFloat();
 			config.ambient_intensity = get_parsed<float>(p);
 		}
 	}
@@ -80,19 +80,19 @@ ProgramConfig ConfigSerializer::load_configs()
 
 void ConfigSerializer::parse_camera_settings(Parser& p)
 {
-	p.parse_all_whitespace();
-	p.parse_vec3();
-	scene_info->camera->Position = get_parsed<glm::vec3>(p);
+	p.ParseAllWhitespace();
+	p.ParseVec3();
+	scene_info->camera->position = get_parsed<glm::vec3>(p);
 
-	p.parse_all_whitespace();
-	p.parse_vec3();
+	p.ParseAllWhitespace();
+	p.ParseVec3();
 	camera_look_at(scene_info->camera, get_parsed<glm::vec3>(p), false);
 }
 
 
 bool ConfigSerializer::save(const ProgramConfig& config)
 {
-	std::ofstream writer(CONFIG_FILE_PATH);
+	std::ofstream writer(Paths::Config);
 	if(!writer.is_open())
 	{
 		std::cout << "Saving config file failed.\n";

@@ -9,7 +9,7 @@ struct BoundingBox
 	float miny;
 	float maxy;
 
-	auto bounds()
+	auto Bounds()
 	{
 		struct
 		{
@@ -21,7 +21,7 @@ struct BoundingBox
 		return bounds;
 	}
 
-	void set(vec3 min, vec3 max)
+	void Set(vec3 min, vec3 max)
 	{
 		minx = min.x;
 		maxx = max.x;
@@ -31,7 +31,7 @@ struct BoundingBox
 		maxz = max.z;
 	}
 
-	auto get_pos_and_scale()
+	auto GetPosAndScale()
 	{
 		struct
 		{
@@ -45,7 +45,7 @@ struct BoundingBox
 		return result;
 	}
 
-	vec3 get_centroid()
+	vec3 GetCentroid()
 	{
 		return {
 		(maxx + minx) / 2,
@@ -54,7 +54,8 @@ struct BoundingBox
 		};
 	}
 
-	bool test(BoundingBox other)
+	/** Performs a collision test between this and another BoundingBox.*/
+	bool Test(BoundingBox other)
 	{
 		// Exit with no intersection if separated along an axis
 		if(this->maxx < other.minx || this->minx > other.maxx)
@@ -67,7 +68,7 @@ struct BoundingBox
 		return true;
 	}
 
-	void translate(mat4 trans_mat)
+	void Translate(mat4 trans_mat)
 	{
 		vec4 trans_min = vec4(minx, miny, minz, 1) * trans_mat;
 		vec4 trans_max = vec4(maxx, maxy, maxz, 1) * trans_mat;
@@ -80,7 +81,7 @@ struct BoundingBox
 		maxz = trans_max.z;
 	}
 
-	void translate(vec3 offset)
+	void Translate(vec3 offset)
 	{
 		minx += offset.x;
 		miny += offset.y;

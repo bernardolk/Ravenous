@@ -1,4 +1,6 @@
-void deactivate_editor_modes()
+#pragma once
+
+inline void deactivate_editor_modes()
 {
 	EdContext.move_mode = false;
 	EdContext.snap_mode = false;
@@ -11,7 +13,7 @@ void deactivate_editor_modes()
 	EdContext.select_entity_aux_mode = false;
 }
 
-bool check_modes_are_active()
+inline bool check_modes_are_active()
 {
 	return
 	EdContext.move_mode ||
@@ -21,13 +23,13 @@ bool check_modes_are_active()
 	EdContext.locate_coords_mode;
 }
 
-void editor_erase_entity(Entity* entity)
+inline void editor_erase_entity(Entity* entity)
 {
-	EntityManager.mark_for_deletion(entity);
-	EdContext.undo_stack.deletion_log.add(entity);
+	EntityManager.MarkForDeletion(entity);
+	EdContext.undo_stack.deletion_log.Add(entity);
 }
 
-void editor_erase_light(int index, std::string type, World* world)
+inline void editor_erase_light(int index, std::string type, World* world)
 {
 	if(type == "point")
 	{
@@ -42,7 +44,7 @@ void editor_erase_light(int index, std::string type, World* world)
 		EdContext.lights_panel.selected_light = -1;
 }
 
-void unhide_entities(World* world)
+inline void unhide_entities(const World* world)
 {
 	for(auto& entity : world->entities)
 	{
@@ -59,7 +61,7 @@ void snap_entity_to_reference(Entity* entity);
 void check_selection_to_snap();
 void snap_commit();
 
-void activate_snap_mode(Entity* entity)
+inline void activate_snap_mode(Entity* entity)
 {
 	// deactivate_editor_modes();
 	// EdContext.snap_mode = true;
@@ -67,14 +69,14 @@ void activate_snap_mode(Entity* entity)
 	// EdContext.undo_stack.track(entity);
 }
 
-void snap_commit()
+inline void snap_commit()
 {
 	// auto entity = EdContext.entity_panel.entity;
 	// EdContext.snap_tracked_state = get_entity_state(entity);
 	// EdContext.undo_stack.track(entity);
 }
 
-void snap_entity_to_reference(Entity* entity)
+inline void snap_entity_to_reference(Entity* entity)
 {
 	// auto reference = EdContext.snap_reference;
 	// float diff = 0;
@@ -119,7 +121,7 @@ void snap_entity_to_reference(Entity* entity)
 }
 
 
-void check_selection_to_snap()
+inline void check_selection_to_snap()
 {
 	// auto pickray = cast_pickray(G_SCENE_INFO.camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
 	// auto test = test_ray_against_scene(pickray);
@@ -139,20 +141,20 @@ auto get_scale_and_position_change(Entity* entity, float old_pos, float new_pos,
 void stretch_entity_to_reference(Entity* entity);
 void check_selection_to_stretch(EntityPanelContext* panel);
 
-void activate_stretch_mode(Entity* entity)
+inline void activate_stretch_mode(Entity* entity)
 {
 	// deactivate_editor_modes();
 	// EdContext.stretch_mode = true;
 	// EdContext.undo_stack.track(entity);
 }
 
-void stretch_commit()
+inline void stretch_commit()
 {
 	// auto entity = EdContext.entity_panel.entity;
 	// EdContext.undo_stack.track(entity);
 }
 
-auto get_scale_and_position_change(float e_scale, float e_aligned, float e_opposite, float t, float n)
+inline auto get_scale_and_position_change(float e_scale, float e_aligned, float e_opposite, float t, float n)
 {
 	/* e_aligned -> entity mesh triangle pos in axis with normal aligned with selected t triangle normal
 	   e_opposite -> entity mesh triangle pos in axis with normal in same direction but opposite sense with selected t triangle normal
@@ -191,7 +193,7 @@ auto get_scale_and_position_change(float e_scale, float e_aligned, float e_oppos
 	return transform;
 }
 
-void stretch_entity_to_reference(Entity* entity, Triangle t)
+inline void stretch_entity_to_reference(Entity* entity, Triangle t)
 {
 	// // In this function, we are, obviously, considering that
 	// // the triangle is axis aligned
@@ -269,7 +271,7 @@ void stretch_entity_to_reference(Entity* entity, Triangle t)
 
 
 
-void check_selection_to_stretch()
+inline void check_selection_to_stretch()
 {
 	// auto pickray = cast_pickray(G_SCENE_INFO.camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
 	// auto test = test_ray_against_scene(pickray);
@@ -285,16 +287,16 @@ void check_selection_to_stretch()
 // MEASURE TOOL
 // -------------
 void activate_measure_mode(u8 axis);
-void check_selection_to_measure(World* world);
+void check_selection_to_measure(const World* world);
 
-void activate_measure_mode(u8 axis)
+inline void activate_measure_mode(u8 axis)
 {
 	deactivate_editor_modes();
 	EdContext.measure_mode = true;
 	EdContext.measure_axis = axis;
 }
 
-void check_selection_to_measure(World* world)
+inline void check_selection_to_measure(const World* world)
 {
 	auto pickray = cast_pickray(GSceneInfo.camera, GInputInfo.mouse_coords.x, GInputInfo.mouse_coords.y);
 	auto test = world->Raycast(pickray);
@@ -325,16 +327,16 @@ void check_selection_to_measure(World* world)
 // LOCATE COORDINATES MODE
 // ------------------------
 void activate_locate_coords_mode();
-void check_selection_to_locate_coords(World* world);
+void check_selection_to_locate_coords(const World* world);
 
-void activate_locate_coords_mode()
+inline void activate_locate_coords_mode()
 {
 	deactivate_editor_modes();
 	EdContext.locate_coords_mode = true;
 	EdContext.locate_coords_found_point = false;
 }
 
-void check_selection_to_locate_coords(World* world)
+inline void check_selection_to_locate_coords(const World* world)
 {
 	auto pickray = cast_pickray(GSceneInfo.camera, GInputInfo.mouse_coords.x, GInputInfo.mouse_coords.y);
 	auto test = world->Raycast(pickray);
@@ -348,7 +350,7 @@ void check_selection_to_locate_coords(World* world)
 // -------------
 // > MOVE TOOLS 
 // -------------
-void place_entity(World* world)
+inline void place_entity(World* world)
 {
 	/* Common function for move/rotate/scale entity tools.
 	   Updates entity, tracks it state and updates world.
@@ -360,13 +362,13 @@ void place_entity(World* world)
 	EdContext.place_mode = false;
 	EdContext.move_entity_by_arrows_ref_point = vec3(0);
 
-	EdContext.selected_entity->update();
+	EdContext.selected_entity->Update();
 	world->UpdateEntityWorldCells(EdContext.selected_entity);
 	CL_recompute_collision_buffer_entities(GSceneInfo.player);
-	EdContext.undo_stack.track(EdContext.selected_entity);
+	EdContext.undo_stack.Track(EdContext.selected_entity);
 }
 
-RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* entity)
+inline RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* entity)
 {
 	// create a big plane for placing entity in the world with the mouse using raycast from camera to mouse
 	// position. In the case of Y placement, we need to compute the plane considering the camera orientation.
@@ -389,26 +391,26 @@ RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* entity)
 	{
 		// creates vector from cam to entity in XZ
 		auto camera = GSceneInfo.camera;
-		vec3 cam_to_entity = camera->Position - entity->position;
-		cam_to_entity.y = camera->Position.y;
+		vec3 cam_to_entity = camera->position - entity->position;
+		cam_to_entity.y = camera->position.y;
 		cam_to_entity = normalize(cam_to_entity);
 		// finds vector that lie in plane considering cam to entity vector as normal to it
-		vec3 up_vec = normalize(vec3{camera->Position.x, 1.0f, camera->Position.z});
+		vec3 up_vec = normalize(vec3{camera->position.x, 1.0f, camera->position.z});
 		vec3 vec_in_plane = glm::cross(up_vec, cam_to_entity);
 
 		// creates plane
 		t1.a = entity->position + (vec_in_plane * -1.0f * plane_size);
-		t1.a.y = camera->Position.y + -1.0f * plane_size;
+		t1.a.y = camera->position.y + -1.0f * plane_size;
 
 		t1.b = entity->position + (vec_in_plane * plane_size);
-		t1.b.y = camera->Position.y + -1.0f * plane_size;
+		t1.b.y = camera->position.y + -1.0f * plane_size;
 
 		t1.c = entity->position + (vec_in_plane * plane_size);
-		t1.c.y = camera->Position.y + plane_size;
+		t1.c.y = camera->position.y + plane_size;
 
 		t2.a = t1.a;
 		t2.b = entity->position + (vec_in_plane * -1.0f * plane_size);
-		t2.b.y = camera->Position.y + plane_size;
+		t2.b.y = camera->position.y + plane_size;
 		t2.c = t1.c;
 
 		break;
@@ -433,22 +435,22 @@ RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* entity)
 // --------------
 // >> PLACE MODE
 // --------------
-void activate_place_mode(Entity* entity)
+inline void activate_place_mode(Entity* entity)
 {
 	deactivate_editor_modes();
 	EdContext.place_mode = true;
 	EdContext.selected_entity = entity;
-	EdContext.undo_stack.track(entity);
+	EdContext.undo_stack.Track(entity);
 }
 
-void select_entity_placing_with_mouse_move(Entity* entity, World* world)
+inline void select_entity_placing_with_mouse_move(Entity* entity, const World* world)
 {
 	auto pickray = cast_pickray(GSceneInfo.camera, GInputInfo.mouse_coords.x, GInputInfo.mouse_coords.y);
 	auto test = world->Raycast(pickray, entity);
 	if(test.hit)
 	{
 		entity->position = point_from_detection(pickray, test);
-		entity->update();
+		entity->Update();
 	}
 }
 
@@ -456,16 +458,16 @@ void select_entity_placing_with_mouse_move(Entity* entity, World* world)
 // -------------
 // >> MOVE MODE
 // -------------
-void activate_move_mode(Entity* entity)
+inline void activate_move_mode(Entity* entity)
 {
 	deactivate_editor_modes();
 	EdContext.move_mode = true;
 	EdContext.move_axis = 0;
 	EdContext.selected_entity = entity;
-	EdContext.undo_stack.track(entity);
+	EdContext.undo_stack.Track(entity);
 }
 
-void move_entity_with_mouse(Entity* entity)
+inline void move_entity_with_mouse(Entity* entity)
 {
 	RaycastTest test = test_ray_against_entity_support_plane(EdContext.move_axis, entity);
 	if(!test.hit)
@@ -492,7 +494,7 @@ void move_entity_with_mouse(Entity* entity)
 		break;
 	}
 
-	entity->update();
+	entity->Update();
 }
 
 
@@ -503,17 +505,17 @@ void activate_move_entity_by_arrow(u8 move_axis);
 void move_entity_by_arrows(Entity* entity);
 
 
-void activate_move_entity_by_arrow(u8 move_axis)
+inline void activate_move_entity_by_arrow(u8 move_axis)
 {
 	EdContext.move_axis = move_axis;
 	EdContext.move_entity_by_arrows = true;
 	auto test = test_ray_against_entity_support_plane(move_axis, EdContext.selected_entity);
 	EdContext.move_entity_by_arrows_ref_point = point_from_detection(test.ray, test);
-	EdContext.undo_stack.track(EdContext.selected_entity);
+	EdContext.undo_stack.Track(EdContext.selected_entity);
 }
 
 
-void move_entity_by_arrows(Entity* entity)
+inline void move_entity_by_arrows(Entity* entity)
 {
 	RaycastTest test = test_ray_against_entity_support_plane(EdContext.move_axis, entity);
 	if(!test.hit)
@@ -545,7 +547,7 @@ void move_entity_by_arrows(Entity* entity)
 
 	EdContext.move_entity_by_arrows_ref_point = pos;
 
-	entity->update();
+	entity->Update();
 
 	// TODO: We should _know_ when entities move and be able to act programatically upon that knowledge instead of randomly checking everywhere.
 	update_entity_control_arrows(&EdContext.entity_panel);
@@ -566,7 +568,7 @@ void place_light(std::string type, int index);
 void open_lights_panel(std::string type, int index, bool focus_tab); //fwd
 
 
-void activate_move_light_mode(std::string type, int index)
+inline void activate_move_light_mode(std::string type, int index)
 {
 	deactivate_editor_modes();
 	EdContext.entity_panel.active = false;
@@ -576,7 +578,7 @@ void activate_move_light_mode(std::string type, int index)
 	EdContext.selected_light_type = type;
 }
 
-void move_light_with_mouse(std::string type, int index, World* world)
+inline void move_light_with_mouse(std::string type, int index, World* world)
 {
 	vec3 position;
 	if(type == "point" && index > -1)
@@ -610,26 +612,26 @@ void move_light_with_mouse(std::string type, int index, World* world)
 	{
 		// creates vector from cam to entity in XZ
 		auto camera = GSceneInfo.camera;
-		vec3 cam_to_entity = camera->Position - position;
-		cam_to_entity.y = camera->Position.y;
+		vec3 cam_to_entity = camera->position - position;
+		cam_to_entity.y = camera->position.y;
 		cam_to_entity = normalize(cam_to_entity);
 		// finds vector that lie in plane considering cam to entity vector as normal to it
-		vec3 up_vec = normalize(vec3{camera->Position.x, 1.0f, camera->Position.z});
+		vec3 up_vec = normalize(vec3{camera->position.x, 1.0f, camera->position.z});
 		vec3 vec_in_plane = glm::cross(up_vec, cam_to_entity);
 
 		// creates plane
 		t1.a = position + (vec_in_plane * -1.0f * plane_size);
-		t1.a.y = camera->Position.y + -1.0f * plane_size;
+		t1.a.y = camera->position.y + -1.0f * plane_size;
 
 		t1.b = position + (vec_in_plane * plane_size);
-		t1.b.y = camera->Position.y + -1.0f * plane_size;
+		t1.b.y = camera->position.y + -1.0f * plane_size;
 
 		t1.c = position + (vec_in_plane * plane_size);
-		t1.c.y = camera->Position.y + plane_size;
+		t1.c.y = camera->position.y + plane_size;
 
 		t2.a = t1.a;
 		t2.b = position + (vec_in_plane * -1.0f * plane_size);
-		t2.b.y = camera->Position.y + plane_size;
+		t2.b.y = camera->position.y + plane_size;
 		t2.c = t1.c;
 
 		break;
@@ -676,7 +678,7 @@ void move_light_with_mouse(std::string type, int index, World* world)
 		assert(false);
 }
 
-void place_light()
+inline void place_light()
 {
 	EdContext.move_mode = false;
 	EdContext.selected_light = -1;
@@ -690,7 +692,7 @@ void activate_rotate_entity_with_mouse(u8 move_axis);
 float mouse_offset_to_angular_offset(float mouse_offset);
 void rotate_entity_with_mouse(Entity* entity);
 
-void activate_rotate_entity_with_mouse(u8 move_axis)
+inline void activate_rotate_entity_with_mouse(u8 move_axis)
 {
 	EdContext.move_axis = move_axis;
 	EdContext.rotate_entity_with_mouse = true;
@@ -698,16 +700,16 @@ void activate_rotate_entity_with_mouse(u8 move_axis)
 	GInputInfo.mouse_coords.x,
 	GInputInfo.mouse_coords.y
 	);
-	EdContext.undo_stack.track(EdContext.selected_entity);
+	EdContext.undo_stack.Track(EdContext.selected_entity);
 }
 
-float mouse_offset_to_angular_offset(float mouse_offset)
+inline float mouse_offset_to_angular_offset(float mouse_offset)
 {
 	// 360 degrees per 500 pixels of offset
 	return mouse_offset * 360.f / 500.f;
 }
 
-void rotate_entity_with_mouse(Entity* entity)
+inline void rotate_entity_with_mouse(Entity* entity)
 {
 	auto mouse_coords = vec2(GInputInfo.mouse_coords.x, GInputInfo.mouse_coords.y);
 
@@ -737,7 +739,7 @@ void rotate_entity_with_mouse(Entity* entity)
 	}
 
 	EdContext.rotate_entity_with_mouse_mouse_coords_ref = mouse_coords;
-	entity->update();
+	entity->Update();
 
 	// TODO: We should _know_ when entities move and be able to act programatically upon that knowledge instead of randomly checking everywhere.
 	update_entity_control_arrows(&EdContext.entity_panel);
@@ -748,7 +750,7 @@ void rotate_entity_with_mouse(Entity* entity)
 // ------------------
 // SCALE ENTITY TOOL
 // ------------------
-void scale_entity_with_mouse(Entity* entity)
+inline void scale_entity_with_mouse(Entity* entity)
 {
 	// NOT IMPLEMENTED
 }
@@ -758,7 +760,7 @@ void scale_entity_with_mouse(Entity* entity)
 // SELECT ENTITY AUX TOOL
 // -----------------------
 // used in entity panel to select other entity to attribute 1 to 1 relationships
-void activate_select_entity_aux_tool(
+inline void activate_select_entity_aux_tool(
 Entity** entity_slot,
 EdToolCallback callback = EdToolCallback_NoCallback,
 EdToolCallbackArgs args = EdToolCallbackArgs{}
@@ -783,7 +785,7 @@ void render_aabb_boundaries(Entity* entity);
 //    while (it != Geometry_Catalogue.end())
 //    {
 //       auto model_name = it->first;
-//       std::string path = MODELS_PATH + model_name + ".obj";
+//       std::string path = Paths::Models + model_name + ".obj";
 
 //       //@todo: platform dependency
 //       WIN32_FIND_DATA find_data;
@@ -795,7 +797,7 @@ void render_aabb_boundaries(Entity* entity);
 //          {
 //             log(LOG_INFO, "asset updated: " + model_name);
 //             mesh->last_written = find_data.ftLastWriteTime;
-//             auto dummy_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, model_name);
+//             auto dummy_mesh = load_wavefront_obj_as_mesh(Paths::Models, model_name);
 //             mesh->vertices = dummy_mesh->vertices;
 //             mesh->indices = dummy_mesh->indices;
 //             mesh->gl_data = dummy_mesh->gl_data;
@@ -808,7 +810,7 @@ void render_aabb_boundaries(Entity* entity);
 //    }
 // }
 
-void render_aabb_boundaries(Entity* entity)
+inline void render_aabb_boundaries(Entity* entity)
 {
 	// auto bounds = entity->collision_geometry.aabb;
 	// ImDraw::add(

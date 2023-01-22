@@ -1,8 +1,10 @@
+#pragma once
+
 // --------------
 // PALETTE PANEL
 // --------------
 
-void render_palette_panel(PalettePanelContext* panel)
+inline void render_palette_panel(PalettePanelContext* panel)
 {
 	ImGui::SetNextWindowPos(ImVec2(50, 300), ImGuiCond_Always);
 	ImGui::Begin("Palette", &panel->active, ImGuiWindowFlags_NoResize);
@@ -13,9 +15,9 @@ void render_palette_panel(PalettePanelContext* panel)
 		if(ImGui::ImageButton((void*)static_cast<intptr_t>(panel->textures[i]), ImVec2(64, 64)))
 		{
 			auto attributes = panel->entity_palette[i];
-			const auto new_entity = EntityManager.create_entity(attributes);
+			const auto new_entity = EntityManager.CreateEntity(attributes);
 			new_entity->id = EntityManager.next_entity_id++;
-			new_entity->position = GSceneInfo.camera->Position + (2.f * new_entity->scale + 5.f) * GSceneInfo.camera->Front;
+			new_entity->position = GSceneInfo.camera->position + (2.f * new_entity->scale + 5.f) * GSceneInfo.camera->front;
 			activate_move_mode(new_entity);
 		}
 	}
@@ -24,7 +26,7 @@ void render_palette_panel(PalettePanelContext* panel)
 }
 
 
-void initialize_palette(PalettePanelContext* panel)
+inline void initialize_palette(PalettePanelContext* panel)
 {
 	int texture_count = 0;
 

@@ -39,28 +39,27 @@ struct T_EntityManager
 	World* world;
 
 	// methods
-	void set_entity_registry(std::vector<Entity*>* registry);
-	void set_checkpoints_registry(std::vector<Entity*>* registry);
-	void set_interactables_registry(std::vector<Entity*>* registry);
-	void set_world(World* world);
-	void register_in_world_and_scene(Entity* entity) const;
+	void SetEntityRegistry(std::vector<Entity*>* registry);
+	void SetCheckpointsRegistry(std::vector<Entity*>* registry);
+	void SetInteractablesRegistry(std::vector<Entity*>* registry);
+	void SetWorld(World* world);
+	void RegisterInWorldAndScene(Entity* entity) const;
 
-	Entity* create_editor_entity(const EntityAttributes& attrs);
-	Entity* create_entity(const EntityAttributes& attrs);
-	Entity* copy_entity(Entity* entity);
-
-
-	[[nodiscard]] auto _find_entity_assets_in_catalogue(
+	Entity* CreateEditorEntity(const EntityAttributes& attrs);
+	Entity* CreateEntity(const EntityAttributes& attrs);
+	Entity* CopyEntity(Entity* entity);
+	
+	[[nodiscard]] static auto FindEntityAssetsInCatalogue(
 	const std::string& mesh,
 	const std::string& collision_mesh,
 	const std::string& shader,
-	const std::string& texture) const;
+	const std::string& texture);
 
-	void _remove_from_checkpoint_registry(Entity* entity) const;
-	void _remove_interactivity(Entity* entity);
-	void _make_interactable(Entity* entity);
-	void _unset_all_type_related_configurations(Entity* entity);
-	void set_type(Entity* entity, EntityType type);
-	void mark_for_deletion(Entity* entity);
-	void safe_delete_marked_entities();
+	void RemoveFromCheckpointRegistry(Entity* entity) const;
+	void RemoveInteractivity(Entity* entity);
+	void MakeInteractable(Entity* entity);
+	void UnsetAllTypeRelatedConfigurations(Entity* entity);
+	void SetType(Entity* entity, EntityType type);
+	void MarkForDeletion(Entity* entity);
+	void SafeDeleteMarkedEntities();
 };

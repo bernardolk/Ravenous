@@ -8,7 +8,7 @@ struct CollisionMesh;
 namespace Editor
 {
 
-	const static std::string EDITOR_ASSETS = PROJECT_PATH + "/assets/editor/";
+	const static std::string EDITOR_ASSETS = Paths::Project + "/assets/editor/";
 
 	constexpr static float TRIAXIS_SCREENPOS_X = -1.80f;
 	constexpr static float TRIAXIS_SCREENPOS_Y = -1.80f;
@@ -299,12 +299,12 @@ namespace Editor
 		for(int i = 0; i < 3; i++)
 		{
 			auto entity = EdContext.tri_axis[i];
-			glm::mat4 model = mat4identity;
+			glm::mat4 model = Mat4Identity;
 			model = rotate(model, glm::radians(entity->rotation.x), vec3(1.0f, 0.0f, 0.0f));
 			model = rotate(model, glm::radians(entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
 			model = rotate(model, glm::radians(entity->rotation.z), vec3(0.0f, 0.0f, 1.0f));
 			model = scale(model, entity->scale);
-			entity->matModel = model;
+			entity->mat_model = model;
 		}
 	}
 
@@ -332,17 +332,17 @@ namespace Editor
 		}
 
 		// render triaxis
-		auto triaxis_view = lookAt(vec3(0.0f), camera->Front, -1.0f * camera->Up);
+		auto triaxis_view = lookAt(vec3(0.0f), camera->front, -1.0f * camera->up);
 		float displacement_x[3] = {0.3f, 0.0f, 0.0f};
 		float displacement_y[3] = {0.0f, 0.3f, 0.0f};
 		for(int i = 0; i < 3; i++)
 		{
 			// ref. axis
 			auto axis = EdContext.tri_axis[i];
-			axis->shader->use();
-			axis->shader->setMatrix4("model", axis->matModel);
-			axis->shader->setMatrix4("view", triaxis_view);
-			axis->shader->setFloat2("screenPos", TRIAXIS_SCREENPOS_X, TRIAXIS_SCREENPOS_Y);
+			axis->shader->Use();
+			axis->shader->SetMatrix4("model", axis->mat_model);
+			axis->shader->SetMatrix4("view", triaxis_view);
+			axis->shader->SetFloat2("screenPos", TRIAXIS_SCREENPOS_X, TRIAXIS_SCREENPOS_Y);
 			RenderEntity(axis);
 		}
 
@@ -363,11 +363,11 @@ namespace Editor
 				intensity += 1.0;
 
 				// render
-				auto glowing_line = Shader_Catalogue.find("color")->second;
-				glowing_line->use();
-				glowing_line->setMatrix4("model", model);
-				glowing_line->setFloat3("color", intensity * 0.890, intensity * 0.168, intensity * 0.6);
-				glowing_line->setFloat("opacity", 1);
+				auto glowing_line = ShaderCatalogue.find("color")->second;
+				glowing_line->Use();
+				glowing_line->SetMatrix4("model", model);
+				glowing_line->SetFloat3("color", intensity * 0.890, intensity * 0.168, intensity * 0.6);
+				glowing_line->SetFloat("opacity", 1);
 				render_mesh(EdContext.selected_entity->mesh, RenderOptions{true, false, 3});
 			}
 
@@ -386,11 +386,11 @@ namespace Editor
 				intensity += 1.0;
 
 				// render
-				auto glowing_line = Shader_Catalogue.find("color")->second;
-				glowing_line->use();
-				glowing_line->setMatrix4("model", model);
-				glowing_line->setFloat3("color", intensity * 0.941, intensity * 0.776, intensity * 0);
-				glowing_line->setFloat("opacity", 1);
+				auto glowing_line = ShaderCatalogue.find("color")->second;
+				glowing_line->Use();
+				glowing_line->SetMatrix4("model", model);
+				glowing_line->SetFloat3("color", intensity * 0.941, intensity * 0.776, intensity * 0);
+				glowing_line->SetFloat("opacity", 1);
 				render_mesh(EdContext.entity_panel.related_entity->mesh, RenderOptions{true, false, 3});
 			}
 		}
@@ -410,11 +410,11 @@ namespace Editor
 			intensity += 1.0;
 
 			// render
-			auto glowing_line = Shader_Catalogue.find("color")->second;
-			glowing_line->use();
-			glowing_line->setMatrix4("model", model);
-			glowing_line->setFloat3("color", intensity * 0.952, intensity * 0.843, intensity * 0.105);
-			glowing_line->setFloat("opacity", 1);
+			auto glowing_line = ShaderCatalogue.find("color")->second;
+			glowing_line->Use();
+			glowing_line->SetMatrix4("model", model);
+			glowing_line->SetFloat3("color", intensity * 0.952, intensity * 0.843, intensity * 0.105);
+			glowing_line->SetFloat("opacity", 1);
 			render_mesh(EdContext.snap_reference->mesh, RenderOptions{true, false, 3});
 		}
 
@@ -442,9 +442,9 @@ namespace Editor
 			//   ImDraw::add_mesh(IMHASH, &panel.entity->collider, COLOR_PURPLE_1, 0);
 			if(panel.show_bounding_box)
 			{
-				auto aabb = Geometry_Catalogue.find("aabb")->second;
-				auto [pos, scale] = panel.entity->bounding_box.get_pos_and_scale();
-				ImDraw::add_mesh(IMHASH, aabb, pos, vec3(0), scale, COLOR_PINK_1, 0);
+				auto aabb = GeometryCatalogue.find("aabb")->second;
+				auto [pos, scale] = panel.entity->bounding_box.GetPosAndScale();
+				ImDraw::AddMesh(IMHASH, aabb, pos, vec3(0), scale, COLOR_PINK_1, 0);
 			}
 		}
 
@@ -483,7 +483,7 @@ namespace Editor
 			if(EdContext.measure_axis == 2)
 				second_point = vec3(EdContext.measure_from.x, EdContext.measure_from.y, EdContext.measure_to);
 
-			ImDraw::add(
+			ImDraw::Add(
 			IMHASH,
 			std::vector<Vertex>{
 			Vertex{EdContext.measure_from},
@@ -496,7 +496,7 @@ namespace Editor
 
 		if(EdContext.locate_coords_mode && EdContext.locate_coords_found_point)
 		{
-			ImDraw::add_point(IMHASH, EdContext.locate_coords_position, 2.0);
+			ImDraw::AddPoint(IMHASH, EdContext.locate_coords_position, 2.0);
 		}
 
 		render_toolbar(world);
@@ -527,7 +527,7 @@ namespace Editor
 		EdContext.imStyle->WindowRounding = 1.0f;
 
 		// load tri axis gizmo
-		const auto axis_mesh = load_wavefront_obj_as_mesh(MODELS_PATH, "axis");
+		const auto axis_mesh = load_wavefront_obj_as_mesh(Paths::Models, "axis");
 
 		const auto x_axis = new Entity();
 		const auto y_axis = new Entity();
@@ -537,15 +537,15 @@ namespace Editor
 		y_axis->mesh = axis_mesh;
 		z_axis->mesh = axis_mesh;
 
-		const auto blue_tex = load_texture_from_file("blue.jpg", TEXTURES_PATH);
-		const auto green_tex = load_texture_from_file("green.jpg", TEXTURES_PATH);
-		const auto red_tex = load_texture_from_file("red.jpg", TEXTURES_PATH);
+		const auto blue_tex = load_texture_from_file("blue.jpg", Paths::Textures);
+		const auto green_tex = load_texture_from_file("green.jpg", Paths::Textures);
+		const auto red_tex = load_texture_from_file("red.jpg", Paths::Textures);
 
 		x_axis->textures.push_back(Texture{red_tex, "texture_diffuse", "red.jpg", "red axis"});
 		y_axis->textures.push_back(Texture{green_tex, "texture_diffuse", "green.jpg", "green axis"});
 		z_axis->textures.push_back(Texture{blue_tex, "texture_diffuse", "blue.jpg", "blue axis"});
 
-		const auto shader = Shader_Catalogue.find("ortho_gui")->second;
+		const auto shader = ShaderCatalogue.find("ortho_gui")->second;
 		x_axis->shader = shader;
 		x_axis->scale = vec3{0.1, 0.1, 0.1};
 		x_axis->rotation = vec3{90, 0, 90};
@@ -573,7 +573,7 @@ namespace Editor
 		y_arrow->mesh = axis_mesh;
 		z_arrow->mesh = axis_mesh;
 
-		const auto arrow_shader = Shader_Catalogue.find("ed_entity_arrow_shader")->second;
+		const auto arrow_shader = ShaderCatalogue.find("ed_entity_arrow_shader")->second;
 		x_arrow->shader = arrow_shader;
 		x_arrow->scale = vec3(0.5, 0.5, 0.5);
 		x_arrow->rotation = vec3(0);
@@ -613,21 +613,21 @@ namespace Editor
 		EdContext.entity_panel.z_arrow = z_arrow;
 
 		// creates entity rotation gizmos
-		EdContext.entity_panel.rotation_gizmo_x = EntityManager.create_editor_entity({
+		EdContext.entity_panel.rotation_gizmo_x = EntityManager.CreateEditorEntity({
 		.name = "rotation_gizmo_x",
 		.mesh = "rotation_gizmo",
 		.shader = "ed_entity_arrow_shader",
 		.texture = "red",
 		.collision_mesh = "rotation_gizmo_collision"});
 
-		EdContext.entity_panel.rotation_gizmo_y = EntityManager.create_editor_entity({
+		EdContext.entity_panel.rotation_gizmo_y = EntityManager.CreateEditorEntity({
 		.name = "rotation_gizmo_y",
 		.mesh = "rotation_gizmo",
 		.shader = "ed_entity_arrow_shader",
 		.texture = "green",
 		.collision_mesh = "rotation_gizmo_collision"});
 
-		EdContext.entity_panel.rotation_gizmo_z = EntityManager.create_editor_entity({
+		EdContext.entity_panel.rotation_gizmo_z = EntityManager.CreateEditorEntity({
 		.name = "rotation_gizmo_z",
 		.mesh = "rotation_gizmo",
 		.shader = "ed_entity_arrow_shader",
@@ -644,8 +644,8 @@ namespace Editor
 
 	void render_text_overlay(Player* player, Camera* camera)
 	{
-		float GUI_y = GlobalDisplayConfig::VIEWPORT_HEIGHT - 60;
-		float SCREEN_HEIGHT = GlobalDisplayConfig::VIEWPORT_HEIGHT;
+		float GUI_y = GlobalDisplayConfig::viewport_height - 60;
+		float SCREEN_HEIGHT = GlobalDisplayConfig::viewport_height;
 
 		std::string font = "consola18";
 		std::string font_center = "swanseait38";
@@ -658,9 +658,9 @@ namespace Editor
 
 		// CAMERA POSITION
 		std::string cam_p[3]{
-		FormatFloatTostr(camera->Position.x, 2),
-		FormatFloatTostr(camera->Position.y, 2),
-		FormatFloatTostr(camera->Position.z, 2),
+		FormatFloatTostr(camera->position.x, 2),
+		FormatFloatTostr(camera->position.y, 2),
+		FormatFloatTostr(camera->position.z, 2),
 		};
 		std::string camera_position = "camera:   x: " + cam_p[0] + " y:" + cam_p[1] + " z:" + cam_p[2];
 		render_text(font, 235, 45, camera_position);
@@ -681,7 +681,7 @@ namespace Editor
 		std::string lives = std::to_string(player->lives);
 		render_text(
 		font,
-		GlobalDisplayConfig::VIEWPORT_WIDTH - 400,
+		GlobalDisplayConfig::viewport_width - 400,
 		90,
 		player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1},
 		lives
@@ -715,24 +715,24 @@ namespace Editor
 			player_state_text = "PLAYER EVICTED FROM SLOPE";
 			break;
 		}
-		render_text("consola18", GlobalDisplayConfig::VIEWPORT_WIDTH - 400, 30, player_state_text_color, player_state_text);
+		render_text("consola18", GlobalDisplayConfig::viewport_width - 400, 30, player_state_text_color, player_state_text);
 
 
 		std::string player_floor = "player floor: ";
 		if(player->standing_entity_ptr != nullptr)
 			player_floor += player->standing_entity_ptr->name;
-		render_text(GlobalDisplayConfig::VIEWPORT_WIDTH - 400, 60, player_floor);
+		render_text(GlobalDisplayConfig::viewport_width - 400, 60, player_floor);
 
 		std::string p_grab = "grabbing: ";
 		if(player->grabbing_entity != nullptr)
 			p_grab += player->grabbing_entity->name;
-		render_text(GlobalDisplayConfig::VIEWPORT_WIDTH - 400, 45, p_grab);
+		render_text(GlobalDisplayConfig::viewport_width - 400, 45, p_grab);
 
 
 		// FPS
-		std::string fps = std::to_string(RVN::frame.fps);
+		std::string fps = std::to_string(Rvn::frame.fps);
 		std::string fps_gui = "FPS: " + fps;
-		render_text(font, GlobalDisplayConfig::VIEWPORT_WIDTH - 110, 40, fps_gui);
+		render_text(font, GlobalDisplayConfig::viewport_width - 110, 40, fps_gui);
 
 
 		// EDITOR TOOLS INDICATORS
@@ -776,7 +776,7 @@ namespace Editor
 				snap_mode_subtext_color = tool_text_color_yellow;
 			else
 			{
-				auto state = EdContext.undo_stack.check();
+				auto state = EdContext.undo_stack.Check();
 				if(state.entity != nullptr && state.position != EdContext.entity_panel.entity->position)
 					snap_mode_subtext_color = tool_text_color_yellow;
 				else
@@ -792,7 +792,7 @@ namespace Editor
 
 			render_text(
 			font_center,
-			GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
+			GlobalDisplayConfig::viewport_width / 2,
 			centered_text_height,
 			tool_text_color_yellow,
 			true,
@@ -801,7 +801,7 @@ namespace Editor
 
 			render_text(
 			font_center_small,
-			GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
+			GlobalDisplayConfig::viewport_width / 2,
 			centered_text_height_small,
 			snap_mode_subtext_color,
 			true,
@@ -821,7 +821,7 @@ namespace Editor
 
 			render_text(
 			font_center,
-			GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
+			GlobalDisplayConfig::viewport_width / 2,
 			centered_text_height,
 			vec3(0.8, 0.8, 0.2),
 			true,
@@ -837,7 +837,7 @@ namespace Editor
 
 				render_text(
 				font_center,
-				GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
+				GlobalDisplayConfig::viewport_width / 2,
 				centered_text_height_small,
 				vec3(0.8, 0.8, 0.2),
 				true,
@@ -870,7 +870,7 @@ namespace Editor
 
 			render_text(
 			font_center,
-			GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
+			GlobalDisplayConfig::viewport_width / 2,
 			centered_text_height,
 			vec3(0.8, 0.8, 0.2),
 			true,
@@ -879,7 +879,7 @@ namespace Editor
 
 			render_text(
 			font_center,
-			GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
+			GlobalDisplayConfig::viewport_width / 2,
 			centered_text_height_small,
 			vec3(0.8, 0.8, 0.2),
 			true,
@@ -894,7 +894,7 @@ namespace Editor
 		{
 			render_text(
 			font_center,
-			GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
+			GlobalDisplayConfig::viewport_width / 2,
 			centered_text_height,
 			vec3(0.8, 0.8, 0.2),
 			true,
@@ -903,7 +903,7 @@ namespace Editor
 
 			render_text(
 			font_center_small,
-			GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
+			GlobalDisplayConfig::viewport_width / 2,
 			centered_text_height_small,
 			vec3(0.8, 0.8, 0.2),
 			true,
@@ -918,7 +918,7 @@ namespace Editor
 		{
 			render_text(
 			font_center,
-			GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
+			GlobalDisplayConfig::viewport_width / 2,
 			centered_text_height,
 			vec3(0.8, 0.8, 0.2),
 			true,
@@ -940,7 +940,7 @@ namespace Editor
 
 			render_text(
 			font_center_small,
-			GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
+			GlobalDisplayConfig::viewport_width / 2,
 			centered_text_height - 40,
 			tool_text_color_green,
 			true,
@@ -955,7 +955,7 @@ namespace Editor
 		{
 			render_text(
 			font_center,
-			GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
+			GlobalDisplayConfig::viewport_width / 2,
 			centered_text_height,
 			vec3(0.8, 0.8, 0.2),
 			true,
@@ -970,7 +970,7 @@ namespace Editor
 		{
 			render_text(
 			font_center,
-			GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
+			GlobalDisplayConfig::viewport_width / 2,
 			centered_text_height,
 			vec3(0.8, 0.8, 0.2),
 			true,
@@ -985,19 +985,19 @@ namespace Editor
 		if(world->interactables.size() == 0)
 			return;
 
-		auto find = Shader_Catalogue.find("color");
+		auto find = ShaderCatalogue.find("color");
 		auto shader = find->second;
 
-		shader->use();
-		shader->setMatrix4("view", camera->View4x4);
-		shader->setMatrix4("projection", camera->Projection4x4);
+		shader->Use();
+		shader->SetMatrix4("view", camera->mat_view);
+		shader->SetMatrix4("projection", camera->mat_projection);
 
 		for(int i = 0; i < world->interactables.size(); i++)
 		{
 			auto checkpoint = world->interactables[i];
-			shader->setMatrix4("model", checkpoint->trigger_matModel);
-			shader->setFloat3("color", 0.5, 0.5, 0.3);
-			shader->setFloat("opacity", 0.6);
+			shader->SetMatrix4("model", checkpoint->trigger_mat_model);
+			shader->SetFloat3("color", 0.5, 0.5, 0.3);
+			shader->SetFloat("opacity", 0.6);
 			render_mesh(checkpoint->trigger, RenderOptions{});
 		}
 	}
@@ -1005,8 +1005,8 @@ namespace Editor
 
 	void render_world_cells(Camera* camera, World* world)
 	{
-		auto shader = Shader_Catalogue.find("color")->second;
-		auto cell_mesh = Geometry_Catalogue.find("aabb")->second;
+		auto shader = ShaderCatalogue.find("color")->second;
+		auto cell_mesh = GeometryCatalogue.find("aabb")->second;
 
 		for(int i = 0; i < world->cells_in_use_count; i++)
 		{
@@ -1036,16 +1036,16 @@ namespace Editor
 			vec3 position = get_world_coordinates_from_world_cell_coordinates(
 			cell->i, cell->j, cell->k
 			);
-			glm::mat4 model = translate(mat4identity, position);
+			glm::mat4 model = translate(Mat4Identity, position);
 			model = scale(model, vec3{WCellLenMeters, WCellLenMeters, WCellLenMeters});
 
 			//render
-			shader->use();
-			shader->setFloat3("color", color);
-			shader->setFloat("opacity", 0.85);
-			shader->setMatrix4("model", model);
-			shader->setMatrix4("view", camera->View4x4);
-			shader->setMatrix4("projection", camera->Projection4x4);
+			shader->Use();
+			shader->SetFloat3("color", color);
+			shader->SetFloat("opacity", 0.85);
+			shader->SetMatrix4("model", model);
+			shader->SetMatrix4("view", camera->mat_view);
+			shader->SetMatrix4("projection", camera->mat_projection);
 			glDisable(GL_CULL_FACE);
 			render_mesh(cell_mesh, opts);
 			glEnable(GL_CULL_FACE);
@@ -1053,13 +1053,13 @@ namespace Editor
 	}
 
 
-	void render_lightbulbs(Camera* camera, World* world)
+	inline void render_lightbulbs(Camera* camera, World* world)
 	{
-		auto mesh = Geometry_Catalogue.find("lightbulb")->second;
-		auto shader = Shader_Catalogue.find("color")->second;
+		auto mesh = GeometryCatalogue.find("lightbulb")->second;
+		auto shader = ShaderCatalogue.find("color")->second;
 
-		shader->setMatrix4("view", camera->View4x4);
-		shader->setMatrix4("projection", camera->Projection4x4);
+		shader->SetMatrix4("view", camera->mat_view);
+		shader->SetMatrix4("projection", camera->mat_projection);
 
 		auto selected_light = EdContext.lights_panel.selected_light;
 		auto selected_light_type = EdContext.lights_panel.selected_light_type;
@@ -1068,15 +1068,15 @@ namespace Editor
 		int point_c = 0;
 		for(const auto& light : world->point_lights)
 		{
-			auto model = translate(mat4identity, light->position + vec3{0, 0.5, 0});
+			auto model = translate(Mat4Identity, light->position + vec3{0, 0.5, 0});
 			model = scale(model, vec3{0.1f});
 			RenderOptions opts;
 			//opts.wireframe = true;
 			//render
-			shader->use();
-			shader->setMatrix4("model", model);
-			shader->setFloat3("color", light->diffuse);
-			shader->setFloat("opacity", 1.0);
+			shader->Use();
+			shader->SetMatrix4("model", model);
+			shader->SetFloat3("color", light->diffuse);
+			shader->SetFloat("opacity", 1.0);
 
 			render_mesh(mesh, opts);
 
@@ -1087,15 +1087,15 @@ namespace Editor
 		int spot_c = 0;
 		for(const auto& light : world->spot_lights)
 		{
-			auto model = translate(mat4identity, light->position + vec3{0, 0.5, 0});
+			auto model = translate(Mat4Identity, light->position + vec3{0, 0.5, 0});
 			model = scale(model, vec3{0.1f});
 			RenderOptions opts;
 			//opts.wireframe = true;
 			//render
-			shader->use();
-			shader->setMatrix4("model", model);
-			shader->setFloat3("color", light->diffuse);
-			shader->setFloat("opacity", 1.0);
+			shader->Use();
+			shader->SetMatrix4("model", model);
+			shader->SetFloat3("color", light->diffuse);
+			shader->SetFloat("opacity", 1.0);
 			render_mesh(mesh, opts);
 			spot_c++;
 		}
@@ -1120,17 +1120,17 @@ namespace Editor
 			}
 
 			// selection box
-			auto aabb_mesh = Geometry_Catalogue.find("aabb")->second;
+			auto aabb_mesh = GeometryCatalogue.find("aabb")->second;
 
-			auto aabb_model = translate(mat4identity, light_position - vec3{0.1575, 0, 0.1575});
+			auto aabb_model = translate(Mat4Identity, light_position - vec3{0.1575, 0, 0.1575});
 			aabb_model = scale(aabb_model, vec3{0.3f, 0.6f, 0.3f});
 			RenderOptions opts;
 			opts.wireframe = true;
 
-			shader->use();
-			shader->setMatrix4("model", aabb_model);
-			shader->setFloat3("color", vec3{0.9, 0.7, 0.9});
-			shader->setFloat("opacity", 1.0);
+			shader->Use();
+			shader->SetMatrix4("model", aabb_model);
+			shader->SetFloat3("color", vec3{0.9, 0.7, 0.9});
+			shader->SetFloat("opacity", 1.0);
 
 			render_mesh(aabb_mesh, opts);
 
@@ -1143,7 +1143,7 @@ namespace Editor
 
 				vec3 arrow_origin = light_position - vec3{0.0, 0.56, 0.0};
 				vec3 arrow_end = arrow_origin + arrow_direction * 1.5f;
-				ImDraw::add_line(IMHASH, arrow_origin, arrow_end, 1.5);
+				ImDraw::AddLine(IMHASH, arrow_origin, arrow_end, 1.5);
 			}
 
 			// @todo: epic fail below (trying to rotate an arrow mesh according to a dir vector)
@@ -1156,10 +1156,10 @@ namespace Editor
 			//       using glm::lookAt()
 			// @todo: Actually now we are using immediate draw and lines.
 
-			// //mat4 arrow_model = translate(mat4identity, arrow_origin);
+			// //mat4 arrow_model = translate(Mat4Identity, arrow_origin);
 			// mat4 arrow_model = 
-			//    glm::translate(mat4identity, arrow_origin) *
-			//    glm::rotate(mat4identity, glm::radians(90.0f), vec3(1, 0, 0)) *
+			//    glm::translate(Mat4Identity, arrow_origin) *
+			//    glm::rotate(Mat4Identity, glm::radians(90.0f), vec3(1, 0, 0)) *
 			//    glm::lookAt(vec3{0.0}, arrow_direction, vec3{0,1,0})
 			// ;
 			// //arrow_model = glm::scale(arrow_model, vec3{0.2f, 0.3f, 0.2f});
@@ -1204,7 +1204,7 @@ namespace Editor
 		   when displayed. */
 
 		float scaling_factor = min;
-		float min_dimension = MAX_FLOAT;
+		float min_dimension = MaxFloat;
 		if(entity->scale.x < min_dimension)
 			min_dimension = entity->scale.x;
 		if(entity->scale.y < min_dimension)
@@ -1226,7 +1226,7 @@ namespace Editor
 		// arrow positioning settings
 		float angles[3] = {270, 0, 90};
 		Entity* arrows[3] = {panel->x_arrow, panel->y_arrow, panel->z_arrow};
-		vec3 rot_axis[3] = {UNIT_Z, UNIT_X, UNIT_X};
+		vec3 rot_axis[3] = {UnitZ, UnitX, UnitX};
 
 		auto entity = panel->entity;
 
@@ -1237,10 +1237,10 @@ namespace Editor
 		}
 
 		// update arrow mat models doing correct matrix multiplication order
-		auto starting_model = translate(mat4identity, entity->position);
-		starting_model = rotate(starting_model, glm::radians(entity->rotation.x), UNIT_X);
-		starting_model = rotate(starting_model, glm::radians(entity->rotation.y), UNIT_Y);
-		starting_model = rotate(starting_model, glm::radians(entity->rotation.z), UNIT_Z);
+		auto starting_model = translate(Mat4Identity, entity->position);
+		starting_model = rotate(starting_model, glm::radians(entity->rotation.x), UnitX);
+		starting_model = rotate(starting_model, glm::radians(entity->rotation.y), UnitY);
+		starting_model = rotate(starting_model, glm::radians(entity->rotation.z), UnitZ);
 
 		float scale_value = _get_gizmo_scaling_factor(entity, 0.8, 3.0);
 
@@ -1249,9 +1249,9 @@ namespace Editor
 			auto arrow = arrows[i];
 			auto model = rotate(starting_model, glm::radians(angles[i]), rot_axis[i]);
 			model = scale(model, vec3(scale_value));
-			arrow->matModel = model;
-			arrow->update_collider();
-			arrow->update_bounding_box();
+			arrow->mat_model = model;
+			arrow->UpdateCollider();
+			arrow->UpdateBoundingBox();
 		}
 	}
 
@@ -1260,13 +1260,13 @@ namespace Editor
 	{
 		// arrow positioning settings
 		float angles[3] = {270, 0, 90};
-		vec3 rot_axis[3] = {UNIT_Z, UNIT_X, UNIT_X};
+		vec3 rot_axis[3] = {UnitZ, UnitX, UnitX};
 		Entity* gizmos[3] = {panel->rotation_gizmo_x, panel->rotation_gizmo_y, panel->rotation_gizmo_z};
 
 		auto entity = panel->entity;
 
 		// update arrow mat models doing correct matrix multiplication order
-		auto starting_model = translate(mat4identity, entity->bounding_box.get_centroid());
+		auto starting_model = translate(Mat4Identity, entity->bounding_box.GetCentroid());
 
 		float scale_value = _get_gizmo_scaling_factor(entity, 1.0, 3.0);
 
@@ -1274,9 +1274,9 @@ namespace Editor
 		{
 			auto model = rotate(starting_model, glm::radians(angles[i]), rot_axis[i]);
 			model = scale(model, vec3(scale_value));
-			gizmos[i]->matModel = model;
-			gizmos[i]->update_collider();
-			gizmos[i]->update_bounding_box();
+			gizmos[i]->mat_model = model;
+			gizmos[i]->UpdateCollider();
+			gizmos[i]->UpdateBoundingBox();
 		}
 	}
 
@@ -1289,13 +1289,13 @@ namespace Editor
 		int triangles = entity->mesh->indices.size() / 3;
 		for(int i = 0; i < triangles; i++)
 		{
-			Triangle _t = get_triangle_for_indexed_mesh(entity->mesh, entity->matModel, i);
+			Triangle _t = get_triangle_for_indexed_mesh(entity->mesh, entity->mat_model, i);
 			vec3 normal = triangleNormal(_t.a, _t.b, _t.c);
 			Face f = face_from_axis_aligned_triangle(_t);
 
-			ImDraw::add_point(IMHASH, f.center, 2.0, true);
+			ImDraw::AddPoint(IMHASH, f.center, 2.0, true);
 
-			ImDraw::add_line(IMHASH, f.center, f.center + normal * 2.0f, 2.5, true);
+			ImDraw::AddLine(IMHASH, f.center, f.center + normal * 2.0f, 2.5, true);
 		}
 	}
 
@@ -1334,7 +1334,7 @@ namespace Editor
 				{
 				case EdToolCallback_EntityManagerSetType:
 				{
-					EntityManager.set_type(
+					EntityManager.SetType(
 					*EdContext.select_entity_aux_mode_entity_slot,
 					EdContext.select_entity_aux_mode_callback_args.entity_type
 					);

@@ -23,7 +23,7 @@
 
 bool WorldSerializer::load_from_file(const std::string& filename)
 {
-	const auto path = SCENES_FOLDER_PATH + filename + ".txt";
+	const auto path = Paths::Scenes + filename + ".txt";
 
 	// clears the current scene entity data
 	world->Clear(manager);
@@ -45,7 +45,7 @@ bool WorldSerializer::load_from_file(const std::string& filename)
 
 	world->player = GSceneInfo.player;
 
-	GSceneInfo.player->entity_ptr = manager->create_entity({
+	GSceneInfo.player->entity_ptr = manager->CreateEntity({
 	.name = PlayerName,
 	.mesh = "capsule",
 	.shader = "model",
@@ -60,26 +60,26 @@ bool WorldSerializer::load_from_file(const std::string& filename)
 	auto p = Parser{path};
 
 	// parses header
-	p.next_line();
-	p.parse_token();
-	if(!p.has_token())
+	p.NextLine();
+	p.ParseToken();
+	if(!p.HasToken())
 		Quit_fatal("Scene '" + filename + "' didn't start with NEXT_ENTITY_ID token.")
 
 	const auto next_entity_id_token = get_parsed<std::string>(p);
 	if(next_entity_id_token != "NEXT_ENTITY_ID")
 		Quit_fatal("Scene '" + filename + "' didn't start with NEXT_ENTITY_ID token.")
 
-	p.parse_whitespace();
-	p.parse_symbol();
-	if(!p.has_token() || get_parsed<char>(p) != '=')
+	p.ParseWhitespace();
+	p.ParseSymbol();
+	if(!p.HasToken() || get_parsed<char>(p) != '=')
 		Quit_fatal("Missing '=' after NEXT_ENTITY_ID.")
 
-	p.parse_whitespace();
-	p.parse_u64();
+	p.ParseWhitespace();
+	p.ParseU64();
 
 	// ENTITY IDs related code
 	bool recompute_next_entity_id = false;
-	if(!p.has_token())
+	if(!p.HasToken())
 		recompute_next_entity_id = true;
 	else
 		manager->next_entity_id = get_parsed<u64>(p);
@@ -87,9 +87,9 @@ bool WorldSerializer::load_from_file(const std::string& filename)
 	// -----------------------------------
 	//           Parse entities
 	// -----------------------------------
-	while(p.next_line())
+	while(p.NextLine())
 	{
-		p.parse_symbol();
+		p.ParseSymbol();
 		switch(get_parsed<char>(p))
 		{
 		case '#':
@@ -155,7 +155,7 @@ bool WorldSerializer::load_from_file(const std::string& filename)
 		case SrEntityRelation_TimerMarking:
 		{
 			u32 time_checkpoint = entity_relations.aux_uint_buffer[i];
-			entity->timer_trigger_data.add_marking(deferred_entity, time_checkpoint);
+			entity->timer_trigger_data.AddMarking(deferred_entity, time_checkpoint);
 			break;
 		}
 		}
@@ -212,7 +212,7 @@ bool WorldSerializer::save_to_file(const std::string& new_filename, const bool d
 		}
 	}
 
-	const auto path = SCENES_FOLDER_PATH + filename + ".txt";
+	const auto path = Paths::Scenes + filename + ".txt";
 	std::ofstream writer(path);
 
 	if(!writer.is_open())
@@ -229,23 +229,23 @@ bool WorldSerializer::save_to_file(const std::string& new_filename, const bool d
 	// write camera settings to file
 	const auto camera = ConfigSerializer::scene_info->views[0];
 	writer << "*"
-	<< camera->Position.x << " "
-	<< camera->Position.y << " "
-	<< camera->Position.z << "  "
-	<< camera->Front.x << " "
-	<< camera->Front.y << " "
-	<< camera->Front.z << "\n";
+	<< camera->position.x << " "
+	<< camera->position.y << " "
+	<< camera->position.z << "  "
+	<< camera->front.x << " "
+	<< camera->front.y << " "
+	<< camera->front.z << "\n";
 
 	// write player attributes to file
 	PlayerSerializer::save(writer);
 
 	// @TODO: Refactor this at some point
 	// write player orientation
-	const auto fps_cam = GSceneInfo.views[FPS_CAM];
+	const auto fps_cam = GSceneInfo.views[GameCam];
 	writer << "&player_orientation = "
-	<< fps_cam->Front.x << " "
-	<< fps_cam->Front.y << " "
-	<< fps_cam->Front.z << "\n";
+	<< fps_cam->front.x << " "
+	<< fps_cam->front.y << " "
+	<< fps_cam->front.z << "\n";
 
 	// write lights to file
 	for(const auto& light : world->point_lights)
@@ -285,6 +285,6 @@ bool WorldSerializer::save_to_file(const std::string& new_filename, const bool d
 
 bool WorldSerializer::check_if_scene_exists(const std::string& scene_name)
 {
-	const std::ifstream reader(SCENES_FOLDER_PATH + scene_name + ".txt");
+	const std::ifstream reader(Paths::Scenes + scene_name + ".txt");
 	return reader.is_open();
 }

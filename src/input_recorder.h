@@ -109,7 +109,7 @@ struct T_InputRecorder
 
 		std::string timestamp = timestamp_stream.str();
 		std::ofstream writer(
-		INPUT_RECORDINGS_FOLDER_PATH + RecordingsFilenamePrefix
+		Paths::InputRecordings + RecordingsFilenamePrefix
 		+ timestamp + RecordingsFilenameExtension
 		);
 
@@ -136,7 +136,7 @@ struct T_InputRecorder
 		// For that reason, should be used only at startup.
 
 		std::vector<std::string> files;
-		if(OS_list_files(INPUT_RECORDINGS_FOLDER_PATH, "*", files))
+		if(OS_list_files(Paths::InputRecordings, "*", files))
 		{
 			recording_idx = 0;
 
@@ -147,13 +147,13 @@ struct T_InputRecorder
 				auto& recording = recorded_inputs[recording_idx].history;
 				recording.clear();
 
-				while(p.next_line())
+				while(p.NextLine())
 				{
-					p.parse_u64();
+					p.ParseU64();
 					const u64 key_press = get_parsed<u64>(p);
 
-					p.next_line();
-					p.parse_u64();
+					p.NextLine();
+					p.ParseU64();
 					const u64 key_release = get_parsed<u64>(p);
 
 					recording.push_back(InputFlags{key_press, key_release});
@@ -169,7 +169,7 @@ struct T_InputRecorder
 	// {
 	//    // get the last record id saved
 	//    std::vector<std::string> recordings;
-	//    if (OS_list_files(INPUT_RECORDINGS_FOLDER_PATH, "*", files)) 
+	//    if (OS_list_files(Paths::InputRecordings, "*", files)) 
 	//    {
 	//       for (int i = 0; i < recordings.size(); i++)
 	//       {

@@ -11,11 +11,12 @@
    as in every iteration the item being added would be replaced because it would have the same hash always.
    Put a prefix + i from the loop in it and you should be fine.
 */
+#pragma once
 
-#define IMCUSTOMHASH(x) im_hasher(x)
-#define IM_ITERHASH(x) im_hasher(std::string(__FILE__) + "-" + std::to_string(__LINE__) + "-" + std::to_string(x))
-#define IMHASH im_hasher(std::string(__FILE__) + "-" + std::to_string(__LINE__))
-#define IM_R_FIND_SLOT() ImDrawSlot slot = _find_element_or_empty_slot(_hash); \
+#define IMCUSTOMHASH(x) ImHasher(x)
+#define IM_ITERHASH(x) ImHasher(std::string(__FILE__) + "-" + std::to_string(__LINE__) + "-" + std::to_string(x))
+#define IMHASH ImHasher(std::string(__FILE__) + "-" + std::to_string(__LINE__))
+#define IM_R_FIND_SLOT() ImDrawSlot slot = FindElementOrEmptySlot(_hash); \
                          if(slot.empty && slot.index == -1) return;
 
 struct Mesh;
@@ -27,7 +28,7 @@ struct Entity;
 
 using GLenum = unsigned int;
 
-const std::hash<std::string> im_hasher;
+constexpr std::hash<std::string> ImHasher;
 
 struct ImDrawElement
 {
@@ -51,37 +52,37 @@ struct ImDrawSlot
 
 struct ImDraw
 {
-	static const int IM_BUFFER_SIZE = 200;
+	static constexpr int IM_BUFFER_SIZE = 200;
 	inline static ImDrawElement* list;
 
-	static void init();
-	static void update(float frame_duration);
-	static void render(Camera* camera);
-	static void add(size_t _hash, std::vector<Vertex> vertex_vec, GLenum draw_method, RenderOptions opts = RenderOptions{});
-	static void add(size_t _hash, std::vector<Triangle> triangles, GLenum draw_method, RenderOptions);
-	static void add_line(size_t _hash, vec3 pointA, vec3 pointB, vec3 color);
-	static void add_line(size_t _hash, vec3 pointA, vec3 pointB, float line_width = 1.0,
+	static void Init();
+	static void Update(float frame_duration);
+	static void Render(Camera* camera);
+	static auto Add(size_t _hash, std::vector<Vertex> vertex_vec, GLenum draw_method, RenderOptions opts = RenderOptions{}) -> void;
+	static void Add(size_t _hash, std::vector<Triangle> triangles, GLenum draw_method, RenderOptions);
+	static void AddLine(size_t _hash, vec3 pointA, vec3 pointB, vec3 color);
+	static void AddLine(size_t _hash, vec3 pointA, vec3 pointB, float line_width = 1.0,
 	                     bool always_on_top = false, vec3 color = vec3(0), float duration = 0);
-	static void add_line_loop(size_t _hash, std::vector<vec3> points, float line_width = 1.0, bool always_on_top = false);
-	static void add_point(size_t _hash, vec3 point, float point_size = 1.0,
+	static void AddLineLoop(size_t _hash, std::vector<vec3> points, float line_width = 1.0, bool always_on_top = false);
+	static void AddPoint(size_t _hash, vec3 point, float point_size = 1.0,
 	                      bool always_on_top = false, vec3 color = vec3(0), float duration = 0);
-	static void add_point(size_t _hash, vec3 point, vec3 color = vec3(0));
-	static void add_triangle(size_t _hash, Triangle t, float line_width = 1.0,
+	static void AddPoint(size_t _hash, vec3 point, vec3 color = vec3(0));
+	static void AddTriangle(size_t _hash, Triangle t, float line_width = 1.0,
 	                         bool always_on_top = false, vec3 color = vec3{0.8, 0.2, 0.2});
-	static void add_mesh(size_t _hash, Mesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color = COLOR_BLUE_1, int duration = 2000);
-	static void add_mesh(size_t _hash, Mesh* mesh, vec3 color = COLOR_BLUE_1, float duration = 2000);
-	static void add_mesh(size_t _hash, Entity* entity, int duration);
-	static void add_mesh(size_t _hash, Entity* entity);
-	static void add_mesh(size_t _hash, Entity* entity, vec3 pos);
+	static void AddMesh(size_t _hash, Mesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color = COLOR_BLUE_1, int duration = 2000);
+	static void AddMesh(size_t _hash, Mesh* mesh, vec3 color = COLOR_BLUE_1, float duration = 2000);
+	static void AddMesh(size_t _hash, Entity* entity, int duration);
+	static void AddMesh(size_t _hash, Entity* entity);
+	static void AddMesh(size_t _hash, Entity* entity, vec3 pos);
 
 private:
-	static void _set_mesh(int i, std::vector<Vertex> vertices, GLenum draw_method, RenderOptions opts);
-	static void _set_mesh(int i, Mesh* mesh, RenderOptions opts);
-	static void _update_mesh(int i, vec3 pos, vec3 rot, vec3 scale, vec3 color, int duration);
-	static void _update_mesh(int i, vec3 color, int duration);
-	static mat4 _get_mat_model(vec3 pos, vec3 rot, vec3 scale);
-	static void _set_indices(int i, std::vector<u32> indices);
-	static void _empty_slot(int i);
+	static void SetMesh(int i, std::vector<Vertex> vertices, GLenum draw_method, RenderOptions opts);
+	static void SetMesh(int i, Mesh* mesh, RenderOptions opts);
+	static void UpdateMesh(int i, vec3 pos, vec3 rot, vec3 scale, vec3 color, int duration);
+	static void UpdateMesh(int i, vec3 color, int duration);
+	static mat4 GetMatModel(vec3 pos, vec3 rot, vec3 scale);
+	static void SetIndices(int i, std::vector<u32> indices);
+	static void EmptySlot(int i);
 
-	static ImDrawSlot _find_element_or_empty_slot(size_t hash);
+	static ImDrawSlot FindElementOrEmptySlot(size_t hash);
 };

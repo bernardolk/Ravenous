@@ -1,3 +1,5 @@
+#pragma once
+
 struct InputRecorderPanelContext
 {
 	bool active = false;
@@ -56,13 +58,13 @@ struct EntityPanelContext
 	bool show_related_entity = false;
 	Entity* related_entity = nullptr;
 
-	void empty_rename_buffer()
+	void EmptyRenameBuffer()
 	{
 		for(int i = 0; i < _rename_buff_size; i++)
 			rename_buffer[i] = 0;
 	}
 
-	bool validate_rename_buffer_contents()
+	bool ValidateRenameBufferContents()
 	{
 		for(int i = 0; i < _rename_buff_size; i++)
 		{

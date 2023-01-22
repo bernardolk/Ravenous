@@ -29,12 +29,12 @@
 
 void load_textures_from_assets_folder()
 {
-	auto filenames = get_files_in_folder(TEXTURES_PATH);
+	auto filenames = get_files_in_folder(Paths::Textures);
 	if(filenames.size() > 0)
 	{
 		for(const auto& texture_filename : filenames)
 		{
-			unsigned int texture_id = load_texture_from_file(texture_filename, TEXTURES_PATH);
+			unsigned int texture_id = load_texture_from_file(texture_filename, Paths::Textures);
 
 			if(texture_id == 0)
 			{
@@ -58,7 +58,7 @@ void load_textures_from_assets_folder()
 			texture_name
 			};
 
-			Texture_Catalogue.insert({texture_name, new_texture});
+			TextureCatalogue.insert({texture_name, new_texture});
 		}
 	}
 }
@@ -89,12 +89,12 @@ RenderMethodEnum render_method)
 	int faces_count = 0;
 
 	// Parses file
-	while(p.next_line())
+	while(p.NextLine())
 	{
-		p.parse_token();
+		p.ParseToken();
 		const auto attr = get_parsed<std::string>(p);
 
-		if(!p.has_token())
+		if(!p.HasToken())
 			continue;
 
 		if(attr == "m")
@@ -105,20 +105,20 @@ RenderMethodEnum render_method)
 		// vertex coordinates
 		else if(attr == "v")
 		{
-			p.parse_vec3();
+			p.ParseVec3();
 			v_pos.push_back(get_parsed<glm::vec3>(p));
 		}
 
 		// texture coordinates
 		else if(attr == "vt")
 		{
-			p.parse_vec2();
+			p.ParseVec2();
 			v_texels.push_back(get_parsed<glm::vec2>(p));
 		}
 
 		else if(attr == "vn")
 		{
-			p.parse_vec3();
+			p.ParseVec3();
 			v_normals.push_back(get_parsed<glm::vec3>(p));
 		}
 
@@ -137,35 +137,35 @@ RenderMethodEnum render_method)
 			while(true)
 			{
 				Vertex v;
-				p.parse_all_whitespace();
+				p.ParseAllWhitespace();
 
 				// parses vertex index
 				{
-					p.parse_uint();
-					if(!p.has_token())
+					p.ParseUint();
+					if(!p.HasToken())
 						break;
 
 					u32 index = get_parsed<u32>(p) - 1;
 					v.position = v_pos[index];
 				}
 
-				p.parse_symbol();
-				if(p.has_token() || get_parsed<char>(p) == '/')
+				p.ParseSymbol();
+				if(p.HasToken() || get_parsed<char>(p) == '/')
 				{
 					// parses texel index
-					p.parse_uint();
-					if(p.has_token() && !v_texels.empty())
+					p.ParseUint();
+					if(p.HasToken() && !v_texels.empty())
 					{
 						u32 index = get_parsed<u32>(p) - 1;
 						v.tex_coords = v_texels[index];
 					}
 
 					// parses normal index
-					p.parse_symbol();
-					if(p.has_token() || get_parsed<char>(p) == '/')
+					p.ParseSymbol();
+					if(p.HasToken() || get_parsed<char>(p) == '/')
 					{
-						p.parse_uint();
-						if(p.has_token() && !v_normals.empty())
+						p.ParseUint();
+						if(p.HasToken() && !v_normals.empty())
 						{
 							u32 index = get_parsed<u32>(p) - 1;
 							v.normal = v_normals[index];
@@ -224,7 +224,7 @@ RenderMethodEnum render_method)
 
 	// setup gl data
 	if(setup_gl_data)
-		mesh->setup_gl_data();
+		mesh->SetupGLData();
 
 	// sets render method for mesh
 	mesh->render_method = static_cast<u32>(render_method);
@@ -233,7 +233,7 @@ RenderMethodEnum render_method)
 	// sets texture name and adds to catalogue
 	std::string catalogue_name = !name.empty() ? name : filename;
 	mesh->name = catalogue_name;
-	Geometry_Catalogue.insert({catalogue_name, mesh});
+	GeometryCatalogue.insert({catalogue_name, mesh});
 
 	return mesh;
 }
@@ -249,18 +249,18 @@ CollisionMesh* load_wavefront_obj_as_collision_mesh(std::string path, std::strin
 	auto c_mesh = new CollisionMesh();
 
 	// Parses file
-	while(p.next_line())
+	while(p.NextLine())
 	{
-		p.parse_token();
+		p.ParseToken();
 		const auto attr = get_parsed<std::string>(p);
 
-		if(!p.has_token())
+		if(!p.HasToken())
 			continue;
 
 		// vertex coordinates
 		if(attr == "v")
 		{
-			p.parse_vec3();
+			p.ParseVec3();
 			c_mesh->vertices.push_back(get_parsed<glm::vec3>(p));
 		}
 
@@ -272,12 +272,12 @@ CollisionMesh* load_wavefront_obj_as_collision_mesh(std::string path, std::strin
 			// iterate over face's vertices
 			while(true)
 			{
-				p.parse_all_whitespace();
+				p.ParseAllWhitespace();
 
 				// parses vertex index
 				{
-					p.parse_uint();
-					if(!p.has_token())
+					p.ParseUint();
+					if(!p.HasToken())
 						break;
 
 					// corrects from 1-first-element convention (from .obj file) to 0-first.
@@ -287,10 +287,10 @@ CollisionMesh* load_wavefront_obj_as_collision_mesh(std::string path, std::strin
 				}
 
 				// discard remaining face's vertex info
-				p.parse_symbol();
-				p.parse_uint();
-				p.parse_symbol();
-				p.parse_uint();
+				p.ParseSymbol();
+				p.ParseUint();
+				p.ParseSymbol();
+				p.ParseUint();
 
 				number_of_vertexes_in_face++;
 			}
@@ -314,7 +314,7 @@ CollisionMesh* load_wavefront_obj_as_collision_mesh(std::string path, std::strin
 
 	// adds to catalogue
 	const std::string catalogue_name = !name.empty() ? name : filename;
-	Collision_Geometry_Catalogue.insert({catalogue_name, c_mesh});
+	CollisionGeometryCatalogue.insert({catalogue_name, c_mesh});
 
 	return c_mesh;
 }
@@ -329,8 +329,8 @@ unsigned int load_texture_from_file(const std::string& filename, const std::stri
 	else
 		path = directory + "/" + filename;
 
-	int width, height, nrComponents;
-	unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
+	int width, height, nr_components;
+	unsigned char* data = stbi_load(path.c_str(), &width, &height, &nr_components, 0);
 	if(!data)
 	{
 		std::cout << "Texture failed to load at path: " << path << std::endl;
@@ -340,7 +340,7 @@ unsigned int load_texture_from_file(const std::string& filename, const std::stri
 
 	// sets color channel format
 	GLenum format;
-	switch(nrComponents)
+	switch(nr_components)
 	{
 	case 1:
 		format = GL_RED;
@@ -399,7 +399,7 @@ StrVec get_files_in_folder(std::string directory)
 
 void write_mesh_extra_data_file(std::string filename, Mesh* mesh)
 {
-	const auto extra_data_path = MODELS_PATH + "extra_data/" + filename + ".objplus";
+	const auto extra_data_path = Paths::Models + "extra_data/" + filename + ".objplus";
 	std::ofstream writer(extra_data_path);
 
 	if(!writer.is_open())
@@ -433,29 +433,29 @@ void write_mesh_extra_data_file(std::string filename, Mesh* mesh)
 
 void load_mesh_extra_data(std::string filename, Mesh* mesh)
 {
-	const auto extra_data_path = MODELS_PATH + "extra_data/" + filename + ".objplus";
+	const auto extra_data_path = Paths::Models + "extra_data/" + filename + ".objplus";
 	Parser p{extra_data_path};
 
 	u32 vtan_i = 0;
 	u32 vbitan_i = 0;
-	while(p.next_line())
+	while(p.NextLine())
 	{
-		p.parse_token();
+		p.ParseToken();
 
-		if(!p.has_token())
+		if(!p.HasToken())
 			continue;
 
 		auto attr = get_parsed<std::string>(p);
 
 		if(attr == "vtan")
 		{
-			p.parse_vec3();
+			p.ParseVec3();
 			mesh->vertices[vtan_i++].tangent = get_parsed<glm::vec3>(p);
 		}
 
 		else if(attr == "vbitan")
 		{
-			p.parse_vec3();
+			p.ParseVec3();
 			mesh->vertices[vbitan_i++].bitangent = get_parsed<glm::vec3>(p);
 		}
 	}
@@ -469,7 +469,7 @@ void attach_extra_data_to_mesh(std::string filename, std::string filepath, Mesh*
 	   If exists and is up to date, loads extra data from it.
 	*/
 
-	std::string extra_data_path = MODELS_PATH + "extra_data/" + filename + ".objplus";
+	std::string extra_data_path = Paths::Models + "extra_data/" + filename + ".objplus";
 	std::string mesh_path = filepath + filename + ".obj";
 
 	bool compute_extra_data = false;
@@ -495,7 +495,7 @@ void attach_extra_data_to_mesh(std::string filename, std::string filepath, Mesh*
 
 	if(compute_extra_data)
 	{
-		mesh->compute_tangents_and_bitangents();
+		mesh->ComputeTangentsAndBitangents();
 		write_mesh_extra_data_file(filename, mesh);
 	}
 	else

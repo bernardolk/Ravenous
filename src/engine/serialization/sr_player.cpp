@@ -21,11 +21,11 @@ void PlayerSerializer::parse_attribute(Parser& p)
 {
 	Player* player = world->player;
 
-	p.parse_token();
+	p.ParseToken();
 	const auto attribute = get_parsed<std::string>(p);
 
-	p.parse_all_whitespace();
-	p.parse_symbol();
+	p.ParseAllWhitespace();
+	p.ParseSymbol();
 
 	if(get_parsed<char>(p) != '=')
 	{
@@ -35,7 +35,7 @@ void PlayerSerializer::parse_attribute(Parser& p)
 
 	if(attribute == "player_position")
 	{
-		p.parse_vec3();
+		p.ParseVec3();
 		const auto position = get_parsed<glm::vec3>(p);
 		player->entity_ptr->position = position;
 		player->checkpoint_pos = position;
@@ -44,30 +44,30 @@ void PlayerSerializer::parse_attribute(Parser& p)
 
 	else if(attribute == "player_initial_velocity")
 	{
-		p.parse_vec3();
+		p.ParseVec3();
 		player->initial_velocity = get_parsed<glm::vec3>(p);
 		player->entity_ptr->velocity = player->initial_velocity;
 	}
 
 	else if(attribute == "player_state")
 	{
-		p.parse_all_whitespace();
-		p.parse_int();
+		p.ParseAllWhitespace();
+		p.ParseInt();
 		player->initial_player_state = static_cast<PlayerState>(get_parsed<u32>(p));
 		player->player_state = player->initial_player_state;
 	}
 
 	else if(attribute == "player_fall_speed")
 	{
-		p.parse_all_whitespace();
-		p.parse_float();
+		p.ParseAllWhitespace();
+		p.ParseFloat();
 		player->fall_speed = get_parsed<float>(p);
 	}
 
 	else if(attribute == "player_fall_acceleration")
 	{
-		p.parse_all_whitespace();
-		p.parse_float();
+		p.ParseAllWhitespace();
+		p.ParseFloat();
 		player->fall_acceleration = get_parsed<float>(p);
 	}
 	else
@@ -80,11 +80,11 @@ void PlayerSerializer::parse_orientation(Parser& p)
 {
 	Player* player = world->player;
 
-	p.parse_token();
+	p.ParseToken();
 	if(get_parsed<std::string>(p) == "player_orientation")
 	{
-		p.parse_all_whitespace();
-		p.parse_symbol();
+		p.ParseAllWhitespace();
+		p.ParseSymbol();
 
 		if(get_parsed<char>(p) != '=')
 		{
@@ -92,7 +92,7 @@ void PlayerSerializer::parse_orientation(Parser& p)
 			assert(false);
 		}
 
-		p.parse_vec3();
+		p.ParseVec3();
 		player->orientation = get_parsed<glm::vec3>(p);
 	}
 	else

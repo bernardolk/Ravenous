@@ -5,29 +5,29 @@
 #include <engine/render/text/text_renderer.h>
 #include <engine/rvn.h>
 
-void RVN::init()
+void Rvn::Init()
 {
 	rm_buffer = new RenderMessageBuffer();
 	entity_buffer = new EntityBuffer();
 }
 
 
-void RVN::print_dynamic(const std::string& msg, float duration, vec3 color)
+void Rvn::PrintDynamic(const std::string& msg, float duration, vec3 color)
 {
-	rm_buffer->add(msg, duration, color);
+	rm_buffer->Add(msg, duration, color);
 }
 
 
-void RVN::print(const std::string& msg, float duration, vec3 color)
+void Rvn::Print(const std::string& msg, float duration, vec3 color)
 {
 	/*
 	   Will add a persistent message, that can't be updated later on, to the buffer.
 	*/
-	rm_buffer->add_unique(msg, duration, color);
+	rm_buffer->AddUnique(msg, duration, color);
 }
 
 
-bool RenderMessageBuffer::add(const std::string msg, float duration, vec3 color)
+bool RenderMessageBuffer::Add(const std::string msg, float duration, vec3 color)
 {
 	if(count >= capacity)
 	{
@@ -62,7 +62,7 @@ bool RenderMessageBuffer::add(const std::string msg, float duration, vec3 color)
 }
 
 
-bool RenderMessageBuffer::add_unique(const std::string msg, float duration, vec3 color)
+bool RenderMessageBuffer::AddUnique(const std::string msg, float duration, vec3 color)
 {
 	if(count >= capacity)
 	{
@@ -90,12 +90,12 @@ bool RenderMessageBuffer::add_unique(const std::string msg, float duration, vec3
 	return true;
 }
 
-void RenderMessageBuffer::cleanup()
+void RenderMessageBuffer::Cleanup()
 {
 	for(int i = 0; i < capacity; i++)
 	{
 		auto item = &buffer[i];
-		item->elapsed += RVN::frame.duration * 1000.0;
+		item->elapsed += Rvn::frame.duration * 1000.0;
 		if(item->elapsed >= item->duration)
 		{
 			new(item) RenderMessageBufferElement();
@@ -104,13 +104,13 @@ void RenderMessageBuffer::cleanup()
 	}
 }
 
-void RenderMessageBuffer::render()
+void RenderMessageBuffer::Render()
 {
 	int items_rendered = 0;
 	for(int i = 0; i < capacity; i++)
 	{
 		auto& item = buffer[i];
-		if(items_rendered == RVN::MAX_MESSAGES_TO_RENDER)
+		if(items_rendered == Rvn::max_messages_to_render)
 			break;
 
 		if(item.message != "")
@@ -118,8 +118,8 @@ void RenderMessageBuffer::render()
 			items_rendered++;
 			render_text(
 			"consola20",
-			GlobalDisplayConfig::VIEWPORT_WIDTH / 2,
-			GlobalDisplayConfig::VIEWPORT_HEIGHT - 120 - items_rendered * 25,
+			GlobalDisplayConfig::viewport_width / 2,
+			GlobalDisplayConfig::viewport_height - 120 - items_rendered * 25,
 			item.color == vec3(-1) ? vec3(0.8, 0.8, 0.2) : item.color,
 			true,
 			item.message

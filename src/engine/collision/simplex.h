@@ -1,6 +1,8 @@
 /* ------------------
       SIMPLEX
 ------------------ */
+#pragma once
+
 struct Simplex
 {
 	vec3 points[4];
@@ -45,7 +47,7 @@ struct Simplex
 		p_size = 4;
 	}
 
-	void push_front(vec3 point);
+	void PushFront(vec3 point);
 	vec3& operator[](u32 i);
 	u32 size() const;
 };

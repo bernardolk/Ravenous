@@ -32,20 +32,20 @@
 // > RESOLVE COLLISION
 // ---------------------
 
-void CL_resolve_collision(CL_Results results, Player* player)
+void CL_resolve_collision(ClResults results, Player* player)
 {
 	// unstuck player
 	vec3 offset = results.normal * results.penetration;
 	player->entity_ptr->position += offset;
 
 	// update, but don't update collider
-	player->entity_ptr->update_model_matrix();
-	player->entity_ptr->bounding_box.translate(offset);
+	player->entity_ptr->UpdateModelMatrix();
+	player->entity_ptr->bounding_box.Translate(offset);
 
 }
 
 
-CL_VtraceResult CL_do_stepover_vtrace(Player* player, World* world)
+ClVtraceResult CL_do_stepover_vtrace(Player* player, World* world)
 {
 	/* 
 	   Cast a ray at player's last point of contact with terrain to look for something steppable (terrain).
@@ -53,11 +53,11 @@ CL_VtraceResult CL_do_stepover_vtrace(Player* player, World* world)
 	   player's current height. */
 
 	vec3 ray_origin = player->LastTerrainContactPoint() + vec3(0, 0.21, 0);
-	auto downward_ray = Ray{ray_origin, -UNIT_Y};
+	auto downward_ray = Ray{ray_origin, -UnitY};
 	RaycastTest raytest = world->Raycast(downward_ray, RayCast_TestOnlyFromOutsideIn, player->entity_ptr);
 
 	if(!raytest.hit)
-		return CL_VtraceResult{false};
+		return ClVtraceResult{false};
 
 	// auto angle = dot(get_triangle_normal(raytest.t), UNIT_Y);
 	// std::cout << "Angle is: " << to_string(angle) << "\n";
@@ -67,13 +67,13 @@ CL_VtraceResult CL_do_stepover_vtrace(Player* player, World* world)
 
 	// draw arrow
 	auto hitpoint = point_from_detection(downward_ray, raytest);
-	ImDraw::add_line(IMHASH, hitpoint, ray_origin, 1.0, true, COLOR_GREEN_1);
-	ImDraw::add_point(IMHASH, hitpoint, 1.0, true, COLOR_GREEN_3);
+	ImDraw::AddLine(IMHASH, hitpoint, ray_origin, 1.0, true, COLOR_GREEN_1);
+	ImDraw::AddPoint(IMHASH, hitpoint, 1.0, true, COLOR_GREEN_3);
 
-	if(abs(player->entity_ptr->position.y - hitpoint.y) <= PLAYER_STEPOVER_LIMIT)
-		return CL_VtraceResult{true, player->LastTerrainContactPoint().y - hitpoint.y, raytest.entity};
+	if(abs(player->entity_ptr->position.y - hitpoint.y) <= PlayerStepoverLimit)
+		return ClVtraceResult{true, player->LastTerrainContactPoint().y - hitpoint.y, raytest.entity};
 
-	return CL_VtraceResult{false};
+	return ClVtraceResult{false};
 }
 
 
@@ -91,16 +91,16 @@ bool GP_simulate_player_collision_in_falling_trajectory(Player* player, vec2 xz_
 
 	float max_iterations = 120;
 
-	ImDraw::add_point(IMHASH, player->entity_ptr->position, 2.0, false, COLOR_GREEN_1, 1);
+	ImDraw::AddPoint(IMHASH, player->entity_ptr->position, 2.0, false, COLOR_GREEN_1, 1);
 
 	int iteration = 0;
 	while(true)
 	{
 		vel += d_frame * player->gravity;
 		player->entity_ptr->position += vel * d_frame;
-		ImDraw::add_point(IM_ITERHASH(iteration), player->entity_ptr->position, 2.0, true, COLOR_GREEN_1, 1);
+		ImDraw::AddPoint(IM_ITERHASH(iteration), player->entity_ptr->position, 2.0, true, COLOR_GREEN_1, 1);
 
-		player->entity_ptr->update();
+		player->entity_ptr->Update();
 
 		bool collided = CL_run_tests_for_fall_simulation(player);
 		if(!collided)
@@ -112,13 +112,13 @@ bool GP_simulate_player_collision_in_falling_trajectory(Player* player, vec2 xz_
 			// if entered here, then we couldn't unstuck the player in max_iterations * d_frame seconds of falling towards
 			// player movement direction, so he can't fall there
 			player->entity_ptr->position = pos_0;
-			player->entity_ptr->update();
+			player->entity_ptr->Update();
 			return false;
 		}
 	}
 
 	player->entity_ptr->position = pos_0;
-	player->entity_ptr->update();
+	player->entity_ptr->Update();
 	return true;
 }
 
@@ -152,7 +152,7 @@ bool CL_run_tests_for_fall_simulation(Player* player)
 {
 	// It basically the usual test but without collision resolving.
 
-	auto entity_buffer = RVN::entity_buffer;
+	auto entity_buffer = Rvn::entity_buffer;
 	auto buffer = entity_buffer->buffer;
 	auto entity_list_size = entity_buffer->size;
 	bool terrain_collision = false;

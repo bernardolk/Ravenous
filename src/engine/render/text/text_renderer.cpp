@@ -64,12 +64,12 @@ void render_text(std::string font, float x, float y, vec3 color, float scale, st
 void render_text(std::string font, float x, float y, vec3 color, float scale, bool center, std::string text)
 {
 	// Finds text shader in catalogue and set variables 
-	auto text_shader = Shader_Catalogue.find("text")->second;
-	text_shader->use();
-	text_shader->setFloat3("textColor", color.x, color.y, color.z);
+	auto text_shader = ShaderCatalogue.find("text")->second;
+	text_shader->Use();
+	text_shader->SetFloat3("textColor", color.x, color.y, color.z);
 
 	// Finds text drawing geometry in geometry catalogue
-	auto text_geometry = Geometry_Catalogue.find("text")->second;
+	auto text_geometry = GeometryCatalogue.find("text")->second;
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(text_geometry->gl_data.VAO);
 
@@ -159,7 +159,7 @@ gl_charmap load_text_textures(std::string font, int size)
 		Quit_fatal("Freetype: Could not init FreeType Library");
 
 	FT_Face face;
-	std::string filepath = FONTS_PATH + font;
+	std::string filepath = Paths::Fonts + font;
 	if(FT_New_Face(ft, filepath.c_str(), 0, &face))
 		log(LOG_ERROR, "Freetype: Failed to load font");
 

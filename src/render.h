@@ -27,8 +27,8 @@ void set_shader_light_variables(World* world, Shader* shader, Camera* camera);
 // --------------
 inline void RenderEntity(Entity* entity)
 {
-	entity->shader->use();
-	entity->shader->setMatrix4("model", entity->matModel);
+	entity->shader->Use();
+	entity->shader->SetMatrix4("model", entity->mat_model);
 
 	// bind appropriate textures
 	u32 diffuse_n = 1;
@@ -54,7 +54,7 @@ inline void RenderEntity(Entity* entity)
 			number = std::to_string(height_n++);
 
 		// now set the sampler to the correct texture unit
-		glUniform1i(glGetUniformLocation(entity->shader->gl_programId, (type + number).c_str()), i);
+		glUniform1i(glGetUniformLocation(entity->shader->gl_program_id, (type + number).c_str()), i);
 		// and finally bind the texture
 		glBindTexture(GL_TEXTURE_2D, entity->textures[i].id);
 	}
@@ -63,13 +63,13 @@ inline void RenderEntity(Entity* entity)
 	{
 		// shadow map texture
 		glActiveTexture(GL_TEXTURE0 + i);
-		glUniform1i(glGetUniformLocation(entity->shader->gl_programId, "shadowMap"), i);
+		glUniform1i(glGetUniformLocation(entity->shader->gl_program_id, "shadowMap"), i);
 		glBindTexture(GL_TEXTURE_2D, RDepthMap);
 		i++;
 
 		// shadow cubemap texture
 		glActiveTexture(GL_TEXTURE0 + i);
-		glUniform1i(glGetUniformLocation(entity->shader->gl_programId, "shadowCubemap"), i);
+		glUniform1i(glGetUniformLocation(entity->shader->gl_program_id, "shadowCubemap"), i);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, RDepthCubemapTexture);
 		i++;
 	}
@@ -77,17 +77,17 @@ inline void RenderEntity(Entity* entity)
 	// check for tiled texture
 	if(entity->flags & EntityFlags_RenderTiledTexture)
 	{
-		entity->shader->setInt("texture_wrap_top", entity->uv_tile_wrap[0]);
-		entity->shader->setInt("texture_wrap_bottom", entity->uv_tile_wrap[1]);
-		entity->shader->setInt("texture_wrap_front", entity->uv_tile_wrap[2]);
-		entity->shader->setInt("texture_wrap_left", entity->uv_tile_wrap[3]);
-		entity->shader->setInt("texture_wrap_right", entity->uv_tile_wrap[4]);
-		entity->shader->setInt("texture_wrap_back", entity->uv_tile_wrap[5]);
+		entity->shader->SetInt("texture_wrap_top", entity->uv_tile_wrap[0]);
+		entity->shader->SetInt("texture_wrap_bottom", entity->uv_tile_wrap[1]);
+		entity->shader->SetInt("texture_wrap_front", entity->uv_tile_wrap[2]);
+		entity->shader->SetInt("texture_wrap_left", entity->uv_tile_wrap[3]);
+		entity->shader->SetInt("texture_wrap_right", entity->uv_tile_wrap[4]);
+		entity->shader->SetInt("texture_wrap_back", entity->uv_tile_wrap[5]);
 	}
 
 	if(entity->type == EntityType_TimerMarking)
 	{
-		entity->shader->setFloat3("color", entity->timer_marking_data.color);
+		entity->shader->SetFloat3("color", entity->timer_marking_data.color);
 	}
 
 	// draw mesh
@@ -102,15 +102,15 @@ inline void RenderEntity(Entity* entity)
 
 inline void render_editor_entity(Entity* entity, World* world, Camera* camera)
 {
-	entity->shader->use();
+	entity->shader->Use();
 	// important that the gizmo dont have a position set.
-	entity->shader->setMatrix4("model", entity->matModel);
-	entity->shader->setMatrix4("view", camera->View4x4);
-	entity->shader->setMatrix4("projection", camera->Projection4x4);
-	entity->shader->setMatrix4("model", entity->matModel);
-	entity->shader->setFloat3("viewPos", camera->Position);
-	entity->shader->setFloat3("entity_position", entity->position);
-	entity->shader->setFloat("shininess", world->global_shininess);
+	entity->shader->SetMatrix4("model", entity->mat_model);
+	entity->shader->SetMatrix4("view", camera->mat_view);
+	entity->shader->SetMatrix4("projection", camera->mat_projection);
+	entity->shader->SetMatrix4("model", entity->mat_model);
+	entity->shader->SetFloat3("viewPos", camera->position);
+	entity->shader->SetFloat3("entity_position", entity->position);
+	entity->shader->SetFloat("shininess", world->global_shininess);
 
 	RenderEntity(entity);
 }
@@ -123,13 +123,13 @@ inline void render_scene(World* world, Camera* camera)
 {
 	// set shader settings that are common to the scene
 	// both to "normal" model shader and to tiled model shader
-	auto model_shader = Shader_Catalogue.find("model")->second;
+	auto model_shader = ShaderCatalogue.find("model")->second;
 	set_shader_light_variables(world, model_shader, camera);
 
-	auto model_tiled_shader = Shader_Catalogue.find("tiledTextureModel")->second;
+	auto model_tiled_shader = ShaderCatalogue.find("tiledTextureModel")->second;
 	set_shader_light_variables(world, model_tiled_shader, camera);
 
-	auto color_shader = Shader_Catalogue.find("color")->second;
+	auto color_shader = ShaderCatalogue.find("color")->second;
 	set_shader_light_variables(world, color_shader, camera);
 
 	for(int i = 0; i < world->entities.size(); i++)
@@ -145,7 +145,7 @@ inline void render_scene(World* world, Camera* camera)
 
 inline void set_shader_light_variables(World* world, Shader* shader, Camera* camera)
 {
-	shader->use();
+	shader->Use();
 
 	int light_count;
 	// point lights
@@ -154,15 +154,15 @@ inline void set_shader_light_variables(World* world, Shader* shader, Camera* cam
 		for(auto& light : world->point_lights)
 		{
 			auto uniform_name = "pointLights[" + std::to_string(light_count) + "]";
-			shader->setFloat3(uniform_name + ".position", light->position);
-			shader->setFloat3(uniform_name + ".diffuse", light->diffuse);
-			shader->setFloat3(uniform_name + ".specular", light->specular);
-			shader->setFloat(uniform_name + ".constant", light->intensity_constant);
-			shader->setFloat(uniform_name + ".linear", light->intensity_linear);
-			shader->setFloat(uniform_name + ".quadratic", light->intensity_quadratic);
+			shader->SetFloat3(uniform_name + ".position", light->position);
+			shader->SetFloat3(uniform_name + ".diffuse", light->diffuse);
+			shader->SetFloat3(uniform_name + ".specular", light->specular);
+			shader->SetFloat(uniform_name + ".constant", light->intensity_constant);
+			shader->SetFloat(uniform_name + ".linear", light->intensity_linear);
+			shader->SetFloat(uniform_name + ".quadratic", light->intensity_quadratic);
 			light_count++;
 		}
-		shader->setInt("num_point_lights", light_count);
+		shader->SetInt("num_point_lights", light_count);
 	}
 
 	// spot lights
@@ -171,19 +171,19 @@ inline void set_shader_light_variables(World* world, Shader* shader, Camera* cam
 		for(auto& light : world->spot_lights)
 		{
 			auto uniform_name = "spotLights[" + std::to_string(light_count) + "]";
-			shader->setFloat3(uniform_name + ".position", light->position);
-			shader->setFloat3(uniform_name + ".direction", light->direction);
-			shader->setFloat3(uniform_name + ".diffuse", light->diffuse);
-			shader->setFloat3(uniform_name + ".specular", light->specular);
-			shader->setFloat(uniform_name + ".constant", light->intensity_constant);
-			shader->setFloat(uniform_name + ".linear", light->intensity_linear);
-			shader->setFloat(uniform_name + ".quadratic", light->intensity_quadratic);
-			shader->setFloat(uniform_name + ".innercone", light->innercone);
-			shader->setFloat(uniform_name + ".outercone", light->outercone);
+			shader->SetFloat3(uniform_name + ".position", light->position);
+			shader->SetFloat3(uniform_name + ".direction", light->direction);
+			shader->SetFloat3(uniform_name + ".diffuse", light->diffuse);
+			shader->SetFloat3(uniform_name + ".specular", light->specular);
+			shader->SetFloat(uniform_name + ".constant", light->intensity_constant);
+			shader->SetFloat(uniform_name + ".linear", light->intensity_linear);
+			shader->SetFloat(uniform_name + ".quadratic", light->intensity_quadratic);
+			shader->SetFloat(uniform_name + ".innercone", light->innercone);
+			shader->SetFloat(uniform_name + ".outercone", light->outercone);
 			light_count++;
 		}
 
-		shader->setInt("num_spot_lights", light_count);
+		shader->SetInt("num_spot_lights", light_count);
 	}
 
 	// directional lights
@@ -192,22 +192,22 @@ inline void set_shader_light_variables(World* world, Shader* shader, Camera* cam
 		for(auto& light : world->directional_lights)
 		{
 			auto uniform_name = "dirLights[" + std::to_string(light_count) + "]";
-			shader->setFloat3(uniform_name + ".direction", light->direction);
-			shader->setFloat3(uniform_name + ".diffuse", light->diffuse);
-			shader->setFloat3(uniform_name + ".specular", light->specular);
+			shader->SetFloat3(uniform_name + ".direction", light->direction);
+			shader->SetFloat3(uniform_name + ".diffuse", light->diffuse);
+			shader->SetFloat3(uniform_name + ".specular", light->specular);
 			light_count++;
 		}
-		shader->setInt("num_directional_lights", light_count);
+		shader->SetInt("num_directional_lights", light_count);
 	}
 
-	shader->setMatrix4("view", camera->View4x4);
-	shader->setMatrix4("projection", camera->Projection4x4);
-	shader->setFloat3("viewPos", camera->Position);
-	shader->setFloat("shininess", world->global_shininess);
-	shader->setFloat3("ambient", world->ambient_light);
-	shader->setFloat("ambient_intensity", world->ambient_intensity);
-	shader->setMatrix4("lightSpaceMatrix", RDirLightSpaceMatrix);
-	shader->setFloat("cubemap_far_plane", RCubemapFarPlane);
+	shader->SetMatrix4("view", camera->mat_view);
+	shader->SetMatrix4("projection", camera->mat_projection);
+	shader->SetFloat3("viewPos", camera->position);
+	shader->SetFloat("shininess", world->global_shininess);
+	shader->SetFloat3("ambient", world->ambient_light);
+	shader->SetFloat("ambient_intensity", world->ambient_intensity);
+	shader->SetMatrix4("lightSpaceMatrix", RDirLightSpaceMatrix);
+	shader->SetFloat("cubemap_far_plane", RCubemapFarPlane);
 }
 
 // leave for debugging
@@ -228,7 +228,7 @@ inline void render_game_gui(Player* player)
 		std::string last_grabbed = player->grabbing_entity->name;
 		PGrab += "'" + last_grabbed + "'";
 	}
-	render_text(GlobalDisplayConfig::VIEWPORT_WIDTH - 400, 45, PGrab);
+	render_text(GlobalDisplayConfig::viewport_width - 400, 45, PGrab);
 
 	std::string player_floor = "player floor: ";
 	if(player->standing_entity_ptr != nullptr)
@@ -240,7 +240,7 @@ inline void render_game_gui(Player* player)
 			std::cout << "new floor: " << PFloor << "\n";
 		}
 	}
-	render_text(GlobalDisplayConfig::VIEWPORT_WIDTH - 400, 60, player_floor);
+	render_text(GlobalDisplayConfig::viewport_width - 400, 60, player_floor);
 }
 
 // ----------------
@@ -316,9 +316,9 @@ inline void render_depth_map(World* world)
 	glBindFramebuffer(GL_FRAMEBUFFER, RDepthMapFbo);
 
 	glClear(GL_DEPTH_BUFFER_BIT);
-	auto depth_shader = Shader_Catalogue.find("depth")->second;
-	depth_shader->use();
-	depth_shader->setMatrix4("lightSpaceMatrix", RDirLightSpaceMatrix);
+	auto depth_shader = ShaderCatalogue.find("depth")->second;
+	depth_shader->Use();
+	depth_shader->SetMatrix4("lightSpaceMatrix", RDirLightSpaceMatrix);
 
 	for(int it = 0; it < world->entities.size(); it++)
 	{
@@ -326,13 +326,13 @@ inline void render_depth_map(World* world)
 		if(entity->flags & EntityFlags_InvisibleEntity)
 			continue;
 
-		depth_shader->setMatrix4("model", entity->matModel);
+		depth_shader->SetMatrix4("model", entity->mat_model);
 		render_mesh(entity->mesh, RenderOptions{});
 	}
 
 	// de-setup
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT);
+	glViewport(0, 0, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height);
 }
 
 inline void render_depth_cubemap(World* world)
@@ -363,14 +363,14 @@ inline void render_depth_cubemap(World* world)
 	glBindFramebuffer(GL_FRAMEBUFFER, RDepthCubemapFbo);
 
 	glClear(GL_DEPTH_BUFFER_BIT);
-	auto depth_shader = Shader_Catalogue.find("depth_cubemap")->second;
-	depth_shader->use();
+	auto depth_shader = ShaderCatalogue.find("depth_cubemap")->second;
+	depth_shader->Use();
 
 	for(unsigned int i = 0; i < 6; ++i)
-		depth_shader->setMatrix4("shadowMatrices[" + std::to_string(i) + "]", RPointLightSpaceMatrices[i]);
+		depth_shader->SetMatrix4("shadowMatrices[" + std::to_string(i) + "]", RPointLightSpaceMatrices[i]);
 
-	depth_shader->setFloat("cubemap_far_plane", RCubemapFarPlane);
-	depth_shader->setFloat3("lightPos", light->position);
+	depth_shader->SetFloat("cubemap_far_plane", RCubemapFarPlane);
+	depth_shader->SetFloat3("lightPos", light->position);
 
 	for(int i = 0; i < world->entities.size(); i++)
 	{
@@ -378,25 +378,25 @@ inline void render_depth_cubemap(World* world)
 		if(entity->flags & EntityFlags_InvisibleEntity)
 			continue;
 
-		depth_shader->setMatrix4("model", entity->matModel);
+		depth_shader->SetMatrix4("model", entity->mat_model);
 		render_mesh(entity->mesh, RenderOptions{});
 	}
 
 	// de-setup
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT);
+	glViewport(0, 0, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height);
 }
 
 inline void render_depth_map_debug()
 {
-	glViewport(0, 0, GlobalDisplayConfig::VIEWPORT_WIDTH, GlobalDisplayConfig::VIEWPORT_HEIGHT);
+	glViewport(0, 0, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height);
 	//glClearColor(0.196, 0.298, 0.3607, 1.0f);
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// shadow map texture
 
 
-	auto depth_debug_shader = Shader_Catalogue.find("depth_debug")->second;
-	depth_debug_shader->use();
+	auto depth_debug_shader = ShaderCatalogue.find("depth_debug")->second;
+	depth_debug_shader->Use();
 	/*
 	depth_debug_shader->setInt("depthMap", 0);
 	glActiveTexture(GL_TEXTURE0);
@@ -405,7 +405,7 @@ inline void render_depth_map_debug()
 	render_mesh(plane);
 	*/
 
-	auto aabb = Geometry_Catalogue.find("aabb")->second;
+	auto aabb = GeometryCatalogue.find("aabb")->second;
 	render_mesh(aabb);
 }
 

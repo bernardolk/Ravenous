@@ -1,7 +1,7 @@
 #include <engine/core/rvn_types.h>
 #include <engine/collision/simplex.h>
 
-void Simplex::push_front(vec3 point)
+void Simplex::PushFront(vec3 point)
 {
 	this->points[3] = this->points[2];
 	this->points[2] = this->points[1];

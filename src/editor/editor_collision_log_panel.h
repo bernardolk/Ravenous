@@ -1,3 +1,5 @@
+#pragma once
+
 // --------------------
 // COLLISION LOG PANEL
 // --------------------
@@ -5,16 +7,16 @@
 static void PushStyleCompact();
 static void PopStyleCompact();
 
-void render_collision_log_panel(CollisionLogPanelContext* panel)
+inline void render_collision_log_panel(CollisionLogPanelContext* panel)
 {
-	const u16 w_width = 450;
-	const u16 w_height = 320;
-	const u8 w_bottom_margin = 30;
-	const u8 table_items_to_show = 100;
-	const u16 table_height = 120;
+	constexpr u16 w_width = 450;
+	constexpr u16 w_height = 320;
+	constexpr u8 w_bottom_margin = 30;
+	constexpr u8 table_items_to_show = 100;
+	constexpr u16 table_height = 120;
 
 	ImGui::SetNextWindowPos(
-		ImVec2(GlobalDisplayConfig::VIEWPORT_WIDTH - w_width, GlobalDisplayConfig::VIEWPORT_HEIGHT - w_height - w_bottom_margin),
+		ImVec2(GlobalDisplayConfig::viewport_width - w_width, GlobalDisplayConfig::viewport_height - w_height - w_bottom_margin),
 		ImGuiCond_Appearing
 	);
 	

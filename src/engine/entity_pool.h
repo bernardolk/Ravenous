@@ -10,7 +10,7 @@ struct EntityPool
 	explicit EntityPool(const int size) :
 		size(size) { }
 
-	void init()
+	void Init()
 	{
 		// allocate pool memory
 		pool = static_cast<Entity*>(malloc(size * sizeof(Entity)));
@@ -30,7 +30,7 @@ struct EntityPool
 	}
 
 	// @TODO: Refactor, this is stupid
-	[[nodiscard]] Entity* get_next() const
+	[[nodiscard]] Entity* GetNext() const
 	{
 		For(size)
 		{
@@ -47,7 +47,7 @@ struct EntityPool
 	}
 
 	//@TODO: Refactor, this is stupid
-	void free_slot(const Entity* entity) const
+	void FreeSlot(const Entity* entity) const
 	{
 		Entity* cursor = pool;
 		For(size)

@@ -9,17 +9,17 @@
 #include <engine/collision/collision_mesh.h>
 
 
-BoundingBox CollisionMesh::compute_bounding_box()
+BoundingBox CollisionMesh::ComputeBoundingBox()
 {
 	// This returns a bounding box that contains the mesh
 	// Vertices of the bounding box do not necessarely match vertices in the mesh
 	// So, this does NOT return the min/max vertices of the mesh in axial direction
 	// (support points)
 
-	auto max_d = vec3(MIN_FLOAT, MIN_FLOAT, MIN_FLOAT);
-	auto min_d = vec3(MAX_FLOAT, MAX_FLOAT, MAX_FLOAT);
+	auto max_d = vec3(MinFloat, MinFloat, MinFloat);
+	auto min_d = vec3(MaxFloat, MaxFloat, MaxFloat);
 
-	float maxx, minx, maxy, miny, maxz, minz;
+	float maxx = 0.f, minx = 0.f, maxy = 0.f, miny = 0.f, maxz = 0.f, minz = 0.f;
 
 	for(int i = 0; i < this->vertices.size(); i++)
 	{
@@ -63,7 +63,7 @@ BoundingBox CollisionMesh::compute_bounding_box()
 	}
 
 	BoundingBox bb;
-	bb.set(vec3(minx, miny, minz), vec3(maxx, maxy, maxz));
+	bb.Set(vec3(minx, miny, minz), vec3(maxx, maxy, maxz));
 	return bb;
 }
 

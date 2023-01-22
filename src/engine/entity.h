@@ -14,9 +14,9 @@ struct Texture;
 struct Entity;
 struct BoundingBox;
 
-const static size_t ENTITY_WOLRD_CELL_OCCUPATION_LIMIT = 50;
-const static std::string DEFAULT_ENTITY_SHADER = "model";
-const static std::string ENTITY_SHADER_MARKING = "color";
+constexpr static size_t EntityWolrdCellOccupationLimit = 50;
+const static std::string DefaultEntityShader = "model";
+const static std::string EntityShaderMarking = "color";
 
 
 enum EntityTimerTargetType
@@ -55,7 +55,7 @@ struct TimerTriggerData
 	Entity* timer_target = nullptr;
 	int timer_duration = 0; // Expressed in seconds
 
-	const static size_t size = 16;
+	constexpr static size_t size = 16;
 	Entity* markings[size]; /* not perfect name, but means the lights that show
                                                            if the player is on track or not towards the timed door */
 	u32 time_checkpoints[size];
@@ -70,8 +70,8 @@ struct TimerTriggerData
 			time_checkpoints[i] = 0;
 		}
 	}
-	void add_marking(Entity* entity, u32 time_checkpoint);
-	void delete_marking(int i);
+	void AddMarking(Entity* entity, u32 time_checkpoint);
+	void DeleteMarking(int i);
 };
 
 struct TimerTargetData
@@ -94,10 +94,10 @@ struct Entity
 	// ---------------------------
 	//  > render data
 	// ---------------------------
-	Shader* shader;
-	Mesh* mesh;
+	Shader* shader = nullptr;
+	Mesh* mesh = nullptr;
 	std::vector<Texture> textures;
-	mat4 matModel = mat4identity;
+	mat4 mat_model = Mat4Identity;
 
 	// box UV tile setting
 	int uv_tile_wrap[6] = {1, 1, 1, 1, 1, 1};
@@ -108,17 +108,17 @@ struct Entity
 	vec3 rotation = vec3(0.0f);
 	vec3 scale = vec3(1.0f);
 	vec3 velocity = vec3(0.0f);
-	glm::quat quaternion;
+	glm::quat quaternion{};
 
 	//@TODO: Get rid of collider (and include)
-	CollisionMesh* collision_mesh; // static collision mesh vertex data
-	CollisionMesh collider;        // dynamic collision mesh, obtained by multiplying static collision mesh with model matrix
-	BoundingBox bounding_box;      // computed using the collider mesh, used for fast first pass collision tests
+	CollisionMesh* collision_mesh = nullptr; // static collision mesh vertex data
+	CollisionMesh collider{};        // dynamic collision mesh, obtained by multiplying static collision mesh with model matrix
+	BoundingBox bounding_box{};      // computed using the collider mesh, used for fast first pass collision tests
 
 	// collider settings
 	bool slidable = false;
 
-	WorldCell* world_cells[ENTITY_WOLRD_CELL_OCCUPATION_LIMIT];
+	WorldCell* world_cells[EntityWolrdCellOccupationLimit]{};
 	int world_cells_count = 0;
 
 
@@ -132,7 +132,7 @@ struct Entity
 	Mesh* trigger = nullptr;
 	vec3 trigger_scale = vec3(1.5f, 1.f, 0.f);
 	vec3 trigger_pos = vec3(0.0f);
-	mat4 trigger_matModel;
+	mat4 trigger_mat_model{};
 
 	// ---------------------------
 	// > entity type data
@@ -140,27 +140,23 @@ struct Entity
 
 	union
 	{
-		TimerTriggerData timer_trigger_data;
+		TimerTriggerData timer_trigger_data{};
 		TimerMarkingData timer_marking_data;
 		TimerTargetData timer_target_data;
 	};
-
-	Entity() :
-		timer_marking_data() {}
-	~Entity() {}
 
 	// ---------------------------
 	// > methods
 	// ---------------------------
 
-	void update();
-	void update_collider();
-	void update_model_matrix();
-	void update_bounding_box();
-	void update_trigger();
-	void rotate_y(float angle);
-	mat4 get_rotation_matrix();
-	CollisionMesh get_trigger_collider();
-	bool is_interactable();
+	void Update();
+	void UpdateCollider();
+	void UpdateModelMatrix();
+	void UpdateBoundingBox();
+	void UpdateTrigger();
+	void RotateY(float angle);
+	mat4 GetRotationMatrix();
+	CollisionMesh GetTriggerCollider();
+	bool IsInteractable();
 
 };

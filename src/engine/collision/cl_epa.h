@@ -2,11 +2,12 @@
 //       EPA - Expanded Polytope Algorithm
 // ---------------------------------------------
 // Uses the output of GJK to compute a penetration vector, useful for resolving collisions
+#pragma once
 
 struct CollisionMesh;
 struct Simplex;
 
-extern const int CL_MAX_EPA_ITERATIONS;
+extern const int ClMaxEpaIterations;
 
 struct EPA_Result
 {
@@ -25,7 +26,7 @@ const std::vector<size_t>& faces,
 size_t a,
 size_t b);
 
-EPA_Result CL_run_EPA(Simplex simplex, CollisionMesh* collider_A, CollisionMesh* collider_B);
+EPA_Result CL_run_EPA(Simplex simplex, CollisionMesh* collider_a, CollisionMesh* collider_b);
 
 
 inline bool CL_support_is_in_polytope(std::vector<vec3> polytope, vec3 support_point)

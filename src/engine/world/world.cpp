@@ -196,7 +196,7 @@ CellUpdate World::UpdateEntityWorldCells(Entity* entity)
 	std::string message;
 
 	// computes which cells the entity is occupying based on it's axis aligned bounding box
-	auto [bb_min, bb_max] = entity->bounding_box.bounds();
+	auto [bb_min, bb_max] = entity->bounding_box.Bounds();
 	auto [i0, j0, k0] = world_coords_to_cells(bb_min);
 	auto [i1, j1, k1] = world_coords_to_cells(bb_max);
 
@@ -214,10 +214,10 @@ CellUpdate World::UpdateEntityWorldCells(Entity* entity)
 				new_cells.push_back(&this->cells[i][j][k]);
 
 	// entity too large catch
-	if(new_cells.size() > ENTITY_WOLRD_CELL_OCCUPATION_LIMIT)
+	if(new_cells.size() > EntityWolrdCellOccupationLimit)
 	{
 		message = "Entity '" + entity->name + "' is too large and it occupies more than " +
-		"the limit of " + std::to_string(ENTITY_WOLRD_CELL_OCCUPATION_LIMIT) + " world cells at a time.";
+		"the limit of " + std::to_string(EntityWolrdCellOccupationLimit) + " world cells at a time.";
 
 		return CellUpdate{CellUpdate_ENTITY_TOO_BIG, message};
 	}
@@ -297,7 +297,7 @@ RaycastTest World::Raycast(const Ray ray, const RayCastType test_type, const Ent
 {
 	//@TODO: This should first test ray against world cells, then get the list of entities from these world cells to test against 
 
-	float min_distance = MAX_FLOAT;
+	float min_distance = MaxFloat;
 	RaycastTest closest_hit{false, -1};
 
 	for(const auto entity : this->entities)
@@ -334,8 +334,8 @@ RaycastTest World::LinearRaycastArray(const Ray first_ray, int qty, float spacin
 	*/
 
 	Ray ray = first_ray;
-	float highest_y = MIN_FLOAT;
-	float shortest_z = MAX_FLOAT;
+	float highest_y = MinFloat;
+	float shortest_z = MaxFloat;
 	RaycastTest best_hit_results;
 
 	for_less(qty)
@@ -351,15 +351,15 @@ RaycastTest World::LinearRaycastArray(const Ray first_ray, int qty, float spacin
 			}
 		}
 
-		ImDraw::add_line(IM_ITERHASH(i), ray.origin, ray.origin + ray.direction * player->grab_reach, 1.2f, false, COLOR_GREEN_1);
+		ImDraw::AddLine(IM_ITERHASH(i), ray.origin, ray.origin + ray.direction * player->grab_reach, 1.2f, false, COLOR_GREEN_1);
 
-		ray = Ray{ray.origin + UNIT_Y * spacing, ray.direction};
+		ray = Ray{ray.origin + UnitY * spacing, ray.direction};
 	}
 
 	if(best_hit_results.hit)
 	{
 		vec3 hitpoint = point_from_detection(best_hit_results.ray, best_hit_results);
-		ImDraw::add_point(IMHASH, hitpoint, 2.0, true, COLOR_RED_1);
+		ImDraw::AddPoint(IMHASH, hitpoint, 2.0, true, COLOR_RED_1);
 	}
 
 	return best_hit_results;
@@ -367,17 +367,17 @@ RaycastTest World::LinearRaycastArray(const Ray first_ray, int qty, float spacin
 
 RaycastTest World::RaycastLights(const Ray ray) const
 {
-	float min_distance = MAX_FLOAT;
+	float min_distance = MaxFloat;
 	RaycastTest closest_hit{.hit = false, .distance = -1};
 
-	const auto aabb_mesh = Geometry_Catalogue.find("aabb")->second;
+	const auto aabb_mesh = GeometryCatalogue.find("aabb")->second;
 
 	int point_c = 0;
 	for(auto& light : this->point_lights)
 	{
 		// subtract lightbulb model size from position
 		auto position = light->position - vec3{0.1575, 0, 0.1575};
-		auto aabb_model = translate(mat4identity, position);
+		auto aabb_model = translate(Mat4Identity, position);
 		aabb_model = scale(aabb_model, vec3{0.3f, 0.6f, 0.3f});
 
 		auto test = test_ray_against_mesh(ray, aabb_mesh, aabb_model, RayCast_TestBothSidesOfTriangle);
@@ -394,7 +394,7 @@ RaycastTest World::RaycastLights(const Ray ray) const
 	{
 		// subtract lightbulb model size from position
 		auto position = light->position - vec3{0.1575, 0, 0.1575};
-		auto aabb_model = translate(mat4identity, position);
+		auto aabb_model = translate(Mat4Identity, position);
 		aabb_model = scale(aabb_model, vec3{0.3f, 0.6f, 0.3f});
 
 		const auto test = test_ray_against_mesh(ray, aabb_mesh, aabb_model, RayCast_TestBothSidesOfTriangle);
@@ -421,7 +421,7 @@ void World::Clear(const T_EntityManager* manager)
 
 	// drops all entities
 	for(const auto& entity : this->entities)
-		manager->pool.free_slot(entity);
+		manager->pool.FreeSlot(entity);
 
 	this->entities.clear();
 
@@ -457,5 +457,5 @@ void World::Clear(const T_EntityManager* manager)
 void World::UpdateEntities() const
 {
 	for(const auto& entity : this->entities)
-		entity->update();
+		entity->Update();
 }

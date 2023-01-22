@@ -13,6 +13,7 @@
 // discard one or another point inside the simplex by computing where the origin is in relation
 // to each face/region delimited by the current simplex. The direction mentioned is the direction
 // in which we will try picking the furthest point in the minkowski's difference shape.
+#pragma once
 
 struct Simplex;
 struct CollisionMesh;
@@ -37,14 +38,14 @@ struct GJK_Point
 };
 
 GJK_Point CL_find_furthest_vertex(CollisionMesh* collision_mesh, vec3 direction);
-GJK_Point CL_get_support_point(CollisionMesh* collision_mesh_A, CollisionMesh* collision_mesh_B, vec3 direction);
+GJK_Point CL_get_support_point(CollisionMesh* collision_mesh_a, CollisionMesh* collision_mesh_b, vec3 direction);
 void CL_update_line_simplex(GJK_Iteration* gjk);
 void CL_update_triangle_simplex(GJK_Iteration* gjk);
 void CL_update_tetrahedron_simplex(GJK_Iteration* gjk);
 void CL_update_simplex_and_direction(GJK_Iteration* gjk);
 
 void _CL_debug_render_simplex(Simplex simplex);
-GJK_Result CL_run_GJK(CollisionMesh* collider_A, CollisionMesh* collider_B);
+GJK_Result CL_run_GJK(CollisionMesh* collider_a, CollisionMesh* collider_b);
 
 
 inline bool CL_same_general_direction(vec3 a, vec3 b)

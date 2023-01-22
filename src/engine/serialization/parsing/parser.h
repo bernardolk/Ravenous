@@ -5,20 +5,20 @@ struct ParseUnit
 {
 	std::string string{};
 	size_t size = 0;
-	u8 hasToken = 0;
+	u8 has_token = 0;
 	union
 	{
 		char string_buffer[50]{};
-		int iToken;
-		float fToken;
-		char cToken;
-		u32 uiToken;
-		u64 u64Token;
+		int i_token;
+		float f_token;
+		char c_token;
+		u32 ui_token;
+		u64 u64_token;
 		float vec3[3];
 		float vec2[2];
 	};
 
-	void advance_char()
+	void AdvanceChar()
 	{
 		string = &(string[1]);
 		size--;
@@ -49,24 +49,24 @@ struct Parser
 		this->p.size = buffer_size;
 	}
 
-	bool next_line();
-	void parse_whitespace();
-	void parse_all_whitespace();
-	void parse_letter();
-	void parse_symbol();
-	void parse_name_char();
-	void parse_name();
-	void parse_token_char();
-	void parse_token();
-	void parse_int();
-	void parse_uint();
-	void parse_u64();
-	void parse_float();
-	void parse_vec3();
-	void parse_vec2();
+	bool NextLine();
+	void ParseWhitespace();
+	void ParseAllWhitespace();
+	void ParseLetter();
+	void ParseSymbol();
+	void ParseNameChar();
+	void ParseName();
+	void ParseTokenChar();
+	void ParseToken();
+	void ParseInt();
+	void ParseUint();
+	void ParseU64();
+	void ParseFloat();
+	void ParseVec3();
+	void ParseVec2();
 
-	void _clear_parse_buffer();
-	bool has_token() const;
+	void ClearParseBuffer();
+	bool HasToken() const;
 
 	constexpr static u32 ten_powers[10]{
 	1, 10, 100, 1000, 10000,
@@ -82,7 +82,7 @@ struct Parser
 template<typename T>
 T get_parsed(Parser& parser)
 {
-	return *reinterpret_cast<T*>(&parser.p.iToken);
+	return *reinterpret_cast<T*>(&parser.p.i_token);
 }
 
 template<>
@@ -94,7 +94,7 @@ inline std::string get_parsed(Parser& parser)
 template<>
 inline glm::vec3 get_parsed(Parser& parser)
 {
-	if(parser.p.hasToken == 0)
+	if(parser.p.has_token == 0)
 	{
 		std::cout << "FATAL: Parse has no vec3 value to be retrieved. Check line being parsed.\n";
 		assert(false);
@@ -106,7 +106,7 @@ inline glm::vec3 get_parsed(Parser& parser)
 template<>
 inline glm::vec2 get_parsed(Parser& parser)
 {
-	if(parser.p.hasToken == 0)
+	if(parser.p.has_token == 0)
 	{
 		std::cout << "FATAL: Parse has no vec3 value to be retrieved. Check line being parsed.\n";
 		assert(false);

@@ -138,11 +138,11 @@ struct Player
 	void Update(World* world, bool update_collider = false)
 	{
 		// perform updates to bounding boxes, colliders etc
-		entity_ptr->update_model_matrix();
+		entity_ptr->UpdateModelMatrix();
 		if(update_collider)
 		{
-			entity_ptr->update_collider();
-			entity_ptr->update_bounding_box();
+			entity_ptr->UpdateCollider();
+			entity_ptr->UpdateBoundingBox();
 		}
 
 		if(CL_update_player_world_cells(this, world))

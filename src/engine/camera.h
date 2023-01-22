@@ -10,31 +10,31 @@ enum CameraType
 
 struct Camera
 {
-	vec3 Position = vec3(0.0f);
-	vec3 Front = vec3(1.0f, 0.0f, 0.0f);
-	vec3 Up = vec3(0.0f, 1.0f, 0.0f);
+	vec3 position = vec3(0.0f);
+	vec3 front = vec3(1.0f, 0.0f, 0.0f);
+	vec3 up = vec3(0.0f, 1.0f, 0.0f);
 
-	float Acceleration = 3.5f;
-	float FOVy = 45.0f;
-	float FarPlane = 300.0f;
-	float NearPlane = 0.1f;
-	float Sensitivity = 0.1f;
+	float acceleration = 3.5f;
+	float fov_y = 45.0f;
+	float far_plane = 300.0f;
+	float near_plane = 0.1f;
+	float sensitivity = 0.1f;
 
-	glm::mat4 View4x4;
-	glm::mat4 Projection4x4;
+	glm::mat4 mat_view;
+	glm::mat4 mat_projection;
 
 	CameraType type = FREE_ROAM;
 	float orbital_angle = 0;
 };
 
 // camera array indexes
-const u8 EDITOR_CAM = 0;
-const u8 FPS_CAM = 1;
+constexpr u8 EditorCam = 0;
+constexpr u8 GameCam = 1;
 
-void camera_update_game(Camera* camera, float viewportWidth, float viewportHeight, vec3 position);
-void camera_update_editor(Camera* camera, float viewportWidth, float viewportHeight, vec3 position);
-void camera_change_direction(Camera* camera, float yawOffset, float pitchOffset);
-void camera_look_at(Camera* camera, vec3 ref, bool isPosition);
+void camera_update_game(Camera* camera, float viewport_width, float viewport_height, vec3 position);
+void camera_update_editor(Camera* camera, float viewport_width, float viewport_height, vec3 position);
+void camera_change_direction(Camera* camera, float yaw_offset, float pitch_offset);
+void camera_look_at(Camera* camera, vec3 ref, bool is_position);
 void set_camera_to_free_roam(Camera* camera);
 void set_camera_to_third_person(Camera* camera);
 void compute_angles_from_direction(float& pitch, float& yaw, vec3 direction);

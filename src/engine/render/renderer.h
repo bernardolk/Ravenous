@@ -14,4 +14,4 @@ struct RenderOptions
 	bool dont_cull_face = false;
 };
 
-void render_mesh(Mesh* mesh, RenderOptions opts = RenderOptions{});
+void render_mesh(const Mesh* mesh, RenderOptions opts = RenderOptions{});

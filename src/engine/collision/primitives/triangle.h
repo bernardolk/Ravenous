@@ -1,3 +1,5 @@
+#pragma once
+
 struct Triangle
 {
 	vec3 a;

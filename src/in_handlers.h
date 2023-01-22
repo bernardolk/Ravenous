@@ -36,20 +36,20 @@ void IN_process_move_keys(InputFlags flags, vec3& v_dir)
 {
 	if(pressed(flags, KEY_MOVE_UP))
 	{
-		v_dir += nrmlz(to_xz(PCam->Front));
+		v_dir += nrmlz(to_xz(PCam->front));
 	}
 	if(pressed(flags, KEY_MOVE_LEFT))
 	{
-		vec3 onwards_vector = cross(PCam->Front, PCam->Up);
+		vec3 onwards_vector = cross(PCam->front, PCam->up);
 		v_dir -= nrmlz(to_xz(onwards_vector));
 	}
 	if(pressed(flags, KEY_MOVE_DOWN))
 	{
-		v_dir -= nrmlz(to_xz(PCam->Front));
+		v_dir -= nrmlz(to_xz(PCam->front));
 	}
 	if(pressed(flags, KEY_MOVE_RIGHT))
 	{
-		vec3 onwards_vector = cross(PCam->Front, PCam->Up);
+		vec3 onwards_vector = cross(PCam->front, PCam->up);
 		v_dir += nrmlz(to_xz(onwards_vector));
 	}
 }
@@ -173,42 +173,42 @@ void IN_handle_common_input(InputFlags flags, Player* & player)
 {
 	if(pressed_once(flags, KEY_COMMA))
 	{
-		if(RVN::frame.time_step > 0)
+		if(Rvn::frame.time_step > 0)
 		{
-			RVN::frame.time_step -= 0.025;
+			Rvn::frame.time_step -= 0.025;
 		}
 	}
 	if(pressed_once(flags, KEY_PERIOD))
 	{
-		if(RVN::frame.time_step < 3)
+		if(Rvn::frame.time_step < 3)
 		{
-			RVN::frame.time_step += 0.025;
+			Rvn::frame.time_step += 0.025;
 		}
 	}
 	if(pressed_once(flags, KEY_1))
 	{
-		RVN::rm_buffer->add("TIME STEP x0.05", 1000);
-		RVN::frame.time_step = 0.05;
+		Rvn::rm_buffer->Add("TIME STEP x0.05", 1000);
+		Rvn::frame.time_step = 0.05;
 	}
 	if(pressed_once(flags, KEY_2))
 	{
-		RVN::rm_buffer->add("TIME STEP x0.1", 1000);
-		RVN::frame.time_step = 0.1;
+		Rvn::rm_buffer->Add("TIME STEP x0.1", 1000);
+		Rvn::frame.time_step = 0.1;
 	}
 	if(pressed_once(flags, KEY_3))
 	{
-		RVN::rm_buffer->add("TIME STEP x0.3", 1000);
-		RVN::frame.time_step = 0.3;
+		Rvn::rm_buffer->Add("TIME STEP x0.3", 1000);
+		Rvn::frame.time_step = 0.3;
 	}
 	if(pressed_once(flags, KEY_4))
 	{
-		RVN::rm_buffer->add("TIME STEP x1.0", 1000);
-		RVN::frame.time_step = 1.0;
+		Rvn::rm_buffer->Add("TIME STEP x1.0", 1000);
+		Rvn::frame.time_step = 1.0;
 	}
 	if(pressed_once(flags, KEY_5))
 	{
-		RVN::rm_buffer->add("TIME STEP x2.0", 1000);
-		RVN::frame.time_step = 2.0;
+		Rvn::rm_buffer->Add("TIME STEP x2.0", 1000);
+		Rvn::frame.time_step = 2.0;
 	}
 	if(flags.key_press & KEY_K)
 	{

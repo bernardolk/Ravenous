@@ -31,7 +31,7 @@
 // --------------------------------------
 
 // @TODO: Refactor this into methods of catalogues
-auto T_EntityManager::_find_entity_assets_in_catalogue(const std::string& mesh, const std::string& collision_mesh, const std::string& shader, const std::string& texture) const
+auto T_EntityManager::FindEntityAssetsInCatalogue(const std::string& mesh, const std::string& collision_mesh, const std::string& shader, const std::string& texture)
 {
 	struct
 	{
@@ -44,26 +44,26 @@ auto T_EntityManager::_find_entity_assets_in_catalogue(const std::string& mesh, 
 
 	if(!mesh.empty())
 	{
-		const auto find_mesh = Geometry_Catalogue.find(mesh);
-		if(find_mesh != Geometry_Catalogue.end())
+		const auto find_mesh = GeometryCatalogue.find(mesh);
+		if(find_mesh != GeometryCatalogue.end())
 			attrs.mesh = find_mesh->second;
 		else
-			attrs.mesh = load_wavefront_obj_as_mesh(MODELS_PATH, mesh);
+			attrs.mesh = load_wavefront_obj_as_mesh(Paths::Models, mesh);
 	}
 
 	if(!collision_mesh.empty())
 	{
-		const auto find_c_mesh = Collision_Geometry_Catalogue.find(collision_mesh);
-		if(find_c_mesh != Collision_Geometry_Catalogue.end())
+		const auto find_c_mesh = CollisionGeometryCatalogue.find(collision_mesh);
+		if(find_c_mesh != CollisionGeometryCatalogue.end())
 			attrs.collision_mesh = find_c_mesh->second;
 		else
-			attrs.collision_mesh = load_wavefront_obj_as_collision_mesh(MODELS_PATH, collision_mesh);
+			attrs.collision_mesh = load_wavefront_obj_as_collision_mesh(Paths::Models, collision_mesh);
 	}
 
 	if(!shader.empty())
 	{
-		const auto _shader = Shader_Catalogue.find(shader);
-		if(_shader == Shader_Catalogue.end())
+		const auto _shader = ShaderCatalogue.find(shader);
+		if(_shader == ShaderCatalogue.end())
 		{
 			std::cout << "FATAL: shader'" << shader << "' not found in shader catalogue.\n";
 			assert(false);
@@ -75,8 +75,8 @@ auto T_EntityManager::_find_entity_assets_in_catalogue(const std::string& mesh, 
 	{
 		// diffuse texture
 		{
-			const auto _texture = Texture_Catalogue.find(texture);
-			if(_texture == Texture_Catalogue.end())
+			const auto _texture = TextureCatalogue.find(texture);
+			if(_texture == TextureCatalogue.end())
 			{
 				std::cout << "FATAL: texture'" << texture << "' not found in texture catalogue.\n";
 				assert(false);
@@ -87,8 +87,8 @@ auto T_EntityManager::_find_entity_assets_in_catalogue(const std::string& mesh, 
 
 		// normal texture
 		{
-			const auto _texture = Texture_Catalogue.find(texture + "_normal");
-			if(_texture != Texture_Catalogue.end())
+			const auto _texture = TextureCatalogue.find(texture + "_normal");
+			if(_texture != TextureCatalogue.end())
 			{
 				attrs.textures[1] = _texture->second;
 				attrs.textures_found++;
@@ -102,22 +102,22 @@ auto T_EntityManager::_find_entity_assets_in_catalogue(const std::string& mesh, 
 // ---------------------------------
 // > SET REGISTRIES
 // ---------------------------------
-void T_EntityManager::set_entity_registry(std::vector<Entity*>* registry)
+void T_EntityManager::SetEntityRegistry(std::vector<Entity*>* registry)
 {
 	entity_registry = registry;
 }
 
-void T_EntityManager::set_checkpoints_registry(std::vector<Entity*>* registry)
+void T_EntityManager::SetCheckpointsRegistry(std::vector<Entity*>* registry)
 {
 	checkpoints_registry = registry;
 }
 
-void T_EntityManager::set_interactables_registry(std::vector<Entity*>* registry)
+void T_EntityManager::SetInteractablesRegistry(std::vector<Entity*>* registry)
 {
 	interactables_registry = registry;
 }
 
-void T_EntityManager::set_world(World* world)
+void T_EntityManager::SetWorld(World* world)
 {
 	this->world = world;
 }
@@ -125,9 +125,9 @@ void T_EntityManager::set_world(World* world)
 // ------------------
 // > REGISTER ENTITY
 // ------------------
-void T_EntityManager::register_in_world_and_scene(Entity* entity) const
+void T_EntityManager::RegisterInWorldAndScene(Entity* entity) const
 {
-	entity->update();
+	entity->Update();
 	this->world->entities.push_back(entity);
 	this->world->UpdateEntityWorldCells(entity);
 	this->world->UpdateCellsInUseList();
@@ -138,16 +138,16 @@ void T_EntityManager::register_in_world_and_scene(Entity* entity) const
 // -----------------
 // Deals with entity creation. All entities created should be created through here.
 
-Entity* T_EntityManager::create_entity(const EntityAttributes& attrs)
+Entity* T_EntityManager::CreateEntity(const EntityAttributes& attrs)
 {
 	auto [
 		_textures,
 		_texture_count,
 		_mesh,
 		_collision_mesh,
-		_shader] = _find_entity_assets_in_catalogue(attrs.mesh, attrs.collision_mesh, attrs.shader, attrs.texture);
+		_shader] = FindEntityAssetsInCatalogue(attrs.mesh, attrs.collision_mesh, attrs.shader, attrs.texture);
 
-	Entity* new_entity = pool.get_next();
+	Entity* new_entity = pool.GetNext();
 	new_entity->name = attrs.name;
 	new_entity->shader = _shader;
 	new_entity->mesh = _mesh;
@@ -158,10 +158,10 @@ Entity* T_EntityManager::create_entity(const EntityAttributes& attrs)
 	For(_texture_count)
 		new_entity->textures.push_back(_textures[i]);
 
-	register_in_world_and_scene(new_entity);
+	RegisterInWorldAndScene(new_entity);
 
 	// sets new entity_type
-	set_type(new_entity, attrs.type);
+	SetType(new_entity, attrs.type);
 
 	return new_entity;
 }
@@ -172,12 +172,12 @@ Entity* T_EntityManager::create_entity(const EntityAttributes& attrs)
 // Editor entities can be created using this method. These entities have separate id's and are not
 //    registered into the world.
 
-Entity* T_EntityManager::create_editor_entity(const EntityAttributes& attrs)
+Entity* T_EntityManager::CreateEditorEntity(const EntityAttributes& attrs)
 {
 	auto [_textures, _texture_count, _mesh, _collision_mesh, _shader] =
-	_find_entity_assets_in_catalogue(attrs.mesh, attrs.collision_mesh, attrs.shader, attrs.texture);
+	FindEntityAssetsInCatalogue(attrs.mesh, attrs.collision_mesh, attrs.shader, attrs.texture);
 
-	Entity* new_entity = pool.get_next();
+	Entity* new_entity = pool.GetNext();
 	new_entity->id = ++editor_count;
 	new_entity->name = attrs.name;
 	new_entity->shader = _shader;
@@ -196,10 +196,10 @@ Entity* T_EntityManager::create_editor_entity(const EntityAttributes& attrs)
 // ---------------
 // > COPY ENTITY
 // ---------------
-Entity* T_EntityManager::copy_entity(Entity* entity)
+Entity* T_EntityManager::CopyEntity(Entity* entity)
 {
 	// allocate entity with new id
-	auto new_entity = pool.get_next();
+	auto new_entity = pool.GetNext();
 	*new_entity = *entity;
 	new_entity->id = next_entity_id++;
 	new_entity->collider = *new_entity->collision_mesh;
@@ -219,20 +219,20 @@ Entity* T_EntityManager::copy_entity(Entity* entity)
 		}
 	}
 	new_entity->name = new_name;
-	register_in_world_and_scene(new_entity);
+	RegisterInWorldAndScene(new_entity);
 	return new_entity;
 }
 
-void T_EntityManager::set_type(Entity* entity, const EntityType type)
+void T_EntityManager::SetType(Entity* entity, const EntityType type)
 {
-	_unset_all_type_related_configurations(entity);
+	UnsetAllTypeRelatedConfigurations(entity);
 
 	switch(type)
 	{
 	// CHECKPOINT
 	case EntityType_Checkpoint:
 	{
-		_make_interactable(entity);
+		MakeInteractable(entity);
 		checkpoints_registry->push_back(entity);
 		entity->type = EntityType_Checkpoint;
 		break;
@@ -248,7 +248,7 @@ void T_EntityManager::set_type(Entity* entity, const EntityType type)
 	// TIMER TRIGGER
 	case EntityType_TimerTrigger:
 	{
-		_make_interactable(entity);
+		MakeInteractable(entity);
 		entity->type = EntityType_TimerTrigger;
 		// initialize union member
 		new(&entity->timer_trigger_data) TimerTriggerData();
@@ -269,7 +269,7 @@ void T_EntityManager::set_type(Entity* entity, const EntityType type)
 		entity->type = EntityType_TimerMarking;
 		new(&entity->timer_marking_data) TimerMarkingData();
 
-		const auto shader = Shader_Catalogue.find(ENTITY_SHADER_MARKING)->second;
+		const auto shader = ShaderCatalogue.find(EntityShaderMarking)->second;
 		entity->shader = shader;
 		break;
 	}
@@ -282,7 +282,7 @@ void T_EntityManager::set_type(Entity* entity, const EntityType type)
 // ----------------
 // > DELETE ENTITY
 // ----------------
-void T_EntityManager::mark_for_deletion(Entity* entity)
+void T_EntityManager::MarkForDeletion(Entity* entity)
 {
 	// remove from scene render list
 	int index = -1;
@@ -312,13 +312,13 @@ void T_EntityManager::mark_for_deletion(Entity* entity)
 	deletion_stack.push_back(entity);
 }
 
-void T_EntityManager::safe_delete_marked_entities()
+void T_EntityManager::SafeDeleteMarkedEntities()
 {
 	// WARNING: ONLY EXECUTE AT THE END OF THE FRAME
 	while(deletion_stack.size() > 0)
 	{
 		auto entity = deletion_stack[0];
-		pool.free_slot(entity);
+		pool.FreeSlot(entity);
 		deletion_stack.erase(deletion_stack.begin());
 	}
 }
@@ -330,7 +330,7 @@ void T_EntityManager::safe_delete_marked_entities()
 // ------------------
 // > SET ENTITY TYPE
 // ------------------
-void T_EntityManager::_remove_from_checkpoint_registry(Entity* entity) const
+void T_EntityManager::RemoveFromCheckpointRegistry(Entity* entity) const
 {
 	int index = -1;
 	For(checkpoints_registry->size())
@@ -346,7 +346,7 @@ void T_EntityManager::_remove_from_checkpoint_registry(Entity* entity) const
 		checkpoints_registry->erase(checkpoints_registry->begin() + index);
 }
 
-void T_EntityManager::_remove_interactivity(Entity* entity)
+void T_EntityManager::RemoveInteractivity(Entity* entity)
 {
 	int index = -1;
 	For(interactables_registry->size())
@@ -365,20 +365,20 @@ void T_EntityManager::_remove_interactivity(Entity* entity)
 	entity->trigger = nullptr;
 }
 
-void T_EntityManager::_make_interactable(Entity* entity)
+void T_EntityManager::MakeInteractable(Entity* entity)
 {
-	auto find = Geometry_Catalogue.find("trigger");
-	if(find == Geometry_Catalogue.end())
+	auto find = GeometryCatalogue.find("trigger");
+	if(find == GeometryCatalogue.end())
 		Quit_fatal("Couldn't find 'trigger' mesh for creating Trigger type entity.")
 
 	entity->trigger = find->second;
 	interactables_registry->push_back(entity);
 }
 
-void T_EntityManager::_unset_all_type_related_configurations(Entity* entity)
+void T_EntityManager::UnsetAllTypeRelatedConfigurations(Entity* entity)
 {
-	_remove_from_checkpoint_registry(entity);
-	_remove_interactivity(entity);
+	RemoveFromCheckpointRegistry(entity);
+	RemoveInteractivity(entity);
 
-	entity->shader = Shader_Catalogue.find(DEFAULT_ENTITY_SHADER)->second;
+	entity->shader = ShaderCatalogue.find(DefaultEntityShader)->second;
 }

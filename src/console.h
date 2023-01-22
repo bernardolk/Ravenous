@@ -40,8 +40,8 @@ inline void initialize_console_buffers()
 
 inline void render_console()
 {
-	render_text(15, GlobalDisplayConfig::VIEWPORT_HEIGHT - 20, Console.scratch_buffer);
-	render_text(15, GlobalDisplayConfig::VIEWPORT_HEIGHT - 35, std::to_string(Console.b_ind));
+	render_text(15, GlobalDisplayConfig::viewport_height - 20, Console.scratch_buffer);
+	render_text(15, GlobalDisplayConfig::viewport_height - 35, std::to_string(Console.b_ind));
 }
 
 inline void move_to_next_buffer()
@@ -147,7 +147,7 @@ inline void clear_scratch_buffer()
 inline void execute_command(const std::string& buffer_line, Player* & player, World* world, Camera* camera)
 {
 	Parser p{buffer_line, 50};
-	p.parse_token();
+	p.ParseToken();
 	const std::string command = get_parsed<std::string>(p);
 
 	// ---------------
@@ -155,8 +155,8 @@ inline void execute_command(const std::string& buffer_line, Player* & player, Wo
 	// ---------------
 	if(command == "save")
 	{
-		p.parse_whitespace();
-		p.parse_token();
+		p.ParseWhitespace();
+		p.ParseToken();
 		const std::string argument = get_parsed<std::string>(p);
 		WorldSerializer::save_to_file(argument, false);
 	}
@@ -167,8 +167,8 @@ inline void execute_command(const std::string& buffer_line, Player* & player, Wo
 	else if(command == "copy")
 	{
 		// if you dont want to switch to the new file when saving scene with a new name
-		p.parse_whitespace();
-		p.parse_token();
+		p.ParseWhitespace();
+		p.ParseToken();
 		const std::string scene_name = get_parsed<std::string>(p);
 		WorldSerializer::save_to_file(scene_name, true);
 	}
@@ -178,8 +178,8 @@ inline void execute_command(const std::string& buffer_line, Player* & player, Wo
 	// ---------------
 	else if(command == "load")
 	{
-		p.parse_whitespace();
-		p.parse_token();
+		p.ParseWhitespace();
+		p.ParseToken();
 		const std::string scene_name = get_parsed<std::string>(p);
 		// updates scene with new one
 		if(WorldSerializer::load_from_file(scene_name))
@@ -199,21 +199,21 @@ inline void execute_command(const std::string& buffer_line, Player* & player, Wo
 	// --------------
 	else if(command == "new")
 	{
-		p.parse_whitespace();
-		p.parse_token();
+		p.ParseWhitespace();
+		p.ParseToken();
 		const std::string scene_name = get_parsed<std::string>(p);
 		if(scene_name != "")
 		{
 			auto current_scene = GSceneInfo.scene_name;
 			if(WorldSerializer::check_if_scene_exists(scene_name))
 			{
-				RVN::rm_buffer->add("Scene name already exists.", 3000);
+				Rvn::rm_buffer->Add("Scene name already exists.", 3000);
 				return;
 			}
 
-			if(!WorldSerializer::load_from_file(SCENE_TEMPLATE_FILENAME))
+			if(!WorldSerializer::load_from_file(Paths::SceneTemplate))
 			{
-				RVN::rm_buffer->add("Scene template not found.", 3000);
+				Rvn::rm_buffer->Add("Scene template not found.", 3000);
 				return;
 			}
 
@@ -225,7 +225,7 @@ inline void execute_command(const std::string& buffer_line, Player* & player, Wo
 					assert(false); // if this happens, weird!
 				}
 
-				RVN::rm_buffer->add("Couldnt save new scene.", 3000);
+				Rvn::rm_buffer->Add("Couldnt save new scene.", 3000);
 			}
 
 			player = GSceneInfo.player; // not irrelevant! do not delete
@@ -236,7 +236,7 @@ inline void execute_command(const std::string& buffer_line, Player* & player, Wo
 		}
 		else
 		{
-			RVN::rm_buffer->add("Could not create new scene. Provide a name please.", 3000);
+			Rvn::rm_buffer->Add("Could not create new scene. Provide a name please.", 3000);
 		}
 	}
 
@@ -245,8 +245,8 @@ inline void execute_command(const std::string& buffer_line, Player* & player, Wo
 	// --------------
 	else if(command == "set")
 	{
-		p.parse_whitespace();
-		p.parse_token();
+		p.ParseWhitespace();
+		p.ParseToken();
 		const std::string argument = get_parsed<std::string>(p);
 		if(argument == "scene")
 		{
@@ -307,13 +307,13 @@ inline void execute_command(const std::string& buffer_line, Player* & player, Wo
 	// ---------------
 	else if(command == "move")
 	{
-		p.parse_whitespace();
-		p.parse_token();
+		p.ParseWhitespace();
+		p.ParseToken();
 		const std::string argument = get_parsed<std::string>(p);
 		if(argument == "cam")
 		{
-			p.parse_vec3();
-			camera->Position = get_parsed<glm::vec3>(p);
+			p.ParseVec3();
+			camera->position = get_parsed<glm::vec3>(p);
 		}
 		else
 			std::cout << "you can move cam only at the moment dude. I don't know what '" << command << " " << argument << "' means man.\n";

@@ -15,11 +15,11 @@
 #include <chrono>
 #include <iostream>
 
-vec3 Debug_Colors[] = {
-COLOR_RED_1,
-COLOR_GREEN_1,
-COLOR_BLUE_1,
-COLOR_PURPLE_1,
+vec3 DebugColors[] = {
+	COLOR_RED_1,
+	COLOR_GREEN_1,
+	COLOR_BLUE_1,
+	COLOR_PURPLE_1,
 };
 
 /* -----------------------
@@ -33,7 +33,7 @@ GJK_Point CL_find_furthest_vertex(CollisionMesh* collision_mesh, vec3 direction)
 	// the sake of simplicity. If anything, it should take a bit more iteration to find a solution but it should work either
 	// way.
 
-	float max_inner_p = MIN_FLOAT;
+	float max_inner_p = MinFloat;
 	vec3 furthest_vertex{};
 
 	for(int i = 0; i < collision_mesh->vertices.size(); i++)
@@ -47,17 +47,17 @@ GJK_Point CL_find_furthest_vertex(CollisionMesh* collision_mesh, vec3 direction)
 		}
 	}
 
-	return GJK_Point{furthest_vertex, max_inner_p == MIN_FLOAT};
+	return GJK_Point{furthest_vertex, max_inner_p == MinFloat};
 }
 
 
-GJK_Point CL_get_support_point(CollisionMesh* collision_mesh_A, CollisionMesh* collision_mesh_B, vec3 direction)
+GJK_Point CL_get_support_point(CollisionMesh* collision_mesh_a, CollisionMesh* collision_mesh_b, vec3 direction)
 {
 	// Gets a support point in the minkowski difference of both meshes, in the direction supplied.
 
 	// PRIOR METHOD
-	GJK_Point gjk_point_a = CL_find_furthest_vertex(collision_mesh_A, direction);
-	GJK_Point gjk_point_b = CL_find_furthest_vertex(collision_mesh_B, -direction);
+	GJK_Point gjk_point_a = CL_find_furthest_vertex(collision_mesh_a, direction);
+	GJK_Point gjk_point_b = CL_find_furthest_vertex(collision_mesh_b, -direction);
 
 	if(gjk_point_a.empty || gjk_point_b.empty)
 		return gjk_point_a;
@@ -217,7 +217,7 @@ void CL_update_simplex_and_direction(GJK_Iteration* gjk)
 /* ------------------
    Run GJK
 ------------------ */
-static void get_time(int elapsed)
+[[maybe_unused]] static void get_time(int elapsed)
 {
 	static std::vector<int> times;
 	const int N = 100;
@@ -243,22 +243,22 @@ static void get_time(int elapsed)
 void _CL_debug_render_simplex(Simplex simplex)
 {
 	for(int i = 0; i < simplex.size(); i++)
-		ImDraw::add_point(IM_ITERHASH(i), simplex[i], 2.0, true, Debug_Colors[i]);
+		ImDraw::AddPoint(IM_ITERHASH(i), simplex[i], 2.0, true, DebugColors[i]);
 }
 
 
-GJK_Result CL_run_GJK(CollisionMesh* collider_A, CollisionMesh* collider_B)
+GJK_Result CL_run_GJK(CollisionMesh* collider_a, CollisionMesh* collider_b)
 {
 	using micro = std::chrono::microseconds;
 	// auto start = std::chrono::high_resolution_clock::now(); 
 
-	GJK_Point support = CL_get_support_point(collider_A, collider_B, UNIT_X);
+	GJK_Point support = CL_get_support_point(collider_a, collider_b, UnitX);
 
 	if(support.empty)
 		return {};
 
 	GJK_Iteration gjk;
-	gjk.simplex.push_front(support.point);
+	gjk.simplex.PushFront(support.point);
 	gjk.direction = -support.point;
 
 	// ImDraw::add_point(IMHASH, support.point, 2.0, true, Debug_Colors[0]);
@@ -269,7 +269,7 @@ GJK_Result CL_run_GJK(CollisionMesh* collider_A, CollisionMesh* collider_B)
 		// auto start_it = std::chrono::high_resolution_clock::now(); 
 
 		// auto start = std::chrono::high_resolution_clock::now(); 
-		support = CL_get_support_point(collider_A, collider_B, gjk.direction);
+		support = CL_get_support_point(collider_a, collider_b, gjk.direction);
 		// auto finish = std::chrono::high_resolution_clock::now();
 
 		// std::cout << "CL_get_support_point() took "
@@ -282,7 +282,7 @@ GJK_Result CL_run_GJK(CollisionMesh* collider_A, CollisionMesh* collider_B)
 			return {}; // no collision
 		}
 
-		gjk.simplex.push_front(support.point);
+		gjk.simplex.PushFront(support.point);
 
 		// ImDraw::add_point(IM_ITERHASH(it_count), support.point, 2.0, true, Debug_Colors[it_count + 1]);
 

@@ -1,8 +1,10 @@
+#pragma once
+
 // ---------------
 // > WORLD PANEL
 // ---------------
 
-void render_world_panel(WorldPanelContext* panel, World* world, Player* player)
+inline void render_world_panel(WorldPanelContext* panel, World* world, Player* player)
 {
 	ImGui::SetNextWindowPos(ImVec2(100, 300), ImGuiCond_Appearing);
 	ImGui::Begin("World Panel", &panel->active, ImGuiWindowFlags_None);

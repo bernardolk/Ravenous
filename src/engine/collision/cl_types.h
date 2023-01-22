@@ -1,18 +1,20 @@
 // --------------
 // > CL_Results
 // --------------
+#pragma once
+
 struct Entity;
 
-struct CL_Results
+struct ClResults
 {
 	bool collision = false;
-	Entity* entity;
-	float penetration;
-	vec3 normal;
+	Entity* entity = nullptr;
+	float penetration = 0.f;
+	vec3 normal{};
 };
 
-struct CL_ResultsArray
+struct ClResultsArray
 {
-	CL_Results results[10];
+	ClResults results[10];
 	int count = 0;
 };

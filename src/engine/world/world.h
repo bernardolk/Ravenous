@@ -167,8 +167,8 @@ public:
 	void UpdateEntities() const;
 	void Clear(const T_EntityManager* manager);
 
-	RaycastTest Raycast(Ray ray, RayCastType test_type, const Entity* skip = nullptr, float max_distance = MAX_FLOAT) const;
-	RaycastTest Raycast(Ray ray, const Entity* skip = nullptr, float max_distance = MAX_FLOAT) const;
+	RaycastTest Raycast(Ray ray, RayCastType test_type, const Entity* skip = nullptr, float max_distance = MaxFloat) const;
+	RaycastTest Raycast(Ray ray, const Entity* skip = nullptr, float max_distance = MaxFloat) const;
 	RaycastTest LinearRaycastArray(Ray first_ray, int qty, float spacing) const;
 	RaycastTest RaycastLights(Ray ray) const;
 	CellUpdate UpdateEntityWorldCells(Entity* entity);

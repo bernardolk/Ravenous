@@ -14,7 +14,7 @@ inline void AN_animate_player(Player* player)
 		return;
 
 	// updates animation run time
-	player->anim_t += RVN::frame.duration * 1000;
+	player->anim_t += Rvn::frame.duration * 1000;
 
 	// check if animation is completed
 	bool end_anim = false;
@@ -156,7 +156,7 @@ inline bool AN_p_anim_vaulting(Player* player)
 
 	vec3 dist = player->anim_final_pos - p_pos;
 	auto dist_sign = vec3(sign(dist.x), sign(dist.y), sign(dist.z));
-	auto ds = vec3(v_xz * RVN::frame.duration, v_y * RVN::frame.duration, v_xz * RVN::frame.duration);
+	auto ds = vec3(v_xz * Rvn::frame.duration, v_y * Rvn::frame.duration, v_xz * Rvn::frame.duration);
 
 	// updates player position
 	for(int i = 0; i < 3; i++)
@@ -179,7 +179,7 @@ inline bool AN_p_anim_vaulting(Player* player)
 		float turn_angle = 0.5 * orig_sign;
 		camera_change_direction(PCam, turn_angle, 0.f);
 
-		float updated_sva = vector_angle_signed(nrmlz(to2d_xz(PCam->Front)), f_dir_xz);
+		float updated_sva = vector_angle_signed(nrmlz(to2d_xz(PCam->front)), f_dir_xz);
 		float updated_angle = glm::degrees(updated_sva);
 		float updated_sign = sign(updated_angle);
 		if(updated_sign != orig_sign)

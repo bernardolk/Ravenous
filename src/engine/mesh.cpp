@@ -20,11 +20,11 @@
 */
 
 
-std::map<std::string, Mesh*> Geometry_Catalogue;
-std::map<std::string, CollisionMesh*> Collision_Geometry_Catalogue;
-std::map<std::string, Texture> Texture_Catalogue;
+std::map<std::string, Mesh*> GeometryCatalogue;
+std::map<std::string, CollisionMesh*> CollisionGeometryCatalogue;
+std::map<std::string, Texture> TextureCatalogue;
 
-void Mesh::setup_gl_data()
+void Mesh::SetupGLData()
 {
 	// to avoid a pretty bad rendering issue
 	assert(indices.size() > 0);
@@ -72,14 +72,14 @@ void Mesh::setup_gl_data()
 }
 
 // This will only create the buffer and set the attribute pointers
-void Mesh::setup_gl_buffers()
+void Mesh::SetupGLBuffers()
 {
 	glGenVertexArrays(1, &this->gl_data.VAO);
 	glGenBuffers(1, &this->gl_data.VBO);
 	glGenBuffers(1, &this->gl_data.EBO);
 }
 
-void Mesh::send_data_to_gl_buffer()
+void Mesh::SendDataToGLBuffer()
 {
 	// load data into vertex buffers
 	glBindVertexArray(this->gl_data.VAO);
@@ -113,17 +113,17 @@ void Mesh::send_data_to_gl_buffer()
 }
 
 
-BoundingBox Mesh::compute_bounding_box()
+BoundingBox Mesh::ComputeBoundingBox()
 {
 	// This returns a bounding box that contains the mesh
 	// Vertices of the bounding box do not necessarily match vertices in the mesh
 	// So, this does NOT return the min/max vertices of the mesh in axial direction
 	// (support points)
 
-	auto max_d = vec3(MIN_FLOAT, MIN_FLOAT, MIN_FLOAT);
-	auto min_d = vec3(MAX_FLOAT, MAX_FLOAT, MAX_FLOAT);
+	auto max_d = vec3(MinFloat, MinFloat, MinFloat);
+	auto min_d = vec3(MaxFloat, MaxFloat, MaxFloat);
 
-	float maxx, minx, maxy, miny, maxz, minz;
+	float maxx = 0.f, minx = 0.f, maxy = 0.f, miny = 0.f, maxz = 0.f, minz = 0.f;
 
 	for(int i = 0; i < this->vertices.size(); i++)
 	{
@@ -167,11 +167,11 @@ BoundingBox Mesh::compute_bounding_box()
 	}
 
 	BoundingBox bb{};
-	bb.set(vec3(minx, miny, minz), vec3(maxx, maxy, maxz));
+	bb.Set(vec3(minx, miny, minz), vec3(maxx, maxy, maxz));
 	return bb;
 }
 
-void Mesh::compute_tangents_and_bitangents()
+void Mesh::ComputeTangentsAndBitangents()
 {
 	// @TODO: This may lead to bugs, we currentyl assume here that faces = 2 triangles each, and while that may hold true with the current loader, that may not remain the case forever.
 	For(this->faces_count)
@@ -207,7 +207,7 @@ void Mesh::compute_tangents_and_bitangents()
 	}
 }
 
-GLData setup_gl_data_for_lines(Vertex* vertices, size_t size)
+GLData setup_gl_data_for_lines(const Vertex* vertices, size_t size)
 {
 	GLData gl_data;
 
@@ -232,34 +232,34 @@ std::vector<Vertex> construct_cylinder(float radius, float half_lenght, int slic
 	for(int i = 0; i < slices; i++)
 	{
 		float theta = static_cast<float>(i) * 2.0 * PI * (1.0 / slices);
-		float nextTheta = (static_cast<float>(i) + 1) * 2.0 * PI * (1.0 / slices);
+		float next_theta = (static_cast<float>(i) + 1) * 2.0 * PI * (1.0 / slices);
 		// vertex at middle of end  
 		auto v = Vertex{vec3(0.0), vec3(half_lenght), vec3(0.0)};
 		vertices.push_back(v);
 		//vertices at edges of circle 
 		v = Vertex{vec3(radius * cos(theta), half_lenght, radius * sin(theta))};
 		vertices.push_back(v);
-		v = Vertex{vec3(radius * cos(nextTheta), half_lenght, radius * sin(nextTheta))};
+		v = Vertex{vec3(radius * cos(next_theta), half_lenght, radius * sin(next_theta))};
 		vertices.push_back(v);
 		// the same vertices at the bottom of the cylinder (half face)
-		v = Vertex{vec3(radius * cos(nextTheta), -half_lenght, radius * sin(nextTheta))};
+		v = Vertex{vec3(radius * cos(next_theta), -half_lenght, radius * sin(next_theta))};
 		vertices.push_back(v);
 		v = Vertex{vec3(radius * cos(theta), -half_lenght, radius * sin(theta))};
 		vertices.push_back(v);
 		// other half face
 		v = Vertex{vec3(radius * cos(theta), half_lenght, radius * sin(theta))};
 		vertices.push_back(v);
-		v = Vertex{vec3(radius * cos(nextTheta), half_lenght, radius * sin(nextTheta))};
+		v = Vertex{vec3(radius * cos(next_theta), half_lenght, radius * sin(next_theta))};
 		vertices.push_back(v);
 		// back from the middle
-		v = Vertex{vec3(radius * cos(nextTheta), -half_lenght, radius * sin(nextTheta))};
+		v = Vertex{vec3(radius * cos(next_theta), -half_lenght, radius * sin(next_theta))};
 		vertices.push_back(v);
 		v = Vertex{vec3(0.0, -half_lenght, 0.0)};
 		vertices.push_back(v);
 		// roundabout
 		v = Vertex{vec3(radius * cos(theta), -half_lenght, radius * sin(theta))};
 		vertices.push_back(v);
-		v = Vertex{vec3(radius * cos(nextTheta), -half_lenght, radius * sin(nextTheta))};
+		v = Vertex{vec3(radius * cos(next_theta), -half_lenght, radius * sin(next_theta))};
 		vertices.push_back(v);
 		v = Vertex{vec3(0.0, -half_lenght, 0.0)};
 		vertices.push_back(v);
@@ -271,7 +271,7 @@ std::vector<Vertex> construct_cylinder(float radius, float half_lenght, int slic
 // -----------------------------------------
 // > GET TRIANGLE FOR COLLIDER INDEXED MESH
 // -----------------------------------------
-Triangle get_triangle_for_collider_indexed_mesh(Mesh* mesh, int triangle_index)
+Triangle get_triangle_for_collider_indexed_mesh(const Mesh* mesh, int triangle_index)
 {
 	auto a_ind = mesh->indices[3 * triangle_index + 0];
 	auto b_ind = mesh->indices[3 * triangle_index + 1];
@@ -284,7 +284,7 @@ Triangle get_triangle_for_collider_indexed_mesh(Mesh* mesh, int triangle_index)
 	return Triangle{a, b, c};
 }
 
-Triangle get_triangle_for_collider_indexed_mesh(CollisionMesh* mesh, int triangle_index)
+Triangle get_triangle_for_collider_indexed_mesh(const CollisionMesh* mesh, int triangle_index)
 {
 	auto a_ind = mesh->indices[3 * triangle_index + 0];
 	auto b_ind = mesh->indices[3 * triangle_index + 1];
@@ -300,7 +300,7 @@ Triangle get_triangle_for_collider_indexed_mesh(CollisionMesh* mesh, int triangl
 // --------------------------------
 // > GET TRIANGLE FOR INDEXED MESH
 // --------------------------------
-Triangle get_triangle_for_indexed_mesh(Mesh* mesh, glm::mat4 matModel, int triangle_index)
+Triangle get_triangle_for_indexed_mesh(Mesh* mesh, glm::mat4 mat_model, int triangle_index)
 {
 	auto a_ind = mesh->indices[3 * triangle_index + 0];
 	auto b_ind = mesh->indices[3 * triangle_index + 1];
@@ -310,9 +310,9 @@ Triangle get_triangle_for_indexed_mesh(Mesh* mesh, glm::mat4 matModel, int trian
 	auto b_vertice = mesh->vertices[b_ind].position;
 	auto c_vertice = mesh->vertices[c_ind].position;
 
-	auto a = matModel * glm::vec4(a_vertice, 1.0);
-	auto b = matModel * glm::vec4(b_vertice, 1.0);
-	auto c = matModel * glm::vec4(c_vertice, 1.0);
+	auto a = mat_model * glm::vec4(a_vertice, 1.0);
+	auto b = mat_model * glm::vec4(b_vertice, 1.0);
+	auto c = mat_model * glm::vec4(c_vertice, 1.0);
 
 	return Triangle{a, b, c};
 }

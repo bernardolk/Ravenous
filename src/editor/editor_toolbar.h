@@ -1,17 +1,19 @@
+#pragma once
+
 //------------------
 // > EDITOR TOOLBAR
 //------------------
 
-void render_toolbar(World* world)
+inline void render_toolbar(World* world)
 {
-	ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::VIEWPORT_WIDTH - 230, 180), ImGuiCond_Appearing);
+	ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::viewport_width - 230, 180), ImGuiCond_Appearing);
 	ImGui::Begin("Tools", &EdContext.toolbar_active, ImGuiWindowFlags_AlwaysAutoResize);
 
 	std::string scene_name = "Scene name: " + GSceneInfo.scene_name;
 	ImGui::Text(scene_name.c_str());
 	ImGui::NewLine();
 
-	ImGui::InputFloat("##timestep", &RVN::frame.time_step, 0.5, 1.0, "Timestep = %.1f x");
+	ImGui::InputFloat("##timestep", &Rvn::frame.time_step, 0.5, 1.0, "Timestep = %.1f x");
 
 	ImGui::NewLine();
 
@@ -20,7 +22,7 @@ void render_toolbar(World* world)
 		bool track = false;
 
 		ImGui::Text("Cam speed");
-		ImGui::DragFloat("##camspeed", &GSceneInfo.camera->Acceleration, 0.1, 0.2, MAX_FLOAT);
+		ImGui::DragFloat("##camspeed", &GSceneInfo.camera->acceleration, 0.1, 0.2, MaxFloat);
 		track = track || ImGui::IsItemDeactivatedAfterEdit();
 
 		// Ambient light control
@@ -39,7 +41,7 @@ void render_toolbar(World* world)
 		// save to file changes in config variables
 		if(track)
 		{
-			GConfig.camspeed = GSceneInfo.camera->Acceleration;
+			GConfig.camspeed = GSceneInfo.camera->acceleration;
 			GConfig.ambient_intensity = world->ambient_intensity;
 			GConfig.ambient_light = world->ambient_light;
 			ConfigSerializer::save(GConfig);

@@ -40,7 +40,7 @@ inline struct T_GameState
 
 			if(timer->active)
 			{
-				RVN::print_dynamic("Remaining time: " + FmtTostr(timer->remaining_time, 0));
+				Rvn::PrintDynamic("Remaining time: " + FmtTostr(timer->remaining_time, 0));
 				bool active = timer->Update();
 				if(!active)
 				{

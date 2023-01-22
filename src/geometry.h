@@ -18,12 +18,12 @@ inline void load_models()
 		auto text_mesh = new Mesh();
 		text_mesh->name = "text";
 		text_mesh->gl_data = text_gl_data;
-		Geometry_Catalogue.insert({text_mesh->name, text_mesh});
+		GeometryCatalogue.insert({text_mesh->name, text_mesh});
 	}
 
 
 	// AABB
-	load_wavefront_obj_as_mesh(MODELS_PATH, "aabb");
+	load_wavefront_obj_as_mesh(Paths::Models, "aabb");
 
 	// SLOPE
 	// with Z coming at the screen, X to the right, slope starts at x=0 high and goes low on x=1
@@ -67,15 +67,15 @@ inline void load_models()
 	slope_mesh->vertices = slope_vertex_vec;
 	slope_mesh->indices = slope_vertex_indices;
 	slope_mesh->render_method = GL_TRIANGLES;
-	slope_mesh->setup_gl_data();
-	Geometry_Catalogue.insert({slope_mesh->name, slope_mesh});
+	slope_mesh->SetupGLData();
+	GeometryCatalogue.insert({slope_mesh->name, slope_mesh});
 
 	// PLAYER CAPSULE
-	load_wavefront_obj_as_mesh(MODELS_PATH, "capsule");
+	load_wavefront_obj_as_mesh(Paths::Models, "capsule");
 
 	// LIGHTBULB
-	load_wavefront_obj_as_mesh(MODELS_PATH, "lightbulb");
+	load_wavefront_obj_as_mesh(Paths::Models, "lightbulb");
 
 	// TRIGGER (CYLINDER)
-	load_wavefront_obj_as_mesh(MODELS_PATH, "trigger");
+	load_wavefront_obj_as_mesh(Paths::Models, "trigger");
 }

@@ -32,13 +32,13 @@ inline void GP_update_player_state(Player* & player, World* world)
 		auto next_position = GP_player_standing_get_next_position(player);
 
 		// move player forward
-		player->entity_ptr->bounding_box.translate(next_position - player->entity_ptr->position);
+		player->entity_ptr->bounding_box.Translate(next_position - player->entity_ptr->position);
 		player->entity_ptr->position = next_position;
 		player->Update(world);
 
 		vec3 player_btm_sphere_center = player->entity_ptr->position + vec3(0, player->radius, 0);
 		vec3 contact_point = player_btm_sphere_center + -player->last_terrain_contact_normal * player->radius;
-		ImDraw::add_line(IMHASH, player_btm_sphere_center, contact_point, COLOR_YELLOW_1);
+		ImDraw::AddLine(IMHASH, player_btm_sphere_center, contact_point, COLOR_YELLOW_1);
 
 		/* Current system: Here we are looping at most twice on the:
 		   "Do stepover Vtrace, Adjust player's position to terrain, check collisions" loop
@@ -56,7 +56,7 @@ inline void GP_update_player_state(Player* & player, World* world)
 			if(vtrace.hit && (vtrace.delta_y > 0.0004 || vtrace.delta_y < 0))
 			{
 				player->entity_ptr->position.y -= vtrace.delta_y;
-				player->entity_ptr->bounding_box.translate(vec3(0, -vtrace.delta_y, 0));
+				player->entity_ptr->bounding_box.Translate(vec3(0, -vtrace.delta_y, 0));
 				player->Update(world);
 			}
 
@@ -65,17 +65,17 @@ inline void GP_update_player_state(Player* & player, World* world)
 
 			// iterate on collision results
 			bool collided_with_terrain = false;
-			CL_Results slope;
+			ClResults slope;
 			for(int i = 0; i < results.count; i ++)
 			{
 				auto result = results.results[i];
 
-				collided_with_terrain = dot(result.normal, UNIT_Y) > 0;
+				collided_with_terrain = dot(result.normal, UnitY) > 0;
 
 				if(collided_with_terrain)
 					player->last_terrain_contact_normal = result.normal;
 
-				bool collided_with_slope = dot(result.normal, UNIT_Y) >= SlopeMinAngle;
+				bool collided_with_slope = dot(result.normal, UnitY) >= SlopeMinAngle;
 				if(collided_with_slope && result.entity->slidable)
 					slope = result;
 			}
@@ -91,14 +91,14 @@ inline void GP_update_player_state(Player* & player, World* world)
 				// first pass test to see if player fits in hole
 				auto p_pos0 = player->entity_ptr->position;
 				auto offset = player->v_dir_historic * player->radius;
-				player->entity_ptr->bounding_box.translate(offset);
+				player->entity_ptr->bounding_box.Translate(offset);
 				player->entity_ptr->position += offset;
 				player->Update(world);
 				bool collided = CL_run_tests_for_fall_simulation(player);
 
 				offset = p_pos0 - player->entity_ptr->position;
 				player->entity_ptr->position = p_pos0;
-				player->entity_ptr->bounding_box.translate(offset);
+				player->entity_ptr->bounding_box.Translate(offset);
 				player->Update(world);
 
 				if(!collided)
@@ -124,10 +124,10 @@ inline void GP_update_player_state(Player* & player, World* world)
 						player->Update(world, true);
 						break;
 					}
-					RVN::print_dynamic("Player won't fit if he falls here.", 1000);
+					Rvn::PrintDynamic("Player won't fit if he falls here.", 1000);
 				}
 				else
-					RVN::print_dynamic("We could fall but we are smarts", 1000);
+					Rvn::PrintDynamic("We could fall but we are smarts", 1000);
 
 				break;
 			}
@@ -149,7 +149,7 @@ inline void GP_update_player_state(Player* & player, World* world)
 		if(player->want_to_grab)
 		{
 			GP_check_player_grabbed_ledge(player, world);
-			RVN::print("Ran check player grabbed ledge", 1000);
+			Rvn::Print("Ran check player grabbed ledge", 1000);
 		}
 
 		break;
@@ -158,8 +158,8 @@ inline void GP_update_player_state(Player* & player, World* world)
 
 	case PLAYER_STATE_FALLING:
 	{
-		player->entity_ptr->velocity += RVN::frame.duration * player->gravity;
-		player->entity_ptr->position += player->entity_ptr->velocity * RVN::frame.duration;
+		player->entity_ptr->velocity += Rvn::frame.duration * player->gravity;
+		player->entity_ptr->position += player->entity_ptr->velocity * Rvn::frame.duration;
 		player->Update(world, true);
 
 		auto results = CL_test_and_resolve_collisions(player);
@@ -169,7 +169,7 @@ inline void GP_update_player_state(Player* & player, World* world)
 
 			// slope collision
 			{
-				bool collided_with_slope = dot(result.normal, UNIT_Y) >= SlopeMinAngle;
+				bool collided_with_slope = dot(result.normal, UnitY) >= SlopeMinAngle;
 				if(collided_with_slope && result.entity->slidable)
 				{
 					PlayerStateChangeArgs args;
@@ -181,7 +181,7 @@ inline void GP_update_player_state(Player* & player, World* world)
 
 			// floor collision
 			{
-				bool collided_with_terrain = dot(result.normal, UNIT_Y) > 0;
+				bool collided_with_terrain = dot(result.normal, UnitY) > 0;
 				if(collided_with_terrain)
 				{
 					GP_change_player_state(player, PLAYER_STATE_STANDING);
@@ -213,8 +213,8 @@ inline void GP_update_player_state(Player* & player, World* world)
 			}
 		}
 
-		v += RVN::frame.duration * player->gravity;
-		player->entity_ptr->position += player->entity_ptr->velocity * RVN::frame.duration;
+		v += Rvn::frame.duration * player->gravity;
+		player->entity_ptr->position += player->entity_ptr->velocity * Rvn::frame.duration;
 		player->Update(world, true);
 
 		auto results = CL_test_and_resolve_collisions(player);
@@ -225,7 +225,7 @@ inline void GP_update_player_state(Player* & player, World* world)
 			// collision with terrain while jumping should be super rare I guess ...
 			// slope collision
 			{
-				bool collided_with_slope = dot(result.normal, UNIT_Y) >= SlopeMinAngle;
+				bool collided_with_slope = dot(result.normal, UnitY) >= SlopeMinAngle;
 				if(collided_with_slope && result.entity->slidable)
 				{
 					PlayerStateChangeArgs args;
@@ -237,7 +237,7 @@ inline void GP_update_player_state(Player* & player, World* world)
 
 			// floor collision 
 			{
-				bool collided_with_terrain = dot(result.normal, UNIT_Y) > 0;
+				bool collided_with_terrain = dot(result.normal, UnitY) > 0;
 				if(collided_with_terrain)
 				{
 					GP_change_player_state(player, PLAYER_STATE_STANDING);
@@ -266,11 +266,11 @@ inline void GP_update_player_state(Player* & player, World* world)
 
 	case PLAYER_STATE_SLIDING:
 	{
-		ImDraw::add_line(IMHASH, player->entity_ptr->position, player->entity_ptr->position + 1.f * player->sliding_direction, COLOR_RED_2);
+		ImDraw::AddLine(IMHASH, player->entity_ptr->position, player->entity_ptr->position + 1.f * player->sliding_direction, COLOR_RED_2);
 
 		player->entity_ptr->velocity = player->v_dir * player->slide_speed;
 
-		player->entity_ptr->position += player->entity_ptr->velocity * RVN::frame.duration;
+		player->entity_ptr->position += player->entity_ptr->velocity * Rvn::frame.duration;
 		player->Update(world, true);
 
 
@@ -282,7 +282,7 @@ inline void GP_update_player_state(Player* & player, World* world)
 		{
 			// iterate on collision results
 			auto result = results.results[i];
-			collided_with_terrain = dot(result.normal, UNIT_Y) > 0;
+			collided_with_terrain = dot(result.normal, UnitY) > 0;
 			if(collided_with_terrain)
 				player->last_terrain_contact_normal = result.normal;
 		}
@@ -378,12 +378,12 @@ inline vec3 GP_player_standing_get_next_position(Player* player)
 
 	bool no_move_command = v_dir.x == 0 && v_dir.z == 0;
 
-	auto dt = RVN::frame.duration;
+	auto dt = Rvn::frame.duration;
 
 	if(v_dir.x != 0 || v_dir.y != 0 || v_dir.z != 0)
 		player->v_dir_historic = v_dir;
 	else if(player->v_dir_historic == vec3(0))
-		player->v_dir_historic = normalize(to_xz(GSceneInfo.views[FPS_CAM]->Front));
+		player->v_dir_historic = normalize(to_xz(GSceneInfo.views[GameCam]->front));
 
 	if(player->speed < 0.f || no_move_command)
 		player->speed = 0;
@@ -429,11 +429,11 @@ inline void GP_check_trigger_interaction(Player* player, World* world)
 		auto interactable = world->interactables[i];
 
 		//@todo: do a cylinder vs cylinder or cylinder vs aabb test here
-		CollisionMesh trigger_collider = interactable->get_trigger_collider();
+		CollisionMesh trigger_collider = interactable->GetTriggerCollider();
 		GJK_Result gjk_test = CL_run_GJK(&player->entity_ptr->collider, &trigger_collider);
 		if(gjk_test.collision)
 		{
-			RVN::print_dynamic("Trigger Interaction", 1000);
+			Rvn::PrintDynamic("Trigger Interaction", 1000);
 
 			switch(interactable->type)
 			{

@@ -1,4 +1,6 @@
-void handle_input_flags(InputFlags flags, Player* & player, World* world, Camera* camera)
+#pragma once
+
+inline void handle_input_flags(InputFlags flags, Player* & player, World* world, Camera* camera)
 {
 	// ------------------------
 	// EDITOR EDITING COMMANDS
@@ -11,7 +13,7 @@ void handle_input_flags(InputFlags flags, Player* & player, World* world, Camera
 	{
 		// snap mode controls the undo stack while it is active.
 		if(!EdContext.snap_mode)
-			EdContext.undo_stack.undo();
+			EdContext.undo_stack.Undo();
 		return;
 	}
 
@@ -23,7 +25,7 @@ void handle_input_flags(InputFlags flags, Player* & player, World* world, Camera
 		// set scene
 		GConfig.initial_scene = GSceneInfo.scene_name;
 		ConfigSerializer::save(GConfig);
-		RVN::rm_buffer->add("world state saved", 1200);
+		Rvn::rm_buffer->Add("world state saved", 1200);
 		return;
 	}
 
@@ -31,7 +33,7 @@ void handle_input_flags(InputFlags flags, Player* & player, World* world, Camera
 	{
 		// snap mode controls the undo stack while it is active.
 		if(!EdContext.snap_mode)
-			EdContext.undo_stack.redo();
+			EdContext.undo_stack.Redo();
 		return;
 	}
 
@@ -281,8 +283,8 @@ void handle_input_flags(InputFlags flags, Player* & player, World* world, Camera
 	// @TODO: this sucks
 	float camera_speed =
 	GSceneInfo.camera->type == THIRD_PERSON ?
-	player->speed * RVN::frame.duration :
-	RVN::frame.real_duration * EdCam->Acceleration;
+	player->speed * Rvn::frame.duration :
+	Rvn::frame.real_duration * EdCam->acceleration;
 
 	if(flags.key_press & KEY_LEFT_SHIFT)
 	{
@@ -291,34 +293,34 @@ void handle_input_flags(InputFlags flags, Player* & player, World* world, Camera
 
 	if(flags.key_press & KEY_W)
 	{
-		GSceneInfo.camera->Position += camera_speed * GSceneInfo.camera->Front;
+		GSceneInfo.camera->position += camera_speed * GSceneInfo.camera->front;
 	}
 	if(flags.key_press & KEY_A)
 	{
 		// @TODO: this sucks too
 		if(GSceneInfo.camera->type == FREE_ROAM)
-			GSceneInfo.camera->Position -= camera_speed * normalize(glm::cross(GSceneInfo.camera->Front, GSceneInfo.camera->Up));
+			GSceneInfo.camera->position -= camera_speed * normalize(glm::cross(GSceneInfo.camera->front, GSceneInfo.camera->up));
 		else if(GSceneInfo.camera->type == THIRD_PERSON)
 			GSceneInfo.camera->orbital_angle -= 0.025;
 	}
 	if(pressed(flags, KEY_S))
 	{
-		GSceneInfo.camera->Position -= camera_speed * GSceneInfo.camera->Front;
+		GSceneInfo.camera->position -= camera_speed * GSceneInfo.camera->front;
 	}
 	if(flags.key_press & KEY_D)
 	{
 		if(GSceneInfo.camera->type == FREE_ROAM)
-			GSceneInfo.camera->Position += camera_speed * normalize(glm::cross(GSceneInfo.camera->Front, GSceneInfo.camera->Up));
+			GSceneInfo.camera->position += camera_speed * normalize(glm::cross(GSceneInfo.camera->front, GSceneInfo.camera->up));
 		else if(GSceneInfo.camera->type == THIRD_PERSON)
 			GSceneInfo.camera->orbital_angle += 0.025;
 	}
 	if(flags.key_press & KEY_Q)
 	{
-		GSceneInfo.camera->Position -= camera_speed * GSceneInfo.camera->Up;
+		GSceneInfo.camera->position -= camera_speed * GSceneInfo.camera->up;
 	}
 	if(flags.key_press & KEY_E)
 	{
-		GSceneInfo.camera->Position += camera_speed * GSceneInfo.camera->Up;
+		GSceneInfo.camera->position += camera_speed * GSceneInfo.camera->up;
 	}
 	if(flags.key_press & KEY_O)
 	{

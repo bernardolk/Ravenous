@@ -1,7 +1,9 @@
+#pragma once
+
 // -------------
 // LIGHTS PANEL
 // -------------
-void open_lights_panel(std::string type = "", int index = -1, bool focus_tab = false)
+inline void open_lights_panel(std::string type = "", int index = -1, bool focus_tab = false)
 {
 	EdContext.lights_panel.active = true;
 	if(type != "" && index > -1)
@@ -14,7 +16,7 @@ void open_lights_panel(std::string type = "", int index = -1, bool focus_tab = f
 }
 
 
-vec3 compute_direction_from_angles(float pitch, float yaw)
+inline vec3 compute_direction_from_angles(float pitch, float yaw)
 {
 	vec3 arrow_direction;
 	arrow_direction.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
@@ -25,7 +27,7 @@ vec3 compute_direction_from_angles(float pitch, float yaw)
 }
 
 
-void render_lights_panel(LightsPanelContext* panel, World* world)
+inline void render_lights_panel(LightsPanelContext* panel, World* world)
 {
 	ImGui::SetNextWindowPos(ImVec2(180, 80), ImGuiCond_Appearing);
 	ImGui::Begin("Lights Panel", &panel->active, ImGuiWindowFlags_None);
@@ -201,7 +203,7 @@ void render_lights_panel(LightsPanelContext* panel, World* world)
 
 				// cones 
 				auto label_innercone = "innercone##spot" + std::to_string(i);
-				ImGui::DragFloat(label_innercone.c_str(), &light.innercone, 0.001, 1, MAX_FLOAT);
+				ImGui::DragFloat(label_innercone.c_str(), &light.innercone, 0.001, 1, MaxFloat);
 
 				auto label_outercone = "outercone##spot" + std::to_string(i);
 				ImGui::DragFloat(label_outercone.c_str(), &light.outercone, 0.001, 0, 1);

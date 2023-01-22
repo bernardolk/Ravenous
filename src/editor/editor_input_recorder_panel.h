@@ -1,10 +1,12 @@
+#pragma once
+
 // ------------------------
 // > INPUT RECORDER PANEL
 // ------------------------
 
-void render_input_recorder_panel(InputRecorderPanelContext* panel)
+inline void render_input_recorder_panel(InputRecorderPanelContext* panel)
 {
-	ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::VIEWPORT_WIDTH - 400, 800), ImGuiCond_Once);
+	ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::viewport_width - 400, 800), ImGuiCond_Once);
 	ImGui::Begin("Input Recorder Panel", &panel->active, ImGuiWindowFlags_None);
 	ImGui::SetWindowSize("Input Recorder Panel", ImVec2(350, 220), ImGuiCond_Always);
 
@@ -34,7 +36,7 @@ void render_input_recorder_panel(InputRecorderPanelContext* panel)
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor::HSV(0.03f, 0.8f, 0.8f)));
 		if(ImGui::Button("Record", ImVec2(60, 18)))
 		{
-			RVN::print_dynamic("Input Recording Started", 2000);
+			Rvn::PrintDynamic("Input Recording Started", 2000);
 			InputRecorder.StartRecording();
 		}
 		ImGui::PopStyleColor(3);
@@ -44,7 +46,7 @@ void render_input_recorder_panel(InputRecorderPanelContext* panel)
 	{
 		if(ImGui::Button("Stop Recording", ImVec2(100, 18)))
 		{
-			RVN::print_dynamic("Input Recording Stoped", 2000);
+			Rvn::PrintDynamic("Input Recording Stoped", 2000);
 			InputRecorder.StopRecording();
 		}
 	}
