@@ -64,12 +64,12 @@
 #include "engine/world/world.h"
 
 // FUNCTION PROTOTYPES
-void load_shaders();
+void LoadShaders();
 
-void start_frame();
-void check_all_entities_have_shaders(World* world);
-void check_all_entities_have_ids(World* world);
-void check_all_geometry_has_gl_data();
+void StartFrame();
+void CheckAllEntitiesHaveShaders(World* world);
+void CheckAllEntitiesHaveIds(World* world);
+void CheckAllGeometryHasGlData();
 
 int main()
 {
@@ -94,16 +94,14 @@ int main()
 
 	// INITIAL GLFW AND GLAD SETUPS
 	setup_GLFW(true);
-	setup_gl();
-
-	// create cameras
-
+	SetupGL();
+	
 	auto* GSI = GlobalSceneInfo::Get();
 
 	// load shaders, textures and geometry
 	stbi_set_flip_vertically_on_load(true);
 	load_textures_from_assets_folder();
-	load_shaders();
+	LoadShaders();
 	load_models();
 
 	// Allocate buffers and logs
@@ -120,7 +118,7 @@ int main()
 	// loads initial scene
 	ConfigSerializer::LoadGlobalConfigs();
 	auto& program_config = *ProgramConfig::Get();
-	WorldSerializer::load_from_file(program_config.initial_scene);
+	WorldSerializer::LoadFromFile(program_config.initial_scene);
 	
 	Player* player = GSI->player;
 	world->player = player;
@@ -134,16 +132,16 @@ int main()
 	world->UpdateEntityWorldCells(player->entity_ptr); // sets player to the world
 	CL_recompute_collision_buffer_entities(player);   // populates collision buffer and others
 
-	Editor::initialize();
+	Editor::Initialize();
 
 	// render features initialization
 	create_depth_buffer();
 	create_light_space_transform_matrices();
 
 	// Pre-loop checks
-	check_all_entities_have_shaders(world);
-	check_all_entities_have_ids(world);
-	check_all_geometry_has_gl_data();
+	CheckAllEntitiesHaveShaders(world);
+	CheckAllEntitiesHaveIds(world);
+	CheckAllGeometryHasGlData();
 
 	// load pre recorded input recordings
 	InputRecorder.Load();
@@ -157,17 +155,16 @@ int main()
 	RavenousMainLoop();
 }
 
-
 //    ----------------------------------------------------------------
 
-
-void start_frame()
+void StartFrame()
 {
 	float current_frame_time = glfwGetTime();
 	Rvn::frame.real_duration = current_frame_time - Rvn::frame.last_frame_time;
 	Rvn::frame.duration = Rvn::frame.real_duration * Rvn::frame.time_step;
 	Rvn::frame.last_frame_time = current_frame_time;
 
+	// @TODO: Can't remember why this is important...
 	// forces framerate for simulation to be small
 	if(Rvn::frame.duration > 0.02)
 	{
@@ -184,7 +181,7 @@ void start_frame()
 	}
 }
 
-void check_all_entities_have_shaders(World* world)
+void CheckAllEntitiesHaveShaders(World* world)
 {
 	For(world->entities.size())
 	{
@@ -198,7 +195,7 @@ void check_all_entities_have_shaders(World* world)
 	}
 }
 
-void check_all_entities_have_ids(World* world)
+void CheckAllEntitiesHaveIds(World* world)
 {
 	For(world->entities.size())
 	{
@@ -209,7 +206,7 @@ void check_all_entities_have_ids(World* world)
 	}
 }
 
-void check_all_geometry_has_gl_data()
+void CheckAllGeometryHasGlData()
 {
 	ForIt(GeometryCatalogue)
 	{

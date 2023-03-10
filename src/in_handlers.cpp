@@ -44,20 +44,20 @@ void IN_process_move_keys(InputFlags flags, vec3& v_dir)
 {
 	auto* player_camera = GlobalSceneInfo::GetGameCam();
 
-	if(pressed(flags, KEY_MOVE_UP))
+	if(Pressed(flags, KEY_MOVE_UP))
 	{
 		v_dir += nrmlz(to_xz(player_camera->front));
 	}
-	if(pressed(flags, KEY_MOVE_LEFT))
+	if(Pressed(flags, KEY_MOVE_LEFT))
 	{
 		vec3 onwards_vector = cross(player_camera->front, player_camera->up);
 		v_dir -= nrmlz(to_xz(onwards_vector));
 	}
-	if(pressed(flags, KEY_MOVE_DOWN))
+	if(Pressed(flags, KEY_MOVE_DOWN))
 	{
 		v_dir -= nrmlz(to_xz(player_camera->front));
 	}
-	if(pressed(flags, KEY_MOVE_RIGHT))
+	if(Pressed(flags, KEY_MOVE_RIGHT))
 	{
 		vec3 onwards_vector = cross(player_camera->front, player_camera->up);
 		v_dir += nrmlz(to_xz(onwards_vector));
@@ -102,11 +102,11 @@ void IN_handle_movement_input(InputFlags flags, Player* & player, World* world)
 				GP_change_player_state(player, PLAYER_STATE_JUMPING);
 
 			// VAULT
-			if(pressed(flags, KEY_LEFT_SHIFT) && MOUSE_LB_CLICK & GlobalInputInfo::Get()->mouse_state)
+			if(Pressed(flags, KEY_LEFT_SHIFT) && MOUSE_LB_CLICK & GlobalInputInfo::Get()->mouse_state)
 				player->want_to_grab = true;
 
 			// INTERACT
-			if(pressed_once(flags, KEY_ACTION))
+			if(PressedOnce(flags, KEY_ACTION))
 			{
 				GP_check_trigger_interaction(player, world);
 				player->dodge_btn = true;
@@ -121,7 +121,7 @@ void IN_handle_movement_input(InputFlags flags, Player* & player, World* world)
 			if(player->jumping_upwards)
 				IN_process_move_keys(flags, v_dir);
 
-			if(pressed(flags, KEY_DASH))
+			if(Pressed(flags, KEY_DASH))
 				player->action = true;
 
 			break;
@@ -129,7 +129,7 @@ void IN_handle_movement_input(InputFlags flags, Player* & player, World* world)
 
 		case PLAYER_STATE_FALLING:
 		{
-			if(pressed(flags, KEY_DASH))
+			if(Pressed(flags, KEY_DASH))
 				player->action = true;
 
 			break;
@@ -159,11 +159,11 @@ void IN_handle_movement_input(InputFlags flags, Player* & player, World* world)
 		}
 		case PLAYER_STATE_GRABBING:
 		{
-			if(pressed(flags, KEY_DASH))
+			if(Pressed(flags, KEY_DASH))
 			{
 				player->action = true;
 
-				if(pressed(flags, KEY_MOVE_UP))
+				if(Pressed(flags, KEY_MOVE_UP))
 					GP_change_player_state(player, PLAYER_STATE_VAULTING);
 			}
 
@@ -181,41 +181,41 @@ void IN_handle_movement_input(InputFlags flags, Player* & player, World* world)
 // --------------
 void IN_handle_common_input(InputFlags flags, Player* & player)
 {
-	if(pressed_once(flags, KEY_COMMA))
+	if(PressedOnce(flags, KEY_COMMA))
 	{
 		if(Rvn::frame.time_step > 0)
 		{
 			Rvn::frame.time_step -= 0.025;
 		}
 	}
-	if(pressed_once(flags, KEY_PERIOD))
+	if(PressedOnce(flags, KEY_PERIOD))
 	{
 		if(Rvn::frame.time_step < 3)
 		{
 			Rvn::frame.time_step += 0.025;
 		}
 	}
-	if(pressed_once(flags, KEY_1))
+	if(PressedOnce(flags, KEY_1))
 	{
 		Rvn::rm_buffer->Add("TIME STEP x0.05", 1000);
 		Rvn::frame.time_step = 0.05;
 	}
-	if(pressed_once(flags, KEY_2))
+	if(PressedOnce(flags, KEY_2))
 	{
 		Rvn::rm_buffer->Add("TIME STEP x0.1", 1000);
 		Rvn::frame.time_step = 0.1;
 	}
-	if(pressed_once(flags, KEY_3))
+	if(PressedOnce(flags, KEY_3))
 	{
 		Rvn::rm_buffer->Add("TIME STEP x0.3", 1000);
 		Rvn::frame.time_step = 0.3;
 	}
-	if(pressed_once(flags, KEY_4))
+	if(PressedOnce(flags, KEY_4))
 	{
 		Rvn::rm_buffer->Add("TIME STEP x1.0", 1000);
 		Rvn::frame.time_step = 1.0;
 	}
-	if(pressed_once(flags, KEY_5))
+	if(PressedOnce(flags, KEY_5))
 	{
 		Rvn::rm_buffer->Add("TIME STEP x2.0", 1000);
 		Rvn::frame.time_step = 2.0;
@@ -224,11 +224,11 @@ void IN_handle_common_input(InputFlags flags, Player* & player)
 	{
 		player->Die();
 	}
-	if(pressed_once(flags, KEY_F))
+	if(PressedOnce(flags, KEY_F))
 	{
 		EngineState::ToggleProgramMode();
 	}
-	if(pressed_once(flags, KEY_GRAVE_TICK))
+	if(PressedOnce(flags, KEY_GRAVE_TICK))
 	{
 		start_console_mode();
 	}
@@ -237,7 +237,7 @@ void IN_handle_common_input(InputFlags flags, Player* & player)
 		auto* GDC = GlobalDisplayConfig::Get();
 		glfwSetWindowShouldClose(GDC->window, true);
 	}
-	if(pressed_once(flags, KEY_Y))
+	if(PressedOnce(flags, KEY_Y))
 	{
 		// for testing EPA collision resolve
 		GlobalSceneInfo::Get()->tmp_unstuck_things = true;

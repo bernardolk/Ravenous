@@ -2,17 +2,17 @@
 
 #include "engine/core/core.h"
 
-void on_mouse_btn(GLFWwindow* window, int button, int action, int mods);
-void on_mouse_move(GLFWwindow* window, double xpos, double ypos);
-u64 process_keyboard_input_key_press(GLFWwindow* window);
-u64 process_keyboard_input_key_release(GLFWwindow* window);
-void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset);
-struct InputFlags input_phase();
-bool pressed(InputFlags flags, u64 key);
-bool pressed_once(InputFlags flags, u64 key);
-bool pressed_only(InputFlags flags, u64 key);
-void check_mouse_click_hold();
-void reset_input_flags(InputFlags flags);
+void OnMouseBtn(GLFWwindow* window, int button, int action, int mods);
+void OnMouseMove(GLFWwindow* window, double xpos, double ypos);
+u64 ProcessKeyboardInputKeyPress(GLFWwindow* window);
+u64 ProcessKeyboardInputKeyRelease(GLFWwindow* window);
+void OnMouseScroll(GLFWwindow* window, double xoffset, double yoffset);
+struct InputFlags InputPhase();
+bool Pressed(InputFlags flags, u64 key);
+bool PressedOnce(InputFlags flags, u64 key);
+bool PressedOnly(InputFlags flags, u64 key);
+void CheckMouseClickHold();
+void ResetInputFlags(InputFlags flags);
 
 struct InputFlags
 {

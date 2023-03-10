@@ -1,5 +1,8 @@
 #include "shader.h"
+#ifndef GLAD_INCL
+#define GLAD_INCL
 #include <glad/glad.h>
+#endif
 #include <engine/core/types.h>
 #include <engine/rvn.h>
 #include <engine/serialization/parsing/parser.h>

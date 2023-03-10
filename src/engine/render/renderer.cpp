@@ -1,5 +1,8 @@
 #include <engine/render/renderer.h>
+#ifndef GLAD_INCL
+#define GLAD_INCL
 #include <glad/glad.h>
+#endif
 #include "player.h"
 #include "shader.h"
 #include "engine/camera.h"

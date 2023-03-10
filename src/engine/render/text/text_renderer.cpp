@@ -1,9 +1,12 @@
 #include <engine/core/types.h>
 #include <string>
 #include <map>
-#include <engine/shader.h>
+#include <engine/render/shader.h>
 #include <engine/render/text/character.h>
+#ifndef GLAD_INCL
+#define GLAD_INCL
 #include <glad/glad.h>
+#endif
 #include <vector>
 #include <engine/mesh.h>
 #include <iostream>

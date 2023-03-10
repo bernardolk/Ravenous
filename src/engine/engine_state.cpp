@@ -45,7 +45,7 @@ void EngineState::ToggleProgramMode()
 		player->MakeInvisible();
 
 		glfwSetInputMode(GDC->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		Editor::end_dear_imgui_frame();
+		Editor::EndDearImguiFrame();
 
 		Rvn::rm_buffer->Add("Game Mode", 2000);
 	}
@@ -59,7 +59,7 @@ void EngineState::ToggleProgramMode()
 		player->MakeVisible();
 
 		glfwSetInputMode(GDC->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-		Editor::start_dear_imgui_frame();
+		Editor::StartDearImguiFrame();
 
 		Rvn::rm_buffer->Add("Editor Mode", 2000);
 	}

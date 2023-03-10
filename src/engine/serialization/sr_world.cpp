@@ -14,7 +14,7 @@
 #include "parsing/parser.h"
 
 
-bool WorldSerializer::load_from_file(const std::string& filename)
+bool WorldSerializer::LoadFromFile(const std::string& filename)
 {
 	const auto path = Paths::Scenes + filename + ".txt";
 
@@ -171,13 +171,13 @@ bool WorldSerializer::load_from_file(const std::string& filename)
 	return true;
 }
 
-bool WorldSerializer::save_to_file()
+bool WorldSerializer::SaveToFile()
 {
 	const std::string f;
-	return save_to_file(f, false);
+	return SaveToFile(f, false);
 }
 
-bool WorldSerializer::save_to_file(const std::string& new_filename, const bool do_copy = false)
+bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_copy = false)
 {
 	std::string filename = new_filename;
 	if(new_filename.empty())
@@ -262,7 +262,7 @@ bool WorldSerializer::save_to_file(const std::string& new_filename, const bool d
 	return true;
 }
 
-bool WorldSerializer::check_if_scene_exists(const std::string& scene_name)
+bool WorldSerializer::CheckIfSceneExists(const std::string& scene_name)
 {
 	const std::ifstream reader(Paths::Scenes + scene_name + ".txt");
 	return reader.is_open();

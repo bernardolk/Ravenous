@@ -9,7 +9,10 @@
 #include <glm/gtx/quaternion.hpp>
 #include <engine/mesh.h>
 #include <engine/collision/collision_mesh.h>
+#ifndef GLAD_INCL
+#define GLAD_INCL
 #include <glad/glad.h>
+#endif
 #include <engine/serialization/parsing/parser.h>
 #include <engine/loaders.h>
 #include "rvn.h"
@@ -493,7 +496,7 @@ void attach_extra_data_to_mesh(std::string filename, std::string filepath, Mesh*
 }
 
 
-void load_shaders()
+void LoadShaders()
 {
 	/* Parses shader program info from programs file, assembles each shader program and stores them into the
 	   shaders catalogue. */

@@ -28,7 +28,7 @@ namespace Editor
 		auto* player = Player::Get();
 		auto& program_config = *ProgramConfig::Get();
 
-		if(pressed(flags, KEY_LEFT_CTRL) && pressed_once(flags, KEY_Z))
+		if(Pressed(flags, KEY_LEFT_CTRL) && PressedOnce(flags, KEY_Z))
 		{
 			// snap mode controls the undo stack while it is active.
 			if(!context.snap_mode)
@@ -36,11 +36,11 @@ namespace Editor
 			return;
 		}
 
-		if(pressed(flags, KEY_LEFT_CTRL) && pressed_once(flags, KEY_S))
+		if(Pressed(flags, KEY_LEFT_CTRL) && PressedOnce(flags, KEY_S))
 		{
 			// save scene
 			player->checkpoint_pos = player->entity_ptr->position;
-			WorldSerializer::save_to_file();
+			WorldSerializer::SaveToFile();
 			// set scene
 			program_config.initial_scene = GSI->scene_name;
 			ConfigSerializer::save(program_config);
@@ -48,7 +48,7 @@ namespace Editor
 			return;
 		}
 
-		if(pressed(flags, KEY_LEFT_CTRL) && pressed_once(flags, KEY_Y))
+		if(Pressed(flags, KEY_LEFT_CTRL) && PressedOnce(flags, KEY_Y))
 		{
 			// snap mode controls the undo stack while it is active.
 			if(!context.snap_mode)
@@ -56,7 +56,7 @@ namespace Editor
 			return;
 		}
 
-		if(pressed_once(flags, KEY_ESC))
+		if(PressedOnce(flags, KEY_ESC))
 		{
 			if(Editor::check_modes_are_active())
 				deactivate_editor_modes();
@@ -73,7 +73,7 @@ namespace Editor
 		if(ImGui::GetIO().WantCaptureKeyboard)
 			return;
 
-		if(pressed_once(flags, KEY_DELETE))
+		if(PressedOnce(flags, KEY_DELETE))
 		{
 			if(context.entity_panel.active && context.entity_panel.focused)
 			{
@@ -100,11 +100,11 @@ namespace Editor
 		// --------------------
 		if(context.snap_mode == true)
 		{
-			if(pressed_once(flags, KEY_ENTER))
+			if(PressedOnce(flags, KEY_ENTER))
 			{
 				snap_commit();
 			}
-			if(pressed_only(flags, KEY_X))
+			if(PressedOnly(flags, KEY_X))
 			{
 				if(context.snap_axis == 0)
 					context.snap_cycle = (context.snap_cycle + 1) % 3;
@@ -117,7 +117,7 @@ namespace Editor
 				if(context.snap_reference != nullptr)
 					snap_entity_to_reference(context.entity_panel.entity);
 			}
-			if(pressed_only(flags, KEY_Y))
+			if(PressedOnly(flags, KEY_Y))
 			{
 				if(context.snap_axis == 1)
 					context.snap_cycle = (context.snap_cycle + 1) % 3;
@@ -130,7 +130,7 @@ namespace Editor
 				if(context.snap_reference != nullptr)
 					snap_entity_to_reference(context.entity_panel.entity);
 			}
-			if(pressed_only(flags, KEY_Z))
+			if(PressedOnly(flags, KEY_Z))
 			{
 				if(context.snap_axis == 2)
 					context.snap_cycle = (context.snap_cycle + 1) % 3;
@@ -143,7 +143,7 @@ namespace Editor
 				if(context.snap_reference != nullptr)
 					snap_entity_to_reference(context.entity_panel.entity);
 			}
-			if(pressed_only(flags, KEY_I))
+			if(PressedOnly(flags, KEY_I))
 			{
 				context.snap_inside = !context.snap_inside;
 				if(context.snap_reference != nullptr)
@@ -156,23 +156,23 @@ namespace Editor
 		// --------------------
 		if(context.move_mode == true)
 		{
-			if(pressed(flags, KEY_X) && pressed(flags, KEY_Z))
+			if(Pressed(flags, KEY_X) && Pressed(flags, KEY_Z))
 			{
 				context.move_axis = 0;
 			}
-			if(pressed_only(flags, KEY_X))
+			if(PressedOnly(flags, KEY_X))
 			{
 				context.move_axis = 1;
 			}
-			if(pressed_only(flags, KEY_Y))
+			if(PressedOnly(flags, KEY_Y))
 			{
 				context.move_axis = 2;
 			}
-			if(pressed_only(flags, KEY_Z))
+			if(PressedOnly(flags, KEY_Z))
 			{
 				context.move_axis = 3;
 			}
-			if(pressed_only(flags, KEY_M))
+			if(PressedOnly(flags, KEY_M))
 			{
 				context.move_mode = false;
 				context.place_mode = true;
@@ -185,7 +185,7 @@ namespace Editor
 		// ---------------------
 		if(context.place_mode == true)
 		{
-			if(pressed_only(flags, KEY_M))
+			if(PressedOnly(flags, KEY_M))
 			{
 				context.place_mode = false;
 				context.move_mode = true;
@@ -196,7 +196,7 @@ namespace Editor
 		// -------------------
 		// CAMERA TYPE TOGGLE
 		// -------------------
-		if(pressed_once(flags, KEY_T))
+		if(PressedOnce(flags, KEY_T))
 		{
 			// toggle camera type
 			if(GSI->camera->type == FREE_ROAM)
@@ -241,7 +241,7 @@ namespace Editor
 			}
 			else if(flags.key_press & KEY_G)
 			{
-				check_selection_to_move_entity(world, camera);
+				CheckSelectionToMoveEntity(world, camera);
 			}
 			else
 			{
@@ -251,16 +251,16 @@ namespace Editor
 				{
 					if(context.select_entity_aux_mode)
 						return;
-					if(check_selection_to_grab_entity_arrows(camera))
+					if(CheckSelectionToGrabEntityArrows(camera))
 						return;
-					if(check_selection_to_grab_entity_rotation_gizmo(camera))
+					if(CheckSelectionToGrabEntityRotationGizmo(camera))
 						return;
 				}
 
 				if(context.move_mode || context.place_mode)
 					return;
 
-				check_selection_to_open_panel(player, world, camera);
+				CheckSelectionToOpenPanel(player, world, camera);
 			}
 		}
 
@@ -277,7 +277,7 @@ namespace Editor
 		// -------------------------------
 		// SPAWN PLAYER ON MOUSE POSITION
 		// -------------------------------
-		if(pressed_once(flags, KEY_C))
+		if(PressedOnce(flags, KEY_C))
 		{
 			auto pickray = cast_pickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
 			auto test = world->Raycast(pickray, player->entity_ptr);
@@ -295,7 +295,7 @@ namespace Editor
 		// --------------------------------------------
 		// CONTROL KEY USAGE BLOCKED FROM HERE ONWARDS
 		// --------------------------------------------
-		if(pressed(flags, KEY_LEFT_CTRL)) // this doesn't solve the full problem.
+		if(Pressed(flags, KEY_LEFT_CTRL)) // this doesn't solve the full problem.
 			return;
 
 		// -------------------------
@@ -325,7 +325,7 @@ namespace Editor
 			else if(GSI->camera->type == THIRD_PERSON)
 				GSI->camera->orbital_angle -= 0.025;
 		}
-		if(pressed(flags, KEY_S))
+		if(Pressed(flags, KEY_S))
 		{
 			GSI->camera->position -= camera_speed * GSI->camera->front;
 		}

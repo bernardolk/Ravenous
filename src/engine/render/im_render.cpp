@@ -4,7 +4,10 @@
 #include "engine/mesh.h"
 #include "engine/collision/primitives/triangle.h"
 #include "engine/entities/entity.h"
-#include <glad.h>
+#ifndef GLAD_INCL
+#define GLAD_INCL
+#include <glad/glad.h>
+#endif
 #include "engine/vertex.h"
 
 void ImDraw::Init()

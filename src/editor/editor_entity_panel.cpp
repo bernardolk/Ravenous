@@ -512,8 +512,8 @@ namespace Editor
 		world->UpdateCellsInUseList();
 
 		// TODO: We should _know_ when entities move and be able to act programatically upon that knowledge instead of randomly checking everywhere.
-		update_entity_control_arrows(&ed_context.entity_panel);
-		update_entity_rotation_gizmo(&ed_context.entity_panel);
+		UpdateEntityControlArrows(&ed_context.entity_panel);
+		UpdateEntityRotationGizmo(&ed_context.entity_panel);
 	}
 
 
@@ -539,7 +539,7 @@ namespace Editor
 		panel.EmptyRenameBuffer();
 
 		// TODO: We should _know_ when entities move and be able to act programatically upon that knowledge instead of randomly checking everywhere.
-		update_entity_control_arrows(&panel);
-		update_entity_rotation_gizmo(&panel);
+		UpdateEntityControlArrows(&panel);
+		UpdateEntityRotationGizmo(&panel);
 	}
 }

@@ -1,5 +1,8 @@
 #include "gl_window.h"
-#include <glad.h>
+#ifndef GLAD_INCL
+#define GLAD_INCL
+#include <glad/glad.h>
+#endif
 #include <glfw3.h>
 #include "engine/loop/input_phase.h"
 #include "engine/io/display.h"
@@ -32,9 +35,9 @@ void setup_GLFW(bool debug)
 	// Setups openGL viewport
 	glViewport(0, 0, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height);
 	glfwSetFramebufferSizeCallback(GDC->window, framebuffer_size_callback);
-	glfwSetCursorPosCallback(GDC->window, on_mouse_move);
-	glfwSetScrollCallback(GDC->window, on_mouse_scroll);
-	glfwSetMouseButtonCallback(GDC->window, on_mouse_btn);
+	glfwSetCursorPosCallback(GDC->window, OnMouseMove);
+	glfwSetScrollCallback(GDC->window, OnMouseScroll);
+	glfwSetMouseButtonCallback(GDC->window, OnMouseBtn);
 
 	if(debug)
 	{
@@ -79,7 +82,7 @@ GLenum glCheckError_(const char* file, int line)
 	return error_code;
 }
 
-void setup_gl()
+void SetupGL()
 {
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);

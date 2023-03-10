@@ -1,5 +1,8 @@
 #include <engine/core/core.h>
+#ifndef GLAD_INCL
+#define GLAD_INCL
 #include <glad/glad.h>
+#endif
 #include <engine/collision/primitives/bounding_box.h>
 #include <glm/gtx/normal.hpp>
 #include <engine/collision/primitives/triangle.h>

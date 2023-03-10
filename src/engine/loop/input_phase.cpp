@@ -9,25 +9,25 @@
 #include "engine/world/scene_manager.h"
 
 
-InputFlags input_phase()
+InputFlags InputPhase()
 {
 	// first, check if last frame we had a click, if so, 
 	// se it as btn hold (so we dont register clicks more than one time)
 	// @TODO: maybe the best approach here is to pool it like we do with the keys
 	// instead of using a callback. If so, need to check whether we would need
 	// sticky mouse click input config set to true or not
-	check_mouse_click_hold();
+	CheckMouseClickHold();
 	// then respond to all glfw callbacks
 	glfwPollEvents();
 	// set the flags and return
 	auto* GDC = GlobalDisplayConfig::Get();
-	auto key_press_flags = process_keyboard_input_key_press(GDC->window);
-	auto key_release_flags = process_keyboard_input_key_release(GDC->window);
+	auto key_press_flags = ProcessKeyboardInputKeyPress(GDC->window);
+	auto key_release_flags = ProcessKeyboardInputKeyRelease(GDC->window);
 	return InputFlags{key_press_flags, key_release_flags};
 }
 
 
-u64 process_keyboard_input_key_press(GLFWwindow* window)
+u64 ProcessKeyboardInputKeyPress(GLFWwindow* window)
 {
 	u64 flags = 0;
 
@@ -185,7 +185,7 @@ u64 process_keyboard_input_key_press(GLFWwindow* window)
 }
 
 
-u64 process_keyboard_input_key_release(GLFWwindow* window)
+u64 ProcessKeyboardInputKeyRelease(GLFWwindow* window)
 {
 	u64 flags = 0;
 
@@ -337,7 +337,7 @@ u64 process_keyboard_input_key_release(GLFWwindow* window)
 }
 
 
-void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
+void OnMouseMove(GLFWwindow* window, double xpos, double ypos)
 {
 	auto* GII = GlobalInputInfo::Get();
 	auto* ES = EngineState::Get();
@@ -402,7 +402,7 @@ void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 }
 
 
-void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset)
+void OnMouseScroll(GLFWwindow* window, double xoffset, double yoffset)
 {
 	if(ImGui::GetIO().WantCaptureMouse)
 		return;
@@ -412,7 +412,7 @@ void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset)
 }
 
 
-void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
+void OnMouseBtn(GLFWwindow* window, int button, int action, int mods)
 {
 	auto* GII = GlobalInputInfo::Get();
 
@@ -459,27 +459,27 @@ void on_mouse_btn(GLFWwindow* window, int button, int action, int mods)
 }
 
 
-bool pressed_once(InputFlags flags, u64 key)
+bool PressedOnce(InputFlags flags, u64 key)
 {
 	auto* GII = GlobalInputInfo::Get();
 	return flags.key_press & key && !(GII->key_state & key);
 }
 
 
-bool pressed_only(InputFlags flags, u64 key)
+bool PressedOnly(InputFlags flags, u64 key)
 {
 	auto* GII = GlobalInputInfo::Get();
 	return flags.key_press == key && !(GII->key_state & key);
 }
 
 
-bool pressed(InputFlags flags, u64 key)
+bool Pressed(InputFlags flags, u64 key)
 {
 	return flags.key_press & key;
 }
 
 
-void check_mouse_click_hold()
+void CheckMouseClickHold()
 {
 	auto* GII = GlobalInputInfo::Get();
 	if((GII->mouse_state & MOUSE_LB_CLICK))
@@ -495,7 +495,7 @@ void check_mouse_click_hold()
 }
 
 
-void reset_input_flags(InputFlags flags)
+void ResetInputFlags(InputFlags flags)
 {
 	auto* GII = GlobalInputInfo::Get();
 	// here we record a history for if keys were last pressed or released, so to enable smooth toggle

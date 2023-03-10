@@ -23,4 +23,4 @@ void load_mesh_extra_data(std::string filename, Mesh* mesh);
 void write_mesh_extra_data_file(std::string filename, Mesh* mesh);
 void load_textures_from_assets_folder();
 StrVec get_files_in_folder(std::string directory);
-void load_shaders();
+void LoadShaders();

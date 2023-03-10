@@ -35,7 +35,7 @@
 
 namespace Editor
 {
-	void start_dear_imgui_frame()
+	void StartDearImguiFrame()
 	{
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -43,7 +43,7 @@ namespace Editor
 	}
 
 
-	void end_dear_imgui_frame()
+	void EndDearImguiFrame()
 	{
 		ImGui::EndFrame();
 	}
@@ -52,7 +52,7 @@ namespace Editor
 	// > UPDATE EDITOR
 	//------------------
 
-	void update(Player* player, World* world, Camera* camera)
+	void Update(Player* player, World* world, Camera* camera)
 	{
 		auto& ed_context = *GetContext();
 		auto* GSI = GlobalSceneInfo::Get();
@@ -67,7 +67,7 @@ namespace Editor
 
 		// check for asset changes
 		// check_for_asset_changes();
-		update_triaxis_gizmo();
+		UpdateTriaxisGizmo();
 
 		// ENTITY PANEL
 		if(!ed_context.entity_panel.active)
@@ -129,7 +129,7 @@ namespace Editor
 		{
 			if(ed_context.mouse_click)
 			{
-				check_selection_to_select_related_entity(world, camera);
+				CheckSelectionToSelectRelatedEntity(world, camera);
 			}
 		}
 
@@ -175,7 +175,7 @@ namespace Editor
 		}
 	}
 
-	void update_triaxis_gizmo()
+	void UpdateTriaxisGizmo()
 	{
 		auto& ed_context = *GetContext();
 
@@ -196,24 +196,24 @@ namespace Editor
 	// > RENDER EDITOR UI
 	//---------------------
 
-	void render(Player* player, World* world, Camera* camera)
+	void Render(Player* player, World* world, Camera* camera)
 	{
 		auto& ed_context = *GetContext();
 
 		// render world objs if toggled
 		if(ed_context.show_event_triggers)
 		{
-			render_event_triggers(camera, world);
+			RenderEventTriggers(camera, world);
 		}
 
 		if(ed_context.show_world_cells)
 		{
-			render_world_cells(camera, world);
+			RenderWorldCells(camera, world);
 		}
 
 		if(ed_context.show_lightbulbs)
 		{
-			render_lightbulbs(camera, world);
+			RenderLightbulbs(camera, world);
 		}
 
 		// render triaxis
@@ -317,11 +317,11 @@ namespace Editor
 			auto& panel = ed_context.entity_panel;
 
 			render_entity_panel(&panel, world);
-			render_entity_control_arrows(&panel, world, camera);
-			render_entity_rotation_gizmo(&panel, world, camera);
+			RenderEntityControlArrows(&panel, world, camera);
+			RenderEntityRotationGizmo(&panel, world, camera);
 
 			if(panel.show_normals)
-				render_entity_mesh_normals(&panel);
+				RenderEntityMeshNormals(&panel);
 			// @TODO: Some bug being caused in this call
 			//if(panel.show_collider)
 			//   ImDraw::add_mesh(IMHASH, &panel.entity->collider, COLOR_PURPLE_1, 0);
@@ -386,13 +386,13 @@ namespace Editor
 
 		render_toolbar(world);
 
-		render_text_overlay(player, camera);
+		RenderTextOverlay(player, camera);
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	}
 
-	void terminate()
+	void Terminate()
 	{
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
@@ -400,7 +400,7 @@ namespace Editor
 	}
 
 
-	void initialize()
+	void Initialize()
 	{
 		auto& ed_context = *GetContext();
 
@@ -531,7 +531,7 @@ namespace Editor
 	}
 
 
-	void render_text_overlay(Player* player, Camera* camera)
+	void RenderTextOverlay(Player* player, Camera* camera)
 	{
 		float GUI_y = GlobalDisplayConfig::viewport_height - 60;
 		float SCREEN_HEIGHT = GlobalDisplayConfig::viewport_height;
@@ -871,7 +871,7 @@ namespace Editor
 	}
 
 
-	void render_event_triggers(Camera* camera, World* world)
+	void RenderEventTriggers(Camera* camera, World* world)
 	{
 		if(world->interactables.size() == 0)
 			return;
@@ -894,7 +894,7 @@ namespace Editor
 	}
 
 
-	void render_world_cells(Camera* camera, World* world)
+	void RenderWorldCells(Camera* camera, World* world)
 	{
 		auto shader = ShaderCatalogue.find("color")->second;
 		auto cell_mesh = GeometryCatalogue.find("aabb")->second;
@@ -945,7 +945,7 @@ namespace Editor
 	}
 
 
-	inline void render_lightbulbs(Camera* camera, World* world)
+	inline void RenderLightbulbs(Camera* camera, World* world)
 	{
 		auto& ed_context = *GetContext();
 
@@ -1070,7 +1070,7 @@ namespace Editor
 	}
 
 
-	void render_entity_control_arrows(EntityPanelContext* panel, World* world, Camera* camera)
+	void RenderEntityControlArrows(EntityPanelContext* panel, World* world, Camera* camera)
 	{
 		//@todo: try placing editor objects in a separate z buffer? Maybe manually... so we don't have to use GL_ALWAYS
 		glDepthFunc(GL_ALWAYS);
@@ -1081,7 +1081,7 @@ namespace Editor
 	}
 
 
-	void render_entity_rotation_gizmo(EntityPanelContext* panel, World* world, Camera* camera)
+	void RenderEntityRotationGizmo(EntityPanelContext* panel, World* world, Camera* camera)
 	{
 		//@todo: try placing editor objects in a separate z buffer? Maybe manually... so we don't have to use GL_ALWAYS
 		glDepthFunc(GL_ALWAYS);
@@ -1092,7 +1092,7 @@ namespace Editor
 	}
 
 
-	float _get_gizmo_scaling_factor(Entity* entity, float min, float max)
+	float GetGizmoScalingFactor(Entity* entity, float min, float max)
 	{
 		/* Editor gizmos need to follow entities' dimensions so they don't look too big or too small in comparison with the entity 
 		   when displayed. */
@@ -1115,7 +1115,7 @@ namespace Editor
 	}
 
 
-	void update_entity_control_arrows(EntityPanelContext* panel)
+	void UpdateEntityControlArrows(EntityPanelContext* panel)
 	{
 		// arrow positioning settings
 		float angles[3] = {270, 0, 90};
@@ -1136,7 +1136,7 @@ namespace Editor
 		starting_model = rotate(starting_model, glm::radians(entity->rotation.y), UnitY);
 		starting_model = rotate(starting_model, glm::radians(entity->rotation.z), UnitZ);
 
-		float scale_value = _get_gizmo_scaling_factor(entity, 0.8, 3.0);
+		float scale_value = GetGizmoScalingFactor(entity, 0.8, 3.0);
 
 		for(int i = 0; i < 3; i++)
 		{
@@ -1150,7 +1150,7 @@ namespace Editor
 	}
 
 
-	void update_entity_rotation_gizmo(EntityPanelContext* panel)
+	void UpdateEntityRotationGizmo(EntityPanelContext* panel)
 	{
 		// arrow positioning settings
 		float angles[3] = {270, 0, 90};
@@ -1162,7 +1162,7 @@ namespace Editor
 		// update arrow mat models doing correct matrix multiplication order
 		auto starting_model = translate(Mat4Identity, entity->bounding_box.GetCentroid());
 
-		float scale_value = _get_gizmo_scaling_factor(entity, 1.0, 3.0);
+		float scale_value = GetGizmoScalingFactor(entity, 1.0, 3.0);
 
 		for(int i = 0; i < 3; i++)
 		{
@@ -1175,7 +1175,7 @@ namespace Editor
 	}
 
 
-	void render_entity_mesh_normals(EntityPanelContext* panel)
+	void RenderEntityMeshNormals(EntityPanelContext* panel)
 	{
 		// only for aabb
 		auto entity = panel->entity;
@@ -1194,7 +1194,7 @@ namespace Editor
 	}
 
 
-	void check_selection_to_open_panel(Player* player, World* world, Camera* camera)
+	void CheckSelectionToOpenPanel(Player* player, World* world, Camera* camera)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto pickray = cast_pickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
@@ -1214,7 +1214,7 @@ namespace Editor
 	}
 
 
-	void check_selection_to_select_related_entity(World* world, Camera* camera)
+	void CheckSelectionToSelectRelatedEntity(World* world, Camera* camera)
 	{
 		auto* EM = EntityManager::Get();
 		auto* GII = GlobalInputInfo::Get();
@@ -1245,7 +1245,7 @@ namespace Editor
 	}
 
 
-	void check_selection_to_move_entity(World* world, Camera* camera)
+	void CheckSelectionToMoveEntity(World* world, Camera* camera)
 	{
 		auto* GII = GlobalInputInfo::Get();
 
@@ -1259,7 +1259,7 @@ namespace Editor
 	}
 
 
-	bool check_selection_to_grab_entity_arrows(Camera* camera)
+	bool CheckSelectionToGrabEntityArrows(Camera* camera)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto& ed_context = *GetContext();
@@ -1283,7 +1283,7 @@ namespace Editor
 	}
 
 
-	bool check_selection_to_grab_entity_rotation_gizmo(Camera* camera)
+	bool CheckSelectionToGrabEntityRotationGizmo(Camera* camera)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto& ed_context = *GetContext();

@@ -149,7 +149,7 @@ void execute_command(const std::string& buffer_line, Player* & player, World* wo
 		p.ParseWhitespace();
 		p.ParseToken();
 		const std::string argument = get_parsed<std::string>(p);
-		WorldSerializer::save_to_file(argument, false);
+		WorldSerializer::SaveToFile(argument, false);
 	}
 
 	// ---------------
@@ -161,7 +161,7 @@ void execute_command(const std::string& buffer_line, Player* & player, World* wo
 		p.ParseWhitespace();
 		p.ParseToken();
 		const std::string scene_name = get_parsed<std::string>(p);
-		WorldSerializer::save_to_file(scene_name, true);
+		WorldSerializer::SaveToFile(scene_name, true);
 	}
 
 	// ---------------
@@ -173,7 +173,7 @@ void execute_command(const std::string& buffer_line, Player* & player, World* wo
 		p.ParseToken();
 		const std::string scene_name = get_parsed<std::string>(p);
 		// updates scene with new one
-		if(WorldSerializer::load_from_file(scene_name))
+		if(WorldSerializer::LoadFromFile(scene_name))
 		{
 			player = GSI->player; // not irrelevant! do not delete
 			if(EngineState::IsInEditorMode())
@@ -201,22 +201,22 @@ void execute_command(const std::string& buffer_line, Player* & player, World* wo
 		if(scene_name != "")
 		{
 			auto current_scene = GSI->scene_name;
-			if(WorldSerializer::check_if_scene_exists(scene_name))
+			if(WorldSerializer::CheckIfSceneExists(scene_name))
 			{
 				Rvn::rm_buffer->Add("Scene name already exists.", 3000);
 				return;
 			}
 
-			if(!WorldSerializer::load_from_file(Paths::SceneTemplate))
+			if(!WorldSerializer::LoadFromFile(Paths::SceneTemplate))
 			{
 				Rvn::rm_buffer->Add("Scene template not found.", 3000);
 				return;
 			}
 
-			if(!WorldSerializer::save_to_file(scene_name, false))
+			if(!WorldSerializer::SaveToFile(scene_name, false))
 			{
 				// if couldnt save copy of template, falls back, so we dont edit the template by mistake
-				if(WorldSerializer::load_from_file(current_scene))
+				if(WorldSerializer::LoadFromFile(current_scene))
 				{
 					assert(false); // if this happens, weird!
 				}
@@ -254,7 +254,7 @@ void execute_command(const std::string& buffer_line, Player* & player, World* wo
 		{
 			// save scene
 			player->checkpoint_pos = player->entity_ptr->position;
-			WorldSerializer::save_to_file();
+			WorldSerializer::SaveToFile();
 			// set scene
 			program_config.initial_scene = GSI->scene_name;
 			ConfigSerializer::save(program_config);
@@ -268,7 +268,7 @@ void execute_command(const std::string& buffer_line, Player* & player, World* wo
 	// -----------------
 	else if(command == "reload")
 	{
-		if(WorldSerializer::load_from_file(GSI->scene_name))
+		if(WorldSerializer::LoadFromFile(GSI->scene_name))
 		{
 			player = GSI->player; // not irrelevant! do not delete
 
@@ -321,7 +321,7 @@ void execute_command(const std::string& buffer_line, Player* & player, World* wo
 
 void handle_console_input(InputFlags flags, Player* & player, World* world, Camera* camera)
 {
-	if(pressed_once(flags, KEY_ENTER))
+	if(PressedOnce(flags, KEY_ENTER))
 	{
 		// if empty, just quit
 		if(Console.scratch_buffer[0] == '\0')
@@ -334,17 +334,17 @@ void handle_console_input(InputFlags flags, Player* & player, World* world, Came
 		quit_console_mode();
 	}
 
-	if(pressed_once(flags, KEY_GRAVE_TICK))
+	if(PressedOnce(flags, KEY_GRAVE_TICK))
 	{
 		quit_console_mode();
 	}
 
-	if(pressed_once(flags, KEY_UP))
+	if(PressedOnce(flags, KEY_UP))
 	{
 		move_to_previous_buffer();
 	}
 
-	if(pressed_once(flags, KEY_DOWN))
+	if(PressedOnce(flags, KEY_DOWN))
 	{
 		move_to_next_buffer();
 	}
@@ -355,156 +355,156 @@ void handle_console_input(InputFlags flags, Player* & player, World* world, Came
 
 void check_letter_key_presses(InputFlags flags)
 {
-	if(pressed_once(flags, KEY_BACKSPACE))
+	if(PressedOnce(flags, KEY_BACKSPACE))
 	{
 		if(Console.c_ind > 0)
 			Console.scratch_buffer[--Console.c_ind] = '\0';
 	}
-	if(pressed_once(flags, KEY_Q))
+	if(PressedOnce(flags, KEY_Q))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'q';
 	}
-	if(pressed_once(flags, KEY_W))
+	if(PressedOnce(flags, KEY_W))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'w';
 	}
-	if(pressed_once(flags, KEY_E))
+	if(PressedOnce(flags, KEY_E))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'e';
 	}
-	if(pressed_once(flags, KEY_R))
+	if(PressedOnce(flags, KEY_R))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'r';
 	}
-	if(pressed_once(flags, KEY_T))
+	if(PressedOnce(flags, KEY_T))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 't';
 	}
-	if(pressed_once(flags, KEY_Y))
+	if(PressedOnce(flags, KEY_Y))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'y';
 	}
-	if(pressed_once(flags, KEY_U))
+	if(PressedOnce(flags, KEY_U))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'u';
 	}
-	if(pressed_once(flags, KEY_I))
+	if(PressedOnce(flags, KEY_I))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'i';
 	}
-	if(pressed_once(flags, KEY_O))
+	if(PressedOnce(flags, KEY_O))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'o';
 	}
-	if(pressed_once(flags, KEY_P))
+	if(PressedOnce(flags, KEY_P))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'p';
 	}
-	if(pressed_once(flags, KEY_A))
+	if(PressedOnce(flags, KEY_A))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'a';
 	}
-	if(pressed_once(flags, KEY_S))
+	if(PressedOnce(flags, KEY_S))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 's';
 	}
-	if(pressed_once(flags, KEY_D))
+	if(PressedOnce(flags, KEY_D))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'd';
 	}
-	if(pressed_once(flags, KEY_F))
+	if(PressedOnce(flags, KEY_F))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'f';
 	}
-	if(pressed_once(flags, KEY_G))
+	if(PressedOnce(flags, KEY_G))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'g';
 	}
-	if(pressed_once(flags, KEY_H))
+	if(PressedOnce(flags, KEY_H))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'h';
 	}
-	if(pressed_once(flags, KEY_J))
+	if(PressedOnce(flags, KEY_J))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'j';
 	}
-	if(pressed_once(flags, KEY_K))
+	if(PressedOnce(flags, KEY_K))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'k';
 	}
-	if(pressed_once(flags, KEY_L))
+	if(PressedOnce(flags, KEY_L))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'l';
 	}
-	if(pressed_once(flags, KEY_Z))
+	if(PressedOnce(flags, KEY_Z))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'z';
 	}
-	if(pressed_once(flags, KEY_X))
+	if(PressedOnce(flags, KEY_X))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'x';
 	}
-	if(pressed_once(flags, KEY_C))
+	if(PressedOnce(flags, KEY_C))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'c';
 	}
-	if(pressed_once(flags, KEY_V))
+	if(PressedOnce(flags, KEY_V))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'v';
 	}
-	if(pressed_once(flags, KEY_B))
+	if(PressedOnce(flags, KEY_B))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'b';
 	}
-	if(pressed_once(flags, KEY_N))
+	if(PressedOnce(flags, KEY_N))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'n';
 	}
-	if(pressed_once(flags, KEY_M))
+	if(PressedOnce(flags, KEY_M))
 	{
 		Console.scratch_buffer[Console.c_ind++] = 'm';
 	}
-	if(pressed_once(flags, KEY_1))
+	if(PressedOnce(flags, KEY_1))
 	{
 		Console.scratch_buffer[Console.c_ind++] = '1';
 	}
-	if(pressed_once(flags, KEY_2))
+	if(PressedOnce(flags, KEY_2))
 	{
 		Console.scratch_buffer[Console.c_ind++] = '2';
 	}
-	if(pressed_once(flags, KEY_3))
+	if(PressedOnce(flags, KEY_3))
 	{
 		Console.scratch_buffer[Console.c_ind++] = '3';
 	}
-	if(pressed_once(flags, KEY_4))
+	if(PressedOnce(flags, KEY_4))
 	{
 		Console.scratch_buffer[Console.c_ind++] = '4';
 	}
-	if(pressed_once(flags, KEY_5))
+	if(PressedOnce(flags, KEY_5))
 	{
 		Console.scratch_buffer[Console.c_ind++] = '5';
 	}
-	if(pressed_once(flags, KEY_6))
+	if(PressedOnce(flags, KEY_6))
 	{
 		Console.scratch_buffer[Console.c_ind++] = '6';
 	}
-	if(pressed_once(flags, KEY_7))
+	if(PressedOnce(flags, KEY_7))
 	{
 		Console.scratch_buffer[Console.c_ind++] = '7';
 	}
-	if(pressed_once(flags, KEY_8))
+	if(PressedOnce(flags, KEY_8))
 	{
 		Console.scratch_buffer[Console.c_ind++] = '8';
 	}
-	if(pressed_once(flags, KEY_9))
+	if(PressedOnce(flags, KEY_9))
 	{
 		Console.scratch_buffer[Console.c_ind++] = '9';
 	}
-	if(pressed_once(flags, KEY_0))
+	if(PressedOnce(flags, KEY_0))
 	{
 		Console.scratch_buffer[Console.c_ind++] = '0';
 	}
-	if(pressed_once(flags, KEY_SPACE))
+	if(PressedOnce(flags, KEY_SPACE))
 	{
 		Console.scratch_buffer[Console.c_ind++] = ' ';
 	}

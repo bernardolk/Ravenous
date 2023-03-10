@@ -22,7 +22,8 @@
 #include "engine/render/renderer.h"
 #include "engine/world/scene_manager.h"
 
-void start_frame();
+void StartFrame();
+
 void RavenousMainLoop()
 {
 	auto* ES = EngineState::Get();
@@ -37,7 +38,7 @@ void RavenousMainLoop()
 		//	INPUT PHASE
 		// -------------
 		// This needs to be first or dearImGUI will crash.
-		auto input_flags = input_phase();
+		auto input_flags = InputPhase();
 
 		// Input recorder
 		if(InputRecorder.is_recording)
@@ -48,9 +49,9 @@ void RavenousMainLoop()
 		// -------------
 		// START FRAME
 		// -------------
-		start_frame();
+		StartFrame();
 		if(ES->current_mode == EngineState::ProgramMode::Editor)
-			Editor::start_dear_imgui_frame();
+			Editor::StartDearImguiFrame();
 
 		// ---------------
 		// INPUT HANDLING
@@ -77,7 +78,7 @@ void RavenousMainLoop()
 
 			IN_handle_common_input(input_flags, player);
 		}
-		reset_input_flags(input_flags);
+		ResetInputFlags(input_flags);
 
 		// -------------
 		//	UPDATE PHASE
@@ -117,8 +118,8 @@ void RavenousMainLoop()
 				}
 				case EngineState::ProgramMode::Editor:
 				{
-					Editor::update(player, world, GSI->camera);
-					Editor::render(player, world, GSI->camera);
+					Editor::Update(player, world, GSI->camera);
+					Editor::Render(player, world, GSI->camera);
 					break;
 				}
 				case EngineState::ProgramMode::Game:
@@ -139,7 +140,7 @@ void RavenousMainLoop()
 		Rvn::rm_buffer->Cleanup();
 		glfwSwapBuffers(GlobalDisplayConfig::GetWindow());
 		if(ES->current_mode == EngineState::ProgramMode::Editor)
-			Editor::end_dear_imgui_frame();
+			Editor::EndDearImguiFrame();
 	}
 
 	glfwTerminate();

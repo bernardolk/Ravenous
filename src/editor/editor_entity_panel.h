@@ -12,8 +12,8 @@ namespace Editor
 	void undo_selected_entity_move_changes();
 	void open_entity_panel(Entity* entity);
 	void check_for_asset_changes();
-	void update_entity_control_arrows(EntityPanelContext* panel);
-	void update_entity_rotation_gizmo(EntityPanelContext* panel);
+	void UpdateEntityControlArrows(EntityPanelContext* panel);
+	void UpdateEntityRotationGizmo(EntityPanelContext* panel);
 	void render_entity_control_arrows(EntityPanelContext* panel);
 	void render_entity_panel(EntityPanelContext* panel, World* world);
 	void entity_panel_update_entity_and_editor_context(const EntityPanelContext* panel, u32 action, World* world);
