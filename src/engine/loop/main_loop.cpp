@@ -13,8 +13,8 @@
 #include "engine/io/display.h"
 #include "engine/world/world.h"
 #include "console.h"
-#include "gp_game_state.h"
-#include "gp_update.h"
+#include "game/gameplay/gp_game_state.h"
+#include "game/gameplay/gp_update.h"
 #include "in_handlers.h"
 #include "editor/editor_input.h"
 #include "engine/camera.h"
@@ -64,7 +64,7 @@ void RavenousMainLoop()
 		{
 			if(EngineState::IsInEditorMode())
 			{
-				Editor::handle_input_flags(input_flags, world, GSI->camera);
+				Editor::HandleInputFlags(input_flags, world, GSI->camera);
 				if(!ImGui::GetIO().WantCaptureKeyboard)
 				{
 					IN_handle_movement_input(input_flags, player, world);
@@ -89,7 +89,7 @@ void RavenousMainLoop()
 			else if(ES->current_mode == EngineState::ProgramMode::Editor)
 				camera_update_editor(GSI->camera, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->entity_ptr->position);
 			GameState.UpdateTimers();
-			GP_update_player_state(player, world);
+			GP_UpdatePlayerState(player, world);
 			AN_animate_player(player);
 			EntityAnimations.UpdateAnimations();
 		}

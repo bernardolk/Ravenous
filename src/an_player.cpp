@@ -5,7 +5,7 @@
 #include "engine/camera.h"
 #include "engine/rvn.h"
 #include "engine/world/scene_manager.h"
-#include "gp_player_state.h"
+#include "game/gameplay/gp_player_state.h"
 
 void AN_animate_player(Player* player)
 {

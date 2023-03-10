@@ -6,5 +6,5 @@ struct InputFlags;
 
 namespace Editor
 {
-	void handle_input_flags(InputFlags flags, World* world, Camera* camera);
+	void HandleInputFlags(InputFlags flags, World* world, Camera* camera);
 }

@@ -88,7 +88,7 @@ bool GP_simulate_player_collision_in_falling_trajectory(Player* player, vec2 xz_
 
 		player->entity_ptr->Update();
 
-		bool collided = CL_run_tests_for_fall_simulation(player);
+		bool collided = CL_RunTestsForFallSimulation(player);
 		if(!collided)
 			break;
 
@@ -134,7 +134,7 @@ void CL_wall_slide_player(Player* player, vec3 wall_normal)
 // --------------------------------------
 // > CL_run_tests_for_fall_simulation
 // --------------------------------------
-bool CL_run_tests_for_fall_simulation(Player* player)
+bool CL_RunTestsForFallSimulation(Player* player)
 {
 	// It basically the usual test but without collision resolving.
 
@@ -147,15 +147,14 @@ bool CL_run_tests_for_fall_simulation(Player* player)
 	{
 		Entity* & entity = buffer->entity;
 
+		// TODO: this is bad, shouldn't need to compare strings and skip player
 		if(entity->name == "Player")
 		{
 			buffer++;
 			continue;
 		}
 
-		// @TODO - here should test for bounding box collision (or any geometric first pass test) 
-		//          FIRST, then do the call below
-
+		// TODO: here should test for bounding box collision (or any geometric first pass test) FIRST, then do the call below
 		auto result = CL_test_player_vs_entity(entity, player);
 
 		if(result.collision)

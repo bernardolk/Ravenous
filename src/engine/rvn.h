@@ -48,7 +48,7 @@ struct Rvn
 	static constexpr size_t collision_log_buffer_capacity = 150;
 	static constexpr size_t collision_log_capacity = 20;
 	static constexpr size_t collision_buffer_capacity = 1000;
-	static constexpr size_t message_buffer_capacity = 10;
+	static constexpr size_t message_buffer_capacity = 300;
 	static constexpr int max_messages_to_render = 8;
 
 	inline static FrameData frame;

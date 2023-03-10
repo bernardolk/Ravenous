@@ -3,8 +3,6 @@
 #include "in_handlers.h"
 #include <glfw3.h>
 #include "console.h"
-#include "gp_player_state.h"
-#include "gp_update.h"
 #include "player.h"
 #include "utils.h"
 #include "engine/camera.h"
@@ -14,6 +12,8 @@
 #include "engine/io/input.h"
 #include "engine/loop/input_phase.h"
 #include "engine/world/scene_manager.h"
+#include "game/gameplay/gp_player_state.h"
+#include "game/gameplay/gp_update.h"
 
 void IN_assign_keys_to_actions()
 {
@@ -108,7 +108,7 @@ void IN_handle_movement_input(InputFlags flags, Player* & player, World* world)
 			// INTERACT
 			if(PressedOnce(flags, KEY_ACTION))
 			{
-				GP_check_trigger_interaction(player, world);
+				GP_CheckTriggerInteraction(player, world);
 				player->dodge_btn = true;
 			}
 
