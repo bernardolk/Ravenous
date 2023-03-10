@@ -152,6 +152,8 @@ int main()
 	//@TODO: better for debugging
 	player->entity_ptr->flags |= EntityFlags_RenderWireframe;
 
+	world->UpdateEntities();
+	
 	RavenousMainLoop();
 }
 

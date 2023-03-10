@@ -1,8 +1,5 @@
-#include <engine/core/types.h>
-#include <iostream> // utils
+#include <engine/core/core.h>
 #include <string>
-#include <engine/vertex.h> // utils
-#include <algorithm> // utils
 #include <utils.h>
 #include <engine/collision/primitives/bounding_box.h>
 #include <vector>
@@ -10,20 +7,18 @@
 #include <map>
 #include <engine/mesh.h>
 #include <glm/gtx/normal.hpp>
-#include <engine/collision/primitives/triangle.h>
 #include <colors.h>
-#include <engine/render/renderer.h>
 #include <engine/render/im_render.h>
 #include <engine/collision/primitives/ray.h>
 #include <engine/collision/raycast.h>
-#include <engine/collision/collision_mesh.h>
 #include "engine/entities/entity.h"
 #include <player.h>
 #include <engine/lights.h>
-#include <engine/logging.h>
 #include <engine/entity_pool.h>
 #include <engine/entity_manager.h>
 #include <engine/world/world.h>
+
+#include "engine/core/platform.h"
 
 
 void WorldCell::Init(int ii, int ji, int ki)
@@ -34,9 +29,10 @@ void WorldCell::Init(int ii, int ji, int ki)
 	this->i = ii;
 	this->j = ji;
 	this->k = ki;
-
+	this->ijk = vec3{ii, ji, ki};
+	
 	// set physical world coordinates to bounding box
-	const vec3 origin = get_world_coordinates_from_world_cell_coordinates(ii, ji, ki);
+	const vec3 origin = GetWorldCoordinatesFromWorldCellCoordinates(ii, ji, ki);
 	this->bounding_box.minx = origin.x;
 	this->bounding_box.miny = origin.y;
 	this->bounding_box.minz = origin.z;
@@ -148,7 +144,7 @@ vec3 WorldCell::Coords() const
 
 vec3 WorldCell::CoordsMeters() const
 {
-	return get_world_coordinates_from_world_cell_coordinates(this->i, this->j, this->k);
+	return GetWorldCoordinatesFromWorldCellCoordinates(this->i, this->j, this->k);
 }
 
 
@@ -194,26 +190,44 @@ CellUpdate World::UpdateEntityWorldCells(Entity* entity)
 {
 	std::string message;
 
-	// computes which cells the entity is occupying based on it's axis aligned bounding box
+	// Computes which cells the entity is occupying based on its axis aligned bounding box
 	auto [bb_min, bb_max] = entity->bounding_box.Bounds();
-	auto [i0, j0, k0] = world_coords_to_cells(bb_min);
-	auto [i1, j1, k1] = world_coords_to_cells(bb_max);
+	auto [i0, j0, k0] = WorldCoordsToCells(bb_min);
+	auto [i1, j1, k1] = WorldCoordsToCells(bb_max);
 
-	// out of bounds catch
+	// Out of bounds catch
 	if(i0 == -1 || i1 == -1)
 	{
 		message = "Entity '" + entity->name + "' is located out of current world bounds.";
 		return CellUpdate{CellUpdate_OUT_OF_BOUNDS, message};
 	}
 
-	std::vector<WorldCell*> new_cells;
-	for(int i = i0; i <= i1; i++)
-		for(int j = j0; j <= j1; j++)
-			for(int k = k0; k <= k1; k++)
-				new_cells.push_back(&this->cells[i][j][k]);
+	// Unexpected output
+	if (!(i1 >= i0 && j1 >= j0 && k1 >= k0))
+	{
+		message = "Entity '" + entity->name + "' yielded invalid (inverted) world cell coordinates.";
+		return CellUpdate{CellUpdate_UNEXPECTED, message};
+	}
 
-	// entity too large catch
-	if(new_cells.size() > EntityWolrdCellOccupationLimit)
+
+	bool b_changed_wc =
+		entity->world_cells_count == 0 ||
+		entity->world_cells[0]->i != i0 ||
+		entity->world_cells[0]->j != j0 ||
+		entity->world_cells[0]->k != k0 ||
+		entity->world_cells[entity->world_cells_count - 1]->i != i1 ||
+		entity->world_cells[entity->world_cells_count - 1]->j != j1 ||
+		entity->world_cells[entity->world_cells_count - 1]->k != k1;
+
+	if (!b_changed_wc)
+	{
+		return CellUpdate{CellUpdate_OK, "", false};
+	}
+
+	const int new_cells_count = (i1 - i0 + 1) * (j1 - j0 + 1) * (k1 - k0 + 1);
+
+	// Entity too large catch
+	if (new_cells_count > EntityWolrdCellOccupationLimit)
 	{
 		message = "Entity '" + entity->name + "' is too large and it occupies more than " +
 		"the limit of " + std::to_string(EntityWolrdCellOccupationLimit) + " world cells at a time.";
@@ -221,74 +235,34 @@ CellUpdate World::UpdateEntityWorldCells(Entity* entity)
 		return CellUpdate{CellUpdate_ENTITY_TOO_BIG, message};
 	}
 
-	// computes outdated world cells to remove the entity from
-	std::vector<WorldCell*> cells_to_remove_from;
-	for(int i = 0; i < entity->world_cells_count; i++)
+	// Remove entity from all world cells (inneficient due to defrag)
+	for (int i = 0; i < entity->world_cells_count; i++)
 	{
-		auto entity_world_cell = entity->world_cells[i];
-		bool found = false;
-		for(int c = 0; c < new_cells.size(); c++)
+		entity->world_cells[i]->Remove(entity);
+	}
+	entity->world_cells_count = 0;
+
+
+	// Add entity to all world cells
+	for (int i = i0; i <= i1; i++)
+	{
+		for (int j = j0; j <= j1; j++)
 		{
-			if(new_cells[c] == entity_world_cell)
+			for (int k = k0; k <= k1; k++)
 			{
-				found = true;
-				break;
+				auto* cell = &this->cells[i][j][k];
+				auto cell_update = cell->Add(entity);
+				if(cell_update.status != CellUpdate_OK)
+				{
+					// TODO: not sure returning in the middle of this process is cool...
+					return cell_update;
+				}
+				entity->world_cells[entity->world_cells_count++] = cell;
 			}
 		}
-		if(!found)
-			cells_to_remove_from.push_back(entity_world_cell);
 	}
-
-	// computes the cells to add entity to
-	std::vector<WorldCell*> cells_to_add_to;
-	for(int i = 0; i < new_cells.size(); i++)
-	{
-		auto cell = new_cells[i];
-		bool exists = false;
-		for(int j = 0; j < entity->world_cells_count; j++)
-		{
-			auto entity_cell = entity->world_cells[j];
-			if(cell == entity_cell)
-			{
-				exists = true;
-				break;
-			}
-		}
-		if(!exists)
-			cells_to_add_to.push_back(cell);
-	}
-
-	// remove entity from old cells
-	for(int i = 0; i < cells_to_remove_from.size(); i++)
-	{
-		auto cell = cells_to_remove_from[i];
-		cell->Remove(entity);
-	}
-
-	// add entity to new cells
-	// PS: if this fails, entity will have no cells. Easier to debug.
-	for(int i = 0; i < cells_to_add_to.size(); i++)
-	{
-		auto cell = cells_to_add_to[i];
-		auto cell_update = cell->Add(entity);
-		if(cell_update.status != CellUpdate_OK)
-		{
-			return cell_update;
-		}
-	}
-
-	// re-set cells to entity
-	int new_cells_count = 0;
-	for(int i = 0; i < new_cells.size(); i++)
-	{
-		auto cell = new_cells[i];
-		entity->world_cells[new_cells_count] = cell;
-		new_cells_count++;
-	}
-	entity->world_cells_count = new_cells_count;
-
-	bool changed_cells = cells_to_add_to.size() > 0 || cells_to_remove_from.size() > 0;
-	return CellUpdate{CellUpdate_OK, "", changed_cells};
+	
+	return CellUpdate{CellUpdate_OK, "", true};
 }
 
 
@@ -453,8 +427,11 @@ void World::Clear(const EntityManager* manager)
 	this->checkpoints.clear();
 }
 
-void World::UpdateEntities() const
+void World::UpdateEntities()
 {
 	for(const auto& entity : this->entities)
+	{
 		entity->Update();
+		UpdateEntityWorldCells(entity);
+	}
 }

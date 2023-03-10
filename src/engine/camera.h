@@ -33,10 +33,10 @@ struct Camera
 constexpr u8 EditorCam = 0;
 constexpr u8 GameCam = 1;
 
-void camera_update_game(Camera* camera, float viewport_width, float viewport_height, vec3 position);
-void camera_update_editor(Camera* camera, float viewport_width, float viewport_height, vec3 position);
-void camera_change_direction(Camera* camera, float yaw_offset, float pitch_offset);
-void camera_look_at(Camera* camera, vec3 ref, bool is_position);
-void set_camera_to_free_roam(Camera* camera);
-void set_camera_to_third_person(Camera* camera);
-void compute_angles_from_direction(float& pitch, float& yaw, vec3 direction);
+void UpdateGameCamera(Camera* camera, float viewport_width, float viewport_height, vec3 position);
+void UpdateEditorCamera(Camera* camera, float viewport_width, float viewport_height, vec3 position);
+void ChangeCameraDirection(Camera* camera, float yaw_offset, float pitch_offset);
+void CameraLookAt(Camera* camera, vec3 ref, bool is_position);
+void SetCameraToFreeRoam(Camera* camera);
+void SetCameraToThirdPerson(Camera* camera);
+void ComputeAnglesFromDirection(float& pitch, float& yaw, vec3 direction);

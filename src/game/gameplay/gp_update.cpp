@@ -29,6 +29,7 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 			// compute player next position
 			auto next_position = GP_PlayerStandingGetNextPosition(player);
 
+			// TODO: Encapsulate this as a player function
 			// move player forward
 			player->entity_ptr->bounding_box.Translate(next_position - player->entity_ptr->position);
 			player->entity_ptr->position = next_position;
@@ -48,7 +49,7 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 			while(it < 2)
 			{
 				it++;
-				auto vtrace = CL_do_stepover_vtrace(player, world);
+				auto vtrace = CL_DoStepoverVtrace(player, world);
 
 				// snap player to the last terrain contact point detected if its a valid stepover hit
 				if(vtrace.hit && (vtrace.delta_y > 0.0004 || vtrace.delta_y < 0))
@@ -81,6 +82,8 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 				// if floor is no longer beneath player's feet
 				if(!vtrace.hit)
 				{
+
+					
 					/* Here we do a simulation to check if player would fit going through the abyss.
 					   If he doesn't fit, then ignore the hole and let player walk through it. */
 
@@ -88,7 +91,8 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 
 					// TODO: This whole logic might be overkill - We could rely on level design to guarantee there aren't holes in nav mesh small enough that player would get stuck
 					// first pass test to see if player fits in hole
-					auto p_pos0 = player->entity_ptr->position;
+					/*auto p_pos0 = player->entity_ptr->position;
+					 *
 					auto offset = player->v_dir_historic * player->radius;
 					player->entity_ptr->bounding_box.Translate(offset);
 					player->entity_ptr->position += offset;
@@ -99,18 +103,14 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 					player->entity_ptr->position = p_pos0;
 					player->entity_ptr->bounding_box.Translate(offset);
 					player->Update(world);
-
-					if(!collided)
-					{
+					*/
+					
+					//if(!collided)
+					//{
 						/* do a complete simulation of the fall (maybe unncessary... ) */
 						// give player a push if necessary
-						float fall_momentum_intensity = player->speed;
-						if(fall_momentum_intensity < player->fall_from_edge_push_speed)
-							fall_momentum_intensity = player->fall_from_edge_push_speed;
-
-
-						vec2 fall_momentum_dir;
-						fall_momentum_dir = to2d_xz(player->v_dir_historic);
+						float fall_momentum_intensity = player->speed < player->fall_from_edge_push_speed ? player->fall_from_edge_push_speed : player->speed;
+						vec2 fall_momentum_dir = player->v_dir_historic.xz;
 						vec2 fall_momentum = fall_momentum_dir * fall_momentum_intensity;
 
 						// // bool can_fall = GP_simulate_player_collision_in_falling_trajectory(player, fall_momentum);
@@ -118,29 +118,29 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 						//
 						// if(can_fall)
 						// {
-							player->entity_ptr->velocity = to3d_xz(fall_momentum);
-							GP_change_player_state(player, PLAYER_STATE_FALLING);
-							player->Update(world, true);
-							break;
+						player->entity_ptr->velocity = to3d_xz(fall_momentum);
+						GP_ChangePlayerState(player, PLAYER_STATE_FALLING);
+						player->Update(world, true);
+						break;
 						// }
 						// Rvn::PrintDynamic("Player won't fit if he falls here.", 1000);
-					}
-					else
-					{
-						Rvn::PrintDynamic("We could fall but we are smarts", 1000);
-					}
-					
-					break;
+					//}
+					//else
+					//{
+					//	Rvn::PrintDynamic("We could fall but we are smarts", 1000);
+					//}
+					//break;
 				}
 
-				// collided with nothing or with terrain only, break
+				// Collided with nothing or with terrain only, break
 				if(results.count == 0 || (collided_with_terrain && results.count == 1))
 					break;
+				
 				if(slope.collision)
 				{
 					PlayerStateChangeArgs args;
 					args.normal = slope.normal;
-					GP_change_player_state(player, PLAYER_STATE_SLIDING, args);
+					GP_ChangePlayerState(player, PLAYER_STATE_SLIDING, args);
 					break;
 				}
 			}
@@ -174,7 +174,7 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 					{
 						PlayerStateChangeArgs args;
 						args.normal = result.normal;
-						GP_change_player_state(player, PLAYER_STATE_SLIDING, args);
+						GP_ChangePlayerState(player, PLAYER_STATE_SLIDING, args);
 						return;
 					}
 				}
@@ -184,14 +184,14 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 					bool collided_with_terrain = dot(result.normal, UnitY) > 0;
 					if(collided_with_terrain)
 					{
-						GP_change_player_state(player, PLAYER_STATE_STANDING);
+						GP_ChangePlayerState(player, PLAYER_STATE_STANDING);
 						return;
 					}
 				}
 
 				// else
 				{
-					CL_wall_slide_player(player, result.normal);
+					CL_WallSlidePlayer(player, result.normal);
 				}
 			}
 
@@ -230,7 +230,7 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 					{
 						PlayerStateChangeArgs args;
 						args.normal = result.normal;
-						GP_change_player_state(player, PLAYER_STATE_SLIDING, args);
+						GP_ChangePlayerState(player, PLAYER_STATE_SLIDING, args);
 						return;
 					}
 				}
@@ -240,14 +240,14 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 					bool collided_with_terrain = dot(result.normal, UnitY) > 0;
 					if(collided_with_terrain)
 					{
-						GP_change_player_state(player, PLAYER_STATE_STANDING);
+						GP_ChangePlayerState(player, PLAYER_STATE_STANDING);
 						return;
 					}
 				}
 
 				// else
 				{
-					CL_wall_slide_player(player, result.normal);
+					CL_WallSlidePlayer(player, result.normal);
 				}
 			}
 
@@ -255,10 +255,10 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 			//          in that case it should also stand (or fall from ledge) and not
 			//          directly fall.
 			if(results.count > 0)
-				GP_change_player_state(player, PLAYER_STATE_FALLING);
+				GP_ChangePlayerState(player, PLAYER_STATE_FALLING);
 
 			else if(player->entity_ptr->velocity.y <= 0)
-				GP_change_player_state(player, PLAYER_STATE_FALLING);
+				GP_ChangePlayerState(player, PLAYER_STATE_FALLING);
 
 			break;
 		}
@@ -289,14 +289,14 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 
 			if(collided_with_terrain)
 			{
-				GP_change_player_state(player, PLAYER_STATE_STANDING);
+				GP_ChangePlayerState(player, PLAYER_STATE_STANDING);
 				break;
 			}
 
-			auto vtrace = CL_do_stepover_vtrace(player, world);
+			auto vtrace = CL_DoStepoverVtrace(player, world);
 			if(!vtrace.hit)
 			{
-				GP_change_player_state(player, PLAYER_STATE_FALLING);
+				GP_ChangePlayerState(player, PLAYER_STATE_FALLING);
 			}
 
 			break;
@@ -368,40 +368,34 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 //    return false;
 // }
 
-
 vec3 GP_PlayerStandingGetNextPosition(Player* player)
 {
-	// updates player position
-	auto& v = player->entity_ptr->velocity;
-	auto& v_dir = player->v_dir;
-	auto& state = player->player_state;
+	bool no_move_command = player->v_dir.x == 0 && player->v_dir.z == 0;
 
-	bool no_move_command = v_dir.x == 0 && v_dir.z == 0;
+	float dt = Rvn::frame.duration;
 
-	auto dt = Rvn::frame.duration;
-
-	if(v_dir.x != 0 || v_dir.y != 0 || v_dir.z != 0)
-		player->v_dir_historic = v_dir;
+	// Updates v_dir_historic
+	if(player->v_dir.x != 0 || player->v_dir.y != 0 || player->v_dir.z != 0)
+	{
+		player->v_dir_historic = player->v_dir;
+	}
 	else if(player->v_dir_historic == vec3(0))
+	{
 		player->v_dir_historic = normalize(to_xz(GlobalSceneInfo::Get()->views[GameCam]->front));
+	}
 
 	if(player->speed < 0.f || no_move_command)
+	{
 		player->speed = 0;
-
-	auto& speed = player->speed;
+	}
+	
+	float& speed = player->speed;
 	float d_speed = player->acceleration * dt;
+	
 
 
-	float speed_limit;
-	if(player->dashing)
-		speed_limit = player->dash_speed;
-	else if(player->walking)
-		speed_limit = player->walk_speed;
-	else
-		speed_limit = player->run_speed;
-
-	bool stopped = (speed > 0 && no_move_command);
-	if(stopped)
+	// If stopped
+	if(speed > 0 && no_move_command)
 	{
 		speed = 0;
 		d_speed = 0;
@@ -409,12 +403,29 @@ vec3 GP_PlayerStandingGetNextPosition(Player* player)
 
 	speed += d_speed;
 
+	// TODO: Can refactor to "player->GetSpeedLimit()"
+	float speed_limit = [&player]()-> float
+	{
+		if(player->dashing)
+		{
+			return player->dash_speed;
+		}
+		if(player->walking)
+		{
+			return player->walk_speed;
+		}
+		// default
+		return player->run_speed;
+	}();
+	
 	if(speed > speed_limit)
+	{
 		speed = speed_limit;
+	}
+	
+	player->entity_ptr->velocity = speed * player->v_dir; // if no movement command is issued, v_dir = 0,0,
 
-	v = speed * v_dir; // if no movement command is issued, v_dir = 0,0,
-
-	return player->entity_ptr->position + v * dt;
+	return player->entity_ptr->position + player->entity_ptr->velocity * dt;
 }
 
 
@@ -465,7 +476,7 @@ void GP_CheckPlayerGrabbedLedge(Player* player, World* world)
 	PlayerStateChangeArgs args;
 	args.ledge = ledge;
 	args.final_position = position;
-	GP_change_player_state(player, PLAYER_STATE_VAULTING, args);
+	GP_ChangePlayerState(player, PLAYER_STATE_VAULTING, args);
 }
 
 // void GP_check_player_grabbed_ledge(Player* player)

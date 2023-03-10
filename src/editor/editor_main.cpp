@@ -925,7 +925,7 @@ namespace Editor
 				color = vec3(0.27, 0.55, 0.65);
 
 			// creates model matrix
-			vec3 position = get_world_coordinates_from_world_cell_coordinates(
+			vec3 position = GetWorldCoordinatesFromWorldCellCoordinates(
 				cell->i, cell->j, cell->k
 			);
 			glm::mat4 model = translate(Mat4Identity, position);
@@ -1032,7 +1032,7 @@ namespace Editor
 			if(selected_light_type == "spot")
 			{
 				float pitch, yaw;
-				compute_angles_from_direction(pitch, yaw, light_direction);
+				ComputeAnglesFromDirection(pitch, yaw, light_direction);
 				vec3 arrow_direction = compute_direction_from_angles(pitch, yaw);
 
 				vec3 arrow_origin = light_position - vec3{0.0, 0.56, 0.0};

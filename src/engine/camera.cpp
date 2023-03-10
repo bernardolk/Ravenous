@@ -1,16 +1,16 @@
 #include <engine/camera.h>
 
-void set_camera_to_free_roam(Camera* camera)
+void SetCameraToFreeRoam(Camera* camera)
 {
 	camera->type = FREE_ROAM;
 }
 
-void set_camera_to_third_person(Camera* camera)
+void SetCameraToThirdPerson(Camera* camera)
 {
 	camera->type = THIRD_PERSON;
 }
 
-void camera_update_game(Camera* camera, float viewport_width, float viewport_height, vec3 position)
+void UpdateGameCamera(Camera* camera, float viewport_width, float viewport_height, vec3 position)
 {
 	camera->mat_view = lookAt(camera->position, camera->position + camera->front, camera->up);
 	camera->mat_projection = glm::perspective(
@@ -22,7 +22,7 @@ void camera_update_game(Camera* camera, float viewport_width, float viewport_hei
 	camera->position = position;
 }
 
-void camera_update_editor(Camera* camera, float viewport_width, float viewport_height, vec3 position)
+void UpdateEditorCamera(Camera* camera, float viewport_width, float viewport_height, vec3 position)
 {
 	camera->mat_view = lookAt(camera->position, camera->position + camera->front, camera->up);
 	camera->mat_projection = glm::perspective(
@@ -45,14 +45,14 @@ void camera_update_editor(Camera* camera, float viewport_width, float viewport_h
 		float distance = 3;
 		camera->position.x += distance * cos(camera->orbital_angle);
 		camera->position.z += distance * sin(camera->orbital_angle);
-		camera_look_at(camera, position, true);
+		CameraLookAt(camera, position, true);
 	}
 }
 
-void camera_change_direction(Camera* camera, float yaw_offset, float pitch_offset)
+void ChangeCameraDirection(Camera* camera, float yaw_offset, float pitch_offset)
 {
 	float pitch, yaw;
-	compute_angles_from_direction(pitch, yaw, camera->front);
+	ComputeAnglesFromDirection(pitch, yaw, camera->front);
 
 	pitch += pitch_offset;
 	yaw += yaw_offset;
@@ -76,7 +76,7 @@ void camera_change_direction(Camera* camera, float yaw_offset, float pitch_offse
 }
 
 
-void camera_look_at(Camera* camera, vec3 ref, bool is_position)
+void CameraLookAt(Camera* camera, vec3 ref, bool is_position)
 {
 	// vec3 ref -> either a position or a direction vector (no need to be normalised)
 	vec3 look_vec = ref;
@@ -93,7 +93,7 @@ void camera_look_at(Camera* camera, vec3 ref, bool is_position)
 	camera->front = normalize(camera->front);
 }
 
-void compute_angles_from_direction(float& pitch, float& yaw, vec3 direction)
+void ComputeAnglesFromDirection(float& pitch, float& yaw, vec3 direction)
 {
 	pitch = glm::degrees(glm::asin(direction.y));
 	yaw = glm::degrees(atan2(direction.x, -1 * direction.z) - PI / 2);

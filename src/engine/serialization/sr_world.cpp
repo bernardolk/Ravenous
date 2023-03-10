@@ -165,8 +165,8 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 
 	GlobalSceneInfo::Get()->scene_name = filename;
 
-	world->UpdateCellsInUseList();
 	world->UpdateEntities();
+	world->UpdateCellsInUseList();
 
 	return true;
 }

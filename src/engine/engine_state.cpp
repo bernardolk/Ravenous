@@ -48,6 +48,7 @@ void EngineState::ToggleProgramMode()
 		Editor::EndDearImguiFrame();
 
 		Rvn::rm_buffer->Add("Game Mode", 2000);
+		
 	}
 
 	else if(ES->current_mode == ProgramMode::Game)

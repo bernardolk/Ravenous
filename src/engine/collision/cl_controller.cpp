@@ -143,7 +143,7 @@ ClResultsArray CL_test_and_resolve_collisions(Player* player)
 		if(result.collision)
 		{
 			CL_mark_entity_checked(result.entity);
-			CL_resolve_collision(result, player);
+			CL_ResolveCollision(result, player);
 			results_array.results[results_array.count] = result;
 			results_array.count++;
 		}

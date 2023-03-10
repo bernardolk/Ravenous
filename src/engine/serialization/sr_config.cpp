@@ -86,7 +86,7 @@ void ConfigSerializer::parse_camera_settings(Parser& p)
 
 	p.ParseAllWhitespace();
 	p.ParseVec3();
-	camera_look_at(GSI->camera, get_parsed<glm::vec3>(p), false);
+	CameraLookAt(GSI->camera, get_parsed<glm::vec3>(p), false);
 }
 
 

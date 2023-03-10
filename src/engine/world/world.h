@@ -2,8 +2,8 @@
 
 #include "engine/collision/primitives/bounding_box.h"
 
-auto world_coords_to_cells(float x, float y, float z);
-vec3 get_world_coordinates_from_world_cell_coordinates(int i, int j, int k);
+auto WorldCoordsToCells(float x, float y, float z);
+vec3 GetWorldCoordinatesFromWorldCellCoordinates(int i, int j, int k);
 
 // how many cells we have preallocated for the world
 constexpr static int WCellsNumX = 10;
@@ -76,6 +76,7 @@ struct WorldCell
 
 	// logical coords
 	int i = -1, j = -1, k = -1;
+	vec3 ijk {i, j, k};
 
 	// world coords / bounding box
 	BoundingBox bounding_box{};
@@ -94,7 +95,7 @@ struct WorldCell
 // COORDINATE METHODS
 // -------------------
 
-inline vec3 get_world_coordinates_from_world_cell_coordinates(int i, int j, int k)
+inline vec3 GetWorldCoordinatesFromWorldCellCoordinates(int i, int j, int k)
 {
 	const float world_x = (static_cast<float>(i) - WCellsOffsetX) * WCellLenMeters;
 	const float world_y = (static_cast<float>(j) - WCellsOffsetY) * WCellLenMeters;
@@ -104,7 +105,7 @@ inline vec3 get_world_coordinates_from_world_cell_coordinates(int i, int j, int 
 }
 
 
-inline auto world_coords_to_cells(float x, float y, float z)
+inline auto WorldCoordsToCells(float x, float y, float z)
 {
 	struct
 	{
@@ -116,9 +117,6 @@ inline auto world_coords_to_cells(float x, float y, float z)
 		y < WLowerBoundsMeters.y || y > WUpperBoundsMeters.y ||
 		z < WLowerBoundsMeters.z || z > WUpperBoundsMeters.z)
 	{
-		world_cell_coords.i = -1;
-		world_cell_coords.j = -1;
-		world_cell_coords.k = -1;
 		return world_cell_coords;
 	}
 
@@ -130,9 +128,9 @@ inline auto world_coords_to_cells(float x, float y, float z)
 	return world_cell_coords;
 }
 
-inline auto world_coords_to_cells(vec3 position)
+inline auto WorldCoordsToCells(vec3 position)
 {
-	return world_coords_to_cells(position.x, position.y, position.z);
+	return WorldCoordsToCells(position.x, position.y, position.z);
 }
 
 
@@ -163,7 +161,7 @@ public:
 	static World* Get() { static World instance; return &instance; }
 	void Init();
 	void UpdateCellsInUseList();
-	void UpdateEntities() const;
+	void UpdateEntities();
 	void Clear(const EntityManager* manager);
 
 	RaycastTest Raycast(Ray ray, RayCastType test_type, const Entity* skip = nullptr, float max_distance = MaxFloat) const;

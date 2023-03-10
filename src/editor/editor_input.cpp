@@ -200,9 +200,9 @@ namespace Editor
 		{
 			// toggle camera type
 			if(GSI->camera->type == FREE_ROAM)
-				set_camera_to_third_person(GSI->camera);
+				SetCameraToThirdPerson(GSI->camera);
 			else if(GSI->camera->type == THIRD_PERSON)
-				set_camera_to_free_roam(GSI->camera);
+				SetCameraToFreeRoam(GSI->camera);
 		}
 
 		// ---------------
@@ -346,7 +346,7 @@ namespace Editor
 		}
 		if(flags.key_press & KEY_O)
 		{
-			camera_look_at(GSI->camera, vec3(0.0f, 0.0f, 0.0f), true);
+			CameraLookAt(GSI->camera, vec3(0.0f, 0.0f, 0.0f), true);
 		}
 	}
 }

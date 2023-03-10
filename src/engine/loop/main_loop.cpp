@@ -67,16 +67,15 @@ void RavenousMainLoop()
 				Editor::HandleInputFlags(input_flags, world, GSI->camera);
 				if(!ImGui::GetIO().WantCaptureKeyboard)
 				{
-					IN_handle_movement_input(input_flags, player, world);
-					IN_handle_common_input(input_flags, player);
+					IN_HandleMovementInput(input_flags, player, world);
+					IN_HandleCommonInput(input_flags, player);
 				}
 			}
 			else if(EngineState::IsInGameMode())
 			{
-				IN_handle_movement_input(input_flags, player, world);
+				IN_HandleMovementInput(input_flags, player, world);
+				IN_HandleCommonInput(input_flags, player);
 			}
-
-			IN_handle_common_input(input_flags, player);
 		}
 		ResetInputFlags(input_flags);
 
@@ -85,20 +84,19 @@ void RavenousMainLoop()
 		// -------------
 		{
 			if(ES->current_mode == EngineState::ProgramMode::Game)
-				camera_update_game(GSI->camera, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->Eye());
+			{
+				UpdateGameCamera(GSI->camera, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->Eye());
+			}
 			else if(ES->current_mode == EngineState::ProgramMode::Editor)
-				camera_update_editor(GSI->camera, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->entity_ptr->position);
+			{
+				UpdateEditorCamera(GSI->camera, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->entity_ptr->position);
+			}
 			GameState.UpdateTimers();
 			GP_UpdatePlayerState(player, world);
 			AN_animate_player(player);
 			EntityAnimations.UpdateAnimations();
 		}
-
-
-		//update_scene_objects();
-
-		// simulate_gravity_trajectory();      
-
+		
 		// -------------
 		//	RENDER PHASE
 		// -------------

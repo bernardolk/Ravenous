@@ -221,7 +221,7 @@ namespace Editor
 					// direction
 					{
 						float yaw, pitch;
-						compute_angles_from_direction(pitch, yaw, light.direction);
+						ComputeAnglesFromDirection(pitch, yaw, light.direction);
 
 						// pitch
 						auto label_pitch = "pitch##spot" + std::to_string(i);

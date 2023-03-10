@@ -7,7 +7,7 @@
 #include "game/collision/cl_edge_detection.h"
 
 
-void GP_change_player_state(Player* player, PlayerState new_state, PlayerStateChangeArgs args)
+void GP_ChangePlayerState(Player* player, PlayerState new_state, PlayerStateChangeArgs args)
 {
 	/* This will change the player's state to the new state and do actions based on his current state.
 	   Hopefuly we can achieve a state machine model where all transitions are mapped and, therefore, predictable.
@@ -20,7 +20,7 @@ void GP_change_player_state(Player* player, PlayerState new_state, PlayerStateCh
 	{
 		case PLAYER_STATE_GRABBING: return GP_player_state_change_any_to_grabbing(player, args.entity, args.normal, args.final_position, args.penetration);
 
-		case PLAYER_STATE_SLIDING: return GP_player_state_change_any_to_sliding(player, args.normal);
+		case PLAYER_STATE_SLIDING: return GP_PlayerStateChangeAnyToSliding(player, args.normal);
 	}
 
 	switch(player->player_state)
@@ -28,9 +28,9 @@ void GP_change_player_state(Player* player, PlayerState new_state, PlayerStateCh
 		// STANDING
 		case PLAYER_STATE_STANDING: switch(new_state)
 			{
-				case PLAYER_STATE_FALLING: return GP_player_state_change_standing_to_falling(player);
+				case PLAYER_STATE_FALLING: return GP_PlayerStateChangeStandingToFalling(player);
 
-				case PLAYER_STATE_JUMPING: return GP_player_state_change_standing_to_jumping(player);
+				case PLAYER_STATE_JUMPING: return GP_PlayerStateChangeStandingToJumping(player);
 
 				case PLAYER_STATE_SLIDE_FALLING: return GP_player_state_change_standing_to_slide_falling(player, args.entity);
 
@@ -40,13 +40,13 @@ void GP_change_player_state(Player* player, PlayerState new_state, PlayerStateCh
 		// JUMPING
 		case PLAYER_STATE_JUMPING: switch(new_state)
 			{
-				case PLAYER_STATE_FALLING: return GP_player_state_change_jumping_to_falling(player);
+				case PLAYER_STATE_FALLING: return GP_PlayerStateChangeJumpingToFalling(player);
 			}
 
 		// FALLING
 		case PLAYER_STATE_FALLING: switch(new_state)
 			{
-				case PLAYER_STATE_STANDING: return GP_player_state_change_falling_to_standing(player);
+				case PLAYER_STATE_STANDING: return GP_PlayerStateChangeFallingToStanding(player);
 			}
 
 		// GRABBING
@@ -77,7 +77,7 @@ void GP_change_player_state(Player* player, PlayerState new_state, PlayerStateCh
 }
 
 
-void GP_player_state_change_jumping_to_falling(Player* player)
+void GP_PlayerStateChangeJumpingToFalling(Player* player)
 {
 	player->player_state = PLAYER_STATE_FALLING;
 	player->entity_ptr->velocity.y = 0;
@@ -88,7 +88,7 @@ void GP_player_state_change_jumping_to_falling(Player* player)
 }
 
 
-void GP_player_state_change_standing_to_jumping(Player* player)
+void GP_PlayerStateChangeStandingToJumping(Player* player)
 {
 	auto& v = player->entity_ptr->velocity;
 	auto& v_dir = player->v_dir;
@@ -114,7 +114,7 @@ void GP_player_state_change_standing_to_jumping(Player* player)
 }
 
 
-void GP_player_state_change_standing_to_falling(Player* player)
+void GP_PlayerStateChangeStandingToFalling(Player* player)
 {
 	player->player_state = PLAYER_STATE_FALLING;
 	player->entity_ptr->velocity.y = -1 * player->fall_speed;
@@ -124,7 +124,7 @@ void GP_player_state_change_standing_to_falling(Player* player)
 }
 
 
-void GP_player_state_change_falling_to_standing(Player* player)
+void GP_PlayerStateChangeFallingToStanding(Player* player)
 {
 	player->entity_ptr->velocity.y = 0;
 	player->speed *= 0.5;
@@ -145,7 +145,7 @@ void GP_player_state_change_falling_to_standing(Player* player)
 }
 
 
-void GP_player_state_change_any_to_sliding(Player* player, vec3 normal)
+void GP_PlayerStateChangeAnyToSliding(Player* player, vec3 normal)
 {
 	/* Parameters:
 	   - vec3 normal : the normal of the slope (collider triangle) player is currently sliding

@@ -393,7 +393,7 @@ void OnMouseMove(GLFWwindow* window, double xpos, double ypos)
 		xoffset *= GSI->camera->sensitivity;
 		yoffset *= GSI->camera->sensitivity;
 
-		camera_change_direction(GSI->camera, xoffset, yoffset);
+		ChangeCameraDirection(GSI->camera, xoffset, yoffset);
 	}
 
 	// updates mouse position

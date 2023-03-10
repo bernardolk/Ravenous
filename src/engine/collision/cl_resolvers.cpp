@@ -18,7 +18,7 @@
 // > RESOLVE COLLISION
 // ---------------------
 
-void CL_resolve_collision(ClResults results, Player* player)
+void CL_ResolveCollision(ClResults results, Player* player)
 {
 	// unstuck player
 	vec3 offset = results.normal * results.penetration;
@@ -31,7 +31,7 @@ void CL_resolve_collision(ClResults results, Player* player)
 }
 
 
-ClVtraceResult CL_do_stepover_vtrace(Player* player, World* world)
+ClVtraceResult CL_DoStepoverVtrace(Player* player, World* world)
 {
 	/* 
 	   Cast a ray at player's last point of contact with terrain to look for something steppable (terrain).
@@ -63,7 +63,7 @@ ClVtraceResult CL_do_stepover_vtrace(Player* player, World* world)
 }
 
 
-bool GP_simulate_player_collision_in_falling_trajectory(Player* player, vec2 xz_velocity)
+bool GP_SimulatePlayerCollisionInFallingTrajectory(Player* player, vec2 xz_velocity)
 {
 	/*    
 	   Simulates how it would be if player fell following the xz_velocity vector.
@@ -111,7 +111,7 @@ bool GP_simulate_player_collision_in_falling_trajectory(Player* player, vec2 xz_
 // ---------------------
 // > WALL SLIDE PLAYER
 // ---------------------
-void CL_wall_slide_player(Player* player, vec3 wall_normal)
+void CL_WallSlidePlayer(Player* player, vec3 wall_normal)
 {
 	// changes player velocity to be facing a wall parallel and dampens his speed
 	auto& pv = player->entity_ptr->velocity;

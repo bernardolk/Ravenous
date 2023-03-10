@@ -15,7 +15,7 @@
 #include "game/gameplay/gp_player_state.h"
 #include "game/gameplay/gp_update.h"
 
-void IN_assign_keys_to_actions()
+void IN_AssignKeysToActions()
 {
 	if(EngineState::IsInEditorMode())
 	{
@@ -40,7 +40,7 @@ void IN_assign_keys_to_actions()
 }
 
 
-void IN_process_move_keys(InputFlags flags, vec3& v_dir)
+void IN_ProcessMoveKeys(InputFlags flags, vec3& v_dir)
 {
 	auto* player_camera = GlobalSceneInfo::GetGameCam();
 
@@ -65,12 +65,12 @@ void IN_process_move_keys(InputFlags flags, vec3& v_dir)
 }
 
 
-void IN_handle_movement_input(InputFlags flags, Player* & player, World* world)
+void IN_HandleMovementInput(InputFlags flags, Player* & player, World* world)
 {
 	player->dodge_btn = false;
 
 	// assign keys
-	IN_assign_keys_to_actions();
+	IN_AssignKeysToActions();
 
 	// reset player movement intention state
 	player->dashing = false;
@@ -87,7 +87,7 @@ void IN_handle_movement_input(InputFlags flags, Player* & player, World* world)
 		case PLAYER_STATE_STANDING:
 		{
 			// MOVE
-			IN_process_move_keys(flags, v_dir);
+			IN_ProcessMoveKeys(flags, v_dir);
 
 			// DASH
 			if(flags.key_press & KEY_DASH)
@@ -99,7 +99,7 @@ void IN_handle_movement_input(InputFlags flags, Player* & player, World* world)
 
 			// JUMP
 			if(flags.key_press & KEY_SPACE)
-				GP_change_player_state(player, PLAYER_STATE_JUMPING);
+				GP_ChangePlayerState(player, PLAYER_STATE_JUMPING);
 
 			// VAULT
 			if(Pressed(flags, KEY_LEFT_SHIFT) && MOUSE_LB_CLICK & GlobalInputInfo::Get()->mouse_state)
@@ -119,7 +119,7 @@ void IN_handle_movement_input(InputFlags flags, Player* & player, World* world)
 		{
 			// MID-AIR CONTROL IF JUMPING UP
 			if(player->jumping_upwards)
-				IN_process_move_keys(flags, v_dir);
+				IN_ProcessMoveKeys(flags, v_dir);
 
 			if(Pressed(flags, KEY_DASH))
 				player->action = true;
@@ -153,7 +153,7 @@ void IN_handle_movement_input(InputFlags flags, Player* & player, World* world)
 				player->v_dir = normalize(player->v_dir);
 			}
 			if(flags.key_press & KEY_SPACE)
-				GP_change_player_state(player, PLAYER_STATE_JUMPING);
+				GP_ChangePlayerState(player, PLAYER_STATE_JUMPING);
 
 			break;
 		}
@@ -164,7 +164,7 @@ void IN_handle_movement_input(InputFlags flags, Player* & player, World* world)
 				player->action = true;
 
 				if(Pressed(flags, KEY_MOVE_UP))
-					GP_change_player_state(player, PLAYER_STATE_VAULTING);
+					GP_ChangePlayerState(player, PLAYER_STATE_VAULTING);
 			}
 
 			break;
@@ -179,7 +179,7 @@ void IN_handle_movement_input(InputFlags flags, Player* & player, World* world)
 // --------------
 // SYSTEMS INPUT
 // --------------
-void IN_handle_common_input(InputFlags flags, Player* & player)
+void IN_HandleCommonInput(InputFlags flags, Player* & player)
 {
 	if(PressedOnce(flags, KEY_COMMA))
 	{

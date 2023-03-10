@@ -41,7 +41,7 @@ void AN_animate_player(Player* player)
 		{
 			if(interrupt)
 			{
-				GP_change_player_state(player, PLAYER_STATE_STANDING);
+				GP_ChangePlayerState(player, PLAYER_STATE_STANDING);
 			}
 			break;
 		}
@@ -178,14 +178,14 @@ bool AN_p_anim_vaulting(Player* player)
 		float orig_angle = glm::degrees(orig_sva);
 		float orig_sign = sign(orig_angle);
 		float turn_angle = 0.5 * orig_sign;
-		camera_change_direction(player_camera, turn_angle, 0.f);
+		ChangeCameraDirection(player_camera, turn_angle, 0.f);
 
 		float updated_sva = vector_angle_signed(nrmlz(to2d_xz(player_camera->front)), f_dir_xz);
 		float updated_angle = glm::degrees(updated_sva);
 		float updated_sign = sign(updated_angle);
 		if(updated_sign != orig_sign)
 		{
-			camera_change_direction(player_camera, -1.0 * updated_angle, 0.f);
+			ChangeCameraDirection(player_camera, -1.0 * updated_angle, 0.f);
 			player->anim_finished_turning = true;
 		}
 	}
