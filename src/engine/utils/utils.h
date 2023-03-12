@@ -212,23 +212,3 @@ inline void Tolower(std::string* data)
 {
 	std::transform(data->begin(), data->end(), data->begin(), [](unsigned char c) { return std::tolower(c); });
 }
-
-template<typename T_Key, typename T_Val>
-T_Val* Find(std::map<T_Key, T_Val>& map, T_Key key)
-{
-	auto find = map.find(key);
-	if (find == map.end())
-		return nullptr;
-
-	return &find->second;
-}
-
-template<typename T_Key, typename T_Val>
-const T_Val* Find(const std::map<T_Key, T_Val>& map, T_Key key)
-{
-	auto find = map.find(key);
-	if (find == map.end())
-		return nullptr;
-
-	return &find->second;
-}

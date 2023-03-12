@@ -78,7 +78,7 @@ void CL_UpdateLineSimplex(GJK_Iteration* gjk)
 
 	if (CL_SameGeneralDirection(ab, ao))
 	{
-		gjk->direction = cross(ab, ao, ab);
+		gjk->direction = Cross(ab, ao, ab);
 	}
 	else
 	{
@@ -106,7 +106,7 @@ void CL_UpdateTriangleSimplex(GJK_Iteration* gjk)
 		{
 			// search in purple region
 			gjk->simplex = {a, c};
-			gjk->direction = cross(ac, ao, ac);
+			gjk->direction = Cross(ac, ao, ac);
 		}
 		else
 		{

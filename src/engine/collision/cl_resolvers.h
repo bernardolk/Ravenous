@@ -19,7 +19,7 @@ void CL_MarkEntityChecked(Entity* entity);
 
 
 // fwd decl.
-void GP_UpdatePlayerState(Player* & player, World* world);
+void GP_UpdatePlayerState();
 ClResults CLTestPlayerVsEntity(Entity* entity, Player* player);
 
 constexpr static float PlayerStepoverLimit = 0.21;

@@ -228,7 +228,7 @@ bool AN_PlayerVaulting(Player* player)
 	RVN::print_dynamic("updated sign: " +  to_string(updated_sign), 0, vec3(0.8,0.0,0.1));
 	*/
 
-	if (is_equal(p_pos, player->anim_final_pos) && player->anim_finished_turning)
+	if (IsEqual(p_pos, player->anim_final_pos) && player->anim_finished_turning)
 	{
 		return true;
 	}

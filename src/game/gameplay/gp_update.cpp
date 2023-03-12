@@ -20,8 +20,11 @@
 */
 
 
-void GP_UpdatePlayerState(Player* & player, World* world)
+void GP_UpdatePlayerState()
 {
+	World* world = World::Get();
+	Player* player = Player::Get();
+	
 	switch (player->player_state)
 	{
 		case PlayerState::Standing:
@@ -120,10 +123,10 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 			player->entity_ptr->position += player->entity_ptr->velocity * Rvn::frame.duration;
 			player->Update(world, true);
 
-			auto results = CL_TestAndResolveCollisions(player);
-			for (int i = 0; i < results.count; i ++)
+			auto [results, count] = CL_TestAndResolveCollisions(player);
+			for (int i = 0; i < count; i ++)
 			{
-				auto result = results.results[i];
+				auto result = results[i];
 
 				// slope collision
 				{
@@ -139,8 +142,8 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 
 				// floor collision
 				{
-					bool collided_with_terrain = dot(result.normal, UnitY) > 0;
-					if (collided_with_terrain)
+					// If collided with terrain
+					if (dot(result.normal, UnitY) > 0)
 					{
 						GP_ChangePlayerState(player, PlayerState::Standing);
 						return;
@@ -195,8 +198,8 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 
 				// floor collision 
 				{
-					bool collided_with_terrain = dot(result.normal, UnitY) > 0;
-					if (collided_with_terrain)
+					// If collided with terrain
+					if (dot(result.normal, UnitY) > 0)
 					{
 						GP_ChangePlayerState(player, PlayerState::Standing);
 						return;
@@ -233,13 +236,13 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 
 
 			// RESOLVE COLLISIONS AND CHECK FOR TERRAIN CONTACT
-			auto results = CL_TestAndResolveCollisions(player);
+			auto [results, count] = CL_TestAndResolveCollisions(player);
 
 			bool collided_with_terrain = false;
-			for (int i = 0; i < results.count; i ++)
+			for (int i = 0; i < count; i ++)
 			{
 				// iterate on collision results
-				auto result = results.results[i];
+				auto result = results[i];
 				collided_with_terrain = dot(result.normal, UnitY) > 0;
 				if (collided_with_terrain)
 					player->last_terrain_contact_normal = result.normal;

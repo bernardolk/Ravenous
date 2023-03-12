@@ -2,7 +2,7 @@
 
 #include "engine/core/core.h"
 
-void GP_UpdatePlayerState(Player* & player, World* world);
+void GP_UpdatePlayerState();
 /* updates player position */
 vec3 GP_PlayerStandingGetNextPosition(Player* player);
 void GP_CheckTriggerInteraction(Player* player, World* world);

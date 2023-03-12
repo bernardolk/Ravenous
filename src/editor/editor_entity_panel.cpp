@@ -115,11 +115,11 @@ namespace Editor
 						auto rot_matrix = entity->GetRotationMatrix();
 
 						if (scaling[0] != entity->scale.x)
-							entity->position -= toVec3(rot_matrix * vec4(scaling[0] - entity->scale.x, 0.f, 0.f, 1.f));
+							entity->position -= ToVec3(rot_matrix * vec4(scaling[0] - entity->scale.x, 0.f, 0.f, 1.f));
 						if (scaling[1] != entity->scale.y)
-							entity->position -= toVec3(rot_matrix * vec4(0.f, scaling[1] - entity->scale.y, 0.f, 1.f));
+							entity->position -= ToVec3(rot_matrix * vec4(0.f, scaling[1] - entity->scale.y, 0.f, 1.f));
 						if (scaling[2] != entity->scale.z)
-							entity->position -= toVec3(rot_matrix * vec4(0.f, 0.f, scaling[2] - entity->scale.z, 1.f));
+							entity->position -= ToVec3(rot_matrix * vec4(0.f, 0.f, scaling[2] - entity->scale.z, 1.f));
 					}
 
 					entity->scale = vec3{scaling[0], scaling[1], scaling[2]};

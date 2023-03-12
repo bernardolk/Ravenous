@@ -50,8 +50,8 @@ void ImDraw::Render(Camera* camera)
 			shader->Use();
 			if (!obj.is_multpl_by_matmodel)
 			{
-				auto matModel = GetMatModel(obj.pos, obj.rot, obj.scale);
-				shader->SetMatrix4("model", matModel);
+				auto mat_model = GetMatModel(obj.pos, obj.rot, obj.scale);
+				shader->SetMatrix4("model", mat_model);
 			}
 			else
 			{

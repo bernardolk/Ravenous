@@ -91,7 +91,7 @@ void RavenousMainLoop()
 				UpdateEditorCamera(GSI->camera, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->entity_ptr->position);
 			}
 			GameState.UpdateTimers();
-			GP_UpdatePlayerState(player, world);
+			GP_UpdatePlayerState();
 			AN_AnimatePlayer(player);
 			EntityAnimations.UpdateAnimations();
 		}
