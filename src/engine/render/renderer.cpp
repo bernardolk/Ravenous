@@ -9,7 +9,7 @@
 #include "engine/world/world.h"
 #include "text/text_renderer.h"
 
-void render_mesh(const Mesh* mesh, RenderOptions opts)
+void RenderMesh(const Mesh* mesh, RenderOptions opts)
 {
 	glBindVertexArray(mesh->gl_data.VAO);
 
@@ -136,14 +136,14 @@ void RenderEntity(Entity* entity)
 	// draw mesh
 	RenderOptions render_opts;
 	render_opts.wireframe = entity->flags & EntityFlags_RenderWireframe || entity->flags & EntityFlags_HiddenEntity;
-	render_mesh(entity->mesh, render_opts);
+	RenderMesh(entity->mesh, render_opts);
 
 	// always good practice to set everything back to defaults once configured.
 	glActiveTexture(GL_TEXTURE0);
 }
 
 
-void render_editor_entity(Entity* entity, World* world, Camera* camera)
+void RenderEditorEntity(Entity* entity, World* world, Camera* camera)
 {
 	entity->shader->Use();
 	// important that the gizmo dont have a position set.
@@ -162,18 +162,18 @@ void render_editor_entity(Entity* entity, World* world, Camera* camera)
 // -------------
 // RENDER SCENE
 // -------------
-void render_scene(World* world, Camera* camera)
+void RenderScene(World* world, Camera* camera)
 {
 	// set shader settings that are common to the scene
 	// both to "normal" model shader and to tiled model shader
 	auto model_shader = ShaderCatalogue.find("model")->second;
-	set_shader_light_variables(world, model_shader, camera);
+	SetShaderLightVariables(world, model_shader, camera);
 
 	auto model_tiled_shader = ShaderCatalogue.find("tiledTextureModel")->second;
-	set_shader_light_variables(world, model_tiled_shader, camera);
+	SetShaderLightVariables(world, model_tiled_shader, camera);
 
 	auto color_shader = ShaderCatalogue.find("color")->second;
-	set_shader_light_variables(world, color_shader, camera);
+	SetShaderLightVariables(world, color_shader, camera);
 
 	for (int i = 0; i < world->entities.size(); i++)
 	{
@@ -186,7 +186,7 @@ void render_scene(World* world, Camera* camera)
 }
 
 
-void set_shader_light_variables(World* world, Shader* shader, Camera* camera)
+void SetShaderLightVariables(World* world, Shader* shader, Camera* camera)
 {
 	shader->Use();
 
@@ -256,7 +256,7 @@ void set_shader_light_variables(World* world, Shader* shader, Camera* camera)
 // -------------------------
 // RENDER GAME GUI
 // -------------------------
-void render_game_gui(Player* player)
+void RenderGameGui(Player* player)
 {
 	auto color = player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1};
 	render_text("consola42", 25, 75, color, std::to_string(player->lives));
@@ -286,7 +286,7 @@ void render_game_gui(Player* player)
 // RENDER FEATURES
 // ----------------
 
-void create_depth_buffer()
+void CreateDepthBuffer()
 {
 	// create framebuffer objects
 	glGenFramebuffers(1, &RDepthMapFbo);
@@ -331,7 +331,7 @@ void create_depth_buffer()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void create_light_space_transform_matrices()
+void CreateLightSpaceTransformMatrices()
 {
 	float near_plane, far_plane;
 
@@ -348,7 +348,7 @@ void create_light_space_transform_matrices()
 // -----------------
 // RENDER DEPTH MAP
 // -----------------
-void render_depth_map(World* world)
+void RenderDepthMap(World* world)
 {
 	// setup
 	glViewport(0, 0, RShadowBufferWidth, RShadowBufferHeight);
@@ -366,7 +366,7 @@ void render_depth_map(World* world)
 			continue;
 
 		depth_shader->SetMatrix4("model", entity->mat_model);
-		render_mesh(entity->mesh, RenderOptions{});
+		RenderMesh(entity->mesh, RenderOptions{});
 	}
 
 	// de-setup
@@ -374,7 +374,7 @@ void render_depth_map(World* world)
 	glViewport(0, 0, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height);
 }
 
-void render_depth_cubemap(World* world)
+void RenderDepthCubemap(World* world)
 {
 	// for now, testing, we are doing this just for the first point light source
 	if (world->point_lights.size() == 0)
@@ -418,7 +418,7 @@ void render_depth_cubemap(World* world)
 			continue;
 
 		depth_shader->SetMatrix4("model", entity->mat_model);
-		render_mesh(entity->mesh, RenderOptions{});
+		RenderMesh(entity->mesh, RenderOptions{});
 	}
 
 	// de-setup
@@ -426,7 +426,7 @@ void render_depth_cubemap(World* world)
 	glViewport(0, 0, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height);
 }
 
-void render_depth_map_debug()
+void RenderDepthMapDebug()
 {
 	glViewport(0, 0, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height);
 	//glClearColor(0.196, 0.298, 0.3607, 1.0f);
@@ -445,7 +445,7 @@ void render_depth_map_debug()
 	*/
 
 	auto aabb = GeometryCatalogue.find("aabb")->second;
-	render_mesh(aabb);
+	RenderMesh(aabb);
 }
 
 // void use_depth_map()

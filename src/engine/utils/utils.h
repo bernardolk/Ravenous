@@ -47,178 +47,128 @@ inline bool AreEqualFloats(float x, float y, FloatTolerance tolerance = FloatTol
 }
 
 // SIGN COMPARISON
-inline bool comp_sign(float a, float b)
+inline bool CompSign(float a, float b)
 {
 	return a * b >= 0.f;
 }
 
-inline float sign(float a)
+inline float Sign(float a)
 {
 	return a < 0 ? -1 : 1;
 }
 
 // VECTOR LENGTH COMPARISON
-inline bool square_EQ(vec3 v, float n)
+inline bool SquareEq(vec3 v, float n)
 {
 	return v.x * v.x + v.y * v.y + v.z * v.z == n * n;
 }
 
-inline bool square_LT(vec3 v, float n)
+inline bool SquareLt(vec3 v, float n)
 {
 	return v.x * v.x + v.y * v.y + v.z * v.z < n * n;
 }
 
-inline bool square_GT(vec3 v, float n)
+inline bool SquareGt(vec3 v, float n)
 {
 	return v.x * v.x + v.y * v.y + v.z * v.z > n * n;
 }
 
-inline bool square_LE(vec3 v, float n)
+inline bool SquareLe(vec3 v, float n)
 {
 	return v.x * v.x + v.y * v.y + v.z * v.z <= n * n;
 }
 
-inline bool square_GE(vec3 v, float n)
+inline bool SquareGe(vec3 v, float n)
 {
 	return v.x * v.x + v.y * v.y + v.z * v.z >= n * n;
 }
 
-inline float abs(vec3 v)
+inline float Abs(vec3 v)
 {
 	return length(v);
 }
 
 // VECTOR ANGLE
-inline float vector_angle(vec2 A, vec2 B)
+inline float VectorAngle(vec2 a, vec2 b)
 {
-	float dot = glm::dot(A, B);
-	float len_A = length(A);
-	float len_B = length(B);
-	float theta = acos(dot / (len_A * len_B));
+	float dot = glm::dot(a, b);
+	float len_a = length(a);
+	float len_b = length(b);
+	float theta = acos(dot / (len_a * len_b));
 	return theta;
 }
 
-inline float vector_angle(vec3 A, vec3 B)
+inline float VectorAngle(vec3 a, vec3 b)
 {
-	float dot = glm::dot(A, B);
-	float len_A = length(A);
-	float len_B = length(B);
-	float theta = acos(dot / (len_A * len_B));
+	float dot = glm::dot(a, b);
+	float len_a = length(a);
+	float len_b = length(b);
+	float theta = acos(dot / (len_a * len_b));
 	return theta;
 }
 
-inline float vector_angle_signed(vec2 A, vec2 B)
+inline float VectorAngleSigned(vec2 a, vec2 b)
 {
-	return atan2(A.x * B.y - A.y * B.x, A.x * B.x + A.y * B.y);
+	return atan2(a.x * b.y - a.y * b.x, a.x * b.x + a.y * b.y);
 }
 
-inline float vector_cos(vec2 A, vec2 B)
+inline float VectorCos(vec2 a, vec2 b)
 {
-	float dot = glm::dot(A, B);
-	float len_A = length(A);
-	float len_B = length(B);
-	float cos = dot / (len_A * len_B);
+	float dot = glm::dot(a, b);
+	float len_a = length(a);
+	float len_b = length(b);
+	float cos = dot / (len_a * len_b);
 	return cos;
 }
 
 // VECTOR DIMENSION CONVERSION
-inline vec3 to_xz(vec3 vector)
+inline vec3 ToXz(vec3 vector)
 {
 	return vec3(vector.x, 0, vector.z);
 }
 
-inline vec3 to_xy(vec3 vector)
+
+inline vec3 Cross(vec3 a, vec3 b)
 {
-	return vec3(vector.x, vector.y, 0);
+	return glm::cross(a, b);
 }
 
-inline vec3 to_zy(vec3 vector)
+inline vec3 ProjectVecIntoRef(vec3 vec, vec3 ref)
 {
-	return vec3(0, vector.y, vector.z);
-}
-
-inline vec2 to2d_xz(vec3 vector)
-{
-	return vec2(vector.x, vector.z);
-}
-
-inline vec2 to2d_xy(vec3 vector)
-{
-	return vec2(vector.x, vector.y);
-}
-
-inline vec2 to2d_zy(vec3 vector)
-{
-	return vec2(vector.z, vector.y);
-}
-
-inline vec3 to3d_xz(vec2 vector)
-{
-	return vec3(vector.x, 0, vector.y);
-}
-
-inline vec3 to_vec3(vec4 vector)
-{
-	return vec3(vector.x, vector.y, vector.z);
-}
-
-inline vec4 to_vec4(vec3 vector, float w)
-{
-	return vec4(vector.x, vector.y, vector.z, w);
-}
-
-// VECTOR OPERATIONS
-inline vec3 nrmlz(vec3 vec)
-{
-	return normalize(vec);
-}
-
-inline vec2 nrmlz(vec2 vec)
-{
-	return normalize(vec);
-}
-
-inline vec3 cross(vec3 A, vec3 B)
-{
-	return glm::cross(A, B);
-}
-
-inline vec3 project_vec_into_ref(vec3 vec, vec3 ref)
-{
-	auto proj = dot(vec, ref) / (abs(ref) * abs(ref)) * ref;
+	auto proj = dot(vec, ref) / (Abs(ref) * Abs(ref)) * ref;
 	return proj;
 }
 
-inline vec3 project_vec_onto_plane(vec3 v, vec3 n)
+inline vec3 ProjectVecOntoPlane(vec3 v, vec3 n)
 {
-	auto v_proj_n = project_vec_into_ref(v, n);
+	auto v_proj_n = ProjectVecIntoRef(v, n);
 	auto v_proj_plane = v - v_proj_n;
 	return v_proj_plane;
 }
 
 
 // OTHER MATHS
-inline vec3 rot_mat_to_euler_angles_XYZ(mat4& M)
+inline vec3 RotMatToEulerAnglesXyz(mat4& m)
 {
 	/*
 	   This is equivalent to calling glm::extractEulerAngleXYZ
 	*/
 
-	float sy = sqrt(M[0][0] * M[0][0] + M[1][0] * M[1][0]);
+	float sy = sqrt(m[0][0] * m[0][0] + m[1][0] * m[1][0]);
 
 	bool singular = sy < 1e-6; // If
 
 	float x, y, z;
 	if (!singular)
 	{
-		x = atan2(M[2][1], M[2][2]);
-		y = atan2(-M[2][0], sy);
-		z = atan2(M[1][0], M[0][0]);
+		x = atan2(m[2][1], m[2][2]);
+		y = atan2(-m[2][0], sy);
+		z = atan2(m[1][0], m[0][0]);
 	}
 	else
 	{
-		x = atan2(-M[1][2], M[1][1]);
-		y = atan2(-M[2][0], sy);
+		x = atan2(-m[1][2], m[1][1]);
+		y = atan2(-m[2][0], sy);
 		z = 0;
 	}
 	return vec3(x, y, z);
@@ -227,7 +177,7 @@ inline vec3 rot_mat_to_euler_angles_XYZ(mat4& M)
 
 // OTHER
 
-inline int get_random_int(int min, int max)
+inline int GetRandomInt(int min, int max)
 {
 	static bool first = true;
 	if (first)
@@ -238,18 +188,18 @@ inline int get_random_int(int min, int max)
 	return min + rand() % ((max + 1) - min);
 }
 
-inline float get_random_float(int min, int max)
+inline float GetRandomFloat(int min, int max)
 {
-	return get_random_int(min * 1000, max * 1000) / 1000.f;
+	return GetRandomInt(min * 1000, max * 1000) / 1000.f;
 }
 
 // colors
-inline vec3 get_random_color()
+inline vec3 GetRandomColor()
 {
 	return vec3(
-		get_random_float(0, 1),
-		get_random_float(0, 1),
-		get_random_float(0, 1)
+		GetRandomFloat(0, 1),
+		GetRandomFloat(0, 1),
+		GetRandomFloat(0, 1)
 	);
 }
 
@@ -258,7 +208,7 @@ inline vec3 get_random_color()
 // #TODO: remove this include at some point ... 
 #include <cctype>
 
-inline void tolower(std::string* data)
+inline void Tolower(std::string* data)
 {
 	std::transform(data->begin(), data->end(), data->begin(), [](unsigned char c) { return std::tolower(c); });
 }

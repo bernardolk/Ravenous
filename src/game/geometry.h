@@ -4,7 +4,7 @@
 #include "engine/geometry/mesh.h"
 #include "engine/io/loaders.h"
 
-inline void load_models()
+inline void LoadModels()
 {
 	//TEXT
 	{
@@ -27,7 +27,7 @@ inline void load_models()
 
 
 	// AABB
-	load_wavefront_obj_as_mesh(Paths::Models, "aabb");
+	LoadWavefrontObjAsMesh(Paths::Models, "aabb");
 
 	// SLOPE
 	// with Z coming at the screen, X to the right, slope starts at x=0 high and goes low on x=1
@@ -75,11 +75,11 @@ inline void load_models()
 	GeometryCatalogue.insert({slope_mesh->name, slope_mesh});
 
 	// PLAYER CAPSULE
-	load_wavefront_obj_as_mesh(Paths::Models, "capsule");
+	LoadWavefrontObjAsMesh(Paths::Models, "capsule");
 
 	// LIGHTBULB
-	load_wavefront_obj_as_mesh(Paths::Models, "lightbulb");
+	LoadWavefrontObjAsMesh(Paths::Models, "lightbulb");
 
 	// TRIGGER (CYLINDER)
-	load_wavefront_obj_as_mesh(Paths::Models, "trigger");
+	LoadWavefrontObjAsMesh(Paths::Models, "trigger");
 }

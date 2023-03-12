@@ -253,7 +253,7 @@ namespace Editor
 				glowing_line->SetMatrix4("model", model);
 				glowing_line->SetFloat3("color", intensity * 0.890, intensity * 0.168, intensity * 0.6);
 				glowing_line->SetFloat("opacity", 1);
-				render_mesh(ed_context.selected_entity->mesh, RenderOptions{true, false, 3});
+				RenderMesh(ed_context.selected_entity->mesh, RenderOptions{true, false, 3});
 			}
 
 			// Render glowing yellow wireframe on top of an arbitrary related entity
@@ -276,7 +276,7 @@ namespace Editor
 				glowing_line->SetMatrix4("model", model);
 				glowing_line->SetFloat3("color", intensity * 0.941, intensity * 0.776, intensity * 0);
 				glowing_line->SetFloat("opacity", 1);
-				render_mesh(ed_context.entity_panel.related_entity->mesh, RenderOptions{true, false, 3});
+				RenderMesh(ed_context.entity_panel.related_entity->mesh, RenderOptions{true, false, 3});
 			}
 		}
 
@@ -300,7 +300,7 @@ namespace Editor
 			glowing_line->SetMatrix4("model", model);
 			glowing_line->SetFloat3("color", intensity * 0.952, intensity * 0.843, intensity * 0.105);
 			glowing_line->SetFloat("opacity", 1);
-			render_mesh(ed_context.snap_reference->mesh, RenderOptions{true, false, 3});
+			RenderMesh(ed_context.snap_reference->mesh, RenderOptions{true, false, 3});
 		}
 
 		// --------------
@@ -410,11 +410,11 @@ namespace Editor
 		ImGui_ImplOpenGL3_Init("#version 330");
 
 		ImGui::StyleColorsDark();
-		ed_context.imStyle = &ImGui::GetStyle();
-		ed_context.imStyle->WindowRounding = 1.0f;
+		ed_context.im_style = &ImGui::GetStyle();
+		ed_context.im_style->WindowRounding = 1.0f;
 
 		// load tri axis gizmo
-		const auto axis_mesh = load_wavefront_obj_as_mesh(Paths::Models, "axis");
+		const auto axis_mesh = LoadWavefrontObjAsMesh(Paths::Models, "axis");
 
 		const auto x_axis = new Entity();
 		const auto y_axis = new Entity();
@@ -424,9 +424,9 @@ namespace Editor
 		y_axis->mesh = axis_mesh;
 		z_axis->mesh = axis_mesh;
 
-		const auto blue_tex = load_texture_from_file("blue.jpg", Paths::Textures);
-		const auto green_tex = load_texture_from_file("green.jpg", Paths::Textures);
-		const auto red_tex = load_texture_from_file("red.jpg", Paths::Textures);
+		const auto blue_tex = LoadTextureFromFile("blue.jpg", Paths::Textures);
+		const auto green_tex = LoadTextureFromFile("green.jpg", Paths::Textures);
+		const auto red_tex = LoadTextureFromFile("red.jpg", Paths::Textures);
 
 		x_axis->textures.push_back(Texture{red_tex, "texture_diffuse", "red.jpg", "red axis"});
 		y_axis->textures.push_back(Texture{green_tex, "texture_diffuse", "green.jpg", "green axis"});
@@ -889,7 +889,7 @@ namespace Editor
 			shader->SetMatrix4("model", checkpoint->trigger_mat_model);
 			shader->SetFloat3("color", 0.5, 0.5, 0.3);
 			shader->SetFloat("opacity", 0.6);
-			render_mesh(checkpoint->trigger, RenderOptions{});
+			RenderMesh(checkpoint->trigger, RenderOptions{});
 		}
 	}
 
@@ -939,7 +939,7 @@ namespace Editor
 			shader->SetMatrix4("view", camera->mat_view);
 			shader->SetMatrix4("projection", camera->mat_projection);
 			glDisable(GL_CULL_FACE);
-			render_mesh(cell_mesh, opts);
+			RenderMesh(cell_mesh, opts);
 			glEnable(GL_CULL_FACE);
 		}
 	}
@@ -972,7 +972,7 @@ namespace Editor
 			shader->SetFloat3("color", light->diffuse);
 			shader->SetFloat("opacity", 1.0);
 
-			render_mesh(mesh, opts);
+			RenderMesh(mesh, opts);
 
 			point_c++;
 		}
@@ -990,7 +990,7 @@ namespace Editor
 			shader->SetMatrix4("model", model);
 			shader->SetFloat3("color", light->diffuse);
 			shader->SetFloat("opacity", 1.0);
-			render_mesh(mesh, opts);
+			RenderMesh(mesh, opts);
 			spot_c++;
 		}
 
@@ -1026,7 +1026,7 @@ namespace Editor
 			shader->SetFloat3("color", vec3{0.9, 0.7, 0.9});
 			shader->SetFloat("opacity", 1.0);
 
-			render_mesh(aabb_mesh, opts);
+			RenderMesh(aabb_mesh, opts);
 
 			// direction arrow
 			if (selected_light_type == "spot")
@@ -1074,9 +1074,9 @@ namespace Editor
 	{
 		//@todo: try placing editor objects in a separate z buffer? Maybe manually... so we don't have to use GL_ALWAYS
 		glDepthFunc(GL_ALWAYS);
-		render_editor_entity(panel->x_arrow, world, camera);
-		render_editor_entity(panel->y_arrow, world, camera);
-		render_editor_entity(panel->z_arrow, world, camera);
+		RenderEditorEntity(panel->x_arrow, world, camera);
+		RenderEditorEntity(panel->y_arrow, world, camera);
+		RenderEditorEntity(panel->z_arrow, world, camera);
 		glDepthFunc(GL_LESS);
 	}
 
@@ -1085,9 +1085,9 @@ namespace Editor
 	{
 		//@todo: try placing editor objects in a separate z buffer? Maybe manually... so we don't have to use GL_ALWAYS
 		glDepthFunc(GL_ALWAYS);
-		render_editor_entity(panel->rotation_gizmo_x, world, camera);
-		render_editor_entity(panel->rotation_gizmo_y, world, camera);
-		render_editor_entity(panel->rotation_gizmo_z, world, camera);
+		RenderEditorEntity(panel->rotation_gizmo_x, world, camera);
+		RenderEditorEntity(panel->rotation_gizmo_y, world, camera);
+		RenderEditorEntity(panel->rotation_gizmo_z, world, camera);
 		glDepthFunc(GL_LESS);
 	}
 

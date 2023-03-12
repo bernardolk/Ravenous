@@ -19,7 +19,7 @@ Ledge CL_PerformLedgeDetection(Player* player, World* world)
 	constexpr float _front_ray_spacing = 0.03f;
 	constexpr int _front_ray_qty = 24;
 
-	auto orientation_xz = to_xz(player->orientation);
+	auto orientation_xz = ToXz(player->orientation);
 	auto first_ray = Ray{player->GetEyePosition() - UnitY * _front_ray_first_ray_delta_y, orientation_xz};
 	ledge.detection_direction = first_ray.direction;
 
@@ -104,6 +104,6 @@ Ledge CL_PerformLedgeDetection(Player* player, World* world)
 vec3 CL_GetFinalPositionLedgeVaulting(Player* player, Ledge ledge)
 {
 	/* Returns the player's position after finishing vaulting across the given ledge */
-	vec3 inward_normal = normalize(cross(ledge.a - ledge.b, UnitY));
+	vec3 inward_normal = normalize(Cross(ledge.a - ledge.b, UnitY));
 	return ledge.surface_point + inward_normal * player->radius * 2.f;
 }

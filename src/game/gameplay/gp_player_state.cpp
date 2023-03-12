@@ -19,7 +19,7 @@ void GP_ChangePlayerState(Player* player, PlayerState new_state, PlayerStateChan
 	switch (new_state)
 	{
 		case PlayerState::Grabbing:
-			return GP_player_state_change_any_to_grabbing(player, args.entity, args.normal, args.final_position, args.penetration);
+			return GP_PlayerStateChangeAnyToGrabbing(player, args.entity, args.normal, args.final_position, args.penetration);
 
 		case PlayerState::Sliding:
 			return GP_PlayerStateChangeAnyToSliding(player, args.normal);
@@ -38,10 +38,10 @@ void GP_ChangePlayerState(Player* player, PlayerState new_state, PlayerStateChan
 					return GP_PlayerStateChangeStandingToJumping(player);
 
 				case PlayerState::SlideFalling:
-					return GP_player_state_change_standing_to_slide_falling(player, args.entity);
+					return GP_PlayerStateChangeStandingToSlideFalling(player, args.entity);
 
 				case PlayerState::Vaulting:
-					return GP_player_state_change_standing_to_vaulting(player, args.ledge, args.final_position);
+					return GP_PlayerStateChangeStandingToVaulting(player, args.ledge, args.final_position);
 			}
 
 		// JUMPING
@@ -65,7 +65,7 @@ void GP_ChangePlayerState(Player* player, PlayerState new_state, PlayerStateChan
 			switch (new_state)
 			{
 				case PlayerState::Vaulting:
-					return GP_player_state_change_grabbing_to_vaulting(player);
+					return GP_PlayerStateChangeGrabbingToVaulting(player);
 			}
 
 		// VAULTING
@@ -73,7 +73,7 @@ void GP_ChangePlayerState(Player* player, PlayerState new_state, PlayerStateChan
 			switch (new_state)
 			{
 				case PlayerState::Standing:
-					return GP_player_state_change_vaulting_to_standing(player);
+					return GP_PlayerStateChangeVaultingToStanding(player);
 			}
 
 		// SLIDING
@@ -81,13 +81,13 @@ void GP_ChangePlayerState(Player* player, PlayerState new_state, PlayerStateChan
 			switch (new_state)
 			{
 				case PlayerState::Standing:
-					return GP_player_state_change_sliding_to_standing(player);
+					return GP_PlayerStateChangeSlidingToStanding(player);
 
 				case PlayerState::Jumping:
-					return GP_player_state_change_sliding_to_jumping(player);
+					return GP_PlayerStateChangeSlidingToJumping(player);
 
 				case PlayerState::Falling:
-					return GP_player_state_change_sliding_to_falling(player);
+					return GP_PlayerStateChangeSlidingToFalling(player);
 			}
 
 		default:
@@ -172,7 +172,7 @@ void GP_PlayerStateChangeAnyToSliding(Player* player, vec3 normal)
 
 	player->player_state = PlayerState::Sliding;
 
-	auto down_vec_into_n = project_vec_into_ref(-UnitY, normal);
+	auto down_vec_into_n = ProjectVecIntoRef(-UnitY, normal);
 	auto sliding_direction = normalize(-UnitY - down_vec_into_n);
 	player->sliding_direction = sliding_direction;
 	player->sliding_normal = normal;
@@ -180,7 +180,7 @@ void GP_PlayerStateChangeAnyToSliding(Player* player, vec3 normal)
 }
 
 
-void GP_player_state_change_standing_to_slide_falling(Player* player, Entity* ramp)
+void GP_PlayerStateChangeStandingToSlideFalling(Player* player, Entity* ramp)
 {
 	player->standing_entity_ptr = ramp;
 
@@ -192,7 +192,7 @@ void GP_player_state_change_standing_to_slide_falling(Player* player, Entity* ra
 
 
 // @TODO REFACTOR -> From aabb and 2d normals to full 3d
-void GP_player_state_change_any_to_grabbing(Player* player, Entity* entity, vec2 normal_vec, vec3 final_position, float penetration)
+void GP_PlayerStateChangeAnyToGrabbing(Player* player, Entity* entity, vec2 normal_vec, vec3 final_position, float penetration)
 {
 	// vec3 rev_normal = rev_2Dnormal(normal_vec);
 
@@ -215,7 +215,7 @@ void GP_player_state_change_any_to_grabbing(Player* player, Entity* entity, vec2
 }
 
 // DONE
-void GP_player_state_change_grabbing_to_vaulting(Player* player)
+void GP_PlayerStateChangeGrabbingToVaulting(Player* player)
 {
 	player->player_state = PlayerState::Vaulting;
 	player->anim_state = PlayerAnimationState::Vaulting;
@@ -223,7 +223,7 @@ void GP_player_state_change_grabbing_to_vaulting(Player* player)
 	player->grabbing_entity = nullptr;
 }
 
-void GP_player_state_change_standing_to_vaulting(Player* player, Ledge ledge, vec3 final_position)
+void GP_PlayerStateChangeStandingToVaulting(Player* player, Ledge ledge, vec3 final_position)
 {
 	auto* GII = GlobalInputInfo::Get();
 	GII->block_mouse_move = true;
@@ -234,15 +234,15 @@ void GP_player_state_change_standing_to_vaulting(Player* player, Ledge ledge, ve
 	player->entity_ptr->velocity = vec3(0);
 
 	player->anim_orig_pos = player->entity_ptr->position;
-	player->anim_orig_dir = normalize(to_xz(player_camera->front));
+	player->anim_orig_dir = normalize(ToXz(player_camera->front));
 
-	auto inward_normal = normalize(cross(ledge.a - ledge.b, UnitY));
+	auto inward_normal = normalize(Cross(ledge.a - ledge.b, UnitY));
 	player->anim_final_pos = final_position;
 	player->anim_final_dir = inward_normal;
 }
 
 // DONE
-void GP_player_state_change_vaulting_to_standing(Player* player)
+void GP_PlayerStateChangeVaultingToStanding(Player* player)
 {
 	auto* GII = GlobalInputInfo::Get();
 
@@ -255,7 +255,7 @@ void GP_player_state_change_vaulting_to_standing(Player* player)
 }
 
 
-void GP_player_state_change_sliding_to_standing(Player* player)
+void GP_PlayerStateChangeSlidingToStanding(Player* player)
 {
 	player->sliding_direction = vec3(0);
 	player->sliding_normal = vec3(0);
@@ -263,7 +263,7 @@ void GP_player_state_change_sliding_to_standing(Player* player)
 }
 
 
-void GP_player_state_change_sliding_to_jumping(Player* player)
+void GP_PlayerStateChangeSlidingToJumping(Player* player)
 {
 	player->v_dir = player->sliding_normal;
 	player->sliding_normal = vec3(0);
@@ -277,7 +277,7 @@ void GP_player_state_change_sliding_to_jumping(Player* player)
 }
 
 
-void GP_player_state_change_sliding_to_falling(Player* player)
+void GP_PlayerStateChangeSlidingToFalling(Player* player)
 {
 	player->player_state = PlayerState::Falling;
 	player->entity_ptr->velocity.y = -player->fall_speed;

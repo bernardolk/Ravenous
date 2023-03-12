@@ -182,14 +182,14 @@ bool AN_PlayerVaulting(Player* player)
 	vec3 anim_trajectory = player->anim_final_pos - player->anim_orig_pos;
 
 	vec3 dist = player->anim_final_pos - p_pos;
-	auto dist_sign = vec3(sign(dist.x), sign(dist.y), sign(dist.z));
+	auto dist_sign = vec3(Sign(dist.x), Sign(dist.y), Sign(dist.z));
 	auto ds = vec3(v_xz * Rvn::frame.duration, v_y * Rvn::frame.duration, v_xz * Rvn::frame.duration);
 
 	// updates player position
 	for (int i = 0; i < 3; i++)
 	{
 		// I feel like the sign here is unnecessary if we have a anim_direction set
-		if (abs(dist[i]) >= ds[i] && sign(anim_trajectory[i]) == dist_sign[i])
+		if (abs(dist[i]) >= ds[i] && Sign(anim_trajectory[i]) == dist_sign[i])
 			p_pos[i] += dist_sign[i] * ds[i];
 		else
 			p_pos[i] = player->anim_final_pos[i];
@@ -201,16 +201,15 @@ bool AN_PlayerVaulting(Player* player)
 	{
 		auto* player_camera = GlobalSceneInfo::GetGameCam();
 
-		vec2 f_dir_xz = to2d_xz(player->anim_final_dir);
-		float orig_sva = vector_angle_signed(nrmlz(to2d_xz(player->anim_orig_dir)), f_dir_xz);
+		float orig_sva = VectorAngleSigned(glm::normalize(static_cast<vec2>(player->anim_orig_dir.xz)), player->anim_final_dir.xz);
 		float orig_angle = glm::degrees(orig_sva);
-		float orig_sign = sign(orig_angle);
+		float orig_sign = Sign(orig_angle);
 		float turn_angle = 0.5 * orig_sign;
 		ChangeCameraDirection(player_camera, turn_angle, 0.f);
 
-		float updated_sva = vector_angle_signed(nrmlz(to2d_xz(player_camera->front)), f_dir_xz);
+		float updated_sva = VectorAngleSigned(glm::normalize(static_cast<vec2>(player_camera->front.xz)), player->anim_final_dir.xz);
 		float updated_angle = glm::degrees(updated_sva);
-		float updated_sign = sign(updated_angle);
+		float updated_sign = Sign(updated_angle);
 		if (updated_sign != orig_sign)
 		{
 			ChangeCameraDirection(player_camera, -1.0 * updated_angle, 0.f);
@@ -219,7 +218,7 @@ bool AN_PlayerVaulting(Player* player)
 	}
 
 	/*
-	RVN::print_dynamic("front: " + to_string(nrmlz(to2d_xz(pCam->Front))));
+	RVN::print_dynamic("front: " + to_string(normalize(to2d_xz(pCam->Front))));
 	RVN::print_dynamic("final dir: " + to_string(player->anim_final_dir), 0, vec3(0.8, 0.8, 0.8));
 	RVN::print_dynamic("orig angle: " + to_string(orig_angle), 0, vec3(0.8, 0.8, 0.8));
 	RVN::print_dynamic("current angle: " +  to_string(updated_angle));

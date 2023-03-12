@@ -117,7 +117,7 @@ void EntityAnimationBuffer::UpdateAnimations()
 
 
 
-void AN_create_hardcoded_animations()
+void AN_CreateHardcodedAnimations()
 {
 	// >> VERTICAL DOOR 
 	{

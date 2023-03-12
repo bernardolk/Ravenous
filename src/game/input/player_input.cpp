@@ -43,21 +43,21 @@ void IN_ProcessMoveKeys(InputFlags flags, vec3& v_dir)
 
 	if (Pressed(flags, KEY_MOVE_UP))
 	{
-		v_dir += nrmlz(to_xz(player_camera->front));
+		v_dir += normalize(ToXz(player_camera->front));
 	}
 	if (Pressed(flags, KEY_MOVE_LEFT))
 	{
-		vec3 onwards_vector = cross(player_camera->front, player_camera->up);
-		v_dir -= nrmlz(to_xz(onwards_vector));
+		vec3 onwards_vector = Cross(player_camera->front, player_camera->up);
+		v_dir -= normalize(ToXz(onwards_vector));
 	}
 	if (Pressed(flags, KEY_MOVE_DOWN))
 	{
-		v_dir -= nrmlz(to_xz(player_camera->front));
+		v_dir -= normalize(ToXz(player_camera->front));
 	}
 	if (Pressed(flags, KEY_MOVE_RIGHT))
 	{
-		vec3 onwards_vector = cross(player_camera->front, player_camera->up);
-		v_dir += nrmlz(to_xz(onwards_vector));
+		vec3 onwards_vector = Cross(player_camera->front, player_camera->up);
+		v_dir += normalize(ToXz(onwards_vector));
 	}
 }
 
@@ -138,14 +138,14 @@ void IN_HandleMovementInput(InputFlags flags, Player* & player, World* world)
 
 			if (flags.key_press & KEY_MOVE_LEFT)
 			{
-				auto left_dir = cross(player->sliding_normal, player->sliding_direction);
+				auto left_dir = Cross(player->sliding_normal, player->sliding_direction);
 				player->v_dir += left_dir;
 				player->v_dir = normalize(player->v_dir);
 
 			}
 			if (flags.key_press & KEY_MOVE_RIGHT)
 			{
-				auto right_dir = cross(player->sliding_direction, player->sliding_normal);
+				auto right_dir = Cross(player->sliding_direction, player->sliding_normal);
 				player->v_dir += right_dir;
 				player->v_dir = normalize(player->v_dir);
 			}

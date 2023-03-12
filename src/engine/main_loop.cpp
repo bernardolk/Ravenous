@@ -102,9 +102,9 @@ void RavenousMainLoop()
 		{
 			glClearColor(0.196, 0.298, 0.3607, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			render_depth_map(world);
-			render_depth_cubemap(world);
-			render_scene(world, GSI->camera);
+			RenderDepthMap(world);
+			RenderDepthCubemap(world);
+			RenderScene(world, GSI->camera);
 			//render_depth_map_debug();
 			switch (ES->current_mode)
 			{
@@ -121,7 +121,7 @@ void RavenousMainLoop()
 				}
 				case EngineState::ProgramMode::Game:
 				{
-					render_game_gui(player);
+					RenderGameGui(player);
 					break;
 				}
 			}

@@ -39,7 +39,7 @@ auto EntityManager::FindEntityAssetsInCatalogue(const std::string& mesh, const s
 		if (find_mesh != GeometryCatalogue.end())
 			attrs.mesh = find_mesh->second;
 		else
-			attrs.mesh = load_wavefront_obj_as_mesh(Paths::Models, mesh);
+			attrs.mesh = LoadWavefrontObjAsMesh(Paths::Models, mesh);
 	}
 
 	if (!collision_mesh.empty())
@@ -48,7 +48,7 @@ auto EntityManager::FindEntityAssetsInCatalogue(const std::string& mesh, const s
 		if (find_c_mesh != CollisionGeometryCatalogue.end())
 			attrs.collision_mesh = find_c_mesh->second;
 		else
-			attrs.collision_mesh = load_wavefront_obj_as_collision_mesh(Paths::Models, collision_mesh);
+			attrs.collision_mesh = LoadWavefrontObjAsCollisionMesh(Paths::Models, collision_mesh);
 	}
 
 	if (!shader.empty())

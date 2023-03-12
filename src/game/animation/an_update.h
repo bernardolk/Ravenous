@@ -58,4 +58,4 @@ struct EntityAnimationBuffer
 
 inline EntityAnimationBuffer EntityAnimations{};
 
-void AN_create_hardcoded_animations();
+void AN_CreateHardcodedAnimations();

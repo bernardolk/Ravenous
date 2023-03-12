@@ -21,13 +21,13 @@ namespace Editor
 		// copy search text and lowercase it
 		std::string _search_text;
 		_search_text.assign(panel->search_text);
-		tolower(&_search_text);
+		Tolower(&_search_text);
 
 		For(world->entities.size())
 		{
 			Entity* entity = world->entities[i];
 			std::string name = entity->name;
-			tolower(&name);
+			Tolower(&name);
 
 			if (panel->search_text == "" || name.find(_search_text) != std::string::npos)
 			{

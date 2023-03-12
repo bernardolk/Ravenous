@@ -84,7 +84,7 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 					vec2 fall_momentum_dir = player->v_dir_historic.xz;
 					vec2 fall_momentum = fall_momentum_dir * fall_momentum_intensity;
 
-					player->entity_ptr->velocity = to3d_xz(fall_momentum);
+					player->entity_ptr->velocity = vec3(fall_momentum.x, 0, fall_momentum.y);
 					GP_ChangePlayerState(player, PlayerState::Falling);
 					player->Update(world, true);
 					break;
@@ -340,7 +340,7 @@ vec3 GP_PlayerStandingGetNextPosition(Player* player)
 	}
 	else if (player->v_dir_historic == vec3(0))
 	{
-		player->v_dir_historic = normalize(to_xz(GlobalSceneInfo::Get()->views[GameCam]->front));
+		player->v_dir_historic = normalize(ToXz(GlobalSceneInfo::Get()->views[GameCam]->front));
 	}
 
 	if (player->speed < 0.f || no_move_command)

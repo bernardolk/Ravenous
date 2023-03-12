@@ -101,9 +101,9 @@ int main()
 
 	// load shaders, textures and geometry
 	stbi_set_flip_vertically_on_load(true);
-	load_textures_from_assets_folder();
+	LoadTexturesFromAssetsFolder();
 	LoadShaders();
-	load_models();
+	LoadModels();
 
 	// Allocate buffers and logs
 	Rvn::Init();
@@ -136,8 +136,8 @@ int main()
 	Editor::Initialize();
 
 	// render features initialization
-	create_depth_buffer();
-	create_light_space_transform_matrices();
+	CreateDepthBuffer();
+	CreateLightSpaceTransformMatrices();
 
 	// Pre-loop checks
 	CheckAllEntitiesHaveShaders(world);
@@ -148,7 +148,7 @@ int main()
 	InputRecorder.Load();
 
 	// create hardcoded animations
-	AN_create_hardcoded_animations();
+	AN_CreateHardcodedAnimations();
 
 	//@TODO: better for debugging
 	player->entity_ptr->flags |= EntityFlags_RenderWireframe;

@@ -25,13 +25,13 @@ namespace Editor
 
 	struct EditorContext
 	{
-		struct ImGuiStyle* imStyle;
+		struct ImGuiStyle* im_style;
 
 		// scene tracking
 		std::string last_frame_scene;
 
 		// undo stack
-		struct UndoStack undo_stack;
+		UndoStack undo_stack;
 
 		// deletion log
 		DeletedEntityLog deletion_log;

@@ -74,7 +74,7 @@ bool GP_SimulatePlayerCollisionInFallingTrajectory(Player* player, vec2 xz_veloc
 	float d_frame = 0.014;
 
 	auto pos_0 = player->entity_ptr->position;
-	vec3 vel = to3d_xz(xz_velocity);
+	auto vel = vec3(xz_velocity.x, 0, xz_velocity.y);
 
 	float max_iterations = 120;
 
@@ -126,7 +126,7 @@ void CL_WallSlidePlayer(Player* player, vec3 wall_normal)
 		player->speed = wall_slide_speed_limit;
 
 	auto up_vec = vec3(0, 1, 0);
-	vec3 horiz_vec = cross(up_vec, wall_normal);
+	vec3 horiz_vec = Cross(up_vec, wall_normal);
 
 	pv = dot(pv, horiz_vec) * normalize(horiz_vec) * player->speed;
 }

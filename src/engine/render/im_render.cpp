@@ -2,7 +2,7 @@
 #include "shader.h"
 #include "engine/camera/camera.h"
 #include "engine/geometry/mesh.h"
-#include "engine/collision/primitives/triangle.h"
+#include "engine/geometry/triangle.h"
 #include "engine/entities/entity.h"
 #include <glad/glad.h>
 #include "engine/geometry/vertex.h""
@@ -69,7 +69,7 @@ void ImDraw::Render(Camera* camera)
 		shader->SetFloat("opacity", obj.render_options.opacity);
 		shader->SetFloat3("color", obj.render_options.color);
 
-		render_mesh(&(list[i].mesh), obj.render_options);
+		RenderMesh(&(list[i].mesh), obj.render_options);
 	}
 }
 

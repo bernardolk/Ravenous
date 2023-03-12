@@ -113,14 +113,14 @@ void EntitySerializer::parse(Parser& parser)
 			if (find_mesh != GeometryCatalogue.end())
 				new_entity->mesh = find_mesh->second;
 			else
-				new_entity->mesh = load_wavefront_obj_as_mesh(Paths::Models, model_name);
+				new_entity->mesh = LoadWavefrontObjAsMesh(Paths::Models, model_name);
 
 			// @TODO: For now collision mesh is loaded from the same model as regular mesh.
 			auto find_c_mesh = CollisionGeometryCatalogue.find(model_name);
 			if (find_c_mesh != CollisionGeometryCatalogue.end())
 				new_entity->collision_mesh = find_c_mesh->second;
 			else
-				new_entity->collision_mesh = load_wavefront_obj_as_collision_mesh(Paths::Models, model_name);
+				new_entity->collision_mesh = LoadWavefrontObjAsCollisionMesh(Paths::Models, model_name);
 
 			new_entity->collider = *new_entity->collision_mesh;
 		}

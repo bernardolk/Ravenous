@@ -16,14 +16,14 @@
 #include "engine/io/display.h"
 #include "engine/render/shader.h"
 
-void load_textures_from_assets_folder()
+void LoadTexturesFromAssetsFolder()
 {
-	auto filenames = get_files_in_folder(Paths::Textures);
+	auto filenames = GetFilesINFolder(Paths::Textures);
 	if (filenames.size() > 0)
 	{
 		for (const auto& texture_filename : filenames)
 		{
-			unsigned int texture_id = load_texture_from_file(texture_filename, Paths::Textures);
+			unsigned int texture_id = LoadTextureFromFile(texture_filename, Paths::Textures);
 
 			if (texture_id == 0)
 			{
@@ -52,7 +52,7 @@ void load_textures_from_assets_folder()
 	}
 }
 
-Mesh* load_wavefront_obj_as_mesh(
+Mesh* LoadWavefrontObjAsMesh(
 	const std::string& path,
 	const std::string& filename,
 	const std::string& name,
@@ -209,7 +209,7 @@ Mesh* load_wavefront_obj_as_mesh(
 
 	// load/computes tangents and bitangents
 	if (!v_texels.empty())
-		attach_extra_data_to_mesh(filename, path, mesh);
+		AttachExtraDataToMesh(filename, path, mesh);
 
 	// setup gl data
 	if (setup_gl_data)
@@ -227,7 +227,7 @@ Mesh* load_wavefront_obj_as_mesh(
 	return mesh;
 }
 
-CollisionMesh* load_wavefront_obj_as_collision_mesh(std::string path, std::string filename, std::string name)
+CollisionMesh* LoadWavefrontObjAsCollisionMesh(std::string path, std::string filename, std::string name) 
 {
 	/* Loads a model from the provided path and filename and add it to the Collision_Geometry_Catalogue with provided name */
 
@@ -308,7 +308,7 @@ CollisionMesh* load_wavefront_obj_as_collision_mesh(std::string path, std::strin
 	return c_mesh;
 }
 
-unsigned int load_texture_from_file(const std::string& filename, const std::string& directory, bool gamma)
+unsigned int LoadTextureFromFile(const std::string& filename, const std::string& directory, bool gamma)
 {
 	// returns the gl_texture ID
 
@@ -359,7 +359,7 @@ unsigned int load_texture_from_file(const std::string& filename, const std::stri
 }
 
 
-StrVec get_files_in_folder(std::string directory)
+StrVec GetFilesINFolder(std::string directory)
 {
 	StrVec filenames;
 	std::string path_to_files = directory + "\\*";
@@ -386,7 +386,7 @@ StrVec get_files_in_folder(std::string directory)
 }
 
 
-void write_mesh_extra_data_file(std::string filename, Mesh* mesh)
+void WriteMeshExtraDataFile(std::string filename, Mesh* mesh)
 {
 	const auto extra_data_path = Paths::Models + "extra_data/" + filename + ".objplus";
 	std::ofstream writer(extra_data_path);
@@ -420,7 +420,7 @@ void write_mesh_extra_data_file(std::string filename, Mesh* mesh)
 }
 
 
-void load_mesh_extra_data(std::string filename, Mesh* mesh)
+void LoadMeshExtraData(std::string filename, Mesh* mesh)
 {
 	const auto extra_data_path = Paths::Models + "extra_data/" + filename + ".objplus";
 	Parser p{extra_data_path};
@@ -451,7 +451,7 @@ void load_mesh_extra_data(std::string filename, Mesh* mesh)
 }
 
 
-void attach_extra_data_to_mesh(std::string filename, std::string filepath, Mesh* mesh)
+void AttachExtraDataToMesh(std::string filename, std::string filepath, Mesh* mesh)
 {
 	/* Attach tangents and bitangents data to the mesh from a precomputation based on mesh vertices.
 	   If the extra mesh data file is outdated from mesh file or inexistent, compute data and write to it.
@@ -485,11 +485,11 @@ void attach_extra_data_to_mesh(std::string filename, std::string filepath, Mesh*
 	if (compute_extra_data)
 	{
 		mesh->ComputeTangentsAndBitangents();
-		write_mesh_extra_data_file(filename, mesh);
+		WriteMeshExtraDataFile(filename, mesh);
 	}
 	else
 	{
-		load_mesh_extra_data(filename, mesh);
+		LoadMeshExtraData(filename, mesh);
 	}
 
 	FindClose(find_handle);

@@ -28,11 +28,11 @@ struct RenderOptions
 	bool dont_cull_face = false;
 };
 
-void render_mesh(const Mesh* mesh, RenderOptions opts = RenderOptions{});
+void RenderMesh(const Mesh* mesh, RenderOptions opts = RenderOptions{});
 void RenderEntity(Entity* entity);
-void render_scene(World* world, Camera* camera);
-void render_editor_entity(Entity* entity, World* world, Camera* camera);
-void set_shader_light_variables(World* world, Shader* shader, Camera* camera);
+void RenderScene(World* world, Camera* camera);
+void RenderEditorEntity(Entity* entity, World* world, Camera* camera);
+void SetShaderLightVariables(World* world, Shader* shader, Camera* camera);
 
 
 // leave for debugging
@@ -43,29 +43,29 @@ inline int PFloor = -1;
 // RENDER ENTITY
 // --------------
 void RenderEntity(Entity* entity);
-void render_editor_entity(Entity* entity, World* world, Camera* camera);
+void RenderEditorEntity(Entity* entity, World* world, Camera* camera);
 
 
 // -------------
 // RENDER SCENE
 // -------------
-void render_scene(World* world, Camera* camera);
-void set_shader_light_variables(World* world, Shader* shader, Camera* camera);
+void RenderScene(World* world, Camera* camera);
+void SetShaderLightVariables(World* world, Shader* shader, Camera* camera);
 
 // -------------------------
 // RENDER GAME GUI
 // -------------------------
-void render_game_gui(Player* player);
+void RenderGameGui(Player* player);
 
 // ----------------
 // RENDER FEATURES
 // ----------------
-void create_depth_buffer();
-void create_light_space_transform_matrices();
+void CreateDepthBuffer();
+void CreateLightSpaceTransformMatrices();
 
 // -----------------
 // RENDER DEPTH MAP
 // -----------------
-void render_depth_map(World* world);
-void render_depth_cubemap(World* world);
-void render_depth_map_debug();
+void RenderDepthMap(World* world);
+void RenderDepthCubemap(World* world);
+void RenderDepthMapDebug();
