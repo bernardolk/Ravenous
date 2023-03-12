@@ -11,7 +11,7 @@
 #include "engine/geometry/mesh.h"
 #include <iostream>
 #include <glm/gtx/normal.hpp>
-#include <engine/collision/primitives/triangle.h>
+#include "engine/geometry/triangle.h"
 #include <glm/gtx/rotate_vector.hpp>
 #include <engine/render/text/face.h>
 #include "engine/core/logging.h"

@@ -326,7 +326,7 @@ namespace Editor
 		auto* GSI = GlobalSceneInfo::Get();
 		auto& ed_context = *GetContext();
 
-		auto pickray = cast_pickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
+		auto pickray = CastPickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		auto test = world->Raycast(pickray);
 		if(test.hit)
 		{
@@ -335,12 +335,12 @@ namespace Editor
 				if(ed_context.second_point_found)
 					ed_context.second_point_found = false;
 				ed_context.first_point_found = true;
-				ed_context.measure_from = point_from_detection(pickray, test);
+				ed_context.measure_from = CL_GetPointFromDetection(pickray, test);
 			}
 			else if(!ed_context.second_point_found)
 			{
 				ed_context.second_point_found = true;
-				vec3 point = point_from_detection(pickray, test);
+				vec3 point = CL_GetPointFromDetection(pickray, test);
 				if(ed_context.measure_axis == 0)
 					ed_context.measure_to = point.x;
 				else if(ed_context.measure_axis == 1)
@@ -372,12 +372,12 @@ namespace Editor
 		auto* GSI = GlobalSceneInfo::Get();
 		auto& ed_context = *GetContext();
 
-		auto pickray = cast_pickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
+		auto pickray = CastPickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		auto test = world->Raycast(pickray);
 		if(test.hit)
 		{
 			ed_context.locate_coords_found_point = true;
-			ed_context.locate_coords_position = point_from_detection(pickray, test);
+			ed_context.locate_coords_position = CL_GetPointFromDetection(pickray, test);
 		}
 	}
 
@@ -400,7 +400,7 @@ namespace Editor
 
 		ed_context.selected_entity->Update();
 		world->UpdateEntityWorldCells(ed_context.selected_entity);
-		CL_recompute_collision_buffer_entities(GSI->player);
+		CL_RecomputeCollisionBufferEntities(GSI->player);
 		ed_context.undo_stack.Track(ed_context.selected_entity);
 	}
 
@@ -458,13 +458,13 @@ namespace Editor
 		// ray casts against created plane
 		auto* GII = GlobalInputInfo::Get();
 
-		auto ray = cast_pickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
+		auto ray = CastPickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		RaycastTest test;
 
-		test = test_ray_against_triangle(ray, t1);
+		test = CL_TestAgainstRay(ray, t1);
 		if(!test.hit)
 		{
-			test = test_ray_against_triangle(ray, t2);
+			test = CL_TestAgainstRay(ray, t2);
 			if(!test.hit)
 				std::cout << "warning: can't find plane to place entity!\n";
 		}
@@ -490,11 +490,11 @@ namespace Editor
 		auto* GII = GlobalInputInfo::Get();
 		auto* GSI = GlobalSceneInfo::Get();
 
-		auto pickray = cast_pickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
+		auto pickray = CastPickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		auto test = world->Raycast(pickray, entity);
 		if(test.hit)
 		{
-			entity->position = point_from_detection(pickray, test);
+			entity->position = CL_GetPointFromDetection(pickray, test);
 			entity->Update();
 		}
 	}
@@ -561,7 +561,7 @@ namespace Editor
 		ed_context.move_axis = move_axis;
 		ed_context.move_entity_by_arrows = true;
 		auto test = test_ray_against_entity_support_plane(move_axis, ed_context.selected_entity);
-		ed_context.move_entity_by_arrows_ref_point = point_from_detection(test.ray, test);
+		ed_context.move_entity_by_arrows_ref_point = CL_GetPointFromDetection(test.ray, test);
 		ed_context.undo_stack.Track(ed_context.selected_entity);
 	}
 
@@ -646,7 +646,7 @@ namespace Editor
 		auto* GII = GlobalInputInfo::Get();
 		auto* GSI = GlobalSceneInfo::Get();
 
-		auto ray = cast_pickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
+		auto ray = CastPickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
 
 		// create a big plane for placing entity in the world with the mouse using raycast from camera to mouse
 		// position. In the case of Y placement, we need to compute the plane considering the camera orientation.
@@ -700,10 +700,10 @@ namespace Editor
 		// ray casts against created plane
 		RaycastTest test;
 
-		test = test_ray_against_triangle(ray, t1);
+		test = CL_TestAgainstRay(ray, t1);
 		if(!test.hit)
 		{
-			test = test_ray_against_triangle(ray, t2);
+			test = CL_TestAgainstRay(ray, t2);
 			if(!test.hit)
 			{
 				std::cout << "warning: can't find plane to place light!\n";

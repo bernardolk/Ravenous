@@ -104,9 +104,9 @@ void PlayerSerializer::save(std::ofstream& writer)
 	<< player->initial_velocity.z << "\n";
 
 	if(player->player_state == PlayerState::Standing)
-		writer << "@player_state = " << PlayerState::Standing << "\n";
+		writer << "@player_state = " << static_cast<int>(PlayerState::Standing) << "\n";
 	else
-		writer << "@player_state = " << player->initial_player_state << "\n";
+		writer << "@player_state = " << static_cast<int>(player->initial_player_state) << "\n";
 
 	writer << "@player_fall_acceleration = " << player->fall_acceleration << "\n";
 }

@@ -58,7 +58,7 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 				}
 
 				// resolve collisions
-				auto results = CL_test_and_resolve_collisions(player);
+				auto results = CL_TestAndResolveCollisions(player);
 
 				// iterate on collision results
 				bool collided_with_terrain = false;
@@ -120,7 +120,7 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 			player->entity_ptr->position += player->entity_ptr->velocity * Rvn::frame.duration;
 			player->Update(world, true);
 
-			auto results = CL_test_and_resolve_collisions(player);
+			auto results = CL_TestAndResolveCollisions(player);
 			for(int i = 0; i < results.count; i ++)
 			{
 				auto result = results.results[i];
@@ -175,7 +175,7 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 			player->entity_ptr->position += player->entity_ptr->velocity * Rvn::frame.duration;
 			player->Update(world, true);
 
-			auto results = CL_test_and_resolve_collisions(player);
+			auto results = CL_TestAndResolveCollisions(player);
 			for(int i = 0; i < results.count; i ++)
 			{
 				auto result = results.results[i];
@@ -233,7 +233,7 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 
 
 			// RESOLVE COLLISIONS AND CHECK FOR TERRAIN CONTACT
-			auto results = CL_test_and_resolve_collisions(player);
+			auto results = CL_TestAndResolveCollisions(player);
 
 			bool collided_with_terrain = false;
 			for(int i = 0; i < results.count; i ++)
@@ -426,10 +426,10 @@ void GP_CheckTriggerInteraction(Player* player, World* world)
 // -------------------
 void GP_CheckPlayerGrabbedLedge(Player* player, World* world)
 {
-	Ledge ledge = CL_perform_ledge_detection(player, world);
+	Ledge ledge = CL_PerformLedgeDetection(player, world);
 	if(ledge.empty)
 		return;
-	vec3 position = CL_get_final_position_ledge_vaulting(player, ledge);
+	vec3 position = CL_GetFinalPositionLedgeVaulting(player, ledge);
 
 	PlayerStateChangeArgs args;
 	args.ledge = ledge;

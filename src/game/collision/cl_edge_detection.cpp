@@ -8,7 +8,7 @@
 #include "engine/world/world.h"
 
 
-Ledge CL_perform_ledge_detection(Player* player, World* world)
+Ledge CL_PerformLedgeDetection(Player* player, World* world)
 {
 	// concepts: front face - where the horizontal rays are going to hit
 	//           top face - where the vertical ray (up towards down) is going to hit
@@ -26,8 +26,8 @@ Ledge CL_perform_ledge_detection(Player* player, World* world)
 	auto front_test = world->LinearRaycastArray(first_ray, _front_ray_qty, _front_ray_spacing);
 	if(front_test.hit)
 	{
-		vec3 frontal_hitpoint = point_from_detection(front_test.ray, front_test);
-		vec3 front_face_n = get_triangle_normal(front_test.t);
+		vec3 frontal_hitpoint = CL_GetPointFromDetection(front_test.ray, front_test);
+		vec3 front_face_n = front_test.t.GetNormal();
 
 		if(dot(UnitY, front_face_n) > 0.0001f)
 			return ledge;
@@ -39,7 +39,7 @@ Ledge CL_perform_ledge_detection(Player* player, World* world)
 
 		if(top_test.hit)
 		{
-			vec3 top_hitpoint = point_from_detection(top_test.ray, top_test);
+			vec3 top_hitpoint = CL_GetPointFromDetection(top_test.ray, top_test);
 			ledge.surface_point = top_hitpoint;
 
 			if(top_test.distance <= player->height || top_hitpoint.y - frontal_hitpoint.y > _front_ray_spacing)
@@ -54,7 +54,7 @@ Ledge CL_perform_ledge_detection(Player* player, World* world)
 			vec3 edge3 = top_test.t.a - top_test.t.c; // 3
 
 			// for debug: show face normal
-			vec3 front_face_center = get_barycenter(front_test.t);
+			vec3 front_face_center = front_test.t.GetBarycenter();
 			ImDraw::AddLine(IMHASH, front_face_center, front_face_center + 1.f * front_face_n, 2.0, false, COLOR_BLUE_1);
 
 			if(abs(dot(edge1, front_face_n)) < 0.0001f)
@@ -101,7 +101,7 @@ Ledge CL_perform_ledge_detection(Player* player, World* world)
 }
 
 
-vec3 CL_get_final_position_ledge_vaulting(Player* player, Ledge ledge)
+vec3 CL_GetFinalPositionLedgeVaulting(Player* player, Ledge ledge)
 {
 	/* Returns the player's position after finishing vaulting across the given ledge */
 	vec3 inward_normal = normalize(cross(ledge.a - ledge.b, UnitY));

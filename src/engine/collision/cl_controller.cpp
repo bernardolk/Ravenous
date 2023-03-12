@@ -17,7 +17,7 @@
 // > UPDATE PLAYER WORLD CELLS   
 // ----------------------------
 
-bool CL_update_player_world_cells(Player* player, World* world)
+bool CL_UpdatePlayerWorldCells(Player* player, World* world)
 {
 	/* Updates the player's world cells
 	   Returns whether there were changes or not to the cell list
@@ -40,7 +40,7 @@ bool CL_update_player_world_cells(Player* player, World* world)
 // > COLLISION BUFFER FUNCTIONS
 // ------------------------------
 
-void CL_recompute_collision_buffer_entities(Player* player)
+void CL_RecomputeCollisionBufferEntities(Player* player)
 {
 	// copies collision-check-relevant entity ptrs to a buffer
 	// with metadata about the collision check for the entity
@@ -77,14 +77,14 @@ void CL_recompute_collision_buffer_entities(Player* player)
 }
 
 
-void CL_reset_collision_buffer_checks()
+void CL_ResetCollisionBufferChecks()
 {
 	for(int i = 0; i < Rvn::entity_buffer->size; i++)
 		Rvn::entity_buffer->buffer[i].collision_check = false;
 }
 
 
-void CL_mark_entity_checked(Entity* entity)
+void CL_MarkEntityChecked(Entity* entity)
 {
 	// marks entity in entity buffer as checked so we dont check collisions for this entity twice (nor infinite loop)
 	auto entity_buffer = Rvn::entity_buffer;
@@ -113,7 +113,7 @@ void CL_mark_entity_checked(Entity* entity)
    - Once we don't have more collisions, we stop checking.
 */
 
-ClResultsArray CL_test_and_resolve_collisions(Player* player)
+ClResultsArray CL_TestAndResolveCollisions(Player* player)
 {
 	// iterative collision detection
 	auto results_array = ClResultsArray();
@@ -124,11 +124,11 @@ ClResultsArray CL_test_and_resolve_collisions(Player* player)
 		c++;
 		// places pointer back to start
 		auto buffer = entity_buffer->buffer;
-		auto result = CL_test_collision_buffer_entitites(player, buffer, entity_buffer->size, true);
+		auto result = CL_TestCollisionBufferEntitites(player, buffer, entity_buffer->size, true);
 
 		if(result.collision)
 		{
-			CL_mark_entity_checked(result.entity);
+			CL_MarkEntityChecked(result.entity);
 			CL_ResolveCollision(result, player);
 			results_array.results[results_array.count] = result;
 			results_array.count++;
@@ -136,13 +136,13 @@ ClResultsArray CL_test_and_resolve_collisions(Player* player)
 		else
 			break;
 	}
-	CL_reset_collision_buffer_checks();
+	CL_ResetCollisionBufferChecks();
 
 	return results_array;
 }
 
 
-bool CL_test_collisions(Player* player)
+bool CL_TestCollisions(Player* player)
 {
 	// iterative collision detection
 	bool any_collision = false;
@@ -151,17 +151,17 @@ bool CL_test_collisions(Player* player)
 	{
 		// places pointer back to start
 		auto buffer = entity_buffer->buffer;
-		auto result = CL_test_collision_buffer_entitites(player, buffer, entity_buffer->size, true);
+		auto result = CL_TestCollisionBufferEntitites(player, buffer, entity_buffer->size, true);
 
 		if(result.collision)
 		{
-			CL_mark_entity_checked(result.entity);
+			CL_MarkEntityChecked(result.entity);
 			any_collision = true;
 		}
 		else
 			break;
 	}
-	CL_reset_collision_buffer_checks();
+	CL_ResetCollisionBufferChecks();
 
 	return any_collision;
 }
@@ -170,7 +170,7 @@ bool CL_test_collisions(Player* player)
 // > RUN COLLISION DETECTION
 // ---------------------------
 
-ClResults CL_test_collision_buffer_entitites(
+ClResults CL_TestCollisionBufferEntitites(
 	Player* player,
 	EntityBufferElement* buffer,
 	int entity_list_size,
@@ -196,7 +196,7 @@ ClResults CL_test_collision_buffer_entitites(
 			test = true;
 		}
 
-		auto result = CL_test_player_vs_entity(entity, player);
+		auto result = CL_TestPlayerVsEntity(entity, player);
 
 		if(result.collision)
 			return result;
@@ -208,7 +208,7 @@ ClResults CL_test_collision_buffer_entitites(
 // -------------------------
 // > TEST PLAYER VS ENTITY
 // -------------------------
-ClResults CL_test_player_vs_entity(Entity* entity, Player* player)
+ClResults CL_TestPlayerVsEntity(Entity* entity, Player* player)
 {
 	using micro = std::chrono::microseconds;
 

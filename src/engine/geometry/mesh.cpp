@@ -5,7 +5,7 @@
 #endif
 #include <engine/collision/primitives/bounding_box.h>
 #include <glm/gtx/normal.hpp>
-#include <engine/collision/primitives/triangle.h>
+#include "engine/geometry/triangle.h"
 #include "engine/geometry/vertex.h"
 #include <iostream>
 #include "engine/core/logging.h"
@@ -28,7 +28,7 @@ void Mesh::SetupGLData()
 	// to avoid a pretty bad rendering issue
 	assert(indices.size() > 0);
 
-	if(gl_data.VAO > 0)
+	if (gl_data.VAO > 0)
 	{
 		log(LOG_INFO, "Redundant setup_gl_data call occured.");
 		return;

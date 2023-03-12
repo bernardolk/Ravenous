@@ -171,7 +171,7 @@ namespace Editor
 		// check for debug flags
 		if(ed_context.debug_ledge_detection)
 		{
-			CL_perform_ledge_detection(player, world);
+			CL_PerformLedgeDetection(player, world);
 		}
 	}
 
@@ -1192,12 +1192,12 @@ namespace Editor
 			ImDraw::AddLine(IMHASH, f.center, f.center + normal * 2.0f, 2.5, true);
 		}
 	}
-
-
+	
 	void CheckSelectionToOpenPanel(Player* player, World* world, Camera* camera)
 	{
+		
 		auto* GII = GlobalInputInfo::Get();
-		auto pickray = cast_pickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
+		auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		auto test = world->Raycast(pickray, RayCast_TestOnlyVisibleEntities);
 		auto test_light = world->RaycastLights(pickray);
 
@@ -1220,7 +1220,7 @@ namespace Editor
 		auto* GII = GlobalInputInfo::Get();
 		auto& ed_context = *GetContext();
 
-		auto pickray = cast_pickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
+		auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		auto test = world->Raycast(pickray, RayCast_TestOnlyVisibleEntities);
 		if(test.hit)
 		{
@@ -1249,7 +1249,7 @@ namespace Editor
 	{
 		auto* GII = GlobalInputInfo::Get();
 
-		auto pickray = cast_pickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
+		auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		auto test = world->Raycast(pickray, RayCast_TestOnlyVisibleEntities);
 		auto test_light = world->RaycastLights(pickray);
 		if(test.hit && (!test_light.hit || test_light.distance > test.distance))
@@ -1264,14 +1264,14 @@ namespace Editor
 		auto* GII = GlobalInputInfo::Get();
 		auto& ed_context = *GetContext();
 
-		auto pickray = cast_pickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
+		auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		RaycastTest test;
 
 		Entity* arrows[3] = {ed_context.entity_panel.x_arrow, ed_context.entity_panel.y_arrow, ed_context.entity_panel.z_arrow};
 
 		For(3)
 		{
-			test = test_ray_against_entity(pickray, arrows[i]);
+			test = CL_TestAgainstRay(pickray, arrows[i]);
 			if(test.hit)
 			{
 				activate_move_entity_by_arrow(i + 1);
@@ -1288,7 +1288,7 @@ namespace Editor
 		auto* GII = GlobalInputInfo::Get();
 		auto& ed_context = *GetContext();
 
-		auto pickray = cast_pickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
+		auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		RaycastTest test;
 
 		Entity* rot_gizmos[3] = {
@@ -1299,7 +1299,7 @@ namespace Editor
 
 		For(3)
 		{
-			test = test_ray_against_entity(pickray, rot_gizmos[i]);
+			test = CL_TestAgainstRay(pickray, rot_gizmos[i]);
 			if(test.hit)
 			{
 				activate_rotate_entity_with_mouse(i + 1);

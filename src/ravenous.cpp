@@ -55,6 +55,7 @@
 #include "engine/camera/camera.h"
 #include "engine/io/loaders.h"
 #include "engine/main_loop.h"
+#include "engine/collision/cl_controller.h"
 #include "engine/render/im_render.h"
 #include "engine/serialization/sr_config.h"
 #include "engine/serialization/sr_entity.h"
@@ -130,7 +131,7 @@ int main()
 	world->ambient_intensity = program_config.ambient_intensity;
 
 	world->UpdateEntityWorldCells(player->entity_ptr); // sets player to the world
-	CL_recompute_collision_buffer_entities(player);   // populates collision buffer and others
+	CL_RecomputeCollisionBufferEntities(player);   // populates collision buffer and others
 
 	Editor::Initialize();
 

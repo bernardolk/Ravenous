@@ -3,7 +3,7 @@
 #include <engine/collision/primitives/bounding_box.h>
 #include "engine/geometry/mesh.h"
 #include <glm/gtx/normal.hpp>
-#include <engine/collision/primitives/triangle.h>
+#include <engine/geometry/triangle.h>
 #include <engine/collision/primitives/ray.h>
 #include <glm/gtx/quaternion.hpp>
 #include <engine/collision/collision_mesh.h>
@@ -13,7 +13,7 @@
 // --------------------------
 // > TEST RAY AGAINST AABB
 // --------------------------
-bool test_ray_against_aabb(Ray ray, BoundingBox box)
+bool CL_TestAgainstRay(Ray ray, BoundingBox box)
 {
 	vec3 ray_inv = ray.GetInv();
 
@@ -41,7 +41,7 @@ bool test_ray_against_aabb(Ray ray, BoundingBox box)
 // --------------------------
 // > TEST RAY AGAINST ENTITY
 // --------------------------
-RaycastTest test_ray_against_entity(
+RaycastTest CL_TestAgainstRay(
 	Ray ray, Entity* entity,
 	RayCastType test_type = RayCast_TestOnlyFromOutsideIn,
 	float max_distance = MaxFloat)
@@ -53,27 +53,27 @@ RaycastTest test_ray_against_entity(
 
 
 	// first check collision with bounding box
-	if(test_ray_against_aabb(ray, entity->bounding_box))
+	if(CL_TestAgainstRay(ray, entity->bounding_box))
 	{
 		//@TODO: We are not updating player's collider everytime now, so we must do it now on a raycast call
 		entity->UpdateCollider();
-		return test_ray_against_collider(ray, &entity->collider, test_type);
+		return CL_TestAgainstRay(ray, &entity->collider, test_type);
 	}
 
 	return RaycastTest{false};
 }
 
 
-RaycastTest test_ray_against_entity(Ray ray, Entity* entity)
+RaycastTest CL_TestAgainstRay(Ray ray, Entity* entity)
 {
-	return test_ray_against_entity(ray, entity, RayCast_TestOnlyFromOutsideIn, MaxFloat);
+	return CL_TestAgainstRay(ray, entity, RayCast_TestOnlyFromOutsideIn, MaxFloat);
 }
 
 // ---------------------------
 // > TEST RAY AGAINT COLLIDER
 // ---------------------------
 // This doesn't take a matModel
-RaycastTest test_ray_against_collider(Ray ray, CollisionMesh* collider, RayCastType test_type)
+RaycastTest CL_TestAgainstRay(Ray ray, CollisionMesh* collider, RayCastType test_type)
 {
 
 	int triangles = collider->indices.size() / 3;
@@ -83,7 +83,7 @@ RaycastTest test_ray_against_collider(Ray ray, CollisionMesh* collider, RayCastT
 	{
 		Triangle t = get_triangle_for_collider_indexed_mesh(collider, i);
 		bool test_both_sides = test_type == RayCast_TestBothSidesOfTriangle;
-		auto test = test_ray_against_triangle(ray, t, test_both_sides);
+		auto test = CL_TestAgainstRay(ray, t, test_both_sides);
 		if(test.hit && test.distance < min_distance)
 		{
 			min_hit_test = test;
@@ -99,7 +99,7 @@ RaycastTest test_ray_against_collider(Ray ray, CollisionMesh* collider, RayCastT
 // > TEST RAY AGAINST MESH
 // ------------------------
 // This does take a matModel
-RaycastTest test_ray_against_mesh(Ray ray, Mesh* mesh, glm::mat4 mat_model, RayCastType test_type)
+RaycastTest CL_TestAgainstRay(Ray ray, Mesh* mesh, glm::mat4 mat_model, RayCastType test_type)
 {
 	int triangles = mesh->indices.size() / 3;
 	float min_distance = MaxFloat;
@@ -108,7 +108,7 @@ RaycastTest test_ray_against_mesh(Ray ray, Mesh* mesh, glm::mat4 mat_model, RayC
 	{
 		Triangle t = get_triangle_for_indexed_mesh(mesh, mat_model, i);
 		bool test_both_sides = test_type == RayCast_TestBothSidesOfTriangle;
-		auto test = test_ray_against_triangle(ray, t, test_both_sides);
+		auto test = CL_TestAgainstRay(ray, t, test_both_sides);
 		if(test.hit && test.distance < min_distance)
 		{
 			min_hit_test = test;
@@ -123,7 +123,7 @@ RaycastTest test_ray_against_mesh(Ray ray, Mesh* mesh, glm::mat4 mat_model, RayC
 // ----------------------------
 // > TEST RAY AGAINST TRIANGLE
 // ----------------------------
-RaycastTest test_ray_against_triangle(Ray ray, Triangle triangle, bool test_both_sides)
+RaycastTest CL_TestAgainstRay(Ray ray, Triangle triangle, bool test_both_sides)
 {
 	auto& A = triangle.a;
 	auto& B = triangle.b;
@@ -171,7 +171,7 @@ RaycastTest test_ray_against_triangle(Ray ray, Triangle triangle, bool test_both
 // ---------------
 // > CAST PICKRAY
 // ---------------
-Ray cast_pickray(Camera* camera, double screen_x, double screen_y)
+Ray CastPickray(Camera* camera, double screen_x, double screen_y)
 {
 	float screen_x_normalized = (
 		(screen_x - GlobalDisplayConfig::viewport_width / 2)
@@ -193,7 +193,7 @@ Ray cast_pickray(Camera* camera, double screen_x, double screen_y)
 	return Ray{origin, direction};
 }
 
-vec3 point_from_detection(Ray ray, RaycastTest result)
+vec3 CL_GetPointFromDetection(Ray ray, RaycastTest result)
 {
 	assert(result.hit);
 	return ray.origin + ray.direction * result.distance;

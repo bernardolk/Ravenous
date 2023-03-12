@@ -2,7 +2,7 @@
 
 #include "engine/core/core.h"
 #include "primitives/ray.h"
-#include "primitives/triangle.h"
+#include "engine/geometry/triangle.h"
 
 struct RaycastTest
 {
@@ -23,12 +23,11 @@ enum RayCastType
 	RayCast_TestOnlyVisibleEntities = 2
 };
 
-Ray cast_pickray(Camera* camera, double screen_x, double screen_y);
-RaycastTest test_ray_against_entity(Ray ray, Entity* entity, RayCastType test_type, float max_distance);
-RaycastTest test_ray_against_entity(Ray ray, Entity* entity);
-RaycastTest test_ray_against_mesh(Ray ray, Mesh* mesh, glm::mat4 mat_model, RayCastType test_type);
-RaycastTest test_ray_against_triangle(Ray ray, Triangle triangle, bool test_both_sides = true);
-RaycastTest test_ray_against_collider(Ray ray, CollisionMesh* collider, RayCastType test_type);
-vec3 point_from_detection(Ray ray, RaycastTest result);
-vec3 get_triangle_normal(Triangle t);
-bool test_ray_against_aabb(Ray ray, BoundingBox box);
+Ray CastPickray(Camera* camera, double screen_x, double screen_y);
+RaycastTest CL_TestAgainstRay(Ray ray, Entity* entity, RayCastType test_type, float max_distance);
+RaycastTest CL_TestAgainstRay(Ray ray, Entity* entity);
+RaycastTest CL_TestAgainstRay(Ray ray, Mesh* mesh, glm::mat4 mat_model, RayCastType test_type);
+RaycastTest CL_TestAgainstRay(Ray ray, Triangle triangle, bool test_both_sides = true);
+RaycastTest CL_TestAgainstRay(Ray ray, CollisionMesh* collider, RayCastType test_type);
+vec3 CL_GetPointFromDetection(Ray ray, RaycastTest result);
+bool CL_TestAgainstRay(Ray ray, BoundingBox box);

@@ -279,8 +279,8 @@ RaycastTest World::Raycast(const Ray ray, const RayCastType test_type, const Ent
 			continue;
 		if(skip != nullptr && entity->id == skip->id)
 			continue;
-
-		const auto test = test_ray_against_entity(ray, entity, test_type, max_distance);
+		
+		const auto test = CL_TestAgainstRay(ray, entity, test_type, max_distance);
 		if(test.hit && test.distance < min_distance && test.distance < max_distance)
 		{
 			closest_hit = test;
@@ -331,7 +331,7 @@ RaycastTest World::LinearRaycastArray(const Ray first_ray, int qty, float spacin
 
 	if(best_hit_results.hit)
 	{
-		vec3 hitpoint = point_from_detection(best_hit_results.ray, best_hit_results);
+		vec3 hitpoint = CL_GetPointFromDetection(best_hit_results.ray, best_hit_results);
 		ImDraw::AddPoint(IMHASH, hitpoint, 2.0, true, COLOR_RED_1);
 	}
 
@@ -353,7 +353,7 @@ RaycastTest World::RaycastLights(const Ray ray) const
 		auto aabb_model = translate(Mat4Identity, position);
 		aabb_model = scale(aabb_model, vec3{0.3f, 0.6f, 0.3f});
 
-		auto test = test_ray_against_mesh(ray, aabb_mesh, aabb_model, RayCast_TestBothSidesOfTriangle);
+		auto test = CL_TestAgainstRay(ray, aabb_mesh, aabb_model, RayCast_TestBothSidesOfTriangle);
 		if(test.hit && test.distance < min_distance)
 		{
 			closest_hit = {true, test.distance, nullptr, point_c, "point"};
@@ -370,7 +370,7 @@ RaycastTest World::RaycastLights(const Ray ray) const
 		auto aabb_model = translate(Mat4Identity, position);
 		aabb_model = scale(aabb_model, vec3{0.3f, 0.6f, 0.3f});
 
-		const auto test = test_ray_against_mesh(ray, aabb_mesh, aabb_model, RayCast_TestBothSidesOfTriangle);
+		const auto test = CL_TestAgainstRay(ray, aabb_mesh, aabb_model, RayCast_TestBothSidesOfTriangle);
 		if(test.hit && test.distance < min_distance)
 		{
 			closest_hit = {

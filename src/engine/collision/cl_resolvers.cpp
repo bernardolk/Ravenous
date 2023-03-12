@@ -10,6 +10,8 @@
 #include "engine/utils/colors.h"
 #include <engine/render/im_render.h>
 #include <engine/collision/raycast.h>
+
+#include "cl_controller.h"
 #include "engine/utils/utils.h"
 
 
@@ -51,7 +53,7 @@ ClVtraceResult CL_DoStepoverVtrace(Player* player, World* world)
 
 
 	// draw arrow
-	auto hitpoint = point_from_detection(downward_ray, raytest);
+	auto hitpoint = CL_GetPointFromDetection(downward_ray, raytest);
 	ImDraw::AddLine(IMHASH, hitpoint, ray_origin, 1.0, true, COLOR_GREEN_1);
 	ImDraw::AddPoint(IMHASH, hitpoint, 1.0, true, COLOR_GREEN_3);
 
@@ -142,7 +144,7 @@ bool CL_RunTestsForFallSimulation(Player* player)
 	auto entity_list_size = entity_buffer->size;
 	bool terrain_collision = false;
 
-	for(int i = 0; i < entity_list_size; i++)
+	for (int i = 0; i < entity_list_size; i++)
 	{
 		Entity* & entity = buffer->entity;
 
@@ -154,7 +156,7 @@ bool CL_RunTestsForFallSimulation(Player* player)
 		}
 
 		// TODO: here should test for bounding box collision (or any geometric first pass test) FIRST, then do the call below
-		auto result = CL_test_player_vs_entity(entity, player);
+		auto result = CL_TestPlayerVsEntity(entity, player);
 
 		if(result.collision)
 		{

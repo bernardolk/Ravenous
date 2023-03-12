@@ -2,7 +2,7 @@
 
 #include "engine/core/core.h"
 
-void AN_animate_player(Player* player);
+void AN_AnimatePlayer(Player* player);
 void ForceInterruptPlayerAnimation(Player* player);
 bool AN_UpdatePlayerJumpingAnimation(Player* player);
 bool AN_UpdatePlayerLandingAnimation(Player* player);

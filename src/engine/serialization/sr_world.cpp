@@ -9,6 +9,7 @@
 #include "engine/entities/manager/entity_manager.h"
 #include "engine/core/logging.h"
 #include "engine/rvn.h"
+#include "engine/collision/cl_controller.h"
 #include "engine/world/scene_manager.h"
 #include "engine/world/world.h"
 #include "parsing/parser.h"
@@ -100,7 +101,7 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 	//          Post parse steps
 	// -----------------------------------
 	world->player->Update(world, true);
-	CL_update_player_world_cells(Player::Get(), world);
+	CL_UpdatePlayerWorldCells(Player::Get(), world);
 
 	// connects entities using deferred load buffer
 	For(entity_relations.count)

@@ -12,9 +12,9 @@ void Player::Update(World* world, bool update_collider)
 		entity_ptr->UpdateBoundingBox();
 	}
 
-	if(CL_update_player_world_cells(this, world))
+	if(CL_UpdatePlayerWorldCells(this, world))
 	{
-		CL_recompute_collision_buffer_entities(this);
+		CL_RecomputeCollisionBufferEntities(this);
 	}
 }
 

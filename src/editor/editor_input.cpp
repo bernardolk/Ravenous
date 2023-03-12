@@ -286,11 +286,11 @@ namespace Editor
 		// -------------------------------
 		if(PressedOnce(flags, KEY_C))
 		{
-			auto pickray = cast_pickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
+			auto pickray = CastPickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
 			auto test = world->Raycast(pickray, player->entity_ptr);
 			if(test.hit)
 			{
-				auto surface_point = point_from_detection(pickray, test);
+				auto surface_point = CL_GetPointFromDetection(pickray, test);
 				player->entity_ptr->position = surface_point;
 				player->player_state = PlayerState::Standing;
 				player->standing_entity_ptr = test.entity;

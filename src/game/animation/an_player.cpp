@@ -7,7 +7,8 @@
 #include "engine/world/scene_manager.h"
 #include "game/gameplay/gp_player_state.h"
 
-constexpr std::map<PlayerAnimationState, float> PlayerAnimationDurations = {
+const std::map<PlayerAnimationState, float> PlayerAnimationDurations =
+{
 	{PlayerAnimationState::Jumping, 400},
 	{PlayerAnimationState::Landing, 200},           
 	{PlayerAnimationState::LandingFall, 400},
@@ -25,7 +26,7 @@ void AN_AnimatePlayer(Player* player)
 	// check if animation is completed
 	bool end_anim = false;
 
-	float* find_duration = Find(PlayerAnimationDurations, player->anim_state);
+	auto* find_duration = Find(PlayerAnimationDurations, player->anim_state);
 	if (!find_duration)
 		return;
 	
@@ -70,7 +71,7 @@ void AN_AnimatePlayer(Player* player)
 			}
 		}
 
-		case default: break;
+		default: break;
 	}
 
 	// stop animation if completed or interrupted
