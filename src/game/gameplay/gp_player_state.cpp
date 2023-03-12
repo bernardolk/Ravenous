@@ -18,57 +18,57 @@ void GP_ChangePlayerState(Player* player, PlayerState new_state, PlayerStateChan
 	// IN ANY STATE
 	switch(new_state)
 	{
-		case PLAYER_STATE_GRABBING: return GP_player_state_change_any_to_grabbing(player, args.entity, args.normal, args.final_position, args.penetration);
+		case PlayerState::Grabbing: return GP_player_state_change_any_to_grabbing(player, args.entity, args.normal, args.final_position, args.penetration);
 
-		case PLAYER_STATE_SLIDING: return GP_PlayerStateChangeAnyToSliding(player, args.normal);
+		case PlayerState::Sliding: return GP_PlayerStateChangeAnyToSliding(player, args.normal);
 	}
 
 	switch(player->player_state)
 	{
-		// STANDING
-		case PLAYER_STATE_STANDING: switch(new_state)
+		// PlayerState::Standing
+		case PlayerState::Standing: switch(new_state)
 			{
-				case PLAYER_STATE_FALLING: return GP_PlayerStateChangeStandingToFalling(player);
+				case PlayerState::Falling: return GP_PlayerStateChangeStandingToFalling(player);
 
-				case PLAYER_STATE_JUMPING: return GP_PlayerStateChangeStandingToJumping(player);
+				case PlayerState::Jumping: return GP_PlayerStateChangeStandingToJumping(player);
 
-				case PLAYER_STATE_SLIDE_FALLING: return GP_player_state_change_standing_to_slide_falling(player, args.entity);
+				case PlayerState::SlideFalling: return GP_player_state_change_standing_to_slide_falling(player, args.entity);
 
-				case PLAYER_STATE_VAULTING: return GP_player_state_change_standing_to_vaulting(player, args.ledge, args.final_position);
+				case PlayerState::Vaulting: return GP_player_state_change_standing_to_vaulting(player, args.ledge, args.final_position);
 			}
 
 		// JUMPING
-		case PLAYER_STATE_JUMPING: switch(new_state)
+		case PlayerState::Jumping: switch(new_state)
 			{
-				case PLAYER_STATE_FALLING: return GP_PlayerStateChangeJumpingToFalling(player);
+				case PlayerState::Falling: return GP_PlayerStateChangeJumpingToFalling(player);
 			}
 
 		// FALLING
-		case PLAYER_STATE_FALLING: switch(new_state)
+		case PlayerState::Falling: switch(new_state)
 			{
-				case PLAYER_STATE_STANDING: return GP_PlayerStateChangeFallingToStanding(player);
+				case PlayerState::Standing: return GP_PlayerStateChangeFallingToStanding(player);
 			}
 
 		// GRABBING
-		case PLAYER_STATE_GRABBING: switch(new_state)
+		case PlayerState::Grabbing: switch(new_state)
 			{
-				case PLAYER_STATE_VAULTING: return GP_player_state_change_grabbing_to_vaulting(player);
+				case PlayerState::Vaulting: return GP_player_state_change_grabbing_to_vaulting(player);
 			}
 
 		// VAULTING
-		case PLAYER_STATE_VAULTING: switch(new_state)
+		case PlayerState::Vaulting: switch(new_state)
 			{
-				case PLAYER_STATE_STANDING: return GP_player_state_change_vaulting_to_standing(player);
+				case PlayerState::Standing: return GP_player_state_change_vaulting_to_standing(player);
 			}
 
 		// SLIDING
-		case PLAYER_STATE_SLIDING: switch(new_state)
+		case PlayerState::Sliding: switch(new_state)
 			{
-				case PLAYER_STATE_STANDING: return GP_player_state_change_sliding_to_standing(player);
+				case PlayerState::Standing: return GP_player_state_change_sliding_to_standing(player);
 
-				case PLAYER_STATE_JUMPING: return GP_player_state_change_sliding_to_jumping(player);
+				case PlayerState::Jumping: return GP_player_state_change_sliding_to_jumping(player);
 
-				case PLAYER_STATE_FALLING: return GP_player_state_change_sliding_to_falling(player);
+				case PlayerState::Falling: return GP_player_state_change_sliding_to_falling(player);
 			}
 
 		default:
@@ -79,7 +79,7 @@ void GP_ChangePlayerState(Player* player, PlayerState new_state, PlayerStateChan
 
 void GP_PlayerStateChangeJumpingToFalling(Player* player)
 {
-	player->player_state = PLAYER_STATE_FALLING;
+	player->player_state = PlayerState::Falling;
 	player->entity_ptr->velocity.y = 0;
 	player->jumping_upwards = false;
 
@@ -108,15 +108,15 @@ void GP_PlayerStateChangeStandingToJumping(Player* player)
 	}
 
 	v.y = player->jump_initial_speed;
-	player->player_state = PLAYER_STATE_JUMPING;
-	player->anim_state = PlayerAnimationState_Jumping;
+	player->player_state = PlayerState::Jumping;
+	player->anim_state = PlayerAnimationState::Jumping;
 	player->height_before_fall = player->entity_ptr->position.y;
 }
 
 
 void GP_PlayerStateChangeStandingToFalling(Player* player)
 {
-	player->player_state = PLAYER_STATE_FALLING;
+	player->player_state = PlayerState::Falling;
 	player->entity_ptr->velocity.y = -1 * player->fall_speed;
 	player->entity_ptr->velocity.x *= 0.5;
 	player->entity_ptr->velocity.z *= 0.5;
@@ -133,13 +133,13 @@ void GP_PlayerStateChangeFallingToStanding(Player* player)
 	// player->entity_ptr->velocity.x *= 0.5;
 	// player->entity_ptr->velocity.z *= 0.5;
 
-	player->player_state = PLAYER_STATE_STANDING;
+	player->player_state = PlayerState::Standing;
 
 	// conditional animation: if falling from jump, land, else, land from fall
 	if(player->height < player->height)
-		player->anim_state = PlayerAnimationState_Landing;
+		player->anim_state = PlayerAnimationState::Landing;
 	else
-		player->anim_state = PlayerAnimationState_LandingFall;
+		player->anim_state = PlayerAnimationState::LandingFall;
 
 	player->MaybeHurtFromFall();
 }
@@ -151,7 +151,7 @@ void GP_PlayerStateChangeAnyToSliding(Player* player, vec3 normal)
 	   - vec3 normal : the normal of the slope (collider triangle) player is currently sliding
 	*/
 
-	player->player_state = PLAYER_STATE_SLIDING;
+	player->player_state = PlayerState::Sliding;
 
 	auto down_vec_into_n = project_vec_into_ref(-UnitY, normal);
 	auto sliding_direction = normalize(-UnitY - down_vec_into_n);
@@ -168,7 +168,7 @@ void GP_player_state_change_standing_to_slide_falling(Player* player, Entity* ra
 	// make player 'snap' to slope velocity-wise
 	// player->entity_ptr->velocity = player->slide_speed * ramp->collision_geometry.slope.tangent;
 
-	player->player_state = PLAYER_STATE_SLIDE_FALLING;
+	player->player_state = PlayerState::SlideFalling;
 }
 
 
@@ -182,7 +182,7 @@ void GP_player_state_change_any_to_grabbing(Player* player, Entity* entity, vec2
 	// camera_change_direction(pCam, turn_angle, 0.f);
 	// // CL_snap_player(player, normal_vec, penetration);
 
-	// player->player_state          = PLAYER_STATE_GRABBING;
+	// player->player_state          = PlayerState::Grabbing;
 	// player->grabbing_entity       = entity;
 	// player->entity_ptr->velocity  = vec3(0);
 	// // after we are able to move while grabbing the ledge, this should move away from here
@@ -198,8 +198,8 @@ void GP_player_state_change_any_to_grabbing(Player* player, Entity* entity, vec2
 // DONE
 void GP_player_state_change_grabbing_to_vaulting(Player* player)
 {
-	player->player_state = PLAYER_STATE_VAULTING;
-	player->anim_state = PlayerAnimationState_Vaulting;
+	player->player_state = PlayerState::Vaulting;
+	player->anim_state = PlayerAnimationState::Vaulting;
 	player->vaulting_entity_ptr = player->grabbing_entity;
 	player->grabbing_entity = nullptr;
 }
@@ -210,8 +210,8 @@ void GP_player_state_change_standing_to_vaulting(Player* player, Ledge ledge, ve
 	GII->block_mouse_move = true;
 	auto* player_camera = GlobalSceneInfo::GetGameCam();
 	
-	player->player_state = PLAYER_STATE_VAULTING;
-	player->anim_state = PlayerAnimationState_Vaulting;
+	player->player_state = PlayerState::Vaulting;
+	player->anim_state = PlayerAnimationState::Vaulting;
 	player->entity_ptr->velocity = vec3(0);
 
 	player->anim_orig_pos = player->entity_ptr->position;
@@ -229,7 +229,7 @@ void GP_player_state_change_vaulting_to_standing(Player* player)
 	
 	GII->forget_last_mouse_coords = true;
 	GII->block_mouse_move = false;
-	player->player_state = PLAYER_STATE_STANDING;
+	player->player_state = PlayerState::Standing;
 	player->standing_entity_ptr = player->vaulting_entity_ptr;
 	player->vaulting_entity_ptr = nullptr;
 	player->anim_finished_turning = false;
@@ -240,7 +240,7 @@ void GP_player_state_change_sliding_to_standing(Player* player)
 {
 	player->sliding_direction = vec3(0);
 	player->sliding_normal = vec3(0);
-	player->player_state = PLAYER_STATE_STANDING;
+	player->player_state = PlayerState::Standing;
 }
 
 
@@ -252,15 +252,15 @@ void GP_player_state_change_sliding_to_jumping(Player* player)
 	player->entity_ptr->velocity = player->v_dir * player->jump_horz_thrust;
 	player->entity_ptr->velocity.y = player->jump_initial_speed;
 
-	player->player_state = PLAYER_STATE_JUMPING;
-	player->anim_state = PlayerAnimationState_Jumping;
+	player->player_state = PlayerState::Jumping;
+	player->anim_state = PlayerAnimationState::Jumping;
 	player->height_before_fall = player->entity_ptr->position.y;
 }
 
 
 void GP_player_state_change_sliding_to_falling(Player* player)
 {
-	player->player_state = PLAYER_STATE_FALLING;
+	player->player_state = PlayerState::Falling;
 	player->entity_ptr->velocity.y = -player->fall_speed;
 	player->height_before_fall = player->entity_ptr->position.y;
 }

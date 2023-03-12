@@ -2,41 +2,31 @@
 
 #include "engine/entities/entity.h"
 
-enum PlayerState
+enum class PlayerState
 {
-	PLAYER_STATE_FALLING,
-	PLAYER_STATE_STANDING,
-	PLAYER_STATE_WALKING,
-	PLAYER_STATE_RUNNING,
-	PLAYER_STATE_SPRINTING,
-	PLAYER_STATE_JUMPING,
-	PLAYER_STATE_SLIDING,
-	PLAYER_STATE_SLIDE_FALLING,
-	PLAYER_STATE_GRABBING,
-	PLAYER_STATE_FALLING_FROM_EDGE,
-	PLAYER_STATE_EVICTED_FROM_SLOPE,
-	PLAYER_STATE_VAULTING
+	Falling,
+	Standing,
+	Walking,
+	Running,
+	Sprinting,
+	Jumping,
+	Sliding,
+	SlideFalling,
+	Grabbing,
+	FallingFromEdge,
+	EvictedFromSlope,
+	Vaulting
 };
 
 const static std::string PlayerName = "Player";
 
-// ----------
-// Animation
-// ----------
-enum PlayerAnimationState
+enum class PlayerAnimationState
 {
-	PlayerAnimationState_NoAnimation = 999,
-	PlayerAnimationState_Jumping     = 0,
-	PlayerAnimationState_Landing     = 1,
-	PlayerAnimationState_LandingFall = 2,
-	PlayerAnimationState_Vaulting    = 3
-};
-
-constexpr float PlayerAnimationDurations[] = {
-400, // 0 - jumping
-200, // 1 - landing                  
-400, // 2 - landing fall   
-0    // 3 - vaulting
+	NoAnimation,
+	Jumping,
+	Landing,
+	LandingFall,
+	Vaulting
 };
 
 // forward declarations
@@ -44,9 +34,7 @@ struct Player;
 struct Entity;
 struct World;
 
-void AN_p_anim_force_interrupt(Player* player);
-bool CL_update_player_world_cells(Player* player, World* world);
-void CL_recompute_collision_buffer_entities(Player* player);
+void ForceInterruptPlayerAnimation(Player* player);
 
 
 struct Player
@@ -129,7 +117,7 @@ struct Player
 
 	// animation
 	float anim_t = 0;                                                   // animation timer
-	PlayerAnimationState anim_state = PlayerAnimationState_NoAnimation; // animation state
+	PlayerAnimationState anim_state = PlayerAnimationState::NoAnimation; // animation state
 	vec3 anim_final_pos = vec3(0);                                      // final position after translation animation
 	vec3 anim_orig_pos = vec3(0);                                       // original position
 	vec3 anim_final_dir = vec3(0);                                      // final player orientation
@@ -138,128 +126,24 @@ struct Player
 
 	static Player* Get() { static Player instance; return &instance; }
 	
-	void Update(World* world, bool update_collider = false)
-	{
-		// perform updates to bounding boxes, colliders etc
-		entity_ptr->UpdateModelMatrix();
-		if(update_collider)
-		{
-			entity_ptr->UpdateCollider();
-			entity_ptr->UpdateBoundingBox();
-		}
+	void Update(World* world, bool update_collider = false);
 
-		if(CL_update_player_world_cells(this, world))
-		{
-			CL_recompute_collision_buffer_entities(this);
-		}
-	}
-
-	vec3 Feet()
-	{
-		return entity_ptr->position;
-	}
-
-	vec3 Top()
-	{
-		return entity_ptr->position + vec3(0.0f, height, 0.0f);
-	}
-
-	vec3 Eye()
-	{
-		return entity_ptr->position + vec3(0, height - 0.1, 0);
-	}
-
-	vec3 LastTerrainContactPoint()
-	{
-		vec3 player_btm_sphere_center = entity_ptr->position + vec3(0, radius, 0);
-		return player_btm_sphere_center + -last_terrain_contact_normal * radius;
-	}
-
-	bool MaybeHurtFromFall()
-	{
-		float fall_height = height_before_fall - entity_ptr->position.y;
-		fall_height_log = fall_height;
-		if(fall_height >= hurt_height_2)
-		{
-			lives -= 2;
-			return true;
-		}
-		if(fall_height >= hurt_height_1)
-		{
-			lives -= 1;
-			return true;
-		}
-		return false;
-	}
-
-	void RestoreHealth()
-	{
-		lives = initial_lives;
-	}
-
-	void SetCheckpoint(Entity* entity)
-	{
-		if(entity->type != EntityType_Checkpoint)
-			assert(false);
-
-		checkpoint_pos = entity_ptr->position;
-		checkpoint = entity;
-	}
-
-	void GotoCheckpoint()
-	{
-		entity_ptr->position = checkpoint_pos;
-	}
-
-	void Die()
-	{
-		lives = initial_lives;
-		entity_ptr->velocity = vec3(0);
-		player_state = PLAYER_STATE_STANDING;
-		AN_p_anim_force_interrupt(this);
-		GotoCheckpoint();
-	}
-
-	void BruteStop()
-	{
-		// bypass deaceleration steps. Stops player right on his tracks.
-		speed = 0;
-	}
-
-	static void StartJumpAnimation()
-	{ }
-
-	void MakeInvisible()
-	{
-		entity_ptr->MakeInvisible();
-	}
-
-	void MakeVisible()
-	{
-		entity_ptr->MakeVisible();
-	}
+	vec3 GetFeetPosition() const { return entity_ptr->position; }
 	
+	vec3 GetUpperBoundPosition() const { return entity_ptr->position + vec3(0.0f, height, 0.0f); }
+	
+	vec3 GetEyePosition() const { return entity_ptr->position + vec3(0, height - 0.1, 0);}
 
-	// // pass through methods
-	// vec3 position()
-	// {
-	//    return entity_ptr->position;
-	// }
-
-	// vec3 rotation()
-	// {
-	//    return entity_ptr->rotation;
-	// }
-
-	// vec3 scale()
-	// {
-	//    return entity_ptr->scale;
-	// }
-
-	// vec3 velocity()
-	// {
-	//    return entity_ptr->velocity;
-	// }
+	vec3 GetLastTerrainContactPoint() const;
+	
+	bool MaybeHurtFromFall();
+	void RestoreHealth();
+	void SetCheckpoint(Entity* entity);
+	void GotoCheckpoint();
+	void Die();
+	void BruteStop();
+	void MakeInvisible();
+	void MakeVisible();
 
 private:
 	friend struct GlobalSceneInfo;
@@ -267,11 +151,5 @@ private:
 	Player() = default;
 	Player(const Player& other) = delete;
 
-	static Player* ResetPlayer()
-	{
-		auto* player = Get();
-		*player = Player{};
-		return player;
-	}
-	
+	static Player* ResetPlayer();
 };

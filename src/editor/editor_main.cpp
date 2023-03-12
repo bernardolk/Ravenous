@@ -556,7 +556,7 @@ namespace Editor
 
 
 		// PLAYER POSITION
-		vec3 p_feet = player->Feet();
+		vec3 p_feet = player->GetFeetPosition();
 		std::string player_p[3]{
 			FormatFloatTostr(p_feet.x, 1),
 			FormatFloatTostr(p_feet.y, 1),
@@ -582,25 +582,25 @@ namespace Editor
 		std::string player_state_text;
 		switch(player->player_state)
 		{
-			case PLAYER_STATE_STANDING:
-				player_state_text = "PLAYER STANDING";
+			case PlayerState::Standing:
+				player_state_text = "PLAYER PlayerState::Standing";
 			break;
-			case PLAYER_STATE_FALLING:
+			case PlayerState::Falling:
 				player_state_text = "PLAYER FALLING";
 			break;
-			case PLAYER_STATE_FALLING_FROM_EDGE:
+			case PlayerState::FallingFromEdge:
 				player_state_text = "PLAYER FALLING FROM EDGE";
 			break;
-			case PLAYER_STATE_JUMPING:
+			case PlayerState::Jumping:
 				player_state_text = "PLAYER JUMPING";
 			break;
-			case PLAYER_STATE_SLIDING:
+			case PlayerState::Sliding:
 				player_state_text = "PLAYER SLIDING";
 			break;
-			case PLAYER_STATE_SLIDE_FALLING:
+			case PlayerState::SlideFalling:
 				player_state_text = "PLAYER SLIDE FALLING";
 			break;
-			case PLAYER_STATE_EVICTED_FROM_SLOPE:
+			case PlayerState::EvictedFromSlope:
 				player_state_text = "PLAYER EVICTED FROM SLOPE";
 			break;
 		}

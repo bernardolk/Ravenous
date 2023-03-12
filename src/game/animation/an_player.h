@@ -3,8 +3,8 @@
 #include "engine/core/core.h"
 
 void AN_animate_player(Player* player);
-void AN_p_anim_force_interrupt(Player* player);
-bool AN_p_anim_jumping_update(Player* player);
-bool AN_p_anim_landing_update(Player* player);
-bool AN_p_anim_landing_fall_update(Player* player);
-bool AN_p_anim_vaulting(Player* player);
+void ForceInterruptPlayerAnimation(Player* player);
+bool AN_UpdatePlayerJumpingAnimation(Player* player);
+bool AN_UpdatePlayerLandingAnimation(Player* player);
+bool AN_UpdatePlayerLandingFallAnimation(Player* player);
+bool AN_PlayerVaulting(Player* player);

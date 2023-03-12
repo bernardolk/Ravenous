@@ -292,7 +292,7 @@ namespace Editor
 			{
 				auto surface_point = point_from_detection(pickray, test);
 				player->entity_ptr->position = surface_point;
-				player->player_state = PLAYER_STATE_STANDING;
+				player->player_state = PlayerState::Standing;
 				player->standing_entity_ptr = test.entity;
 				player->entity_ptr->velocity = vec3(0, 0, 0);
 				player->Update(world);

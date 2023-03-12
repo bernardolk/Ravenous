@@ -20,7 +20,7 @@ Ledge CL_perform_ledge_detection(Player* player, World* world)
 	constexpr int _front_ray_qty = 24;
 
 	auto orientation_xz = to_xz(player->orientation);
-	auto first_ray = Ray{player->Eye() - UnitY * _front_ray_first_ray_delta_y, orientation_xz};
+	auto first_ray = Ray{player->GetEyePosition() - UnitY * _front_ray_first_ray_delta_y, orientation_xz};
 	ledge.detection_direction = first_ray.direction;
 
 	auto front_test = world->LinearRaycastArray(first_ray, _front_ray_qty, _front_ray_spacing);

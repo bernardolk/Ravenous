@@ -7,9 +7,16 @@
 #include "engine/world/scene_manager.h"
 #include "game/gameplay/gp_player_state.h"
 
-void AN_animate_player(Player* player)
+constexpr std::map<PlayerAnimationState, float> PlayerAnimationDurations = {
+	{PlayerAnimationState::Jumping, 400},
+	{PlayerAnimationState::Landing, 200},           
+	{PlayerAnimationState::LandingFall, 400},
+	{PlayerAnimationState::Vaulting, 0}
+};
+
+void AN_AnimatePlayer(Player* player)
 {
-	if(player->anim_state == PlayerAnimationState_NoAnimation)
+	if (player->anim_state == PlayerAnimationState::NoAnimation)
 		return;
 
 	// updates animation run time
@@ -17,8 +24,13 @@ void AN_animate_player(Player* player)
 
 	// check if animation is completed
 	bool end_anim = false;
-	auto anim_duration = PlayerAnimationDurations[player->anim_state];
-	if(anim_duration > 0 && player->anim_t >= anim_duration)
+
+	float* find_duration = Find(PlayerAnimationDurations, player->anim_state);
+	if (!find_duration)
+		return;
+	
+	float anim_duration = *find_duration;
+	if (anim_duration > 0 && player->anim_t >= anim_duration)
 	{
 		player->anim_t = anim_duration;
 		end_anim = true;
@@ -26,40 +38,54 @@ void AN_animate_player(Player* player)
 
 	// dispatch call to correct update function depending on player animation state
 	bool interrupt = false;
-	switch(player->anim_state)
+	switch (player->anim_state)
 	{
-		case PlayerAnimationState_Jumping: interrupt = AN_p_anim_jumping_update(player);
-			break;
-
-		case PlayerAnimationState_Landing: interrupt = AN_p_anim_landing_update(player);
-			break;
-
-		case PlayerAnimationState_LandingFall: interrupt = AN_p_anim_landing_fall_update(player);
-			break;
-
-		case PlayerAnimationState_Vaulting: interrupt = AN_p_anim_vaulting(player);
+		case PlayerAnimationState::Jumping:
 		{
-			if(interrupt)
-			{
-				GP_ChangePlayerState(player, PLAYER_STATE_STANDING);
-			}
+			interrupt = AN_UpdatePlayerJumpingAnimation(player);
 			break;
 		}
+
+		case PlayerAnimationState::Landing:
+		{
+			interrupt = AN_UpdatePlayerLandingAnimation(player);
+			break;
+		}
+
+		case PlayerAnimationState::LandingFall:
+		{
+			interrupt = AN_UpdatePlayerLandingFallAnimation(player);
+			break;
+		}
+
+		case PlayerAnimationState::Vaulting:
+		{
+			interrupt = AN_PlayerVaulting(player);
+			{
+				if(interrupt)
+				{
+					GP_ChangePlayerState(player, PlayerState::Standing);
+				}
+				break;
+			}
+		}
+
+		case default: break;
 	}
 
 	// stop animation if completed or interrupted
-	if(end_anim || interrupt)
+	if (end_anim || interrupt)
 	{
-		player->anim_state = PlayerAnimationState_NoAnimation;
+		player->anim_state = PlayerAnimationState::NoAnimation;
 		player->anim_t = 0;
 	}
 }
 
 
-bool AN_p_anim_jumping_update(Player* player)
+bool AN_UpdatePlayerJumpingAnimation(Player* player)
 {
 	// // interpolate between 0 and duration the player's height
-	// float anim_d            = PLAYER_ANIMATION_DURATIONS[PlayerAnimationState_Jumping];
+	// float anim_d            = PLAYER_ANIMATION_DURATIONS[PlayerAnimationState::Jumping];
 	// // float new_half_height   = player->height - 0.1 * player->anim_t / anim_d;
 	// float h_diff            = player->half_height - new_half_height;
 
@@ -75,7 +101,7 @@ bool AN_p_anim_jumping_update(Player* player)
 }
 
 
-bool AN_p_anim_landing_update(Player* player)
+bool AN_UpdatePlayerLandingAnimation(Player* player)
 {
 	// bool interrupt = false;
 	// // add a linear height step of 0.5m per second
@@ -99,9 +125,9 @@ bool AN_p_anim_landing_update(Player* player)
 }
 
 
-bool AN_p_anim_landing_fall_update(Player* player)
+bool AN_UpdatePlayerLandingFallAnimation(Player* player)
 {
-	// float anim_d = PLAYER_ANIMATION_DURATIONS[PlayerAnimationState_LandingFall];
+	// float anim_d = PLAYER_ANIMATION_DURATIONS[PlayerAnimationState::LandingFall];
 	// bool interrupt = false;
 	// // sets the % of the duration of the animation that consists
 	// // of player bending his knees on the fall, the rest is standing up again
@@ -143,7 +169,7 @@ bool AN_p_anim_landing_fall_update(Player* player)
 }
 
 
-bool AN_p_anim_vaulting(Player* player)
+bool AN_PlayerVaulting(Player* player)
 {
 	vec3& p_pos = player->entity_ptr->position;
 
@@ -209,9 +235,9 @@ bool AN_p_anim_vaulting(Player* player)
 }
 
 
-void AN_p_anim_force_interrupt(Player* player)
+void ForceInterruptPlayerAnimation(Player* player)
 {
-	// player->anim_state = PlayerAnimationState_NoAnimation;
+	// player->anim_state = PlayerAnimationState::NoAnimation;
 	// player->anim_t = 0;
 	// // player->half_height = player->height;
 	// player->entity_ptr->scale.y = player->height;

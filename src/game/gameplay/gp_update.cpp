@@ -24,7 +24,7 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 {
 	switch(player->player_state)
 	{
-		case PLAYER_STATE_STANDING:
+		case PlayerState::Standing:
 		{
 			// compute player next position
 			auto next_position = GP_PlayerStandingGetNextPosition(player);
@@ -85,7 +85,7 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 					vec2 fall_momentum = fall_momentum_dir * fall_momentum_intensity;
 					
 					player->entity_ptr->velocity = to3d_xz(fall_momentum);
-					GP_ChangePlayerState(player, PLAYER_STATE_FALLING);
+					GP_ChangePlayerState(player, PlayerState::Falling);
 					player->Update(world, true);
 					break;
 				}
@@ -98,7 +98,7 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 				{
 					PlayerStateChangeArgs args;
 					args.normal = slope.normal;
-					GP_ChangePlayerState(player, PLAYER_STATE_SLIDING, args);
+					GP_ChangePlayerState(player, PlayerState::Sliding, args);
 					break;
 				}
 			}
@@ -114,7 +114,7 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 		}
 
 
-		case PLAYER_STATE_FALLING:
+		case PlayerState::Falling:
 		{
 			player->entity_ptr->velocity += Rvn::frame.duration * player->gravity;
 			player->entity_ptr->position += player->entity_ptr->velocity * Rvn::frame.duration;
@@ -132,7 +132,7 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 					{
 						PlayerStateChangeArgs args;
 						args.normal = result.normal;
-						GP_ChangePlayerState(player, PLAYER_STATE_SLIDING, args);
+						GP_ChangePlayerState(player, PlayerState::Sliding, args);
 						return;
 					}
 				}
@@ -142,7 +142,7 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 					bool collided_with_terrain = dot(result.normal, UnitY) > 0;
 					if(collided_with_terrain)
 					{
-						GP_ChangePlayerState(player, PLAYER_STATE_STANDING);
+						GP_ChangePlayerState(player, PlayerState::Standing);
 						return;
 					}
 				}
@@ -157,7 +157,7 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 		}
 
 
-		case PLAYER_STATE_JUMPING:
+		case PlayerState::Jumping:
 		{
 			auto& v = player->entity_ptr->velocity;
 
@@ -188,7 +188,7 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 					{
 						PlayerStateChangeArgs args;
 						args.normal = result.normal;
-						GP_ChangePlayerState(player, PLAYER_STATE_SLIDING, args);
+						GP_ChangePlayerState(player, PlayerState::Sliding, args);
 						return;
 					}
 				}
@@ -198,7 +198,7 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 					bool collided_with_terrain = dot(result.normal, UnitY) > 0;
 					if(collided_with_terrain)
 					{
-						GP_ChangePlayerState(player, PLAYER_STATE_STANDING);
+						GP_ChangePlayerState(player, PlayerState::Standing);
 						return;
 					}
 				}
@@ -213,16 +213,16 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 			//          in that case it should also stand (or fall from ledge) and not
 			//          directly fall.
 			if(results.count > 0)
-				GP_ChangePlayerState(player, PLAYER_STATE_FALLING);
+				GP_ChangePlayerState(player, PlayerState::Falling);
 
 			else if(player->entity_ptr->velocity.y <= 0)
-				GP_ChangePlayerState(player, PLAYER_STATE_FALLING);
+				GP_ChangePlayerState(player, PlayerState::Falling);
 
 			break;
 		}
 
 
-		case PLAYER_STATE_SLIDING:
+		case PlayerState::Sliding:
 		{
 			ImDraw::AddLine(IMHASH, player->entity_ptr->position, player->entity_ptr->position + 1.f * player->sliding_direction, COLOR_RED_2);
 
@@ -247,14 +247,14 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 
 			if(collided_with_terrain)
 			{
-				GP_ChangePlayerState(player, PLAYER_STATE_STANDING);
+				GP_ChangePlayerState(player, PlayerState::Standing);
 				break;
 			}
 
 			auto vtrace = CL_DoStepoverVtrace(player, world);
 			if(!vtrace.hit)
 			{
-				GP_ChangePlayerState(player, PLAYER_STATE_FALLING);
+				GP_ChangePlayerState(player, PlayerState::Falling);
 			}
 
 			break;
@@ -434,7 +434,7 @@ void GP_CheckPlayerGrabbedLedge(Player* player, World* world)
 	PlayerStateChangeArgs args;
 	args.ledge = ledge;
 	args.final_position = position;
-	GP_ChangePlayerState(player, PLAYER_STATE_VAULTING, args);
+	GP_ChangePlayerState(player, PlayerState::Vaulting, args);
 }
 
 // void GP_check_player_grabbed_ledge(Player* player)
@@ -488,7 +488,7 @@ void GP_CheckPlayerGrabbedLedge(Player* player, World* world)
 //             ps_args.final_position = future_pos;
 //             ps_args.penetration = dr - test.overlap;
 
-//             GP_change_player_state(player, PLAYER_STATE_GRABBING, ps_args);
+//             GP_change_player_state(player, PlayerState::Grabbing, ps_args);
 //             return;
 //          }
 //       }
@@ -531,7 +531,7 @@ void GP_CheckPlayerGrabbedLedge(Player* player, World* world)
 //             ps_args.final_position = future_pos;
 //             ps_args.penetration = dr - test.overlap;
 
-//             GP_change_player_state(player, PLAYER_STATE_GRABBING, ps_args);
+//             GP_change_player_state(player, PlayerState::Grabbing, ps_args);
 //             return;
 //          }
 //       }
@@ -601,7 +601,7 @@ void GP_CheckPlayerGrabbedLedge(Player* player, World* world)
 //          ps_args.final_position = future_pos;
 //          ps_args.penetration = dr - test.overlap;
 
-//          GP_change_player_state(player, PLAYER_STATE_VAULTING, ps_args);
+//          GP_change_player_state(player, PlayerState::Vaulting, ps_args);
 //          return true;
 //       }
 //    }

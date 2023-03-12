@@ -81,7 +81,7 @@ void IN_HandleMovementInput(InputFlags flags, Player* & player, World* world)
 	switch(player->player_state)
 	{
 
-		case PLAYER_STATE_STANDING:
+		case PlayerState::Standing:
 		{
 			// MOVE
 			IN_ProcessMoveKeys(flags, v_dir);
@@ -96,7 +96,7 @@ void IN_HandleMovementInput(InputFlags flags, Player* & player, World* world)
 
 			// JUMP
 			if(flags.key_press & KEY_SPACE)
-				GP_ChangePlayerState(player, PLAYER_STATE_JUMPING);
+				GP_ChangePlayerState(player, PlayerState::Jumping);
 
 			// VAULT
 			if(Pressed(flags, KEY_LEFT_SHIFT) && MOUSE_LB_CLICK & GlobalInputInfo::Get()->mouse_state)
@@ -112,7 +112,7 @@ void IN_HandleMovementInput(InputFlags flags, Player* & player, World* world)
 			break;
 		}
 
-		case PLAYER_STATE_JUMPING:
+		case PlayerState::Jumping:
 		{
 			// MID-AIR CONTROL IF JUMPING UP
 			if(player->jumping_upwards)
@@ -124,7 +124,7 @@ void IN_HandleMovementInput(InputFlags flags, Player* & player, World* world)
 			break;
 		}
 
-		case PLAYER_STATE_FALLING:
+		case PlayerState::Falling:
 		{
 			if(Pressed(flags, KEY_DASH))
 				player->action = true;
@@ -132,7 +132,7 @@ void IN_HandleMovementInput(InputFlags flags, Player* & player, World* world)
 			break;
 		}
 
-		case PLAYER_STATE_SLIDING:
+		case PlayerState::Sliding:
 		{
 			player->v_dir = player->sliding_direction;
 
@@ -150,18 +150,18 @@ void IN_HandleMovementInput(InputFlags flags, Player* & player, World* world)
 				player->v_dir = normalize(player->v_dir);
 			}
 			if(flags.key_press & KEY_SPACE)
-				GP_ChangePlayerState(player, PLAYER_STATE_JUMPING);
+				GP_ChangePlayerState(player, PlayerState::Jumping);
 
 			break;
 		}
-		case PLAYER_STATE_GRABBING:
+		case PlayerState::Grabbing:
 		{
 			if(Pressed(flags, KEY_DASH))
 			{
 				player->action = true;
 
 				if(Pressed(flags, KEY_MOVE_UP))
-					GP_ChangePlayerState(player, PLAYER_STATE_VAULTING);
+					GP_ChangePlayerState(player, PlayerState::Vaulting);
 			}
 
 			break;

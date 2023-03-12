@@ -37,7 +37,7 @@ ClVtraceResult CL_DoStepoverVtrace(Player* player, World* world)
 	   Will cull out any results that are to be considered too high (is a wall) or too low (is a hole) considering
 	   player's current height. */
 
-	vec3 ray_origin = player->LastTerrainContactPoint() + vec3(0, 0.21, 0);
+	vec3 ray_origin = player->GetLastTerrainContactPoint() + vec3(0, 0.21, 0);
 	auto downward_ray = Ray{ray_origin, -UnitY};
 	RaycastTest raytest = world->Raycast(downward_ray, RayCast_TestOnlyFromOutsideIn, player->entity_ptr);
 
@@ -56,7 +56,7 @@ ClVtraceResult CL_DoStepoverVtrace(Player* player, World* world)
 	ImDraw::AddPoint(IMHASH, hitpoint, 1.0, true, COLOR_GREEN_3);
 
 	if(abs(player->entity_ptr->position.y - hitpoint.y) <= PlayerStepoverLimit)
-		return ClVtraceResult{true, player->LastTerrainContactPoint().y - hitpoint.y, raytest.entity};
+		return ClVtraceResult{true, player->GetLastTerrainContactPoint().y - hitpoint.y, raytest.entity};
 
 	return ClVtraceResult{false};
 }
