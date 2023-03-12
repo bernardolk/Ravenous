@@ -51,13 +51,13 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 	if (!p.HasToken())
 		Quit_fatal("Scene '" + filename + "' didn't start with NEXT_ENTITY_ID token.")
 
-	const auto next_entity_id_token = get_parsed<std::string>(p);
+	const auto next_entity_id_token = GetParsed<std::string>(p);
 	if (next_entity_id_token != "NEXT_ENTITY_ID")
 		Quit_fatal("Scene '" + filename + "' didn't start with NEXT_ENTITY_ID token.")
 
 	p.ParseWhitespace();
 	p.ParseSymbol();
-	if (!p.HasToken() || get_parsed<char>(p) != '=')
+	if (!p.HasToken() || GetParsed<char>(p) != '=')
 		Quit_fatal("Missing '=' after NEXT_ENTITY_ID.")
 
 	p.ParseWhitespace();
@@ -68,7 +68,7 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 	if (!p.HasToken())
 		recompute_next_entity_id = true;
 	else
-		manager->next_entity_id = get_parsed<u64>(p);
+		manager->next_entity_id = GetParsed<u64>(p);
 
 	// -----------------------------------
 	//           Parse entities
@@ -76,26 +76,26 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 	while (p.NextLine())
 	{
 		p.ParseSymbol();
-		switch (get_parsed<char>(p))
+		switch (GetParsed<char>(p))
 		{
 			case '#':
-				EntitySerializer::parse(p);
+				EntitySerializer::Parse(p);
 				break;
 
 			case '@':
-				PlayerSerializer::parse_attribute(p);
+				PlayerSerializer::ParseAttribute(p);
 				break;
 
 			case '$':
-				LightSerializer::parse(p);
+				LightSerializer::Parse(p);
 				break;
 
 			case '*':
-				ConfigSerializer::parse_camera_settings(p);
+				ConfigSerializer::ParseCameraSettings(p);
 				break;
 
 			case '&':
-				PlayerSerializer::parse_orientation(p);
+				PlayerSerializer::ParseOrientation(p);
 				break;
 
 			default:
@@ -155,7 +155,7 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 	// If missing NEXT_ENTITY_ID in scene header, recompute from collected Ids (If no entity has an ID yet, this will be 1)
 	if (recompute_next_entity_id)
 	{
-		manager->next_entity_id = Max_Entity_Id + 1;
+		manager->next_entity_id = MaxEntityId + 1;
 	}
 
 	// assign IDs to entities missing them starting from max current id
@@ -168,7 +168,7 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 	}
 
 	// clear static relations buffer
-	EntitySerializer::_clear_buffer();
+	EntitySerializer::ClearBuffer();
 
 	GlobalSceneInfo::Get()->scene_name = filename;
 
@@ -223,7 +223,7 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 	<< camera->front.z << "\n";
 
 	// write player attributes to file
-	PlayerSerializer::save(writer);
+	PlayerSerializer::Save(writer);
 
 	// @TODO: Refactor this at some point
 	// write player orientation
@@ -235,13 +235,13 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 
 	// write lights to file
 	for (const auto& light : world->point_lights)
-		LightSerializer::save(writer, light);
+		LightSerializer::Save(writer, light);
 
 	for (const auto& light : world->spot_lights)
-		LightSerializer::save(writer, light);
+		LightSerializer::Save(writer, light);
 
 	for (const auto& light : world->directional_lights)
-		LightSerializer::save(writer, light);
+		LightSerializer::Save(writer, light);
 
 
 	for (const auto& entity : world->entities)
@@ -249,22 +249,22 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 		if (entity->name == "Player")
 			continue;
 
-		EntitySerializer::save(writer, *entity);
+		EntitySerializer::Save(writer, *entity);
 	}
 
 	writer.close();
 
 	if (do_copy)
 	{
-		log(LOG_INFO, "Scene copy saved successfully as '" + filename + ".txt'");
+		Log(LOG_INFO, "Scene copy saved successfully as '" + filename + ".txt'");
 	}
 	else if (!new_filename.empty())
 	{
-		log(LOG_INFO, "Scene saved successfully as '" + filename + ".txt' (now editing it)");
+		Log(LOG_INFO, "Scene saved successfully as '" + filename + ".txt' (now editing it)");
 		GlobalSceneInfo::Get()->scene_name = filename;
 	}
 	else
-		log(LOG_INFO, "Scene saved successfully.");
+		Log(LOG_INFO, "Scene saved successfully.");
 
 	return true;
 }

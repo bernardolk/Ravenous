@@ -398,7 +398,7 @@ void GP_CheckTriggerInteraction(Player* player, World* world)
 
 		//@todo: do a cylinder vs cylinder or cylinder vs aabb test here
 		CollisionMesh trigger_collider = interactable->GetTriggerCollider();
-		GJK_Result gjk_test = CL_run_GJK(&player->entity_ptr->collider, &trigger_collider);
+		GJK_Result gjk_test = CL_RunGjk(&player->entity_ptr->collider, &trigger_collider);
 		if (gjk_test.collision)
 		{
 			Rvn::PrintDynamic("Trigger Interaction", 1000);

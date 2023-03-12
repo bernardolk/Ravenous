@@ -9,17 +9,17 @@
 #include "engine/serialization/sr_player.h"
 
 
-void PlayerSerializer::parse_attribute(Parser& p)
+void PlayerSerializer::ParseAttribute(Parser& p)
 {
 	Player* player = world->player;
 
 	p.ParseToken();
-	const auto attribute = get_parsed<std::string>(p);
+	const auto attribute = GetParsed<std::string>(p);
 
 	p.ParseAllWhitespace();
 	p.ParseSymbol();
 
-	if (get_parsed<char>(p) != '=')
+	if (GetParsed<char>(p) != '=')
 	{
 		std::cout << "SYNTAX ERROR, MISSING '=' CHARACTER AT SCENE DESCRIPTION FILE ('" << p.filepath << "') LINE NUMBER " << p.line_count << "\n";
 		assert(false);
@@ -28,7 +28,7 @@ void PlayerSerializer::parse_attribute(Parser& p)
 	if (attribute == "player_position")
 	{
 		p.ParseVec3();
-		const auto position = get_parsed<glm::vec3>(p);
+		const auto position = GetParsed<glm::vec3>(p);
 		player->entity_ptr->position = position;
 		player->checkpoint_pos = position;
 		player->height_before_fall = position.y;
@@ -37,7 +37,7 @@ void PlayerSerializer::parse_attribute(Parser& p)
 	else if (attribute == "player_initial_velocity")
 	{
 		p.ParseVec3();
-		player->initial_velocity = get_parsed<glm::vec3>(p);
+		player->initial_velocity = GetParsed<glm::vec3>(p);
 		player->entity_ptr->velocity = player->initial_velocity;
 	}
 
@@ -45,7 +45,7 @@ void PlayerSerializer::parse_attribute(Parser& p)
 	{
 		p.ParseAllWhitespace();
 		p.ParseInt();
-		player->initial_player_state = static_cast<PlayerState>(get_parsed<u32>(p));
+		player->initial_player_state = static_cast<PlayerState>(GetParsed<u32>(p));
 		player->player_state = player->initial_player_state;
 	}
 
@@ -53,14 +53,14 @@ void PlayerSerializer::parse_attribute(Parser& p)
 	{
 		p.ParseAllWhitespace();
 		p.ParseFloat();
-		player->fall_speed = get_parsed<float>(p);
+		player->fall_speed = GetParsed<float>(p);
 	}
 
 	else if (attribute == "player_fall_acceleration")
 	{
 		p.ParseAllWhitespace();
 		p.ParseFloat();
-		player->fall_acceleration = get_parsed<float>(p);
+		player->fall_acceleration = GetParsed<float>(p);
 	}
 	else
 	{
@@ -68,30 +68,30 @@ void PlayerSerializer::parse_attribute(Parser& p)
 	}
 }
 
-void PlayerSerializer::parse_orientation(Parser& p)
+void PlayerSerializer::ParseOrientation(Parser& p)
 {
 	Player* player = world->player;
 
 	p.ParseToken();
-	if (get_parsed<std::string>(p) == "player_orientation")
+	if (GetParsed<std::string>(p) == "player_orientation")
 	{
 		p.ParseAllWhitespace();
 		p.ParseSymbol();
 
-		if (get_parsed<char>(p) != '=')
+		if (GetParsed<char>(p) != '=')
 		{
 			std::cout << "SYNTAX ERROR, MISSING '=' CHARACTER AT SCENE DESCRIPTION FILE ('" << p.filepath << "') LINE NUMBER " << p.line_count << "\n";
 			assert(false);
 		}
 
 		p.ParseVec3();
-		player->orientation = get_parsed<glm::vec3>(p);
+		player->orientation = GetParsed<glm::vec3>(p);
 	}
 	else
 		assert(false);
 }
 
-void PlayerSerializer::save(std::ofstream& writer)
+void PlayerSerializer::Save(std::ofstream& writer)
 {
 	const auto player = world->player;
 	writer << "@player_position = "

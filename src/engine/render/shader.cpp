@@ -68,7 +68,7 @@ void Shader::SetMatrix4(const std::string& name, glm::mat4 mat) const
 
 
 
-bool check_shader_compile_errors(Shader* shader, std::string type, unsigned int id)
+bool CheckShaderCompileErrors(Shader* shader, std::string type, unsigned int id)
 {
 	// returns true if we have a compilation problem in the shader program
 	int success;
@@ -102,7 +102,7 @@ bool check_shader_compile_errors(Shader* shader, std::string type, unsigned int 
 	return false;
 }
 
-Shader* create_shader_program(
+Shader* CreateShaderProgram(
 	std::string name,
 	const std::string vertex_shader_filename,
 	const std::string geometry_shader_filename,
@@ -159,7 +159,7 @@ Shader* create_shader_program(
 		vertex = glCreateShader(GL_VERTEX_SHADER);
 		glShaderSource(vertex, 1, &vShaderCode, nullptr);
 		glCompileShader(vertex);
-		problem = problem || check_shader_compile_errors(shader, "VERTEX", vertex);
+		problem = problem || CheckShaderCompileErrors(shader, "VERTEX", vertex);
 	}
 
 	// >> FRAGMENT
@@ -170,7 +170,7 @@ Shader* create_shader_program(
 		fragment = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(fragment, 1, &fShaderCode, nullptr);
 		glCompileShader(fragment);
-		problem = problem || check_shader_compile_errors(shader, "FRAGMENT", fragment);
+		problem = problem || CheckShaderCompileErrors(shader, "FRAGMENT", fragment);
 	}
 
 	// > ATTACH SHADERS TO PROGRAM
@@ -207,7 +207,7 @@ Shader* create_shader_program(
 			geometry = glCreateShader(GL_GEOMETRY_SHADER);
 			glShaderSource(geometry, 1, &gShaderCode, nullptr);
 			glCompileShader(geometry);
-			problem = problem || check_shader_compile_errors(shader, "GEOMETRY", geometry);
+			problem = problem || CheckShaderCompileErrors(shader, "GEOMETRY", geometry);
 		}
 
 		// >>> ATTACH
@@ -219,7 +219,7 @@ Shader* create_shader_program(
 
 	// > LINK PROGRAM
 	glLinkProgram(shader->gl_program_id);
-	problem = problem || check_shader_compile_errors(shader, "PROGRAM", shader->gl_program_id);
+	problem = problem || CheckShaderCompileErrors(shader, "PROGRAM", shader->gl_program_id);
 
 
 	// > DELETE SHADERS
@@ -238,7 +238,7 @@ Shader* create_shader_program(
 	return shader;
 }
 
-Shader* create_shader_program(std::string name, const std::string vertex_shader_filename, const std::string fragment_shader_filename)
+Shader* CreateShaderProgram(std::string name, const std::string vertex_shader_filename, const std::string fragment_shader_filename)
 {
-	return create_shader_program(name, vertex_shader_filename, "", fragment_shader_filename);
+	return CreateShaderProgram(name, vertex_shader_filename, "", fragment_shader_filename);
 }

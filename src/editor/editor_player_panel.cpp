@@ -9,7 +9,7 @@
 
 namespace Editor
 {
-	void render_player_panel(Editor::PlayerPanelContext* panel)
+	void RenderPlayerPanel(Editor::PlayerPanelContext* panel)
 	{
 		auto& entity = panel->player->entity_ptr;
 		auto& player = panel->player;
@@ -44,7 +44,7 @@ namespace Editor
 		ImGui::End();
 	}
 
-	void open_player_panel(Player* player)
+	void OpenPlayerPanel(Player* player)
 	{
 		auto& ed_context = *Editor::GetContext();
 

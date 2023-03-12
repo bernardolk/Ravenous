@@ -3,7 +3,6 @@
 #include "engine/rvn.h"
 #include "engine/serialization/parsing/parser.h"
 
-
 void T_InputRecorder::StartRecording()
 {
 	is_recording = true;
@@ -115,7 +114,7 @@ void T_InputRecorder::Load()
 	// For that reason, should be used only at startup.
 
 	std::vector<std::string> files;
-	if (OS_list_files(Paths::InputRecordings, "*", files))
+	if (OSListFiles(Paths::InputRecordings, "*", files))
 	{
 		recording_idx = 0;
 
@@ -129,11 +128,11 @@ void T_InputRecorder::Load()
 			while (p.NextLine())
 			{
 				p.ParseU64();
-				const u64 key_press = get_parsed<u64>(p);
+				const u64 key_press = GetParsed<u64>(p);
 
 				p.NextLine();
 				p.ParseU64();
-				const u64 key_release = get_parsed<u64>(p);
+				const u64 key_release = GetParsed<u64>(p);
 
 				recording.push_back(InputFlags{key_press, key_release});
 			}

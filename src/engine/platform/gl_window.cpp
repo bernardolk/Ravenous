@@ -8,7 +8,7 @@
 #include "engine/io/display.h"
 
 
-void setup_GLFW(bool debug)
+void SetupGLFW(bool debug)
 {
 	// Setup the window
 	glfwInit();
@@ -34,7 +34,7 @@ void setup_GLFW(bool debug)
 
 	// Setups openGL viewport
 	glViewport(0, 0, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height);
-	glfwSetFramebufferSizeCallback(GDC->window, framebuffer_size_callback);
+	glfwSetFramebufferSizeCallback(GDC->window, FramebufferSizeCallback);
 	glfwSetCursorPosCallback(GDC->window, OnMouseMove);
 	glfwSetScrollCallback(GDC->window, OnMouseScroll);
 	glfwSetMouseButtonCallback(GDC->window, OnMouseBtn);
@@ -45,12 +45,12 @@ void setup_GLFW(bool debug)
 	}
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
 
-GLenum glCheckError_(const char* file, int line)
+GLenum GLCheckError(const char* file, int line)
 {
 	GLenum error_code;
 	while ((error_code = glGetError()) != GL_NO_ERROR)

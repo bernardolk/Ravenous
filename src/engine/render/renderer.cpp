@@ -259,7 +259,7 @@ void SetShaderLightVariables(World* world, Shader* shader, Camera* camera)
 void RenderGameGui(Player* player)
 {
 	auto color = player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1};
-	render_text("consola42", 25, 75, color, std::to_string(player->lives));
+	RenderText("consola42", 25, 75, color, std::to_string(player->lives));
 
 	if (player->grabbing_entity != nullptr)
 	{
@@ -267,7 +267,7 @@ void RenderGameGui(Player* player)
 		std::string last_grabbed = player->grabbing_entity->name;
 		PGrab += "'" + last_grabbed + "'";
 	}
-	render_text(GlobalDisplayConfig::viewport_width - 400, 45, PGrab);
+	RenderText(GlobalDisplayConfig::viewport_width - 400, 45, PGrab);
 
 	std::string player_floor = "player floor: ";
 	if (player->standing_entity_ptr != nullptr)
@@ -279,7 +279,7 @@ void RenderGameGui(Player* player)
 			std::cout << "new floor: " << PFloor << "\n";
 		}
 	}
-	render_text(GlobalDisplayConfig::viewport_width - 400, 60, player_floor);
+	RenderText(GlobalDisplayConfig::viewport_width - 400, 60, player_floor);
 }
 
 // ----------------

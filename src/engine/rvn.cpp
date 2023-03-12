@@ -117,7 +117,7 @@ void RenderMessageBuffer::Render()
 		if (item.message != "")
 		{
 			items_rendered++;
-			render_text(
+			RenderText(
 				"consola20",
 				GlobalDisplayConfig::viewport_width / 2,
 				GlobalDisplayConfig::viewport_height - 120 - items_rendered * 25,

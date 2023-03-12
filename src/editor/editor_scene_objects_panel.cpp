@@ -10,7 +10,7 @@
 
 namespace Editor
 {
-	void render_scene_objects_panel(const World* world, SceneObjectsPanelContext* panel)
+	void RenderSceneObjectsPanel(const World* world, SceneObjectsPanelContext* panel)
 	{
 		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::viewport_width - 600, 50), ImGuiCond_Appearing);
 		ImGui::Begin("Scene objects", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
@@ -36,9 +36,9 @@ namespace Editor
 					panel->active = false;
 
 					if (entity->name == PlayerName)
-						open_player_panel(Player::Get());
+						OpenPlayerPanel(Player::Get());
 					else
-						open_entity_panel(entity);
+						OpenEntityPanel(entity);
 				}
 			}
 		}

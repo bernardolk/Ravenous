@@ -27,8 +27,8 @@ void initialize_console_buffers()
 
 void render_console()
 {
-	render_text(15, GlobalDisplayConfig::viewport_height - 20, Console.scratch_buffer);
-	render_text(15, GlobalDisplayConfig::viewport_height - 35, std::to_string(Console.b_ind));
+	RenderText(15, GlobalDisplayConfig::viewport_height - 20, Console.scratch_buffer);
+	RenderText(15, GlobalDisplayConfig::viewport_height - 35, std::to_string(Console.b_ind));
 }
 
 void move_to_next_buffer()
@@ -137,7 +137,7 @@ void execute_command(const std::string& buffer_line, Player* & player, World* wo
 {
 	Parser p{buffer_line, 50};
 	p.ParseToken();
-	const std::string command = get_parsed<std::string>(p);
+	const std::string command = GetParsed<std::string>(p);
 	auto* GSI = GlobalSceneInfo::Get();
 	auto& program_config = *ProgramConfig::Get();
 
@@ -148,7 +148,7 @@ void execute_command(const std::string& buffer_line, Player* & player, World* wo
 	{
 		p.ParseWhitespace();
 		p.ParseToken();
-		const std::string argument = get_parsed<std::string>(p);
+		const std::string argument = GetParsed<std::string>(p);
 		WorldSerializer::SaveToFile(argument, false);
 	}
 
@@ -160,7 +160,7 @@ void execute_command(const std::string& buffer_line, Player* & player, World* wo
 		// if you dont want to switch to the new file when saving scene with a new name
 		p.ParseWhitespace();
 		p.ParseToken();
-		const std::string scene_name = get_parsed<std::string>(p);
+		const std::string scene_name = GetParsed<std::string>(p);
 		WorldSerializer::SaveToFile(scene_name, true);
 	}
 
@@ -171,7 +171,7 @@ void execute_command(const std::string& buffer_line, Player* & player, World* wo
 	{
 		p.ParseWhitespace();
 		p.ParseToken();
-		const std::string scene_name = get_parsed<std::string>(p);
+		const std::string scene_name = GetParsed<std::string>(p);
 		// updates scene with new one
 		if (WorldSerializer::LoadFromFile(scene_name))
 		{
@@ -197,7 +197,7 @@ void execute_command(const std::string& buffer_line, Player* & player, World* wo
 	{
 		p.ParseWhitespace();
 		p.ParseToken();
-		const std::string scene_name = get_parsed<std::string>(p);
+		const std::string scene_name = GetParsed<std::string>(p);
 		if (scene_name != "")
 		{
 			auto current_scene = GSI->scene_name;
@@ -244,11 +244,11 @@ void execute_command(const std::string& buffer_line, Player* & player, World* wo
 	{
 		p.ParseWhitespace();
 		p.ParseToken();
-		const std::string argument = get_parsed<std::string>(p);
+		const std::string argument = GetParsed<std::string>(p);
 		if (argument == "scene")
 		{
 			program_config.initial_scene = GSI->scene_name;
-			ConfigSerializer::save(program_config);
+			ConfigSerializer::Save(program_config);
 		}
 		else if (argument == "all")
 		{
@@ -257,7 +257,7 @@ void execute_command(const std::string& buffer_line, Player* & player, World* wo
 			WorldSerializer::SaveToFile();
 			// set scene
 			program_config.initial_scene = GSI->scene_name;
-			ConfigSerializer::save(program_config);
+			ConfigSerializer::Save(program_config);
 		}
 		else
 			std::cout << "you can set 'scene' or 'all'. dude. " << command << " won't work.\n";
@@ -306,11 +306,11 @@ void execute_command(const std::string& buffer_line, Player* & player, World* wo
 	{
 		p.ParseWhitespace();
 		p.ParseToken();
-		const std::string argument = get_parsed<std::string>(p);
+		const std::string argument = GetParsed<std::string>(p);
 		if (argument == "cam")
 		{
 			p.ParseVec3();
-			camera->position = get_parsed<glm::vec3>(p);
+			camera->position = GetParsed<glm::vec3>(p);
 		}
 		else
 			std::cout << "you can move cam only at the moment dude. I don't know what '" << command << " " << argument << "' means man.\n";

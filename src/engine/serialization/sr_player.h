@@ -8,7 +8,7 @@ struct PlayerSerializer
 {
 	static inline World* world = nullptr;
 
-	static void parse_attribute(Parser& p);
-	static void parse_orientation(Parser& p);
-	static void save(std::ofstream& writer);
+	static void ParseAttribute(Parser& p);
+	static void ParseOrientation(Parser& p);
+	static void Save(std::ofstream& writer);
 };

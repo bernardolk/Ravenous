@@ -26,8 +26,8 @@ struct EntitySerializer
 	inline static EntityManager* manager = nullptr;
 	inline static DeferredEntityRelationBuffer relations{};
 
-	static void parse(Parser& parser);
-	static void save(std::ofstream& writer, Entity& entity);
+	static void Parse(Parser& parser);
+	static void Save(std::ofstream& writer, Entity& entity);
 
-	static void _clear_buffer();
+	static void ClearBuffer();
 };

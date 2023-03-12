@@ -51,7 +51,7 @@ struct ImDrawSlot
 
 struct ImDraw
 {
-	static constexpr int IM_BUFFER_SIZE = 200;
+	static constexpr int im_buffer_size = 200;
 	inline static ImDrawElement* list;
 
 	static void Init();
@@ -59,8 +59,8 @@ struct ImDraw
 	static void Render(Camera* camera);
 	static auto Add(size_t _hash, std::vector<Vertex> vertex_vec, GLenum draw_method, RenderOptions opts = RenderOptions{}) -> void;
 	static void Add(size_t _hash, std::vector<Triangle> triangles, GLenum draw_method, RenderOptions);
-	static void AddLine(size_t _hash, vec3 pointA, vec3 pointB, vec3 color);
-	static void AddLine(size_t _hash, vec3 pointA, vec3 pointB, float line_width = 1.0,
+	static void AddLine(size_t _hash, vec3 point_a, vec3 point_b, vec3 color);
+	static void AddLine(size_t _hash, vec3 point_a, vec3 point_b, float line_width = 1.0,
 	                    bool always_on_top = false, vec3 color = vec3(0), float duration = 0);
 	static void AddLineLoop(size_t _hash, std::vector<vec3> points, float line_width = 1.0, bool always_on_top = false);
 	static void AddPoint(size_t _hash, vec3 point, float point_size = 1.0,

@@ -10,7 +10,7 @@
 
 namespace Editor
 {
-	void render_toolbar(World* world)
+	void RenderToolbar(World* world)
 	{
 		auto& ed_context = *GetContext();
 
@@ -54,7 +54,7 @@ namespace Editor
 				program_config.camspeed = GSI->camera->acceleration;
 				program_config.ambient_intensity = world->ambient_intensity;
 				program_config.ambient_light = world->ambient_light;
-				ConfigSerializer::save(program_config);
+				ConfigSerializer::Save(program_config);
 			}
 
 			ImGui::NewLine();
@@ -94,25 +94,25 @@ namespace Editor
 		ImGui::Text("Measure");
 		if (ImGui::Button("X", ImVec2(40, 18)))
 		{
-			activate_measure_mode(0);
+			ActivateMeasureMode(0);
 		}
 
 		ImGui::SameLine();
 		if (ImGui::Button("Y", ImVec2(40, 18)))
 		{
-			activate_measure_mode(1);
+			ActivateMeasureMode(1);
 		}
 
 		ImGui::SameLine();
 		if (ImGui::Button("Z", ImVec2(40, 18)))
 		{
-			activate_measure_mode(2);
+			ActivateMeasureMode(2);
 		}
 
 		ImGui::NewLine();
 		if (ImGui::Button("Locate Coordinates", ImVec2(150, 18)))
 		{
-			activate_locate_coords_mode();
+			ActivateLocateCoordsMode();
 		}
 
 
@@ -123,7 +123,7 @@ namespace Editor
 		ImGui::NewLine();
 		if (ImGui::Button("Unhide entities"))
 		{
-			unhide_entities(world);
+			UnhideEntities(world);
 		}
 
 		// OPTIONS

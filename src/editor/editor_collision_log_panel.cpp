@@ -5,7 +5,7 @@
 
 namespace Editor
 {
-	void render_collision_log_panel(CollisionLogPanelContext* panel)
+	void RenderCollisionLogPanel(CollisionLogPanelContext* panel)
 	{
 		constexpr u16 w_width = 450;
 		constexpr u16 w_height = 320;

@@ -221,7 +221,7 @@ ClResults CL_TestPlayerVsEntity(Entity* entity, Player* player)
 	CollisionMesh* player_collider = &player_entity->collider;
 
 	// auto start = std::chrono::high_resolution_clock::now(); 
-	GJK_Result box_gjk_test = CL_run_GJK(entity_collider, player_collider);
+	GJK_Result box_gjk_test = CL_RunGjk(entity_collider, player_collider);
 	// auto finish = std::chrono::high_resolution_clock::now();
 
 	// std::cout << "CL_run_GJK() took "
@@ -235,7 +235,7 @@ ClResults CL_TestPlayerVsEntity(Entity* entity, Player* player)
 		b_gjk = true;
 
 		// start = std::chrono::high_resolution_clock::now(); 
-		EPA_Result epa = CL_run_EPA(box_gjk_test.simplex, entity_collider, player_collider);
+		EPA_Result epa = CL_RunEPA(box_gjk_test.simplex, entity_collider, player_collider);
 		// finish = std::chrono::high_resolution_clock::now();
 
 		// std::cout << "CL_run_EPA() took "

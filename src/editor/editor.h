@@ -10,10 +10,10 @@ namespace Editor
 	void StartDearImguiFrame();
 	void EndDearImguiFrame();
 
-	const static std::string EDITOR_ASSETS = Paths::Project + "/assets/editor/";
+	const static std::string EditorAssets = Paths::Project + "/assets/editor/";
 
-	constexpr static float TRIAXIS_SCREENPOS_X = -1.80f;
-	constexpr static float TRIAXIS_SCREENPOS_Y = -1.80f;
+	constexpr static float TriaxisScreenposX = -1.80f;
+	constexpr static float TriaxisScreenposY = -1.80f;
 
 
 	void Initialize();

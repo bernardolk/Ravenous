@@ -5,12 +5,12 @@
 #include "engine/geometry/triangle.h"
 #include "engine/entities/entity.h"
 #include <glad/glad.h>
-#include "engine/geometry/vertex.h""
+#include "engine/geometry/vertex.h"
 
 void ImDraw::Init()
 {
-	list = new ImDrawElement[IM_BUFFER_SIZE];
-	for (int i = 0; i < IM_BUFFER_SIZE; i++)
+	list = new ImDrawElement[im_buffer_size];
+	for (int i = 0; i < im_buffer_size; i++)
 	{
 		EmptySlot(i);
 		list[i].mesh.SetupGLBuffers();
@@ -19,7 +19,7 @@ void ImDraw::Init()
 
 void ImDraw::Update(float frame_duration)
 {
-	for (int i = 0; i < IM_BUFFER_SIZE; i++)
+	for (int i = 0; i < im_buffer_size; i++)
 	{
 		auto& obj = list[i];
 		if (obj.empty)
@@ -36,7 +36,7 @@ void ImDraw::Render(Camera* camera)
 	Shader* im_point_shader = ShaderCatalogue.find("immediate_point")->second;
 	Shader* im_mesh_shader = ShaderCatalogue.find("im_mesh")->second;
 	Shader* shader = im_point_shader;
-	for (int i = 0; i < IM_BUFFER_SIZE; i++)
+	for (int i = 0; i < im_buffer_size; i++)
 	{
 		auto& obj = list[i];
 		if (obj.empty)
@@ -100,18 +100,18 @@ void ImDraw::Add(size_t _hash, std::vector<Triangle> triangles, GLenum draw_meth
 	SetMesh(slot.index, vertex_vec, draw_method, opts);
 }
 
-void ImDraw::AddLine(size_t _hash, vec3 pointA, vec3 pointB, vec3 color)
+void ImDraw::AddLine(size_t _hash, vec3 point_a, vec3 point_b, vec3 color)
 {
-	AddLine(_hash, pointA, pointB, 1.0, false, color);
+	AddLine(_hash, point_a, point_b, 1.0, false, color);
 }
 
 
-void ImDraw::AddLine(size_t _hash, vec3 pointA, vec3 pointB, float line_width,
+void ImDraw::AddLine(size_t _hash, vec3 point_a, vec3 point_b, float line_width,
                      bool always_on_top, vec3 color, float duration)
 {
 	IM_R_FIND_SLOT();
 
-	auto vertex_vec = std::vector<Vertex>{Vertex{pointA}, Vertex{pointB}};
+	auto vertex_vec = std::vector<Vertex>{Vertex{point_a}, Vertex{point_b}};
 
 	RenderOptions opts;
 	opts.line_width = line_width;
@@ -281,7 +281,7 @@ void ImDraw::EmptySlot(int i)
 ImDrawSlot ImDraw::FindElementOrEmptySlot(size_t hash)
 {
 	int slot = -1;
-	for (int i = 0; i < IM_BUFFER_SIZE; i++)
+	for (int i = 0; i < im_buffer_size; i++)
 	{
 		if (slot == -1 && list[i].empty)
 			slot = i;

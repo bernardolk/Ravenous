@@ -81,7 +81,7 @@ Mesh* LoadWavefrontObjAsMesh(
 	while (p.NextLine())
 	{
 		p.ParseToken();
-		const auto attr = get_parsed<std::string>(p);
+		const auto attr = GetParsed<std::string>(p);
 
 		if (!p.HasToken())
 			continue;
@@ -95,20 +95,20 @@ Mesh* LoadWavefrontObjAsMesh(
 		else if (attr == "v")
 		{
 			p.ParseVec3();
-			v_pos.push_back(get_parsed<glm::vec3>(p));
+			v_pos.push_back(GetParsed<glm::vec3>(p));
 		}
 
 		// texture coordinates
 		else if (attr == "vt")
 		{
 			p.ParseVec2();
-			v_texels.push_back(get_parsed<glm::vec2>(p));
+			v_texels.push_back(GetParsed<glm::vec2>(p));
 		}
 
 		else if (attr == "vn")
 		{
 			p.ParseVec3();
-			v_normals.push_back(get_parsed<glm::vec3>(p));
+			v_normals.push_back(GetParsed<glm::vec3>(p));
 		}
 
 		// construct faces
@@ -134,29 +134,29 @@ Mesh* LoadWavefrontObjAsMesh(
 					if (!p.HasToken())
 						break;
 
-					u32 index = get_parsed<u32>(p) - 1;
+					u32 index = GetParsed<u32>(p) - 1;
 					v.position = v_pos[index];
 				}
 
 				p.ParseSymbol();
-				if (p.HasToken() || get_parsed<char>(p) == '/')
+				if (p.HasToken() || GetParsed<char>(p) == '/')
 				{
 					// parses texel index
 					p.ParseUint();
 					if (p.HasToken() && !v_texels.empty())
 					{
-						u32 index = get_parsed<u32>(p) - 1;
+						u32 index = GetParsed<u32>(p) - 1;
 						v.tex_coords = v_texels[index];
 					}
 
 					// parses normal index
 					p.ParseSymbol();
-					if (p.HasToken() || get_parsed<char>(p) == '/')
+					if (p.HasToken() || GetParsed<char>(p) == '/')
 					{
 						p.ParseUint();
 						if (p.HasToken() && !v_normals.empty())
 						{
-							u32 index = get_parsed<u32>(p) - 1;
+							u32 index = GetParsed<u32>(p) - 1;
 							v.normal = v_normals[index];
 						}
 					}
@@ -241,7 +241,7 @@ CollisionMesh* LoadWavefrontObjAsCollisionMesh(std::string path, std::string fil
 	while (p.NextLine())
 	{
 		p.ParseToken();
-		const auto attr = get_parsed<std::string>(p);
+		const auto attr = GetParsed<std::string>(p);
 
 		if (!p.HasToken())
 			continue;
@@ -250,7 +250,7 @@ CollisionMesh* LoadWavefrontObjAsCollisionMesh(std::string path, std::string fil
 		if (attr == "v")
 		{
 			p.ParseVec3();
-			c_mesh->vertices.push_back(get_parsed<glm::vec3>(p));
+			c_mesh->vertices.push_back(GetParsed<glm::vec3>(p));
 		}
 
 		// construct faces
@@ -270,7 +270,7 @@ CollisionMesh* LoadWavefrontObjAsCollisionMesh(std::string path, std::string fil
 						break;
 
 					// corrects from 1-first-element convention (from .obj file) to 0-first.
-					const u32 index = get_parsed<u32>(p) - 1;
+					const u32 index = GetParsed<u32>(p) - 1;
 					// c_mesh.index.push_back(index);
 					index_buffer[number_of_vertexes_in_face] = index;
 				}
@@ -416,7 +416,7 @@ void WriteMeshExtraDataFile(std::string filename, Mesh* mesh)
 
 	writer.close();
 
-	log(LOG_INFO, "Wrote mesh extra data for " + filename + " mesh.");
+	Log(LOG_INFO, "Wrote mesh extra data for " + filename + " mesh.");
 }
 
 
@@ -434,18 +434,18 @@ void LoadMeshExtraData(std::string filename, Mesh* mesh)
 		if (!p.HasToken())
 			continue;
 
-		auto attr = get_parsed<std::string>(p);
+		auto attr = GetParsed<std::string>(p);
 
 		if (attr == "vtan")
 		{
 			p.ParseVec3();
-			mesh->vertices[vtan_i++].tangent = get_parsed<glm::vec3>(p);
+			mesh->vertices[vtan_i++].tangent = GetParsed<glm::vec3>(p);
 		}
 
 		else if (attr == "vbitan")
 		{
 			p.ParseVec3();
-			mesh->vertices[vbitan_i++].bitangent = get_parsed<glm::vec3>(p);
+			mesh->vertices[vbitan_i++].bitangent = GetParsed<glm::vec3>(p);
 		}
 	}
 }
@@ -513,7 +513,7 @@ void LoadShaders()
 		p.ParseToken();
 		if (!p.HasToken())
 			error = true;
-		const auto shader_name = get_parsed<std::string>(p);
+		const auto shader_name = GetParsed<std::string>(p);
 
 		p.ParseAllWhitespace();
 		p.ParseSymbol();
@@ -524,7 +524,7 @@ void LoadShaders()
 		p.ParseToken();
 		if (!p.HasToken())
 			error = true;
-		const auto vertex_shader_name = get_parsed<std::string>(p);
+		const auto vertex_shader_name = GetParsed<std::string>(p);
 
 		p.ParseAllWhitespace();
 		p.ParseSymbol();
@@ -535,7 +535,7 @@ void LoadShaders()
 		p.ParseToken();
 		if (p.HasToken())
 			has_geometry_shader = true;
-		const auto geometry_shader_name = get_parsed<std::string>(p);
+		const auto geometry_shader_name = GetParsed<std::string>(p);
 
 		p.ParseAllWhitespace();
 		p.ParseSymbol();
@@ -546,14 +546,14 @@ void LoadShaders()
 		p.ParseToken();
 		if (!p.HasToken())
 			error = true;
-		const auto fragment_shader_name = get_parsed<std::string>(p);
+		const auto fragment_shader_name = GetParsed<std::string>(p);
 
 		// load shaders code and mounts program from parsed shader attributes
 		Shader* shader;
 		if (has_geometry_shader)
-			shader = create_shader_program(shader_name, vertex_shader_name, geometry_shader_name, fragment_shader_name);
+			shader = CreateShaderProgram(shader_name, vertex_shader_name, geometry_shader_name, fragment_shader_name);
 		else
-			shader = create_shader_program(shader_name, vertex_shader_name, fragment_shader_name);
+			shader = CreateShaderProgram(shader_name, vertex_shader_name, fragment_shader_name);
 
 		ShaderCatalogue.insert({shader->name, shader});
 

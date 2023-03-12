@@ -6,7 +6,7 @@
 
 namespace Editor
 {
-	void render_world_panel(WorldPanelContext* panel, const World* world, const Player* player)
+	void RenderWorldPanel(WorldPanelContext* panel, const World* world, const Player* player)
 	{
 		ImGui::SetNextWindowPos(ImVec2(100, 300), ImGuiCond_Appearing);
 		ImGui::Begin("World Panel", &panel->active, ImGuiWindowFlags_None);

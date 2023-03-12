@@ -80,19 +80,19 @@ struct Parser
 };
 
 template<typename T>
-T get_parsed(Parser& parser)
+T GetParsed(Parser& parser)
 {
 	return *reinterpret_cast<T*>(&parser.p.i_token);
 }
 
 template<>
-inline std::string get_parsed(Parser& parser)
+inline std::string GetParsed(Parser& parser)
 {
 	return parser.p.string_buffer;
 }
 
 template<>
-inline glm::vec3 get_parsed(Parser& parser)
+inline glm::vec3 GetParsed(Parser& parser)
 {
 	if (parser.p.has_token == 0)
 	{
@@ -104,7 +104,7 @@ inline glm::vec3 get_parsed(Parser& parser)
 }
 
 template<>
-inline glm::vec2 get_parsed(Parser& parser)
+inline glm::vec2 GetParsed(Parser& parser)
 {
 	if (parser.p.has_token == 0)
 	{

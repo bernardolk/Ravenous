@@ -114,7 +114,7 @@ void TimerTriggerData::AddMarking(Entity* entity, u32 time_checkpoint)
 			return;
 		}
 
-	log(LOG_WARNING, "Max number of timer markings reached when trying to add entity as one to timer trigger entity.");
+	Log(LOG_WARNING, "Max number of timer markings reached when trying to add entity as one to timer trigger entity.");
 }
 
 void TimerTriggerData::DeleteMarking(int i)

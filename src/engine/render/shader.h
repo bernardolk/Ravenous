@@ -26,13 +26,13 @@ struct Shader
 
 extern std::map<std::string, Shader*> ShaderCatalogue;
 
-bool check_shader_compile_errors(Shader* shader, std::string type, unsigned int id);
+bool CheckShaderCompileErrors(Shader* shader, std::string type, unsigned int id);
 
-Shader* create_shader_program(
+Shader* CreateShaderProgram(
 	std::string name,
 	std::string vertex_shader_filename,
 	std::string geometry_shader_filename,
 	std::string fragment_shader_filename
 );
 
-Shader* create_shader_program(std::string name, std::string vertex_shader_filename, std::string fragment_shader_filename);
+Shader* CreateShaderProgram(std::string name, std::string vertex_shader_filename, std::string fragment_shader_filename);

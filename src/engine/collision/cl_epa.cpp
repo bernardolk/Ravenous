@@ -9,7 +9,7 @@
 
 extern const int ClMaxEpaIterations = 100;
 
-std::pair<std::vector<vec4>, size_t> CL_EPA_get_face_normals_and_closest_face(
+std::pair<std::vector<vec4>, size_t> CL_GetEPAFaceNormalsAndClosestFace(
 	const std::vector<vec3>& polytope,
 	const std::vector<size_t>& faces)
 {
@@ -45,7 +45,7 @@ std::pair<std::vector<vec4>, size_t> CL_EPA_get_face_normals_and_closest_face(
 }
 
 
-void CL_add_if_outer_edge(
+void CL_AddIfOuterEdge(
 	std::vector<std::pair<size_t, size_t> >& edges,
 	const std::vector<size_t>& faces,
 	size_t a,
@@ -90,7 +90,7 @@ static void get_time(int elapsed)
 }
 
 
-EPA_Result CL_run_EPA(Simplex simplex, CollisionMesh* collider_a, CollisionMesh* collider_b)
+EPA_Result CL_RunEPA(Simplex simplex, CollisionMesh* collider_a, CollisionMesh* collider_b)
 {
 	using micro = std::chrono::microseconds;
 	auto start = std::chrono::high_resolution_clock::now();
@@ -105,7 +105,7 @@ EPA_Result CL_run_EPA(Simplex simplex, CollisionMesh* collider_a, CollisionMesh*
 	1, 3, 2
 	};
 
-	auto [face_normals, closest_face_index] = CL_EPA_get_face_normals_and_closest_face(polytope, faces);
+	auto [face_normals, closest_face_index] = CL_GetEPAFaceNormalsAndClosestFace(polytope, faces);
 
 	vec3 penetration_normal;
 	float min_distance_to_face = MaxFloat;
@@ -118,8 +118,8 @@ EPA_Result CL_run_EPA(Simplex simplex, CollisionMesh* collider_a, CollisionMesh*
 		penetration_normal = vec3(face_normals[closest_face_index]);
 		min_distance_to_face = face_normals[closest_face_index].w;
 
-		GJK_Point support = CL_get_support_point(collider_a, collider_b, penetration_normal);
-		if (support.empty || CL_support_is_in_polytope(polytope, support.point))
+		GJK_Point support = CL_GetSupportPoint(collider_a, collider_b, penetration_normal);
+		if (support.empty || CL_SupportIsInPolytope(polytope, support.point))
 			break;
 
 		float s_distance = dot(penetration_normal, support.point);
@@ -133,13 +133,13 @@ EPA_Result CL_run_EPA(Simplex simplex, CollisionMesh* collider_a, CollisionMesh*
 			std::vector<std::pair<size_t, size_t> > outer_edges;
 			for (size_t i = 0; i < face_normals.size(); i++)
 			{
-				if (CL_same_general_direction(face_normals[i], support.point))
+				if (CL_SameGeneralDirection(face_normals[i], support.point))
 				{
 					size_t f = i * 3;
 
-					CL_add_if_outer_edge(outer_edges, faces, f, f + 1);
-					CL_add_if_outer_edge(outer_edges, faces, f + 1, f + 2);
-					CL_add_if_outer_edge(outer_edges, faces, f + 2, f);
+					CL_AddIfOuterEdge(outer_edges, faces, f, f + 1);
+					CL_AddIfOuterEdge(outer_edges, faces, f + 1, f + 2);
+					CL_AddIfOuterEdge(outer_edges, faces, f + 2, f);
 
 					faces[f + 2] = faces.back();
 					faces.pop_back();
@@ -167,7 +167,7 @@ EPA_Result CL_run_EPA(Simplex simplex, CollisionMesh* collider_a, CollisionMesh*
 			polytope.push_back(support.point);
 
 			// finds normals and closest face from the new faces
-			auto [new_normals, new_closest_face_index] = CL_EPA_get_face_normals_and_closest_face(polytope, new_faces);
+			auto [new_normals, new_closest_face_index] = CL_GetEPAFaceNormalsAndClosestFace(polytope, new_faces);
 
 			float old_min_distance_to_face = MaxFloat;
 			for (size_t i = 0; i < face_normals.size(); i++)

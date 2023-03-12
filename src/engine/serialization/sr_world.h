@@ -4,7 +4,7 @@
 
 
 // Global variable to control entity IDs
-inline static u64 Max_Entity_Id = 0;
+inline static u64 MaxEntityId = 0;
 
 struct WorldSerializer
 {

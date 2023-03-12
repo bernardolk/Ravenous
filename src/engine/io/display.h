@@ -1,7 +1,5 @@
 #pragma once
 
-#include "engine/core/core.h"
-
 struct GlobalDisplayConfig
 {
 	GLFWwindow* window;

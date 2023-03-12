@@ -50,7 +50,7 @@ namespace Editor
 			WorldSerializer::SaveToFile();
 			// set scene
 			program_config.initial_scene = GSI->scene_name;
-			ConfigSerializer::save(program_config);
+			ConfigSerializer::Save(program_config);
 			Rvn::rm_buffer->Add("world state saved", 1200);
 			return;
 		}
@@ -65,8 +65,8 @@ namespace Editor
 
 		if (PressedOnce(flags, KEY_ESC))
 		{
-			if (Editor::check_modes_are_active())
-				deactivate_editor_modes();
+			if (Editor::CheckModesAreActive())
+				DeactivateEditorModes();
 			else if (context.entity_panel.active)
 				context.entity_panel.active = false;
 			else if (context.world_panel.active)
@@ -85,14 +85,14 @@ namespace Editor
 			if (context.entity_panel.active && context.entity_panel.focused)
 			{
 				context.entity_panel.active = false;
-				editor_erase_entity(context.entity_panel.entity);
+				EditorEraseEntity(context.entity_panel.entity);
 				return;
 			}
 			if (context.lights_panel.active && context.lights_panel.focused)
 			{
 				if (context.lights_panel.selected_light > -1)
 				{
-					editor_erase_light(context.lights_panel.selected_light, context.lights_panel.selected_light_type, world);
+					EditorEraseLight(context.lights_panel.selected_light, context.lights_panel.selected_light_type, world);
 				}
 				return;
 			}
@@ -109,7 +109,7 @@ namespace Editor
 		{
 			if (PressedOnce(flags, KEY_ENTER))
 			{
-				snap_commit();
+				SnapCommit();
 			}
 			if (PressedOnly(flags, KEY_X))
 			{
@@ -117,12 +117,12 @@ namespace Editor
 					context.snap_cycle = (context.snap_cycle + 1) % 3;
 				else
 				{
-					apply_state(context.snap_tracked_state);
+					ApplyState(context.snap_tracked_state);
 					context.snap_cycle = 0;
 					context.snap_axis = 0;
 				}
 				if (context.snap_reference != nullptr)
-					snap_entity_to_reference(context.entity_panel.entity);
+					SnapEntityToReference(context.entity_panel.entity);
 			}
 			if (PressedOnly(flags, KEY_Y))
 			{
@@ -130,12 +130,12 @@ namespace Editor
 					context.snap_cycle = (context.snap_cycle + 1) % 3;
 				else
 				{
-					apply_state(context.snap_tracked_state);
+					ApplyState(context.snap_tracked_state);
 					context.snap_cycle = 0;
 					context.snap_axis = 1;
 				}
 				if (context.snap_reference != nullptr)
-					snap_entity_to_reference(context.entity_panel.entity);
+					SnapEntityToReference(context.entity_panel.entity);
 			}
 			if (PressedOnly(flags, KEY_Z))
 			{
@@ -143,18 +143,18 @@ namespace Editor
 					context.snap_cycle = (context.snap_cycle + 1) % 3;
 				else
 				{
-					apply_state(context.snap_tracked_state);
+					ApplyState(context.snap_tracked_state);
 					context.snap_cycle = 0;
 					context.snap_axis = 2;
 				}
 				if (context.snap_reference != nullptr)
-					snap_entity_to_reference(context.entity_panel.entity);
+					SnapEntityToReference(context.entity_panel.entity);
 			}
 			if (PressedOnly(flags, KEY_I))
 			{
 				context.snap_inside = !context.snap_inside;
 				if (context.snap_reference != nullptr)
-					snap_entity_to_reference(context.entity_panel.entity);
+					SnapEntityToReference(context.entity_panel.entity);
 			}
 		}
 
@@ -232,19 +232,19 @@ namespace Editor
 			std::cout << "CLICK COUNT\n";
 			if (context.snap_mode)
 			{
-				check_selection_to_snap();
+				CheckSelectionToSnap();
 			}
 			else if (context.measure_mode)
 			{
-				check_selection_to_measure(world);
+				CheckSelectionToMeasure(world);
 			}
 			else if (context.locate_coords_mode)
 			{
-				check_selection_to_locate_coords(world);
+				CheckSelectionToLocateCoords(world);
 			}
 			else if (context.stretch_mode)
 			{
-				check_selection_to_stretch();
+				CheckSelectionToStretch();
 			}
 			else if (flags.key_press & KEY_G)
 			{

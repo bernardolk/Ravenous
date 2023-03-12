@@ -21,50 +21,50 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-std::map<std::string, gl_charmap> Font_Catalogue;
+std::map<std::string, gl_charmap> FontCatalogue;
 
 
-void render_text(float x, float y, std::string text)
+void RenderText(float x, float y, std::string text)
 {
-	render_text("consola12", x, y, vec3{1.0, 1.0, 1.0}, 1.0, false, text);
+	RenderText("consola12", x, y, vec3{1.0, 1.0, 1.0}, 1.0, false, text);
 }
 
-void render_text(std::string font, float x, float y, std::string text)
+void RenderText(std::string font, float x, float y, std::string text)
 {
-	render_text(font, x, y, vec3{1.0, 1.0, 1.0}, 1.0, false, text);
+	RenderText(font, x, y, vec3{1.0, 1.0, 1.0}, 1.0, false, text);
 }
 
-void render_text(float x, float y, vec3 color, std::string text)
+void RenderText(float x, float y, vec3 color, std::string text)
 {
-	render_text("consola12", x, y, color, 1.0, false, text);
+	RenderText("consola12", x, y, color, 1.0, false, text);
 }
 
-void render_text(std::string font, float x, float y, bool center, std::string text)
+void RenderText(std::string font, float x, float y, bool center, std::string text)
 {
-	render_text(font, x, y, vec3{1.0, 1.0, 1.0}, 1.0, center, text);
+	RenderText(font, x, y, vec3{1.0, 1.0, 1.0}, 1.0, center, text);
 }
 
-void render_text(std::string font, float x, float y, vec3 color, std::string text)
+void RenderText(std::string font, float x, float y, vec3 color, std::string text)
 {
-	render_text(font, x, y, color, 1.0, false, text);
+	RenderText(font, x, y, color, 1.0, false, text);
 }
 
-void render_text(std::string font, float x, float y, vec3 color, bool center, std::string text)
+void RenderText(std::string font, float x, float y, vec3 color, bool center, std::string text)
 {
-	render_text(font, x, y, color, 1.0, center, text);
+	RenderText(font, x, y, color, 1.0, center, text);
 }
 
-void render_text(std::string font, float x, float y, float scale, std::string text)
+void RenderText(std::string font, float x, float y, float scale, std::string text)
 {
-	render_text(font, x, y, vec3{1.0, 1.0, 1.0}, scale, false, text);
+	RenderText(font, x, y, vec3{1.0, 1.0, 1.0}, scale, false, text);
 }
 
-void render_text(std::string font, float x, float y, vec3 color, float scale, std::string text)
+void RenderText(std::string font, float x, float y, vec3 color, float scale, std::string text)
 {
-	render_text(font, x, y, color, scale, false, text);
+	RenderText(font, x, y, color, scale, false, text);
 }
 
-void render_text(std::string font, float x, float y, vec3 color, float scale, bool center, std::string text)
+void RenderText(std::string font, float x, float y, vec3 color, float scale, bool center, std::string text)
 {
 	// Finds text shader in catalogue and set variables 
 	auto text_shader = ShaderCatalogue.find("text")->second;
@@ -78,8 +78,8 @@ void render_text(std::string font, float x, float y, vec3 color, float scale, bo
 
 	// Try finding font in catalogue, if doesn't find, tries loading it
 	gl_charmap charmap;
-	auto font_query = Font_Catalogue.find(font);
-	if (font_query == Font_Catalogue.end())
+	auto font_query = FontCatalogue.find(font);
+	if (font_query == FontCatalogue.end())
 	{
 		// search for font size in font name (e.g. Consola12) and loads it
 		int ind = 0;
@@ -101,7 +101,7 @@ void render_text(std::string font, float x, float y, vec3 color, float scale, bo
 		std::string font_filename = font.substr(0, ind) + ".ttf";
 
 		int font_size = std::stoi(size_str);
-		charmap = load_text_textures(font_filename, font_size);
+		charmap = LoadTextTextures(font_filename, font_size);
 	}
 	else
 	{
@@ -154,7 +154,7 @@ void render_text(std::string font, float x, float y, vec3 color, float scale, bo
 	glDepthFunc(GL_LESS);
 }
 
-gl_charmap load_text_textures(std::string font, int size)
+gl_charmap LoadTextTextures(std::string font, int size)
 {
 	// Load font
 	FT_Library ft;
@@ -164,7 +164,7 @@ gl_charmap load_text_textures(std::string font, int size)
 	FT_Face face;
 	std::string filepath = Paths::Fonts + font;
 	if (FT_New_Face(ft, filepath.c_str(), 0, &face))
-		log(LOG_ERROR, "Freetype: Failed to load font");
+		Log(LOG_ERROR, "Freetype: Failed to load font");
 
 	FT_Set_Pixel_Sizes(face, 0, size);
 
@@ -175,7 +175,7 @@ gl_charmap load_text_textures(std::string font, int size)
 		//Load character glyph
 		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
 		{
-			log(LOG_ERROR, "Freetype: Failed to load Glyph");
+			Log(LOG_ERROR, "Freetype: Failed to load Glyph");
 			continue;
 		}
 
@@ -214,7 +214,7 @@ gl_charmap load_text_textures(std::string font, int size)
 	std::string font_name = font.substr(0, separator);
 	std::string font_catalogue_name = font_name + std::to_string(size);
 
-	Font_Catalogue.insert({font_catalogue_name, font_charmap});
+	FontCatalogue.insert({font_catalogue_name, font_charmap});
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	FT_Done_Face(face);

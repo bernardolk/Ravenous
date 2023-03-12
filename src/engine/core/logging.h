@@ -17,7 +17,7 @@ enum RavenousLogLevel
                               assert(false); }
 
 
-inline void log(RavenousLogLevel level, const std::string& message)
+inline void Log(RavenousLogLevel level, const std::string& message)
 {
 	std::string message_header = "\n";
 	switch (level)

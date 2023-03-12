@@ -39,7 +39,7 @@ namespace Editor
 			return;
 		}
 
-		if (!compare_entity_states(state, Check()))
+		if (!CompareEntityStates(state, Check()))
 		{
 			stack[++pos] = state;
 			limit = pos;
@@ -61,7 +61,7 @@ namespace Editor
 				return;
 		} while (!IsStateValid(state));
 
-		apply_state(state);
+		ApplyState(state);
 	}
 
 	void UndoStack::Redo()
@@ -78,7 +78,7 @@ namespace Editor
 				return;
 		} while (!IsStateValid(state));
 
-		apply_state(state);
+		ApplyState(state);
 	}
 
 	EntityState UndoStack::Check()
@@ -124,6 +124,6 @@ namespace Editor
 
 		// if entity current state is equal to state in stack
 		// then is not valid for undo also
-		return !compare_entity_states(get_entity_state(state.entity), state);
+		return !CompareEntityStates(GetEntityState(state.entity), state);
 	}
 };

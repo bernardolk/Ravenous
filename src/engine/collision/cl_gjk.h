@@ -38,18 +38,18 @@ struct GJK_Point
 	bool empty;
 };
 
-GJK_Point CL_find_furthest_vertex(CollisionMesh* collision_mesh, vec3 direction);
-GJK_Point CL_get_support_point(CollisionMesh* collision_mesh_a, CollisionMesh* collision_mesh_b, vec3 direction);
-void CL_update_line_simplex(GJK_Iteration* gjk);
-void CL_update_triangle_simplex(GJK_Iteration* gjk);
-void CL_update_tetrahedron_simplex(GJK_Iteration* gjk);
-void CL_update_simplex_and_direction(GJK_Iteration* gjk);
+GJK_Point CL_FindFurthestVertex(CollisionMesh* collision_mesh, vec3 direction);
+GJK_Point CL_GetSupportPoint(CollisionMesh* collision_mesh_a, CollisionMesh* collision_mesh_b, vec3 direction);
+void CL_UpdateLineSimplex(GJK_Iteration* gjk);
+void CL_UpdateTriangleSimplex(GJK_Iteration* gjk);
+void CL_UpdateTetrahedronSimplex(GJK_Iteration* gjk);
+void CL_UpdateSimplexAndDirection(GJK_Iteration* gjk);
 
-void _CL_debug_render_simplex(Simplex simplex);
-GJK_Result CL_run_GJK(CollisionMesh* collider_a, CollisionMesh* collider_b);
+void CL_DebugRenderSimplex(Simplex simplex);
+GJK_Result CL_RunGjk(CollisionMesh* collider_a, CollisionMesh* collider_b);
 
 
-inline bool CL_same_general_direction(vec3 a, vec3 b)
+inline bool CL_SameGeneralDirection(vec3 a, vec3 b)
 {
 	return dot(a, b) > 0;
 }

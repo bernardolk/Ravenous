@@ -1,7 +1,7 @@
 #include "win_platform_layer.h"
 #include "windows.h"
 
-bool WIN_list_files(std::string path, std::string mask, std::vector<std::string>& files)
+bool WinListFiles(std::string path, std::string mask, std::vector<std::string>& files)
 {
 	auto h_find = INVALID_HANDLE_VALUE;
 	WIN32_FIND_DATA ffd;

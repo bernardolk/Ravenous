@@ -8,10 +8,9 @@
 #include "engine/io/loaders.h"
 #include "engine/world/scene_manager.h"
 
-
 namespace Editor
 {
-	void render_palette_panel(PalettePanelContext* panel)
+	void RenderPalettePanel(PalettePanelContext* panel)
 	{
 		ImGui::SetNextWindowPos(ImVec2(50, 300), ImGuiCond_Always);
 		ImGui::Begin("Palette", &panel->active, ImGuiWindowFlags_NoResize);
@@ -27,7 +26,7 @@ namespace Editor
 				const auto new_entity = EM->CreateEntity(attributes);
 				new_entity->id = EM->next_entity_id++;
 				new_entity->position = GSI->camera->position + (2.f * new_entity->scale + 5.f) * GSI->camera->front;
-				activate_move_mode(new_entity);
+				ActivateMoveMode(new_entity);
 			}
 		}
 
@@ -35,14 +34,14 @@ namespace Editor
 	}
 
 
-	void initialize_palette(PalettePanelContext* panel)
+	void InitializePalette(PalettePanelContext* panel)
 	{
 		int texture_count = 0;
 
 		stbi_set_flip_vertically_on_load(false);
-		panel->textures[texture_count++] = LoadTextureFromFile("box.png", EDITOR_ASSETS);
-		panel->textures[texture_count++] = LoadTextureFromFile("slope.png", EDITOR_ASSETS);
-		panel->textures[texture_count++] = LoadTextureFromFile("checkpoint.png", EDITOR_ASSETS);
+		panel->textures[texture_count++] = LoadTextureFromFile("box.png", EditorAssets);
+		panel->textures[texture_count++] = LoadTextureFromFile("slope.png", EditorAssets);
+		panel->textures[texture_count++] = LoadTextureFromFile("checkpoint.png", EditorAssets);
 		stbi_set_flip_vertically_on_load(true);
 
 		// 0

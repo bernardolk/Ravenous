@@ -22,25 +22,25 @@
 
 const std::string SrLoadEntity_TypeNotSetErrorMsg = "Need to load entity type before loading type-specific data.";
 
-void EntitySerializer::parse(Parser& parser)
+void EntitySerializer::Parse(Parser& parser)
 {
 	auto new_entity = manager->CreateEntity({});
 	bool is_type_set = false;
 
 	auto& p = parser;
 	p.ParseName();
-	new_entity->name = get_parsed<std::string>(parser);
+	new_entity->name = GetParsed<std::string>(parser);
 
 	while (parser.NextLine())
 	{
 		p.ParseToken();
-		const auto property = get_parsed<std::string>(parser);
+		const auto property = GetParsed<std::string>(parser);
 
 		if (property == "id")
 		{
 			p.ParseAllWhitespace();
 			p.ParseU64();
-			u64 id = get_parsed<u64>(parser);
+			u64 id = GetParsed<u64>(parser);
 			new_entity->id = id;
 
 			if (manager->next_entity_id < id)
@@ -50,19 +50,19 @@ void EntitySerializer::parse(Parser& parser)
 		else if (property == "position")
 		{
 			p.ParseVec3();
-			new_entity->position = get_parsed<glm::vec3>(parser);
+			new_entity->position = GetParsed<glm::vec3>(parser);
 		}
 
 		else if (property == "rotation")
 		{
 			p.ParseVec3();
-			new_entity->rotation = get_parsed<glm::vec3>(parser);
+			new_entity->rotation = GetParsed<glm::vec3>(parser);
 		}
 
 		else if (property == "scale")
 		{
 			p.ParseVec3();
-			const auto s = get_parsed<glm::vec3>(parser);
+			const auto s = GetParsed<glm::vec3>(parser);
 
 			if (s.x < 0 || s.y < 0 || s.z < 0)
 			{
@@ -76,7 +76,7 @@ void EntitySerializer::parse(Parser& parser)
 		{
 			p.ParseAllWhitespace();
 			p.ParseToken();
-			const auto shader_name = get_parsed<std::string>(parser);
+			const auto shader_name = GetParsed<std::string>(parser);
 
 			auto find = ShaderCatalogue.find(shader_name);
 			if (find != ShaderCatalogue.end())
@@ -91,7 +91,7 @@ void EntitySerializer::parse(Parser& parser)
 						if (!p.HasToken())
 							Quit_fatal("Scene description contain an entity with box tiled shader without full tile quantity description.");
 
-						new_entity->uv_tile_wrap[i] = get_parsed<int>(parser);
+						new_entity->uv_tile_wrap[i] = GetParsed<int>(parser);
 					}
 				}
 				new_entity->shader = find->second;
@@ -107,7 +107,7 @@ void EntitySerializer::parse(Parser& parser)
 		{
 			p.ParseAllWhitespace();
 			p.ParseToken();
-			const auto model_name = get_parsed<std::string>(parser);
+			const auto model_name = GetParsed<std::string>(parser);
 
 			auto find_mesh = GeometryCatalogue.find(model_name);
 			if (find_mesh != GeometryCatalogue.end())
@@ -129,7 +129,7 @@ void EntitySerializer::parse(Parser& parser)
 		{
 			p.ParseAllWhitespace();
 			p.ParseToken();
-			const auto texture_name = get_parsed<std::string>(parser);
+			const auto texture_name = GetParsed<std::string>(parser);
 
 			// > texture definition error handling
 			// >> check for missing info
@@ -167,7 +167,7 @@ void EntitySerializer::parse(Parser& parser)
 		{
 			p.ParseAllWhitespace();
 			p.ParseToken();
-			const auto entity_type = get_parsed<std::string>(parser);
+			const auto entity_type = GetParsed<std::string>(parser);
 
 			if (entity_type == SrEntityType::Static)
 				manager->SetType(new_entity, EntityType_Static);
@@ -200,7 +200,7 @@ void EntitySerializer::parse(Parser& parser)
 
 			p.ParseAllWhitespace();
 			p.ParseU64();
-			auto timer_target_id = get_parsed<u64>(parser);
+			auto timer_target_id = GetParsed<u64>(parser);
 
 			int i = relations.count;
 			relations.deferred_entity_ids[i] = timer_target_id;
@@ -215,7 +215,7 @@ void EntitySerializer::parse(Parser& parser)
 
 			p.ParseAllWhitespace();
 			p.ParseFloat();
-			new_entity->timer_trigger_data.timer_duration = get_parsed<int>(parser);
+			new_entity->timer_trigger_data.timer_duration = GetParsed<int>(parser);
 		}
 
 		else if (property == "timer_target_type")
@@ -224,7 +224,7 @@ void EntitySerializer::parse(Parser& parser)
 
 			p.ParseAllWhitespace();
 			p.ParseUint();
-			new_entity->timer_target_data.timer_target_type = static_cast<EntityTimerTargetType>(get_parsed<u32>(parser));
+			new_entity->timer_target_data.timer_target_type = static_cast<EntityTimerTargetType>(GetParsed<u32>(parser));
 		}
 
 		else if (property == "timer_start_animation")
@@ -233,7 +233,7 @@ void EntitySerializer::parse(Parser& parser)
 
 			p.ParseAllWhitespace();
 			p.ParseUint();
-			new_entity->timer_target_data.timer_start_animation = get_parsed<u32>(parser);
+			new_entity->timer_target_data.timer_start_animation = GetParsed<u32>(parser);
 		}
 
 		else if (property == "timer_stop_animation")
@@ -242,7 +242,7 @@ void EntitySerializer::parse(Parser& parser)
 
 			p.ParseAllWhitespace();
 			p.ParseUint();
-			new_entity->timer_target_data.timer_stop_animation = get_parsed<u32>(parser);
+			new_entity->timer_target_data.timer_stop_animation = GetParsed<u32>(parser);
 		}
 
 		else if (property == "timer_marking")
@@ -251,11 +251,11 @@ void EntitySerializer::parse(Parser& parser)
 
 			p.ParseAllWhitespace();
 			p.ParseUint();
-			const auto marking_id = get_parsed<u32>(parser);
+			const auto marking_id = GetParsed<u32>(parser);
 
 			p.ParseAllWhitespace();
 			p.ParseUint();
-			const auto marking_time_checkpoint = get_parsed<u32>(parser);
+			const auto marking_time_checkpoint = GetParsed<u32>(parser);
 
 			int i = relations.count;
 			relations.deferred_entity_ids[i] = marking_id;
@@ -268,13 +268,13 @@ void EntitySerializer::parse(Parser& parser)
 		else if (property == "timer_marking_color_on")
 		{
 			p.ParseVec3();
-			new_entity->timer_marking_data.color_on = get_parsed<glm::vec3>(parser);
+			new_entity->timer_marking_data.color_on = GetParsed<glm::vec3>(parser);
 		}
 
 		else if (property == "timer_marking_color_off")
 		{
 			p.ParseVec3();
-			new_entity->timer_marking_data.color_off = get_parsed<glm::vec3>(parser);
+			new_entity->timer_marking_data.color_off = GetParsed<glm::vec3>(parser);
 		}
 
 		// ---------------------------------
@@ -282,7 +282,7 @@ void EntitySerializer::parse(Parser& parser)
 		else if (property == "trigger")
 		{
 			p.ParseVec3();
-			new_entity->trigger_scale = get_parsed<glm::vec3>(parser);
+			new_entity->trigger_scale = GetParsed<glm::vec3>(parser);
 		}
 
 		else if (property == "slidable")
@@ -297,7 +297,7 @@ void EntitySerializer::parse(Parser& parser)
 	}
 }
 
-void EntitySerializer::save(std::ofstream& writer, Entity& entity)
+void EntitySerializer::Save(std::ofstream& writer, Entity& entity)
 {
 	writer << "\n#" << entity.name << "\n";
 	writer << "id " << entity.id << "\n";
@@ -415,7 +415,7 @@ void EntitySerializer::save(std::ofstream& writer, Entity& entity)
 	}
 }
 
-void EntitySerializer::_clear_buffer()
+void EntitySerializer::ClearBuffer()
 {
 	relations = DeferredEntityRelationBuffer{};
 }

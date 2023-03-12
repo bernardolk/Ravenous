@@ -53,5 +53,5 @@ void EntityPool::FreeSlot(const Entity* entity) const
 		cursor++;
 	}
 
-	log(LOG_WARNING, "Entity '" + entity->name + "' requested to be deleted couldn't be found in entity pool.");
+	Log(LOG_WARNING, "Entity '" + entity->name + "' requested to be deleted couldn't be found in entity pool.");
 }

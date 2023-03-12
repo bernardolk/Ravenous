@@ -11,7 +11,7 @@
 
 namespace Editor
 {
-	void render_entity_panel(EntityPanelContext* panel, World* world)
+	void RenderEntityPanel(EntityPanelContext* panel, World* world)
 	{
 		auto* EM = EntityManager::Get();
 		auto& entity = panel->entity;
@@ -130,7 +130,7 @@ namespace Editor
 
 			if (ImGui::Button("Place", ImVec2(82, 18)))
 			{
-				activate_place_mode(entity);
+				ActivatePlaceMode(entity);
 			}
 
 
@@ -155,19 +155,19 @@ namespace Editor
 			// ENTITY POSITIONING TOOLS
 			if (ImGui::Button("Snap", ImVec2(82, 18)))
 			{
-				activate_snap_mode(entity);
+				ActivateSnapMode(entity);
 			}
 
 			ImGui::SameLine();
 			if (ImGui::Checkbox("inside", &ed_context.snap_inside))
 			{
 				if (ed_context.snap_reference != nullptr)
-					snap_entity_to_reference(panel->entity);
+					SnapEntityToReference(panel->entity);
 			}
 
 			if (ImGui::Button("Stretch", ImVec2(82, 18)))
 			{
-				activate_stretch_mode(entity);
+				ActivateStretchMode(entity);
 			}
 
 			ImGui::NewLine();
@@ -198,7 +198,7 @@ namespace Editor
 				{
 					action_flags |= EntityPanelTA_Duplicate;
 					auto new_entity = EM->CopyEntity(entity);
-					open_entity_panel(new_entity);
+					OpenEntityPanel(new_entity);
 				}
 
 				ImGui::SameLine();
@@ -209,7 +209,7 @@ namespace Editor
 				{
 					action_flags |= EntityPanelTA_Delete;
 					ed_context.entity_panel.active = false;
-					editor_erase_entity(entity);
+					EditorEraseEntity(entity);
 				}
 				ImGui::PopStyleColor(3);
 			}
@@ -347,7 +347,7 @@ namespace Editor
 								callback_args.entity = entity;
 								callback_args.entity_type = EntityType_TimerMarking;
 
-								activate_select_entity_aux_tool(
+								ActivateSelectEntityAuxTool(
 									&data->markings[empty_slot],
 									EdToolCallback_EntityManagerSetType,
 									callback_args
@@ -387,7 +387,7 @@ namespace Editor
 				if (ImGui::Button("Change", ImVec2(92, 18)))
 				{
 					panel->show_related_entity = false;
-					activate_select_entity_aux_tool(&entity->timer_trigger_data.timer_target);
+					ActivateSelectEntityAuxTool(&entity->timer_trigger_data.timer_target);
 				}
 			}
 
@@ -472,13 +472,13 @@ namespace Editor
 		ImGui::End();
 
 		if (action_flags > 0)
-			entity_panel_update_entity_and_editor_context(panel, action_flags, world);
+			EntityPanelUpdateEntityAndEditorContext(panel, action_flags, world);
 		if (track)
-			entity_panel_track_entity_changes(panel);
+			EntityPanelTrackEntityChanges(panel);
 	}
 
 
-	void entity_panel_track_entity_changes(EntityPanelContext* panel)
+	void EntityPanelTrackEntityChanges(EntityPanelContext* panel)
 	{
 		auto& ed_context = *GetContext();
 
@@ -497,12 +497,12 @@ namespace Editor
 	}
 
 
-	void entity_panel_update_entity_and_editor_context(const EntityPanelContext* panel, u32 action, World* world)
+	void EntityPanelUpdateEntityAndEditorContext(const EntityPanelContext* panel, u32 action, World* world)
 	{
 		auto& ed_context = *GetContext();
 
 		if (!(action & EntityPanelTA_Duplicate || action & EntityPanelTA_Delete))
-			deactivate_editor_modes();
+			DeactivateEditorModes();
 
 		panel->entity->Update();
 		auto update_cells = world->UpdateEntityWorldCells(panel->entity);
@@ -517,7 +517,7 @@ namespace Editor
 	}
 
 
-	void open_entity_panel(Entity* entity)
+	void OpenEntityPanel(Entity* entity)
 	{
 		auto& ed_context = *GetContext();
 		ed_context.selected_entity = entity;
@@ -535,7 +535,7 @@ namespace Editor
 		panel.tracked_once = false;
 		panel.show_related_entity = false;
 		panel.related_entity = nullptr;
-		panel.entity_starting_state = get_entity_state(entity);
+		panel.entity_starting_state = GetEntityState(entity);
 		panel.EmptyRenameBuffer();
 
 		// TODO: We should _know_ when entities move and be able to act programatically upon that knowledge instead of randomly checking everywhere.

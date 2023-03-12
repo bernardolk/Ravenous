@@ -18,12 +18,12 @@ void ConfigSerializer::LoadGlobalConfigs()
 	while (p.NextLine())
 	{
 		p.ParseToken();
-		const auto attribute = get_parsed<std::string>(p);
+		const auto attribute = GetParsed<std::string>(p);
 
 		p.ParseAllWhitespace();
 		p.ParseSymbol();
 
-		if (get_parsed<char>(p) != '=')
+		if (GetParsed<char>(p) != '=')
 		{
 			std::cout <<
 			"SYNTAX ERROR, MISSING '=' CHARACTER AT SCENE DESCRIPTION FILE ('" <<
@@ -38,44 +38,44 @@ void ConfigSerializer::LoadGlobalConfigs()
 		{
 			p.ParseAllWhitespace();
 			p.ParseToken();
-			config.initial_scene = get_parsed<std::string>(p);
+			config.initial_scene = GetParsed<std::string>(p);
 		}
 		else if (attribute == "camspeed")
 		{
 			p.ParseAllWhitespace();
 			p.ParseFloat();
-			config.camspeed = get_parsed<float>(p);
+			config.camspeed = GetParsed<float>(p);
 		}
 		else if (attribute == "ambient_light")
 		{
 			p.ParseAllWhitespace();
 			p.ParseVec3();
-			config.ambient_light = get_parsed<glm::vec3>(p);
+			config.ambient_light = GetParsed<glm::vec3>(p);
 		}
 		else if (attribute == "ambient_intensity")
 		{
 			p.ParseAllWhitespace();
 			p.ParseFloat();
-			config.ambient_intensity = get_parsed<float>(p);
+			config.ambient_intensity = GetParsed<float>(p);
 		}
 	}
 }
 
-void ConfigSerializer::parse_camera_settings(Parser& p)
+void ConfigSerializer::ParseCameraSettings(Parser& p)
 {
 	auto* GSI = GlobalSceneInfo::Get();
 
 	p.ParseAllWhitespace();
 	p.ParseVec3();
-	GSI->camera->position = get_parsed<glm::vec3>(p);
+	GSI->camera->position = GetParsed<glm::vec3>(p);
 
 	p.ParseAllWhitespace();
 	p.ParseVec3();
-	CameraLookAt(GSI->camera, get_parsed<glm::vec3>(p), false);
+	CameraLookAt(GSI->camera, GetParsed<glm::vec3>(p), false);
 }
 
 
-bool ConfigSerializer::save(const ProgramConfig& config)
+bool ConfigSerializer::Save(const ProgramConfig& config)
 {
 	std::ofstream writer(Paths::Config);
 	if (!writer.is_open())

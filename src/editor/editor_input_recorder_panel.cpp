@@ -1,3 +1,5 @@
+#pragma once
+
 #include "editor_input_recorder_panel.h"
 #include "editor_panel_contexts.h"
 #include "engine/rvn.h"
@@ -5,11 +7,9 @@
 #include "tools/input_recorder.h"
 #include <imgui.h>
 
-#pragma once
-
 namespace Editor
 {
-	void render_input_recorder_panel(InputRecorderPanelContext* panel)
+	void RenderInputRecorderPanel(InputRecorderPanelContext* panel)
 	{
 		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::viewport_width - 400, 800), ImGuiCond_Once);
 		ImGui::Begin("Input Recorder Panel", &panel->active, ImGuiWindowFlags_None);

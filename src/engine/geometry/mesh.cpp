@@ -30,7 +30,7 @@ void Mesh::SetupGLData()
 
 	if (gl_data.VAO > 0)
 	{
-		log(LOG_INFO, "Redundant setup_gl_data call occured.");
+		Log(LOG_INFO, "Redundant setup_gl_data call occured.");
 		return;
 	}
 

@@ -6,12 +6,9 @@
 #include "engine/entities/lights.h"
 #include "engine/world/world.h"
 
-// -------------
-// LIGHTS PANEL
-// -------------
 namespace Editor
 {
-	void open_lights_panel(std::string type, int index, bool focus_tab)
+	void OpenLightsPanel(std::string type, int index, bool focus_tab)
 	{
 		auto& ed_context = *GetContext();
 
@@ -26,7 +23,7 @@ namespace Editor
 	}
 
 
-	vec3 compute_direction_from_angles(float pitch, float yaw)
+	vec3 ComputeDirectionFromAngles(float pitch, float yaw)
 	{
 		vec3 arrow_direction;
 		arrow_direction.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
@@ -37,7 +34,7 @@ namespace Editor
 	}
 
 
-	void render_lights_panel(LightsPanelContext* panel, World* world)
+	void RenderLightsPanel(LightsPanelContext* panel, World* world)
 	{
 		ImGui::SetNextWindowPos(ImVec2(180, 80), ImGuiCond_Appearing);
 		ImGui::Begin("Lights Panel", &panel->active, ImGuiWindowFlags_None);
@@ -69,7 +66,7 @@ namespace Editor
 				// create new spotlight
 				auto new_pointlight = new PointLight();
 				pointlights.push_back(new_pointlight);
-				activate_move_light_mode("point", pointlights.size() - 1);
+				ActivateMoveLightMode("point", pointlights.size() - 1);
 			}
 			ImGui::PopStyleColor(3);
 
@@ -141,7 +138,7 @@ namespace Editor
 			}
 
 			if (deleted_light_index > -1)
-				editor_erase_light(deleted_light_index, "point", world);
+				EditorEraseLight(deleted_light_index, "point", world);
 
 			ImGui::EndTabItem();
 		}
@@ -169,7 +166,7 @@ namespace Editor
 				// create new spotlight
 				auto new_spotlight = new SpotLight();
 				spotlights.push_back(new_spotlight);
-				activate_move_light_mode("spot", spotlights.size() - 1);
+				ActivateMoveLightMode("spot", spotlights.size() - 1);
 			}
 			ImGui::PopStyleColor(3);
 
@@ -227,14 +224,14 @@ namespace Editor
 						auto label_pitch = "pitch##spot" + std::to_string(i);
 						if (ImGui::SliderFloat(label_pitch.c_str(), &pitch, -89.0, 89.0))
 						{
-							light.direction = compute_direction_from_angles(pitch, yaw);
+							light.direction = ComputeDirectionFromAngles(pitch, yaw);
 						}
 
 						//yaw
 						auto label_yaw = "yaw##spot" + std::to_string(i);
 						if (ImGui::SliderFloat(label_yaw.c_str(), &yaw, -360.0, 360.0))
 						{
-							light.direction = compute_direction_from_angles(pitch, yaw);
+							light.direction = ComputeDirectionFromAngles(pitch, yaw);
 						}
 					}
 
@@ -272,7 +269,7 @@ namespace Editor
 			}
 
 			if (deleted_light_index > -1)
-				editor_erase_light(deleted_light_index, "spot", world);
+				EditorEraseLight(deleted_light_index, "spot", world);
 
 			ImGui::EndTabItem();
 		}

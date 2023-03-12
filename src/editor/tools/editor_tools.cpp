@@ -13,7 +13,7 @@
 
 namespace Editor
 {
-	void deactivate_editor_modes()
+	void DeactivateEditorModes()
 	{
 		auto& ed_context = *GetContext();
 
@@ -28,7 +28,7 @@ namespace Editor
 		ed_context.select_entity_aux_mode = false;
 	}
 
-	bool check_modes_are_active()
+	bool CheckModesAreActive()
 	{
 		auto& ed_context = *GetContext();
 
@@ -40,7 +40,7 @@ namespace Editor
 		ed_context.locate_coords_mode;
 	}
 
-	void editor_erase_entity(Entity* entity)
+	void EditorEraseEntity(Entity* entity)
 	{
 		auto& ed_context = *GetContext();
 
@@ -49,7 +49,7 @@ namespace Editor
 		ed_context.undo_stack.deletion_log.Add(entity);
 	}
 
-	void editor_erase_light(int index, std::string type, World* world)
+	void EditorEraseLight(int index, std::string type, World* world)
 	{
 		auto& ed_context = *GetContext();
 
@@ -66,7 +66,7 @@ namespace Editor
 			ed_context.lights_panel.selected_light = -1;
 	}
 
-	void unhide_entities(const World* world)
+	void UnhideEntities(const World* world)
 	{
 		for (auto& entity : world->entities)
 		{
@@ -78,12 +78,12 @@ namespace Editor
 	// ----------
 	// SNAP TOOL
 	// ----------
-	void activate_snap_mode(Entity* entity);
-	void snap_entity_to_reference(Entity* entity);
-	void check_selection_to_snap();
-	void snap_commit();
+	void ActivateSnapMode(Entity* entity);
+	void SnapEntityToReference(Entity* entity);
+	void CheckSelectionToSnap();
+	void SnapCommit();
 
-	void activate_snap_mode(Entity* entity)
+	void ActivateSnapMode(Entity* entity)
 	{
 		// deactivate_editor_modes();
 		// ed_context.snap_mode = true;
@@ -91,14 +91,14 @@ namespace Editor
 		// ed_context.undo_stack.track(entity);
 	}
 
-	void snap_commit()
+	void SnapCommit()
 	{
 		// auto entity = ed_context.entity_panel.entity;
 		// ed_context.snap_tracked_state = get_entity_state(entity);
 		// ed_context.undo_stack.track(entity);
 	}
 
-	void snap_entity_to_reference(Entity* entity)
+	void SnapEntityToReference(Entity* entity)
 	{
 		// auto reference = ed_context.snap_reference;
 		// float diff = 0;
@@ -143,7 +143,7 @@ namespace Editor
 	}
 
 
-	void check_selection_to_snap()
+	void CheckSelectionToSnap()
 	{
 		// auto pickray = cast_pickray(G_SCENE_INFO.camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
 		// auto test = test_ray_against_scene(pickray);
@@ -157,20 +157,20 @@ namespace Editor
 	// -------------
 	// STRETCH TOOL
 	// -------------
-	void activate_stretch_mode(Entity* entity);
-	void stretch_commit();
-	auto get_scale_and_position_change(Entity* entity, float old_pos, float new_pos, float n);
-	void stretch_entity_to_reference(Entity* entity);
+	void ActivateStretchMode(Entity* entity);
+	void StretchCommit();
+	auto GetScaleAndPositionChange(Entity* entity, float old_pos, float new_pos, float n);
+	void StretchEntityToReference(Entity* entity);
 	void check_selection_to_stretch(EntityPanelContext* panel);
 
-	void activate_stretch_mode(Entity* entity)
+	void ActivateStretchMode(Entity* entity)
 	{
 		// deactivate_editor_modes();
 		// ed_context.stretch_mode = true;
 		// ed_context.undo_stack.track(entity);
 	}
 
-	void stretch_commit()
+	void StretchCommit()
 	{
 		// auto entity = ed_context.entity_panel.entity;
 		// ed_context.undo_stack.track(entity);
@@ -293,7 +293,7 @@ namespace Editor
 
 
 
-	void check_selection_to_stretch()
+	void CheckSelectionToStretch()
 	{
 		// auto pickray = cast_pickray(G_SCENE_INFO.camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
 		// auto test = test_ray_against_scene(pickray);
@@ -308,19 +308,19 @@ namespace Editor
 	// -------------
 	// MEASURE TOOL
 	// -------------
-	void activate_measure_mode(u8 axis);
-	void check_selection_to_measure(const World* world);
+	void ActivateMeasureMode(u8 axis);
+	void CheckSelectionToMeasure(const World* world);
 
-	void activate_measure_mode(u8 axis)
+	void ActivateMeasureMode(u8 axis)
 	{
 		auto& ed_context = *GetContext();
 
-		deactivate_editor_modes();
+		DeactivateEditorModes();
 		ed_context.measure_mode = true;
 		ed_context.measure_axis = axis;
 	}
 
-	void check_selection_to_measure(const World* world)
+	void CheckSelectionToMeasure(const World* world)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto* GSI = GlobalSceneInfo::Get();
@@ -354,19 +354,19 @@ namespace Editor
 	// ------------------------
 	// LOCATE COORDINATES MODE
 	// ------------------------
-	void activate_locate_coords_mode();
-	void check_selection_to_locate_coords(const World* world);
+	void ActivateLocateCoordsMode();
+	void CheckSelectionToLocateCoords(const World* world);
 
-	void activate_locate_coords_mode()
+	void ActivateLocateCoordsMode()
 	{
 		auto& ed_context = *GetContext();
 
-		deactivate_editor_modes();
+		DeactivateEditorModes();
 		ed_context.locate_coords_mode = true;
 		ed_context.locate_coords_found_point = false;
 	}
 
-	void check_selection_to_locate_coords(const World* world)
+	void CheckSelectionToLocateCoords(const World* world)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto* GSI = GlobalSceneInfo::Get();
@@ -384,7 +384,7 @@ namespace Editor
 	// -------------
 	// > MOVE TOOLS 
 	// -------------
-	void place_entity(World* world)
+	void PlaceEntity(World* world)
 	{
 		/* Common function for move/rotate/scale entity tools.
 		   Updates entity, tracks it state and updates world.
@@ -404,7 +404,7 @@ namespace Editor
 		ed_context.undo_stack.Track(ed_context.selected_entity);
 	}
 
-	RaycastTest test_ray_against_entity_support_plane(u16 move_axis, Entity* entity)
+	RaycastTest TestRayAgainstEntitySupportPlane(u16 move_axis, Entity* entity)
 	{
 		// create a big plane for placing entity in the world with the mouse using raycast from camera to mouse
 		// position. In the case of Y placement, we need to compute the plane considering the camera orientation.
@@ -475,17 +475,17 @@ namespace Editor
 	// --------------
 	// >> PLACE MODE
 	// --------------
-	void activate_place_mode(Entity* entity)
+	void ActivatePlaceMode(Entity* entity)
 	{
 		auto& ed_context = *GetContext();
 
-		deactivate_editor_modes();
+		DeactivateEditorModes();
 		ed_context.place_mode = true;
 		ed_context.selected_entity = entity;
 		ed_context.undo_stack.Track(entity);
 	}
 
-	void select_entity_placing_with_mouse_move(Entity* entity, const World* world)
+	void SelectEntityPlacingWithMouseMove(Entity* entity, const World* world)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto* GSI = GlobalSceneInfo::Get();
@@ -503,22 +503,22 @@ namespace Editor
 	// -------------
 	// >> MOVE MODE
 	// -------------
-	void activate_move_mode(Entity* entity)
+	void ActivateMoveMode(Entity* entity)
 	{
 		auto& ed_context = *GetContext();
 
-		deactivate_editor_modes();
+		DeactivateEditorModes();
 		ed_context.move_mode = true;
 		ed_context.move_axis = 0;
 		ed_context.selected_entity = entity;
 		ed_context.undo_stack.Track(entity);
 	}
 
-	void move_entity_with_mouse(Entity* entity)
+	void MoveEntityWithMouse(Entity* entity)
 	{
 		auto& ed_context = *GetContext();
 
-		RaycastTest test = test_ray_against_entity_support_plane(ed_context.move_axis, entity);
+		RaycastTest test = TestRayAgainstEntitySupportPlane(ed_context.move_axis, entity);
 		if (!test.hit)
 			return;
 
@@ -550,27 +550,27 @@ namespace Editor
 	// -------------------------
 	// >> MOVE ENTITY BY ARROWS
 	// -------------------------
-	void activate_move_entity_by_arrow(u8 move_axis);
-	void move_entity_by_arrows(Entity* entity);
+	void ActivateMoveEntityByArrow(u8 move_axis);
+	void MoveEntityByArrows(Entity* entity);
 
 
-	void activate_move_entity_by_arrow(u8 move_axis)
+	void ActivateMoveEntityByArrow(u8 move_axis)
 	{
 		auto& ed_context = *GetContext();
 
 		ed_context.move_axis = move_axis;
 		ed_context.move_entity_by_arrows = true;
-		auto test = test_ray_against_entity_support_plane(move_axis, ed_context.selected_entity);
+		auto test = TestRayAgainstEntitySupportPlane(move_axis, ed_context.selected_entity);
 		ed_context.move_entity_by_arrows_ref_point = CL_GetPointFromDetection(test.ray, test);
 		ed_context.undo_stack.Track(ed_context.selected_entity);
 	}
 
 
-	void move_entity_by_arrows(Entity* entity)
+	void MoveEntityByArrows(Entity* entity)
 	{
 		auto& ed_context = *GetContext();
 
-		RaycastTest test = test_ray_against_entity_support_plane(ed_context.move_axis, entity);
+		RaycastTest test = TestRayAgainstEntitySupportPlane(ed_context.move_axis, entity);
 		if (!test.hit)
 			return;
 
@@ -615,25 +615,25 @@ namespace Editor
 	// @todo: This will DISAPPEAR after lights become entities!
 	//       We need to provide entity rights to lights too! revolution now!
 
-	void move_light_with_mouse(std::string type, int index, World* world);
-	void activate_move_light_mode(std::string type, int index);
-	void place_light(std::string type, int index);
-	void open_lights_panel(std::string type, int index, bool focus_tab); //fwd
+	void MoveLightWithMouse(std::string type, int index, World* world);
+	void ActivateMoveLightMode(std::string type, int index);
+	void PlaceLight(std::string type, int index);
+	void OpenLightsPanel(std::string type, int index, bool focus_tab); //fwd
 
 
-	void activate_move_light_mode(std::string type, int index)
+	void ActivateMoveLightMode(std::string type, int index)
 	{
 		auto& ed_context = *GetContext();
 
-		deactivate_editor_modes();
+		DeactivateEditorModes();
 		ed_context.entity_panel.active = false;
-		open_lights_panel(type, index, true);
+		OpenLightsPanel(type, index, true);
 		ed_context.move_mode = true;
 		ed_context.selected_light = index;
 		ed_context.selected_light_type = type;
 	}
 
-	void move_light_with_mouse(std::string type, int index, World* world)
+	void MoveLightWithMouse(std::string type, int index, World* world)
 	{
 		vec3 position;
 		if (type == "point" && index > -1)
@@ -737,7 +737,7 @@ namespace Editor
 			assert(false);
 	}
 
-	void place_light()
+	void PlaceLight()
 	{
 		auto& ed_context = *GetContext();
 
@@ -749,11 +749,11 @@ namespace Editor
 	// ---------------------
 	// > ROTATE ENTITY TOOL
 	// ---------------------
-	void activate_rotate_entity_with_mouse(u8 move_axis);
-	float mouse_offset_to_angular_offset(float mouse_offset);
-	void rotate_entity_with_mouse(Entity* entity);
+	void ActivateRotateEntityWithMouse(u8 move_axis);
+	float MouseOffsetToAngularOffset(float mouse_offset);
+	void RotateEntityWithMouse(Entity* entity);
 
-	void activate_rotate_entity_with_mouse(u8 move_axis)
+	void ActivateRotateEntityWithMouse(u8 move_axis)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto& ed_context = *GetContext();
@@ -767,13 +767,13 @@ namespace Editor
 		ed_context.undo_stack.Track(ed_context.selected_entity);
 	}
 
-	float mouse_offset_to_angular_offset(float mouse_offset)
+	float MouseOffsetToAngularOffset(float mouse_offset)
 	{
 		// 360 degrees per 500 pixels of offset
 		return mouse_offset * 360.f / 500.f;
 	}
 
-	void rotate_entity_with_mouse(Entity* entity)
+	void RotateEntityWithMouse(Entity* entity)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto mouse_coords = vec2(GII->mouse_coords.x, GII->mouse_coords.y);
@@ -784,21 +784,21 @@ namespace Editor
 			case 1: // X
 			{
 				float diff = mouse_coords.y - ed_context.rotate_entity_with_mouse_mouse_coords_ref.y;
-				float angular_diff = mouse_offset_to_angular_offset(diff);
+				float angular_diff = MouseOffsetToAngularOffset(diff);
 				entity->rotation.x += angular_diff;
 				break;
 			}
 			case 2: // Y
 			{
 				float diff = mouse_coords.x - ed_context.rotate_entity_with_mouse_mouse_coords_ref.x;
-				float angular_diff = mouse_offset_to_angular_offset(diff);
+				float angular_diff = MouseOffsetToAngularOffset(diff);
 				entity->rotation.y += angular_diff;
 				break;
 			}
 			case 3: // Z
 			{
 				float diff = mouse_coords.y - ed_context.rotate_entity_with_mouse_mouse_coords_ref.y;
-				float angular_diff = mouse_offset_to_angular_offset(diff);
+				float angular_diff = MouseOffsetToAngularOffset(diff);
 				entity->rotation.z += angular_diff;
 				break;
 			}
@@ -816,7 +816,7 @@ namespace Editor
 	// ------------------
 	// SCALE ENTITY TOOL
 	// ------------------
-	void scale_entity_with_mouse(Entity* entity)
+	void ScaleEntityWithMouse(Entity* entity)
 	{
 		// NOT IMPLEMENTED
 	}
@@ -826,7 +826,7 @@ namespace Editor
 	// SELECT ENTITY AUX TOOL
 	// -----------------------
 	// used in entity panel to select other entity to attribute 1 to 1 relationships
-	void activate_select_entity_aux_tool(Entity** entity_slot, EdToolCallback callback, EdToolCallbackArgs args)
+	void ActivateSelectEntityAuxTool(Entity** entity_slot, EdToolCallback callback, EdToolCallbackArgs args)
 	{
 		auto& ed_context = *GetContext();
 
@@ -840,10 +840,10 @@ namespace Editor
 	// -------------
 	// MISCELANEOUS
 	// -------------
-	// void check_for_asset_changes();
-	void render_aabb_boundaries(Entity* entity);
+	// void CheckForAssetChanges();
+	void RenderAabbBoundaries(Entity* entity);
 
-	// void check_for_asset_changes()
+	// void CheckForAssetChanges()
 	// {
 	//    auto it = Geometry_Catalogue.begin();
 	//    while (it != Geometry_Catalogue.end())
@@ -874,7 +874,7 @@ namespace Editor
 	//    }
 	// }
 
-	void render_aabb_boundaries(Entity* entity)
+	void RenderAabbBoundaries(Entity* entity)
 	{
 		// auto bounds = entity->collision_geometry.aabb;
 		// ImDraw::add(

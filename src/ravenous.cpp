@@ -94,7 +94,7 @@ int main()
 	ConfigSerializer::scene_info = GlobalSceneInfo::Get();
 
 	// INITIAL GLFW AND GLAD SETUPS
-	setup_GLFW(true);
+	SetupGLFW(true);
 	SetupGL();
 
 	auto* GSI = GlobalSceneInfo::Get();

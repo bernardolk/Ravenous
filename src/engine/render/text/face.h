@@ -13,7 +13,7 @@ struct Face
 // -----------------------------
 // > Triangle / Face operations
 // -----------------------------
-inline Face face_from_axis_aligned_triangle(Triangle t)
+inline Face FaceFromAxisAlignedTriangle(Triangle t)
 {
 	// computes center
 	float x0 = std::min({t.a.x, t.b.x, t.c.x});

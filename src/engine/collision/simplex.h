@@ -1,6 +1,3 @@
-/* ------------------
-      SIMPLEX
------------------- */
 #pragma once
 
 struct Simplex
