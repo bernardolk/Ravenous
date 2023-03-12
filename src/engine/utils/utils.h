@@ -209,7 +209,7 @@ inline vec3 rot_mat_to_euler_angles_XYZ(mat4& M)
 	bool singular = sy < 1e-6; // If
 
 	float x, y, z;
-	if(!singular)
+	if (!singular)
 	{
 		x = atan2(M[2][1], M[2][2]);
 		y = atan2(-M[2][0], sy);
@@ -230,7 +230,7 @@ inline vec3 rot_mat_to_euler_angles_XYZ(mat4& M)
 inline int get_random_int(int min, int max)
 {
 	static bool first = true;
-	if(first)
+	if (first)
 	{
 		std::srand(std::time(nullptr)); //seeding for the first time only!
 		first = false;

@@ -36,11 +36,11 @@ inline Face face_from_axis_aligned_triangle(Triangle t)
 	vec3 c2 = rotate(t.c, glm::radians(180.0f), normal);
 
 	vec3 translation;
-	if(x0 == x1)
+	if (x0 == x1)
 		translation = vec3(0, center.y, center.z);
-	if(y0 == y1)
+	if (y0 == y1)
 		translation = vec3(center.x, 0, center.z);
-	if(z0 == z1)
+	if (z0 == z1)
 		translation = vec3(center.x, center.y, 0);
 
 	a2 += translation * 2.0f;

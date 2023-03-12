@@ -11,7 +11,7 @@ void Timer::Start(Entity* target, Entity* trigger, float duration)
 	active = true;
 
 	// @todo: could be any kind of time_attack_door, but ok.
-	if(target->timer_target_data.timer_target_type == EntityTimerTargetType_VerticalSlidingDoor)
+	if (target->timer_target_data.timer_target_type == EntityTimerTargetType_VerticalSlidingDoor)
 	{
 		type = TimerType_TimeAttackDoor;
 		StartTimeAttackDoorTimer();
@@ -21,7 +21,7 @@ void Timer::Start(Entity* target, Entity* trigger, float duration)
 void Timer::Stop()
 {
 	// specific stop procedures first
-	if(type == TimerType_TimeAttackDoor)
+	if (type == TimerType_TimeAttackDoor)
 		StopTimeAttackDoorTimer();
 
 	target = nullptr;
@@ -38,10 +38,10 @@ bool Timer::Update()
 	remaining_time -= Rvn::frame.duration;
 	elapsed_time += Rvn::frame.duration;
 
-	if(type == TimerType_TimeAttackDoor)
+	if (type == TimerType_TimeAttackDoor)
 		UpdateTimeAttackDoorTimer();
 
-	if(remaining_time <= 0)
+	if (remaining_time <= 0)
 		return false;
 	return true;
 }
@@ -56,7 +56,7 @@ void Timer::StartTimeAttackDoorTimer()
 		auto entity = data->markings[i];
 
 		// turns  every marking on
-		if(entity != nullptr)
+		if (entity != nullptr)
 			entity->timer_marking_data.color = entity->timer_marking_data.color_on;
 	}
 }
@@ -68,7 +68,7 @@ void Timer::UpdateTimeAttackDoorTimer()
 	For(data->size)
 	{
 		auto entity = data->markings[i];
-		if(entity != nullptr && data->notification_mask[i] == false && data->time_checkpoints[i] <= elapsed_time)
+		if (entity != nullptr && data->notification_mask[i] == false && data->time_checkpoints[i] <= elapsed_time)
 		{
 			// turn the marking off
 			entity->timer_marking_data.color = entity->timer_marking_data.color_off;
@@ -83,7 +83,7 @@ void Timer::StopTimeAttackDoorTimer()
 	For(data->size)
 	{
 		auto entity = data->markings[i];
-		if(entity != nullptr)
+		if (entity != nullptr)
 		{
 			// turns all markings off
 			entity->timer_marking_data.color = entity->timer_marking_data.color_off;

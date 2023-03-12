@@ -47,7 +47,7 @@ namespace Editor
 	{
 		ImGui::EndFrame();
 	}
-	
+
 	//------------------
 	// > UPDATE EDITOR
 	//------------------
@@ -57,7 +57,7 @@ namespace Editor
 		auto& ed_context = *GetContext();
 		auto* GSI = GlobalSceneInfo::Get();
 
-		if(ed_context.last_frame_scene != GSI->scene_name)
+		if (ed_context.last_frame_scene != GSI->scene_name)
 		{
 			ed_context.entity_panel.active = false;
 			ed_context.world_panel.active = false;
@@ -70,7 +70,7 @@ namespace Editor
 		UpdateTriaxisGizmo();
 
 		// ENTITY PANEL
-		if(!ed_context.entity_panel.active)
+		if (!ed_context.entity_panel.active)
 		{
 			ed_context.entity_panel.rename_buffer[0] = 0;
 			ed_context.snap_mode = false;
@@ -79,12 +79,12 @@ namespace Editor
 		}
 
 		// unselect lights when not panel is not active
-		if(!ed_context.lights_panel.active)
+		if (!ed_context.lights_panel.active)
 		{
 			ed_context.lights_panel.selected_light = -1;
 			ed_context.lights_panel.selected_light_type = "";
 		}
-		else if(
+		else if (
 			ed_context.lights_panel.selected_light != -1 &&
 			ed_context.lights_panel.selected_light_type != ""
 		)
@@ -94,12 +94,12 @@ namespace Editor
 
 
 		// set editor mode values to initial if not active
-		if(!ed_context.measure_mode)
+		if (!ed_context.measure_mode)
 		{
 			ed_context.first_point_found = false;
 			ed_context.second_point_found = false;
 		}
-		if(!ed_context.snap_mode)
+		if (!ed_context.snap_mode)
 		{
 			ed_context.snap_cycle = 0;
 			ed_context.snap_axis = 1;
@@ -107,60 +107,60 @@ namespace Editor
 		}
 
 		// respond to mouse if necessary
-		if(ed_context.move_mode)
+		if (ed_context.move_mode)
 		{
-			if(ed_context.mouse_click)
+			if (ed_context.mouse_click)
 			{
-				if(ed_context.selected_light > -1)
+				if (ed_context.selected_light > -1)
 					place_light();
 				else
 					place_entity(world);
 			}
 			else
 			{
-				if(ed_context.selected_light > -1)
+				if (ed_context.selected_light > -1)
 					move_light_with_mouse(ed_context.selected_light_type, ed_context.selected_light, world);
 				else
 					move_entity_with_mouse(ed_context.selected_entity);
 			}
 		}
 
-		if(ed_context.select_entity_aux_mode)
+		if (ed_context.select_entity_aux_mode)
 		{
-			if(ed_context.mouse_click)
+			if (ed_context.mouse_click)
 			{
 				CheckSelectionToSelectRelatedEntity(world, camera);
 			}
 		}
 
-		if(ed_context.move_entity_by_arrows)
+		if (ed_context.move_entity_by_arrows)
 		{
-			if(ed_context.mouse_dragging)
+			if (ed_context.mouse_dragging)
 				move_entity_by_arrows(ed_context.selected_entity);
-			// the below condition is to prevent from deactivating too early
-			else if(!ed_context.mouse_click)
+				// the below condition is to prevent from deactivating too early
+			else if (!ed_context.mouse_click)
 				place_entity(world);
 		}
 
-		if(ed_context.rotate_entity_with_mouse)
+		if (ed_context.rotate_entity_with_mouse)
 		{
-			if(ed_context.mouse_dragging)
+			if (ed_context.mouse_dragging)
 				rotate_entity_with_mouse(ed_context.selected_entity);
-			// the below condition is to prevent from deactivating too early
-			else if(!ed_context.mouse_click)
+				// the below condition is to prevent from deactivating too early
+			else if (!ed_context.mouse_click)
 				place_entity(world);
 		}
 
 
-		if(ed_context.place_mode)
+		if (ed_context.place_mode)
 		{
-			if(ed_context.mouse_click)
+			if (ed_context.mouse_click)
 				place_entity(world);
 			else
 				select_entity_placing_with_mouse_move(ed_context.selected_entity, world);
 		}
 
-		if(ed_context.scale_entity_with_mouse)
+		if (ed_context.scale_entity_with_mouse)
 		{
 			scale_entity_with_mouse(ed_context.selected_entity);
 		}
@@ -169,7 +169,7 @@ namespace Editor
 		ed_context.mouse_click = false;
 
 		// check for debug flags
-		if(ed_context.debug_ledge_detection)
+		if (ed_context.debug_ledge_detection)
 		{
 			CL_PerformLedgeDetection(player, world);
 		}
@@ -179,7 +179,7 @@ namespace Editor
 	{
 		auto& ed_context = *GetContext();
 
-		for(int i = 0; i < 3; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			auto entity = ed_context.tri_axis[i];
 			glm::mat4 model = Mat4Identity;
@@ -201,17 +201,17 @@ namespace Editor
 		auto& ed_context = *GetContext();
 
 		// render world objs if toggled
-		if(ed_context.show_event_triggers)
+		if (ed_context.show_event_triggers)
 		{
 			RenderEventTriggers(camera, world);
 		}
 
-		if(ed_context.show_world_cells)
+		if (ed_context.show_world_cells)
 		{
 			RenderWorldCells(camera, world);
 		}
 
-		if(ed_context.show_lightbulbs)
+		if (ed_context.show_lightbulbs)
 		{
 			RenderLightbulbs(camera, world);
 		}
@@ -220,7 +220,7 @@ namespace Editor
 		auto triaxis_view = lookAt(vec3(0.0f), camera->front, -1.0f * camera->up);
 		float displacement_x[3] = {0.3f, 0.0f, 0.0f};
 		float displacement_y[3] = {0.0f, 0.3f, 0.0f};
-		for(int i = 0; i < 3; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			// ref. axis
 			auto axis = ed_context.tri_axis[i];
@@ -232,7 +232,7 @@ namespace Editor
 		}
 
 		// Entity panel special render calls
-		if(ed_context.entity_panel.active)
+		if (ed_context.entity_panel.active)
 		{
 			// Render glowing pink wireframe on top of selected entity
 			{
@@ -243,7 +243,7 @@ namespace Editor
 				// compute color intensity based on time
 				float time_value = glfwGetTime();
 				float intensity = sin(time_value) * 2;
-				if(intensity < 0)
+				if (intensity < 0)
 					intensity *= -1.0;
 				intensity += 1.0;
 
@@ -257,7 +257,7 @@ namespace Editor
 			}
 
 			// Render glowing yellow wireframe on top of an arbitrary related entity
-			if(ed_context.entity_panel.show_related_entity)
+			if (ed_context.entity_panel.show_related_entity)
 			{
 				// update
 				auto state = get_entity_state(ed_context.entity_panel.related_entity);
@@ -266,7 +266,7 @@ namespace Editor
 				// compute color intensity based on time
 				float time_value = glfwGetTime();
 				float intensity = sin(time_value) * 2;
-				if(intensity < 0)
+				if (intensity < 0)
 					intensity *= -1.0;
 				intensity += 1.0;
 
@@ -281,7 +281,7 @@ namespace Editor
 		}
 
 		// render glowing wireframe on top of snap reference entity
-		if(ed_context.snap_mode && ed_context.snap_reference != nullptr)
+		if (ed_context.snap_mode && ed_context.snap_reference != nullptr)
 		{
 			// update
 			auto state = get_entity_state(ed_context.snap_reference);
@@ -290,7 +290,7 @@ namespace Editor
 			// compute color intensity based on time
 			float time_value = glfwGetTime();
 			float intensity = sin(time_value) * 2;
-			if(intensity < 0)
+			if (intensity < 0)
 				intensity *= -1.0;
 			intensity += 1.0;
 
@@ -306,13 +306,13 @@ namespace Editor
 		// --------------
 		// render panels
 		// --------------
-		if(ed_context.scene_objects_panel.active)
+		if (ed_context.scene_objects_panel.active)
 			render_scene_objects_panel(world, &ed_context.scene_objects_panel);
 
-		if(ed_context.world_panel.active)
+		if (ed_context.world_panel.active)
 			render_world_panel(&ed_context.world_panel, world, player);
 
-		if(ed_context.entity_panel.active)
+		if (ed_context.entity_panel.active)
 		{
 			auto& panel = ed_context.entity_panel;
 
@@ -320,12 +320,12 @@ namespace Editor
 			RenderEntityControlArrows(&panel, world, camera);
 			RenderEntityRotationGizmo(&panel, world, camera);
 
-			if(panel.show_normals)
+			if (panel.show_normals)
 				RenderEntityMeshNormals(&panel);
 			// @TODO: Some bug being caused in this call
 			//if(panel.show_collider)
 			//   ImDraw::add_mesh(IMHASH, &panel.entity->collider, COLOR_PURPLE_1, 0);
-			if(panel.show_bounding_box)
+			if (panel.show_bounding_box)
 			{
 				auto aabb = GeometryCatalogue.find("aabb")->second;
 				auto [pos, scale] = panel.entity->bounding_box.GetPosAndScale();
@@ -333,27 +333,27 @@ namespace Editor
 			}
 		}
 
-		if(ed_context.player_panel.active)
+		if (ed_context.player_panel.active)
 		{
 			render_player_panel(&ed_context.player_panel);
 		}
 
-		if(ed_context.palette_panel.active)
+		if (ed_context.palette_panel.active)
 			render_palette_panel(&ed_context.palette_panel);
 
-		if(ed_context.lights_panel.active)
+		if (ed_context.lights_panel.active)
 			render_lights_panel(&ed_context.lights_panel, world);
 
-		if(ed_context.input_recorder_panel.active)
+		if (ed_context.input_recorder_panel.active)
 			render_input_recorder_panel(&ed_context.input_recorder_panel);
 
-		if(ed_context.collision_log_panel.active)
+		if (ed_context.collision_log_panel.active)
 			render_collision_log_panel(&ed_context.collision_log_panel);
 
 		// -----------------------
 		// render gizmos inscreen
 		// -----------------------
-		if(ed_context.measure_mode && ed_context.first_point_found && ed_context.second_point_found)
+		if (ed_context.measure_mode && ed_context.first_point_found && ed_context.second_point_found)
 		{
 			auto render_opts = RenderOptions();
 			render_opts.always_on_top = true;
@@ -361,11 +361,11 @@ namespace Editor
 			render_opts.color = ED_RED;
 
 			vec3 second_point;
-			if(ed_context.measure_axis == 0)
+			if (ed_context.measure_axis == 0)
 				second_point = vec3(ed_context.measure_to, ed_context.measure_from.y, ed_context.measure_from.z);
-			if(ed_context.measure_axis == 1)
+			if (ed_context.measure_axis == 1)
 				second_point = vec3(ed_context.measure_from.x, ed_context.measure_to, ed_context.measure_from.z);
-			if(ed_context.measure_axis == 2)
+			if (ed_context.measure_axis == 2)
 				second_point = vec3(ed_context.measure_from.x, ed_context.measure_from.y, ed_context.measure_to);
 
 			ImDraw::Add(
@@ -379,7 +379,7 @@ namespace Editor
 			);
 		}
 
-		if(ed_context.locate_coords_mode && ed_context.locate_coords_found_point)
+		if (ed_context.locate_coords_mode && ed_context.locate_coords_found_point)
 		{
 			ImDraw::AddPoint(IMHASH, ed_context.locate_coords_position, 2.0);
 		}
@@ -547,10 +547,10 @@ namespace Editor
 
 		// CAMERA POSITION
 		std::string cam_p[3]{
-			FormatFloatTostr(camera->position.x, 2),
-			FormatFloatTostr(camera->position.y, 2),
-			FormatFloatTostr(camera->position.z, 2),
-			};
+		FormatFloatTostr(camera->position.x, 2),
+		FormatFloatTostr(camera->position.y, 2),
+		FormatFloatTostr(camera->position.z, 2),
+		};
 		std::string camera_position = "camera:   x: " + cam_p[0] + " y:" + cam_p[1] + " z:" + cam_p[2];
 		render_text(font, 235, 45, camera_position);
 
@@ -558,10 +558,10 @@ namespace Editor
 		// PLAYER POSITION
 		vec3 p_feet = player->GetFeetPosition();
 		std::string player_p[3]{
-			FormatFloatTostr(p_feet.x, 1),
-			FormatFloatTostr(p_feet.y, 1),
-			FormatFloatTostr(p_feet.z, 1),
-			};
+		FormatFloatTostr(p_feet.x, 1),
+		FormatFloatTostr(p_feet.y, 1),
+		FormatFloatTostr(p_feet.z, 1),
+		};
 		std::string player_pos = "player:   x: " + player_p[0] + " y: " + player_p[1] + " z: " + player_p[2];
 		render_text(font, 235, 70, player_pos);
 
@@ -580,40 +580,40 @@ namespace Editor
 		// PLAYER STATE
 		auto player_state_text_color = vec3(0, 0, 0);
 		std::string player_state_text;
-		switch(player->player_state)
+		switch (player->player_state)
 		{
 			case PlayerState::Standing:
 				player_state_text = "PLAYER PlayerState::Standing";
-			break;
+				break;
 			case PlayerState::Falling:
 				player_state_text = "PLAYER FALLING";
-			break;
+				break;
 			case PlayerState::FallingFromEdge:
 				player_state_text = "PLAYER FALLING FROM EDGE";
-			break;
+				break;
 			case PlayerState::Jumping:
 				player_state_text = "PLAYER JUMPING";
-			break;
+				break;
 			case PlayerState::Sliding:
 				player_state_text = "PLAYER SLIDING";
-			break;
+				break;
 			case PlayerState::SlideFalling:
 				player_state_text = "PLAYER SLIDE FALLING";
-			break;
+				break;
 			case PlayerState::EvictedFromSlope:
 				player_state_text = "PLAYER EVICTED FROM SLOPE";
-			break;
+				break;
 		}
 		render_text("consola18", GlobalDisplayConfig::viewport_width - 400, 30, player_state_text_color, player_state_text);
 
 
 		std::string player_floor = "player floor: ";
-		if(player->standing_entity_ptr != nullptr)
+		if (player->standing_entity_ptr != nullptr)
 			player_floor += player->standing_entity_ptr->name;
 		render_text(GlobalDisplayConfig::viewport_width - 400, 60, player_floor);
 
 		std::string p_grab = "grabbing: ";
-		if(player->grabbing_entity != nullptr)
+		if (player->grabbing_entity != nullptr)
 			p_grab += player->grabbing_entity->name;
 		render_text(GlobalDisplayConfig::viewport_width - 400, 45, p_grab);
 
@@ -631,44 +631,44 @@ namespace Editor
 		// ----------
 		auto& ed_context = *GetContext();
 
-		if(ed_context.snap_mode)
+		if (ed_context.snap_mode)
 		{
 			std::string snap_cycle;
-			switch(ed_context.snap_cycle)
+			switch (ed_context.snap_cycle)
 			{
 				case 0:
 					snap_cycle = "top";
-				break;
+					break;
 				case 1:
 					snap_cycle = "mid";
-				break;
+					break;
 				case 2:
 					snap_cycle = "bottom";
-				break;
+					break;
 			}
 
 			std::string snap_axis;
-			switch(ed_context.snap_axis)
+			switch (ed_context.snap_axis)
 			{
 				case 0:
 					snap_axis = "X";
-				break;
+					break;
 				case 1:
 					snap_axis = "Y";
-				break;
+					break;
 				case 2:
 					snap_axis = "Z";
-				break;
+					break;
 			}
 
 			// if position is changed and not commited, render text yellow
 			vec3 snap_mode_subtext_color;
-			if(ed_context.snap_reference == nullptr)
+			if (ed_context.snap_reference == nullptr)
 				snap_mode_subtext_color = tool_text_color_yellow;
 			else
 			{
 				auto state = ed_context.undo_stack.Check();
-				if(state.entity != nullptr && state.position != ed_context.entity_panel.entity->position)
+				if (state.entity != nullptr && state.position != ed_context.entity_panel.entity->position)
 					snap_mode_subtext_color = tool_text_color_yellow;
 				else
 					snap_mode_subtext_color = tool_text_color_green;
@@ -676,7 +676,7 @@ namespace Editor
 
 			// selects text based on situation of snap tool
 			std::string sub_text;
-			if(ed_context.snap_reference == nullptr)
+			if (ed_context.snap_reference == nullptr)
 				sub_text = "select another entity to snap to.";
 			else
 				sub_text = "press Enter to commit position. x/y/z to change axis.";
@@ -703,7 +703,7 @@ namespace Editor
 		// -------------
 		// MEASURE MODE
 		// -------------
-		if(ed_context.measure_mode)
+		if (ed_context.measure_mode)
 		{
 			std::string axis =
 			ed_context.measure_axis == 0 ? "x" :
@@ -719,7 +719,7 @@ namespace Editor
 				"MEASURE MODE (" + axis + ")"
 			);
 
-			if(ed_context.second_point_found)
+			if (ed_context.second_point_found)
 			{
 				float dist_ref =
 				ed_context.measure_axis == 0 ? ed_context.measure_from.x :
@@ -740,23 +740,23 @@ namespace Editor
 		// ----------
 		// MOVE MODE
 		// ----------
-		if(ed_context.move_mode)
+		if (ed_context.move_mode)
 		{
 			std::string move_axis;
-			switch(ed_context.move_axis)
+			switch (ed_context.move_axis)
 			{
 				case 0:
 					move_axis = "XZ";
-				break;
+					break;
 				case 1:
 					move_axis = "X";
-				break;
+					break;
 				case 2:
 					move_axis = "Y";
-				break;
+					break;
 				case 3:
 					move_axis = "Z";
-				break;
+					break;
 			}
 
 			render_text(
@@ -781,7 +781,7 @@ namespace Editor
 		// ----------
 		// PLACE MODE
 		// ----------
-		if(ed_context.place_mode)
+		if (ed_context.place_mode)
 		{
 			render_text(
 				font_center,
@@ -805,7 +805,7 @@ namespace Editor
 		// -------------------
 		// LOCATE COORDS MODE
 		// -------------------
-		if(ed_context.locate_coords_mode)
+		if (ed_context.locate_coords_mode)
 		{
 			render_text(
 				font_center,
@@ -817,7 +817,7 @@ namespace Editor
 			);
 
 			std::string locate_coords_subtext;
-			if(!ed_context.locate_coords_found_point)
+			if (!ed_context.locate_coords_found_point)
 			{
 				locate_coords_subtext = "Please select a world position to get coordinates.";
 			}
@@ -842,7 +842,7 @@ namespace Editor
 		// -------------
 		// STRETCH MODE
 		// -------------
-		if(ed_context.stretch_mode)
+		if (ed_context.stretch_mode)
 		{
 			render_text(
 				font_center,
@@ -857,7 +857,7 @@ namespace Editor
 		// --------------------------
 		// ENTITY SELECTION AUX MODE
 		// --------------------------
-		if(ed_context.select_entity_aux_mode)
+		if (ed_context.select_entity_aux_mode)
 		{
 			render_text(
 				font_center,
@@ -873,7 +873,7 @@ namespace Editor
 
 	void RenderEventTriggers(Camera* camera, World* world)
 	{
-		if(world->interactables.size() == 0)
+		if (world->interactables.size() == 0)
 			return;
 
 		auto find = ShaderCatalogue.find("color");
@@ -883,7 +883,7 @@ namespace Editor
 		shader->SetMatrix4("view", camera->mat_view);
 		shader->SetMatrix4("projection", camera->mat_projection);
 
-		for(int i = 0; i < world->interactables.size(); i++)
+		for (int i = 0; i < world->interactables.size(); i++)
 		{
 			auto checkpoint = world->interactables[i];
 			shader->SetMatrix4("model", checkpoint->trigger_mat_model);
@@ -900,7 +900,7 @@ namespace Editor
 		auto cell_mesh = GeometryCatalogue.find("aabb")->second;
 		auto& ed_context = *GetContext();
 
-		for(int i = 0; i < world->cells_in_use_count; i++)
+		for (int i = 0; i < world->cells_in_use_count; i++)
 		{
 			RenderOptions opts;
 			opts.wireframe = true;
@@ -908,14 +908,14 @@ namespace Editor
 			auto cell = world->cells_in_use[i];
 
 			vec3 color;
-			if(ed_context.world_panel.cell_coords.x == cell->i &&
+			if (ed_context.world_panel.cell_coords.x == cell->i &&
 				ed_context.world_panel.cell_coords.y == cell->j &&
 				ed_context.world_panel.cell_coords.z == cell->k)
 			{
 				opts.line_width = 1.5;
 				color = vec3(0.8, 0.4, 0.2);
 			}
-			else if((cell->i == WCellsNumX || cell->i == 0) ||
+			else if ((cell->i == WCellsNumX || cell->i == 0) ||
 				(cell->j == WCellsNumY || cell->j == 0) ||
 				(cell->k == WCellsNumZ || cell->k == 0))
 			{
@@ -960,7 +960,7 @@ namespace Editor
 
 		// point lights
 		int point_c = 0;
-		for(const auto& light : world->point_lights)
+		for (const auto& light : world->point_lights)
 		{
 			auto model = translate(Mat4Identity, light->position + vec3{0, 0.5, 0});
 			model = scale(model, vec3{0.1f});
@@ -979,7 +979,7 @@ namespace Editor
 
 		// spot lights
 		int spot_c = 0;
-		for(const auto& light : world->spot_lights)
+		for (const auto& light : world->spot_lights)
 		{
 			auto model = translate(Mat4Identity, light->position + vec3{0, 0.5, 0});
 			model = scale(model, vec3{0.1f});
@@ -995,17 +995,17 @@ namespace Editor
 		}
 
 		// render selection box and dir arrow for selected lightbulb
-		if(selected_light >= 0)
+		if (selected_light >= 0)
 		{
 			vec3 light_position;
 			vec3 light_direction;
-			if(selected_light_type == "point")
+			if (selected_light_type == "point")
 			{
 				assert(selected_light <= point_c);
 				auto& light = *world->point_lights[selected_light];
 				light_position = light.position;
 			}
-			else if(selected_light_type == "spot")
+			else if (selected_light_type == "spot")
 			{
 				assert(selected_light <= spot_c);
 				auto& light = *world->spot_lights[selected_light];
@@ -1029,7 +1029,7 @@ namespace Editor
 			render_mesh(aabb_mesh, opts);
 
 			// direction arrow
-			if(selected_light_type == "spot")
+			if (selected_light_type == "spot")
 			{
 				float pitch, yaw;
 				ComputeAnglesFromDirection(pitch, yaw, light_direction);
@@ -1099,16 +1099,16 @@ namespace Editor
 
 		float scaling_factor = min;
 		float min_dimension = MaxFloat;
-		if(entity->scale.x < min_dimension)
+		if (entity->scale.x < min_dimension)
 			min_dimension = entity->scale.x;
-		if(entity->scale.y < min_dimension)
+		if (entity->scale.y < min_dimension)
 			min_dimension = entity->scale.y;
-		if(entity->scale.z < min_dimension)
+		if (entity->scale.z < min_dimension)
 			min_dimension = entity->scale.z;
 
-		if(min_dimension < min)
+		if (min_dimension < min)
 			scaling_factor = min_dimension;
-		else if(min_dimension >= max)
+		else if (min_dimension >= max)
 			scaling_factor = min_dimension / max;
 
 		return scaling_factor;
@@ -1124,9 +1124,9 @@ namespace Editor
 
 		auto entity = panel->entity;
 
-		if(panel->reverse_scale)
+		if (panel->reverse_scale)
 		{
-			for(int i = 0; i < 3; i++)
+			for (int i = 0; i < 3; i++)
 				angles[i] += 180;
 		}
 
@@ -1138,7 +1138,7 @@ namespace Editor
 
 		float scale_value = GetGizmoScalingFactor(entity, 0.8, 3.0);
 
-		for(int i = 0; i < 3; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			auto arrow = arrows[i];
 			auto model = rotate(starting_model, glm::radians(angles[i]), rot_axis[i]);
@@ -1164,7 +1164,7 @@ namespace Editor
 
 		float scale_value = GetGizmoScalingFactor(entity, 1.0, 3.0);
 
-		for(int i = 0; i < 3; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			auto model = rotate(starting_model, glm::radians(angles[i]), rot_axis[i]);
 			model = scale(model, vec3(scale_value));
@@ -1181,7 +1181,7 @@ namespace Editor
 		auto entity = panel->entity;
 
 		int triangles = entity->mesh->indices.size() / 3;
-		for(int i = 0; i < triangles; i++)
+		for (int i = 0; i < triangles; i++)
 		{
 			Triangle _t = get_triangle_for_indexed_mesh(entity->mesh, entity->mat_model, i);
 			vec3 normal = triangleNormal(_t.a, _t.b, _t.c);
@@ -1192,24 +1192,24 @@ namespace Editor
 			ImDraw::AddLine(IMHASH, f.center, f.center + normal * 2.0f, 2.5, true);
 		}
 	}
-	
+
 	void CheckSelectionToOpenPanel(Player* player, World* world, Camera* camera)
 	{
-		
+
 		auto* GII = GlobalInputInfo::Get();
 		auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		auto test = world->Raycast(pickray, RayCast_TestOnlyVisibleEntities);
 		auto test_light = world->RaycastLights(pickray);
 
-		if(test.hit && (!test_light.hit || test_light.distance > test.distance))
+		if (test.hit && (!test_light.hit || test_light.distance > test.distance))
 		{
-			if(test.entity->name == PlayerName)
+			if (test.entity->name == PlayerName)
 				open_player_panel(player);
 			else
 				open_entity_panel(test.entity);
 
 		}
-		else if(test_light.hit)
+		else if (test_light.hit)
 			open_lights_panel(test_light.obj_hit_type, test_light.obj_hit_index, true);
 	}
 
@@ -1222,14 +1222,14 @@ namespace Editor
 
 		auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		auto test = world->Raycast(pickray, RayCast_TestOnlyVisibleEntities);
-		if(test.hit)
+		if (test.hit)
 		{
 			ed_context.select_entity_aux_mode = false;
 			*ed_context.select_entity_aux_mode_entity_slot = test.entity;
 
-			if(ed_context.select_entity_aux_mode_callback != EdToolCallback_NoCallback)
+			if (ed_context.select_entity_aux_mode_callback != EdToolCallback_NoCallback)
 			{
-				switch(ed_context.select_entity_aux_mode_callback)
+				switch (ed_context.select_entity_aux_mode_callback)
 				{
 					case EdToolCallback_EntityManagerSetType:
 					{
@@ -1252,9 +1252,9 @@ namespace Editor
 		auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		auto test = world->Raycast(pickray, RayCast_TestOnlyVisibleEntities);
 		auto test_light = world->RaycastLights(pickray);
-		if(test.hit && (!test_light.hit || test_light.distance > test.distance))
+		if (test.hit && (!test_light.hit || test_light.distance > test.distance))
 			activate_move_mode(test.entity);
-		else if(test_light.hit)
+		else if (test_light.hit)
 			activate_move_light_mode(test_light.obj_hit_type, test_light.obj_hit_index);
 	}
 
@@ -1272,7 +1272,7 @@ namespace Editor
 		For(3)
 		{
 			test = CL_TestAgainstRay(pickray, arrows[i]);
-			if(test.hit)
+			if (test.hit)
 			{
 				activate_move_entity_by_arrow(i + 1);
 				return true;
@@ -1292,15 +1292,15 @@ namespace Editor
 		RaycastTest test;
 
 		Entity* rot_gizmos[3] = {
-			ed_context.entity_panel.rotation_gizmo_x,
-			ed_context.entity_panel.rotation_gizmo_y,
-			ed_context.entity_panel.rotation_gizmo_z
-			};
+		ed_context.entity_panel.rotation_gizmo_x,
+		ed_context.entity_panel.rotation_gizmo_y,
+		ed_context.entity_panel.rotation_gizmo_z
+		};
 
 		For(3)
 		{
 			test = CL_TestAgainstRay(pickray, rot_gizmos[i]);
-			if(test.hit)
+			if (test.hit)
 			{
 				activate_rotate_entity_with_mouse(i + 1);
 				return true;

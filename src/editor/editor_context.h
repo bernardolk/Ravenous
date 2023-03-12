@@ -121,6 +121,10 @@ namespace Editor
 		bool debug_ledge_detection = false;
 
 	public:
-		static EditorContext* Get() { static EditorContext instance; return &instance; }
+		static EditorContext* Get()
+		{
+			static EditorContext instance;
+			return &instance;
+		}
 	};
 }

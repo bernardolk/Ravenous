@@ -20,7 +20,7 @@ enum RavenousLogLevel
 inline void log(RavenousLogLevel level, const std::string& message)
 {
 	std::string message_header = "\n";
-	switch(level)
+	switch (level)
 	{
 		case LOG_INFO:
 		{

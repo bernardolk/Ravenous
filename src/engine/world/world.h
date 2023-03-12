@@ -76,7 +76,7 @@ struct WorldCell
 
 	// logical coords
 	int i = -1, j = -1, k = -1;
-	vec3 ijk {i, j, k};
+	vec3 ijk{i, j, k};
 
 	// world coords / bounding box
 	BoundingBox bounding_box{};
@@ -113,7 +113,7 @@ inline auto WorldCoordsToCells(float x, float y, float z)
 	} world_cell_coords;
 
 	// if out of bounds return -1
-	if(x < WLowerBoundsMeters.x || x > WUpperBoundsMeters.x ||
+	if (x < WLowerBoundsMeters.x || x > WUpperBoundsMeters.x ||
 		y < WLowerBoundsMeters.y || y > WUpperBoundsMeters.y ||
 		z < WLowerBoundsMeters.z || z > WUpperBoundsMeters.z)
 	{
@@ -158,7 +158,11 @@ struct World
 	int cells_in_use_count = 0;
 
 public:
-	static World* Get() { static World instance; return &instance; }
+	static World* Get()
+	{
+		static World instance;
+		return &instance;
+	}
 	void Init();
 	void UpdateCellsInUseList();
 	void UpdateEntities();

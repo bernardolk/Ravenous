@@ -29,13 +29,13 @@ namespace Editor
 			std::string name = entity->name;
 			tolower(&name);
 
-			if(panel->search_text == "" || name.find(_search_text) != std::string::npos)
+			if (panel->search_text == "" || name.find(_search_text) != std::string::npos)
 			{
-				if(ImGui::Button(entity->name.c_str(), ImVec2(200, 28)))
+				if (ImGui::Button(entity->name.c_str(), ImVec2(200, 28)))
 				{
 					panel->active = false;
 
-					if(entity->name == PlayerName)
+					if (entity->name == PlayerName)
 						open_player_panel(Player::Get());
 					else
 						open_entity_panel(entity);

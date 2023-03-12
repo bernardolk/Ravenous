@@ -1,4 +1,3 @@
-
 #include "editor/editor_player_panel.h"
 #include <imgui.h>
 
@@ -29,7 +28,7 @@ namespace Editor
 		ImGui::NewLine();
 
 		bool _hide_control = entity->flags & EntityFlags_HiddenEntity;
-		if(ImGui::Checkbox("Hide Entity", &_hide_control))
+		if (ImGui::Checkbox("Hide Entity", &_hide_control))
 		{
 			entity->flags ^= EntityFlags_HiddenEntity;
 		}

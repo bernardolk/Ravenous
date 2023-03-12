@@ -5,10 +5,10 @@
 #include "engine/render/im_render.h"
 
 vec3 DebugColors[] = {
-	COLOR_RED_1,
-	COLOR_GREEN_1,
-	COLOR_BLUE_1,
-	COLOR_PURPLE_1,
+COLOR_RED_1,
+COLOR_GREEN_1,
+COLOR_BLUE_1,
+COLOR_PURPLE_1,
 };
 
 /* -----------------------
@@ -25,11 +25,11 @@ GJK_Point CL_find_furthest_vertex(CollisionMesh* collision_mesh, vec3 direction)
 	float max_inner_p = MinFloat;
 	vec3 furthest_vertex{};
 
-	for(int i = 0; i < collision_mesh->vertices.size(); i++)
+	for (int i = 0; i < collision_mesh->vertices.size(); i++)
 	{
 		vec3 vertex_pos = collision_mesh->vertices[i];
 		float inner_p = dot(vertex_pos, direction);
-		if(inner_p > max_inner_p)
+		if (inner_p > max_inner_p)
 		{
 			max_inner_p = inner_p;
 			furthest_vertex = vertex_pos;
@@ -48,7 +48,7 @@ GJK_Point CL_get_support_point(CollisionMesh* collision_mesh_a, CollisionMesh* c
 	GJK_Point gjk_point_a = CL_find_furthest_vertex(collision_mesh_a, direction);
 	GJK_Point gjk_point_b = CL_find_furthest_vertex(collision_mesh_b, -direction);
 
-	if(gjk_point_a.empty || gjk_point_b.empty)
+	if (gjk_point_a.empty || gjk_point_b.empty)
 		return gjk_point_a;
 
 	vec3 gjk_support_point = gjk_point_a.point - gjk_point_b.point;
@@ -76,7 +76,7 @@ void CL_update_line_simplex(GJK_Iteration* gjk)
 	vec3 ab = b - a;
 	vec3 ao = - a;
 
-	if(CL_same_general_direction(ab, ao))
+	if (CL_same_general_direction(ab, ao))
 	{
 		gjk->direction = cross(ab, ao, ab);
 	}
@@ -100,9 +100,9 @@ void CL_update_triangle_simplex(GJK_Iteration* gjk)
 
 	vec3 abc = glm::cross(ab, ac);
 
-	if(CL_same_general_direction(glm::cross(abc, ac), ao))
+	if (CL_same_general_direction(glm::cross(abc, ac), ao))
 	{
-		if(CL_same_general_direction(ac, ao))
+		if (CL_same_general_direction(ac, ao))
 		{
 			// search in purple region
 			gjk->simplex = {a, c};
@@ -117,7 +117,7 @@ void CL_update_triangle_simplex(GJK_Iteration* gjk)
 	}
 	else
 	{
-		if(CL_same_general_direction(glm::cross(ab, abc), ao))
+		if (CL_same_general_direction(glm::cross(ab, abc), ao))
 		{
 			// search in cyan region
 			gjk->simplex = {a, b};
@@ -125,7 +125,7 @@ void CL_update_triangle_simplex(GJK_Iteration* gjk)
 		}
 		else
 		{
-			if(CL_same_general_direction(abc, ao))
+			if (CL_same_general_direction(abc, ao))
 			{
 				// search up
 				gjk->direction = abc;
@@ -160,21 +160,21 @@ void CL_update_tetrahedron_simplex(GJK_Iteration* gjk)
 	// check if mikowski's diff origin is pointing towards tetrahedron normal faces
 	// (it shouldn't, since the origin should be contained in the shape and point down not up like the inclined faces's normals)
 
-	if(CL_same_general_direction(abc, ao))
+	if (CL_same_general_direction(abc, ao))
 	{
 		gjk->simplex = {a, b, c};
 		gjk->direction = abc;
 		return CL_update_triangle_simplex(gjk);
 	}
 
-	if(CL_same_general_direction(acd, ao))
+	if (CL_same_general_direction(acd, ao))
 	{
 		gjk->simplex = {a, c, d};
 		gjk->direction = acd;
 		return CL_update_triangle_simplex(gjk);
 	}
 
-	if(CL_same_general_direction(adb, ao))
+	if (CL_same_general_direction(adb, ao))
 	{
 		gjk->simplex = {a, d, b};
 		gjk->direction = adb;
@@ -188,11 +188,14 @@ void CL_update_tetrahedron_simplex(GJK_Iteration* gjk)
 
 void CL_update_simplex_and_direction(GJK_Iteration* gjk)
 {
-	switch(gjk->simplex.size())
+	switch (gjk->simplex.size())
 	{
-		case 2: return CL_update_line_simplex(gjk);
-		case 3: return CL_update_triangle_simplex(gjk);
-		case 4: return CL_update_tetrahedron_simplex(gjk);
+		case 2:
+			return CL_update_line_simplex(gjk);
+		case 3:
+			return CL_update_triangle_simplex(gjk);
+		case 4:
+			return CL_update_tetrahedron_simplex(gjk);
 	}
 
 	// something went wrong
@@ -211,10 +214,10 @@ void CL_update_simplex_and_direction(GJK_Iteration* gjk)
 	times.push_back(elapsed);
 
 
-	if(times.size() == N)
+	if (times.size() == N)
 	{
 		int sum = 0;
-		for(int i = 0; i < times.size(); i++)
+		for (int i = 0; i < times.size(); i++)
 			sum += times[i];
 
 		float average = sum * 1.0 / N;
@@ -228,7 +231,7 @@ void CL_update_simplex_and_direction(GJK_Iteration* gjk)
 
 void _CL_debug_render_simplex(Simplex simplex)
 {
-	for(int i = 0; i < simplex.size(); i++)
+	for (int i = 0; i < simplex.size(); i++)
 		ImDraw::AddPoint(IM_ITERHASH(i), simplex[i], 2.0, true, DebugColors[i]);
 }
 
@@ -240,7 +243,7 @@ GJK_Result CL_run_GJK(CollisionMesh* collider_a, CollisionMesh* collider_b)
 
 	GJK_Point support = CL_get_support_point(collider_a, collider_b, UnitX);
 
-	if(support.empty)
+	if (support.empty)
 		return {};
 
 	GJK_Iteration gjk;
@@ -250,7 +253,7 @@ GJK_Result CL_run_GJK(CollisionMesh* collider_a, CollisionMesh* collider_b)
 	// ImDraw::add_point(IMHASH, support.point, 2.0, true, Debug_Colors[0]);
 
 	int it_count = 0;
-	while(true)
+	while (true)
 	{
 		// auto start_it = std::chrono::high_resolution_clock::now(); 
 
@@ -262,7 +265,7 @@ GJK_Result CL_run_GJK(CollisionMesh* collider_a, CollisionMesh* collider_b)
 		//          << std::chrono::duration_cast<micro>(finish - start).count()
 		//          << " microseconds\n";
 
-		if(support.empty || !CL_same_general_direction(support.point, gjk.direction))
+		if (support.empty || !CL_same_general_direction(support.point, gjk.direction))
 		{
 			// _CL_debug_render_simplex(gjk.simplex);
 			return {}; // no collision
@@ -281,7 +284,7 @@ GJK_Result CL_run_GJK(CollisionMesh* collider_a, CollisionMesh* collider_b)
 		//          << " microseconds\n";
 
 		it_count++;
-		if(gjk.finished)
+		if (gjk.finished)
 		{
 			// auto finish = std::chrono::high_resolution_clock::now();
 			// int elapsed = std::chrono::duration_cast<micro>(finish - start).count();

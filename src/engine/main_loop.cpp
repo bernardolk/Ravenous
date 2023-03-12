@@ -1,4 +1,3 @@
-
 #include "engine/main_loop.h"
 
 #include <glfw3.h>
@@ -31,8 +30,8 @@ void RavenousMainLoop()
 	auto world = World::Get();
 	auto* GSI = GlobalSceneInfo::Get();
 	auto* EM = EntityManager::Get();
-	
-	while(!glfwWindowShouldClose(GlobalDisplayConfig::GetWindow()))
+
+	while (!glfwWindowShouldClose(GlobalDisplayConfig::GetWindow()))
 	{
 		// -------------
 		//	INPUT PHASE
@@ -41,37 +40,37 @@ void RavenousMainLoop()
 		auto input_flags = InputPhase();
 
 		// Input recorder
-		if(InputRecorder.is_recording)
+		if (InputRecorder.is_recording)
 			InputRecorder.Record(input_flags);
-		else if(InputRecorder.is_playing)
+		else if (InputRecorder.is_playing)
 			input_flags = InputRecorder.Play();
 
 		// -------------
 		// START FRAME
 		// -------------
 		StartFrame();
-		if(ES->current_mode == EngineState::ProgramMode::Editor)
+		if (ES->current_mode == EngineState::ProgramMode::Editor)
 			Editor::StartDearImguiFrame();
 
 		// ---------------
 		// INPUT HANDLING
 		// ---------------
-		if(EngineState::IsInConsoleMode())
+		if (EngineState::IsInConsoleMode())
 		{
 			handle_console_input(input_flags, player, world, GSI->camera);
 		}
 		else
 		{
-			if(EngineState::IsInEditorMode())
+			if (EngineState::IsInEditorMode())
 			{
 				Editor::HandleInputFlagsForEditorMode(input_flags, world, GSI->camera);
-				if(!ImGui::GetIO().WantCaptureKeyboard)
+				if (!ImGui::GetIO().WantCaptureKeyboard)
 				{
 					IN_HandleMovementInput(input_flags, player, world);
 					Editor::HandleInputFlagsForCommonInput(input_flags, player);
 				}
 			}
-			else if(EngineState::IsInGameMode())
+			else if (EngineState::IsInGameMode())
 			{
 				IN_HandleMovementInput(input_flags, player, world);
 				Editor::HandleInputFlagsForCommonInput(input_flags, player);
@@ -83,11 +82,11 @@ void RavenousMainLoop()
 		//	UPDATE PHASE
 		// -------------
 		{
-			if(ES->current_mode == EngineState::ProgramMode::Game)
+			if (ES->current_mode == EngineState::ProgramMode::Game)
 			{
 				UpdateGameCamera(GSI->camera, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->GetEyePosition());
 			}
-			else if(ES->current_mode == EngineState::ProgramMode::Editor)
+			else if (ES->current_mode == EngineState::ProgramMode::Editor)
 			{
 				UpdateEditorCamera(GSI->camera, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->entity_ptr->position);
 			}
@@ -96,7 +95,7 @@ void RavenousMainLoop()
 			AN_AnimatePlayer(player);
 			EntityAnimations.UpdateAnimations();
 		}
-		
+
 		// -------------
 		//	RENDER PHASE
 		// -------------
@@ -107,7 +106,7 @@ void RavenousMainLoop()
 			render_depth_cubemap(world);
 			render_scene(world, GSI->camera);
 			//render_depth_map_debug();
-			switch(ES->current_mode)
+			switch (ES->current_mode)
 			{
 				case EngineState::ProgramMode::Console:
 				{
@@ -137,7 +136,7 @@ void RavenousMainLoop()
 		EM->SafeDeleteMarkedEntities();
 		Rvn::rm_buffer->Cleanup();
 		glfwSwapBuffers(GlobalDisplayConfig::GetWindow());
-		if(ES->current_mode == EngineState::ProgramMode::Editor)
+		if (ES->current_mode == EngineState::ProgramMode::Editor)
 			Editor::EndDearImguiFrame();
 	}
 

@@ -16,59 +16,78 @@ void GP_ChangePlayerState(Player* player, PlayerState new_state, PlayerStateChan
 	// Player is...
 
 	// IN ANY STATE
-	switch(new_state)
+	switch (new_state)
 	{
-		case PlayerState::Grabbing: return GP_player_state_change_any_to_grabbing(player, args.entity, args.normal, args.final_position, args.penetration);
+		case PlayerState::Grabbing:
+			return GP_player_state_change_any_to_grabbing(player, args.entity, args.normal, args.final_position, args.penetration);
 
-		case PlayerState::Sliding: return GP_PlayerStateChangeAnyToSliding(player, args.normal);
+		case PlayerState::Sliding:
+			return GP_PlayerStateChangeAnyToSliding(player, args.normal);
 	}
 
-	switch(player->player_state)
+	switch (player->player_state)
 	{
 		// PlayerState::Standing
-		case PlayerState::Standing: switch(new_state)
+		case PlayerState::Standing:
+			switch (new_state)
 			{
-				case PlayerState::Falling: return GP_PlayerStateChangeStandingToFalling(player);
+				case PlayerState::Falling:
+					return GP_PlayerStateChangeStandingToFalling(player);
 
-				case PlayerState::Jumping: return GP_PlayerStateChangeStandingToJumping(player);
+				case PlayerState::Jumping:
+					return GP_PlayerStateChangeStandingToJumping(player);
 
-				case PlayerState::SlideFalling: return GP_player_state_change_standing_to_slide_falling(player, args.entity);
+				case PlayerState::SlideFalling:
+					return GP_player_state_change_standing_to_slide_falling(player, args.entity);
 
-				case PlayerState::Vaulting: return GP_player_state_change_standing_to_vaulting(player, args.ledge, args.final_position);
+				case PlayerState::Vaulting:
+					return GP_player_state_change_standing_to_vaulting(player, args.ledge, args.final_position);
 			}
 
 		// JUMPING
-		case PlayerState::Jumping: switch(new_state)
+		case PlayerState::Jumping:
+			switch (new_state)
 			{
-				case PlayerState::Falling: return GP_PlayerStateChangeJumpingToFalling(player);
+				case PlayerState::Falling:
+					return GP_PlayerStateChangeJumpingToFalling(player);
 			}
 
 		// FALLING
-		case PlayerState::Falling: switch(new_state)
+		case PlayerState::Falling:
+			switch (new_state)
 			{
-				case PlayerState::Standing: return GP_PlayerStateChangeFallingToStanding(player);
+				case PlayerState::Standing:
+					return GP_PlayerStateChangeFallingToStanding(player);
 			}
 
 		// GRABBING
-		case PlayerState::Grabbing: switch(new_state)
+		case PlayerState::Grabbing:
+			switch (new_state)
 			{
-				case PlayerState::Vaulting: return GP_player_state_change_grabbing_to_vaulting(player);
+				case PlayerState::Vaulting:
+					return GP_player_state_change_grabbing_to_vaulting(player);
 			}
 
 		// VAULTING
-		case PlayerState::Vaulting: switch(new_state)
+		case PlayerState::Vaulting:
+			switch (new_state)
 			{
-				case PlayerState::Standing: return GP_player_state_change_vaulting_to_standing(player);
+				case PlayerState::Standing:
+					return GP_player_state_change_vaulting_to_standing(player);
 			}
 
 		// SLIDING
-		case PlayerState::Sliding: switch(new_state)
+		case PlayerState::Sliding:
+			switch (new_state)
 			{
-				case PlayerState::Standing: return GP_player_state_change_sliding_to_standing(player);
+				case PlayerState::Standing:
+					return GP_player_state_change_sliding_to_standing(player);
 
-				case PlayerState::Jumping: return GP_player_state_change_sliding_to_jumping(player);
+				case PlayerState::Jumping:
+					return GP_player_state_change_sliding_to_jumping(player);
 
-				case PlayerState::Falling: return GP_player_state_change_sliding_to_falling(player);
+				case PlayerState::Falling:
+					return GP_player_state_change_sliding_to_falling(player);
 			}
 
 		default:
@@ -94,14 +113,14 @@ void GP_PlayerStateChangeStandingToJumping(Player* player)
 	auto& v_dir = player->v_dir;
 	bool no_move_command = v_dir.x == 0 && v_dir.z == 0;
 
-	if(no_move_command)
+	if (no_move_command)
 	{
 		player->jumping_upwards = true;
 		player->speed = 0;
 	}
 	else
 	{
-		if(player->dashing)
+		if (player->dashing)
 			v = v_dir * player->jump_horz_dash_thrust;
 		else
 			v = v_dir * player->jump_horz_thrust;
@@ -136,7 +155,7 @@ void GP_PlayerStateChangeFallingToStanding(Player* player)
 	player->player_state = PlayerState::Standing;
 
 	// conditional animation: if falling from jump, land, else, land from fall
-	if(player->height < player->height)
+	if (player->height < player->height)
 		player->anim_state = PlayerAnimationState::Landing;
 	else
 		player->anim_state = PlayerAnimationState::LandingFall;
@@ -209,7 +228,7 @@ void GP_player_state_change_standing_to_vaulting(Player* player, Ledge ledge, ve
 	auto* GII = GlobalInputInfo::Get();
 	GII->block_mouse_move = true;
 	auto* player_camera = GlobalSceneInfo::GetGameCam();
-	
+
 	player->player_state = PlayerState::Vaulting;
 	player->anim_state = PlayerAnimationState::Vaulting;
 	player->entity_ptr->velocity = vec3(0);
@@ -226,7 +245,7 @@ void GP_player_state_change_standing_to_vaulting(Player* player, Ledge ledge, ve
 void GP_player_state_change_vaulting_to_standing(Player* player)
 {
 	auto* GII = GlobalInputInfo::Get();
-	
+
 	GII->forget_last_mouse_coords = true;
 	GII->block_mouse_move = false;
 	player->player_state = PlayerState::Standing;

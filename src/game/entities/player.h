@@ -116,26 +116,30 @@ struct Player
 	vec3 checkpoint_pos;
 
 	// animation
-	float anim_t = 0;                                                   // animation timer
+	float anim_t = 0;                                                    // animation timer
 	PlayerAnimationState anim_state = PlayerAnimationState::NoAnimation; // animation state
-	vec3 anim_final_pos = vec3(0);                                      // final position after translation animation
-	vec3 anim_orig_pos = vec3(0);                                       // original position
-	vec3 anim_final_dir = vec3(0);                                      // final player orientation
-	vec3 anim_orig_dir = vec3(0);                                       // original player orientation
-	bool anim_finished_turning = false;                                 // player has finished turning his camera
+	vec3 anim_final_pos = vec3(0);                                       // final position after translation animation
+	vec3 anim_orig_pos = vec3(0);                                        // original position
+	vec3 anim_final_dir = vec3(0);                                       // final player orientation
+	vec3 anim_orig_dir = vec3(0);                                        // original player orientation
+	bool anim_finished_turning = false;                                  // player has finished turning his camera
 
-	static Player* Get() { static Player instance; return &instance; }
-	
+	static Player* Get()
+	{
+		static Player instance;
+		return &instance;
+	}
+
 	void Update(World* world, bool update_collider = false);
 
 	vec3 GetFeetPosition() const { return entity_ptr->position; }
-	
+
 	vec3 GetUpperBoundPosition() const { return entity_ptr->position + vec3(0.0f, height, 0.0f); }
-	
-	vec3 GetEyePosition() const { return entity_ptr->position + vec3(0, height - 0.1, 0);}
+
+	vec3 GetEyePosition() const { return entity_ptr->position + vec3(0, height - 0.1, 0); }
 
 	vec3 GetLastTerrainContactPoint() const;
-	
+
 	bool MaybeHurtFromFall();
 	void RestoreHealth();
 	void SetCheckpoint(Entity* entity);
@@ -147,7 +151,7 @@ struct Player
 
 private:
 	friend struct GlobalSceneInfo;
-	
+
 	Player() = default;
 	Player(const Player& other) = delete;
 

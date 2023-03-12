@@ -35,15 +35,15 @@ namespace Editor
 		auto* player = Player::Get();
 		auto& program_config = *ProgramConfig::Get();
 
-		if(Pressed(flags, KEY_LEFT_CTRL) && PressedOnce(flags, KEY_Z))
+		if (Pressed(flags, KEY_LEFT_CTRL) && PressedOnce(flags, KEY_Z))
 		{
 			// snap mode controls the undo stack while it is active.
-			if(!context.snap_mode)
+			if (!context.snap_mode)
 				context.undo_stack.Undo();
 			return;
 		}
 
-		if(Pressed(flags, KEY_LEFT_CTRL) && PressedOnce(flags, KEY_S))
+		if (Pressed(flags, KEY_LEFT_CTRL) && PressedOnce(flags, KEY_S))
 		{
 			// save scene
 			player->checkpoint_pos = player->entity_ptr->position;
@@ -55,42 +55,42 @@ namespace Editor
 			return;
 		}
 
-		if(Pressed(flags, KEY_LEFT_CTRL) && PressedOnce(flags, KEY_Y))
+		if (Pressed(flags, KEY_LEFT_CTRL) && PressedOnce(flags, KEY_Y))
 		{
 			// snap mode controls the undo stack while it is active.
-			if(!context.snap_mode)
+			if (!context.snap_mode)
 				context.undo_stack.Redo();
 			return;
 		}
 
-		if(PressedOnce(flags, KEY_ESC))
+		if (PressedOnce(flags, KEY_ESC))
 		{
-			if(Editor::check_modes_are_active())
+			if (Editor::check_modes_are_active())
 				deactivate_editor_modes();
-			else if(context.entity_panel.active)
+			else if (context.entity_panel.active)
 				context.entity_panel.active = false;
-			else if(context.world_panel.active)
+			else if (context.world_panel.active)
 				context.world_panel.active = false;
-			else if(context.lights_panel.active)
+			else if (context.lights_panel.active)
 				context.lights_panel.active = false;
 			return;
 		}
 
 		// TODO: abstract call to not have to import imgui.h
-		if(ImGui::GetIO().WantCaptureKeyboard)
+		if (ImGui::GetIO().WantCaptureKeyboard)
 			return;
 
-		if(PressedOnce(flags, KEY_DELETE))
+		if (PressedOnce(flags, KEY_DELETE))
 		{
-			if(context.entity_panel.active && context.entity_panel.focused)
+			if (context.entity_panel.active && context.entity_panel.focused)
 			{
 				context.entity_panel.active = false;
 				editor_erase_entity(context.entity_panel.entity);
 				return;
 			}
-			if(context.lights_panel.active && context.lights_panel.focused)
+			if (context.lights_panel.active && context.lights_panel.focused)
 			{
-				if(context.lights_panel.selected_light > -1)
+				if (context.lights_panel.selected_light > -1)
 				{
 					editor_erase_light(context.lights_panel.selected_light, context.lights_panel.selected_light_type, world);
 				}
@@ -105,15 +105,15 @@ namespace Editor
 		// --------------------
 		// SNAP MODE SHORTCUTS
 		// --------------------
-		if(context.snap_mode == true)
+		if (context.snap_mode == true)
 		{
-			if(PressedOnce(flags, KEY_ENTER))
+			if (PressedOnce(flags, KEY_ENTER))
 			{
 				snap_commit();
 			}
-			if(PressedOnly(flags, KEY_X))
+			if (PressedOnly(flags, KEY_X))
 			{
-				if(context.snap_axis == 0)
+				if (context.snap_axis == 0)
 					context.snap_cycle = (context.snap_cycle + 1) % 3;
 				else
 				{
@@ -121,12 +121,12 @@ namespace Editor
 					context.snap_cycle = 0;
 					context.snap_axis = 0;
 				}
-				if(context.snap_reference != nullptr)
+				if (context.snap_reference != nullptr)
 					snap_entity_to_reference(context.entity_panel.entity);
 			}
-			if(PressedOnly(flags, KEY_Y))
+			if (PressedOnly(flags, KEY_Y))
 			{
-				if(context.snap_axis == 1)
+				if (context.snap_axis == 1)
 					context.snap_cycle = (context.snap_cycle + 1) % 3;
 				else
 				{
@@ -134,12 +134,12 @@ namespace Editor
 					context.snap_cycle = 0;
 					context.snap_axis = 1;
 				}
-				if(context.snap_reference != nullptr)
+				if (context.snap_reference != nullptr)
 					snap_entity_to_reference(context.entity_panel.entity);
 			}
-			if(PressedOnly(flags, KEY_Z))
+			if (PressedOnly(flags, KEY_Z))
 			{
-				if(context.snap_axis == 2)
+				if (context.snap_axis == 2)
 					context.snap_cycle = (context.snap_cycle + 1) % 3;
 				else
 				{
@@ -147,13 +147,13 @@ namespace Editor
 					context.snap_cycle = 0;
 					context.snap_axis = 2;
 				}
-				if(context.snap_reference != nullptr)
+				if (context.snap_reference != nullptr)
 					snap_entity_to_reference(context.entity_panel.entity);
 			}
-			if(PressedOnly(flags, KEY_I))
+			if (PressedOnly(flags, KEY_I))
 			{
 				context.snap_inside = !context.snap_inside;
-				if(context.snap_reference != nullptr)
+				if (context.snap_reference != nullptr)
 					snap_entity_to_reference(context.entity_panel.entity);
 			}
 		}
@@ -161,25 +161,25 @@ namespace Editor
 		// --------------------
 		// MOVE MODE SHORTCUTS
 		// --------------------
-		if(context.move_mode == true)
+		if (context.move_mode == true)
 		{
-			if(Pressed(flags, KEY_X) && Pressed(flags, KEY_Z))
+			if (Pressed(flags, KEY_X) && Pressed(flags, KEY_Z))
 			{
 				context.move_axis = 0;
 			}
-			if(PressedOnly(flags, KEY_X))
+			if (PressedOnly(flags, KEY_X))
 			{
 				context.move_axis = 1;
 			}
-			if(PressedOnly(flags, KEY_Y))
+			if (PressedOnly(flags, KEY_Y))
 			{
 				context.move_axis = 2;
 			}
-			if(PressedOnly(flags, KEY_Z))
+			if (PressedOnly(flags, KEY_Z))
 			{
 				context.move_axis = 3;
 			}
-			if(PressedOnly(flags, KEY_M))
+			if (PressedOnly(flags, KEY_M))
 			{
 				context.move_mode = false;
 				context.place_mode = true;
@@ -190,9 +190,9 @@ namespace Editor
 		// ---------------------
 		// PLACE MODE SHORTCUTS
 		// ---------------------
-		if(context.place_mode == true)
+		if (context.place_mode == true)
 		{
-			if(PressedOnly(flags, KEY_M))
+			if (PressedOnly(flags, KEY_M))
 			{
 				context.place_mode = false;
 				context.move_mode = true;
@@ -203,12 +203,12 @@ namespace Editor
 		// -------------------
 		// CAMERA TYPE TOGGLE
 		// -------------------
-		if(PressedOnce(flags, KEY_T))
+		if (PressedOnce(flags, KEY_T))
 		{
 			// toggle camera type
-			if(GSI->camera->type == FREE_ROAM)
+			if (GSI->camera->type == FREE_ROAM)
 				SetCameraToThirdPerson(GSI->camera);
-			else if(GSI->camera->type == THIRD_PERSON)
+			else if (GSI->camera->type == THIRD_PERSON)
 				SetCameraToFreeRoam(GSI->camera);
 		}
 
@@ -224,29 +224,29 @@ namespace Editor
 
 		context.mouse_click = false;
 		context.mouse_dragging = false;
-	
+
 		auto* GII = GlobalInputInfo::Get();
 
-		if(GII->mouse_state & MOUSE_LB_CLICK)
+		if (GII->mouse_state & MOUSE_LB_CLICK)
 		{
 			std::cout << "CLICK COUNT\n";
-			if(context.snap_mode)
+			if (context.snap_mode)
 			{
 				check_selection_to_snap();
 			}
-			else if(context.measure_mode)
+			else if (context.measure_mode)
 			{
 				check_selection_to_measure(world);
 			}
-			else if(context.locate_coords_mode)
+			else if (context.locate_coords_mode)
 			{
 				check_selection_to_locate_coords(world);
 			}
-			else if(context.stretch_mode)
+			else if (context.stretch_mode)
 			{
 				check_selection_to_stretch();
 			}
-			else if(flags.key_press & KEY_G)
+			else if (flags.key_press & KEY_G)
 			{
 				CheckSelectionToMoveEntity(world, camera);
 			}
@@ -254,28 +254,28 @@ namespace Editor
 			{
 				context.mouse_click = true;
 
-				if(context.entity_panel.active)
+				if (context.entity_panel.active)
 				{
-					if(context.select_entity_aux_mode)
+					if (context.select_entity_aux_mode)
 						return;
-					if(CheckSelectionToGrabEntityArrows(camera))
+					if (CheckSelectionToGrabEntityArrows(camera))
 						return;
-					if(CheckSelectionToGrabEntityRotationGizmo(camera))
+					if (CheckSelectionToGrabEntityRotationGizmo(camera))
 						return;
 				}
 
-				if(context.move_mode || context.place_mode)
+				if (context.move_mode || context.place_mode)
 					return;
 
 				CheckSelectionToOpenPanel(player, world, camera);
 			}
 		}
 
-		else if(GII->mouse_state & MOUSE_LB_DRAGGING)
+		else if (GII->mouse_state & MOUSE_LB_DRAGGING)
 		{
 			context.mouse_dragging = true;
 		}
-		else if(GII->mouse_state & MOUSE_LB_HOLD)
+		else if (GII->mouse_state & MOUSE_LB_HOLD)
 		{
 			context.mouse_dragging = true;
 		}
@@ -284,11 +284,11 @@ namespace Editor
 		// -------------------------------
 		// SPAWN PLAYER ON MOUSE POSITION
 		// -------------------------------
-		if(PressedOnce(flags, KEY_C))
+		if (PressedOnce(flags, KEY_C))
 		{
 			auto pickray = CastPickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
 			auto test = world->Raycast(pickray, player->entity_ptr);
-			if(test.hit)
+			if (test.hit)
 			{
 				auto surface_point = CL_GetPointFromDetection(pickray, test);
 				player->entity_ptr->position = surface_point;
@@ -302,7 +302,7 @@ namespace Editor
 		// --------------------------------------------
 		// CONTROL KEY USAGE BLOCKED FROM HERE ONWARDS
 		// --------------------------------------------
-		if(Pressed(flags, KEY_LEFT_CTRL)) // this doesn't solve the full problem.
+		if (Pressed(flags, KEY_LEFT_CTRL)) // this doesn't solve the full problem.
 			return;
 
 		// -------------------------
@@ -311,47 +311,47 @@ namespace Editor
 		// @TODO: this sucks
 		auto* editor_camera = GlobalSceneInfo::GetEditorCam();
 		float camera_speed =
-			GSI->camera->type == THIRD_PERSON ?
-			player->speed * Rvn::frame.duration :
-			Rvn::frame.real_duration * editor_camera->acceleration;
+		GSI->camera->type == THIRD_PERSON ?
+		player->speed * Rvn::frame.duration :
+		Rvn::frame.real_duration * editor_camera->acceleration;
 
-		if(flags.key_press & KEY_LEFT_SHIFT)
+		if (flags.key_press & KEY_LEFT_SHIFT)
 		{
 			camera_speed = camera_speed * 2;
 		}
 
-		if(flags.key_press & KEY_W)
+		if (flags.key_press & KEY_W)
 		{
 			GSI->camera->position += camera_speed * GSI->camera->front;
 		}
-		if(flags.key_press & KEY_A)
+		if (flags.key_press & KEY_A)
 		{
 			// @TODO: this sucks too
-			if(GSI->camera->type == FREE_ROAM)
+			if (GSI->camera->type == FREE_ROAM)
 				GSI->camera->position -= camera_speed * normalize(glm::cross(GSI->camera->front, GSI->camera->up));
-			else if(GSI->camera->type == THIRD_PERSON)
+			else if (GSI->camera->type == THIRD_PERSON)
 				GSI->camera->orbital_angle -= 0.025;
 		}
-		if(Pressed(flags, KEY_S))
+		if (Pressed(flags, KEY_S))
 		{
 			GSI->camera->position -= camera_speed * GSI->camera->front;
 		}
-		if(flags.key_press & KEY_D)
+		if (flags.key_press & KEY_D)
 		{
-			if(GSI->camera->type == FREE_ROAM)
+			if (GSI->camera->type == FREE_ROAM)
 				GSI->camera->position += camera_speed * normalize(glm::cross(GSI->camera->front, GSI->camera->up));
-			else if(GSI->camera->type == THIRD_PERSON)
+			else if (GSI->camera->type == THIRD_PERSON)
 				GSI->camera->orbital_angle += 0.025;
 		}
-		if(flags.key_press & KEY_Q)
+		if (flags.key_press & KEY_Q)
 		{
 			GSI->camera->position -= camera_speed * GSI->camera->up;
 		}
-		if(flags.key_press & KEY_E)
+		if (flags.key_press & KEY_E)
 		{
 			GSI->camera->position += camera_speed * GSI->camera->up;
 		}
-		if(flags.key_press & KEY_O)
+		if (flags.key_press & KEY_O)
 		{
 			CameraLookAt(GSI->camera, vec3(0.0f, 0.0f, 0.0f), true);
 		}
@@ -359,63 +359,63 @@ namespace Editor
 
 	void HandleInputFlagsForCommonInput(InputFlags flags, Player* & player)
 	{
-		if(PressedOnce(flags, KEY_COMMA))
+		if (PressedOnce(flags, KEY_COMMA))
 		{
-			if(Rvn::frame.time_step > 0)
+			if (Rvn::frame.time_step > 0)
 			{
 				Rvn::frame.time_step -= 0.025;
 			}
 		}
-		if(PressedOnce(flags, KEY_PERIOD))
+		if (PressedOnce(flags, KEY_PERIOD))
 		{
-			if(Rvn::frame.time_step < 3)
+			if (Rvn::frame.time_step < 3)
 			{
 				Rvn::frame.time_step += 0.025;
 			}
 		}
-		if(PressedOnce(flags, KEY_1))
+		if (PressedOnce(flags, KEY_1))
 		{
 			Rvn::rm_buffer->Add("TIME STEP x0.05", 1000);
 			Rvn::frame.time_step = 0.05;
 		}
-		if(PressedOnce(flags, KEY_2))
+		if (PressedOnce(flags, KEY_2))
 		{
 			Rvn::rm_buffer->Add("TIME STEP x0.1", 1000);
 			Rvn::frame.time_step = 0.1;
 		}
-		if(PressedOnce(flags, KEY_3))
+		if (PressedOnce(flags, KEY_3))
 		{
 			Rvn::rm_buffer->Add("TIME STEP x0.3", 1000);
 			Rvn::frame.time_step = 0.3;
 		}
-		if(PressedOnce(flags, KEY_4))
+		if (PressedOnce(flags, KEY_4))
 		{
 			Rvn::rm_buffer->Add("TIME STEP x1.0", 1000);
 			Rvn::frame.time_step = 1.0;
 		}
-		if(PressedOnce(flags, KEY_5))
+		if (PressedOnce(flags, KEY_5))
 		{
 			Rvn::rm_buffer->Add("TIME STEP x2.0", 1000);
 			Rvn::frame.time_step = 2.0;
 		}
-		if(flags.key_press & KEY_K)
+		if (flags.key_press & KEY_K)
 		{
 			player->Die();
 		}
-		if(PressedOnce(flags, KEY_F))
+		if (PressedOnce(flags, KEY_F))
 		{
 			EngineState::ToggleProgramMode();
 		}
-		if(PressedOnce(flags, KEY_GRAVE_TICK))
+		if (PressedOnce(flags, KEY_GRAVE_TICK))
 		{
 			start_console_mode();
 		}
-		if(flags.key_press & KEY_ESC && flags.key_press & KEY_LEFT_SHIFT)
+		if (flags.key_press & KEY_ESC && flags.key_press & KEY_LEFT_SHIFT)
 		{
 			auto* GDC = GlobalDisplayConfig::Get();
 			glfwSetWindowShouldClose(GDC->window, true);
 		}
-		if(PressedOnce(flags, KEY_Y))
+		if (PressedOnce(flags, KEY_Y))
 		{
 			// for testing EPA collision resolve
 			GlobalSceneInfo::Get()->tmp_unstuck_things = true;

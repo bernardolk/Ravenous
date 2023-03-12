@@ -21,7 +21,7 @@ void EntityAnimation::Update()
 
 	float speed;
 	// Update entity position
-	if(kf->flags & EntityAnimKfFlags_ChangePosition)
+	if (kf->flags & EntityAnimKfFlags_ChangePosition)
 	{
 		//x
 		speed = (kf->final_position.x - kf->starting_position.x) / kf->duration;
@@ -35,7 +35,7 @@ void EntityAnimation::Update()
 	}
 
 	// Update entity rotation
-	if(kf->flags & EntityAnimKfFlags_ChangeRotation)
+	if (kf->flags & EntityAnimKfFlags_ChangeRotation)
 	{
 		//x
 		speed = (kf->final_rotation.x - kf->starting_rotation.x) / kf->duration;
@@ -49,7 +49,7 @@ void EntityAnimation::Update()
 	}
 
 	// Update entity scale
-	if(kf->flags & EntityAnimKfFlags_ChangeScale)
+	if (kf->flags & EntityAnimKfFlags_ChangeScale)
 	{
 		//x
 		speed = (kf->final_scale.x - kf->starting_scale.x) / kf->duration;
@@ -65,10 +65,10 @@ void EntityAnimation::Update()
 	entity->Update();
 
 	// updates keyframe if necessary
-	if(keyframe_runtime >= kf->duration)
+	if (keyframe_runtime >= kf->duration)
 	{
 		current_keyframe++;
-		if(current_keyframe > keyframes_count)
+		if (current_keyframe > keyframes_count)
 		{
 			active = false;
 		}
@@ -80,7 +80,7 @@ size_t EntityAnimationBuffer::FindSlot()
 {
 	For(animation_buffer_array_size)
 	{
-		if(!animations[i].active)
+		if (!animations[i].active)
 		{
 			// reset slot
 			animations[i] = EntityAnimation();
@@ -110,7 +110,7 @@ void EntityAnimationBuffer::UpdateAnimations()
 	{
 		auto anim = &EntityAnimations.animations[i];
 
-		if(anim->active)
+		if (anim->active)
 			anim->Update();
 	}
 }

@@ -20,14 +20,14 @@ void setup_GLFW(bool debug)
 	// Creates the window
 	auto* GDC = GlobalDisplayConfig::Get();
 	GDC->window = glfwCreateWindow(GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, "Ravenous", nullptr, nullptr);
-	if(GDC->window == nullptr)
+	if (GDC->window == nullptr)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
 	}
 	glfwMakeContextCurrent(GDC->window);
 
-	if(!gladLoadGLLoader( (GLADloadproc) glfwGetProcAddress))
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
 	}
@@ -39,7 +39,7 @@ void setup_GLFW(bool debug)
 	glfwSetScrollCallback(GDC->window, OnMouseScroll);
 	glfwSetMouseButtonCallback(GDC->window, OnMouseBtn);
 
-	if(debug)
+	if (debug)
 	{
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 	}
@@ -53,29 +53,30 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 GLenum glCheckError_(const char* file, int line)
 {
 	GLenum error_code;
-	while((error_code = glGetError()) != GL_NO_ERROR)
+	while ((error_code = glGetError()) != GL_NO_ERROR)
 	{
 		std::string error;
-		switch(error_code)
+		switch (error_code)
 		{
 			case GL_INVALID_ENUM:
 				error = "INVALID_ENUM";
-			break;
+				break;
 			case GL_INVALID_VALUE:
 				error = "INVALID_VALUE";
-			break;
+				break;
 			case GL_INVALID_OPERATION:
 				error = "INVALID_OPERATION";
-			break;
+				break;
 			//case GL_STACK_OVERFLOW:                error = "STACK_OVERFLOW"; break;
 			//case GL_STACK_UNDERFLOW:               error = "STACK_UNDERFLOW"; break;
 			case GL_OUT_OF_MEMORY:
 				error = "OUT_OF_MEMORY";
-			break;
+				break;
 			case GL_INVALID_FRAMEBUFFER_OPERATION:
 				error = "INVALID_FRAMEBUFFER_OPERATION";
-			break;
-			default: break;
+				break;
+			default:
+				break;
 		}
 		std::cout << error << " | " << file << " (" << line << ")" << std::endl;
 	}

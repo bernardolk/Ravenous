@@ -7,7 +7,7 @@ namespace Editor
 {
 	void DeletedEntityLog::Add(const Entity* entity)
 	{
-		if(size + 1 == capacity)
+		if (size + 1 == capacity)
 		{
 			Rvn::rm_buffer->Add("DeletedEntityLog is FULL!", 3000);
 			return;
@@ -33,13 +33,13 @@ namespace Editor
 	{
 		//log(LOG_INFO, "Tracking entity '" + state.entity->name + "'.");
 
-		if(full)
+		if (full)
 		{
 			Rvn::rm_buffer->Add("UNDO/REDO STACK FULL.", 800);
 			return;
 		}
 
-		if(!compare_entity_states(state, Check()))
+		if (!compare_entity_states(state, Check()))
 		{
 			stack[++pos] = state;
 			limit = pos;
@@ -49,7 +49,7 @@ namespace Editor
 
 	void UndoStack::Undo()
 	{
-		if(pos == 0)
+		if (pos == 0)
 			return;
 
 		// gets a valid state to undo
@@ -57,16 +57,16 @@ namespace Editor
 		do
 		{
 			state = GetStateAndMoveBack();
-			if(pos == 1 && !IsStateValid(state))
+			if (pos == 1 && !IsStateValid(state))
 				return;
-		} while(!IsStateValid(state));
+		} while (!IsStateValid(state));
 
 		apply_state(state);
 	}
 
 	void UndoStack::Redo()
 	{
-		if(pos == 0)
+		if (pos == 0)
 			return;
 
 		// gets a valid state to redo
@@ -74,16 +74,16 @@ namespace Editor
 		do
 		{
 			state = GetStateAndMoveUp();
-			if(pos == limit && !IsStateValid(state))
+			if (pos == limit && !IsStateValid(state))
 				return;
-		} while(!IsStateValid(state));
+		} while (!IsStateValid(state));
 
 		apply_state(state);
 	}
 
 	EntityState UndoStack::Check()
 	{
-		if(pos > 0)
+		if (pos > 0)
 			return stack[pos];
 		return EntityState{};
 	}
@@ -91,9 +91,9 @@ namespace Editor
 	// internal
 	EntityState UndoStack::GetStateAndMoveBack()
 	{
-		if(pos > 1)
+		if (pos > 1)
 			return stack[--pos];
-		if(pos == 1)
+		if (pos == 1)
 			return stack[pos];
 		return EntityState{};
 	}
@@ -101,9 +101,9 @@ namespace Editor
 	// internal
 	EntityState UndoStack::GetStateAndMoveUp()
 	{
-		if(pos < limit)
+		if (pos < limit)
 			return stack[++pos];
-		if(pos == limit)
+		if (pos == limit)
 			return stack[pos];
 		return EntityState{};
 	}
@@ -118,8 +118,8 @@ namespace Editor
 	bool UndoStack::IsStateValid(EntityState state)
 	{
 		// if entity was deleted, it isnt valid
-		for(int i = 0; i < deletion_log.size; i++)
-			if(deletion_log.entity_ids[i] == state.id)
+		for (int i = 0; i < deletion_log.size; i++)
+			if (deletion_log.entity_ids[i] == state.id)
 				return false;
 
 		// if entity current state is equal to state in stack
@@ -127,4 +127,3 @@ namespace Editor
 		return !compare_entity_states(get_entity_state(state.entity), state);
 	}
 };
-

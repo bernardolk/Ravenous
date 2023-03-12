@@ -53,7 +53,7 @@ RaycastTest CL_TestAgainstRay(
 
 
 	// first check collision with bounding box
-	if(CL_TestAgainstRay(ray, entity->bounding_box))
+	if (CL_TestAgainstRay(ray, entity->bounding_box))
 	{
 		//@TODO: We are not updating player's collider everytime now, so we must do it now on a raycast call
 		entity->UpdateCollider();
@@ -79,12 +79,12 @@ RaycastTest CL_TestAgainstRay(Ray ray, CollisionMesh* collider, RayCastType test
 	int triangles = collider->indices.size() / 3;
 	float min_distance = MaxFloat;
 	RaycastTest min_hit_test{false, -1};
-	for(int i = 0; i < triangles; i++)
+	for (int i = 0; i < triangles; i++)
 	{
 		Triangle t = get_triangle_for_collider_indexed_mesh(collider, i);
 		bool test_both_sides = test_type == RayCast_TestBothSidesOfTriangle;
 		auto test = CL_TestAgainstRay(ray, t, test_both_sides);
-		if(test.hit && test.distance < min_distance)
+		if (test.hit && test.distance < min_distance)
 		{
 			min_hit_test = test;
 			min_hit_test.t_index = i;
@@ -104,12 +104,12 @@ RaycastTest CL_TestAgainstRay(Ray ray, Mesh* mesh, glm::mat4 mat_model, RayCastT
 	int triangles = mesh->indices.size() / 3;
 	float min_distance = MaxFloat;
 	RaycastTest min_hit_test{false, -1};
-	for(int i = 0; i < triangles; i++)
+	for (int i = 0; i < triangles; i++)
 	{
 		Triangle t = get_triangle_for_indexed_mesh(mesh, mat_model, i);
 		bool test_both_sides = test_type == RayCast_TestBothSidesOfTriangle;
 		auto test = CL_TestAgainstRay(ray, t, test_both_sides);
-		if(test.hit && test.distance < min_distance)
+		if (test.hit && test.distance < min_distance)
 		{
 			min_hit_test = test;
 			min_hit_test.t_index = i;
@@ -142,7 +142,7 @@ RaycastTest CL_TestAgainstRay(Ray ray, Triangle triangle, bool test_both_sides)
 	float t = dot(AO, N) * invdet;
 	bool test = (det >= 1e-6 && t >= 0.0 && u >= 0.0 && v >= 0.0 && (u + v) <= 1.0);
 
-	if(!test && test_both_sides)
+	if (!test && test_both_sides)
 	{
 		// check other side
 		N = cross(E2, E1);
@@ -155,7 +155,7 @@ RaycastTest CL_TestAgainstRay(Ray ray, Triangle triangle, bool test_both_sides)
 		test = (det >= 1e-6 && t >= 0.0 && u >= 0.0 && v >= 0.0 && (u + v) <= 1.0);
 	}
 
-	if(test)
+	if (test)
 	{
 		RaycastTest result;
 		result.hit = true;

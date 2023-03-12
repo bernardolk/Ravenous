@@ -6,13 +6,13 @@ void Player::Update(World* world, bool update_collider)
 {
 	// perform updates to bounding boxes, colliders etc
 	entity_ptr->UpdateModelMatrix();
-	if(update_collider)
+	if (update_collider)
 	{
 		entity_ptr->UpdateCollider();
 		entity_ptr->UpdateBoundingBox();
 	}
 
-	if(CL_UpdatePlayerWorldCells(this, world))
+	if (CL_UpdatePlayerWorldCells(this, world))
 	{
 		CL_RecomputeCollisionBufferEntities(this);
 	}
@@ -28,12 +28,12 @@ bool Player::MaybeHurtFromFall()
 {
 	float fall_height = height_before_fall - entity_ptr->position.y;
 	fall_height_log = fall_height;
-	if(fall_height >= hurt_height_2)
+	if (fall_height >= hurt_height_2)
 	{
 		lives -= 2;
 		return true;
 	}
-	if(fall_height >= hurt_height_1)
+	if (fall_height >= hurt_height_1)
 	{
 		lives -= 1;
 		return true;
@@ -48,7 +48,7 @@ void Player::RestoreHealth()
 
 void Player::SetCheckpoint(Entity* entity)
 {
-	if(entity->type != EntityType_Checkpoint)
+	if (entity->type != EntityType_Checkpoint)
 		assert(false);
 
 	checkpoint_pos = entity_ptr->position;

@@ -23,7 +23,11 @@ struct T_InputRecorder
 	int playing_flag_idx = 0;
 
 public:
-	static T_InputRecorder* Get() { static T_InputRecorder instance; return &instance; }
+	static T_InputRecorder* Get()
+	{
+		static T_InputRecorder instance;
+		return &instance;
+	}
 	void StartRecording();
 	void Record(InputFlags flags);
 	void StopRecording();

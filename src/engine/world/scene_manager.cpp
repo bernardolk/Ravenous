@@ -6,7 +6,7 @@
 void GlobalSceneInfo::RefreshActiveScene()
 {
 	auto* GSI = Get();
-	if(GSI->active_scene == nullptr)
+	if (GSI->active_scene == nullptr)
 	{
 		GSI->active_scene = new Scene();
 		GSI->player = Player::Get();

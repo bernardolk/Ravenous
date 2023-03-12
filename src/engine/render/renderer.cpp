@@ -14,19 +14,19 @@ void render_mesh(const Mesh* mesh, RenderOptions opts)
 	glBindVertexArray(mesh->gl_data.VAO);
 
 	// set render modifiers
-	if(opts.wireframe)
+	if (opts.wireframe)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	if(opts.always_on_top)
+	if (opts.always_on_top)
 		glDepthFunc(GL_ALWAYS);
-	if(opts.point_size != 1.0)
+	if (opts.point_size != 1.0)
 		glPointSize(opts.point_size);
-	if(opts.line_width != 1.0)
+	if (opts.line_width != 1.0)
 		glLineWidth(opts.line_width);
-	if(opts.dont_cull_face)
+	if (opts.dont_cull_face)
 		glDisable(GL_CULL_FACE);
 
 	// draw
-	switch(mesh->render_method)
+	switch (mesh->render_method)
 	{
 		case GL_TRIANGLE_STRIP:
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, mesh->vertices.size());
@@ -44,20 +44,21 @@ void render_mesh(const Mesh* mesh, RenderOptions opts)
 			glDrawElements(GL_TRIANGLES, mesh->indices.size(), GL_UNSIGNED_INT, nullptr);
 		//glDrawArrays(GL_TRIANGLES, 0, mesh->vertices.size());
 			break;
-		default: std::cout << "WARNING: no drawing method set for mesh '" << mesh->name << "', " <<
+		default:
+			std::cout << "WARNING: no drawing method set for mesh '" << mesh->name << "', " <<
 			"it won't be rendered!\n";
 	}
 
 	// set to defaults
-	if(opts.wireframe)
+	if (opts.wireframe)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	if(opts.always_on_top)
+	if (opts.always_on_top)
 		glDepthFunc(GL_LESS);
-	if(opts.point_size != 1.0)
+	if (opts.point_size != 1.0)
 		glPointSize(1.0);
-	if(opts.line_width != 1.0)
+	if (opts.line_width != 1.0)
 		glLineWidth(1.0);
-	if(opts.dont_cull_face)
+	if (opts.dont_cull_face)
 		glEnable(GL_CULL_FACE);
 
 	glBindVertexArray(0);
@@ -79,20 +80,20 @@ void RenderEntity(Entity* entity)
 	u32 height_n = 1;
 
 	u32 i;
-	for(i = 0; i < entity->textures.size(); i++)
+	for (i = 0; i < entity->textures.size(); i++)
 	{
 		// active proper texture unit before binding
 		glActiveTexture(GL_TEXTURE0 + i);
 		std::string number;
 		// @todo: can turn this into enum for faster int comparison
 		std::string type = entity->textures[i].type;
-		if(type == "texture_diffuse")
+		if (type == "texture_diffuse")
 			number = std::to_string(diffuse_n++);
-		else if(type == "texture_specular")
+		else if (type == "texture_specular")
 			number = std::to_string(specular_n++);
-		else if(type == "texture_normal")
+		else if (type == "texture_normal")
 			number = std::to_string(normal_n++);
-		else if(type == "texture_height")
+		else if (type == "texture_height")
 			number = std::to_string(height_n++);
 
 		// now set the sampler to the correct texture unit
@@ -117,7 +118,7 @@ void RenderEntity(Entity* entity)
 	}
 
 	// check for tiled texture
-	if(entity->flags & EntityFlags_RenderTiledTexture)
+	if (entity->flags & EntityFlags_RenderTiledTexture)
 	{
 		entity->shader->SetInt("texture_wrap_top", entity->uv_tile_wrap[0]);
 		entity->shader->SetInt("texture_wrap_bottom", entity->uv_tile_wrap[1]);
@@ -127,7 +128,7 @@ void RenderEntity(Entity* entity)
 		entity->shader->SetInt("texture_wrap_back", entity->uv_tile_wrap[5]);
 	}
 
-	if(entity->type == EntityType_TimerMarking)
+	if (entity->type == EntityType_TimerMarking)
 	{
 		entity->shader->SetFloat3("color", entity->timer_marking_data.color);
 	}
@@ -174,10 +175,10 @@ void render_scene(World* world, Camera* camera)
 	auto color_shader = ShaderCatalogue.find("color")->second;
 	set_shader_light_variables(world, color_shader, camera);
 
-	for(int i = 0; i < world->entities.size(); i++)
+	for (int i = 0; i < world->entities.size(); i++)
 	{
 		Entity* entity = world->entities[i];
-		if(entity->flags & EntityFlags_InvisibleEntity)
+		if (entity->flags & EntityFlags_InvisibleEntity)
 			continue;
 
 		RenderEntity(entity);
@@ -193,7 +194,7 @@ void set_shader_light_variables(World* world, Shader* shader, Camera* camera)
 	// point lights
 	{
 		light_count = 0;
-		for(auto& light : world->point_lights)
+		for (auto& light : world->point_lights)
 		{
 			auto uniform_name = "pointLights[" + std::to_string(light_count) + "]";
 			shader->SetFloat3(uniform_name + ".position", light->position);
@@ -210,7 +211,7 @@ void set_shader_light_variables(World* world, Shader* shader, Camera* camera)
 	// spot lights
 	{
 		light_count = 0;
-		for(auto& light : world->spot_lights)
+		for (auto& light : world->spot_lights)
 		{
 			auto uniform_name = "spotLights[" + std::to_string(light_count) + "]";
 			shader->SetFloat3(uniform_name + ".position", light->position);
@@ -231,7 +232,7 @@ void set_shader_light_variables(World* world, Shader* shader, Camera* camera)
 	// directional lights
 	{
 		light_count = 0;
-		for(auto& light : world->directional_lights)
+		for (auto& light : world->directional_lights)
 		{
 			auto uniform_name = "dirLights[" + std::to_string(light_count) + "]";
 			shader->SetFloat3(uniform_name + ".direction", light->direction);
@@ -260,7 +261,7 @@ void render_game_gui(Player* player)
 	auto color = player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1};
 	render_text("consola42", 25, 75, color, std::to_string(player->lives));
 
-	if(player->grabbing_entity != nullptr)
+	if (player->grabbing_entity != nullptr)
 	{
 		PGrab = "Grabbed: ";
 		std::string last_grabbed = player->grabbing_entity->name;
@@ -269,10 +270,10 @@ void render_game_gui(Player* player)
 	render_text(GlobalDisplayConfig::viewport_width - 400, 45, PGrab);
 
 	std::string player_floor = "player floor: ";
-	if(player->standing_entity_ptr != nullptr)
+	if (player->standing_entity_ptr != nullptr)
 	{
 		player_floor += player->standing_entity_ptr->name;
-		if(PFloor != player->standing_entity_ptr->id)
+		if (PFloor != player->standing_entity_ptr->id)
 		{
 			PFloor = player->standing_entity_ptr->id;
 			std::cout << "new floor: " << PFloor << "\n";
@@ -313,7 +314,7 @@ void create_depth_buffer()
 	// for point lights:
 	glGenTextures(1, &RDepthCubemapTexture);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, RDepthCubemapTexture);
-	for(unsigned int i = 0; i < 6; i++)
+	for (unsigned int i = 0; i < 6; i++)
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT,
 			RShadowBufferWidth, RShadowBufferHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr
 		);
@@ -358,10 +359,10 @@ void render_depth_map(World* world)
 	depth_shader->Use();
 	depth_shader->SetMatrix4("lightSpaceMatrix", RDirLightSpaceMatrix);
 
-	for(int it = 0; it < world->entities.size(); it++)
+	for (int it = 0; it < world->entities.size(); it++)
 	{
 		Entity* entity = world->entities[0];
-		if(entity->flags & EntityFlags_InvisibleEntity)
+		if (entity->flags & EntityFlags_InvisibleEntity)
 			continue;
 
 		depth_shader->SetMatrix4("model", entity->mat_model);
@@ -376,7 +377,7 @@ void render_depth_map(World* world)
 void render_depth_cubemap(World* world)
 {
 	// for now, testing, we are doing this just for the first point light source
-	if(world->point_lights.size() == 0)
+	if (world->point_lights.size() == 0)
 		return;
 
 	auto light = world->point_lights[0];
@@ -404,16 +405,16 @@ void render_depth_cubemap(World* world)
 	auto depth_shader = ShaderCatalogue.find("depth_cubemap")->second;
 	depth_shader->Use();
 
-	for(unsigned int i = 0; i < 6; ++i)
+	for (unsigned int i = 0; i < 6; ++i)
 		depth_shader->SetMatrix4("shadowMatrices[" + std::to_string(i) + "]", RPointLightSpaceMatrices[i]);
 
 	depth_shader->SetFloat("cubemap_far_plane", RCubemapFarPlane);
 	depth_shader->SetFloat3("lightPos", light->position);
 
-	for(int i = 0; i < world->entities.size(); i++)
+	for (int i = 0; i < world->entities.size(); i++)
 	{
 		auto entity = world->entities[i];
-		if(entity->flags & EntityFlags_InvisibleEntity)
+		if (entity->flags & EntityFlags_InvisibleEntity)
 			continue;
 
 		depth_shader->SetMatrix4("model", entity->mat_model);

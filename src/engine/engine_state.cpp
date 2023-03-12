@@ -34,7 +34,7 @@ void EngineState::ToggleProgramMode()
 	auto* ES = Get();
 	auto* GSI = GlobalSceneInfo::Get();
 
-	if(ES->current_mode == ProgramMode::Editor)
+	if (ES->current_mode == ProgramMode::Editor)
 	{
 		ES->last_mode = ES->current_mode;
 		ES->current_mode = ProgramMode::Game;
@@ -46,10 +46,10 @@ void EngineState::ToggleProgramMode()
 		Editor::EndDearImguiFrame();
 
 		Rvn::rm_buffer->Add("Game Mode", 2000);
-		
+
 	}
 
-	else if(ES->current_mode == ProgramMode::Game)
+	else if (ES->current_mode == ProgramMode::Game)
 	{
 		ES->last_mode = ES->current_mode;
 		ES->current_mode = ProgramMode::Editor;

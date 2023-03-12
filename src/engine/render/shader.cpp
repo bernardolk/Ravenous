@@ -74,10 +74,10 @@ bool check_shader_compile_errors(Shader* shader, std::string type, unsigned int 
 	int success;
 	char infoLog[1024];
 
-	if(type != "PROGRAM")
+	if (type != "PROGRAM")
 	{
 		glGetShaderiv(id, GL_COMPILE_STATUS, &success);
-		if(!success)
+		if (!success)
 		{
 			glGetShaderInfoLog(id, 1024, nullptr, infoLog);
 			std::cout << "ERROR::SHADER_COMPILATION_ERROR: " << type << " SHADER AT PROGRAM " << shader->name
@@ -89,7 +89,7 @@ bool check_shader_compile_errors(Shader* shader, std::string type, unsigned int 
 	else
 	{
 		glGetProgramiv(id, GL_LINK_STATUS, &success);
-		if(!success)
+		if (!success)
 		{
 			glGetProgramInfoLog(id, 1024, nullptr, infoLog);
 			std::cout << "ERROR::PROGRAM_LINKING_ERROR: AT PROGRAM '" << shader->name
@@ -131,7 +131,7 @@ Shader* create_shader_program(
 		vShaderFile.close();
 		vertexCode = vShaderStream.str();
 
-		if(vShaderFile.fail())
+		if (vShaderFile.fail())
 			std::cout << "ERROR::VERTEX SHADER::FILE_NOT_SUCCESFULLY_READ : " << vertex_shader_filename << std::endl;
 	}
 
@@ -146,7 +146,7 @@ Shader* create_shader_program(
 		fShaderFile.close();
 		fragmentCode = fShaderStream.str();
 
-		if(fShaderFile.fail())
+		if (fShaderFile.fail())
 			std::cout << "ERROR::FRAGMENT SHADER::FILE_NOT_SUCCESFULLY_READ : " << fragment_shader_filename << std::endl;
 	}
 
@@ -181,7 +181,7 @@ Shader* create_shader_program(
 
 	// > LOAD, COMPILE AND ATTACH OPTIONAL SHADERS 
 	// >> GEOMETRY
-	if(build_geometry_shader)
+	if (build_geometry_shader)
 	{
 		// >>> LOAD
 		std::string geometryCode;
@@ -195,7 +195,7 @@ Shader* create_shader_program(
 			gShaderFile.close();
 			geometryCode = gShaderStream.str();
 
-			if(gShaderFile.fail())
+			if (gShaderFile.fail())
 				std::cout << "ERROR::GEOMETRY SHADER::FILE_NOT_SUCCESFULLY_READ : " << geometry_shader_filename << std::endl;
 		}
 
@@ -227,7 +227,7 @@ Shader* create_shader_program(
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
 
-	for(int i = 0; i < optional_shaders_count; i++)
+	for (int i = 0; i < optional_shaders_count; i++)
 		glDeleteShader(optional_shaders[i]);
 
 

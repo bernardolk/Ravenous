@@ -86,7 +86,7 @@ void Mesh::SendDataToGLBuffer()
 	glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), &(this->vertices[0]), GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->gl_data.EBO);
 
-	if(this->indices.size() > 0)
+	if (this->indices.size() > 0)
 	{
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices.size() * sizeof(unsigned int), &(this->indices[0]), GL_STATIC_DRAW);
 	}
@@ -124,41 +124,41 @@ BoundingBox Mesh::ComputeBoundingBox()
 
 	float maxx = 0.f, minx = 0.f, maxy = 0.f, miny = 0.f, maxz = 0.f, minz = 0.f;
 
-	for(int i = 0; i < this->vertices.size(); i++)
+	for (int i = 0; i < this->vertices.size(); i++)
 	{
 		vec3 vertex = this->vertices[i].position;
 		float dotx = dot(vertex, vec3(1, 0, 0));
 		float doty = dot(vertex, vec3(0, 1, 0));
 		float dotz = dot(vertex, vec3(0, 0, 1));
 
-		if(dotx < min_d.x)
+		if (dotx < min_d.x)
 		{
 			minx = vertex.x;
 			min_d.x = dotx;
 		}
-		if(dotx > max_d.x)
+		if (dotx > max_d.x)
 		{
 			maxx = vertex.x;
 			max_d.x = dotx;
 		}
 
-		if(doty < min_d.y)
+		if (doty < min_d.y)
 		{
 			miny = vertex.y;
 			min_d.y = doty;
 		}
-		if(doty > max_d.y)
+		if (doty > max_d.y)
 		{
 			maxy = vertex.y;
 			max_d.y = doty;
 		}
 
-		if(dotz < min_d.z)
+		if (dotz < min_d.z)
 		{
 			minz = vertex.z;
 			min_d.z = dotz;
 		}
-		if(dotz > max_d.z)
+		if (dotz > max_d.z)
 		{
 			maxz = vertex.z;
 			max_d.z = dotz;
@@ -228,7 +228,7 @@ GLData setup_gl_data_for_lines(const Vertex* vertices, size_t size)
 std::vector<Vertex> construct_cylinder(float radius, float half_lenght, int slices)
 {
 	std::vector<Vertex> vertices;
-	for(int i = 0; i < slices; i++)
+	for (int i = 0; i < slices; i++)
 	{
 		float theta = static_cast<float>(i) * 2.0 * PI * (1.0 / slices);
 		float next_theta = (static_cast<float>(i) + 1) * 2.0 * PI * (1.0 / slices);

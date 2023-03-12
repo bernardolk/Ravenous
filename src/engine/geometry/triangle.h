@@ -7,7 +7,7 @@ struct Triangle
 	vec3 c;
 
 	vec3 GetNormal() { return triangleNormal(a, b, c); }
-	
+
 	vec3 GetBarycenter()
 	{
 		auto bx = (a.x + b.x + c.x) / 3;
@@ -22,7 +22,7 @@ struct Triangle
 		return a != b && a != c && b != c;
 	}
 
-	bool operator == (const Triangle& other)
+	bool operator ==(const Triangle& other)
 	{
 		return a == other.a && b == other.b && c == other.c;
 	}

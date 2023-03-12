@@ -20,41 +20,41 @@ BoundingBox CollisionMesh::ComputeBoundingBox()
 
 	float maxx = 0.f, minx = 0.f, maxy = 0.f, miny = 0.f, maxz = 0.f, minz = 0.f;
 
-	for(int i = 0; i < this->vertices.size(); i++)
+	for (int i = 0; i < this->vertices.size(); i++)
 	{
 		vec3 vertex = this->vertices[i];
 		float dotx = dot(vertex, vec3(1, 0, 0));
 		float doty = dot(vertex, vec3(0, 1, 0));
 		float dotz = dot(vertex, vec3(0, 0, 1));
 
-		if(dotx < min_d.x)
+		if (dotx < min_d.x)
 		{
 			minx = vertex.x;
 			min_d.x = dotx;
 		}
-		if(dotx > max_d.x)
+		if (dotx > max_d.x)
 		{
 			maxx = vertex.x;
 			max_d.x = dotx;
 		}
 
-		if(doty < min_d.y)
+		if (doty < min_d.y)
 		{
 			miny = vertex.y;
 			min_d.y = doty;
 		}
-		if(doty > max_d.y)
+		if (doty > max_d.y)
 		{
 			maxy = vertex.y;
 			max_d.y = doty;
 		}
 
-		if(dotz < min_d.z)
+		if (dotz < min_d.z)
 		{
 			minz = vertex.z;
 			min_d.z = dotz;
 		}
-		if(dotz > max_d.z)
+		if (dotz > max_d.z)
 		{
 			maxz = vertex.z;
 			max_d.z = dotz;

@@ -53,24 +53,24 @@ namespace Editor
 	{
 		auto& ed_context = *GetContext();
 
-		if(type == "point")
+		if (type == "point")
 		{
 			world->point_lights.erase(world->point_lights.begin() + index);
 		}
-		else if(type == "spot")
+		else if (type == "spot")
 		{
 			world->spot_lights.erase(world->spot_lights.begin() + index);
 		}
 
-		if(ed_context.lights_panel.selected_light == index)
+		if (ed_context.lights_panel.selected_light == index)
 			ed_context.lights_panel.selected_light = -1;
 	}
 
 	void unhide_entities(const World* world)
 	{
-		for(auto& entity : world->entities)
+		for (auto& entity : world->entities)
 		{
-			if(entity->flags & EntityFlags_HiddenEntity)
+			if (entity->flags & EntityFlags_HiddenEntity)
 				entity->flags &= ~EntityFlags_HiddenEntity;
 		}
 	}
@@ -196,20 +196,20 @@ namespace Editor
 
 		// if we are going to invert the scale of the entity by shrinking it towards itself,
 		// then we stretch using the other side of the entity to achieve expected behaviour.
-		if(shrink && abs(dif) >= e_scale)
+		if (shrink && abs(dif) >= e_scale)
 		{
 			dif = e_opposite - t;
 			n *= -1;
 			shrink = false;
 		}
 
-		if(shrink)
+		if (shrink)
 			transform.scale_f = -1.0 * abs(dif);
 		else
 			transform.scale_f = abs(dif);
 
 		// if normal points to negative dir, move position
-		if(n < 0)
+		if (n < 0)
 			transform.pos_f -= dif;
 
 		return transform;
@@ -328,24 +328,24 @@ namespace Editor
 
 		auto pickray = CastPickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		auto test = world->Raycast(pickray);
-		if(test.hit)
+		if (test.hit)
 		{
-			if(!ed_context.first_point_found || ed_context.second_point_found)
+			if (!ed_context.first_point_found || ed_context.second_point_found)
 			{
-				if(ed_context.second_point_found)
+				if (ed_context.second_point_found)
 					ed_context.second_point_found = false;
 				ed_context.first_point_found = true;
 				ed_context.measure_from = CL_GetPointFromDetection(pickray, test);
 			}
-			else if(!ed_context.second_point_found)
+			else if (!ed_context.second_point_found)
 			{
 				ed_context.second_point_found = true;
 				vec3 point = CL_GetPointFromDetection(pickray, test);
-				if(ed_context.measure_axis == 0)
+				if (ed_context.measure_axis == 0)
 					ed_context.measure_to = point.x;
-				else if(ed_context.measure_axis == 1)
+				else if (ed_context.measure_axis == 1)
 					ed_context.measure_to = point.y;
-				else if(ed_context.measure_axis == 2)
+				else if (ed_context.measure_axis == 2)
 					ed_context.measure_to = point.z;
 			}
 		}
@@ -374,7 +374,7 @@ namespace Editor
 
 		auto pickray = CastPickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		auto test = world->Raycast(pickray);
-		if(test.hit)
+		if (test.hit)
 		{
 			ed_context.locate_coords_found_point = true;
 			ed_context.locate_coords_position = CL_GetPointFromDetection(pickray, test);
@@ -413,7 +413,7 @@ namespace Editor
 		auto* GSI = GlobalSceneInfo::Get();
 		auto& ed_context = *GetContext();
 
-		switch(ed_context.move_axis)
+		switch (ed_context.move_axis)
 		{
 			case 0: // XZ 
 			case 1: // X
@@ -462,10 +462,10 @@ namespace Editor
 		RaycastTest test;
 
 		test = CL_TestAgainstRay(ray, t1);
-		if(!test.hit)
+		if (!test.hit)
 		{
 			test = CL_TestAgainstRay(ray, t2);
-			if(!test.hit)
+			if (!test.hit)
 				std::cout << "warning: can't find plane to place entity!\n";
 		}
 
@@ -492,7 +492,7 @@ namespace Editor
 
 		auto pickray = CastPickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		auto test = world->Raycast(pickray, entity);
-		if(test.hit)
+		if (test.hit)
 		{
 			entity->position = CL_GetPointFromDetection(pickray, test);
 			entity->Update();
@@ -519,14 +519,14 @@ namespace Editor
 		auto& ed_context = *GetContext();
 
 		RaycastTest test = test_ray_against_entity_support_plane(ed_context.move_axis, entity);
-		if(!test.hit)
+		if (!test.hit)
 			return;
 
 		Ray ray = test.ray;
 		vec3 pos = ray.origin + ray.direction * test.distance;
 
 		// places entity accordingly
-		switch(ed_context.move_axis)
+		switch (ed_context.move_axis)
 		{
 			case 0: // XZ 
 				entity->position.x = pos.x;
@@ -571,7 +571,7 @@ namespace Editor
 		auto& ed_context = *GetContext();
 
 		RaycastTest test = test_ray_against_entity_support_plane(ed_context.move_axis, entity);
-		if(!test.hit)
+		if (!test.hit)
 			return;
 
 		Ray ray = test.ray;
@@ -581,7 +581,7 @@ namespace Editor
 		vec3 diff = pos - ed_context.move_entity_by_arrows_ref_point;
 
 		// modifies entity position
-		switch(ed_context.move_axis)
+		switch (ed_context.move_axis)
 		{
 			case 0: // XZ 
 				entity->position.x += diff.x;
@@ -636,9 +636,9 @@ namespace Editor
 	void move_light_with_mouse(std::string type, int index, World* world)
 	{
 		vec3 position;
-		if(type == "point" && index > -1)
+		if (type == "point" && index > -1)
 			position = world->point_lights[index]->position;
-		else if(type == "spot" && index > -1)
+		else if (type == "spot" && index > -1)
 			position = world->spot_lights[index]->position;
 		else
 			assert(false);
@@ -655,7 +655,7 @@ namespace Editor
 
 		auto& ed_context = *GetContext();
 
-		switch(ed_context.move_axis)
+		switch (ed_context.move_axis)
 		{
 			case 0: // XZ 
 			case 1: // X
@@ -701,10 +701,10 @@ namespace Editor
 		RaycastTest test;
 
 		test = CL_TestAgainstRay(ray, t1);
-		if(!test.hit)
+		if (!test.hit)
 		{
 			test = CL_TestAgainstRay(ray, t2);
-			if(!test.hit)
+			if (!test.hit)
 			{
 				std::cout << "warning: can't find plane to place light!\n";
 				return;
@@ -712,7 +712,7 @@ namespace Editor
 		}
 
 		// places entity accordingly
-		switch(ed_context.move_axis)
+		switch (ed_context.move_axis)
 		{
 			case 0:
 				position.x = ray.origin.x + ray.direction.x * test.distance;
@@ -729,9 +729,9 @@ namespace Editor
 				break;
 		}
 
-		if(type == "point" && index > -1)
+		if (type == "point" && index > -1)
 			world->point_lights[index]->position = position;
-		else if(type == "spot" && index > -1)
+		else if (type == "spot" && index > -1)
 			world->spot_lights[index]->position = position;
 		else
 			assert(false);
@@ -779,7 +779,7 @@ namespace Editor
 		auto mouse_coords = vec2(GII->mouse_coords.x, GII->mouse_coords.y);
 		auto& ed_context = *GetContext();
 
-		switch(ed_context.move_axis)
+		switch (ed_context.move_axis)
 		{
 			case 1: // X
 			{

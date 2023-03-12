@@ -31,9 +31,9 @@ EPA_Result CL_run_EPA(Simplex simplex, CollisionMesh* collider_a, CollisionMesh*
 
 inline bool CL_support_is_in_polytope(std::vector<vec3> polytope, vec3 support_point)
 {
-	for(int i = 0; i < polytope.size(); i++)
+	for (int i = 0; i < polytope.size(); i++)
 	{
-		if(polytope[i] == support_point)
+		if (polytope[i] == support_point)
 			return true;
 	}
 

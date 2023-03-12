@@ -82,7 +82,7 @@ int main()
 	EM->SetEntityRegistry(&world->entities);
 	EM->SetCheckpointsRegistry(&world->checkpoints);
 	EM->SetInteractablesRegistry(&world->interactables);
-	
+
 	//@TODO: This here is not working because EntityManager copy constructor was deleted. This is an issue
 	//    with using references it seems? A pointer would never complain about this. I should dig into this.
 	//    If I have to start writing extra code to use references then I can't justify using them.
@@ -96,7 +96,7 @@ int main()
 	// INITIAL GLFW AND GLAD SETUPS
 	setup_GLFW(true);
 	SetupGL();
-	
+
 	auto* GSI = GlobalSceneInfo::Get();
 
 	// load shaders, textures and geometry
@@ -120,7 +120,7 @@ int main()
 	ConfigSerializer::LoadGlobalConfigs();
 	auto& program_config = *ProgramConfig::Get();
 	WorldSerializer::LoadFromFile(program_config.initial_scene);
-	
+
 	Player* player = GSI->player;
 	world->player = player;
 	player->checkpoint_pos = player->entity_ptr->position; // set player initial checkpoint position
@@ -131,7 +131,7 @@ int main()
 	world->ambient_intensity = program_config.ambient_intensity;
 
 	world->UpdateEntityWorldCells(player->entity_ptr); // sets player to the world
-	CL_RecomputeCollisionBufferEntities(player);   // populates collision buffer and others
+	CL_RecomputeCollisionBufferEntities(player);       // populates collision buffer and others
 
 	Editor::Initialize();
 
@@ -154,7 +154,7 @@ int main()
 	player->entity_ptr->flags |= EntityFlags_RenderWireframe;
 
 	world->UpdateEntities();
-	
+
 	RavenousMainLoop();
 }
 
@@ -169,14 +169,14 @@ void StartFrame()
 
 	// @TODO: Can't remember why this is important...
 	// forces framerate for simulation to be small
-	if(Rvn::frame.duration > 0.02)
+	if (Rvn::frame.duration > 0.02)
 	{
 		Rvn::frame.duration = 0.02;
 	}
 
 	Rvn::frame.sub_second_counter += Rvn::frame.real_duration;
 	Rvn::frame.fps_counter += 1;
-	if(Rvn::frame.sub_second_counter > 1)
+	if (Rvn::frame.sub_second_counter > 1)
 	{
 		Rvn::frame.fps = Rvn::frame.fps_counter;
 		Rvn::frame.fps_counter = 0;
@@ -190,10 +190,10 @@ void CheckAllEntitiesHaveShaders(World* world)
 	{
 		auto entity = world->entities[i];
 
-		if(entity->shader == nullptr)
+		if (entity->shader == nullptr)
 			Quit_fatal("shader not set for entity '" + entity->name + "'.");
 
-		if(entity->mesh->gl_data.VAO == 0)
+		if (entity->mesh->gl_data.VAO == 0)
 			Quit_fatal("GL DATA not set for entity '" + entity->name + "'.");
 	}
 }
@@ -204,7 +204,7 @@ void CheckAllEntitiesHaveIds(World* world)
 	{
 		auto entity = world->entities[i];
 
-		if(entity->name != PlayerName && entity->id == -1)
+		if (entity->name != PlayerName && entity->id == -1)
 			Quit_fatal("There are entities without IDs. Check scene loading code for a flaw.");
 	}
 }
@@ -214,10 +214,9 @@ void CheckAllGeometryHasGlData()
 	ForIt(GeometryCatalogue)
 	{
 		auto item = it->second;
-		if(item->gl_data.VAO == 0 || item->gl_data.VBO == 0)
+		if (item->gl_data.VAO == 0 || item->gl_data.VBO == 0)
 		{
 			assert(false);
 		}
 	}
 }
-

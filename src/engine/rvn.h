@@ -25,8 +25,12 @@ struct ProgramConfig
 	float ambient_intensity = 0;
 
 public:
-	static ProgramConfig* Get() { static ProgramConfig instance; return &instance; }
-	
+	static ProgramConfig* Get()
+	{
+		static ProgramConfig instance;
+		return &instance;
+	}
+
 private:
 	ProgramConfig() = default;
 	ProgramConfig(const ProgramConfig& other) = delete;

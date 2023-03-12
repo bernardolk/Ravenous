@@ -29,7 +29,7 @@ namespace Editor
 		// ----------------
 		// > CONTROLS TAB
 		// ----------------
-		if(ImGui::BeginTabItem("Controls", nullptr, ImGuiTabItemFlags_None))
+		if (ImGui::BeginTabItem("Controls", nullptr, ImGuiTabItemFlags_None))
 		{
 			ImGui::Text(("Name: " + entity->name).c_str());
 			ImGui::Text(("Id: " + std::to_string(entity->id)).c_str());
@@ -37,17 +37,17 @@ namespace Editor
 
 			// RENAME
 			ImGui::NewLine();
-			if(!panel->rename_option_active)
+			if (!panel->rename_option_active)
 			{
-				if(ImGui::Button("Rename Entity", ImVec2(120, 18)))
+				if (ImGui::Button("Rename Entity", ImVec2(120, 18)))
 					panel->rename_option_active = true;
 			}
 			else
 			{
 				ImGui::InputText("New name", &panel->rename_buffer[0], 100);
-				if(ImGui::Button("Apply", ImVec2(64, 18)))
+				if (ImGui::Button("Apply", ImVec2(64, 18)))
 				{
-					if(panel->ValidateRenameBufferContents())
+					if (panel->ValidateRenameBufferContents())
 					{
 						entity->name = panel->rename_buffer;
 						panel->EmptyRenameBuffer();
@@ -55,7 +55,7 @@ namespace Editor
 					}
 				}
 				ImGui::SameLine();
-				if(ImGui::Button("Cancel", ImVec2(64, 18)))
+				if (ImGui::Button("Cancel", ImVec2(64, 18)))
 				{
 					panel->rename_option_active = false;
 				}
@@ -64,7 +64,7 @@ namespace Editor
 			// HIDE ENTITY
 			ImGui::SameLine();
 			bool _hide_control = entity->flags & EntityFlags_HiddenEntity;
-			if(ImGui::Checkbox("Hide Entity", &_hide_control))
+			if (ImGui::Checkbox("Hide Entity", &_hide_control))
 			{
 				entity->flags ^= EntityFlags_HiddenEntity;
 			}
@@ -78,7 +78,7 @@ namespace Editor
 			// POSITION
 			{
 				float positions[]{entity->position.x, entity->position.y, entity->position.z};
-				if(ImGui::DragFloat3("Position", positions, 0.1))
+				if (ImGui::DragFloat3("Position", positions, 0.1))
 				{
 					action_flags |= EntityPanelTA_Position;
 					entity->position = vec3{positions[0], positions[1], positions[2]};
@@ -89,7 +89,7 @@ namespace Editor
 			// ROTATION
 			{
 				float rotations[]{entity->rotation.x, entity->rotation.y, entity->rotation.z};
-				if(ImGui::DragFloat3("Rotation", rotations, 1, -360, 360))
+				if (ImGui::DragFloat3("Rotation", rotations, 1, -360, 360))
 				{
 					action_flags |= EntityPanelTA_Rotation;
 					entity->rotation = vec3{rotations[0], rotations[1], rotations[2]};
@@ -100,7 +100,7 @@ namespace Editor
 			// SCALE
 			{
 				float scaling[]{entity->scale.x, entity->scale.y, entity->scale.z};
-				if(ImGui::DragFloat3("Scale", scaling, 0.05, 0, MaxFloat, nullptr))
+				if (ImGui::DragFloat3("Scale", scaling, 0.05, 0, MaxFloat, nullptr))
 					action_flags |= EntityPanelTA_Scale;
 
 				track = track || ImGui::IsItemDeactivatedAfterEdit();
@@ -108,17 +108,17 @@ namespace Editor
 				ImGui::SameLine();
 				ImGui::Checkbox("Reverse", &panel->reverse_scale);
 
-				if(action_flags & EntityPanelTA_Scale)
+				if (action_flags & EntityPanelTA_Scale)
 				{
-					if(panel->reverse_scale)
+					if (panel->reverse_scale)
 					{
 						auto rot_matrix = entity->GetRotationMatrix();
 
-						if(scaling[0] != entity->scale.x)
+						if (scaling[0] != entity->scale.x)
 							entity->position -= toVec3(rot_matrix * vec4(scaling[0] - entity->scale.x, 0.f, 0.f, 1.f));
-						if(scaling[1] != entity->scale.y)
+						if (scaling[1] != entity->scale.y)
 							entity->position -= toVec3(rot_matrix * vec4(0.f, scaling[1] - entity->scale.y, 0.f, 1.f));
-						if(scaling[2] != entity->scale.z)
+						if (scaling[2] != entity->scale.z)
 							entity->position -= toVec3(rot_matrix * vec4(0.f, 0.f, scaling[2] - entity->scale.z, 1.f));
 					}
 
@@ -128,7 +128,7 @@ namespace Editor
 
 			ImGui::NewLine();
 
-			if(ImGui::Button("Place", ImVec2(82, 18)))
+			if (ImGui::Button("Place", ImVec2(82, 18)))
 			{
 				activate_place_mode(entity);
 			}
@@ -153,19 +153,19 @@ namespace Editor
 			// }
 
 			// ENTITY POSITIONING TOOLS
-			if(ImGui::Button("Snap", ImVec2(82, 18)))
+			if (ImGui::Button("Snap", ImVec2(82, 18)))
 			{
 				activate_snap_mode(entity);
 			}
 
 			ImGui::SameLine();
-			if(ImGui::Checkbox("inside", &ed_context.snap_inside))
+			if (ImGui::Checkbox("inside", &ed_context.snap_inside))
 			{
-				if(ed_context.snap_reference != nullptr)
+				if (ed_context.snap_reference != nullptr)
 					snap_entity_to_reference(panel->entity);
 			}
 
-			if(ImGui::Button("Stretch", ImVec2(82, 18)))
+			if (ImGui::Button("Stretch", ImVec2(82, 18)))
 			{
 				activate_stretch_mode(entity);
 			}
@@ -173,9 +173,9 @@ namespace Editor
 			ImGui::NewLine();
 			ImGui::NewLine();
 
-			if(ImGui::CollapsingHeader("World cells"))
+			if (ImGui::CollapsingHeader("World cells"))
 			{
-				for(int i = 0; i < entity->world_cells_count; i++)
+				for (int i = 0; i < entity->world_cells_count; i++)
 				{
 					auto cell = entity->world_cells[i];
 					ImGui::Text(cell->CoordsStr().c_str());
@@ -194,7 +194,7 @@ namespace Editor
 			{
 				ImGui::NewLine();
 				ImGui::NewLine();
-				if(ImGui::Button("Duplicate", ImVec2(82, 18)))
+				if (ImGui::Button("Duplicate", ImVec2(82, 18)))
 				{
 					action_flags |= EntityPanelTA_Duplicate;
 					auto new_entity = EM->CopyEntity(entity);
@@ -205,7 +205,7 @@ namespace Editor
 				ImGui::PushStyleColor(ImGuiCol_Button, static_cast<ImVec4>(ImColor::HSV(0.03f, 0.6f, 0.6f)));
 				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, static_cast<ImVec4>(ImColor::HSV(0.03f, 0.7f, 0.7f)));
 				ImGui::PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor::HSV(0.03f, 0.8f, 0.8f)));
-				if(ImGui::Button("Delete", ImVec2(82, 18)))
+				if (ImGui::Button("Delete", ImVec2(82, 18)))
 				{
 					action_flags |= EntityPanelTA_Delete;
 					ed_context.entity_panel.active = false;
@@ -221,41 +221,41 @@ namespace Editor
 		// -------------------
 		// > ENTITY TYPE TAB
 		// -------------------
-		if(ImGui::BeginTabItem("Attributes", nullptr, ImGuiTabItemFlags_None))
+		if (ImGui::BeginTabItem("Attributes", nullptr, ImGuiTabItemFlags_None))
 		{
 			ImGui::Text("Entity Type");
 
 			// EntityType_Static
 			bool is_static = entity->type == EntityType_Static;
-			if(ImGui::RadioButton("Static", is_static))
+			if (ImGui::RadioButton("Static", is_static))
 			{
 				EM->SetType(entity, EntityType_Static);
 			}
 
 			// EntityType_Checkpoint
 			bool is_checkpoint = entity->type == EntityType_Checkpoint;
-			if(ImGui::RadioButton("Checkpoint", is_checkpoint))
+			if (ImGui::RadioButton("Checkpoint", is_checkpoint))
 			{
 				EM->SetType(entity, EntityType_Checkpoint);
 			}
 
 			// EntityType_TimerTrigger
 			bool is_timer_trigger = entity->type == EntityType_TimerTrigger;
-			if(ImGui::RadioButton("Timer Trigger", is_timer_trigger))
+			if (ImGui::RadioButton("Timer Trigger", is_timer_trigger))
 			{
 				EM->SetType(entity, EntityType_TimerTrigger);
 			}
 
 			// EntityType_TimerTarget
 			bool is_timer_target = entity->type == EntityType_TimerTarget;
-			if(ImGui::RadioButton("Timer Target", is_timer_target))
+			if (ImGui::RadioButton("Timer Target", is_timer_target))
 			{
 				EM->SetType(entity, EntityType_TimerTarget);
 			}
 
 			// EntityType_TimerMarking
 			bool is_timer_marking = entity->type == EntityType_TimerMarking;
-			if(ImGui::RadioButton("Timer Marking", is_timer_marking))
+			if (ImGui::RadioButton("Timer Marking", is_timer_marking))
 			{
 				EM->SetType(entity, EntityType_TimerMarking);
 			}
@@ -270,50 +270,50 @@ namespace Editor
 			ImGui::NewLine();
 			ImGui::NewLine();
 
-			if(!is_static)
+			if (!is_static)
 			{
 				ImGui::Text("Entity Type Properties");
 				ImGui::NewLine();
 			}
 
-			if(is_checkpoint)
+			if (is_checkpoint)
 			{
 				ImGui::Text("Event trigger");
 
 				bool a = ImGui::SliderFloat("radius", &entity->trigger_scale.x, 0, 10);
 				bool b = ImGui::SliderFloat("height", &entity->trigger_scale.y, 0, 10);
 
-				if(a || b)
+				if (a || b)
 					entity->Update();
 			}
 
-			else if(is_timer_trigger)
+			else if (is_timer_trigger)
 			{
 				ImGui::Text("Event trigger");
 
 				bool a = ImGui::SliderFloat("radius", &entity->trigger_scale.x, 0, 10);
 				bool b = ImGui::SliderFloat("height", &entity->trigger_scale.y, 0, 10);
 
-				if(a || b)
+				if (a || b)
 					entity->Update();
 
 				ImGui::NewLine();
 
 				ImGui::SliderInt("Duration", &entity->timer_trigger_data.timer_duration, 0, 100);
 
-				if(entity->timer_trigger_data.timer_target != nullptr)
+				if (entity->timer_trigger_data.timer_target != nullptr)
 				{
 					//@todo should be any kind of time_attack_door, but ok
-					if(entity->timer_trigger_data.timer_target->timer_target_data.timer_target_type == EntityTimerTargetType_VerticalSlidingDoor)
+					if (entity->timer_trigger_data.timer_target->timer_target_data.timer_target_type == EntityTimerTargetType_VerticalSlidingDoor)
 					{
 						auto data = &entity->timer_trigger_data;
 						int empty_slot = -1;
 						bool there_is_at_least_one_marking = false;
 						For(data->size)
 						{
-							if(data->markings[i] != nullptr)
+							if (data->markings[i] != nullptr)
 							{
-								if(!there_is_at_least_one_marking)
+								if (!there_is_at_least_one_marking)
 								{
 									// renders header for this section
 									ImGui::Text("Marking entity     -     Time checkpoint (s)     -     Delete");
@@ -324,22 +324,22 @@ namespace Editor
 
 								std::string dint_id = "##duration-" + std::to_string(i);
 								ImGui::DragInt(dint_id.c_str(), (int*)&data->time_checkpoints[i], 1, 0, 10000);
-								if(ImGui::Button("Delete", ImVec2(32, 18)))
+								if (ImGui::Button("Delete", ImVec2(32, 18)))
 								{
 									data->DeleteMarking(i);
 								}
 							}
-							else if(empty_slot == -1)
+							else if (empty_slot == -1)
 							{
 								empty_slot = i;
 							}
 						}
 
-						if(empty_slot >= 0)
+						if (empty_slot >= 0)
 						{
 							ImGui::NewLine();
 
-							if(ImGui::Button("Add marking", ImVec2(60, 18)))
+							if (ImGui::Button("Add marking", ImVec2(60, 18)))
 							{
 								panel->show_related_entity = false;
 
@@ -367,7 +367,7 @@ namespace Editor
 
 				ImGui::Text("Timer target");
 				std::string target_entity_name;
-				if(entity->timer_trigger_data.timer_target == nullptr)
+				if (entity->timer_trigger_data.timer_target == nullptr)
 					target_entity_name = "No target selected.";
 				else
 					target_entity_name = entity->timer_trigger_data.timer_target->name;
@@ -375,16 +375,16 @@ namespace Editor
 
 
 				ImGui::SameLine();
-				if(ImGui::Button("Show", ImVec2(68, 18)))
+				if (ImGui::Button("Show", ImVec2(68, 18)))
 				{
-					if(entity->timer_trigger_data.timer_target != nullptr)
+					if (entity->timer_trigger_data.timer_target != nullptr)
 					{
 						panel->show_related_entity = true;
 						panel->related_entity = entity->timer_trigger_data.timer_target;
 					}
 				}
 				ImGui::SameLine();
-				if(ImGui::Button("Change", ImVec2(92, 18)))
+				if (ImGui::Button("Change", ImVec2(92, 18)))
 				{
 					panel->show_related_entity = false;
 					activate_select_entity_aux_tool(&entity->timer_trigger_data.timer_target);
@@ -397,13 +397,13 @@ namespace Editor
 		// -------------------
 		// > TIMER TARGET TAB
 		// -------------------
-		if(entity->type == EntityType_TimerTarget)
+		if (entity->type == EntityType_TimerTarget)
 		{
-			if(ImGui::BeginTabItem("Timer Target Settings", nullptr, ImGuiTabItemFlags_None))
+			if (ImGui::BeginTabItem("Timer Target Settings", nullptr, ImGuiTabItemFlags_None))
 			{
 				// EntityTimerTargetType_VerticalSlidingDoor
 				bool is_vsd = entity->timer_target_data.timer_target_type == EntityTimerTargetType_VerticalSlidingDoor;
-				if(ImGui::RadioButton("Vertical Sliding Door", is_vsd))
+				if (ImGui::RadioButton("Vertical Sliding Door", is_vsd))
 				{
 					entity->timer_target_data.timer_target_type = EntityTimerTargetType_VerticalSlidingDoor;
 				}
@@ -415,28 +415,28 @@ namespace Editor
 		// ----------------
 		// > TEXTURES TAB
 		// ----------------
-		if(ImGui::BeginTabItem("Textures", nullptr, ImGuiTabItemFlags_None))
+		if (ImGui::BeginTabItem("Textures", nullptr, ImGuiTabItemFlags_None))
 		{
-			for(const auto& texture : TextureCatalogue)
+			for (const auto& texture : TextureCatalogue)
 			{
 				bool in_use = entity->textures[0].name == texture.second.name;
-				if(ImGui::RadioButton(texture.second.name.c_str(), in_use))
+				if (ImGui::RadioButton(texture.second.name.c_str(), in_use))
 				{
 					entity->textures[0] = texture.second;
 				}
 			}
 
 			bool _tiled_texture = entity->flags & EntityFlags_RenderTiledTexture;
-			if(ImGui::Checkbox("Tiled texture", &_tiled_texture))
+			if (ImGui::Checkbox("Tiled texture", &_tiled_texture))
 			{
 				entity->flags ^= EntityFlags_RenderTiledTexture;
-				if(_tiled_texture)
+				if (_tiled_texture)
 					entity->shader = ShaderCatalogue.find("tiledTextureModel")->second;
 				else
 					entity->shader = ShaderCatalogue.find("model")->second;
 			}
 
-			if(entity->flags & EntityFlags_RenderTiledTexture)
+			if (entity->flags & EntityFlags_RenderTiledTexture)
 			{
 				ImGui::Text("Number of tiles for each face:");
 				ImGui::SliderInt("Top face", &entity->uv_tile_wrap[0], 0, 15);
@@ -453,12 +453,12 @@ namespace Editor
 		// ---------------
 		// > SHADERS TAB
 		// ---------------
-		if(ImGui::BeginTabItem("Shaders", nullptr, ImGuiTabItemFlags_None))
+		if (ImGui::BeginTabItem("Shaders", nullptr, ImGuiTabItemFlags_None))
 		{
-			for(const auto& shader : ShaderCatalogue)
+			for (const auto& shader : ShaderCatalogue)
 			{
 				bool in_use = entity->shader->name == shader.second->name;
-				if(ImGui::RadioButton(shader.second->name.c_str(), in_use))
+				if (ImGui::RadioButton(shader.second->name.c_str(), in_use))
 				{
 					entity->shader = shader.second;
 				}
@@ -471,9 +471,9 @@ namespace Editor
 
 		ImGui::End();
 
-		if(action_flags > 0)
+		if (action_flags > 0)
 			entity_panel_update_entity_and_editor_context(panel, action_flags, world);
-		if(track)
+		if (track)
 			entity_panel_track_entity_changes(panel);
 	}
 
@@ -485,10 +485,10 @@ namespace Editor
 		// the following block makes sure that we track the entity original state if necessary.
 		// if we already tracked it or we used an external tool from the panel, like grab/move tool, 
 		// we don't track, since these tools have their own tracking calls.
-		if(!panel->tracked_once)
+		if (!panel->tracked_once)
 		{
 			EntityState last_recorded_state = ed_context.undo_stack.Check();
-			if(last_recorded_state.entity == nullptr || last_recorded_state.entity->id != panel->entity->id)
+			if (last_recorded_state.entity == nullptr || last_recorded_state.entity->id != panel->entity->id)
 				ed_context.undo_stack.Track(panel->entity_starting_state);
 			panel->tracked_once = true;
 		}
@@ -501,12 +501,12 @@ namespace Editor
 	{
 		auto& ed_context = *GetContext();
 
-		if(!(action & EntityPanelTA_Duplicate || action & EntityPanelTA_Delete))
+		if (!(action & EntityPanelTA_Duplicate || action & EntityPanelTA_Delete))
 			deactivate_editor_modes();
 
 		panel->entity->Update();
 		auto update_cells = world->UpdateEntityWorldCells(panel->entity);
-		if(update_cells.status != CellUpdate_OK)
+		if (update_cells.status != CellUpdate_OK)
 			Rvn::rm_buffer->Add(update_cells.message, 3500);
 
 		world->UpdateCellsInUseList();

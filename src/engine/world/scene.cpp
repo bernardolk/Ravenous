@@ -4,24 +4,24 @@
 
 bool Scene::SearchName(std::string name)
 {
-	for(int i = 0; i < entities.size(); i++)
-		if(entities[i]->name == name)
+	for (int i = 0; i < entities.size(); i++)
+		if (entities[i]->name == name)
 			return true;
 	return false;
 }
 
 int Scene::EntityIndex(Entity* entity)
 {
-	for(int i = 0; i < entities.size(); i++)
-		if(entities[i]->name == entity->name)
+	for (int i = 0; i < entities.size(); i++)
+		if (entities[i]->name == entity->name)
 			return i;
 	return -1;
 }
 
 Entity* Scene::FindEntity(std::string name)
 {
-	for(int i = 0; i < entities.size(); i++)
-		if(entities[i]->name == name)
+	for (int i = 0; i < entities.size(); i++)
+		if (entities[i]->name == name)
 			return entities[i];
 	return nullptr;
 }

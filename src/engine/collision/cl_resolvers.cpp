@@ -43,7 +43,7 @@ ClVtraceResult CL_DoStepoverVtrace(Player* player, World* world)
 	auto downward_ray = Ray{ray_origin, -UnitY};
 	RaycastTest raytest = world->Raycast(downward_ray, RayCast_TestOnlyFromOutsideIn, player->entity_ptr);
 
-	if(!raytest.hit)
+	if (!raytest.hit)
 		return ClVtraceResult{false};
 
 	// auto angle = dot(get_triangle_normal(raytest.t), UNIT_Y);
@@ -57,7 +57,7 @@ ClVtraceResult CL_DoStepoverVtrace(Player* player, World* world)
 	ImDraw::AddLine(IMHASH, hitpoint, ray_origin, 1.0, true, COLOR_GREEN_1);
 	ImDraw::AddPoint(IMHASH, hitpoint, 1.0, true, COLOR_GREEN_3);
 
-	if(abs(player->entity_ptr->position.y - hitpoint.y) <= PlayerStepoverLimit)
+	if (abs(player->entity_ptr->position.y - hitpoint.y) <= PlayerStepoverLimit)
 		return ClVtraceResult{true, player->GetLastTerrainContactPoint().y - hitpoint.y, raytest.entity};
 
 	return ClVtraceResult{false};
@@ -81,7 +81,7 @@ bool GP_SimulatePlayerCollisionInFallingTrajectory(Player* player, vec2 xz_veloc
 	ImDraw::AddPoint(IMHASH, player->entity_ptr->position, 2.0, false, COLOR_GREEN_1, 1);
 
 	int iteration = 0;
-	while(true)
+	while (true)
 	{
 		vel += d_frame * player->gravity;
 		player->entity_ptr->position += vel * d_frame;
@@ -90,11 +90,11 @@ bool GP_SimulatePlayerCollisionInFallingTrajectory(Player* player, vec2 xz_veloc
 		player->entity_ptr->Update();
 
 		bool collided = CL_RunTestsForFallSimulation(player);
-		if(!collided)
+		if (!collided)
 			break;
 
 		iteration++;
-		if(iteration == max_iterations)
+		if (iteration == max_iterations)
 		{
 			// if entered here, then we couldn't unstuck the player in max_iterations * d_frame seconds of falling towards
 			// player movement direction, so he can't fall there
@@ -116,13 +116,13 @@ void CL_WallSlidePlayer(Player* player, vec3 wall_normal)
 {
 	// changes player velocity to be facing a wall parallel and dampens his speed
 	auto& pv = player->entity_ptr->velocity;
-	if(pv.x == 0 && pv.z == 0)
+	if (pv.x == 0 && pv.z == 0)
 		return;
 
 	// @todo - this is not good, need to figure out a better solution for
 	//       speed when hitting walls
 	float wall_slide_speed_limit = 1;
-	if(player->speed > wall_slide_speed_limit)
+	if (player->speed > wall_slide_speed_limit)
 		player->speed = wall_slide_speed_limit;
 
 	auto up_vec = vec3(0, 1, 0);
@@ -149,7 +149,7 @@ bool CL_RunTestsForFallSimulation(Player* player)
 		Entity* & entity = buffer->entity;
 
 		// TODO: this is bad, shouldn't need to compare strings and skip player
-		if(entity->name == "Player")
+		if (entity->name == "Player")
 		{
 			buffer++;
 			continue;
@@ -158,7 +158,7 @@ bool CL_RunTestsForFallSimulation(Player* player)
 		// TODO: here should test for bounding box collision (or any geometric first pass test) FIRST, then do the call below
 		auto result = CL_TestPlayerVsEntity(entity, player);
 
-		if(result.collision)
+		if (result.collision)
 		{
 			return true;
 		}

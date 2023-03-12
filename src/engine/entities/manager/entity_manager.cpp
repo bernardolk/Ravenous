@@ -33,28 +33,28 @@ auto EntityManager::FindEntityAssetsInCatalogue(const std::string& mesh, const s
 		Shader* shader{};
 	} attrs;
 
-	if(!mesh.empty())
+	if (!mesh.empty())
 	{
 		const auto find_mesh = GeometryCatalogue.find(mesh);
-		if(find_mesh != GeometryCatalogue.end())
+		if (find_mesh != GeometryCatalogue.end())
 			attrs.mesh = find_mesh->second;
 		else
 			attrs.mesh = load_wavefront_obj_as_mesh(Paths::Models, mesh);
 	}
 
-	if(!collision_mesh.empty())
+	if (!collision_mesh.empty())
 	{
 		const auto find_c_mesh = CollisionGeometryCatalogue.find(collision_mesh);
-		if(find_c_mesh != CollisionGeometryCatalogue.end())
+		if (find_c_mesh != CollisionGeometryCatalogue.end())
 			attrs.collision_mesh = find_c_mesh->second;
 		else
 			attrs.collision_mesh = load_wavefront_obj_as_collision_mesh(Paths::Models, collision_mesh);
 	}
 
-	if(!shader.empty())
+	if (!shader.empty())
 	{
 		const auto _shader = ShaderCatalogue.find(shader);
-		if(_shader == ShaderCatalogue.end())
+		if (_shader == ShaderCatalogue.end())
 		{
 			std::cout << "FATAL: shader'" << shader << "' not found in shader catalogue.\n";
 			assert(false);
@@ -62,12 +62,12 @@ auto EntityManager::FindEntityAssetsInCatalogue(const std::string& mesh, const s
 		attrs.shader = _shader->second;
 	}
 
-	if(!texture.empty())
+	if (!texture.empty())
 	{
 		// diffuse texture
 		{
 			const auto _texture = TextureCatalogue.find(texture);
-			if(_texture == TextureCatalogue.end())
+			if (_texture == TextureCatalogue.end())
 			{
 				std::cout << "FATAL: texture'" << texture << "' not found in texture catalogue.\n";
 				assert(false);
@@ -79,7 +79,7 @@ auto EntityManager::FindEntityAssetsInCatalogue(const std::string& mesh, const s
 		// normal texture
 		{
 			const auto _texture = TextureCatalogue.find(texture + "_normal");
-			if(_texture != TextureCatalogue.end())
+			if (_texture != TextureCatalogue.end())
 			{
 				attrs.textures[1] = _texture->second;
 				attrs.textures_found++;
@@ -202,19 +202,19 @@ Entity* EntityManager::CopyEntity(Entity* entity)
 	new_entity->collider = *new_entity->collision_mesh;
 	// tries new name with copy
 	std::string new_name = new_entity->name;
-	if(new_name != "NONAME")
+	if (new_name != "NONAME")
 	{
 		auto* GSI = GlobalSceneInfo::Get();
 
 		new_name = new_name + " copy";
 		// if exists already, keep increasing the number inside parenthesis
-		if(GSI->active_scene->SearchName(new_name))
+		if (GSI->active_scene->SearchName(new_name))
 		{
 			unsigned int n_count = 1;
 			do
 			{
 				new_name = new_name + "(" + std::to_string(n_count++) + ")";
-			} while(GSI->active_scene->SearchName(new_name));
+			} while (GSI->active_scene->SearchName(new_name));
 		}
 	}
 	new_entity->name = new_name;
@@ -226,7 +226,7 @@ void EntityManager::SetType(Entity* entity, const EntityType type)
 {
 	UnsetAllTypeRelatedConfigurations(entity);
 
-	switch(type)
+	switch (type)
 	{
 		// CHECKPOINT
 		case EntityType_Checkpoint:
@@ -289,21 +289,21 @@ void EntityManager::MarkForDeletion(Entity* entity)
 	For(entity_registry->size())
 	{
 		auto item = (*entity_registry)[i];
-		if(item->id == entity->id) //@todo: maybe we could check here by ptr address directly
+		if (item->id == entity->id) //@todo: maybe we could check here by ptr address directly
 		{
 			index = i;
 			break;
 		}
 	}
-	if(index > -1)
+	if (index > -1)
 		(*entity_registry).erase((*entity_registry).begin() + index);
 
 	// remove from world cells
-	for(int i = 0; i < entity->world_cells_count; i++)
+	for (int i = 0; i < entity->world_cells_count; i++)
 		entity->world_cells[i]->Remove(entity);
 
 	// remove from checkpoint registry if checkpoint
-	if(entity->type == EntityType_Checkpoint)
+	if (entity->type == EntityType_Checkpoint)
 	{
 		auto& vec = *(checkpoints_registry);
 		std::erase(vec, entity);
@@ -316,7 +316,7 @@ void EntityManager::MarkForDeletion(Entity* entity)
 void EntityManager::SafeDeleteMarkedEntities()
 {
 	// WARNING: ONLY EXECUTE AT THE END OF THE FRAME
-	while(deletion_stack.size() > 0)
+	while (deletion_stack.size() > 0)
 	{
 		auto entity = deletion_stack[0];
 		pool.FreeSlot(entity);
@@ -338,13 +338,13 @@ void EntityManager::RemoveFromCheckpointRegistry(Entity* entity) const
 	For(checkpoints_registry->size())
 	{
 		auto it = (*checkpoints_registry)[i];
-		if(it == entity)
+		if (it == entity)
 		{
 			index = i;
 			break;
 		}
 	}
-	if(index > -1)
+	if (index > -1)
 		checkpoints_registry->erase(checkpoints_registry->begin() + index);
 }
 
@@ -355,14 +355,14 @@ void EntityManager::RemoveInteractivity(Entity* entity)
 	For(interactables_registry->size())
 	{
 		auto it = (*interactables_registry)[i];
-		if(it == entity)
+		if (it == entity)
 		{
 			index = i;
 			break;
 		}
 	}
 
-	if(index > -1)
+	if (index > -1)
 		interactables_registry->erase(interactables_registry->begin() + index);
 
 	entity->trigger = nullptr;
@@ -372,7 +372,7 @@ void EntityManager::RemoveInteractivity(Entity* entity)
 void EntityManager::MakeInteractable(Entity* entity)
 {
 	auto find = GeometryCatalogue.find("trigger");
-	if(find == GeometryCatalogue.end())
+	if (find == GeometryCatalogue.end())
 		Quit_fatal("Couldn't find 'trigger' mesh for creating Trigger type entity.")
 
 	entity->trigger = find->second;

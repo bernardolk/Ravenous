@@ -58,11 +58,11 @@ struct BoundingBox
 	bool Test(BoundingBox other)
 	{
 		// Exit with no intersection if separated along an axis
-		if(this->maxx < other.minx || this->minx > other.maxx)
+		if (this->maxx < other.minx || this->minx > other.maxx)
 			return false;
-		if(this->maxy < other.miny || this->miny > other.maxy)
+		if (this->maxy < other.miny || this->miny > other.maxy)
 			return false;
-		if(this->maxz < other.minz || this->minz > other.maxz)
+		if (this->maxz < other.minz || this->minz > other.maxz)
 			return false;
 		// Overlapping on all axes means AABBs are intersecting
 		return true;

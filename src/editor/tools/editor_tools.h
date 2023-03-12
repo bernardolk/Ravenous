@@ -116,4 +116,3 @@ namespace Editor
 	// void check_for_asset_changes();
 	void render_aabb_boundaries(Entity* entity);
 }
-

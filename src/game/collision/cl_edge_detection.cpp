@@ -24,12 +24,12 @@ Ledge CL_PerformLedgeDetection(Player* player, World* world)
 	ledge.detection_direction = first_ray.direction;
 
 	auto front_test = world->LinearRaycastArray(first_ray, _front_ray_qty, _front_ray_spacing);
-	if(front_test.hit)
+	if (front_test.hit)
 	{
 		vec3 frontal_hitpoint = CL_GetPointFromDetection(front_test.ray, front_test);
 		vec3 front_face_n = front_test.t.GetNormal();
 
-		if(dot(UnitY, front_face_n) > 0.0001f)
+		if (dot(UnitY, front_face_n) > 0.0001f)
 			return ledge;
 
 		constexpr float _top_ray_height = 2.0f;
@@ -37,12 +37,12 @@ Ledge CL_PerformLedgeDetection(Player* player, World* world)
 
 		auto top_test = world->Raycast(top_ray, RayCast_TestOnlyFromOutsideIn, player->entity_ptr, _top_ray_height);
 
-		if(top_test.hit)
+		if (top_test.hit)
 		{
 			vec3 top_hitpoint = CL_GetPointFromDetection(top_test.ray, top_test);
 			ledge.surface_point = top_hitpoint;
 
-			if(top_test.distance <= player->height || top_hitpoint.y - frontal_hitpoint.y > _front_ray_spacing)
+			if (top_test.distance <= player->height || top_hitpoint.y - frontal_hitpoint.y > _front_ray_spacing)
 				return ledge;
 
 			ImDraw::AddLine(IMHASH, top_ray.origin, frontal_hitpoint, 1.2f, false, COLOR_PURPLE_1);
@@ -57,7 +57,7 @@ Ledge CL_PerformLedgeDetection(Player* player, World* world)
 			vec3 front_face_center = front_test.t.GetBarycenter();
 			ImDraw::AddLine(IMHASH, front_face_center, front_face_center + 1.f * front_face_n, 2.0, false, COLOR_BLUE_1);
 
-			if(abs(dot(edge1, front_face_n)) < 0.0001f)
+			if (abs(dot(edge1, front_face_n)) < 0.0001f)
 			{
 				ImDraw::AddLine(IMHASH, top_test.t.a, top_test.t.a + edge1, 2.0, true, COLOR_YELLOW_1);
 				ImDraw::AddPoint(IMHASH, top_test.t.a, 2.0, false, COLOR_YELLOW_1);
@@ -69,7 +69,7 @@ Ledge CL_PerformLedgeDetection(Player* player, World* world)
 				ledge.empty = false;
 				return ledge;
 			}
-			if(abs(dot(edge2, front_face_n)) < 0.0001f)
+			if (abs(dot(edge2, front_face_n)) < 0.0001f)
 			{
 				ImDraw::AddLine(IMHASH, top_test.t.b, top_test.t.b + edge2, 2.0, true, COLOR_YELLOW_1);
 				ImDraw::AddPoint(IMHASH, top_test.t.b, 2.0, false, COLOR_YELLOW_1);
@@ -81,7 +81,7 @@ Ledge CL_PerformLedgeDetection(Player* player, World* world)
 				ledge.empty = false;
 				return ledge;
 			}
-			if(abs(dot(edge3, front_face_n)) < 0.0001f)
+			if (abs(dot(edge3, front_face_n)) < 0.0001f)
 			{
 				ImDraw::AddLine(IMHASH, top_test.t.c, top_test.t.c + edge3, 2.0, true, COLOR_YELLOW_1);
 				ImDraw::AddPoint(IMHASH, top_test.t.c, 2.0, false, COLOR_YELLOW_1);

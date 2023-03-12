@@ -17,7 +17,7 @@ void Entity::Update()
 	this->UpdateCollider();
 	this->UpdateBoundingBox();
 
-	if(this->IsInteractable())
+	if (this->IsInteractable())
 		this->UpdateTrigger();
 }
 
@@ -28,7 +28,7 @@ void Entity::UpdateCollider()
 	// this->collider.vertices.clear();
 
 	// multiplies model matrix to collision mesh
-	for(int i = 0; i < this->collision_mesh->vertices.size(); i++)
+	for (int i = 0; i < this->collision_mesh->vertices.size(); i++)
 		this->collider.vertices[i] = vec3(this->mat_model * vec4(this->collision_mesh->vertices[i], 1.0));
 }
 
@@ -67,7 +67,7 @@ void Entity::RotateY(float angle)
 {
 	this->rotation.y += angle;
 	this->rotation.y = static_cast<int>(this->rotation.y) % 360;
-	if(this->rotation.y < 0)
+	if (this->rotation.y < 0)
 		this->rotation.y = 360 + this->rotation.y;
 }
 
@@ -85,9 +85,9 @@ CollisionMesh Entity::GetTriggerCollider()
 	CollisionMesh trigger_collider;
 
 	// multiplies model matrix to collision mesh
-	for(int i = 0; i < this->trigger->vertices.size(); i++)
+	for (int i = 0; i < this->trigger->vertices.size(); i++)
 		trigger_collider.vertices.push_back(vec3(vec4(this->trigger->vertices[i].position, 1) * this->trigger_mat_model));
-	for(int i = 0; i < this->trigger->indices.size(); i++)
+	for (int i = 0; i < this->trigger->indices.size(); i++)
 		trigger_collider.indices.push_back(this->trigger->indices[i]);
 
 
@@ -107,7 +107,7 @@ bool Entity::IsInteractable()
 void TimerTriggerData::AddMarking(Entity* entity, u32 time_checkpoint)
 {
 	For(size)
-		if(markings[i] == nullptr)
+		if (markings[i] == nullptr)
 		{
 			markings[i] = entity;
 			time_checkpoints[i] = time_checkpoint;
@@ -136,6 +136,3 @@ void Entity::MakeVisible()
 {
 	flags &= ~EntityFlags_InvisibleEntity;
 }
-
-
-

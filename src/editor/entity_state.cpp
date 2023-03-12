@@ -14,7 +14,7 @@ EntityState get_entity_state(Entity* entity)
 
 void apply_state(EntityState state)
 {
-	if(state.entity == nullptr)
+	if (state.entity == nullptr)
 		return;
 
 	state.entity->position = state.position;

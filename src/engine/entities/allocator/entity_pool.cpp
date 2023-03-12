@@ -6,7 +6,7 @@ void EntityPool::Init()
 {
 	// allocate pool memory
 	pool = static_cast<Entity*>(malloc(size * sizeof(Entity)));
-	if(pool == nullptr)
+	if (pool == nullptr)
 	{
 		std::cout << "FATAL: failed to allocate memory for EntityPool.\n";
 		assert(false);
@@ -26,7 +26,7 @@ void EntityPool::Init()
 {
 	For(size)
 	{
-		if(pool[i].flags & EntityFlags_EmptyEntity)
+		if (pool[i].flags & EntityFlags_EmptyEntity)
 		{
 			pool[i].flags &= ~(EntityFlags_EmptyEntity);
 			return &pool[i];
@@ -44,7 +44,7 @@ void EntityPool::FreeSlot(const Entity* entity) const
 	Entity* cursor = pool;
 	For(size)
 	{
-		if(cursor->id == entity->id)
+		if (cursor->id == entity->id)
 		{
 			*cursor = Entity();
 			cursor->flags |= EntityFlags_EmptyEntity;

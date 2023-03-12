@@ -9,7 +9,7 @@ namespace Editor
 {
 	void StartDearImguiFrame();
 	void EndDearImguiFrame();
-	
+
 	const static std::string EDITOR_ASSETS = Paths::Project + "/assets/editor/";
 
 	constexpr static float TRIAXIS_SCREENPOS_X = -1.80f;

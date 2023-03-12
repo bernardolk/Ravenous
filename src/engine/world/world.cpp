@@ -30,7 +30,7 @@ void WorldCell::Init(int ii, int ji, int ki)
 	this->j = ji;
 	this->k = ki;
 	this->ijk = vec3{ii, ji, ki};
-	
+
 	// set physical world coordinates to bounding box
 	const vec3 origin = GetWorldCoordinatesFromWorldCellCoordinates(ii, ji, ki);
 	this->bounding_box.minx = origin.x;
@@ -41,15 +41,15 @@ void WorldCell::Init(int ii, int ji, int ki)
 	this->bounding_box.maxz = origin.z + WCellLenMeters;
 
 	// initialize entities list
-	for(int i = 0; i < WorldCellCapacity; i++)
+	for (int i = 0; i < WorldCellCapacity; i++)
 		this->entities[i] = nullptr;
 }
 
 
 void WorldCell::Remove(Entity* entity)
 {
-	for(int i = 0; i < WorldCellCapacity; i++)
-		if(this->entities[i] == entity)
+	for (int i = 0; i < WorldCellCapacity; i++)
+		if (this->entities[i] == entity)
 		{
 			this->entities[i] = nullptr;
 			this->Defrag();
@@ -60,14 +60,14 @@ void WorldCell::Remove(Entity* entity)
 
 CellUpdate WorldCell::Add(Entity* entity)
 {
-	if(count == WorldCellCapacity)
+	if (count == WorldCellCapacity)
 	{
 		const auto message = "World cell '" + this->CoordsStr() + "' is full.";
 		return CellUpdate{CellUpdate_CELL_FULL, message};
 	}
 
-	for(int i = 0; i < WorldCellCapacity; i++)
-		if(this->entities[i] == nullptr)
+	for (int i = 0; i < WorldCellCapacity; i++)
+		if (this->entities[i] == nullptr)
 		{
 			this->entities[i] = entity;
 			this->count++;
@@ -81,24 +81,24 @@ CellUpdate WorldCell::Add(Entity* entity)
 //@TODO: Refactor this whole thing to use mempool
 void WorldCell::Defrag()
 {
-	if(this->count == 0)
+	if (this->count == 0)
 		return;
 
 	// initialize holes array
 	unsigned int hole_count = 0;
 	int holes[WorldCellCapacity];
-	for(int i = 0; i < WorldCellCapacity; i++)
+	for (int i = 0; i < WorldCellCapacity; i++)
 		holes[i] = -1;
 
 	// find holes and store in array
 	// also count how many items there are
 	int new_count = 0;
-	for(int i = 0; i < this->count; i++)
+	for (int i = 0; i < this->count; i++)
 	{
 		// we dont want to count the last empty spot as a hole
-		if(this->entities[i] == nullptr)
+		if (this->entities[i] == nullptr)
 		{
-			if(i + 1 != this->count)
+			if (i + 1 != this->count)
 				holes[hole_count++] = i;
 		}
 		else
@@ -109,14 +109,14 @@ void WorldCell::Defrag()
 	// holes as it finds candidates to swap      
 	int idx = this->count - 1;
 	int hole_idx = 0;
-	while(true)
+	while (true)
 	{
 		int hole = holes[hole_idx];
-		if(hole == -1 || idx == 0)
+		if (hole == -1 || idx == 0)
 			break;
 
 		auto item = this->entities[idx];
-		if(item != nullptr)
+		if (item != nullptr)
 		{
 			this->entities[hole] = item;
 			this->entities[idx] = nullptr;
@@ -165,9 +165,9 @@ World::World()
 
 void World::Init()
 {
-	for(int i = 0; i < WCellsNumX; i++)
-		for(int j = 0; j < WCellsNumY; j++)
-			for(int k = 0; k < WCellsNumZ; k++)
+	for (int i = 0; i < WCellsNumX; i++)
+		for (int j = 0; j < WCellsNumY; j++)
+			for (int k = 0; k < WCellsNumZ; k++)
 				this->cells[i][j][k].Init(i, j, k);
 }
 
@@ -175,12 +175,12 @@ void World::Init()
 void World::UpdateCellsInUseList()
 {
 	this->cells_in_use_count = 0;
-	for(int i = 0; i < WCellsNumX; i++)
-		for(int j = 0; j < WCellsNumY; j++)
-			for(int k = 0; k < WCellsNumZ; k++)
+	for (int i = 0; i < WCellsNumX; i++)
+		for (int j = 0; j < WCellsNumY; j++)
+			for (int k = 0; k < WCellsNumZ; k++)
 			{
 				const auto cell = &this->cells[i][j][k];
-				if(cell->count != 0)
+				if (cell->count != 0)
 					cells_in_use[this->cells_in_use_count++] = cell;
 			}
 }
@@ -196,7 +196,7 @@ CellUpdate World::UpdateEntityWorldCells(Entity* entity)
 	auto [i1, j1, k1] = WorldCoordsToCells(bb_max);
 
 	// Out of bounds catch
-	if(i0 == -1 || i1 == -1)
+	if (i0 == -1 || i1 == -1)
 	{
 		message = "Entity '" + entity->name + "' is located out of current world bounds.";
 		return CellUpdate{CellUpdate_OUT_OF_BOUNDS, message};
@@ -211,13 +211,13 @@ CellUpdate World::UpdateEntityWorldCells(Entity* entity)
 
 
 	bool b_changed_wc =
-		entity->world_cells_count == 0 ||
-		entity->world_cells[0]->i != i0 ||
-		entity->world_cells[0]->j != j0 ||
-		entity->world_cells[0]->k != k0 ||
-		entity->world_cells[entity->world_cells_count - 1]->i != i1 ||
-		entity->world_cells[entity->world_cells_count - 1]->j != j1 ||
-		entity->world_cells[entity->world_cells_count - 1]->k != k1;
+	entity->world_cells_count == 0 ||
+	entity->world_cells[0]->i != i0 ||
+	entity->world_cells[0]->j != j0 ||
+	entity->world_cells[0]->k != k0 ||
+	entity->world_cells[entity->world_cells_count - 1]->i != i1 ||
+	entity->world_cells[entity->world_cells_count - 1]->j != j1 ||
+	entity->world_cells[entity->world_cells_count - 1]->k != k1;
 
 	if (!b_changed_wc)
 	{
@@ -252,7 +252,7 @@ CellUpdate World::UpdateEntityWorldCells(Entity* entity)
 			{
 				auto* cell = &this->cells[i][j][k];
 				auto cell_update = cell->Add(entity);
-				if(cell_update.status != CellUpdate_OK)
+				if (cell_update.status != CellUpdate_OK)
 				{
 					// TODO: not sure returning in the middle of this process is cool...
 					return cell_update;
@@ -261,7 +261,7 @@ CellUpdate World::UpdateEntityWorldCells(Entity* entity)
 			}
 		}
 	}
-	
+
 	return CellUpdate{CellUpdate_OK, "", true};
 }
 
@@ -273,15 +273,15 @@ RaycastTest World::Raycast(const Ray ray, const RayCastType test_type, const Ent
 	float min_distance = MaxFloat;
 	RaycastTest closest_hit{false, -1};
 
-	for(const auto entity : this->entities)
+	for (const auto entity : this->entities)
 	{
-		if(test_type == RayCast_TestOnlyVisibleEntities && entity->flags & EntityFlags_InvisibleEntity)
+		if (test_type == RayCast_TestOnlyVisibleEntities && entity->flags & EntityFlags_InvisibleEntity)
 			continue;
-		if(skip != nullptr && entity->id == skip->id)
+		if (skip != nullptr && entity->id == skip->id)
 			continue;
-		
+
 		const auto test = CL_TestAgainstRay(ray, entity, test_type, max_distance);
-		if(test.hit && test.distance < min_distance && test.distance < max_distance)
+		if (test.hit && test.distance < min_distance && test.distance < max_distance)
 		{
 			closest_hit = test;
 			closest_hit.entity = entity;
@@ -314,9 +314,9 @@ RaycastTest World::LinearRaycastArray(const Ray first_ray, int qty, float spacin
 	ForLess(qty)
 	{
 		auto test = this->Raycast(ray, RayCast_TestOnlyFromOutsideIn, player->entity_ptr, player->grab_reach);
-		if(test.hit)
+		if (test.hit)
 		{
-			if(test.distance < shortest_z || (AreEqualFloats(test.distance, shortest_z) && highest_y < ray.origin.y))
+			if (test.distance < shortest_z || (AreEqualFloats(test.distance, shortest_z) && highest_y < ray.origin.y))
 			{
 				highest_y = ray.origin.y;
 				shortest_z = test.distance;
@@ -329,7 +329,7 @@ RaycastTest World::LinearRaycastArray(const Ray first_ray, int qty, float spacin
 		ray = Ray{ray.origin + UnitY * spacing, ray.direction};
 	}
 
-	if(best_hit_results.hit)
+	if (best_hit_results.hit)
 	{
 		vec3 hitpoint = CL_GetPointFromDetection(best_hit_results.ray, best_hit_results);
 		ImDraw::AddPoint(IMHASH, hitpoint, 2.0, true, COLOR_RED_1);
@@ -346,7 +346,7 @@ RaycastTest World::RaycastLights(const Ray ray) const
 	const auto aabb_mesh = GeometryCatalogue.find("aabb")->second;
 
 	int point_c = 0;
-	for(auto& light : this->point_lights)
+	for (auto& light : this->point_lights)
 	{
 		// subtract lightbulb model size from position
 		auto position = light->position - vec3{0.1575, 0, 0.1575};
@@ -354,7 +354,7 @@ RaycastTest World::RaycastLights(const Ray ray) const
 		aabb_model = scale(aabb_model, vec3{0.3f, 0.6f, 0.3f});
 
 		auto test = CL_TestAgainstRay(ray, aabb_mesh, aabb_model, RayCast_TestBothSidesOfTriangle);
-		if(test.hit && test.distance < min_distance)
+		if (test.hit && test.distance < min_distance)
 		{
 			closest_hit = {true, test.distance, nullptr, point_c, "point"};
 			min_distance = test.distance;
@@ -363,7 +363,7 @@ RaycastTest World::RaycastLights(const Ray ray) const
 	}
 
 	int spot_c = 0;
-	for(auto& light : this->spot_lights)
+	for (auto& light : this->spot_lights)
 	{
 		// subtract lightbulb model size from position
 		auto position = light->position - vec3{0.1575, 0, 0.1575};
@@ -371,7 +371,7 @@ RaycastTest World::RaycastLights(const Ray ray) const
 		aabb_model = scale(aabb_model, vec3{0.3f, 0.6f, 0.3f});
 
 		const auto test = CL_TestAgainstRay(ray, aabb_mesh, aabb_model, RayCast_TestBothSidesOfTriangle);
-		if(test.hit && test.distance < min_distance)
+		if (test.hit && test.distance < min_distance)
 		{
 			closest_hit = {
 			.hit = true, .distance = test.distance, .entity = nullptr, .obj_hit_index = spot_c, .obj_hit_type = "spot"
@@ -393,35 +393,35 @@ void World::Clear(const EntityManager* manager)
 	*/
 
 	// drops all entities
-	for(const auto& entity : this->entities)
+	for (const auto& entity : this->entities)
 		manager->pool.FreeSlot(entity);
 
 	this->entities.clear();
 
 	// drops all lights
-	for(const auto& light : this->point_lights)
+	for (const auto& light : this->point_lights)
 		delete light;
 
 	this->point_lights.clear();
 
-	for(const auto& light : this->spot_lights)
+	for (const auto& light : this->spot_lights)
 		delete light;
 
 	this->spot_lights.clear();
 
-	for(const auto& light : this->directional_lights)
+	for (const auto& light : this->directional_lights)
 		delete light;
 
 	this->directional_lights.clear();
 
 	// drops all interactable entities
-	for(const auto& interactable : this->interactables)
+	for (const auto& interactable : this->interactables)
 		delete interactable;
 
 	this->interactables.clear();
 
 	// drops all checkpoint entities
-	for(const auto& checkpoint : this->checkpoints)
+	for (const auto& checkpoint : this->checkpoints)
 		delete checkpoint;
 
 	this->checkpoints.clear();
@@ -429,7 +429,7 @@ void World::Clear(const EntityManager* manager)
 
 void World::UpdateEntities()
 {
-	for(const auto& entity : this->entities)
+	for (const auto& entity : this->entities)
 	{
 		entity->Update();
 		UpdateEntityWorldCells(entity);

@@ -79,15 +79,15 @@ void render_text(std::string font, float x, float y, vec3 color, float scale, bo
 	// Try finding font in catalogue, if doesn't find, tries loading it
 	gl_charmap charmap;
 	auto font_query = Font_Catalogue.find(font);
-	if(font_query == Font_Catalogue.end())
+	if (font_query == Font_Catalogue.end())
 	{
 		// search for font size in font name (e.g. Consola12) and loads it
 		int ind = 0;
-		while(true)
+		while (true)
 		{
-			if(!isalpha(font[ind]))
+			if (!isalpha(font[ind]))
 				break;
-			if(ind + 1 == font.size())
+			if (ind + 1 == font.size())
 			{
 				std::cout << "Font '" << font << "' could not be loaded because no size was "
 				<< "appended to its name in render_text function call.";
@@ -109,11 +109,11 @@ void render_text(std::string font, float x, float y, vec3 color, float scale, bo
 	}
 
 	//@todo add enum to CENTER, LEFT ALIGN (default, no extra work) and RIGHT ALIGN
-	if(center)
+	if (center)
 	{
 		std::string::iterator it;
 		float x_sum = 0;
-		for(it = text.begin(); it != text.end(); ++it)
+		for (it = text.begin(); it != text.end(); ++it)
 		{
 			auto ch = charmap[*it];
 			x_sum += ch.bearing.x * scale + ch.size.x * scale;
@@ -124,7 +124,7 @@ void render_text(std::string font, float x, float y, vec3 color, float scale, bo
 
 	glDepthFunc(GL_ALWAYS);
 	std::string::iterator c;
-	for(c = text.begin(); c != text.end(); ++c)
+	for (c = text.begin(); c != text.end(); ++c)
 	{
 		Character ch = charmap[*c];
 
@@ -158,22 +158,22 @@ gl_charmap load_text_textures(std::string font, int size)
 {
 	// Load font
 	FT_Library ft;
-	if(FT_Init_FreeType(&ft))
+	if (FT_Init_FreeType(&ft))
 		Quit_fatal("Freetype: Could not init FreeType Library");
 
 	FT_Face face;
 	std::string filepath = Paths::Fonts + font;
-	if(FT_New_Face(ft, filepath.c_str(), 0, &face))
+	if (FT_New_Face(ft, filepath.c_str(), 0, &face))
 		log(LOG_ERROR, "Freetype: Failed to load font");
 
 	FT_Set_Pixel_Sizes(face, 0, size);
 
 	gl_charmap font_charmap;
 	//we will store all characters inside the Characters map
-	for(GLubyte c = 0; c < 128; c++)
+	for (GLubyte c = 0; c < 128; c++)
 	{
 		//Load character glyph
-		if(FT_Load_Char(face, c, FT_LOAD_RENDER))
+		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
 		{
 			log(LOG_ERROR, "Freetype: Failed to load Glyph");
 			continue;

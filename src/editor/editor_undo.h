@@ -10,6 +10,7 @@ namespace Editor
 		u8 size = 0;
 		constexpr static u8 capacity = 100;
 		int entity_ids[capacity];
+
 	public:
 		void Add(const Entity* entity);
 	};

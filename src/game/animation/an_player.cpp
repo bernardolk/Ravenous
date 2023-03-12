@@ -9,10 +9,10 @@
 
 const std::map<PlayerAnimationState, float> PlayerAnimationDurations =
 {
-	{PlayerAnimationState::Jumping, 400},
-	{PlayerAnimationState::Landing, 200},           
-	{PlayerAnimationState::LandingFall, 400},
-	{PlayerAnimationState::Vaulting, 0}
+{PlayerAnimationState::Jumping, 400},
+{PlayerAnimationState::Landing, 200},
+{PlayerAnimationState::LandingFall, 400},
+{PlayerAnimationState::Vaulting, 0}
 };
 
 void AN_AnimatePlayer(Player* player)
@@ -29,7 +29,7 @@ void AN_AnimatePlayer(Player* player)
 	auto* find_duration = Find(PlayerAnimationDurations, player->anim_state);
 	if (!find_duration)
 		return;
-	
+
 	float anim_duration = *find_duration;
 	if (anim_duration > 0 && player->anim_t >= anim_duration)
 	{
@@ -63,7 +63,7 @@ void AN_AnimatePlayer(Player* player)
 		{
 			interrupt = AN_PlayerVaulting(player);
 			{
-				if(interrupt)
+				if (interrupt)
 				{
 					GP_ChangePlayerState(player, PlayerState::Standing);
 				}
@@ -71,7 +71,8 @@ void AN_AnimatePlayer(Player* player)
 			}
 		}
 
-		default: break;
+		default:
+			break;
 	}
 
 	// stop animation if completed or interrupted
@@ -185,10 +186,10 @@ bool AN_PlayerVaulting(Player* player)
 	auto ds = vec3(v_xz * Rvn::frame.duration, v_y * Rvn::frame.duration, v_xz * Rvn::frame.duration);
 
 	// updates player position
-	for(int i = 0; i < 3; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		// I feel like the sign here is unnecessary if we have a anim_direction set
-		if(abs(dist[i]) >= ds[i] && sign(anim_trajectory[i]) == dist_sign[i])
+		if (abs(dist[i]) >= ds[i] && sign(anim_trajectory[i]) == dist_sign[i])
 			p_pos[i] += dist_sign[i] * ds[i];
 		else
 			p_pos[i] = player->anim_final_pos[i];
@@ -196,7 +197,7 @@ bool AN_PlayerVaulting(Player* player)
 
 
 	// camera direction animation
-	if(!player->anim_finished_turning)
+	if (!player->anim_finished_turning)
 	{
 		auto* player_camera = GlobalSceneInfo::GetGameCam();
 
@@ -210,7 +211,7 @@ bool AN_PlayerVaulting(Player* player)
 		float updated_sva = vector_angle_signed(nrmlz(to2d_xz(player_camera->front)), f_dir_xz);
 		float updated_angle = glm::degrees(updated_sva);
 		float updated_sign = sign(updated_angle);
-		if(updated_sign != orig_sign)
+		if (updated_sign != orig_sign)
 		{
 			ChangeCameraDirection(player_camera, -1.0 * updated_angle, 0.f);
 			player->anim_finished_turning = true;
@@ -228,7 +229,7 @@ bool AN_PlayerVaulting(Player* player)
 	RVN::print_dynamic("updated sign: " +  to_string(updated_sign), 0, vec3(0.8,0.0,0.1));
 	*/
 
-	if(is_equal(p_pos, player->anim_final_pos) && player->anim_finished_turning)
+	if (is_equal(p_pos, player->anim_final_pos) && player->anim_finished_turning)
 	{
 		return true;
 	}

@@ -9,7 +9,7 @@ struct Ray
 
 	vec3 GetInv()
 	{
-		if(!inv_set)
+		if (!inv_set)
 		{
 			inv = vec3(1.0 / direction.x, 1.0 / direction.y, 1.0 / direction.z);
 			inv_set = true;

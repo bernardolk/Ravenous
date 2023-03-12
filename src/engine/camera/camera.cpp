@@ -31,15 +31,15 @@ void UpdateEditorCamera(Camera* camera, float viewport_width, float viewport_hei
 		camera->near_plane, camera->far_plane
 	);
 
-	if(camera->type == THIRD_PERSON)
+	if (camera->type == THIRD_PERSON)
 	{
 		// camera->Position = player->entity_ptr->position;
 		camera->position = position;
 		camera->position.y += 1.75;
 
-		if(camera->orbital_angle > 360.0f)
+		if (camera->orbital_angle > 360.0f)
 			camera->orbital_angle -= 360.0;
-		if(camera->orbital_angle < -360.0f)
+		if (camera->orbital_angle < -360.0f)
 			camera->orbital_angle += 360.0;
 
 		float distance = 3;
@@ -58,15 +58,15 @@ void ChangeCameraDirection(Camera* camera, float yaw_offset, float pitch_offset)
 	yaw += yaw_offset;
 
 	// Unallows camera to perform a flip
-	if(pitch > 89.0f)
+	if (pitch > 89.0f)
 		pitch = 89.0f;
-	if(pitch < -89.0f)
+	if (pitch < -89.0f)
 		pitch = -89.0f;
 
 	// Make sure we don't overflow floats when camera is spinning indefinetely
-	if(yaw > 360.0f)
+	if (yaw > 360.0f)
 		yaw -= 360.0f;
-	if(yaw < -360.0f)
+	if (yaw < -360.0f)
 		yaw += 360.0f;
 
 	camera->front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
@@ -80,7 +80,7 @@ void CameraLookAt(Camera* camera, vec3 ref, bool is_position)
 {
 	// vec3 ref -> either a position or a direction vector (no need to be normalised)
 	vec3 look_vec = ref;
-	if(is_position)
+	if (is_position)
 		look_vec = ref - vec3(camera->position.x, camera->position.y, camera->position.z);
 	look_vec = normalize(look_vec);
 
@@ -97,12 +97,12 @@ void ComputeAnglesFromDirection(float& pitch, float& yaw, vec3 direction)
 {
 	pitch = glm::degrees(glm::asin(direction.y));
 	yaw = glm::degrees(atan2(direction.x, -1 * direction.z) - PI / 2);
-	if(pitch > 89.0f)
+	if (pitch > 89.0f)
 		pitch = 89.0f;
-	if(pitch < -89.0f)
+	if (pitch < -89.0f)
 		pitch = -89.0f;
-	if(yaw > 360.0f)
+	if (yaw > 360.0f)
 		yaw -= 360.0f;
-	if(yaw < -360.0f)
+	if (yaw < -360.0f)
 		yaw += 360.0f;
 }

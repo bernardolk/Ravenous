@@ -15,4 +15,3 @@ namespace Editor
 	struct CollisionLogPanelContext;
 	void render_collision_log_panel(CollisionLogPanelContext* panel);
 }
-

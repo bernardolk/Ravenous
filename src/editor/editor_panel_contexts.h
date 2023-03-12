@@ -66,18 +66,18 @@ namespace Editor
 
 		void EmptyRenameBuffer()
 		{
-			for(int i = 0; i < _rename_buff_size; i++)
+			for (int i = 0; i < _rename_buff_size; i++)
 				rename_buffer[i] = 0;
 		}
 
 		bool ValidateRenameBufferContents()
 		{
-			for(int i = 0; i < _rename_buff_size; i++)
+			for (int i = 0; i < _rename_buff_size; i++)
 			{
 				auto cursor = rename_buffer[i];
-				if(cursor == '\0')
+				if (cursor == '\0')
 					return true;
-				if(cursor == ' ' || cursor == 0)
+				if (cursor == ' ' || cursor == 0)
 					return false;
 			}
 

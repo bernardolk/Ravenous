@@ -14,7 +14,7 @@
 
 void IN_AssignKeysToActions()
 {
-	if(EngineState::IsInEditorMode())
+	if (EngineState::IsInEditorMode())
 	{
 		KEY_MOVE_UP = KEY_UP;
 		KEY_MOVE_DOWN = KEY_DOWN;
@@ -24,7 +24,7 @@ void IN_AssignKeysToActions()
 		KEY_WALK = KEY_X;
 		KEY_ACTION = KEY_J;
 	}
-	else if(EngineState::IsInGameMode())
+	else if (EngineState::IsInGameMode())
 	{
 		KEY_MOVE_UP = KEY_W;
 		KEY_MOVE_DOWN = KEY_S;
@@ -41,20 +41,20 @@ void IN_ProcessMoveKeys(InputFlags flags, vec3& v_dir)
 {
 	auto* player_camera = GlobalSceneInfo::GetGameCam();
 
-	if(Pressed(flags, KEY_MOVE_UP))
+	if (Pressed(flags, KEY_MOVE_UP))
 	{
 		v_dir += nrmlz(to_xz(player_camera->front));
 	}
-	if(Pressed(flags, KEY_MOVE_LEFT))
+	if (Pressed(flags, KEY_MOVE_LEFT))
 	{
 		vec3 onwards_vector = cross(player_camera->front, player_camera->up);
 		v_dir -= nrmlz(to_xz(onwards_vector));
 	}
-	if(Pressed(flags, KEY_MOVE_DOWN))
+	if (Pressed(flags, KEY_MOVE_DOWN))
 	{
 		v_dir -= nrmlz(to_xz(player_camera->front));
 	}
-	if(Pressed(flags, KEY_MOVE_RIGHT))
+	if (Pressed(flags, KEY_MOVE_RIGHT))
 	{
 		vec3 onwards_vector = cross(player_camera->front, player_camera->up);
 		v_dir += nrmlz(to_xz(onwards_vector));
@@ -78,7 +78,7 @@ void IN_HandleMovementInput(InputFlags flags, Player* & player, World* world)
 	v_dir = vec3(0);
 
 	// combines all key presses into one v direction
-	switch(player->player_state)
+	switch (player->player_state)
 	{
 
 		case PlayerState::Standing:
@@ -87,23 +87,23 @@ void IN_HandleMovementInput(InputFlags flags, Player* & player, World* world)
 			IN_ProcessMoveKeys(flags, v_dir);
 
 			// DASH
-			if(flags.key_press & KEY_DASH)
+			if (flags.key_press & KEY_DASH)
 				player->dashing = true;
 
 			// WALK
-			if(flags.key_press & KEY_WALK)
+			if (flags.key_press & KEY_WALK)
 				player->walking = true;
 
 			// JUMP
-			if(flags.key_press & KEY_SPACE)
+			if (flags.key_press & KEY_SPACE)
 				GP_ChangePlayerState(player, PlayerState::Jumping);
 
 			// VAULT
-			if(Pressed(flags, KEY_LEFT_SHIFT) && MOUSE_LB_CLICK & GlobalInputInfo::Get()->mouse_state)
+			if (Pressed(flags, KEY_LEFT_SHIFT) && MOUSE_LB_CLICK & GlobalInputInfo::Get()->mouse_state)
 				player->want_to_grab = true;
 
 			// INTERACT
-			if(PressedOnce(flags, KEY_ACTION))
+			if (PressedOnce(flags, KEY_ACTION))
 			{
 				GP_CheckTriggerInteraction(player, world);
 				player->dodge_btn = true;
@@ -115,10 +115,10 @@ void IN_HandleMovementInput(InputFlags flags, Player* & player, World* world)
 		case PlayerState::Jumping:
 		{
 			// MID-AIR CONTROL IF JUMPING UP
-			if(player->jumping_upwards)
+			if (player->jumping_upwards)
 				IN_ProcessMoveKeys(flags, v_dir);
 
-			if(Pressed(flags, KEY_DASH))
+			if (Pressed(flags, KEY_DASH))
 				player->action = true;
 
 			break;
@@ -126,7 +126,7 @@ void IN_HandleMovementInput(InputFlags flags, Player* & player, World* world)
 
 		case PlayerState::Falling:
 		{
-			if(Pressed(flags, KEY_DASH))
+			if (Pressed(flags, KEY_DASH))
 				player->action = true;
 
 			break;
@@ -136,31 +136,31 @@ void IN_HandleMovementInput(InputFlags flags, Player* & player, World* world)
 		{
 			player->v_dir = player->sliding_direction;
 
-			if(flags.key_press & KEY_MOVE_LEFT)
+			if (flags.key_press & KEY_MOVE_LEFT)
 			{
 				auto left_dir = cross(player->sliding_normal, player->sliding_direction);
 				player->v_dir += left_dir;
 				player->v_dir = normalize(player->v_dir);
 
 			}
-			if(flags.key_press & KEY_MOVE_RIGHT)
+			if (flags.key_press & KEY_MOVE_RIGHT)
 			{
 				auto right_dir = cross(player->sliding_direction, player->sliding_normal);
 				player->v_dir += right_dir;
 				player->v_dir = normalize(player->v_dir);
 			}
-			if(flags.key_press & KEY_SPACE)
+			if (flags.key_press & KEY_SPACE)
 				GP_ChangePlayerState(player, PlayerState::Jumping);
 
 			break;
 		}
 		case PlayerState::Grabbing:
 		{
-			if(Pressed(flags, KEY_DASH))
+			if (Pressed(flags, KEY_DASH))
 			{
 				player->action = true;
 
-				if(Pressed(flags, KEY_MOVE_UP))
+				if (Pressed(flags, KEY_MOVE_UP))
 					GP_ChangePlayerState(player, PlayerState::Vaulting);
 			}
 
@@ -168,6 +168,6 @@ void IN_HandleMovementInput(InputFlags flags, Player* & player, World* world)
 		}
 	}
 
-	if(!(v_dir.x == 0.f && v_dir.y == 0.f && v_dir.z == 0.f))
+	if (!(v_dir.x == 0.f && v_dir.y == 0.f && v_dir.z == 0.f))
 		v_dir = normalize(v_dir);
 }

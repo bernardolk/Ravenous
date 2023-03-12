@@ -19,13 +19,13 @@ void PlayerSerializer::parse_attribute(Parser& p)
 	p.ParseAllWhitespace();
 	p.ParseSymbol();
 
-	if(get_parsed<char>(p) != '=')
+	if (get_parsed<char>(p) != '=')
 	{
 		std::cout << "SYNTAX ERROR, MISSING '=' CHARACTER AT SCENE DESCRIPTION FILE ('" << p.filepath << "') LINE NUMBER " << p.line_count << "\n";
 		assert(false);
 	}
 
-	if(attribute == "player_position")
+	if (attribute == "player_position")
 	{
 		p.ParseVec3();
 		const auto position = get_parsed<glm::vec3>(p);
@@ -34,14 +34,14 @@ void PlayerSerializer::parse_attribute(Parser& p)
 		player->height_before_fall = position.y;
 	}
 
-	else if(attribute == "player_initial_velocity")
+	else if (attribute == "player_initial_velocity")
 	{
 		p.ParseVec3();
 		player->initial_velocity = get_parsed<glm::vec3>(p);
 		player->entity_ptr->velocity = player->initial_velocity;
 	}
 
-	else if(attribute == "player_state")
+	else if (attribute == "player_state")
 	{
 		p.ParseAllWhitespace();
 		p.ParseInt();
@@ -49,14 +49,14 @@ void PlayerSerializer::parse_attribute(Parser& p)
 		player->player_state = player->initial_player_state;
 	}
 
-	else if(attribute == "player_fall_speed")
+	else if (attribute == "player_fall_speed")
 	{
 		p.ParseAllWhitespace();
 		p.ParseFloat();
 		player->fall_speed = get_parsed<float>(p);
 	}
 
-	else if(attribute == "player_fall_acceleration")
+	else if (attribute == "player_fall_acceleration")
 	{
 		p.ParseAllWhitespace();
 		p.ParseFloat();
@@ -73,12 +73,12 @@ void PlayerSerializer::parse_orientation(Parser& p)
 	Player* player = world->player;
 
 	p.ParseToken();
-	if(get_parsed<std::string>(p) == "player_orientation")
+	if (get_parsed<std::string>(p) == "player_orientation")
 	{
 		p.ParseAllWhitespace();
 		p.ParseSymbol();
 
-		if(get_parsed<char>(p) != '=')
+		if (get_parsed<char>(p) != '=')
 		{
 			std::cout << "SYNTAX ERROR, MISSING '=' CHARACTER AT SCENE DESCRIPTION FILE ('" << p.filepath << "') LINE NUMBER " << p.line_count << "\n";
 			assert(false);
@@ -103,7 +103,7 @@ void PlayerSerializer::save(std::ofstream& writer)
 	<< player->initial_velocity.y << " "
 	<< player->initial_velocity.z << "\n";
 
-	if(player->player_state == PlayerState::Standing)
+	if (player->player_state == PlayerState::Standing)
 		writer << "@player_state = " << static_cast<int>(PlayerState::Standing) << "\n";
 	else
 		writer << "@player_state = " << static_cast<int>(player->initial_player_state) << "\n";

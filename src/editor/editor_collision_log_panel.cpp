@@ -33,7 +33,7 @@ namespace Editor
 		// When using ScrollX or ScrollY we need to specify a size for our table container!
 		// Otherwise by default the table will fit all available space, like a BeginChild() call.
 		auto outer_size = ImVec2(0.0f, table_height);
-		if(ImGui::BeginTable("table_scrolly", 4, flags, outer_size))
+		if (ImGui::BeginTable("table_scrolly", 4, flags, outer_size))
 		{
 			ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
 			ImGui::TableSetupColumn(".", ImGuiTableColumnFlags_None);
@@ -44,7 +44,7 @@ namespace Editor
 
 			ImGuiListClipper clipper;
 			clipper.Begin(table_items_to_show);
-			while(clipper.Step())
+			while (clipper.Step())
 			{
 				// for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
 				// {
@@ -75,7 +75,7 @@ namespace Editor
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(style.FramePadding.x, static_cast<float>((int)(style.FramePadding.y * 0.60f))));
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(style.ItemSpacing.x, static_cast<float>((int)(style.ItemSpacing.y * 0.60f))));
 	}
-	
+
 	void PopStyleCompact()
 	{
 		ImGui::PopStyleVar(2);

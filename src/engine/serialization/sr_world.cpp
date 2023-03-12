@@ -37,7 +37,7 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 		.texture = "pink",
 		.collision_mesh = "capsule",
 		.scale = vec3(1)
-	});
+		});
 
 	// creates deferred load buffer for associating entities after loading them all
 	auto entity_relations = DeferredEntityRelationBuffer();
@@ -48,16 +48,16 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 	// parses header
 	p.NextLine();
 	p.ParseToken();
-	if(!p.HasToken())
+	if (!p.HasToken())
 		Quit_fatal("Scene '" + filename + "' didn't start with NEXT_ENTITY_ID token.")
 
 	const auto next_entity_id_token = get_parsed<std::string>(p);
-	if(next_entity_id_token != "NEXT_ENTITY_ID")
+	if (next_entity_id_token != "NEXT_ENTITY_ID")
 		Quit_fatal("Scene '" + filename + "' didn't start with NEXT_ENTITY_ID token.")
 
 	p.ParseWhitespace();
 	p.ParseSymbol();
-	if(!p.HasToken() || get_parsed<char>(p) != '=')
+	if (!p.HasToken() || get_parsed<char>(p) != '=')
 		Quit_fatal("Missing '=' after NEXT_ENTITY_ID.")
 
 	p.ParseWhitespace();
@@ -65,7 +65,7 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 
 	// ENTITY IDs related code
 	bool recompute_next_entity_id = false;
-	if(!p.HasToken())
+	if (!p.HasToken())
 		recompute_next_entity_id = true;
 	else
 		manager->next_entity_id = get_parsed<u64>(p);
@@ -73,27 +73,33 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 	// -----------------------------------
 	//           Parse entities
 	// -----------------------------------
-	while(p.NextLine())
+	while (p.NextLine())
 	{
 		p.ParseSymbol();
-		switch(get_parsed<char>(p))
+		switch (get_parsed<char>(p))
 		{
-			case '#': EntitySerializer::parse(p);
+			case '#':
+				EntitySerializer::parse(p);
 				break;
 
-			case '@': PlayerSerializer::parse_attribute(p);
+			case '@':
+				PlayerSerializer::parse_attribute(p);
 				break;
 
-			case '$': LightSerializer::parse(p);
+			case '$':
+				LightSerializer::parse(p);
 				break;
 
-			case '*': ConfigSerializer::parse_camera_settings(p);
+			case '*':
+				ConfigSerializer::parse_camera_settings(p);
 				break;
 
-			case '&': PlayerSerializer::parse_orientation(p);
+			case '&':
+				PlayerSerializer::parse_orientation(p);
 				break;
 
-			default: break;
+			default:
+				break;
 		}
 	}
 
@@ -112,19 +118,19 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 		auto relation = entity_relations.relations[i];
 		auto deferred_entity_id = entity_relations.deferred_entity_ids[i];
 
-		for(const auto entity_b : world->entities)
+		for (const auto entity_b : world->entities)
 		{
-			if(entity_b->id == deferred_entity_id)
+			if (entity_b->id == deferred_entity_id)
 			{
 				deferred_entity = entity_b;
 				break;
 			}
 		}
 
-		if(deferred_entity == nullptr)
+		if (deferred_entity == nullptr)
 			Quit_fatal("Entity with id '" + std::to_string(deferred_entity_id) + "' not found to stablish a defined entity relationship.")
 
-		switch(relation)
+		switch (relation)
 		{
 			case SrEntityRelation_TimerTarget:
 			{
@@ -147,7 +153,7 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 	// -----------------------------------
 
 	// If missing NEXT_ENTITY_ID in scene header, recompute from collected Ids (If no entity has an ID yet, this will be 1)
-	if(recompute_next_entity_id)
+	if (recompute_next_entity_id)
 	{
 		manager->next_entity_id = Max_Entity_Id + 1;
 	}
@@ -155,7 +161,7 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 	// assign IDs to entities missing them starting from max current id
 	For(world->entities.size())
 	{
-		if(auto entity = world->entities[i]; entity->name != PlayerName && entity->id == -1)
+		if (auto entity = world->entities[i]; entity->name != PlayerName && entity->id == -1)
 		{
 			entity->id = manager->next_entity_id++;
 		}
@@ -181,11 +187,11 @@ bool WorldSerializer::SaveToFile()
 bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_copy = false)
 {
 	std::string filename = new_filename;
-	if(new_filename.empty())
-	{			
+	if (new_filename.empty())
+	{
 		filename = GlobalSceneInfo::Get()->scene_name;
 
-		if(do_copy)
+		if (do_copy)
 		{
 			std::cout << "please provide a name for the copy.\n";
 			return false;
@@ -195,7 +201,7 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 	const auto path = Paths::Scenes + filename + ".txt";
 	std::ofstream writer(path);
 
-	if(!writer.is_open())
+	if (!writer.is_open())
 	{
 		std::cout << "Saving scene failed.\n";
 		return false;
@@ -228,19 +234,19 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 	<< fps_cam->front.z << "\n";
 
 	// write lights to file
-	for(const auto& light : world->point_lights)
+	for (const auto& light : world->point_lights)
 		LightSerializer::save(writer, light);
 
-	for(const auto& light : world->spot_lights)
+	for (const auto& light : world->spot_lights)
 		LightSerializer::save(writer, light);
 
-	for(const auto& light : world->directional_lights)
+	for (const auto& light : world->directional_lights)
 		LightSerializer::save(writer, light);
 
 
-	for(const auto& entity : world->entities)
+	for (const auto& entity : world->entities)
 	{
-		if(entity->name == "Player")
+		if (entity->name == "Player")
 			continue;
 
 		EntitySerializer::save(writer, *entity);
@@ -248,11 +254,11 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 
 	writer.close();
 
-	if(do_copy)
+	if (do_copy)
 	{
 		log(LOG_INFO, "Scene copy saved successfully as '" + filename + ".txt'");
 	}
-	else if(!new_filename.empty())
+	else if (!new_filename.empty())
 	{
 		log(LOG_INFO, "Scene saved successfully as '" + filename + ".txt' (now editing it)");
 		GlobalSceneInfo::Get()->scene_name = filename;

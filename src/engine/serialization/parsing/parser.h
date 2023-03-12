@@ -36,7 +36,7 @@ struct Parser
 	{
 		this->filepath = filepath;
 		this->reader = std::ifstream(filepath);
-		if(!this->reader.is_open())
+		if (!this->reader.is_open())
 		{
 			std::cout << "Couldn't open file '" + filepath + "', path NOT FOUND \n";
 			assert(false);
@@ -94,7 +94,7 @@ inline std::string get_parsed(Parser& parser)
 template<>
 inline glm::vec3 get_parsed(Parser& parser)
 {
-	if(parser.p.has_token == 0)
+	if (parser.p.has_token == 0)
 	{
 		std::cout << "FATAL: Parse has no vec3 value to be retrieved. Check line being parsed.\n";
 		assert(false);
@@ -106,7 +106,7 @@ inline glm::vec3 get_parsed(Parser& parser)
 template<>
 inline glm::vec2 get_parsed(Parser& parser)
 {
-	if(parser.p.has_token == 0)
+	if (parser.p.has_token == 0)
 	{
 		std::cout << "FATAL: Parse has no vec3 value to be retrieved. Check line being parsed.\n";
 		assert(false);

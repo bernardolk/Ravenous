@@ -26,28 +26,28 @@ void T_InputRecorder::StopRecording()
 	{
 		int i = 0;
 		int p = -1;
-		while(i < history.size() && history[i].key_press == 0)
+		while (i < history.size() && history[i].key_press == 0)
 		{
 			p = i;
 			i++;
 		}
-		if(p >= 0)
+		if (p >= 0)
 			history.erase(history.begin(), history.begin() + p);
 	}
 	// trim ending
 	{
 		int i = history.size() - 1;
 		int p = -1;
-		while(i >= 0 && history[i].key_press == 0)
+		while (i >= 0 && history[i].key_press == 0)
 		{
 			p = i;
 			i--;
 		}
-		if(p >= 0)
+		if (p >= 0)
 			history.erase(history.begin() + p, history.end());
 	}
 
-	if(history.size() > 0)
+	if (history.size() > 0)
 	{
 		Save(recording_idx);
 		recording_idx ++;
@@ -56,7 +56,7 @@ void T_InputRecorder::StopRecording()
 
 void T_InputRecorder::StartPlaying(int recording_id)
 {
-	if(recording_id == -1)
+	if (recording_id == -1)
 		playing_idx = recording_idx - 1;
 	else
 		playing_idx = recording_id;
@@ -66,7 +66,7 @@ void T_InputRecorder::StartPlaying(int recording_id)
 InputFlags T_InputRecorder::Play()
 {
 	auto& record = recorded_inputs[playing_idx];
-	if(playing_flag_idx >= record.history.size() - 1 || record.history.size() == 0)
+	if (playing_flag_idx >= record.history.size() - 1 || record.history.size() == 0)
 		StopPlaying();
 
 	return record.history[playing_flag_idx++];
@@ -92,7 +92,7 @@ void T_InputRecorder::Save(int recording_id)
 		+ timestamp + RecordingsFilenameExtension
 	);
 
-	if(!writer.is_open())
+	if (!writer.is_open())
 	{
 		std::cout << "Cant save recording to file. \n";
 		assert(false);
@@ -100,7 +100,7 @@ void T_InputRecorder::Save(int recording_id)
 
 	auto& record = recorded_inputs[recording_id].history;
 
-	for(int i = 0; i < record.size(); i++)
+	for (int i = 0; i < record.size(); i++)
 	{
 		writer << std::to_string(record[i].key_press) << "\n";
 		writer << std::to_string(record[i].key_release) << "\n";
@@ -115,18 +115,18 @@ void T_InputRecorder::Load()
 	// For that reason, should be used only at startup.
 
 	std::vector<std::string> files;
-	if(OS_list_files(Paths::InputRecordings, "*", files))
+	if (OS_list_files(Paths::InputRecordings, "*", files))
 	{
 		recording_idx = 0;
 
-		for(auto& file : files)
+		for (auto& file : files)
 		{
 			Parser p{file};
 
 			auto& recording = recorded_inputs[recording_idx].history;
 			recording.clear();
 
-			while(p.NextLine())
+			while (p.NextLine())
 			{
 				p.ParseU64();
 				const u64 key_press = get_parsed<u64>(p);

@@ -31,40 +31,40 @@ void EntitySerializer::parse(Parser& parser)
 	p.ParseName();
 	new_entity->name = get_parsed<std::string>(parser);
 
-	while(parser.NextLine())
+	while (parser.NextLine())
 	{
 		p.ParseToken();
 		const auto property = get_parsed<std::string>(parser);
 
-		if(property == "id")
+		if (property == "id")
 		{
 			p.ParseAllWhitespace();
 			p.ParseU64();
 			u64 id = get_parsed<u64>(parser);
 			new_entity->id = id;
 
-			if(manager->next_entity_id < id)
+			if (manager->next_entity_id < id)
 				manager->next_entity_id = id;
 		}
 
-		else if(property == "position")
+		else if (property == "position")
 		{
 			p.ParseVec3();
 			new_entity->position = get_parsed<glm::vec3>(parser);
 		}
 
-		else if(property == "rotation")
+		else if (property == "rotation")
 		{
 			p.ParseVec3();
 			new_entity->rotation = get_parsed<glm::vec3>(parser);
 		}
 
-		else if(property == "scale")
+		else if (property == "scale")
 		{
 			p.ParseVec3();
 			const auto s = get_parsed<glm::vec3>(parser);
 
-			if(s.x < 0 || s.y < 0 || s.z < 0)
+			if (s.x < 0 || s.y < 0 || s.z < 0)
 			{
 				std::cout << "FATAL: ENTITY SCALE PROPERTY CANNOT BE NEGATIVE. AT '" << parser.filepath
 				<< "' LINE NUMBER " << parser.line_count << "\n";
@@ -72,23 +72,23 @@ void EntitySerializer::parse(Parser& parser)
 			new_entity->scale = s;
 		}
 
-		else if(property == "shader")
+		else if (property == "shader")
 		{
 			p.ParseAllWhitespace();
 			p.ParseToken();
 			const auto shader_name = get_parsed<std::string>(parser);
 
 			auto find = ShaderCatalogue.find(shader_name);
-			if(find != ShaderCatalogue.end())
+			if (find != ShaderCatalogue.end())
 			{
-				if(shader_name == "tiledTextureModel")
+				if (shader_name == "tiledTextureModel")
 				{
 					new_entity->flags |= EntityFlags_RenderTiledTexture;
 					For(6)
 					{
 						p.ParseAllWhitespace();
 						p.ParseInt();
-						if(!p.HasToken())
+						if (!p.HasToken())
 							Quit_fatal("Scene description contain an entity with box tiled shader without full tile quantity description.");
 
 						new_entity->uv_tile_wrap[i] = get_parsed<int>(parser);
@@ -103,21 +103,21 @@ void EntitySerializer::parse(Parser& parser)
 			}
 		}
 
-		else if(property == "mesh")
+		else if (property == "mesh")
 		{
 			p.ParseAllWhitespace();
 			p.ParseToken();
 			const auto model_name = get_parsed<std::string>(parser);
 
 			auto find_mesh = GeometryCatalogue.find(model_name);
-			if(find_mesh != GeometryCatalogue.end())
+			if (find_mesh != GeometryCatalogue.end())
 				new_entity->mesh = find_mesh->second;
 			else
 				new_entity->mesh = load_wavefront_obj_as_mesh(Paths::Models, model_name);
 
 			// @TODO: For now collision mesh is loaded from the same model as regular mesh.
 			auto find_c_mesh = CollisionGeometryCatalogue.find(model_name);
-			if(find_c_mesh != CollisionGeometryCatalogue.end())
+			if (find_c_mesh != CollisionGeometryCatalogue.end())
 				new_entity->collision_mesh = find_c_mesh->second;
 			else
 				new_entity->collision_mesh = load_wavefront_obj_as_collision_mesh(Paths::Models, model_name);
@@ -125,7 +125,7 @@ void EntitySerializer::parse(Parser& parser)
 			new_entity->collider = *new_entity->collision_mesh;
 		}
 
-		else if(property == "texture")
+		else if (property == "texture")
 		{
 			p.ParseAllWhitespace();
 			p.ParseToken();
@@ -133,7 +133,7 @@ void EntitySerializer::parse(Parser& parser)
 
 			// > texture definition error handling
 			// >> check for missing info
-			if(texture_name.empty())
+			if (texture_name.empty())
 			{
 				std::cout << "Fatal: Texture for entity '" << new_entity->name << "' is missing name. \n";
 				assert(false);
@@ -141,7 +141,7 @@ void EntitySerializer::parse(Parser& parser)
 
 			// fetches texture in catalogue
 			auto texture = TextureCatalogue.find(texture_name);
-			if(texture == TextureCatalogue.end())
+			if (texture == TextureCatalogue.end())
 			{
 				std::cout << "Fatal: '" << texture_name << "' was not found (not pre-loaded) inside Texture Catalogue \n";
 				assert(false);
@@ -152,36 +152,36 @@ void EntitySerializer::parse(Parser& parser)
 
 			// fetches texture normal in catalogue, if any
 			auto normal = TextureCatalogue.find(texture_name + "_normal");
-			if(normal != TextureCatalogue.end())
+			if (normal != TextureCatalogue.end())
 			{
 				new_entity->textures.push_back(normal->second);
 			}
 		}
 
-		else if(property == "hidden")
+		else if (property == "hidden")
 		{
 			new_entity->flags |= EntityFlags_HiddenEntity;
 		}
 
-		else if(property == "type")
+		else if (property == "type")
 		{
 			p.ParseAllWhitespace();
 			p.ParseToken();
 			const auto entity_type = get_parsed<std::string>(parser);
 
-			if(entity_type == SrEntityType::Static)
+			if (entity_type == SrEntityType::Static)
 				manager->SetType(new_entity, EntityType_Static);
 
-			else if(entity_type == SrEntityType::Checkpoint)
+			else if (entity_type == SrEntityType::Checkpoint)
 				manager->SetType(new_entity, EntityType_Checkpoint);
 
-			else if(entity_type == SrEntityType::TimerTrigger)
+			else if (entity_type == SrEntityType::TimerTrigger)
 				manager->SetType(new_entity, EntityType_TimerTrigger);
 
-			else if(entity_type == SrEntityType::TimerTarget)
+			else if (entity_type == SrEntityType::TimerTarget)
 				manager->SetType(new_entity, EntityType_TimerTarget);
 
-			else if(entity_type == SrEntityType::TimerMarking)
+			else if (entity_type == SrEntityType::TimerMarking)
 				manager->SetType(new_entity, EntityType_TimerMarking);
 
 			else
@@ -194,9 +194,9 @@ void EntitySerializer::parse(Parser& parser)
 		// > entity type related properties
 		// ---------------------------------
 
-		else if(property == "timer_target")
+		else if (property == "timer_target")
 		{
-			if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
+			if (!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
 			p.ParseAllWhitespace();
 			p.ParseU64();
@@ -209,45 +209,45 @@ void EntitySerializer::parse(Parser& parser)
 			relations.count++;
 		}
 
-		else if(property == "timer_duration")
+		else if (property == "timer_duration")
 		{
-			if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
+			if (!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
 			p.ParseAllWhitespace();
 			p.ParseFloat();
 			new_entity->timer_trigger_data.timer_duration = get_parsed<int>(parser);
 		}
 
-		else if(property == "timer_target_type")
+		else if (property == "timer_target_type")
 		{
-			if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
+			if (!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
 			p.ParseAllWhitespace();
 			p.ParseUint();
 			new_entity->timer_target_data.timer_target_type = static_cast<EntityTimerTargetType>(get_parsed<u32>(parser));
 		}
 
-		else if(property == "timer_start_animation")
+		else if (property == "timer_start_animation")
 		{
-			if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
+			if (!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
 			p.ParseAllWhitespace();
 			p.ParseUint();
 			new_entity->timer_target_data.timer_start_animation = get_parsed<u32>(parser);
 		}
 
-		else if(property == "timer_stop_animation")
+		else if (property == "timer_stop_animation")
 		{
-			if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
+			if (!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
 			p.ParseAllWhitespace();
 			p.ParseUint();
 			new_entity->timer_target_data.timer_stop_animation = get_parsed<u32>(parser);
 		}
 
-		else if(property == "timer_marking")
+		else if (property == "timer_marking")
 		{
-			if(!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
+			if (!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
 
 			p.ParseAllWhitespace();
 			p.ParseUint();
@@ -265,13 +265,13 @@ void EntitySerializer::parse(Parser& parser)
 			relations.count++;
 		}
 
-		else if(property == "timer_marking_color_on")
+		else if (property == "timer_marking_color_on")
 		{
 			p.ParseVec3();
 			new_entity->timer_marking_data.color_on = get_parsed<glm::vec3>(parser);
 		}
 
-		else if(property == "timer_marking_color_off")
+		else if (property == "timer_marking_color_off")
 		{
 			p.ParseVec3();
 			new_entity->timer_marking_data.color_off = get_parsed<glm::vec3>(parser);
@@ -279,13 +279,13 @@ void EntitySerializer::parse(Parser& parser)
 
 		// ---------------------------------
 
-		else if(property == "trigger")
+		else if (property == "trigger")
 		{
 			p.ParseVec3();
 			new_entity->trigger_scale = get_parsed<glm::vec3>(parser);
 		}
 
-		else if(property == "slidable")
+		else if (property == "slidable")
 		{
 			new_entity->slidable = true;
 		}
@@ -317,7 +317,7 @@ void EntitySerializer::save(std::ofstream& writer, Entity& entity)
 	writer << "shader " << entity.shader->name;
 
 	// shader: If entity.s using tiled texture fragment shader, also writes number of tiles since we can change it through the editor
-	if(entity.flags & EntityFlags_RenderTiledTexture)
+	if (entity.flags & EntityFlags_RenderTiledTexture)
 	{
 		For(6)
 		{
@@ -331,14 +331,14 @@ void EntitySerializer::save(std::ofstream& writer, Entity& entity)
 	For(textures)
 	{
 		Texture texture = entity.textures[i];
-		if(texture.type == "texture_diffuse")
+		if (texture.type == "texture_diffuse")
 			writer << "texture " << texture.name << "\n";
 	}
 
-	if(entity.flags & EntityFlags_RenderWireframe)
+	if (entity.flags & EntityFlags_RenderWireframe)
 		writer << "hidden\n";
 
-	switch(entity.type)
+	switch (entity.type)
 	{
 		case EntityType_Static:
 		{
@@ -363,7 +363,7 @@ void EntitySerializer::save(std::ofstream& writer, Entity& entity)
 			<< entity.trigger_scale.x << " "
 			<< entity.trigger_scale.y << " "
 			<< entity.trigger_scale.z << "\n";
-			if(entity.timer_trigger_data.timer_target != nullptr)
+			if (entity.timer_trigger_data.timer_target != nullptr)
 				writer << "timer_target " << entity.timer_trigger_data.timer_target->id << "\n";
 			writer << "timer_duration " << entity.timer_trigger_data.timer_duration << "\n";
 
@@ -371,7 +371,7 @@ void EntitySerializer::save(std::ofstream& writer, Entity& entity)
 			{
 				const auto marking = entity.timer_trigger_data.markings[i];
 				const u32 time_checkpoint = entity.timer_trigger_data.time_checkpoints[i];
-				if(marking != nullptr)
+				if (marking != nullptr)
 					writer << "timer_marking " << marking->id << " " << time_checkpoint << "\n";
 			}
 
@@ -383,10 +383,10 @@ void EntitySerializer::save(std::ofstream& writer, Entity& entity)
 			writer << "type timer_target\n";
 			writer << "timer_target_type " << entity.timer_target_data.timer_target_type << "\n";
 
-			if(entity.timer_target_data.timer_start_animation != 0)
+			if (entity.timer_target_data.timer_start_animation != 0)
 				writer << "timer_start_animation " << entity.timer_target_data.timer_start_animation << "\n";
 
-			if(entity.timer_target_data.timer_stop_animation != 0)
+			if (entity.timer_target_data.timer_stop_animation != 0)
 				writer << "timer_stop_animation " << entity.timer_target_data.timer_stop_animation << "\n";
 
 			break;
@@ -409,7 +409,7 @@ void EntitySerializer::save(std::ofstream& writer, Entity& entity)
 		}
 	}
 
-	if(entity.slidable)
+	if (entity.slidable)
 	{
 		writer << "slidable \n";
 	}

@@ -10,7 +10,7 @@
 void ImDraw::Init()
 {
 	list = new ImDrawElement[IM_BUFFER_SIZE];
-	for(int i = 0; i < IM_BUFFER_SIZE; i++)
+	for (int i = 0; i < IM_BUFFER_SIZE; i++)
 	{
 		EmptySlot(i);
 		list[i].mesh.SetupGLBuffers();
@@ -19,14 +19,14 @@ void ImDraw::Init()
 
 void ImDraw::Update(float frame_duration)
 {
-	for(int i = 0; i < IM_BUFFER_SIZE; i++)
+	for (int i = 0; i < IM_BUFFER_SIZE; i++)
 	{
 		auto& obj = list[i];
-		if(obj.empty)
+		if (obj.empty)
 			continue;
 
 		obj.duration -= frame_duration * 1000.0;
-		if(obj.duration <= 0)
+		if (obj.duration <= 0)
 			EmptySlot(i);
 	}
 }
@@ -36,19 +36,19 @@ void ImDraw::Render(Camera* camera)
 	Shader* im_point_shader = ShaderCatalogue.find("immediate_point")->second;
 	Shader* im_mesh_shader = ShaderCatalogue.find("im_mesh")->second;
 	Shader* shader = im_point_shader;
-	for(int i = 0; i < IM_BUFFER_SIZE; i++)
+	for (int i = 0; i < IM_BUFFER_SIZE; i++)
 	{
 		auto& obj = list[i];
-		if(obj.empty)
+		if (obj.empty)
 			continue;
 
 		vec3 color = obj.render_options.color.x == -1 ? vec3(0.9, 0.2, 0.0) : obj.render_options.color;
 
-		if(obj.is_mesh)
+		if (obj.is_mesh)
 		{
 			shader = im_mesh_shader;
 			shader->Use();
-			if(!obj.is_multpl_by_matmodel)
+			if (!obj.is_multpl_by_matmodel)
 			{
 				auto matModel = GetMatModel(obj.pos, obj.rot, obj.scale);
 				shader->SetMatrix4("model", matModel);
@@ -90,7 +90,7 @@ void ImDraw::Add(size_t _hash, std::vector<Triangle> triangles, GLenum draw_meth
 	IM_R_FIND_SLOT();
 
 	std::vector<Vertex> vertex_vec;
-	for(int i = 0; i < triangles.size(); i++)
+	for (int i = 0; i < triangles.size(); i++)
 	{
 		vertex_vec.push_back(Vertex{triangles[i].a});
 		vertex_vec.push_back(Vertex{triangles[i].b});
@@ -119,7 +119,7 @@ void ImDraw::AddLine(size_t _hash, vec3 pointA, vec3 pointB, float line_width,
 	opts.color = color;
 	opts.dont_cull_face = true;
 
-	if(duration != 0)
+	if (duration != 0)
 	{
 		auto& obj = list[slot.index];
 		obj.hash = _hash;
@@ -135,7 +135,7 @@ void ImDraw::AddLineLoop(size_t _hash, std::vector<vec3> points, float line_widt
 	IM_R_FIND_SLOT();
 
 	auto vertex_vec = std::vector<Vertex>();
-	for(int i = 0; i < points.size(); i++)
+	for (int i = 0; i < points.size(); i++)
 		vertex_vec.push_back(Vertex{points[i]});
 
 	RenderOptions opts;
@@ -151,7 +151,7 @@ void ImDraw::AddPoint(size_t _hash, vec3 point, float point_size, bool always_on
 {
 	IM_R_FIND_SLOT();
 
-	if(duration != 0)
+	if (duration != 0)
 	{
 		auto& obj = list[slot.index];
 		obj.hash = _hash;
@@ -198,7 +198,7 @@ void ImDraw::AddMesh(size_t _hash, Mesh* mesh, vec3 pos, vec3 rot, vec3 scale, v
 {
 	IM_R_FIND_SLOT();
 
-	if(!slot.empty)
+	if (!slot.empty)
 	{
 		UpdateMesh(slot.index, pos, rot, scale, color, duration);
 		return;
@@ -223,7 +223,7 @@ void ImDraw::AddMesh(size_t _hash, Mesh* mesh, vec3 color, float duration)
 {
 	IM_R_FIND_SLOT();
 
-	if(!slot.empty)
+	if (!slot.empty)
 	{
 		UpdateMesh(slot.index, color, duration);
 		return;
@@ -281,15 +281,15 @@ void ImDraw::EmptySlot(int i)
 ImDrawSlot ImDraw::FindElementOrEmptySlot(size_t hash)
 {
 	int slot = -1;
-	for(int i = 0; i < IM_BUFFER_SIZE; i++)
+	for (int i = 0; i < IM_BUFFER_SIZE; i++)
 	{
-		if(slot == -1 && list[i].empty)
+		if (slot == -1 && list[i].empty)
 			slot = i;
-		if(list[i].hash == hash)
+		if (list[i].hash == hash)
 			return ImDrawSlot{false, i};
 	}
 
-	if(slot == -1)
+	if (slot == -1)
 		std::cout << "IM RENDER BUFFER IS FULL\n";
 
 	return ImDrawSlot{true, slot};
