@@ -1,8 +1,8 @@
-#include "an_player.h"
+#include "game/animation/an_player.h"
 
-#include "player.h"
-#include "utils.h"
-#include "engine/camera.h"
+#include "game/entities/player.h"
+#include "engine/utils/utils.h"
+#include "engine/camera/camera.h"
 #include "engine/rvn.h"
 #include "engine/world/scene_manager.h"
 #include "game/gameplay/gp_player_state.h"

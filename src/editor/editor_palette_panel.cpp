@@ -4,8 +4,8 @@
 #include "editor.h"
 #include "editor_panel_contexts.h"
 #include "tools/editor_tools.h"
-#include "engine/camera.h"
-#include "engine/loaders.h"
+#include "engine/camera/camera.h"
+#include "engine/io/loaders.h"
 #include "engine/world/scene_manager.h"
 
 

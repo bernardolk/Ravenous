@@ -1,6 +1,6 @@
 #include "entity_pool.h"
 #include "engine/entities/entity.h"
-#include "engine/logging.h"
+#include "engine/core/logging.h"
 
 void EntityPool::Init()
 {

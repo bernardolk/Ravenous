@@ -2,7 +2,7 @@
 
 #include "engine/core/core.h"
 #include "engine/collision/collision_mesh.h"
-#include "engine/mesh.h"
+#include "engine/geometry/mesh.h"
 #include "engine/collision/primitives/bounding_box.h"
 
 

@@ -1,12 +1,11 @@
 
 #include "editor/editor_player_panel.h"
-
 #include <imgui.h>
 
 #include "editor.h"
 #include "editor_panel_contexts.h"
-#include "player.h"
-#include "utils.h"
+#include "game/entities/player.h"
+#include "engine/utils/utils.h"
 #include "engine/io/display.h"
 
 namespace Editor

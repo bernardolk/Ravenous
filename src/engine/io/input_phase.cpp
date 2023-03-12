@@ -5,7 +5,7 @@
 #include <glfw3.h>
 #include <imgui.h>
 
-#include "engine/camera.h"
+#include "engine/camera/camera.h"
 #include "engine/world/scene_manager.h"
 
 

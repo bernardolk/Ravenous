@@ -1,27 +1,12 @@
 #include <string>
-#include <vector>
-#include <map>
 #include <iostream>
-#include <engine/core/types.h>
+#include <engine/core/core.h>
 #include "engine/rvn.h"
-#include <engine/logging.h>
-#include <engine/serialization/sr_entity.h>
-#include <engine/collision/collision_mesh.h>
 #include <glm/gtx/quaternion.hpp>
-#include "engine/collision/primitives/bounding_box.h"
-#include "engine/mesh.h"
-#include "engine/entities/entity.h"
-#include "engine/entity_pool.h"
-#include <engine/entity_manager.h>
-#include <engine/serialization/sr_common.h>
-#include "player.h"
-#include "engine/world/world.h"
-#include "engine/camera.h"
+#include "engine/camera/camera.h"
 #include "engine/serialization/parsing/parser.h"
 #include "engine/serialization/sr_config.h"
-
 #include <fstream>
-
 #include "engine/world/scene_manager.h"
 
 

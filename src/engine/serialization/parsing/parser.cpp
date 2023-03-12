@@ -4,7 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <engine/core/types.h>
-#include <engine/logging.h>
+#include "engine/core/logging.h"
 #include <engine/serialization/parsing/parser.h>
 
 bool Parser::NextLine()

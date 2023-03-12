@@ -6,7 +6,7 @@
 #include <engine/core/types.h>
 #include <engine/rvn.h>
 #include <engine/serialization/parsing/parser.h>
-#include <engine/logging.h>
+#include "engine/core/logging.h"
 #include "engine/io/display.h"
 
 std::map<std::string, Shader*> ShaderCatalogue;

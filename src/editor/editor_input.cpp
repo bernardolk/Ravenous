@@ -1,12 +1,19 @@
 #include "editor_input.h"
+
+#include <glfw3.h>
+
 #include "editor.h"
 #include <imgui.h>
+
+#include "console/console.h"
+#include "engine/engine_state.h"
 #include "tools/editor_tools.h"
-#include "player.h"
-#include "engine/camera.h"
+#include "game/entities/player.h"
+#include "engine/camera/camera.h"
 #include "engine/rvn.h"
 #include "engine/collision/raycast.h"
-#include "engine/loop/input_phase.h"
+#include "engine/io/display.h"
+#include "engine/io/input_phase.h"
 #include "engine/serialization/sr_config.h"
 #include "engine/serialization/sr_world.h"
 #include "engine/world/scene_manager.h"
@@ -15,7 +22,7 @@
 
 namespace Editor
 {
-	void HandleInputFlags(InputFlags flags, World* world, Camera* camera)
+	void HandleInputFlagsForEditorMode(InputFlags flags, World* world, Camera* camera)
 	{
 		// ------------------------
 		// EDITOR EDITING COMMANDS
@@ -347,6 +354,71 @@ namespace Editor
 		if(flags.key_press & KEY_O)
 		{
 			CameraLookAt(GSI->camera, vec3(0.0f, 0.0f, 0.0f), true);
+		}
+	}
+
+	void HandleInputFlagsForCommonInput(InputFlags flags, Player* & player)
+	{
+		if(PressedOnce(flags, KEY_COMMA))
+		{
+			if(Rvn::frame.time_step > 0)
+			{
+				Rvn::frame.time_step -= 0.025;
+			}
+		}
+		if(PressedOnce(flags, KEY_PERIOD))
+		{
+			if(Rvn::frame.time_step < 3)
+			{
+				Rvn::frame.time_step += 0.025;
+			}
+		}
+		if(PressedOnce(flags, KEY_1))
+		{
+			Rvn::rm_buffer->Add("TIME STEP x0.05", 1000);
+			Rvn::frame.time_step = 0.05;
+		}
+		if(PressedOnce(flags, KEY_2))
+		{
+			Rvn::rm_buffer->Add("TIME STEP x0.1", 1000);
+			Rvn::frame.time_step = 0.1;
+		}
+		if(PressedOnce(flags, KEY_3))
+		{
+			Rvn::rm_buffer->Add("TIME STEP x0.3", 1000);
+			Rvn::frame.time_step = 0.3;
+		}
+		if(PressedOnce(flags, KEY_4))
+		{
+			Rvn::rm_buffer->Add("TIME STEP x1.0", 1000);
+			Rvn::frame.time_step = 1.0;
+		}
+		if(PressedOnce(flags, KEY_5))
+		{
+			Rvn::rm_buffer->Add("TIME STEP x2.0", 1000);
+			Rvn::frame.time_step = 2.0;
+		}
+		if(flags.key_press & KEY_K)
+		{
+			player->Die();
+		}
+		if(PressedOnce(flags, KEY_F))
+		{
+			EngineState::ToggleProgramMode();
+		}
+		if(PressedOnce(flags, KEY_GRAVE_TICK))
+		{
+			start_console_mode();
+		}
+		if(flags.key_press & KEY_ESC && flags.key_press & KEY_LEFT_SHIFT)
+		{
+			auto* GDC = GlobalDisplayConfig::Get();
+			glfwSetWindowShouldClose(GDC->window, true);
+		}
+		if(PressedOnce(flags, KEY_Y))
+		{
+			// for testing EPA collision resolve
+			GlobalSceneInfo::Get()->tmp_unstuck_things = true;
 		}
 	}
 }

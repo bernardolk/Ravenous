@@ -8,13 +8,13 @@
 #include <glad/glad.h>
 #endif
 #include <vector>
-#include <engine/mesh.h>
+#include "engine/geometry/mesh.h"
 #include <iostream>
 #include <glm/gtx/normal.hpp>
 #include <engine/collision/primitives/triangle.h>
 #include <glm/gtx/rotate_vector.hpp>
 #include <engine/render/text/face.h>
-#include <engine/logging.h>
+#include "engine/core/logging.h"
 #include <engine/rvn.h>
 #include <engine/render/text/text_renderer.h>
 

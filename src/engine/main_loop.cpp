@@ -1,23 +1,23 @@
 
-#include "engine/loop/main_loop.h"
+#include "engine/main_loop.h"
 
 #include <glfw3.h>
 #include <imgui.h>
 
-#include "an_player.h"
-#include "an_update.h"
-#include "player.h"
+#include "game/animation/an_player.h"
+#include "game/animation/an_update.h"
+#include "game/entities/player.h"
 #include "editor/editor.h"
 #include "editor/tools/input_recorder.h"
 #include "engine/engine_state.h"
 #include "engine/io/display.h"
 #include "engine/world/world.h"
-#include "console.h"
+#include "editor/console/console.h"
 #include "game/gameplay/gp_game_state.h"
 #include "game/gameplay/gp_update.h"
-#include "in_handlers.h"
+#include "game/input/player_input.h"
 #include "editor/editor_input.h"
-#include "engine/camera.h"
+#include "engine/camera/camera.h"
 #include "engine/render/im_render.h"
 #include "engine/render/renderer.h"
 #include "engine/world/scene_manager.h"
@@ -64,17 +64,17 @@ void RavenousMainLoop()
 		{
 			if(EngineState::IsInEditorMode())
 			{
-				Editor::HandleInputFlags(input_flags, world, GSI->camera);
+				Editor::HandleInputFlagsForEditorMode(input_flags, world, GSI->camera);
 				if(!ImGui::GetIO().WantCaptureKeyboard)
 				{
 					IN_HandleMovementInput(input_flags, player, world);
-					IN_HandleCommonInput(input_flags, player);
+					Editor::HandleInputFlagsForCommonInput(input_flags, player);
 				}
 			}
 			else if(EngineState::IsInGameMode())
 			{
 				IN_HandleMovementInput(input_flags, player, world);
-				IN_HandleCommonInput(input_flags, player);
+				Editor::HandleInputFlagsForCommonInput(input_flags, player);
 			}
 		}
 		ResetInputFlags(input_flags);

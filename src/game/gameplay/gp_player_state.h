@@ -1,6 +1,6 @@
 #pragma once
 
-#include "player.h"
+#include "game/entities/player.h"
 #include "engine/core/core.h"
 #include "game/collision/cl_edge_detection.h"
 

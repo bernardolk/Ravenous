@@ -1,10 +1,10 @@
 #include "entity.h"
 #include <glm/gtx/normal.hpp>
 #include <glm/gtx/quaternion.hpp>
-#include <engine/vertex.h>
+#include "engine/geometry/vertex.h"
 #include <engine/collision/primitives/bounding_box.h>
-#include <engine/mesh.h>
-#include <engine/logging.h>
+#include "engine/geometry/mesh.h"
+#include "engine/core/logging.h"
 #include <engine/collision/collision_mesh.h>
 
 void Entity::Update()

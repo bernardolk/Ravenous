@@ -1,17 +1,17 @@
-#include "console.h"
-#include "player.h"
-#include "scene.h"
-#include "engine/camera.h"
+#include "editor/console/console.h"
+#include "engine/world/scene.h"
+#include "engine/camera/camera.h"
 #include "engine/engine_state.h"
 #include "engine/rvn.h"
 #include "engine/io/display.h"
 #include "engine/io/input.h"
-#include "engine/loop/input_phase.h"
+#include "engine/io/input_phase.h"
 #include "engine/render/text/text_renderer.h"
 #include "engine/serialization/sr_config.h"
 #include "engine/serialization/sr_world.h"
 #include "engine/serialization/parsing/parser.h"
 #include "engine/world/scene_manager.h"
+#include "game/entities/player.h"
 
 
 void initialize_console_buffers()

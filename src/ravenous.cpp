@@ -9,7 +9,7 @@
 #include "engine/core/platform.h"
 #include "engine/core/core.h"
 #include <engine/core/ui.h>
-#include <engine/logging.h>
+#include "engine/core/logging.h"
 #include <engine/rvn.h>
 #include "editor/tools/input_recorder.h"
 #include "engine/world/scene_manager.h"
@@ -47,14 +47,14 @@
 
 #include <editor/editor_main.h>
 
-#include "an_update.h"
-#include "console.h"
-#include "geometry.h"
-#include "player.h"
+#include "game/animation/an_update.h"
+#include "editor/console/console.h"
+#include "game/geometry.h"
+#include "game/entities/player.h"
 #include "editor/editor.h"
-#include "engine/camera.h"
-#include "engine/loaders.h"
-#include "engine/loop/main_loop.h"
+#include "engine/camera/camera.h"
+#include "engine/io/loaders.h"
+#include "engine/main_loop.h"
 #include "engine/render/im_render.h"
 #include "engine/serialization/sr_config.h"
 #include "engine/serialization/sr_entity.h"

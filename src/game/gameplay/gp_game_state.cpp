@@ -1,8 +1,8 @@
 #include "gp_game_state.h"
 
-#include "an_update.h"
-#include "utils.h"
-#include "engine/logging.h"
+#include "game/animation/an_update.h"
+#include "engine/utils/utils.h"
+#include "engine/core/logging.h"
 #include "engine/rvn.h"
 #include "engine/entities/entity.h"
 

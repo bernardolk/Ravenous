@@ -4,7 +4,7 @@
 #include <glad/glad.h>
 #endif
 #include <glfw3.h>
-#include "engine/loop/input_phase.h"
+#include "engine/io/input_phase.h"
 #include "engine/io/display.h"
 
 

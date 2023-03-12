@@ -6,5 +6,6 @@ struct InputFlags;
 
 namespace Editor
 {
-	void HandleInputFlags(InputFlags flags, World* world, Camera* camera);
+	void HandleInputFlagsForEditorMode(InputFlags flags, World* world, Camera* camera);
+	void HandleInputFlagsForCommonInput(InputFlags flags, Player* & player);
 }

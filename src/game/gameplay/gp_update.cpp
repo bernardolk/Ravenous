@@ -2,9 +2,9 @@
 
 #include "gp_game_state.h"
 #include "gp_player_state.h"
-#include "player.h"
-#include "utils.h"
-#include "engine/camera.h"
+#include "game/entities/player.h"
+#include "engine/utils/utils.h"
+#include "engine/camera/camera.h"
 #include "engine/rvn.h"
 #include "engine/collision/cl_controller.h"
 #include "engine/collision/cl_gjk.h"
@@ -44,11 +44,9 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 			   so we can detect when we try stepping up/down into a place where the player can't
 			   fit in.
 			*/
-
-			int it = 0;
-			while(it < 2)
+			// TODO: Not sure why we are looping here actually. Once I figure out, please explain why we can't run it once.
+			for (int it = 0; it < 2; it ++)
 			{
-				it++;
 				auto vtrace = CL_DoStepoverVtrace(player, world);
 
 				// snap player to the last terrain contact point detected if its a valid stepover hit
@@ -82,54 +80,14 @@ void GP_UpdatePlayerState(Player* & player, World* world)
 				// if floor is no longer beneath player's feet
 				if(!vtrace.hit)
 				{
-
+					float fall_momentum_intensity = player->speed < player->fall_from_edge_push_speed ? player->fall_from_edge_push_speed : player->speed;
+					vec2 fall_momentum_dir = player->v_dir_historic.xz;
+					vec2 fall_momentum = fall_momentum_dir * fall_momentum_intensity;
 					
-					/* Here we do a simulation to check if player would fit going through the abyss.
-					   If he doesn't fit, then ignore the hole and let player walk through it. */
-
-					//@todo: SLOW
-
-					// TODO: This whole logic might be overkill - We could rely on level design to guarantee there aren't holes in nav mesh small enough that player would get stuck
-					// first pass test to see if player fits in hole
-					/*auto p_pos0 = player->entity_ptr->position;
-					 *
-					auto offset = player->v_dir_historic * player->radius;
-					player->entity_ptr->bounding_box.Translate(offset);
-					player->entity_ptr->position += offset;
-					player->Update(world);
-					bool collided = CL_RunTestsForFallSimulation(player);
-
-					offset = p_pos0 - player->entity_ptr->position;
-					player->entity_ptr->position = p_pos0;
-					player->entity_ptr->bounding_box.Translate(offset);
-					player->Update(world);
-					*/
-					
-					//if(!collided)
-					//{
-						/* do a complete simulation of the fall (maybe unncessary... ) */
-						// give player a push if necessary
-						float fall_momentum_intensity = player->speed < player->fall_from_edge_push_speed ? player->fall_from_edge_push_speed : player->speed;
-						vec2 fall_momentum_dir = player->v_dir_historic.xz;
-						vec2 fall_momentum = fall_momentum_dir * fall_momentum_intensity;
-
-						// // bool can_fall = GP_simulate_player_collision_in_falling_trajectory(player, fall_momentum);
-						// bool can_fall = false;
-						//
-						// if(can_fall)
-						// {
-						player->entity_ptr->velocity = to3d_xz(fall_momentum);
-						GP_ChangePlayerState(player, PLAYER_STATE_FALLING);
-						player->Update(world, true);
-						break;
-						// }
-						// Rvn::PrintDynamic("Player won't fit if he falls here.", 1000);
-					//}
-					//else
-					//{
-					//	Rvn::PrintDynamic("We could fall but we are smarts", 1000);
-					//}
-					//break;
+					player->entity_ptr->velocity = to3d_xz(fall_momentum);
+					GP_ChangePlayerState(player, PLAYER_STATE_FALLING);
+					player->Update(world, true);
+					break;
 				}
 
 				// Collided with nothing or with terrain only, break

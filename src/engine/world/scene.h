@@ -1,7 +1,7 @@
 #pragma once
 
 #include "engine/core/core.h"
-#include <engine/lights.h>
+#include "engine/entities/lights.h"
 
 struct Scene
 {

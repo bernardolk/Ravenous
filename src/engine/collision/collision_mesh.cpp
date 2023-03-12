@@ -3,8 +3,8 @@
 #include <map>
 #include <engine/core/types.h>
 #include <engine/collision/primitives/bounding_box.h>
-#include <engine/mesh.h>
-#include <engine/vertex.h>
+#include "engine/geometry/mesh.h"
+#include "engine/geometry/vertex.h"
 #include <engine/collision/collision_mesh.h>
 
 

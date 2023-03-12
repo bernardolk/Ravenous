@@ -15,6 +15,6 @@ struct ClResults
 
 struct ClResultsArray
 {
-	ClResults results[10];
+	ClResults results[10]{};
 	int count = 0;
 };

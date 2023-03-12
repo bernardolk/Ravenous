@@ -1,7 +1,7 @@
 #include "cl_gjk.h"
 
 #include "collision_mesh.h"
-#include "colors.h"
+#include "engine/utils/colors.h"
 #include "engine/render/im_render.h"
 
 vec3 DebugColors[] = {

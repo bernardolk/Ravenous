@@ -2,8 +2,8 @@
 #include <imgui.h>
 #include "editor.h"
 #include "tools/editor_tools.h"
-#include "engine/camera.h"
-#include "engine/lights.h"
+#include "engine/camera/camera.h"
+#include "engine/entities/lights.h"
 #include "engine/world/world.h"
 
 // -------------

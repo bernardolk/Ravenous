@@ -1,7 +1,7 @@
 #include "cl_edge_detection.h"
 
-#include "player.h"
-#include "utils.h"
+#include "game/entities/player.h"
+#include "engine/utils/utils.h"
 #include "engine/collision/raycast.h"
 #include "engine/collision/primitives/ray.h"
 #include "engine/render/im_render.h"

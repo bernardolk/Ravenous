@@ -1,5 +1,5 @@
 #include "engine/serialization/sr_light.h"
-#include <engine/lights.h>
+#include "engine/entities/lights.h"
 #include "engine/world/world.h"
 #include "engine/serialization/parsing/parser.h"
 

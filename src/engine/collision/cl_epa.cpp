@@ -1,14 +1,6 @@
 #include <vector>
-#include <string>
 #include <map>
 #include <engine/core/types.h>
-#include <engine/collision/primitives/bounding_box.h>
-#include <engine/collision/primitives/ray.h>
-#include <engine/vertex.h>
-#include <engine/mesh.h>
-#include <colors.h>
-#include <engine/render/renderer.h>
-#include <engine/render/im_render.h>
 #include <engine/collision/simplex.h>
 #include <engine/collision/cl_gjk.h>
 #include <engine/collision/cl_epa.h>

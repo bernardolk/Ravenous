@@ -1,8 +1,8 @@
 #pragma once
 
 #include "engine/core/core.h"
-#include "engine/entity_pool.h"
-#include "entities/entity.h"
+#include "engine/entities/allocator/entity_pool.h"
+#include "engine/entities/entity.h"
 
 struct EntityAttributes
 {

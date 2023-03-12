@@ -1,17 +1,16 @@
 #include <engine/collision/cl_resolvers.h>
 #include <engine/rvn.h>
-#include <engine/collision/primitives/bounding_box.h>
 #include <glm/gtx/normal.hpp>
 #include <engine/collision/primitives/ray.h>
 #include <glm/gtx/quaternion.hpp>
 #include "engine/entities/entity.h"
-#include <player.h>
+#include "game/entities/player.h"
 #include <engine/world/world.h>
 #include <engine/collision/cl_types.h>
-#include <colors.h>
+#include "engine/utils/colors.h"
 #include <engine/render/im_render.h>
 #include <engine/collision/raycast.h>
-#include <utils.h>
+#include "engine/utils/utils.h"
 
 
 // ---------------------

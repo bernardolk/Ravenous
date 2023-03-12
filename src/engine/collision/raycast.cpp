@@ -1,7 +1,7 @@
 #include <engine/collision/raycast.h>
-#include <engine/camera.h>
+#include "engine/camera/camera.h"
 #include <engine/collision/primitives/bounding_box.h>
-#include <engine/mesh.h>
+#include "engine/geometry/mesh.h"
 #include <glm/gtx/normal.hpp>
 #include <engine/collision/primitives/triangle.h>
 #include <engine/collision/primitives/ray.h>

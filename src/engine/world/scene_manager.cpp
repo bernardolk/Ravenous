@@ -1,7 +1,7 @@
 #include "scene_manager.h"
-#include "scene.h"
-#include "player.h"
-#include "engine/camera.h"
+#include "engine/world/scene.h"
+#include "game/entities/player.h"
+#include "engine/camera/camera.h"
 
 void GlobalSceneInfo::RefreshActiveScene()
 {

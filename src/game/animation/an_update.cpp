@@ -1,6 +1,6 @@
-#include "an_update.h"
+#include "game/animation/an_update.h"
 
-#include "engine/logging.h"
+#include "engine/core/logging.h"
 #include "engine/rvn.h"
 #include "engine/entities/entity.h"
 

@@ -1,14 +1,11 @@
 #include "im_render.h"
 #include "shader.h"
-#include "engine/camera.h"
-#include "engine/mesh.h"
+#include "engine/camera/camera.h"
+#include "engine/geometry/mesh.h"
 #include "engine/collision/primitives/triangle.h"
 #include "engine/entities/entity.h"
-#ifndef GLAD_INCL
-#define GLAD_INCL
 #include <glad/glad.h>
-#endif
-#include "engine/vertex.h"
+#include "engine/geometry/vertex.h""
 
 void ImDraw::Init()
 {

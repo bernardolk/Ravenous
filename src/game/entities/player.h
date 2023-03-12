@@ -88,6 +88,7 @@ struct Player
 
 
 	// movement states
+	// TODO: Turn into flags
 	bool dashing = false;
 	bool walking = false;
 	bool jumping_upwards = false;

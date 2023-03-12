@@ -1,13 +1,11 @@
 #include "engine_state.h"
-
 #include <glfw3.h>
-
 #include "engine/io/input.h"
 #include "engine/io/display.h"
-#include "player.h"
+#include "game/entities/player.h"
 #include "engine/world/scene_manager.h"
 #include "editor/editor.h"
-#include "rvn.h"
+#include "engine/rvn.h"
 
 bool EngineState::IsInGameMode()
 {

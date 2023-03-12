@@ -4,20 +4,17 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image/stb_image.h>
 
-#include <engine/vertex.h>
-#include <engine/logging.h>
+#include "engine/geometry/vertex.h"
+#include "engine/core/logging.h"
 #include <glm/gtx/quaternion.hpp>
-#include <engine/mesh.h>
+#include "engine/geometry/mesh.h"
 #include <engine/collision/collision_mesh.h>
-#ifndef GLAD_INCL
-#define GLAD_INCL
 #include <glad/glad.h>
-#endif
 #include <engine/serialization/parsing/parser.h>
-#include <engine/loaders.h>
-#include "rvn.h"
-#include "io/display.h"
-#include "render/shader.h"
+#include "engine/io/loaders.h"
+#include "engine/rvn.h"
+#include "engine/io/display.h"
+#include "engine/render/shader.h"
 
 void load_textures_from_assets_folder()
 {

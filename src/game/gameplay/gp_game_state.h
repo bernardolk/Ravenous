@@ -1,7 +1,7 @@
 #pragma once
 
 #include "engine/core/core.h"
-#include "an_update.h"
+#include "game/animation/an_update.h"
 #include "gp_timer.h"
 
 struct T_GameState

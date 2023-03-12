@@ -4,19 +4,19 @@
 #include <iostream>
 #include <engine/core/types.h>
 #include "engine/rvn.h"
-#include <engine/logging.h>
+#include "engine/core/logging.h"
 #include <engine/serialization/sr_entity.h>
 #include <engine/collision/collision_mesh.h>
 #include <glm/gtx/quaternion.hpp>
 #include "engine/collision/primitives/bounding_box.h"
-#include "engine/mesh.h"
+#include "engine/geometry/mesh.h"
 #include "engine/entities/entity.h"
-#include "engine/entity_pool.h"
-#include <engine/entity_manager.h>
+#include "engine/entities/allocator/entity_pool.h"
+#include "engine/entities/manager/entity_manager.h"
 #include <engine/serialization/sr_common.h>
 #include "engine/serialization/parsing/parser.h"
-#include "engine/loaders.h"
-#include "engine/mesh.h"
+#include "engine/io/loaders.h"
+#include "engine/geometry/mesh.h"
 #include "engine/render/shader.h"
 #include "engine/serialization/sr_entity.h"
 

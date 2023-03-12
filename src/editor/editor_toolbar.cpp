@@ -3,7 +3,7 @@
 #include <imgui.h>
 #include "editor.h"
 #include "tools/editor_tools.h"
-#include "engine/camera.h"
+#include "engine/camera/camera.h"
 #include "engine/io/display.h"
 #include "engine/serialization/sr_config.h"
 #include "engine/world/scene_manager.h"

@@ -16,8 +16,8 @@
 
 #include "engine/core/core.h"
 #include "renderer.h"
-#include "engine/mesh.h"
-#include "colors.h"
+#include "engine/geometry/mesh.h"
+#include "engine/utils/colors.h"
 
 #define IMCUSTOMHASH(x) ImHasher(x)
 #define IM_ITERHASH(x) ImHasher(std::string(__FILE__) + "-" + std::to_string(__LINE__) + "-" + std::to_string(x))

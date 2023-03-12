@@ -1,16 +1,13 @@
 #pragma once
 
-#include "in_handlers.h"
-#include <glfw3.h>
-#include "console.h"
-#include "player.h"
-#include "utils.h"
-#include "engine/camera.h"
+#include "game/input/player_input.h"
+#include "editor/console/console.h"
+#include "game/entities/player.h"
+#include "engine/utils/utils.h"
+#include "engine/camera/camera.h"
 #include "engine/engine_state.h"
-#include "engine/rvn.h"
-#include "engine/io/display.h"
 #include "engine/io/input.h"
-#include "engine/loop/input_phase.h"
+#include "engine/io/input_phase.h"
 #include "engine/world/scene_manager.h"
 #include "game/gameplay/gp_player_state.h"
 #include "game/gameplay/gp_update.h"
@@ -173,73 +170,4 @@ void IN_HandleMovementInput(InputFlags flags, Player* & player, World* world)
 
 	if(!(v_dir.x == 0.f && v_dir.y == 0.f && v_dir.z == 0.f))
 		v_dir = normalize(v_dir);
-}
-
-
-// --------------
-// SYSTEMS INPUT
-// --------------
-void IN_HandleCommonInput(InputFlags flags, Player* & player)
-{
-	if(PressedOnce(flags, KEY_COMMA))
-	{
-		if(Rvn::frame.time_step > 0)
-		{
-			Rvn::frame.time_step -= 0.025;
-		}
-	}
-	if(PressedOnce(flags, KEY_PERIOD))
-	{
-		if(Rvn::frame.time_step < 3)
-		{
-			Rvn::frame.time_step += 0.025;
-		}
-	}
-	if(PressedOnce(flags, KEY_1))
-	{
-		Rvn::rm_buffer->Add("TIME STEP x0.05", 1000);
-		Rvn::frame.time_step = 0.05;
-	}
-	if(PressedOnce(flags, KEY_2))
-	{
-		Rvn::rm_buffer->Add("TIME STEP x0.1", 1000);
-		Rvn::frame.time_step = 0.1;
-	}
-	if(PressedOnce(flags, KEY_3))
-	{
-		Rvn::rm_buffer->Add("TIME STEP x0.3", 1000);
-		Rvn::frame.time_step = 0.3;
-	}
-	if(PressedOnce(flags, KEY_4))
-	{
-		Rvn::rm_buffer->Add("TIME STEP x1.0", 1000);
-		Rvn::frame.time_step = 1.0;
-	}
-	if(PressedOnce(flags, KEY_5))
-	{
-		Rvn::rm_buffer->Add("TIME STEP x2.0", 1000);
-		Rvn::frame.time_step = 2.0;
-	}
-	if(flags.key_press & KEY_K)
-	{
-		player->Die();
-	}
-	if(PressedOnce(flags, KEY_F))
-	{
-		EngineState::ToggleProgramMode();
-	}
-	if(PressedOnce(flags, KEY_GRAVE_TICK))
-	{
-		start_console_mode();
-	}
-	if(flags.key_press & KEY_ESC && flags.key_press & KEY_LEFT_SHIFT)
-	{
-		auto* GDC = GlobalDisplayConfig::Get();
-		glfwSetWindowShouldClose(GDC->window, true);
-	}
-	if(PressedOnce(flags, KEY_Y))
-	{
-		// for testing EPA collision resolve
-		GlobalSceneInfo::Get()->tmp_unstuck_things = true;
-	}
 }

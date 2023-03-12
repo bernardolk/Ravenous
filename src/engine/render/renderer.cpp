@@ -1,12 +1,9 @@
 #include <engine/render/renderer.h>
-#ifndef GLAD_INCL
-#define GLAD_INCL
 #include <glad/glad.h>
-#endif
-#include "player.h"
+#include "game/entities/player.h"
 #include "shader.h"
-#include "engine/camera.h"
-#include "engine/lights.h"
+#include "engine/camera/camera.h"
+#include "engine/entities/lights.h"
 #include "engine/entities/entity.h"
 #include "engine/io/display.h"
 #include "engine/world/world.h"

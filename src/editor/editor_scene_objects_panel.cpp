@@ -3,10 +3,10 @@
 #include "editor_entity_panel.h"
 #include "editor_panel_contexts.h"
 #include "editor_player_panel.h"
-#include "player.h"
+#include "game/entities/player.h"
 #include "engine/io/display.h"
 #include "engine/world/world.h"
-#include "utils.h"
+#include "engine/utils/utils.h"
 
 namespace Editor
 {

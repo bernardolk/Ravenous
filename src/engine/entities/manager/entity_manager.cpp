@@ -1,31 +1,21 @@
-#include <engine/core/types.h>
+#include <engine/core/core.h>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <map>
-#include <algorithm> //utils
-#include <engine/vertex.h> //utils
-#include <utils.h>
-#include <engine/logging.h>
+#include "engine/core/logging.h"
 #include <engine/rvn.h>
-#include <engine/collision/primitives/bounding_box.h>
-#include <glm/gtx/quaternion.hpp>
-#include <engine/mesh.h>
-#include <glm/gtx/normal.hpp>
-#include <engine/collision/primitives/triangle.h>
-#include <colors.h>
+#include "engine/geometry/mesh.h"
 #include <engine/collision/collision_mesh.h>
 #include <engine/entities/entity.h>
-#include <engine/lights.h>
 #include <engine/render/shader.h>
-#include <scene.h>
-#include <engine/loaders.h>
+#include "engine/world/scene.h"
+#include "engine/io/loaders.h"
 #include <engine/world/world.h>
-#include <engine/logging.h>
-#include <engine/entity_pool.h>
-#include <engine/entity_manager.h>
+#include "engine/entities/allocator/entity_pool.h"
+#include "engine/entities/manager/entity_manager.h"
 
-#include "world/scene_manager.h"
+#include "engine/world/scene_manager.h"
 
 // --------------------------------------
 // > FIND ASSETS IN CATALOGUES
@@ -103,6 +93,8 @@ auto EntityManager::FindEntityAssetsInCatalogue(const std::string& mesh, const s
 // ---------------------------------
 // > SET REGISTRIES
 // ---------------------------------
+
+// TODO: Obsolete with new entity system
 void EntityManager::SetEntityRegistry(std::vector<Entity*>* registry)
 {
 	entity_registry = registry;
@@ -126,6 +118,7 @@ void EntityManager::SetWorld(World* world)
 // ------------------
 // > REGISTER ENTITY
 // ------------------
+// TODO: Rethink for new entity system
 void EntityManager::RegisterInWorldAndScene(Entity* entity) const
 {
 	entity->Update();
@@ -161,6 +154,7 @@ Entity* EntityManager::CreateEntity(const EntityAttributes& attrs)
 
 	RegisterInWorldAndScene(new_entity);
 
+	// TODO: Obsolete with new entity system
 	// sets new entity_type
 	SetType(new_entity, attrs.type);
 
@@ -170,6 +164,7 @@ Entity* EntityManager::CreateEntity(const EntityAttributes& attrs)
 // -----------------------
 // > CREATE EDITOR ENTITY
 // -----------------------
+// TODO: Better describe what Editor entity is. We should create a EditorWidgetManager for those, these are not real "entities".
 // Editor entities can be created using this method. These entities have separate id's and are not
 //    registered into the world.
 
@@ -197,6 +192,7 @@ Entity* EntityManager::CreateEditorEntity(const EntityAttributes& attrs)
 // ---------------
 // > COPY ENTITY
 // ---------------
+// TODO: Rethink with new entity system
 Entity* EntityManager::CopyEntity(Entity* entity)
 {
 	// allocate entity with new id
@@ -285,6 +281,7 @@ void EntityManager::SetType(Entity* entity, const EntityType type)
 // ----------------
 // > DELETE ENTITY
 // ----------------
+// TODO: Rethink with new entity system
 void EntityManager::MarkForDeletion(Entity* entity)
 {
 	// remove from scene render list
@@ -315,6 +312,7 @@ void EntityManager::MarkForDeletion(Entity* entity)
 	deletion_stack.push_back(entity);
 }
 
+// TODO: Rethink with new entity system
 void EntityManager::SafeDeleteMarkedEntities()
 {
 	// WARNING: ONLY EXECUTE AT THE END OF THE FRAME
@@ -333,6 +331,7 @@ void EntityManager::SafeDeleteMarkedEntities()
 // ------------------
 // > SET ENTITY TYPE
 // ------------------
+// TODO: Obsolete with new entity system
 void EntityManager::RemoveFromCheckpointRegistry(Entity* entity) const
 {
 	int index = -1;
@@ -349,6 +348,7 @@ void EntityManager::RemoveFromCheckpointRegistry(Entity* entity) const
 		checkpoints_registry->erase(checkpoints_registry->begin() + index);
 }
 
+// TODO: Obsolete with new entity system
 void EntityManager::RemoveInteractivity(Entity* entity)
 {
 	int index = -1;
@@ -368,6 +368,7 @@ void EntityManager::RemoveInteractivity(Entity* entity)
 	entity->trigger = nullptr;
 }
 
+// TODO: Obsolete with new entity system
 void EntityManager::MakeInteractable(Entity* entity)
 {
 	auto find = GeometryCatalogue.find("trigger");
@@ -378,6 +379,7 @@ void EntityManager::MakeInteractable(Entity* entity)
 	interactables_registry->push_back(entity);
 }
 
+// TODO: Obsolete with new entity system
 void EntityManager::UnsetAllTypeRelatedConfigurations(Entity* entity)
 {
 	RemoveFromCheckpointRegistry(entity);

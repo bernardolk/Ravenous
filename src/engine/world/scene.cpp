@@ -1,4 +1,4 @@
-#include "scene.h"
+#include "engine/world/scene.h"
 #include "engine/entities/entity.h"
 #include "engine/rvn.h"
 
