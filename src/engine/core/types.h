@@ -50,9 +50,14 @@ using mat4 = glm::mat4;
 template<typename T>
 using vector = std::vector<T>;
 
+template<typename T, typename T2>
+using map = std::map<T, T2>;
+
 using GLenum = unsigned int;
 
 using string = std::string;
+
+using flag = unsigned int;
 
 using TypeID = unsigned int;
 using TraitID = unsigned int;
@@ -163,7 +168,7 @@ const T_Val* Find(const std::map<T_Key, T_Val>& map, T_Key key)
 
 
 template<typename T, unsigned int Size>
-struct T_Array
+struct Array
 {
 
 public:
@@ -173,16 +178,15 @@ public:
 public:
 	T* Add(const T instance)
 	{
-		if(count < Size)
+		if (count < Size)
 		{
 			array[count] = instance;
-			auto* tmp = &array[count];
-			count++;
-			return tmp;
+			return &array[count++];
 		}
 #ifdef T_ARRAY_OVERFLOW_IS_FATAL
 		else
 		{
+			// Array overflow
 			assert(false);
 		}
 #endif
@@ -192,33 +196,33 @@ public:
 
 	T* AddAt(const T& instance, unsigned int i)
 	{
-		if(i < Size)
+		if (i < count)
 		{
 			array[i] = instance;
 			return &array[i];
 		}
+		else if (i >= Size)
+		{
+			// Operation would introduce holes in array 
+			assert(false);
+		}
 #ifdef T_ARRAY_OVERFLOW_IS_FATAL
 		else
 		{
+		  // Array overflow
 			assert(false);
 		}
 #endif
 
 		return nullptr;
 	};
-
+	
 	T* GetNextSlot()
 	{
-		if(count < Size)
+		if (count < Size)
 		{
 			return &(array[count++]);
 		}
-#ifdef T_ARRAY_OVERFLOW_IS_FATAL
-		else
-		{
-			assert(false);
-		}
-#endif
 
 		return nullptr;
 	}

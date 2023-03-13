@@ -1,14 +1,16 @@
 #pragma once
+
 #include "engine/core/core.h"
 #include "engine/entities/base_entity.h"
 
 struct EntityTraitsManager
 {
+	using byte = char;
 	using UpdateFunc = void(*)(E_BaseEntity*);
 
-	std::map<TypeID, UpdateFunc> type_update_functions;
-	std::map<TraitID, std::map<TypeID, UpdateFunc>> trait_registry;
-	std::vector<TraitID> entity_traits;
+	map<TraitID, map<TypeID, UpdateFunc>> trait_registry;
+	vector<TraitID> entity_traits;
+	static inline constexpr size_t max_traits = 5; 
 	
 	static EntityTraitsManager* Get()
 	{
@@ -60,6 +62,25 @@ struct EntityTraitsManager
 			std::cout << "INVOKE FUNCTION NOT FOUND FOR ENTITY OF TypeID: " << entity->type_id <<  " AND TRAIT of TraitID: " << trait_id << "\n";
 		}
 	}
+
+	template<typename T_Entity, typename T_Trait>
+	byte RegisterTypeAndTraitMatch()
+	{
+		std::cout << "Registering entity of id " << T_Entity::GetTypeId() << " and trait of id " << T_Trait::trait_id << "\n";
+
+		Register(T_Entity::GetTypeId(), T_Trait::trait_id, 
+		[](E_BaseEntity* in_entity)
+			{
+				auto* fully_cast_entity = static_cast<T_Entity*>(in_entity);
+				T_Trait::Update(*fully_cast_entity);
+			}
+		);
+
+		T_Entity::traits.Add(T_Trait::trait_id);
+
+		return 0;
+	};
+	
 private:
 	EntityTraitsManager(){};
 };

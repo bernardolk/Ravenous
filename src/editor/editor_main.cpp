@@ -22,7 +22,7 @@
 #include "engine/entities/manager/entity_manager.h"
 #include "engine/entities/lights.h"
 #include "engine/io/loaders.h"
-#include "engine/geometry/vertex.h""
+#include "engine/geometry/vertex.h"
 #include "engine/io/display.h"
 #include "engine/io/input.h"
 #include "engine/render/im_render.h"

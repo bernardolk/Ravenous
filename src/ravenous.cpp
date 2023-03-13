@@ -47,6 +47,8 @@
 
 #include <editor/editor_main.h>
 
+#include "engine/entities/traits/entity_traits.h"
+
 #include "game/animation/an_update.h"
 #include "editor/console/console.h"
 #include "game/geometry.h"

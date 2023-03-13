@@ -1,1 +1,1 @@
-powershell -ExecutionPolicy Bypass -File "c:\repositories\ravenous\tools\loc.ps1"
+powershell -ExecutionPolicy Bypass -File "c:\dev\ravenous\tools\loc.ps1"

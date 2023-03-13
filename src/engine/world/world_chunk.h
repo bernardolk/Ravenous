@@ -8,13 +8,12 @@ struct WorldChunk
 {
     using byte = char;
 
-    static inline unsigned int world_chunk_id_count = 0;
-
+    static inline size_t world_chunk_id_count = 0;
     unsigned int id = ++world_chunk_id_count;
 
     struct MemArena
     {
-        inline static constexpr unsigned int budget = 1200;
+        inline static constexpr size_t budget = 1200;
         byte data[budget];
         byte* next_array_start = &data[0];
         unsigned int bytes_consumed;
@@ -33,8 +32,8 @@ struct WorldChunk
         byte* array;
     };
 
-    std::map<int, EntityMemArray*> type_to_mem_array;
-    T_Array<EntityMemArray, 20> entity_mem_arrays;
+    map<int, EntityMemArray*> type_to_mem_array;
+    Array<EntityMemArray, 20> entity_mem_arrays;
 
     template<typename T_Entity>
     Iterator<T_Entity*> GetIterator()
