@@ -4,36 +4,61 @@
 #include "engine/entities/base_entity.h"
 #include "engine/entities/manager/entity_traits_manager.h"
 
+/*
+ *  World / World Chunk memory layout brief explanation:
+ *  The world is composed of chunks, each chunk has a memory budget in bytes and can store blocks of entities.
+ *  Each block can contain only one entity type. Each block vary in size depending on each entity type's memory budget.
+ *  Each block is also consecutive in memory inside a world chunk's storage.
+ */
+
+/** Structure that maintains metadata about entity storage. Does not actually store any data. */
+struct EntityStorageBlockMetadata
+{
+	using byte = char;
+	
+	// type data
+	const TypeID type_id;
+	const size_t type_size;
+	// TODO: We don't need to know about traits at this level, lets only deal with entity Types
+	Array<TraitID, EntityTraitsManager::max_traits> entity_traits{};
+
+	// array bookkeeping
+	const size_t max_entity_instances;
+	int entity_count = 0;
+	byte* data_start = nullptr;
+
+	EntityStorageBlockMetadata(TypeID type_id, size_t type_size, size_t entity_instance_budget) : type_id(type_id), type_size(type_size), max_entity_instances(entity_instance_budget){};
+};
+
+/** Memory Arena for storing all the world chunk's entities's data. */
+struct ChunkStorage
+{
+	using byte = char;
+	
+	inline static constexpr size_t chunk_byte_budget = 1200;
+	
+	byte data[chunk_byte_budget]{};
+	byte* next_block_start = &data[0];
+	u32 bytes_consumed = 0;
+};
+
 struct WorldChunk
 {
     using byte = char;
 
+	// TODO: World chunk ID needs to come from it's world position
     static inline size_t world_chunk_id_count = 0;
+	static inline constexpr size_t max_types_per_storage = 20;
+	
     unsigned int id = ++world_chunk_id_count;
 
-    struct MemArena
-    {
-        inline static constexpr size_t budget = 1200;
-        byte data[budget];
-        byte* next_array_start = &data[0];
-        unsigned int bytes_consumed;
-    } memory;
-
-    struct EntityMemArray
-    {
-        // type data
-        int type_id;
-        int type_size;
-        int entity_traits;
-
-        // array bookkeeping
-        int size;
-        int count = 0;
-        byte* array;
-    };
-
-    map<int, EntityMemArray*> type_to_mem_array;
-    Array<EntityMemArray, 20> entity_mem_arrays;
+	// Low level byte array
+	ChunkStorage chunk_storage;
+	// Holds the useful metadata about each storage block in chunk storage. Iterate over it to go through all entity types.
+	Array<EntityStorageBlockMetadata, max_types_per_storage> storage_metadata_array;
+	// Convenience map to retrieve storage metadata for a specific entity type.
+    map<TypeID, EntityStorageBlockMetadata*> storage_metadata_map;
+	// TODO: Implement a TraitID to array of typeIds
 
     template<typename T_Entity>
     Iterator<T_Entity*> GetIterator()
@@ -41,20 +66,20 @@ struct WorldChunk
         return Iterator<T_Entity*>({}, 0);
     }
 
-    void InvokeTraitUpdateOnAllTypes(unsigned int trait_id)
+	// TODO: We should refactor this method so it uses a list of TypeIDs from EntityTraitsManager so that we only check the chunk's TypeID to EntityStorageBlockMetadata map
+	// TODO: This way the world chunk storage doesn't need to care about traits at all.
+    void InvokeTraitUpdateOnAllTypes(TraitID trait_id)
     {
         auto* etm = EntityTraitsManager::Get();
-        for(auto& mem_array : entity_mem_arrays)
+        for (auto& block_metadata : storage_metadata_array)
         {
-            if(mem_array.entity_traits & trait_id)
+            if (Contains(block_metadata.entity_traits, trait_id))
             {
-                auto* trait_update_f = etm->GetUpdateFunc(mem_array.type_id, trait_id);
-                int i = 0;
-                while(i < mem_array.count)
+                auto* trait_update_func = etm->GetUpdateFunc(block_metadata.type_id, trait_id);
+                for (int i = 0; i < block_metadata.entity_count; i++)
                 {
-                    auto* entity_ptr = reinterpret_cast<E_BaseEntity*>(mem_array.array + mem_array.type_size * i);
-                    trait_update_f(entity_ptr);
-                    i++;
+                    auto* entity = reinterpret_cast<E_BaseEntity*>(block_metadata.data_start + block_metadata.type_size * i);
+                    trait_update_func(entity);
                 }
             }
         }
@@ -65,34 +90,24 @@ struct WorldChunk
     {
         auto type_id = T_Entity::GetTypeId();
 
-        // if we don't have a memory array for this type yet ...
-        if(!type_to_mem_array.contains(type_id))
-        { 
-            EntityMemArray m;
-            m.type_id = type_id;
-            m.type_size = sizeof(T_Entity);
-            m.size = T_Entity::memory_budget;
-            m.entity_traits = T_Entity::traits;
-            
-            // if we have budget, get a new memory array for the new type
-            if(memory.bytes_consumed + m.size * m.type_size <= memory.budget)
-            {
-                m.array = memory.next_array_start;
-                memory.next_array_start += m.size * m.type_size;
-
-                auto* mem_array_slot = entity_mem_arrays.Add(m);
-                type_to_mem_array[type_id] = mem_array_slot;
-            }
-            else
-            {
-                std::cout << "FATAL: Memory budget for World Chunk with id = " 
-                << id 
-                << " has ended. Could not allocate memory for entity with type_id = "
-                << type_id
-                << "\n"; 
-
-                assert(false);
-            }
+    	if (storage_metadata_map.contains(type_id))
+    		return;
+    	
+        EntityStorageBlockMetadata entity_storage(type_id, sizeof(T_Entity), T_Entity::memory_budget);
+        entity_storage.entity_traits = T_Entity::traits.Copy();
+        
+        // if we have budget, get a block for the new entity type
+    	u32 total_entity_block_size = entity_storage.max_entity_instances * entity_storage.type_size;
+        if(chunk_storage.bytes_consumed + total_entity_block_size <= chunk_storage.chunk_byte_budget)
+        {
+            entity_storage.data_start = chunk_storage.next_block_start;
+            chunk_storage.next_block_start += total_entity_block_size;
+            storage_metadata_map[type_id] = storage_metadata_array.Add(entity_storage);
+        }
+        else
+        {
+            std::cout << "FATAL: Memory budget for World Chunk with id = " << id << " has ended. Could not allocate memory for entity with type_id = " << type_id << "\n"; 
+            assert(false);
         }
     };
 
@@ -101,21 +116,18 @@ struct WorldChunk
     {
         MaybeAllocateForType<T_Entity>();
 
-        if(auto it = type_to_mem_array.find(T_Entity::GetTypeId()); it != type_to_mem_array.end())
+        if (EntityStorageBlockMetadata* block_metadata = Find(storage_metadata_map, T_Entity::GetTypeId()))
         {
-            EntityMemArray* mem_array = it->second;
-            if(mem_array->count < mem_array->size)
+            if (block_metadata->entity_count < block_metadata->max_entity_instances)
             {
-                byte* entity_storage_address = (mem_array->array + ++mem_array->count * mem_array->type_size);
-                auto zeroed_memory = new (entity_storage_address) T_Entity();
-                return zeroed_memory;
+                byte* entity_storage_address = (block_metadata->data_start + ++block_metadata->entity_count * block_metadata->type_size);
+            	auto* new_entity = new (entity_storage_address) T_Entity();
+            	
+                return new_entity;
             }
             else
             {
-                std::cout << "ERROR: There is no memory budget left in WorldChunk with id = " 
-                << id 
-                << " for E_Type with id = " << T_Entity::GetTypeId() 
-                << ". Could not allocate memory.\n";
+                std::cout << "ERROR: There is no memory budget left in WorldChunk with id = " << id << " for E_Type with id = " << T_Entity::GetTypeId() << ". Could not allocate memory.\n";
             }
         }
         else
@@ -123,23 +135,23 @@ struct WorldChunk
             std::cout << "FATAL : This shouldn't have happened.\n";
             assert(false);
         }
-
+    	
         return nullptr;
     }
 };
 
-/**                 World               */
+/** World */
 
 struct World
 {
 	// in the future such vector will be replaced with a memory arena
-	std::vector<WorldChunk> chunks;
-	std::vector<WorldChunk*> active_chunks;
+	vector<WorldChunk> chunks;
+	vector<WorldChunk*> active_chunks;
 
 	void Update()
 	{
 		auto* entity_traits_manager = EntityTraitsManager::Get();
-		for(TraitID trait_id : entity_traits_manager->entity_traits)
+		for (TraitID trait_id : entity_traits_manager->entity_traits)
 		{
 			for (auto* chunk: active_chunks)
 			{

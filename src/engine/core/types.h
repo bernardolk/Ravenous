@@ -59,8 +59,8 @@ using string = std::string;
 
 using flag = unsigned int;
 
-using TypeID = unsigned int;
-using TraitID = unsigned int;
+using TypeID = u32;
+using TraitID = u32;
 
 extern const float VecComparePrecision;
 extern const float MaxFloat;
@@ -166,22 +166,32 @@ const T_Val* Find(const std::map<T_Key, T_Val>& map, T_Key key)
 	return &find->second;
 }
 
-
+/** Basic iterable array data structure */
 template<typename T, unsigned int Size>
 struct Array
 {
 
 public:
-	T array[Size];
-	unsigned int count = 0;
+	T data[Size]{};
+	u32 count = 0;
+
+	Array() = default;
+	Array(T* data, u32 count)
+	{
+		for (u32 i = 0; i < count; i++)
+		{
+			this->data[i] = data[i];
+		}
+		this->count = count;
+	}
 
 public:
 	T* Add(const T instance)
 	{
 		if (count < Size)
 		{
-			array[count] = instance;
-			return &array[count++];
+			data[count] = instance;
+			return &data[count++];
 		}
 #ifdef T_ARRAY_OVERFLOW_IS_FATAL
 		else
@@ -198,8 +208,8 @@ public:
 	{
 		if (i < count)
 		{
-			array[i] = instance;
-			return &array[i];
+			data[i] = instance;
+			return &data[i];
 		}
 		else if (i >= Size)
 		{
@@ -221,7 +231,7 @@ public:
 	{
 		if (count < Size)
 		{
-			return &(array[count++]);
+			return &(data[count++]);
 		}
 
 		return nullptr;
@@ -234,11 +244,56 @@ public:
 
 	T* begin()
 	{
-		return &array[0];
+		return &data[0];
 	}
 
 	T* end()
 	{
-		return &array[count];
+		return &data[count];
+	}
+
+	Array Copy()
+	{
+		return Array(&data[0], count);
+	}
+	
+	
+	using Lambda = bool (*)(T&);
+	bool Eval(Lambda f)
+	{
+		for (u32 i = 0; i < count; i++)
+		{
+			if (f(&data[i]))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 };
+
+template<typename A, typename T>
+bool Contains(A& array, T& thing)
+{
+	for (u32 i = 0; i < array.count; i++)
+	{
+		if (array.data[i] == thing)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+template<typename A>
+bool Contains(A& array, u32 value)
+{
+	for (u32 i = 0; i < array.count; i++)
+	{
+		if (array.data[i] == value)
+		{
+			return true;
+		}
+	}
+	return false;
+}
