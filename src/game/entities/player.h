@@ -85,6 +85,7 @@ struct Player
 	bool action = false;
 	bool want_to_grab = false;
 	bool dodge_btn = false;
+	bool interact_btn = false;
 
 	PlayerState player_state;
 	PlayerState initial_player_state;

@@ -66,6 +66,9 @@
 #include "engine/serialization/sr_world.h"
 #include "engine/world/world.h"
 
+#include "engine/world/world_chunk.h"
+#include "game/entities/e_door.h"
+
 // FUNCTION PROTOTYPES
 void LoadShaders();
 
@@ -156,6 +159,19 @@ int main()
 	player->entity_ptr->flags |= EntityFlags_RenderWireframe;
 
 	world->UpdateEntities();
+
+	/**		NEW STUFF	*/
+	auto* new_world = T_World::Get();
+	
+	// set first one to active
+	auto* active_chunk = new_world->chunks.GetAt(0);
+	new_world->active_chunks.push_back(active_chunk);
+
+	// create entities
+	auto* door = active_chunk->RequestEntityStorage<E_Door>();
+	
+	// update all entities, trait by trait, world chunk by chunk
+	new_world->Update();
 
 	RavenousMainLoop();
 }

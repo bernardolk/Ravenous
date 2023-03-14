@@ -62,20 +62,21 @@ void IN_ProcessMoveKeys(InputFlags flags, vec3& v_dir)
 }
 
 
-void IN_HandleMovementInput(InputFlags flags, Player* & player, World* world)
+void IN_HandleMovementInput(InputFlags flags, Player* player, World* world)
 {
-	player->dodge_btn = false;
-
 	// assign keys
 	IN_AssignKeysToActions();
 
-	// reset player movement intention state
+	// reset player flags
+	player->dodge_btn = false;
+	player->interact_btn = false;
 	player->dashing = false;
 	player->walking = false;
 	player->action = false;
 	player->want_to_grab = false;
-	auto& v_dir = player->v_dir;
-	v_dir = vec3(0);
+
+	// reset player 
+	player->v_dir = vec3(0);
 
 	// combines all key presses into one v direction
 	switch (player->player_state)
@@ -84,7 +85,7 @@ void IN_HandleMovementInput(InputFlags flags, Player* & player, World* world)
 		case PlayerState::Standing:
 		{
 			// MOVE
-			IN_ProcessMoveKeys(flags, v_dir);
+			IN_ProcessMoveKeys(flags, player->v_dir);
 
 			// DASH
 			if (flags.key_press & KEY_DASH)
@@ -105,7 +106,8 @@ void IN_HandleMovementInput(InputFlags flags, Player* & player, World* world)
 			// INTERACT
 			if (PressedOnce(flags, KEY_ACTION))
 			{
-				GP_CheckTriggerInteraction(player, world);
+				// GP_CheckTriggerInteraction(player, world);
+				player->interact_btn = true;
 				player->dodge_btn = true;
 			}
 
@@ -116,7 +118,7 @@ void IN_HandleMovementInput(InputFlags flags, Player* & player, World* world)
 		{
 			// MID-AIR CONTROL IF JUMPING UP
 			if (player->jumping_upwards)
-				IN_ProcessMoveKeys(flags, v_dir);
+				IN_ProcessMoveKeys(flags, player->v_dir);
 
 			if (Pressed(flags, KEY_DASH))
 				player->action = true;
@@ -168,6 +170,6 @@ void IN_HandleMovementInput(InputFlags flags, Player* & player, World* world)
 		}
 	}
 
-	if (!(v_dir.x == 0.f && v_dir.y == 0.f && v_dir.z == 0.f))
-		v_dir = normalize(v_dir);
+	// normalize v_dir
+	player->v_dir = player->v_dir != vec3(0.f, 0.f, 0.f) ? normalize(player->v_dir) : player->v_dir;
 }

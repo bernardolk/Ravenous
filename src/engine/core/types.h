@@ -185,7 +185,20 @@ public:
 		this->count = count;
 	}
 
+	explicit Array(T& default_obj)
+	{
+		for (u32 i = 0; i < Size; i++)
+		{
+			this->data[i] = default_obj;
+		}
+	}
+
 public:
+	T* GetAt(int i)
+	{
+		return &data[i];
+	}
+	
 	T* Add(const T instance)
 	{
 		if (count < Size)

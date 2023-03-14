@@ -1,8 +1,8 @@
 #pragma once
 
 struct E_BaseEntity
-{ 
-	int type_id;
-	int id;
-	float position[3];
+{
+	TypeID type_id;
+	u64 id = 0;
+	float position[3]{};
 };

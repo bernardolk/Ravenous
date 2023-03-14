@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/core/core.h"
+#include "engine/entities/base_entity.h"
 #include "engine/entities/manager/entity_traits_manager.h"
 
 /** Global entity type system data */
@@ -14,7 +15,8 @@ template<typename T_Entity>
 struct T_EntityTypeBase
 {
 	static inline Array<TraitID, EntityTraitsManager::max_traits> traits{};
-	static inline size_t instance_allocation_budget = 10;
+	// max instances per world chunk
+	static inline size_t instance_budget = 10;
 private:
 	static inline TypeID TYPE_ID;
 
@@ -25,7 +27,7 @@ public:
 		// TODO: See if we really need the static helper here. (why not use directly TYPE_ID?)
 		STATIC_HELPER int type_id = ++EntityTypeSystem::TypeIDCounter;
 		TYPE_ID = type_id;
-		static_cast<E_BaseEntity*>(this)->type_id = TYPE_ID;
+		reinterpret_cast<E_BaseEntity*>(this)->type_id = TYPE_ID;
 	};
 
 	static TypeID GetTypeId() { return TYPE_ID; };

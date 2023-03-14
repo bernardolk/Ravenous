@@ -17,3 +17,5 @@
 #define STATIC_HELPER static
 
 #define StaticHelperByte static inline char
+
+#define PRINT(x) std::cout << (x) << "\n";
