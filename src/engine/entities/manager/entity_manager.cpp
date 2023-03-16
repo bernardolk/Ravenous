@@ -156,7 +156,7 @@ Entity* EntityManager::CreateEntity(const EntityAttributes& attrs)
 
 	// TODO: Obsolete with new entity system
 	// sets new entity_type
-	SetType(new_entity, attrs.type);
+	//SetType(new_entity, attrs.type);
 
 	return new_entity;
 }
@@ -222,61 +222,61 @@ Entity* EntityManager::CopyEntity(Entity* entity)
 	return new_entity;
 }
 
-void EntityManager::SetType(Entity* entity, const EntityType type)
-{
-	UnsetAllTypeRelatedConfigurations(entity);
-
-	switch (type)
-	{
-		// CHECKPOINT
-		case EntityType_Checkpoint:
-		{
-			MakeInteractable(entity);
-			checkpoints_registry->push_back(entity);
-			entity->type = EntityType_Checkpoint;
-			break;
-		}
-
-		// STATIC
-		case EntityType_Static:
-		{
-			entity->type = EntityType_Static;
-			break;
-		}
-
-		// TIMER TRIGGER
-		case EntityType_TimerTrigger:
-		{
-			MakeInteractable(entity);
-			entity->type = EntityType_TimerTrigger;
-			// initialize union member
-			new(&entity->timer_trigger_data) TimerTriggerData();
-			break;
-		}
-
-		// TIMER TARGET
-		case EntityType_TimerTarget:
-		{
-			entity->type = EntityType_TimerTarget;
-			new(&entity->timer_trigger_data) TimerTargetData();
-			break;
-		}
-
-		// TIMER MARKING
-		case EntityType_TimerMarking:
-		{
-			entity->type = EntityType_TimerMarking;
-			new(&entity->timer_marking_data) TimerMarkingData();
-
-			const auto shader = ShaderCatalogue.find(EntityShaderMarking)->second;
-			entity->shader = shader;
-			break;
-		}
-
-		default:
-			Quit_fatal("Entity manager doesn't know what entity type '" + std::to_string(type) + "' should be.")
-	}
-}
+// void EntityManager::SetType(Entity* entity, const EntityType type)
+// {
+// 	UnsetAllTypeRelatedConfigurations(entity);
+//
+// 	switch (type)
+// 	{
+// 		// CHECKPOINT
+// 		case EntityType_Checkpoint:
+// 		{
+// 			MakeInteractable(entity);
+// 			checkpoints_registry->push_back(entity);
+// 			entity->type = EntityType_Checkpoint;
+// 			break;
+// 		}
+//
+// 		// STATIC
+// 		case EntityType_Static:
+// 		{
+// 			entity->type = EntityType_Static;
+// 			break;
+// 		}
+//
+// 		// TIMER TRIGGER
+// 		case EntityType_TimerTrigger:
+// 		{
+// 			MakeInteractable(entity);
+// 			entity->type = EntityType_TimerTrigger;
+// 			// initialize union member
+// 			new(&entity->timer_trigger_data) TimerTriggerData();
+// 			break;
+// 		}
+//
+// 		// TIMER TARGET
+// 		case EntityType_TimerTarget:
+// 		{
+// 			entity->type = EntityType_TimerTarget;
+// 			new(&entity->timer_trigger_data) TimerTargetData();
+// 			break;
+// 		}
+//
+// 		// TIMER MARKING
+// 		case EntityType_TimerMarking:
+// 		{
+// 			entity->type = EntityType_TimerMarking;
+// 			new(&entity->timer_marking_data) TimerMarkingData();
+//
+// 			const auto shader = ShaderCatalogue.find(EntityShaderMarking)->second;
+// 			entity->shader = shader;
+// 			break;
+// 		}
+//
+// 		default:
+// 			Quit_fatal("Entity manager doesn't know what entity type '" + std::to_string(type) + "' should be.")
+// 	}
+// }
 
 // ----------------
 // > DELETE ENTITY
@@ -303,11 +303,13 @@ void EntityManager::MarkForDeletion(Entity* entity)
 		entity->world_cells[i]->Remove(entity);
 
 	// remove from checkpoint registry if checkpoint
+	/*
 	if (entity->type == EntityType_Checkpoint)
 	{
 		auto& vec = *(checkpoints_registry);
 		std::erase(vec, entity);
 	}
+	*/
 
 	deletion_stack.push_back(entity);
 }

@@ -96,7 +96,8 @@ CollisionMesh Entity::GetTriggerCollider()
 
 bool Entity::IsInteractable()
 {
-	return this->type == EntityType_Checkpoint || this->type == EntityType_TimerTrigger;
+	return false;
+	//return this->type == EntityType_Checkpoint || this->type == EntityType_TimerTrigger;
 }
 
 

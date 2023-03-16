@@ -9,6 +9,7 @@
 
 void T_GameState::StartTimer(Entity* trigger)
 {
+	/**
 	For(timers_array_size)
 	{
 		auto timer = &timers[i];
@@ -28,10 +29,12 @@ void T_GameState::StartTimer(Entity* trigger)
 	}
 
 	Quit_fatal("Too many timer targets running at the same time.");
+	*/
 }
 
 void T_GameState::UpdateTimers()
 {
+	/**
 	For(timers_array_size)
 	{
 		auto timer = &timers[i];
@@ -54,4 +57,5 @@ void T_GameState::UpdateTimers()
 			}
 		}
 	}
+	*/
 }

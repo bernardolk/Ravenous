@@ -1,10 +1,16 @@
 #pragma once
 
 #include "engine/core/core.h"
-#include "engine/entities/base_entity.h"
+#include "engine/entities/e_base_entity.h"
 #include "engine/entities/manager/entity_traits_manager.h"
 
-/*
+/**
+ * TODO:
+ * . Add exclude / delete entity functionality
+ * . 
+ */
+
+/**
  *  World / World Chunk memory layout brief explanation:
  *  The world is composed of chunks, each chunk has a memory budget in bytes and can store blocks of entities.
  *  Each block can contain only one entity type. Each block vary in size depending on each entity type's memory budget.

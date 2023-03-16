@@ -48,11 +48,14 @@ void Player::RestoreHealth()
 
 void Player::SetCheckpoint(Entity* entity)
 {
+	return;
+	/*
 	if (entity->type != EntityType_Checkpoint)
 		assert(false);
 
 	checkpoint_pos = entity_ptr->position;
 	checkpoint = entity;
+	*/
 }
 
 void Player::GotoCheckpoint()

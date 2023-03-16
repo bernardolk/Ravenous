@@ -221,10 +221,11 @@ namespace Editor
 		// -------------------
 		// > ENTITY TYPE TAB
 		// -------------------
+		/**
 		if (ImGui::BeginTabItem("Attributes", nullptr, ImGuiTabItemFlags_None))
 		{
 			ImGui::Text("Entity Type");
-
+			
 			// EntityType_Static
 			bool is_static = entity->type == EntityType_Static;
 			if (ImGui::RadioButton("Static", is_static))
@@ -411,6 +412,7 @@ namespace Editor
 				ImGui::EndTabItem();
 			}
 		}
+		*/
 
 		// ----------------
 		// > TEXTURES TAB

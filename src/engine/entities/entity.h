@@ -4,11 +4,7 @@
 #include "engine/collision/collision_mesh.h"
 #include "engine/geometry/mesh.h"
 #include "engine/collision/primitives/bounding_box.h"
-
-
-constexpr static size_t EntityWolrdCellOccupationLimit = 50;
-const static std::string DefaultEntityShader = "model";
-const static std::string EntityShaderMarking = "color";
+#include "engine/entities/e_entity.h"
 
 
 enum EntityTimerTargetType
@@ -26,14 +22,14 @@ enum EntityType
 	EntityType_TimerMarking = 4,
 };
 
-enum EntityFlags
-{
-	EntityFlags_EmptyEntity        = (1 << 0),
-	EntityFlags_InvisibleEntity    = (1 << 1),
-	EntityFlags_HiddenEntity       = (1 << 2),
-	EntityFlags_RenderTiledTexture = (1 << 3),
-	EntityFlags_RenderWireframe    = (1 << 4),
-};
+// enum EntityFlags
+// {
+// 	EntityFlags_EmptyEntity        = (1 << 0),
+// 	EntityFlags_InvisibleEntity    = (1 << 1),
+// 	EntityFlags_HiddenEntity       = (1 << 2),
+// 	EntityFlags_RenderTiledTexture = (1 << 3),
+// 	EntityFlags_RenderWireframe    = (1 << 4),
+// };
 
 struct TimerMarkingData
 {
@@ -94,7 +90,6 @@ struct Entity
 	// box UV tile setting
 	int uv_tile_wrap[6] = {1, 1, 1, 1, 1, 1};
 
-
 	// simulation data
 	vec3 position = vec3(0.0f);
 	vec3 rotation = vec3(0.0f);
@@ -110,7 +105,7 @@ struct Entity
 	// collider settings
 	bool slidable = false;
 
-	WorldCell* world_cells[EntityWolrdCellOccupationLimit]{};
+	WorldCell* world_cells[MaxEntityWorldCells]{};
 	int world_cells_count = 0;
 
 

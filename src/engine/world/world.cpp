@@ -227,10 +227,10 @@ CellUpdate World::UpdateEntityWorldCells(Entity* entity)
 	const int new_cells_count = (i1 - i0 + 1) * (j1 - j0 + 1) * (k1 - k0 + 1);
 
 	// Entity too large catch
-	if (new_cells_count > EntityWolrdCellOccupationLimit)
+	if (new_cells_count > MaxEntityWorldCells)
 	{
 		message = "Entity '" + entity->name + "' is too large and it occupies more than " +
-		"the limit of " + std::to_string(EntityWolrdCellOccupationLimit) + " world cells at a time.";
+		"the limit of " + std::to_string(MaxEntityWorldCells) + " world cells at a time.";
 
 		return CellUpdate{CellUpdate_ENTITY_TOO_BIG, message};
 	}

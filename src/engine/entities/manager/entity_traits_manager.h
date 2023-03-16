@@ -1,7 +1,7 @@
 #pragma once
 
 #include "engine/core/core.h"
-#include "engine/entities/base_entity.h"
+#include "engine/entities/e_base_entity.h"
 
 struct EntityTraitsManager
 {

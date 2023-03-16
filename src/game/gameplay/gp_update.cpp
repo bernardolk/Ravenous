@@ -395,6 +395,7 @@ vec3 GP_PlayerStandingGetNextPosition(Player* player)
 
 void GP_CheckTriggerInteraction(Player* player, World* world)
 {
+	/**
 	For(world->interactables.size())
 	{
 		auto interactable = world->interactables[i];
@@ -421,6 +422,7 @@ void GP_CheckTriggerInteraction(Player* player, World* world)
 			}
 		}
 	}
+	*/
 }
 
 // -------------------

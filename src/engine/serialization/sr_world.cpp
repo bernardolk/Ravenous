@@ -130,6 +130,7 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 		if (deferred_entity == nullptr)
 			Quit_fatal("Entity with id '" + std::to_string(deferred_entity_id) + "' not found to stablish a defined entity relationship.")
 
+		/**
 		switch (relation)
 		{
 			case SrEntityRelation_TimerTarget:
@@ -145,6 +146,7 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 				break;
 			}
 		}
+		*/
 	}
 
 

@@ -163,37 +163,37 @@ void EntitySerializer::Parse(Parser& parser)
 			new_entity->flags |= EntityFlags_HiddenEntity;
 		}
 
-		else if (property == "type")
-		{
-			p.ParseAllWhitespace();
-			p.ParseToken();
-			const auto entity_type = GetParsed<std::string>(parser);
-
-			if (entity_type == SrEntityType::Static)
-				manager->SetType(new_entity, EntityType_Static);
-
-			else if (entity_type == SrEntityType::Checkpoint)
-				manager->SetType(new_entity, EntityType_Checkpoint);
-
-			else if (entity_type == SrEntityType::TimerTrigger)
-				manager->SetType(new_entity, EntityType_TimerTrigger);
-
-			else if (entity_type == SrEntityType::TimerTarget)
-				manager->SetType(new_entity, EntityType_TimerTarget);
-
-			else if (entity_type == SrEntityType::TimerMarking)
-				manager->SetType(new_entity, EntityType_TimerMarking);
-
-			else
-				Quit_fatal("Entity type '" + entity_type + "' not identified.");
-
-			is_type_set = true;
-		}
+		// else if (property == "type")
+		// {
+		// 	p.ParseAllWhitespace();
+		// 	p.ParseToken();
+		// 	const auto entity_type = GetParsed<std::string>(parser);
+		//
+		// 	if (entity_type == SrEntityType::Static)
+		// 		manager->SetType(new_entity, EntityType_Static);
+		//
+		// 	else if (entity_type == SrEntityType::Checkpoint)
+		// 		manager->SetType(new_entity, EntityType_Checkpoint);
+		//
+		// 	else if (entity_type == SrEntityType::TimerTrigger)
+		// 		manager->SetType(new_entity, EntityType_TimerTrigger);
+		//
+		// 	else if (entity_type == SrEntityType::TimerTarget)
+		// 		manager->SetType(new_entity, EntityType_TimerTarget);
+		//
+		// 	else if (entity_type == SrEntityType::TimerMarking)
+		// 		manager->SetType(new_entity, EntityType_TimerMarking);
+		//
+		// 	else
+		// 		Quit_fatal("Entity type '" + entity_type + "' not identified.");
+		//
+		// 	is_type_set = true;
+		// }
 
 		// ---------------------------------
 		// > entity type related properties
 		// ---------------------------------
-
+		/*
 		else if (property == "timer_target")
 		{
 			if (!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
@@ -277,6 +277,8 @@ void EntitySerializer::Parse(Parser& parser)
 			new_entity->timer_marking_data.color_off = GetParsed<glm::vec3>(parser);
 		}
 
+		*/
+
 		// ---------------------------------
 
 		else if (property == "trigger")
@@ -338,6 +340,7 @@ void EntitySerializer::Save(std::ofstream& writer, Entity& entity)
 	if (entity.flags & EntityFlags_RenderWireframe)
 		writer << "hidden\n";
 
+	/*
 	switch (entity.type)
 	{
 		case EntityType_Static:
@@ -408,6 +411,7 @@ void EntitySerializer::Save(std::ofstream& writer, Entity& entity)
 			break;
 		}
 	}
+	*/
 
 	if (entity.slidable)
 	{

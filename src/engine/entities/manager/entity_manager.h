@@ -58,7 +58,7 @@ struct EntityManager
 	void RemoveInteractivity(Entity* entity);
 	void MakeInteractable(Entity* entity);
 	void UnsetAllTypeRelatedConfigurations(Entity* entity);
-	void SetType(Entity* entity, EntityType type);
+	// void SetType(Entity* entity, EntityType type);
 	void MarkForDeletion(Entity* entity);
 	void SafeDeleteMarkedEntities();
 };

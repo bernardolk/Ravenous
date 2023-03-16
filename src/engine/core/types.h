@@ -57,7 +57,7 @@ using GLenum = unsigned int;
 
 using string = std::string;
 
-using flag = unsigned int;
+using Flags = u32;
 
 using TypeID = u32;
 using TraitID = u32;

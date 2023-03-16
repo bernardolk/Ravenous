@@ -1233,10 +1233,10 @@ namespace Editor
 				{
 					case EdToolCallback_EntityManagerSetType:
 					{
-						EM->SetType(
-							*ed_context.select_entity_aux_mode_entity_slot,
-							ed_context.select_entity_aux_mode_callback_args.entity_type
-						);
+						// EM->SetType(
+						// 	*ed_context.select_entity_aux_mode_entity_slot,
+						// 	ed_context.select_entity_aux_mode_callback_args.entity_type
+						// );
 						break;
 					}
 				}
