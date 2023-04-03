@@ -5,8 +5,8 @@
 void GP_UpdatePlayerState();
 /* updates player position */
 vec3 GP_PlayerStandingGetNextPosition(Player* player);
-void GP_CheckTriggerInteraction(Player* player, World* world);
-void GP_CheckPlayerGrabbedLedge(Player* player, World* world);
+void GP_CheckTriggerInteraction(Player* player, T_World* world);
+void GP_CheckPlayerGrabbedLedge(Player* player, T_World* world);
 bool GP_CheckPlayerVaulting(Player* player);
 bool GP_SimulatePlayerCollisionInFallingTrajectory(Player* player, vec2 xz_velocity);
 // bool GP_scan_for_terrain(vec3 center, float radius, vec2 orientation0, float angle, int subdivisions);

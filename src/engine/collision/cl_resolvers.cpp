@@ -23,16 +23,16 @@ void CL_ResolveCollision(ClResults results, Player* player)
 {
 	// unstuck player
 	vec3 offset = results.normal * results.penetration;
-	player->entity_ptr->position += offset;
+	player->position += offset;
 
 	// update, but don't update collider
-	player->entity_ptr->UpdateModelMatrix();
-	player->entity_ptr->bounding_box.Translate(offset);
+	player->UpdateModelMatrix();
+	player->bounding_box.Translate(offset);
 
 }
 
 
-ClVtraceResult CL_DoStepoverVtrace(Player* player, World* world)
+ClVtraceResult CL_DoStepoverVtrace(Player* player, T_World* world)
 {
 	/* 
 	   Cast a ray at player's last point of contact with terrain to look for something steppable (terrain).
@@ -41,7 +41,7 @@ ClVtraceResult CL_DoStepoverVtrace(Player* player, World* world)
 
 	vec3 ray_origin = player->GetLastTerrainContactPoint() + vec3(0, 0.21, 0);
 	auto downward_ray = Ray{ray_origin, -UnitY};
-	RaycastTest raytest = world->Raycast(downward_ray, RayCast_TestOnlyFromOutsideIn, player->entity_ptr);
+	RaycastTest raytest = world->Raycast(downward_ray, RayCast_TestOnlyFromOutsideIn, player);
 
 	if (!raytest.hit)
 		return ClVtraceResult{false};
@@ -57,7 +57,7 @@ ClVtraceResult CL_DoStepoverVtrace(Player* player, World* world)
 	ImDraw::AddLine(IMHASH, hitpoint, ray_origin, 1.0, true, COLOR_GREEN_1);
 	ImDraw::AddPoint(IMHASH, hitpoint, 1.0, true, COLOR_GREEN_3);
 
-	if (abs(player->entity_ptr->position.y - hitpoint.y) <= PlayerStepoverLimit)
+	if (abs(player->position.y - hitpoint.y) <= PlayerStepoverLimit)
 		return ClVtraceResult{true, player->GetLastTerrainContactPoint().y - hitpoint.y, raytest.entity};
 
 	return ClVtraceResult{false};
@@ -73,21 +73,23 @@ bool GP_SimulatePlayerCollisionInFallingTrajectory(Player* player, vec2 xz_veloc
 	// configs
 	float d_frame = 0.014;
 
-	auto pos_0 = player->entity_ptr->position;
+	auto pos_0 = player->position;
 	auto vel = vec3(xz_velocity.x, 0, xz_velocity.y);
 
 	float max_iterations = 120;
 
-	ImDraw::AddPoint(IMHASH, player->entity_ptr->position, 2.0, false, COLOR_GREEN_1, 1);
+	ImDraw::AddPoint(IMHASH, player->position, 2.0, false, COLOR_GREEN_1, 1);
 
+	auto* world = T_World::Get();
+	
 	int iteration = 0;
 	while (true)
 	{
 		vel += d_frame * player->gravity;
-		player->entity_ptr->position += vel * d_frame;
-		ImDraw::AddPoint(IM_ITERHASH(iteration), player->entity_ptr->position, 2.0, true, COLOR_GREEN_1, 1);
+		player->position += vel * d_frame;
+		ImDraw::AddPoint(IM_ITERHASH(iteration), player->position, 2.0, true, COLOR_GREEN_1, 1);
 
-		player->entity_ptr->Update();
+		player->Update(world);
 
 		bool collided = CL_RunTestsForFallSimulation(player);
 		if (!collided)
@@ -98,14 +100,14 @@ bool GP_SimulatePlayerCollisionInFallingTrajectory(Player* player, vec2 xz_veloc
 		{
 			// if entered here, then we couldn't unstuck the player in max_iterations * d_frame seconds of falling towards
 			// player movement direction, so he can't fall there
-			player->entity_ptr->position = pos_0;
-			player->entity_ptr->Update();
+			player->position = pos_0;
+			player->Update(world);
 			return false;
 		}
 	}
 
-	player->entity_ptr->position = pos_0;
-	player->entity_ptr->Update();
+	player->position = pos_0;
+	player->Update(world);
 	return true;
 }
 
@@ -115,7 +117,7 @@ bool GP_SimulatePlayerCollisionInFallingTrajectory(Player* player, vec2 xz_veloc
 void CL_WallSlidePlayer(Player* player, vec3 wall_normal)
 {
 	// changes player velocity to be facing a wall parallel and dampens his speed
-	auto& pv = player->entity_ptr->velocity;
+	auto& pv = player->velocity;
 	if (pv.x == 0 && pv.z == 0)
 		return;
 

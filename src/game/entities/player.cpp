@@ -2,14 +2,14 @@
 #include "engine/collision/cl_controller.h"
 
 
-void Player::Update(World* world, bool update_collider)
+void Player::Update(T_World* world, bool update_collider)
 {
 	// perform updates to bounding boxes, colliders etc
-	entity_ptr->UpdateModelMatrix();
+	UpdateModelMatrix();
 	if (update_collider)
 	{
-		entity_ptr->UpdateCollider();
-		entity_ptr->UpdateBoundingBox();
+		UpdateCollider();
+		UpdateBoundingBox();
 	}
 
 	if (CL_UpdatePlayerWorldCells(this, world))
@@ -20,13 +20,13 @@ void Player::Update(World* world, bool update_collider)
 
 vec3 Player::GetLastTerrainContactPoint() const
 {
-	const vec3 player_btm_sphere_center = entity_ptr->position + vec3(0, radius, 0);
+	const vec3 player_btm_sphere_center = position + vec3(0, radius, 0);
 	return player_btm_sphere_center + -last_terrain_contact_normal * radius;
 }
 
 bool Player::MaybeHurtFromFall()
 {
-	float fall_height = height_before_fall - entity_ptr->position.y;
+	float fall_height = height_before_fall - position.y;
 	fall_height_log = fall_height;
 	if (fall_height >= hurt_height_2)
 	{
@@ -53,20 +53,20 @@ void Player::SetCheckpoint(Entity* entity)
 	if (entity->type != EntityType_Checkpoint)
 		assert(false);
 
-	checkpoint_pos = entity_ptr->position;
+	checkpoint_pos = position;
 	checkpoint = entity;
 	*/
 }
 
 void Player::GotoCheckpoint()
 {
-	entity_ptr->position = checkpoint_pos;
+	position = checkpoint_pos;
 }
 
 void Player::Die()
 {
 	lives = initial_lives;
-	entity_ptr->velocity = vec3(0);
+	velocity = vec3(0);
 	player_state = PlayerState::Standing;
 	ForceInterruptPlayerAnimation(this);
 	GotoCheckpoint();
@@ -80,12 +80,12 @@ void Player::BruteStop()
 
 void Player::MakeInvisible()
 {
-	entity_ptr->MakeInvisible();
+	MakeInvisible();
 }
 
 void Player::MakeVisible()
 {
-	entity_ptr->MakeVisible();
+	MakeVisible();
 }
 
 Player* Player::ResetPlayer()

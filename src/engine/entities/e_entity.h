@@ -4,6 +4,7 @@
 #include "e_base_entity.h"
 #include "engine/collision/collision_mesh.h"
 #include "engine/collision/primitives/bounding_box.h"
+#include "engine/world/world_chunk.h"
 
 enum EntityFlags
 {
@@ -18,6 +19,8 @@ enum EntityFlags
 struct E_Entity : E_BaseEntity
 {
 	Flags flags = 0;
+	
+	VisitorState visitor_state;
 	
 	/** Simulation data */
 	vec3 position = vec3(0.0f);
@@ -45,8 +48,8 @@ struct E_Entity : E_BaseEntity
 
 	/** World data */
 	// Array<WorldCell*, MaxEntityWorldCells> world_cells{};
-	WorldCell* world_cells[MaxEntityWorldCells]{};
-	int world_cells_count = 0;
+	WorldChunk* world_chunks[MaxEntityWorldChunks]{};
+	int world_chunks_count = 0;
 	
 	/** Event trigger */
 	// TODO: Will only be necessary on I_Interactable

@@ -17,14 +17,14 @@
 // > UPDATE PLAYER WORLD CELLS   
 // ----------------------------
 
-bool CL_UpdatePlayerWorldCells(Player* player, World* world)
+bool CL_UpdatePlayerWorldCells(Player* player, T_World* world)
 {
 	/* Updates the player's world cells
 	   Returns whether there were changes or not to the cell list
 	   @todo - the procedures invoked here seem to do more work than necessary. Keep this in mind.
 	*/
 
-	auto update_cells = world->UpdateEntityWorldCells(player->entity_ptr);
+	auto update_cells = world->UpdateEntityWorldCells(player);
 	if (!update_cells.status == CellUpdate_OK)
 	{
 		std::cout << update_cells.message << "\n";
@@ -45,14 +45,14 @@ void CL_RecomputeCollisionBufferEntities(Player* player)
 	// copies collision-check-relevant entity ptrs to a buffer
 	// with metadata about the collision check for the entity
 	auto collision_buffer = Rvn::entity_buffer->buffer;
-	int entity_count = 0;
-	for (int i = 0; i < player->entity_ptr->world_cells_count; i++)
-	{
-		auto cell = player->entity_ptr->world_cells[i];
-		for (int j = 0; j < cell->count; j++)
-		{
-			auto entity = cell->entities[j];
 
+	int entity_count = 0;
+	
+	for (auto* chunk : player->world_chunks)
+	{
+		auto entity_iterator = chunk->GetIterator();
+		while(E_Entity* entity = entity_iterator())
+		{
 			// adds to buffer only if not present already
 			bool present = false;
 			for (int k = 0; k < entity_count; k++)
@@ -84,7 +84,7 @@ void CL_ResetCollisionBufferChecks()
 }
 
 
-void CL_MarkEntityChecked(Entity* entity)
+void CL_MarkEntityChecked(E_Entity* entity)
 {
 	// marks entity in entity buffer as checked so we dont check collisions for this entity twice (nor infinite loop)
 	auto entity_buffer = Rvn::entity_buffer;
@@ -180,7 +180,7 @@ ClResults CL_TestCollisionBufferEntitites(
 	bool test = false;
 	for (int i = 0; i < entity_list_size; i++)
 	{
-		Entity* entity = buffer[i].entity;
+		E_Entity* entity = buffer[i].entity;
 
 		bool entity_is_player = entity->name == "Player";
 		bool checked = iterative && buffer->collision_check;
@@ -188,11 +188,11 @@ ClResults CL_TestCollisionBufferEntitites(
 		if (entity_is_player || checked)
 			continue;
 
-		if (!entity->bounding_box.Test(player->entity_ptr->bounding_box))
+		if (!entity->bounding_box.Test(player->bounding_box))
 			continue;
 		if (!test)
 		{
-			player->entity_ptr->UpdateCollider();
+			player->UpdateCollider();
 			test = true;
 		}
 
@@ -208,17 +208,15 @@ ClResults CL_TestCollisionBufferEntitites(
 // -------------------------
 // > TEST PLAYER VS ENTITY
 // -------------------------
-ClResults CL_TestPlayerVsEntity(Entity* entity, Player* player)
+ClResults CL_TestPlayerVsEntity(E_Entity* entity, Player* player)
 {
 	using micro = std::chrono::microseconds;
 
 	ClResults cl_results;
 	cl_results.entity = entity;
 
-	Entity* player_entity = player->entity_ptr;
-
 	CollisionMesh* entity_collider = &entity->collider;
-	CollisionMesh* player_collider = &player_entity->collider;
+	CollisionMesh* player_collider = &player->collider;
 
 	// auto start = std::chrono::high_resolution_clock::now(); 
 	GJK_Result box_gjk_test = CL_RunGjk(entity_collider, player_collider);

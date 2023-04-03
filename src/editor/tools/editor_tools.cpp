@@ -49,7 +49,7 @@ namespace Editor
 		ed_context.undo_stack.deletion_log.Add(entity);
 	}
 
-	void EditorEraseLight(int index, std::string type, World* world)
+	void EditorEraseLight(int index, string type, T_World* world)
 	{
 		auto& ed_context = *GetContext();
 
@@ -309,7 +309,7 @@ namespace Editor
 	// MEASURE TOOL
 	// -------------
 	void ActivateMeasureMode(u8 axis);
-	void CheckSelectionToMeasure(const World* world);
+	void CheckSelectionToMeasure(const T_World* world);
 
 	void ActivateMeasureMode(u8 axis)
 	{
@@ -320,7 +320,7 @@ namespace Editor
 		ed_context.measure_axis = axis;
 	}
 
-	void CheckSelectionToMeasure(const World* world)
+	void CheckSelectionToMeasure(const T_World* world)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto* GSI = GlobalSceneInfo::Get();
@@ -355,7 +355,7 @@ namespace Editor
 	// LOCATE COORDINATES MODE
 	// ------------------------
 	void ActivateLocateCoordsMode();
-	void CheckSelectionToLocateCoords(const World* world);
+	void CheckSelectionToLocateCoords(const T_World* world);
 
 	void ActivateLocateCoordsMode()
 	{
@@ -366,7 +366,7 @@ namespace Editor
 		ed_context.locate_coords_found_point = false;
 	}
 
-	void CheckSelectionToLocateCoords(const World* world)
+	void CheckSelectionToLocateCoords(const T_World* world)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto* GSI = GlobalSceneInfo::Get();
@@ -384,7 +384,7 @@ namespace Editor
 	// -------------
 	// > MOVE TOOLS 
 	// -------------
-	void PlaceEntity(World* world)
+	void PlaceEntity(T_World* world)
 	{
 		/* Common function for move/rotate/scale entity tools.
 		   Updates entity, tracks it state and updates world.
@@ -404,7 +404,7 @@ namespace Editor
 		ed_context.undo_stack.Track(ed_context.selected_entity);
 	}
 
-	RaycastTest TestRayAgainstEntitySupportPlane(u16 move_axis, Entity* entity)
+	RaycastTest TestRayAgainstEntitySupportPlane(u16 move_axis, E_Entity* entity)
 	{
 		// create a big plane for placing entity in the world with the mouse using raycast from camera to mouse
 		// position. In the case of Y placement, we need to compute the plane considering the camera orientation.
@@ -475,7 +475,7 @@ namespace Editor
 	// --------------
 	// >> PLACE MODE
 	// --------------
-	void ActivatePlaceMode(Entity* entity)
+	void ActivatePlaceMode(E_Entity* entity)
 	{
 		auto& ed_context = *GetContext();
 
@@ -485,7 +485,7 @@ namespace Editor
 		ed_context.undo_stack.Track(entity);
 	}
 
-	void SelectEntityPlacingWithMouseMove(Entity* entity, const World* world)
+	void SelectEntityPlacingWithMouseMove(E_Entity* entity, const T_World* world)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto* GSI = GlobalSceneInfo::Get();
@@ -503,7 +503,7 @@ namespace Editor
 	// -------------
 	// >> MOVE MODE
 	// -------------
-	void ActivateMoveMode(Entity* entity)
+	void ActivateMoveMode(E_Entity* entity)
 	{
 		auto& ed_context = *GetContext();
 
@@ -514,7 +514,7 @@ namespace Editor
 		ed_context.undo_stack.Track(entity);
 	}
 
-	void MoveEntityWithMouse(Entity* entity)
+	void MoveEntityWithMouse(E_Entity* entity)
 	{
 		auto& ed_context = *GetContext();
 
@@ -566,7 +566,7 @@ namespace Editor
 	}
 
 
-	void MoveEntityByArrows(Entity* entity)
+	void MoveEntityByArrows(E_Entity* entity)
 	{
 		auto& ed_context = *GetContext();
 
@@ -816,7 +816,7 @@ namespace Editor
 	// ------------------
 	// SCALE ENTITY TOOL
 	// ------------------
-	void ScaleEntityWithMouse(Entity* entity)
+	void ScaleEntityWithMouse(E_Entity* entity)
 	{
 		// NOT IMPLEMENTED
 	}
@@ -826,7 +826,7 @@ namespace Editor
 	// SELECT ENTITY AUX TOOL
 	// -----------------------
 	// used in entity panel to select other entity to attribute 1 to 1 relationships
-	void ActivateSelectEntityAuxTool(Entity** entity_slot, EdToolCallback callback, EdToolCallbackArgs args)
+	void ActivateSelectEntityAuxTool(E_Entity** entity_slot, EdToolCallback callback, EdToolCallbackArgs args)
 	{
 		auto& ed_context = *GetContext();
 

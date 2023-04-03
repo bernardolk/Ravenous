@@ -6,56 +6,50 @@
 
 namespace Editor
 {
-	void RenderWorldPanel(WorldPanelContext* panel, const World* world, const Player* player)
+	void RenderWorldPanel(WorldPanelContext* panel, const T_World* world, const Player* player)
 	{
 		ImGui::SetNextWindowPos(ImVec2(100, 300), ImGuiCond_Appearing);
 		ImGui::Begin("World Panel", &panel->active, ImGuiWindowFlags_None);
 		ImGui::SetWindowSize("World Panel", ImVec2(500, 700), ImGuiCond_Appearing);
 
 		ImGui::Text("World Cells");
-		for (int i = 0; i < world->cells_in_use_count; i++)
+		int i = 0;
+		for (auto* active_chunk : world->active_chunks)
 		{
-			auto cell = world->cells_in_use[i];
-			auto coords = cell->Coords();
-
+			auto coords = active_chunk->GetChunkPosition();
 			// adds indicator in header if player is inside cell
-			std::string player_indicator = "";
-			for (int i = 0; i < player->entity_ptr->world_cells_count; i++)
+			string header = active_chunk->GetChunkPositionString();
+			for (auto* player_chunk : player->world_chunks)
 			{
-				if (coords == player->entity_ptr->world_cells[i]->Coords())
+				if (coords == player_chunk->GetChunkPosition())
 				{
-					player_indicator = " P";
+					header += " P";
 					break;
 				}
 			}
 
-			std::string header = cell->CoordsStr() + player_indicator;
 			if (ImGui::CollapsingHeader(header.c_str()))
 			{
-				bool is_active = panel->cell_coords == coords;
-				std::string show_name = "show##" + std::to_string(i);
-				if (ImGui::Checkbox(show_name.c_str(), &is_active))
+				bool is_active = panel->cell_coords == active_chunk->GetChunkPosition();
+				if (ImGui::Checkbox(string( "show##" + to_string(i)).c_str(), &is_active))
 				{
 					panel->cell_coords = is_active ? coords : vec3{-1.0f};
 				}
 
 				ImGui::SameLine();
 
-				std::string coords_meters = cell->CoordsMetersStr();
+				string coords_meters = active_chunk->GetChunkPositionMetricString();
 				ImGui::Text(coords_meters.c_str());
 
-				for (int e_i = 0; e_i < WorldCellCapacity; e_i++)
+				auto entity_iter = active_chunk->GetIterator();
+				int entity_count = 1;
+				while(auto* entity = entity_iter())
 				{
-					auto entity = cell->entities[e_i];
-					if (entity != nullptr)
-					{
-						std::string line = std::to_string(e_i + 1) + ". " + entity->name;
-						ImGui::Text(line.c_str());
-					}
-					else
-						break;
+					string line = to_string(entity_count++) + ". " + entity->name;
+					ImGui::Text(line.c_str());
 				}
 			}
+			i++;
 		}
 
 		ImGui::End();

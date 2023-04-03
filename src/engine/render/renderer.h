@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/core/core.h"
+#include "engine/entities/e_entity.h"
 
 constexpr unsigned int RShadowBufferWidth = 1920, RShadowBufferHeight = 1080;
 inline unsigned int RDepthMapFbo;
@@ -28,29 +29,26 @@ struct RenderOptions
 	bool dont_cull_face = false;
 };
 
-void RenderMesh(const Mesh* mesh, RenderOptions opts = RenderOptions{});
-void RenderEntity(Entity* entity);
-void RenderScene(World* world, Camera* camera);
-void RenderEditorEntity(Entity* entity, World* world, Camera* camera);
-void SetShaderLightVariables(World* world, Shader* shader, Camera* camera);
-
-
 // leave for debugging
 inline std::string PGrab = "Grabbed: ";
 inline int PFloor = -1;
 
 // --------------
+// RENDER MESH
+// --------------
+void RenderMesh(const Mesh* mesh, RenderOptions opts = RenderOptions{});
+
+// --------------
 // RENDER ENTITY
 // --------------
-void RenderEntity(Entity* entity);
-void RenderEditorEntity(Entity* entity, World* world, Camera* camera);
-
+void RenderEntity(E_Entity* entity);
+void RenderEditorEntity(Entity* entity, T_World* world, Camera* camera);
 
 // -------------
 // RENDER SCENE
 // -------------
-void RenderScene(World* world, Camera* camera);
-void SetShaderLightVariables(World* world, Shader* shader, Camera* camera);
+void RenderScene(T_World* world, Camera* camera);
+void SetShaderLightVariables(T_World* world, Shader* shader, Camera* camera);
 
 // -------------------------
 // RENDER GAME GUI

@@ -53,7 +53,7 @@ namespace Editor
 		bool mouse_click = false;
 		bool mouse_dragging = false;
 
-		Entity* selected_entity = nullptr;
+		E_Entity* selected_entity = nullptr;
 
 		// move mode
 		bool move_mode = false;
@@ -104,7 +104,7 @@ namespace Editor
 
 		// select entity aux tool
 		bool select_entity_aux_mode = false;
-		Entity** select_entity_aux_mode_entity_slot = nullptr;
+		E_Entity** select_entity_aux_mode_entity_slot = nullptr;
 		EdToolCallback select_entity_aux_mode_callback = EdToolCallback_NoCallback;
 		EdToolCallbackArgs select_entity_aux_mode_callback_args = EdToolCallbackArgs{};
 

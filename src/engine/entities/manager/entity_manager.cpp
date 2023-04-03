@@ -132,6 +132,7 @@ void EntityManager::RegisterInWorldAndScene(Entity* entity) const
 // -----------------
 // Deals with entity creation. All entities created should be created through here.
 
+/*
 Entity* EntityManager::CreateEntity(const EntityAttributes& attrs)
 {
 	auto [
@@ -152,7 +153,7 @@ Entity* EntityManager::CreateEntity(const EntityAttributes& attrs)
 	For(_texture_count)
 		new_entity->textures.push_back(_textures[i]);
 
-	RegisterInWorldAndScene(new_entity);
+	// RegisterInWorldAndScene(new_entity);
 
 	// TODO: Obsolete with new entity system
 	// sets new entity_type
@@ -160,6 +161,7 @@ Entity* EntityManager::CreateEntity(const EntityAttributes& attrs)
 
 	return new_entity;
 }
+*/
 
 // -----------------------
 // > CREATE EDITOR ENTITY
@@ -218,7 +220,7 @@ Entity* EntityManager::CopyEntity(Entity* entity)
 		}
 	}
 	new_entity->name = new_name;
-	RegisterInWorldAndScene(new_entity);
+	// RegisterInWorldAndScene(new_entity);
 	return new_entity;
 }
 

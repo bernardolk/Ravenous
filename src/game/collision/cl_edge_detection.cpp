@@ -8,7 +8,7 @@
 #include "engine/world/world.h"
 
 
-Ledge CL_PerformLedgeDetection(Player* player, World* world)
+Ledge CL_PerformLedgeDetection(Player* player, T_World* world)
 {
 	// concepts: front face - where the horizontal rays are going to hit
 	//           top face - where the vertical ray (up towards down) is going to hit
@@ -35,7 +35,7 @@ Ledge CL_PerformLedgeDetection(Player* player, World* world)
 		constexpr float _top_ray_height = 2.0f;
 		auto top_ray = Ray{frontal_hitpoint + front_test.ray.direction * 0.0001f + UnitY * _top_ray_height, -UnitY};
 
-		auto top_test = world->Raycast(top_ray, RayCast_TestOnlyFromOutsideIn, player->entity_ptr, _top_ray_height);
+		auto top_test = world->Raycast(top_ray, RayCast_TestOnlyFromOutsideIn, player, _top_ray_height);
 
 		if (top_test.hit)
 		{

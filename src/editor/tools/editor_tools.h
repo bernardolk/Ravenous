@@ -9,7 +9,7 @@ namespace Editor
 	void DeactivateEditorModes();
 	bool CheckModesAreActive();
 	void EditorEraseEntity(Entity* entity);
-	void EditorEraseLight(int index, std::string type, World* world);
+	void EditorEraseLight(int index, string type, T_World* world);
 	void UnhideEntities(const World* world);
 
 	// ----------
@@ -33,37 +33,37 @@ namespace Editor
 	// MEASURE TOOL
 	// -------------
 	void ActivateMeasureMode(u8 axis);
-	void CheckSelectionToMeasure(const World* world);
+	void CheckSelectionToMeasure(const T_World* world);
 
 	// ------------------------
 	// LOCATE COORDINATES MODE
 	// ------------------------
 	void ActivateLocateCoordsMode();
-	auto CheckSelectionToLocateCoords(const World* world) -> void;
+	auto CheckSelectionToLocateCoords(const T_World* world) -> void;
 
 	// -------------
 	// > MOVE TOOLS 
 	// -------------
-	void PlaceEntity(World* world);
-	RaycastTest TestRayAgainstEntitySupportPlane(u16 move_axis, Entity* entity);
+	void PlaceEntity(T_World* world);
+	RaycastTest TestRayAgainstEntitySupportPlane(u16 move_axis, E_Entity* entity);
 
 	// --------------
 	// >> PLACE MODE
 	// --------------
-	void ActivatePlaceMode(Entity* entity);
-	void SelectEntityPlacingWithMouseMove(Entity* entity, const World* world);
+	void ActivatePlaceMode(E_Entity* entity);
+	void SelectEntityPlacingWithMouseMove(E_Entity* entity, const T_World* world);
 	
 	// -------------
 	// >> MOVE MODE
 	// -------------
-	void ActivateMoveMode(Entity* entity);
-	void MoveEntityWithMouse(Entity* entity);
+	void ActivateMoveMode(E_Entity* entity);
+	void MoveEntityWithMouse(E_Entity* entity);
 	
 	// -------------------------
 	// >> MOVE ENTITY BY ARROWS
 	// -------------------------
 	void ActivateMoveEntityByArrow(u8 move_axis);
-	void MoveEntityByArrows(Entity* entity);
+	void MoveEntityByArrows(E_Entity* entity);
 
 	// ----------------
 	// MOVE LIGHT TOOL
@@ -82,22 +82,22 @@ namespace Editor
 	// ---------------------
 	void ActivateRotateEntityWithMouse(u8 move_axis);
 	float MouseOffsetToAngularOffset(float mouse_offset);
-	void RotateEntityWithMouse(Entity* entity);
+	void RotateEntityWithMouse(E_Entity* entity);
 
 	// ------------------
 	// SCALE ENTITY TOOL
 	// ------------------
-	void ScaleEntityWithMouse(Entity* entity);
+	void ScaleEntityWithMouse(E_Entity* entity);
 
 	// -----------------------
 	// SELECT ENTITY AUX TOOL
 	// -----------------------
 	// used in entity panel to select other entity to attribute 1 to 1 relationships
-	void ActivateSelectEntityAuxTool(Entity** entity_slot, EdToolCallback callback = EdToolCallback_NoCallback, EdToolCallbackArgs args = EdToolCallbackArgs{});
+	void ActivateSelectEntityAuxTool(E_Entity** entity_slot, EdToolCallback callback = EdToolCallback_NoCallback, EdToolCallbackArgs args = EdToolCallbackArgs{});
 
 	// -------------
 	// MISCELANEOUS
 	// -------------
 	// void CheckForAssetChanges();
-	void RenderAabbBoundaries(Entity* entity);
+	void RenderAabbBoundaries(E_Entity* entity);
 }

@@ -22,5 +22,5 @@ struct Ledge
 struct RaycastTest;
 
 RaycastTest CL_GetTopHitFromMultipleRaycasts(Ray first_ray, int qty, float spacing, Player* player);
-Ledge CL_PerformLedgeDetection(Player* player, World* world);
+Ledge CL_PerformLedgeDetection(Player* player, T_World* world);
 vec3 CL_GetFinalPositionLedgeVaulting(Player* player, Ledge ledge);

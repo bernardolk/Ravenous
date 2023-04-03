@@ -8,28 +8,27 @@
 #include <engine/serialization/sr_entity.h>
 #include <engine/collision/collision_mesh.h>
 #include <glm/gtx/quaternion.hpp>
-#include "engine/collision/primitives/bounding_box.h"
 #include "engine/geometry/mesh.h"
 #include "engine/entities/entity.h"
-#include "engine/entities/allocator/entity_pool.h"
 #include "engine/entities/manager/entity_manager.h"
-#include <engine/serialization/sr_common.h>
 #include "engine/serialization/parsing/parser.h"
 #include "engine/io/loaders.h"
-#include "engine/geometry/mesh.h"
 #include "engine/render/shader.h"
-#include "engine/serialization/sr_entity.h"
+#include "engine/world/world_chunk.h"
 
 const std::string SrLoadEntity_TypeNotSetErrorMsg = "Need to load entity type before loading type-specific data.";
 
 void EntitySerializer::Parse(Parser& parser)
 {
-	auto new_entity = manager->CreateEntity({});
-	bool is_type_set = false;
+	auto* world = T_World::Get();
+	// Create new entity (where?)
+	E_Entity new_entity;
+	// auto new_entity. manager->CreateEntity({});
+	// bool is_type_set = false;
 
 	auto& p = parser;
 	p.ParseName();
-	new_entity->name = GetParsed<std::string>(parser);
+	new_entity.name = GetParsed<std::string>(parser);
 
 	while (parser.NextLine())
 	{
@@ -41,7 +40,7 @@ void EntitySerializer::Parse(Parser& parser)
 			p.ParseAllWhitespace();
 			p.ParseU64();
 			u64 id = GetParsed<u64>(parser);
-			new_entity->id = id;
+			new_entity.id = id;
 
 			if (manager->next_entity_id < id)
 				manager->next_entity_id = id;
@@ -50,13 +49,13 @@ void EntitySerializer::Parse(Parser& parser)
 		else if (property == "position")
 		{
 			p.ParseVec3();
-			new_entity->position = GetParsed<glm::vec3>(parser);
+			new_entity.position = GetParsed<glm::vec3>(parser);
 		}
 
 		else if (property == "rotation")
 		{
 			p.ParseVec3();
-			new_entity->rotation = GetParsed<glm::vec3>(parser);
+			new_entity.rotation = GetParsed<glm::vec3>(parser);
 		}
 
 		else if (property == "scale")
@@ -69,7 +68,7 @@ void EntitySerializer::Parse(Parser& parser)
 				std::cout << "FATAL: ENTITY SCALE PROPERTY CANNOT BE NEGATIVE. AT '" << parser.filepath
 				<< "' LINE NUMBER " << parser.line_count << "\n";
 			}
-			new_entity->scale = s;
+			new_entity.scale = s;
 		}
 
 		else if (property == "shader")
@@ -83,7 +82,7 @@ void EntitySerializer::Parse(Parser& parser)
 			{
 				if (shader_name == "tiledTextureModel")
 				{
-					new_entity->flags |= EntityFlags_RenderTiledTexture;
+					new_entity.flags |= EntityFlags_RenderTiledTexture;
 					For(6)
 					{
 						p.ParseAllWhitespace();
@@ -91,10 +90,10 @@ void EntitySerializer::Parse(Parser& parser)
 						if (!p.HasToken())
 							Quit_fatal("Scene description contain an entity with box tiled shader without full tile quantity description.");
 
-						new_entity->uv_tile_wrap[i] = GetParsed<int>(parser);
+						new_entity.uv_tile_wrap[i] = GetParsed<int>(parser);
 					}
 				}
-				new_entity->shader = find->second;
+				new_entity.shader = find->second;
 			}
 			else
 			{
@@ -111,18 +110,18 @@ void EntitySerializer::Parse(Parser& parser)
 
 			auto find_mesh = GeometryCatalogue.find(model_name);
 			if (find_mesh != GeometryCatalogue.end())
-				new_entity->mesh = find_mesh->second;
+				new_entity.mesh = find_mesh->second;
 			else
-				new_entity->mesh = LoadWavefrontObjAsMesh(Paths::Models, model_name);
+				new_entity.mesh = LoadWavefrontObjAsMesh(Paths::Models, model_name);
 
 			// @TODO: For now collision mesh is loaded from the same model as regular mesh.
 			auto find_c_mesh = CollisionGeometryCatalogue.find(model_name);
 			if (find_c_mesh != CollisionGeometryCatalogue.end())
-				new_entity->collision_mesh = find_c_mesh->second;
+				new_entity.collision_mesh = find_c_mesh->second;
 			else
-				new_entity->collision_mesh = LoadWavefrontObjAsCollisionMesh(Paths::Models, model_name);
+				new_entity.collision_mesh = LoadWavefrontObjAsCollisionMesh(Paths::Models, model_name);
 
-			new_entity->collider = *new_entity->collision_mesh;
+			new_entity.collider = *new_entity.collision_mesh;
 		}
 
 		else if (property == "texture")
@@ -135,7 +134,7 @@ void EntitySerializer::Parse(Parser& parser)
 			// >> check for missing info
 			if (texture_name.empty())
 			{
-				std::cout << "Fatal: Texture for entity '" << new_entity->name << "' is missing name. \n";
+				std::cout << "Fatal: Texture for entity '" << new_entity.name << "' is missing name. \n";
 				assert(false);
 			}
 
@@ -147,20 +146,20 @@ void EntitySerializer::Parse(Parser& parser)
 				assert(false);
 			}
 
-			new_entity->textures.clear();
-			new_entity->textures.push_back(texture->second);
+			new_entity.textures.clear();
+			new_entity.textures.push_back(texture->second);
 
 			// fetches texture normal in catalogue, if any
 			auto normal = TextureCatalogue.find(texture_name + "_normal");
 			if (normal != TextureCatalogue.end())
 			{
-				new_entity->textures.push_back(normal->second);
+				new_entity.textures.push_back(normal->second);
 			}
 		}
 
 		else if (property == "hidden")
 		{
-			new_entity->flags |= EntityFlags_HiddenEntity;
+			new_entity.flags |= EntityFlags_HiddenEntity;
 		}
 
 		// else if (property == "type")
@@ -170,7 +169,7 @@ void EntitySerializer::Parse(Parser& parser)
 		// 	const auto entity_type = GetParsed<std::string>(parser);
 		//
 		// 	if (entity_type == SrEntityType::Static)
-		// 		manager->SetType(new_entity, EntityType_Static);
+		// 		manager->SetType(new_entity->EntityType_Static);
 		//
 		// 	else if (entity_type == SrEntityType::Checkpoint)
 		// 		manager->SetType(new_entity, EntityType_Checkpoint);
@@ -284,12 +283,12 @@ void EntitySerializer::Parse(Parser& parser)
 		else if (property == "trigger")
 		{
 			p.ParseVec3();
-			new_entity->trigger_scale = GetParsed<glm::vec3>(parser);
+			new_entity.trigger_scale = GetParsed<glm::vec3>(parser);
 		}
 
 		else if (property == "slidable")
 		{
-			new_entity->slidable = true;
+			new_entity.slidable = true;
 		}
 
 		else
@@ -297,9 +296,13 @@ void EntitySerializer::Parse(Parser& parser)
 			break;
 		}
 	}
+
+	auto [i, j , k] = WorldCoordsToCells(new_entity.position);
+	auto* world_entity = world->CreateEntity<E_Entity>(i,j,k);
+	*world_entity = E_Entity(new_entity);
 }
 
-void EntitySerializer::Save(std::ofstream& writer, Entity& entity)
+void EntitySerializer::Save(std::ofstream& writer, const E_Entity& entity)
 {
 	writer << "\n#" << entity.name << "\n";
 	writer << "id " << entity.id << "\n";

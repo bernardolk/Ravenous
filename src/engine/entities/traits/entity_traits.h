@@ -70,11 +70,12 @@ struct T_TraitMixin : T_Trait
 };
 
 /** Macro magic helpers */
-#define ENTITY1(TypeName)                               TypeName : E_BaseEntity, T_EntityTypeBase<TypeName>
-#define ENTITY2(TypeName, Trait1)                       TypeName : E_BaseEntity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>
-#define ENTITY3(TypeName, Trait1, Trait2)               TypeName : E_BaseEntity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>
-#define ENTITY4(TypeName, Trait1, Trait2, Trait3)       TypeName : E_BaseEntity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>, T_TraitMixin<TypeName, Trait3>
+#define ENTITY1(TypeName)                               TypeName : E_Entity, T_EntityTypeBase<TypeName>
+#define ENTITY2(TypeName, Trait1)                       TypeName : E_Entity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>
+#define ENTITY3(TypeName, Trait1, Trait2)               TypeName : E_Entity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>
+#define ENTITY4(TypeName, Trait1, Trait2, Trait3)       TypeName : E_Entity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>, T_TraitMixin<TypeName, Trait3>
 
 #define GET_MACRO(_1,_2,_3,_4,NAME,...) NAME
+// TODO: Rename after refactor to Entity
 #define EntityDecl(...) GET_MACRO(__VA_ARGS__, ENTITY4, ENTITY3, ENTITY2, ENTITY1)(__VA_ARGS__)
 #define Trait(Name) Name : T_EntityTraitBase<Name>

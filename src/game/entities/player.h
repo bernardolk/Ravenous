@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/entities/entity.h"
+#include "engine/entities/traits/entity_traits.h"
 
 enum class PlayerState
 {
@@ -37,10 +38,8 @@ struct World;
 void ForceInterruptPlayerAnimation(Player* player);
 
 
-struct Player
+struct EntityDecl(Player)
 {
-	Entity* entity_ptr;
-
 	// [start] DROP ALL THESE
 	Entity* standing_entity_ptr = nullptr;;
 	Entity* slope_player_was_ptr = nullptr;;
@@ -131,13 +130,13 @@ struct Player
 		return &instance;
 	}
 
-	void Update(World* world, bool update_collider = false);
+	void Update(T_World* world, bool update_collider = false);
 
-	vec3 GetFeetPosition() const { return entity_ptr->position; }
+	vec3 GetFeetPosition() const { return position; }
 
-	vec3 GetUpperBoundPosition() const { return entity_ptr->position + vec3(0.0f, height, 0.0f); }
+	vec3 GetUpperBoundPosition() const { return -position + vec3(0.0f, height, 0.0f); }
 
-	vec3 GetEyePosition() const { return entity_ptr->position + vec3(0, height - 0.1, 0); }
+	vec3 GetEyePosition() const { return position + vec3(0, height - 0.1, 0); }
 
 	vec3 GetLastTerrainContactPoint() const;
 

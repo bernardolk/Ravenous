@@ -227,10 +227,10 @@ CellUpdate World::UpdateEntityWorldCells(Entity* entity)
 	const int new_cells_count = (i1 - i0 + 1) * (j1 - j0 + 1) * (k1 - k0 + 1);
 
 	// Entity too large catch
-	if (new_cells_count > MaxEntityWorldCells)
+	if (new_cells_count > MaxEntityWorldChunks)
 	{
 		message = "Entity '" + entity->name + "' is too large and it occupies more than " +
-		"the limit of " + std::to_string(MaxEntityWorldCells) + " world cells at a time.";
+		"the limit of " + std::to_string(MaxEntityWorldChunks) + " world cells at a time.";
 
 		return CellUpdate{CellUpdate_ENTITY_TOO_BIG, message};
 	}
@@ -270,6 +270,8 @@ RaycastTest World::Raycast(const Ray ray, const RayCastType test_type, const Ent
 {
 	//@TODO: This should first test ray against world cells, then get the list of entities from these world cells to test against 
 
+DEPRECATED_BEGIN
+	/*
 	float min_distance = MaxFloat;
 	RaycastTest closest_hit{false, -1};
 
@@ -290,6 +292,10 @@ RaycastTest World::Raycast(const Ray ray, const RayCastType test_type, const Ent
 	}
 
 	return closest_hit;
+	*/
+DEPRECATED_END
+
+	return {};
 }
 
 
@@ -305,7 +311,9 @@ RaycastTest World::LinearRaycastArray(const Ray first_ray, int qty, float spacin
 	   Casts multiple ray towards the first_ray direction, with dir pointing upwards,
 	   qty says how many rays to shoot and spacing, well, the spacing between each ray.
 	*/
-
+	DEPRECATED_BEGIN
+		/*
+	
 	Ray ray = first_ray;
 	float highest_y = MinFloat;
 	float shortest_z = MaxFloat;
@@ -335,7 +343,13 @@ RaycastTest World::LinearRaycastArray(const Ray first_ray, int qty, float spacin
 		ImDraw::AddPoint(IMHASH, hitpoint, 2.0, true, COLOR_RED_1);
 	}
 
+
 	return best_hit_results;
+
+	*/
+DEPRECATED_END
+
+	return {};
 }
 
 RaycastTest World::RaycastLights(const Ray ray) const

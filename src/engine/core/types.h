@@ -41,6 +41,11 @@ using u16 = unsigned short int;
 using u32 = unsigned int;
 using u64 = unsigned long long;
 
+using i8 = signed char;
+using i16 = short int;
+using i32 = int;
+using i64 = long int;
+
 /** GLM type aliases */
 using vec4 = glm::vec4;
 using vec3 = glm::vec3;
@@ -69,6 +74,8 @@ extern const float MinFloat;
 inline const vec3 UnitX = vec3(1, 0, 0);
 inline const vec3 UnitY = vec3(0, 1, 0);
 inline const vec3 UnitZ = vec3(0, 0, 1);
+
+using std::to_string;
 
 inline bool IsEqual(vec2 vec1, vec2 vec2)
 {
@@ -193,6 +200,12 @@ public:
 		}
 	}
 
+	Iterator<T> GetIterator()
+	{
+		Iterator<T> it(&data, Size);
+		return it;
+	}
+
 public:
 	T* GetAt(int i)
 	{
@@ -224,7 +237,7 @@ public:
 			data[i] = instance;
 			return &data[i];
 		}
-		else if (i >= Size)
+		else if (i < Size)
 		{
 			// Operation would introduce holes in array 
 			assert(false);
@@ -310,3 +323,45 @@ bool Contains(A& array, u32 value)
 	}
 	return false;
 }
+
+template<typename T, u8 Order, u16 Dimension>
+struct Matrix
+{
+	static constexpr u16 dimension = Dimension;
+	static constexpr u8 order = Order;
+};
+
+template<typename T, u16 Dimension>
+struct Matrix<T, 3, Dimension>
+{
+	Array<Array<Array<T, Dimension>, Dimension>, Dimension> data{};
+
+public:
+	T* GetAt(u8 i, u8 j, u8 k)
+	{
+		return data.GetAt[i].GetAt[j].GetAt[k];
+	}
+
+	T* AddAt(const T& instance, u8 i, u8 j, u8 k)
+	{
+		if (i < Dimension && j < Dimension && k < Dimension)
+		{
+			T* obj = data.GetAt(i)->GetAt(j)->GetAt(k);
+			*obj = instance;
+			return obj;
+		}
+		else
+		{
+			// Matrix overflow
+			assert(false);
+		}
+		
+		return nullptr;
+	};
+
+	Iterator<T> GetIterator()
+	{
+		Iterator<T> it(&data, Dimension * Dimension * Dimension);
+		return it;
+	}
+};

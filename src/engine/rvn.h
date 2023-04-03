@@ -74,15 +74,17 @@ struct Rvn
 // stores all relevant entity ptrs for collision detection with player during the frame
 struct EntityBufferElement
 {
-	Entity* entity = nullptr;
+	E_Entity* entity = nullptr;
 	bool collision_check = false;
 };
 
+TO_DEPRECATE_BEGIN
 struct EntityBuffer
 {
 	size_t size = 0;
 	EntityBufferElement buffer[Rvn::collision_buffer_capacity];
 };
+TO_DEPRECATE_END
 
 
 /* --------------------------

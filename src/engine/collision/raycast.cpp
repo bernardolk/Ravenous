@@ -42,7 +42,7 @@ bool CL_TestAgainstRay(Ray ray, BoundingBox box)
 // > TEST RAY AGAINST ENTITY
 // --------------------------
 RaycastTest CL_TestAgainstRay(
-	Ray ray, Entity* entity,
+	Ray ray, E_Entity* entity,
 	RayCastType test_type = RayCast_TestOnlyFromOutsideIn,
 	float max_distance = MaxFloat)
 {
@@ -64,7 +64,7 @@ RaycastTest CL_TestAgainstRay(
 }
 
 
-RaycastTest CL_TestAgainstRay(Ray ray, Entity* entity)
+RaycastTest CL_TestAgainstRay(Ray ray, E_Entity* entity)
 {
 	return CL_TestAgainstRay(ray, entity, RayCast_TestOnlyFromOutsideIn, MaxFloat);
 }

@@ -1,52 +1,53 @@
 #pragma once
 
+#include "world_chunk.h"
 #include "engine/collision/primitives/bounding_box.h"
 
-auto WorldCoordsToCells(float x, float y, float z);
-vec3 GetWorldCoordinatesFromWorldCellCoordinates(int i, int j, int k);
-
-// how many cells we have preallocated for the world
-constexpr static int WCellsNumX = 10;
-constexpr static int WCellsNumY = 10;
-constexpr static int WCellsNumZ = 10;
-
-// how many cells are before and after the origin in each axis
-constexpr static int WCellsOffsetX = WCellsNumX / 2;
-constexpr static int WCellsOffsetY = WCellsNumY / 2;
-constexpr static int WCellsOffsetZ = WCellsNumZ / 2;
-
-// how many meters the cell occupies in the world
-constexpr static float WCellLenMeters = 50.0f;
-// how many entities can coexists in a cell
-constexpr static int WorldCellCapacity = 150;
-
-const static vec3 WUpperBoundsMeters = {
-WCellsOffsetX * WCellLenMeters,
-WCellsOffsetY * WCellLenMeters,
-WCellsOffsetZ * WCellLenMeters
-};
-
-const static vec3 WLowerBoundsMeters = {
--1.0 * WCellsOffsetX * WCellLenMeters,
--1.0 * WCellsOffsetX * WCellLenMeters,
--1.0 * WCellsOffsetX * WCellLenMeters
-};
-
-enum CellUpdateStatus
-{
-	CellUpdate_OK,
-	CellUpdate_ENTITY_TOO_BIG,
-	CellUpdate_CELL_FULL,
-	CellUpdate_OUT_OF_BOUNDS,
-	CellUpdate_UNEXPECTED
-};
-
-struct CellUpdate
-{
-	CellUpdateStatus status{};
-	std::string message{};
-	bool entity_changed_cell = false;
-};
+// auto WorldCoordsToCells(float x, float y, float z);
+// vec3 GetWorldCoordinatesFromWorldCellCoordinates(int i, int j, int k);
+//
+// // how many cells we have preallocated for the world
+// constexpr static int WCellsNumX = 10;
+// constexpr static int WCellsNumY = 10;
+// constexpr static int WCellsNumZ = 10;
+//
+// // how many cells are before and after the origin in each axis
+// constexpr static int WCellsOffsetX = WCellsNumX / 2;
+// constexpr static int WCellsOffsetY = WCellsNumY / 2;
+// constexpr static int WCellsOffsetZ = WCellsNumZ / 2;
+//
+// // how many meters the cell occupies in the world
+// constexpr static float WCellLenMeters = 50.0f;
+// // how many entities can coexists in a cell
+// constexpr static int WorldCellCapacity = 150;
+//
+// const static vec3 WUpperBoundsMeters = {
+// WCellsOffsetX * WCellLenMeters,
+// WCellsOffsetY * WCellLenMeters,
+// WCellsOffsetZ * WCellLenMeters
+// };
+//
+// const static vec3 WLowerBoundsMeters = {
+// -1.0 * WCellsOffsetX * WCellLenMeters,
+// -1.0 * WCellsOffsetX * WCellLenMeters,
+// -1.0 * WCellsOffsetX * WCellLenMeters
+// };
+//
+// enum CellUpdateStatus
+// {
+// 	CellUpdate_OK,
+// 	CellUpdate_ENTITY_TOO_BIG,
+// 	CellUpdate_CELL_FULL,
+// 	CellUpdate_OUT_OF_BOUNDS,
+// 	CellUpdate_UNEXPECTED
+// };
+//
+// struct CellUpdate
+// {
+// 	CellUpdateStatus status{};
+// 	std::string message{};
+// 	bool entity_changed_cell = false;
+// };
 
 struct Entity;
 struct BoundingBox;
@@ -95,43 +96,43 @@ struct WorldCell
 // COORDINATE METHODS
 // -------------------
 
-inline vec3 GetWorldCoordinatesFromWorldCellCoordinates(int i, int j, int k)
-{
-	const float world_x = (static_cast<float>(i) - WCellsOffsetX) * WCellLenMeters;
-	const float world_y = (static_cast<float>(j) - WCellsOffsetY) * WCellLenMeters;
-	const float world_z = (static_cast<float>(k) - WCellsOffsetZ) * WCellLenMeters;
-
-	return vec3{world_x, world_y, world_z};
-}
-
-
-inline auto WorldCoordsToCells(float x, float y, float z)
-{
-	struct
-	{
-		int i = -1, j = -1, k = -1;
-	} world_cell_coords;
-
-	// if out of bounds return -1
-	if (x < WLowerBoundsMeters.x || x > WUpperBoundsMeters.x ||
-		y < WLowerBoundsMeters.y || y > WUpperBoundsMeters.y ||
-		z < WLowerBoundsMeters.z || z > WUpperBoundsMeters.z)
-	{
-		return world_cell_coords;
-	}
-
-	// int division to truncate float result to correct cell position
-	world_cell_coords.i = (x + WCellsOffsetX * WCellLenMeters) / WCellLenMeters;
-	world_cell_coords.j = (y + WCellsOffsetY * WCellLenMeters) / WCellLenMeters;
-	world_cell_coords.k = (z + WCellsOffsetZ * WCellLenMeters) / WCellLenMeters;
-
-	return world_cell_coords;
-}
-
-inline auto WorldCoordsToCells(vec3 position)
-{
-	return WorldCoordsToCells(position.x, position.y, position.z);
-}
+// inline vec3 GetWorldCoordinatesFromWorldCellCoordinates(int i, int j, int k)
+// {
+// 	const float world_x = (static_cast<float>(i) - WCellsOffsetX) * WCellLenMeters;
+// 	const float world_y = (static_cast<float>(j) - WCellsOffsetY) * WCellLenMeters;
+// 	const float world_z = (static_cast<float>(k) - WCellsOffsetZ) * WCellLenMeters;
+//
+// 	return vec3{world_x, world_y, world_z};
+// }
+//
+//
+// inline auto WorldCoordsToCells(float x, float y, float z)
+// {
+// 	struct
+// 	{
+// 		int i = -1, j = -1, k = -1;
+// 	} world_cell_coords;
+//
+// 	// if out of bounds return -1
+// 	if (x < WLowerBoundsMeters.x || x > WUpperBoundsMeters.x ||
+// 		y < WLowerBoundsMeters.y || y > WUpperBoundsMeters.y ||
+// 		z < WLowerBoundsMeters.z || z > WUpperBoundsMeters.z)
+// 	{
+// 		return world_cell_coords;
+// 	}
+//
+// 	// int division to truncate float result to correct cell position
+// 	world_cell_coords.i = (x + WCellsOffsetX * WCellLenMeters) / WCellLenMeters;
+// 	world_cell_coords.j = (y + WCellsOffsetY * WCellLenMeters) / WCellLenMeters;
+// 	world_cell_coords.k = (z + WCellsOffsetZ * WCellLenMeters) / WCellLenMeters;
+//
+// 	return world_cell_coords;
+// }
+//
+// inline auto WorldCoordsToCells(vec3 position)
+// {
+// 	return WorldCoordsToCells(position.x, position.y, position.z);
+// }
 
 
 // ----------------

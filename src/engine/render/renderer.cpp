@@ -68,7 +68,7 @@ void RenderMesh(const Mesh* mesh, RenderOptions opts)
 // --------------
 // RENDER ENTITY
 // --------------
-void RenderEntity(Entity* entity)
+void RenderEntity(E_Entity* entity)
 {
 	entity->shader->Use();
 	entity->shader->SetMatrix4("model", entity->mat_model);
@@ -155,38 +155,42 @@ void RenderEditorEntity(Entity* entity, World* world, Camera* camera)
 	entity->shader->SetFloat3("entity_position", entity->position);
 	entity->shader->SetFloat("shininess", world->global_shininess);
 
-	RenderEntity(entity);
+	// RenderEntity(entity);
 }
 
 
 // -------------
 // RENDER SCENE
 // -------------
-void RenderScene(World* world, Camera* camera)
+void RenderScene(T_World* world, Camera* camera)
 {
 	// set shader settings that are common to the scene
 	// both to "normal" model shader and to tiled model shader
-	auto model_shader = ShaderCatalogue.find("model")->second;
-	SetShaderLightVariables(world, model_shader, camera);
-
-	auto model_tiled_shader = ShaderCatalogue.find("tiledTextureModel")->second;
-	SetShaderLightVariables(world, model_tiled_shader, camera);
-
-	auto color_shader = ShaderCatalogue.find("color")->second;
-	SetShaderLightVariables(world, color_shader, camera);
-
-	for (int i = 0; i < world->entities.size(); i++)
+	static auto shaders = { ShaderCatalogue.find("model")->second, ShaderCatalogue.find("tiledTextureModel")->second, ShaderCatalogue.find("color")->second };
+	for (auto* shader : shaders)
 	{
-		Entity* entity = world->entities[i];
-		if (entity->flags & EntityFlags_InvisibleEntity)
-			continue;
-
-		RenderEntity(entity);
+		SetShaderLightVariables(world, shader, camera);		
 	}
+
+	// TODO: Not worrying about active chunks for now
+	auto world_chunk_it = T_World::Get()->GetIterator();
+	while (auto* chunk = world_chunk_it())
+	{
+		auto entity_iterator = chunk->GetIterator();
+		while(E_Entity* entity = entity_iterator())
+		{
+			if (entity->flags & EntityFlags_InvisibleEntity)
+				continue;
+		
+			RenderEntity(entity);
+		}
+	}
+
+	RenderEntity(world->player);
 }
 
 
-void SetShaderLightVariables(World* world, Shader* shader, Camera* camera)
+void SetShaderLightVariables(T_World* world, Shader* shader, Camera* camera)
 {
 	shader->Use();
 

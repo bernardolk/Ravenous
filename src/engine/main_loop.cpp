@@ -88,7 +88,7 @@ void RavenousMainLoop()
 			}
 			else if (ES->current_mode == EngineState::ProgramMode::Editor)
 			{
-				UpdateEditorCamera(GSI->camera, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->entity_ptr->position);
+				UpdateEditorCamera(GSI->camera, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->position);
 			}
 			GameState.UpdateTimers();
 			GP_UpdatePlayerState();

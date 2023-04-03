@@ -11,7 +11,7 @@ struct EntityAttributes
 	std::string shader = "model";
 	std::string texture = "grey";
 	std::string collision_mesh = "aabb";
-	EntityType type = EntityType_Static;
+	//EntityType type = EntityType_Static;
 	vec3 scale = vec3{1.0f};
 };
 

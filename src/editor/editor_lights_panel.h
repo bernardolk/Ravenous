@@ -7,5 +7,5 @@ namespace Editor
 
 	void OpenLightsPanel(std::string type = "", int index = -1, bool focus_tab = false);
 	vec3 ComputeDirectionFromAngles(float pitch, float yaw);
-	void RenderLightsPanel(LightsPanelContext* panel, World* world);
+	void RenderLightsPanel(LightsPanelContext* panel, T_World* world);
 }

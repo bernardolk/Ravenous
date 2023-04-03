@@ -22,7 +22,7 @@
 
 void GP_UpdatePlayerState()
 {
-	World* world = World::Get();
+	T_World* world = T_World::Get();
 	Player* player = Player::Get();
 	
 	switch (player->player_state)
@@ -34,11 +34,11 @@ void GP_UpdatePlayerState()
 
 			// TODO: Encapsulate this as a player function
 			// move player forward
-			player->entity_ptr->bounding_box.Translate(next_position - player->entity_ptr->position);
-			player->entity_ptr->position = next_position;
+			player->bounding_box.Translate(next_position - player->position);
+			player->position = next_position;
 			player->Update(world);
 
-			vec3 player_btm_sphere_center = player->entity_ptr->position + vec3(0, player->radius, 0);
+			vec3 player_btm_sphere_center = player->position + vec3(0, player->radius, 0);
 			vec3 contact_point = player_btm_sphere_center + -player->last_terrain_contact_normal * player->radius;
 			ImDraw::AddLine(IMHASH, player_btm_sphere_center, contact_point, COLOR_YELLOW_1);
 
@@ -55,8 +55,8 @@ void GP_UpdatePlayerState()
 				// snap player to the last terrain contact point detected if its a valid stepover hit
 				if (vtrace.hit && (vtrace.delta_y > 0.0004 || vtrace.delta_y < 0))
 				{
-					player->entity_ptr->position.y -= vtrace.delta_y;
-					player->entity_ptr->bounding_box.Translate(vec3(0, -vtrace.delta_y, 0));
+					player->position.y -= vtrace.delta_y;
+					player->bounding_box.Translate(vec3(0, -vtrace.delta_y, 0));
 					player->Update(world);
 				}
 
@@ -87,7 +87,7 @@ void GP_UpdatePlayerState()
 					vec2 fall_momentum_dir = player->v_dir_historic.xz;
 					vec2 fall_momentum = fall_momentum_dir * fall_momentum_intensity;
 
-					player->entity_ptr->velocity = vec3(fall_momentum.x, 0, fall_momentum.y);
+					player->velocity = vec3(fall_momentum.x, 0, fall_momentum.y);
 					GP_ChangePlayerState(player, PlayerState::Falling);
 					player->Update(world, true);
 					break;
@@ -119,8 +119,8 @@ void GP_UpdatePlayerState()
 
 		case PlayerState::Falling:
 		{
-			player->entity_ptr->velocity += Rvn::frame.duration * player->gravity;
-			player->entity_ptr->position += player->entity_ptr->velocity * Rvn::frame.duration;
+			player->velocity += Rvn::frame.duration * player->gravity;
+			player->position += player->velocity * Rvn::frame.duration;
 			player->Update(world, true);
 
 			auto [results, count] = CL_TestAndResolveCollisions(player);
@@ -162,7 +162,7 @@ void GP_UpdatePlayerState()
 
 		case PlayerState::Jumping:
 		{
-			auto& v = player->entity_ptr->velocity;
+			auto& v = player->velocity;
 
 			bool no_move_command = player->v_dir.x == 0 && player->v_dir.z == 0;
 			if (player->jumping_upwards && !no_move_command)
@@ -175,7 +175,7 @@ void GP_UpdatePlayerState()
 			}
 
 			v += Rvn::frame.duration * player->gravity;
-			player->entity_ptr->position += player->entity_ptr->velocity * Rvn::frame.duration;
+			player->position += player->velocity * Rvn::frame.duration;
 			player->Update(world, true);
 
 			auto results = CL_TestAndResolveCollisions(player);
@@ -218,7 +218,7 @@ void GP_UpdatePlayerState()
 			if (results.count > 0)
 				GP_ChangePlayerState(player, PlayerState::Falling);
 
-			else if (player->entity_ptr->velocity.y <= 0)
+			else if (player->velocity.y <= 0)
 				GP_ChangePlayerState(player, PlayerState::Falling);
 
 			break;
@@ -227,11 +227,11 @@ void GP_UpdatePlayerState()
 
 		case PlayerState::Sliding:
 		{
-			ImDraw::AddLine(IMHASH, player->entity_ptr->position, player->entity_ptr->position + 1.f * player->sliding_direction, COLOR_RED_2);
+			ImDraw::AddLine(IMHASH, player->position, player->position + 1.f * player->sliding_direction, COLOR_RED_2);
 
-			player->entity_ptr->velocity = player->v_dir * player->slide_speed;
+			player->velocity = player->v_dir * player->slide_speed;
 
-			player->entity_ptr->position += player->entity_ptr->velocity * Rvn::frame.duration;
+			player->position += player->velocity * Rvn::frame.duration;
 			player->Update(world, true);
 
 
@@ -383,9 +383,9 @@ vec3 GP_PlayerStandingGetNextPosition(Player* player)
 		speed = speed_limit;
 	}
 
-	player->entity_ptr->velocity = speed * player->v_dir; // if no movement command is issued, v_dir = 0,0,
+	player->velocity = speed * player->v_dir; // if no movement command is issued, v_dir = 0,0,
 
-	return player->entity_ptr->position + player->entity_ptr->velocity * dt;
+	return player->position + player->velocity * dt;
 }
 
 
@@ -393,7 +393,7 @@ vec3 GP_PlayerStandingGetNextPosition(Player* player)
 // > ACTION
 // -------------------
 
-void GP_CheckTriggerInteraction(Player* player, World* world)
+void GP_CheckTriggerInteraction(Player* player, T_World* world)
 {
 	/**
 	For(world->interactables.size())
@@ -402,7 +402,7 @@ void GP_CheckTriggerInteraction(Player* player, World* world)
 
 		//@todo: do a cylinder vs cylinder or cylinder vs aabb test here
 		CollisionMesh trigger_collider = interactable->GetTriggerCollider();
-		GJK_Result gjk_test = CL_RunGjk(&player->entity_ptr->collider, &trigger_collider);
+		GJK_Result gjk_test = CL_RunGjk(&player->collider, &trigger_collider);
 		if (gjk_test.collision)
 		{
 			Rvn::PrintDynamic("Trigger Interaction", 1000);
@@ -428,7 +428,7 @@ void GP_CheckTriggerInteraction(Player* player, World* world)
 // -------------------
 // > LEDGE GRABBING
 // -------------------
-void GP_CheckPlayerGrabbedLedge(Player* player, World* world)
+void GP_CheckPlayerGrabbedLedge(Player* player, T_World* world)
 {
 	Ledge ledge = CL_PerformLedgeDetection(player, world);
 	if (ledge.empty)
@@ -466,8 +466,8 @@ void GP_CheckPlayerGrabbedLedge(Player* player, World* world)
 
 //          auto [x0, x1, z0, z1] = entity->get_rect_bounds();
 //          auto test = CL_circle_vs_square(
-//             player->entity_ptr->position.x, 
-//             player->entity_ptr->position.z, 
+//             player->position.x, 
+//             player->position.z, 
 //             player->radius + dr,
 //             x0, x1, z0, z1
 //          );
@@ -482,7 +482,7 @@ void GP_CheckPlayerGrabbedLedge(Player* player, World* world)
 //          {
 //             // checks if area above ledge is free for standing
 //             vec3 future_pos = CL_player_future_pos_obstacle(player, entity, test.normal_vec, dr - test.overlap);
-//             ImDraw::add_mesh(IMHASH, player->entity_ptr, future_pos);
+//             ImDraw::add_mesh(IMHASH, player, future_pos);
 //             if(CL_test_in_mock_position(player, future_pos))
 //                continue;
 
@@ -505,8 +505,8 @@ void GP_CheckPlayerGrabbedLedge(Player* player, World* world)
 
 //          auto [x0, x1, z0, z1] = entity->get_rect_bounds();
 //          auto test = CL_circle_vs_square(
-//             player->entity_ptr->position.x, 
-//             player->entity_ptr->position.z, 
+//             player->position.x, 
+//             player->position.z, 
 //             player->radius + dr,
 //             x0, x1, z0, z1
 //          );
@@ -525,7 +525,7 @@ void GP_CheckPlayerGrabbedLedge(Player* player, World* world)
 //          {
 //             // checks if area above ledge is free for standing
 //             vec3 future_pos = CL_player_future_pos_obstacle(player, entity, test.normal_vec, dr - test.overlap);
-//             ImDraw::add_mesh(IMHASH, player->entity_ptr, future_pos);
+//             ImDraw::add_mesh(IMHASH, player, future_pos);
 //             if(CL_test_in_mock_position(player, future_pos, entity))
 //                continue;
 
@@ -554,7 +554,7 @@ void GP_CheckPlayerGrabbedLedge(Player* player, World* world)
 //    // radius of detection
 //    const float dr = 0.1;
 
-//    float player_y = player->entity_ptr->position.y;
+//    float player_y = player->position.y;
 //    auto camera_f = vec2(pCam->Front.x, pCam->Front.z);
 
 //    for(int i = 0; i < RVN::entity_buffer->size; i++)
@@ -576,8 +576,8 @@ void GP_CheckPlayerGrabbedLedge(Player* player, World* world)
 
 //       auto [x0, x1, z0, z1] = entity->get_rect_bounds();
 //       auto test = CL_circle_vs_square(
-//          player->entity_ptr->position.x,
-//          player->entity_ptr->position.z,
+//          player->position.x,
+//          player->position.z,
 //          player->radius + dr,
 //          x0, x1, z0, z1
 //       );
@@ -592,7 +592,7 @@ void GP_CheckPlayerGrabbedLedge(Player* player, World* world)
 //       {
 //          // checks if area above ledge is free for standing
 //          vec3 future_pos = CL_player_future_pos_obstacle(player, entity, test.normal_vec, dr - test.overlap);
-//          // ImDraw::add_mesh(IMHASH, player->entity_ptr, future_pos);
+//          // ImDraw::add_mesh(IMHASH, player, future_pos);
 //          if(CL_test_in_mock_position(player, future_pos))
 //          {
 //             RVN::print_dynamic("Vaulting failed.");

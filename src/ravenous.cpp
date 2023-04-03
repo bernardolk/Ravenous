@@ -164,14 +164,14 @@ int main()
 	auto* new_world = T_World::Get();
 	
 	// set first one to active
-	auto* active_chunk = new_world->chunks.GetAt(0);
-	new_world->active_chunks.push_back(active_chunk);
+	// auto* active_chunk = new_world->chunks.GetAt(0, 0, 0);
+	// new_world->active_chunks.push_back(active_chunk);
 
 	// create entities
-	auto* door = active_chunk->RequestEntityStorage<E_Door>();
+	// auto* door = active_chunk->RequestEntityStorage<E_Door>();
 	
 	// update all entities, trait by trait, world chunk by chunk
-	new_world->Update();
+	// new_world->Update();
 
 	RavenousMainLoop();
 }

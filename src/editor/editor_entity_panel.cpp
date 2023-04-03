@@ -511,7 +511,7 @@ namespace Editor
 		if (update_cells.status != CellUpdate_OK)
 			Rvn::rm_buffer->Add(update_cells.message, 3500);
 
-		world->UpdateCellsInUseList();
+		// world->UpdateCellsInUseList();
 
 		// TODO: We should _know_ when entities move and be able to act programatically upon that knowledge instead of randomly checking everywhere.
 		UpdateEntityControlArrows(&ed_context.entity_panel);

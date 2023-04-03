@@ -6,6 +6,7 @@ struct Camera;
 struct CollisionMesh;
 
 struct Entity;
+struct E_Entity;
 struct EntityManager;
 struct EntityPool;
 struct EntityBuffer;
@@ -27,6 +28,7 @@ struct Triangle;
 struct Texture;
 
 struct World;
+struct T_World;
 struct WorldCell;
 
 struct PointLight;

@@ -19,25 +19,29 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 {
 	const auto path = Paths::Scenes + filename + ".txt";
 
+	world = T_World::Get();
 	// clears the current scene entity data
-	world->Clear(manager);
+	// world->Clear(manager);
 
 	// Gets a new world struct from scratch
-	world->Init();
+	// world->Init();
 
 	// Either creates new scene or resets current structures
 	GlobalSceneInfo::RefreshActiveScene();
 	world->player = Player::Get();
 
-	// Creates player
-	Player::Get()->entity_ptr = manager->CreateEntity({
-		.name = PlayerName,
-		.mesh = "capsule",
-		.shader = "model",
-		.texture = "pink",
-		.collision_mesh = "capsule",
-		.scale = vec3(1)
-		});
+	// Set player's assets
+	{
+		EntityAttributes attrs;
+		attrs.name = PlayerName;
+		attrs.mesh = "capsule";
+		attrs.shader = "model";
+		attrs.texture = "pink";
+		attrs.collision_mesh = "capsule";
+		attrs.scale = vec3(1);
+		
+		SetEntityAssets(world->player, attrs);
+	}
 
 	// creates deferred load buffer for associating entities after loading them all
 	auto entity_relations = DeferredEntityRelationBuffer();
@@ -107,23 +111,26 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 	//          Post parse steps
 	// -----------------------------------
 	world->player->Update(world, true);
+	// TODO: Address
 	CL_UpdatePlayerWorldCells(Player::Get(), world);
 
 	// connects entities using deferred load buffer
 	For(entity_relations.count)
 	{
-		//@TODO: wtf is going on with 2 entity vars being declared here?
-		Entity* entity = entity_relations.entities[i];
-		Entity* deferred_entity = nullptr;
-		auto relation = entity_relations.relations[i];
+		E_Entity* deferred_entity = nullptr;
 		auto deferred_entity_id = entity_relations.deferred_entity_ids[i];
 
-		for (const auto entity_b : world->entities)
+		auto world_chunk_it = world->GetIterator();
+		while (auto* chunk = world_chunk_it())
 		{
-			if (entity_b->id == deferred_entity_id)
+			auto entity_iterator = chunk->GetIterator();
+			while(E_Entity* entity_b = entity_iterator())
 			{
-				deferred_entity = entity_b;
-				break;
+				if (entity_b->id == deferred_entity_id)
+				{
+					deferred_entity = entity_b;
+					break;
+				}
 			}
 		}
 
@@ -161,21 +168,21 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 	}
 
 	// assign IDs to entities missing them starting from max current id
-	For(world->entities.size())
-	{
-		if (auto entity = world->entities[i]; entity->name != PlayerName && entity->id == -1)
-		{
-			entity->id = manager->next_entity_id++;
-		}
-	}
+	// For(world->entities.size())
+	// {
+	// 	if (auto entity = world->entities[i]; entity->name != PlayerName && entity->id == -1)
+	// 	{
+	// 		entity->id = manager->next_entity_id++;
+	// 	}
+	// }
 
 	// clear static relations buffer
 	EntitySerializer::ClearBuffer();
 
 	GlobalSceneInfo::Get()->scene_name = filename;
 
-	world->UpdateEntities();
-	world->UpdateCellsInUseList();
+	// world->UpdateEntities();
+	// world->UpdateCellsInUseList();
 
 	return true;
 }
@@ -245,13 +252,14 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 	for (const auto& light : world->directional_lights)
 		LightSerializer::Save(writer, light);
 
-
-	for (const auto& entity : world->entities)
+	auto world_chunk_it = world->GetIterator();
+	while (auto* chunk = world_chunk_it())
 	{
-		if (entity->name == "Player")
-			continue;
-
-		EntitySerializer::Save(writer, *entity);
+		auto entity_iterator = chunk->GetIterator();
+		while(E_Entity* entity = entity_iterator())
+		{
+			EntitySerializer::Save(writer, *entity);
+		}
 	}
 
 	writer.close();

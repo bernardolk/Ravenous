@@ -15,10 +15,10 @@ ClResults CL_TestCollisionBufferEntitites(
 	bool iterative
 );
 
-ClResults CL_TestPlayerVsEntity(Entity* entity, Player* player);
+ClResults CL_TestPlayerVsEntity(E_Entity* entity, Player* player);
 void CL_ResolveCollision(ClResults results, Player* player);
 bool CL_TestCollisions(Player* player);
 void CL_ResetCollisionBufferChecks();
 void CL_RecomputeCollisionBufferEntities(Player* player);
-bool CL_UpdatePlayerWorldCells(Player* player, World* world);
-ClVtraceResult CL_DoStepoverVtrace(Player* player, World* world);
+bool CL_UpdatePlayerWorldCells(Player* player, T_World* world);
+ClVtraceResult CL_DoStepoverVtrace(Player* player, T_World* world);

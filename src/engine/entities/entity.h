@@ -105,7 +105,7 @@ struct Entity
 	// collider settings
 	bool slidable = false;
 
-	WorldCell* world_cells[MaxEntityWorldCells]{};
+	WorldCell* world_cells[MaxEntityWorldChunks]{};
 	int world_cells_count = 0;
 
 

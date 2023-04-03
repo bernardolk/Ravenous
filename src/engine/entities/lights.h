@@ -1,8 +1,9 @@
 #pragma once
+#include "engine/entities/e_entity.h"
+#include "engine/entities/traits/entity_traits.h"
 
-struct SpotLight
+struct EntityDecl(SpotLight)
 {
-	vec3 position = vec3(0);
 	vec3 direction = vec3(0, -1, 0);
 	vec3 diffuse = vec3(1);
 	vec3 specular = vec3(1);
@@ -13,9 +14,8 @@ struct SpotLight
 	float intensity_quadratic = 0.032f;
 };
 
-struct PointLight
+struct EntityDecl(PointLight)
 {
-	vec3 position = vec3(0);
 	vec3 diffuse = vec3(1);
 	vec3 specular = vec3(1);
 	float intensity_constant = 0.5f;
@@ -23,7 +23,7 @@ struct PointLight
 	float intensity_quadratic = 0.032f;
 };
 
-struct DirectionalLight
+struct EntityDecl(DirectionalLight)
 {
 	vec3 direction = vec3(0, -1, 0);
 	vec3 diffuse = vec3(1);

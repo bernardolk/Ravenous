@@ -22,7 +22,7 @@
 
 namespace Editor
 {
-	void HandleInputFlagsForEditorMode(InputFlags flags, World* world, Camera* camera)
+	void HandleInputFlagsForEditorMode(InputFlags flags, T_World* world, Camera* camera)
 	{
 		// ------------------------
 		// EDITOR EDITING COMMANDS
@@ -46,7 +46,7 @@ namespace Editor
 		if (Pressed(flags, KEY_LEFT_CTRL) && PressedOnce(flags, KEY_S))
 		{
 			// save scene
-			player->checkpoint_pos = player->entity_ptr->position;
+			player->checkpoint_pos = player->position;
 			WorldSerializer::SaveToFile();
 			// set scene
 			program_config.initial_scene = GSI->scene_name;
@@ -287,14 +287,14 @@ namespace Editor
 		if (PressedOnce(flags, KEY_C))
 		{
 			auto pickray = CastPickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
-			auto test = world->Raycast(pickray, player->entity_ptr);
+			auto test = world->Raycast(pickray, player);
 			if (test.hit)
 			{
 				auto surface_point = CL_GetPointFromDetection(pickray, test);
-				player->entity_ptr->position = surface_point;
+				player->position = surface_point;
 				player->player_state = PlayerState::Standing;
 				player->standing_entity_ptr = test.entity;
-				player->entity_ptr->velocity = vec3(0, 0, 0);
+				player->velocity = vec3(0, 0, 0);
 				player->Update(world);
 			}
 		}

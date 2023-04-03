@@ -8,7 +8,7 @@ struct Entity;
 struct ClResults
 {
 	bool collision = false;
-	Entity* entity = nullptr;
+	E_Entity* entity = nullptr;
 	float penetration = 0.f;
 	vec3 normal{};
 };
