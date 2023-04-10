@@ -7,6 +7,7 @@
 #include "engine/camera/camera.h"
 #include "engine/io/loaders.h"
 #include "engine/world/scene_manager.h"
+#include "engine/world/world_chunk.h"
 
 namespace Editor
 {
@@ -22,9 +23,15 @@ namespace Editor
 		{
 			if (ImGui::ImageButton((void*)static_cast<intptr_t>(panel->textures[i]), ImVec2(64, 64)))
 			{
+				auto* new_entity = T_World::Get()->CreateEntity<E_Entity>(1,1,1);
 				auto attributes = panel->entity_palette[i];
-				const auto new_entity = EM->CreateEntity(attributes);
-				new_entity->id = EM->next_entity_id++;
+
+				DEPRECATED_BEGIN
+				//const auto new_entity = EM->CreateEntity(attributes);
+				//new_entity->id = EM->next_entity_id++;
+				DEPRECATED_END
+
+				SetEntityAssets(new_entity, attributes);
 				new_entity->position = GSI->camera->position + (2.f * new_entity->scale + 5.f) * GSI->camera->front;
 				ActivateMoveMode(new_entity);
 			}
@@ -51,7 +58,6 @@ namespace Editor
 		.shader = "model",
 		.texture = "grey",
 		.collision_mesh = "aabb",
-		.type = EntityType_Static
 		};
 
 		// 1
@@ -61,7 +67,6 @@ namespace Editor
 		.shader = "model",
 		.texture = "grey",
 		.collision_mesh = "slope",
-		.type = EntityType_Static
 		};
 
 		// 3
@@ -71,7 +76,6 @@ namespace Editor
 		.shader = "model",
 		.texture = "grey",
 		.collision_mesh = "aabb",
-		.type = EntityType_Checkpoint,
 		.scale = vec3(0.3, 1.2, 0.3)
 		};
 	}

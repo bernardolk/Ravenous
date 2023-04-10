@@ -10,7 +10,7 @@
 
 namespace Editor
 {
-	void RenderSceneObjectsPanel(const World* world, SceneObjectsPanelContext* panel)
+	void RenderSceneObjectsPanel(T_World* world, SceneObjectsPanelContext* panel)
 	{
 		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::viewport_width - 600, 50), ImGuiCond_Appearing);
 		ImGui::Begin("Scene objects", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
@@ -22,23 +22,27 @@ namespace Editor
 		std::string _search_text;
 		_search_text.assign(panel->search_text);
 		Tolower(&_search_text);
-
-		For(world->entities.size())
+		
+		auto chunk_iterator = world->GetChunkIterator();
+		while (auto* chunk = chunk_iterator())
 		{
-			Entity* entity = world->entities[i];
-			std::string name = entity->name;
-			Tolower(&name);
-
-			if (panel->search_text == "" || name.find(_search_text) != std::string::npos)
+			auto entity_iter = chunk->GetIterator();
+			while (auto* entity = entity_iter())
 			{
-				if (ImGui::Button(entity->name.c_str(), ImVec2(200, 28)))
-				{
-					panel->active = false;
+				std::string name = entity->name;
+				Tolower(&name);
 
-					if (entity->name == PlayerName)
-						OpenPlayerPanel(Player::Get());
-					else
-						OpenEntityPanel(entity);
+				if (panel->search_text == "" || name.find(_search_text) != std::string::npos)
+				{
+					if (ImGui::Button(entity->name.c_str(), ImVec2(200, 28)))
+					{
+						panel->active = false;
+
+						if (entity->name == PlayerName)
+							OpenPlayerPanel(Player::Get());
+						else
+							OpenEntityPanel(entity);
+					}
 				}
 			}
 		}

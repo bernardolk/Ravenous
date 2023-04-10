@@ -10,7 +10,7 @@
 
 namespace Editor
 {
-	void RenderToolbar(World* world)
+	void RenderToolbar(T_World* world)
 	{
 		auto& ed_context = *GetContext();
 

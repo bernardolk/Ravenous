@@ -22,16 +22,9 @@
 // --------------------------------------
 
 // @TODO: Refactor this into methods of catalogues
-auto EntityManager::FindEntityAssetsInCatalogue(const std::string& mesh, const std::string& collision_mesh, const std::string& shader, const std::string& texture)
+CatalogueSearchResult EntityManager::FindEntityAssetsInCatalogue(const string& mesh, const string& collision_mesh, const string& shader, const string& texture)
 {
-	struct
-	{
-		Texture textures[2];
-		int textures_found = 0;
-		Mesh* mesh{};
-		CollisionMesh* collision_mesh{};
-		Shader* shader{};
-	} attrs;
+	CatalogueSearchResult attrs;
 
 	if (!mesh.empty())
 	{
@@ -195,8 +188,10 @@ Entity* EntityManager::CreateEditorEntity(const EntityAttributes& attrs)
 // > COPY ENTITY
 // ---------------
 // TODO: Rethink with new entity system
-Entity* EntityManager::CopyEntity(Entity* entity)
+Entity* EntityManager::CopyEntity(E_Entity* entity)
 {
+	DEPRECATED_BEGIN
+	/*
 	// allocate entity with new id
 	auto new_entity = pool.GetNext();
 	*new_entity = *entity;
@@ -222,6 +217,10 @@ Entity* EntityManager::CopyEntity(Entity* entity)
 	new_entity->name = new_name;
 	// RegisterInWorldAndScene(new_entity);
 	return new_entity;
+	DEPRECATED_END
+	*/
+	
+	return nullptr;
 }
 
 // void EntityManager::SetType(Entity* entity, const EntityType type)
@@ -284,8 +283,10 @@ Entity* EntityManager::CopyEntity(Entity* entity)
 // > DELETE ENTITY
 // ----------------
 // TODO: Rethink with new entity system
-void EntityManager::MarkForDeletion(Entity* entity)
+void EntityManager::MarkForDeletion(E_Entity* entity)
 {
+	DEPRECATED_BEGIN
+	/*
 	// remove from scene render list
 	int index = -1;
 	For(entity_registry->size())
@@ -305,15 +306,18 @@ void EntityManager::MarkForDeletion(Entity* entity)
 		entity->world_cells[i]->Remove(entity);
 
 	// remove from checkpoint registry if checkpoint
-	/*
-	if (entity->type == EntityType_Checkpoint)
-	{
-		auto& vec = *(checkpoints_registry);
-		std::erase(vec, entity);
-	}
-	*/
-
+	
+	//if (entity->type == EntityType_Checkpoint)
+	//{
+	//	auto& vec = *(checkpoints_registry);
+	//	std::erase(vec, entity);
+	//}
+	//
 	deletion_stack.push_back(entity);
+	*/
+	DEPRECATED_END
+	
+	entity->deleted = true;
 }
 
 // TODO: Rethink with new entity system

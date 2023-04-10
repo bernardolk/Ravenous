@@ -30,21 +30,16 @@ enum class PlayerAnimationState
 	Vaulting
 };
 
-// forward declarations
-struct Player;
-struct Entity;
-struct World;
-
 void ForceInterruptPlayerAnimation(Player* player);
 
 
 struct EntityDecl(Player)
 {
 	// [start] DROP ALL THESE
-	Entity* standing_entity_ptr = nullptr;;
-	Entity* slope_player_was_ptr = nullptr;;
-	Entity* vaulting_entity_ptr = nullptr;;
-	Entity* skip_collision_with_floor = nullptr;
+	E_Entity* standing_entity_ptr = nullptr;;
+	E_Entity* slope_player_was_ptr = nullptr;;
+	E_Entity* vaulting_entity_ptr = nullptr;;
+	E_Entity* skip_collision_with_floor = nullptr;
 	// [end]
 
 	// geometry
@@ -96,7 +91,7 @@ struct EntityDecl(Player)
 
 	// gameplay system variables
 	vec3 last_terrain_contact_normal = vec3(0, 1.f, 0);
-	Entity* grabbing_entity = nullptr;
+	E_Entity* grabbing_entity = nullptr;
 	float grab_reach = 0.9; // radius + arms reach, 0.5 + 0.4  
 
 	// sliding
@@ -112,7 +107,7 @@ struct EntityDecl(Player)
 	float fall_height_log = 0; // set when checking for fall, read-only!
 
 	// checkpoints
-	Entity* checkpoint = nullptr;
+	E_Entity* checkpoint = nullptr;
 	vec3 checkpoint_pos;
 
 	// animation
@@ -142,7 +137,7 @@ struct EntityDecl(Player)
 
 	bool MaybeHurtFromFall();
 	void RestoreHealth();
-	void SetCheckpoint(Entity* entity);
+	void SetCheckpoint(E_Entity* entity);
 	void GotoCheckpoint();
 	void Die();
 	void BruteStop();

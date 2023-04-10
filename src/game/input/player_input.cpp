@@ -62,7 +62,7 @@ void IN_ProcessMoveKeys(InputFlags flags, vec3& v_dir)
 }
 
 
-void IN_HandleMovementInput(InputFlags flags, Player* player, World* world)
+void IN_HandleMovementInput(InputFlags flags, Player* player, T_World* world)
 {
 	// assign keys
 	IN_AssignKeysToActions();

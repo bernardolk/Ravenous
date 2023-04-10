@@ -8,25 +8,25 @@ namespace Editor
 {
 	void DeactivateEditorModes();
 	bool CheckModesAreActive();
-	void EditorEraseEntity(Entity* entity);
+	void EditorEraseEntity(E_Entity* entity);
 	void EditorEraseLight(int index, string type, T_World* world);
-	void UnhideEntities(const World* world);
+	void UnhideEntities(T_World* world);
 
 	// ----------
 	// SNAP TOOL
 	// ----------
-	void ActivateSnapMode(Entity* entity);
-	void SnapEntityToReference(Entity* entity);
+	void ActivateSnapMode(E_Entity* entity);
+	void SnapEntityToReference(E_Entity* entity);
 	void CheckSelectionToSnap();
 	void SnapCommit();
 
 	// -------------
 	// STRETCH TOOL
 	// -------------
-	void ActivateStretchMode(Entity* entity);
+	void ActivateStretchMode(E_Entity* entity);
 	void StretchCommit();
-	auto GetScaleAndPositionChange(Entity* entity, float old_pos, float new_pos, float n);
-	void StretchEntityToReference(Entity* entity);
+	auto GetScaleAndPositionChange(E_Entity* entity, float old_pos, float new_pos, float n);
+	void StretchEntityToReference(E_Entity* entity);
 	void CheckSelectionToStretch();
 
 	// -------------
@@ -71,7 +71,7 @@ namespace Editor
 	// @todo: This will DISAPPEAR after lights become entities!
 	//       We need to provide entity rights to lights too! revolution now!
 
-	void MoveLightWithMouse(std::string type, int index, World* world);
+	void MoveLightWithMouse(std::string type, int index, T_World* world);
 	void ActivateMoveLightMode(std::string type, int index);
 	void PlaceLight(std::string type, int index);
 	void PlaceLight();

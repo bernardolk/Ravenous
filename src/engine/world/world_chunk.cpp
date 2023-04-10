@@ -12,9 +12,14 @@ T_World::T_World()
 	
 }
 
-Iterator<WorldChunk> T_World::GetIterator()
+Iterator<WorldChunk> T_World::GetChunkIterator()
 {
 	return chunks.GetIterator();
+}
+
+WorldEntityIterator T_World::GetEntityIterator()
+{
+	return WorldEntityIterator();
 }
 
 WorldChunkEntityIterator WorldChunk::GetIterator()
@@ -25,7 +30,7 @@ WorldChunkEntityIterator WorldChunk::GetIterator()
 void WorldChunk::RemoveEntity(E_Entity* entity_to_delete)
 {
 	// TODO: We are not dealing with actually removing entities yet, we only mark them so they can be skipped/overwritten.
-	entity_to_delete->removed = true;
+	entity_to_delete->deleted = true;
 }
 
 
@@ -36,7 +41,7 @@ RaycastTest T_World::Raycast(const Ray ray, const RayCastType test_type, const E
 	float min_distance = MaxFloat;
 	RaycastTest closest_hit{false, -1};
 
-	auto world_chunk_it = T_World::Get()->GetIterator();
+	auto world_chunk_it = T_World::Get()->GetChunkIterator();
 	while (auto* chunk = world_chunk_it())
 	{
 		auto entity_iterator = chunk->GetIterator();
@@ -211,11 +216,11 @@ CellUpdate T_World::UpdateEntityWorldCells(E_Entity* entity)
 
 
 	// Add entity to all world cells
-	for (u32 i = i0; i <= i1; i++)
+	for (i32 i = i0; i <= i1; i++)
 	{
-		for (u32 j = j0; j <= j1; j++)
+		for (i32 j = j0; j <= j1; j++)
 		{
-			for (u32 k = k0; k <= k1; k++)
+			for (i32 k = k0; k <= k1; k++)
 			{
 				auto chunk_it = this->chunks_map.find({i,j,k});
 				if (chunk_it == chunks_map.end())
@@ -234,7 +239,7 @@ CellUpdate T_World::UpdateEntityWorldCells(E_Entity* entity)
 bool WorldChunk::AddVisitor(E_Entity* entity)
 {
 	visitors.push_back(entity);
-	entity->visitor_state = VisitorState(true, WorldChunkPosition(i,j,k), this);
+	entity->visitor_state = VisitorState(true, vec3(i,j,k), this);
 	return true;
 }
 

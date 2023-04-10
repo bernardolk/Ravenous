@@ -23,7 +23,7 @@ void EntitySerializer::Parse(Parser& parser)
 	auto* world = T_World::Get();
 	// Create new entity (where?)
 	E_Entity new_entity;
-	// auto new_entity. manager->CreateEntity({});
+	// auto new_entity.manager->CreateEntity({});
 	// bool is_type_set = false;
 
 	auto& p = parser;

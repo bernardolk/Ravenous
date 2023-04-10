@@ -6,5 +6,5 @@ namespace Editor
 {
 	struct SceneObjectsPanelContext;
 
-	void RenderSceneObjectsPanel(const World* world, SceneObjectsPanelContext* panel);
+	void RenderSceneObjectsPanel(T_World* world, SceneObjectsPanelContext* panel);
 }

@@ -78,7 +78,7 @@ void LightSerializer::ParsePointLight(Parser& p)
 			break;
 	}
 
-	world->point_lights.push_back(&point_light);
+	T_World::Get()->point_lights.push_back(&point_light);
 }
 
 void LightSerializer::ParseSpotLight(Parser& p)
@@ -145,7 +145,7 @@ void LightSerializer::ParseSpotLight(Parser& p)
 			break;
 	}
 
-	world->spot_lights.push_back(&spotlight);
+	T_World::Get()->spot_lights.push_back(&spotlight);
 }
 
 void LightSerializer::ParseDirectionalLight(Parser& p)
@@ -177,7 +177,7 @@ void LightSerializer::ParseDirectionalLight(Parser& p)
 			break;
 	}
 
-	world->directional_lights.push_back(&light);
+	T_World::Get()->directional_lights.push_back(&light);
 }
 
 void LightSerializer::Save(std::ofstream& writer, const PointLight* light)

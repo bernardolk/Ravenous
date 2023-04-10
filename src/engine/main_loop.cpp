@@ -27,7 +27,7 @@ void RavenousMainLoop()
 {
 	auto* ES = EngineState::Get();
 	auto player = Player::Get();
-	auto world = World::Get();
+	auto world = T_World::Get();
 	auto* GSI = GlobalSceneInfo::Get();
 	auto* EM = EntityManager::Get();
 
@@ -57,7 +57,7 @@ void RavenousMainLoop()
 		// ---------------
 		if (EngineState::IsInConsoleMode())
 		{
-			handle_console_input(input_flags, player, world, GSI->camera);
+			HandleConsoleInput(input_flags, player, world, GSI->camera);
 		}
 		else
 		{
@@ -102,15 +102,15 @@ void RavenousMainLoop()
 		{
 			glClearColor(0.196, 0.298, 0.3607, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			RenderDepthMap(world);
-			RenderDepthCubemap(world);
+			RenderDepthMap();
+			RenderDepthCubemap();
 			RenderScene(world, GSI->camera);
 			//render_depth_map_debug();
 			switch (ES->current_mode)
 			{
 				case EngineState::ProgramMode::Console:
 				{
-					render_console();
+					RenderConsole();
 					break;
 				}
 				case EngineState::ProgramMode::Editor:

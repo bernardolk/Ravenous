@@ -4,7 +4,8 @@
 #include "e_base_entity.h"
 #include "engine/collision/collision_mesh.h"
 #include "engine/collision/primitives/bounding_box.h"
-#include "engine/world/world_chunk.h"
+#include "engine/geometry/mesh.h"
+#include "traits/entity_traits.h"
 
 enum EntityFlags
 {
@@ -15,8 +16,17 @@ enum EntityFlags
 	EntityFlags_RenderWireframe    = (1 << 4),
 };
 
+struct VisitorState
+{
+	bool visiting = false;
+	vec3 chunk_position = vec3(0.f);
+	WorldChunk* chunk_ptr = nullptr;
+
+	void Reset() { new (this) VisitorState(); }
+};
+
 /** Represents a rendereable and collidable basic entity. */
-struct E_Entity : E_BaseEntity
+struct E_Entity : E_BaseEntity, T_EntityTypeBase<E_Entity>
 {
 	Flags flags = 0;
 	

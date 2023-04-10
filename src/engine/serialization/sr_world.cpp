@@ -68,11 +68,14 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 	p.ParseU64();
 
 	// ENTITY IDs related code
-	bool recompute_next_entity_id = false;
-	if (!p.HasToken())
-		recompute_next_entity_id = true;
-	else
-		manager->next_entity_id = GetParsed<u64>(p);
+	DEPRECATED_BLOCK
+	{
+		// bool recompute_next_entity_id = false;
+		// if (!p.HasToken())
+		// 	recompute_next_entity_id = true;
+		// else
+		// 	manager->next_entity_id = GetParsed<u64>(p);
+	}
 
 	// -----------------------------------
 	//           Parse entities
@@ -120,7 +123,7 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 		E_Entity* deferred_entity = nullptr;
 		auto deferred_entity_id = entity_relations.deferred_entity_ids[i];
 
-		auto world_chunk_it = world->GetIterator();
+		auto world_chunk_it = world->GetChunkIterator();
 		while (auto* chunk = world_chunk_it())
 		{
 			auto entity_iterator = chunk->GetIterator();
@@ -162,9 +165,12 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 	// -----------------------------------
 
 	// If missing NEXT_ENTITY_ID in scene header, recompute from collected Ids (If no entity has an ID yet, this will be 1)
-	if (recompute_next_entity_id)
+	DEPRECATED_BLOCK
 	{
-		manager->next_entity_id = MaxEntityId + 1;
+	// if (recompute_next_entity_id)
+	// {
+	// 	manager->next_entity_id = MaxEntityId + 1;
+	// }
 	}
 
 	// assign IDs to entities missing them starting from max current id
@@ -218,8 +224,10 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 
 	writer << std::fixed << std::setprecision(4);
 
-	writer << "NEXT_ENTITY_ID = " << manager->next_entity_id << "\n";
+	DEPRECATED_LINE
+	//writer << "NEXT_ENTITY_ID = " << manager->next_entity_id << "\n";
 
+	
 	// @TODO: Refactor this at some point
 	// write camera settings to file
 	const auto camera = ConfigSerializer::scene_info->views[0];
@@ -252,7 +260,7 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 	for (const auto& light : world->directional_lights)
 		LightSerializer::Save(writer, light);
 
-	auto world_chunk_it = world->GetIterator();
+	auto world_chunk_it = world->GetChunkIterator();
 	while (auto* chunk = world_chunk_it())
 	{
 		auto entity_iterator = chunk->GetIterator();

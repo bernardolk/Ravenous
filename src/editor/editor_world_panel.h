@@ -6,5 +6,5 @@ namespace Editor
 {
 	struct WorldPanelContext;
 
-	void RenderWorldPanel(WorldPanelContext* panel, const World* world, const Player* player);
+	void RenderWorldPanel(WorldPanelContext* panel, const T_World* world, const Player* player);
 }

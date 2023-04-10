@@ -73,29 +73,19 @@
 void LoadShaders();
 
 void StartFrame();
-void CheckAllEntitiesHaveShaders(World* world);
-void CheckAllEntitiesHaveIds(World* world);
+void CheckAllEntitiesHaveShaders();
+void CheckAllEntitiesHaveIds();
 void CheckAllGeometryHasGlData();
 
 int main()
 {
 	auto* ES = EngineState::Get();
-	auto* world = World::Get();
-
-	auto* EM = EntityManager::Get();
-	EM->SetWorld(world);
-	EM->SetEntityRegistry(&world->entities);
-	EM->SetCheckpointsRegistry(&world->checkpoints);
-	EM->SetInteractablesRegistry(&world->interactables);
+	auto* world = T_World::Get();
 
 	//@TODO: This here is not working because EntityManager copy constructor was deleted. This is an issue
 	//    with using references it seems? A pointer would never complain about this. I should dig into this.
 	//    If I have to start writing extra code to use references then I can't justify using them.
 	WorldSerializer::world = world;
-	WorldSerializer::manager = EM;
-	PlayerSerializer::world = world;
-	LightSerializer::world = world;
-	EntitySerializer::manager = EM;
 	ConfigSerializer::scene_info = GlobalSceneInfo::Get();
 
 	// INITIAL GLFW AND GLAD SETUPS
@@ -114,9 +104,7 @@ int main()
 	Rvn::Init();
 	std::cout << " BUFFER: " << Rvn::entity_buffer;
 	// COLLISION_LOG           = CL_allocate_collision_log();
-	initialize_console_buffers();
-
-	EM->pool.Init();
+	InitializeConsoleBuffers();
 
 	// Initialises immediate draw
 	ImDraw::Init();
@@ -128,14 +116,14 @@ int main()
 
 	Player* player = GSI->player;
 	world->player = player;
-	player->checkpoint_pos = player->entity_ptr->position; // set player initial checkpoint position
+	player->checkpoint_pos = player->position; // set player initial checkpoint position
 
 	// set scene attrs from global config
 	GSI->camera->acceleration = program_config.camspeed;
 	world->ambient_light = program_config.ambient_light;
 	world->ambient_intensity = program_config.ambient_intensity;
 
-	world->UpdateEntityWorldCells(player->entity_ptr); // sets player to the world
+	world->UpdateEntityWorldCells(player); // sets player to the world
 	CL_RecomputeCollisionBufferEntities(player);       // populates collision buffer and others
 
 	Editor::Initialize();
@@ -145,8 +133,8 @@ int main()
 	CreateLightSpaceTransformMatrices();
 
 	// Pre-loop checks
-	CheckAllEntitiesHaveShaders(world);
-	CheckAllEntitiesHaveIds(world);
+	CheckAllEntitiesHaveShaders();
+	CheckAllEntitiesHaveIds();
 	CheckAllGeometryHasGlData();
 
 	// load pre recorded input recordings
@@ -156,9 +144,9 @@ int main()
 	AN_CreateHardcodedAnimations();
 
 	//@TODO: better for debugging
-	player->entity_ptr->flags |= EntityFlags_RenderWireframe;
+	player->flags |= EntityFlags_RenderWireframe;
 
-	world->UpdateEntities();
+	world->Update();
 
 	/**		NEW STUFF	*/
 	auto* new_world = T_World::Get();
@@ -202,12 +190,11 @@ void StartFrame()
 	}
 }
 
-void CheckAllEntitiesHaveShaders(World* world)
+void CheckAllEntitiesHaveShaders()
 {
-	For(world->entities.size())
+	auto entity_iterator = T_World::Get()->GetEntityIterator();
+	while(auto* entity = entity_iterator())
 	{
-		auto entity = world->entities[i];
-
 		if (entity->shader == nullptr)
 			Quit_fatal("shader not set for entity '" + entity->name + "'.");
 
@@ -216,12 +203,11 @@ void CheckAllEntitiesHaveShaders(World* world)
 	}
 }
 
-void CheckAllEntitiesHaveIds(World* world)
+void CheckAllEntitiesHaveIds()
 {
-	For(world->entities.size())
+	auto entity_iterator = T_World::Get()->GetEntityIterator();
+	while(auto* entity = entity_iterator())
 	{
-		auto entity = world->entities[i];
-
 		if (entity->name != PlayerName && entity->id == -1)
 			Quit_fatal("There are entities without IDs. Check scene loading code for a flaw.");
 	}

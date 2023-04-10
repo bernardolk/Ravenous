@@ -46,7 +46,7 @@ void Player::RestoreHealth()
 	lives = initial_lives;
 }
 
-void Player::SetCheckpoint(Entity* entity)
+void Player::SetCheckpoint(E_Entity* entity)
 {
 	return;
 	/*

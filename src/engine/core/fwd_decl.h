@@ -30,6 +30,7 @@ struct Texture;
 struct World;
 struct T_World;
 struct WorldCell;
+struct WorldChunk;
 
 struct PointLight;
 struct DirectionalLight;

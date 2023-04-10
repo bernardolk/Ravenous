@@ -14,7 +14,7 @@
 #include "game/entities/player.h"
 
 
-void initialize_console_buffers()
+void InitializeConsoleBuffers()
 {
 	auto buffers = static_cast<char**>(malloc(sizeof(char*) * Console.buffer_capacity));
 	for (size_t i = 0; i < Console.buffer_capacity; i++)
@@ -25,35 +25,35 @@ void initialize_console_buffers()
 	Console.buffers = buffers;
 }
 
-void render_console()
+void RenderConsole()
 {
 	RenderText(15, GlobalDisplayConfig::viewport_height - 20, Console.scratch_buffer);
 	RenderText(15, GlobalDisplayConfig::viewport_height - 35, std::to_string(Console.b_ind));
 }
 
-void move_to_next_buffer()
+void MoveToNextBuffer()
 {
 	if (Console.b_ind < Console.current_buffer_size)
 		Console.b_ind++;
 	if (Console.b_ind < Console.current_buffer_size)
-		copy_buffer_to_scratch_buffer();
+		CopyBufferToScratchBuffer();
 	else
-		clear_scratch_buffer();
+		ClearScratchBuffer();
 }
 
-void move_to_previous_buffer()
+void MoveToPreviousBuffer()
 {
 	if (Console.b_ind > 0)
 		Console.b_ind--;
 	if (Console.b_ind < Console.current_buffer_size)
-		copy_buffer_to_scratch_buffer();
+		CopyBufferToScratchBuffer();
 	else
-		clear_scratch_buffer();
+		ClearScratchBuffer();
 }
 
-void copy_buffer_to_scratch_buffer()
+void CopyBufferToScratchBuffer()
 {
-	clear_scratch_buffer();
+	ClearScratchBuffer();
 
 	int char_ind = 0;
 	char scene_name[50] = {'\0'};
@@ -66,21 +66,21 @@ void copy_buffer_to_scratch_buffer()
 	Console.c_ind = char_ind;
 }
 
-void start_console_mode()
+void StartConsoleMode()
 {
 	auto* ES = EngineState::Get();
 	ES->last_mode = ES->current_mode;
 	ES->current_mode = EngineState::ProgramMode::Console;
 }
 
-void quit_console_mode()
+void QuitConsoleMode()
 {
 	auto* ES = EngineState::Get();
 	ES->current_mode = ES->last_mode;
 	ES->last_mode = EngineState::ProgramMode::Console;
 }
 
-std::string commit_buffer()
+std::string CommitBuffer()
 {
 	// copy from scratch buffer to variable
 	int char_ind = 0;
@@ -112,7 +112,7 @@ std::string commit_buffer()
 	}
 
 	// clear scratch buffer
-	clear_scratch_buffer();
+	ClearScratchBuffer();
 
 	// updates number of items in buffers
 	Console.current_buffer_size++;
@@ -122,7 +122,7 @@ std::string commit_buffer()
 	return input;
 }
 
-void clear_scratch_buffer()
+void ClearScratchBuffer()
 {
 	int char_ind = 0;
 	while (Console.scratch_buffer[char_ind] != '\0')
@@ -133,7 +133,7 @@ void clear_scratch_buffer()
 	Console.c_ind = 0;
 }
 
-void execute_command(const std::string& buffer_line, Player* & player, World* world, Camera* camera)
+void ExecuteCommand(const std::string& buffer_line, Player* & player, T_World* world, Camera* camera)
 {
 	Parser p{buffer_line, 50};
 	p.ParseToken();
@@ -226,9 +226,9 @@ void execute_command(const std::string& buffer_line, Player* & player, World* wo
 
 			player = GSI->player; // not irrelevant! do not delete
 			if (EngineState::IsInEditorMode())
-				player->entity_ptr->flags &= ~EntityFlags_InvisibleEntity;
+				player->flags &= ~EntityFlags_InvisibleEntity;
 			else
-				player->entity_ptr->flags |= EntityFlags_InvisibleEntity;
+				player->flags |= EntityFlags_InvisibleEntity;
 		}
 		else
 		{
@@ -253,7 +253,7 @@ void execute_command(const std::string& buffer_line, Player* & player, World* wo
 		else if (argument == "all")
 		{
 			// save scene
-			player->checkpoint_pos = player->entity_ptr->position;
+			player->checkpoint_pos = player->position;
 			WorldSerializer::SaveToFile();
 			// set scene
 			program_config.initial_scene = GSI->scene_name;
@@ -273,9 +273,9 @@ void execute_command(const std::string& buffer_line, Player* & player, World* wo
 			player = GSI->player; // not irrelevant! do not delete
 
 			if (EngineState::IsInEditorMode())
-				player->entity_ptr->flags &= ~EntityFlags_InvisibleEntity;
+				player->flags &= ~EntityFlags_InvisibleEntity;
 			else
-				player->entity_ptr->flags |= EntityFlags_InvisibleEntity;
+				player->flags |= EntityFlags_InvisibleEntity;
 
 			ConfigSerializer::LoadGlobalConfigs();
 			GSI->active_scene->ReloadGlobalConfigs();
@@ -319,41 +319,41 @@ void execute_command(const std::string& buffer_line, Player* & player, World* wo
 		std::cout << "what do you mean with " << command << " man?\n";
 }
 
-void handle_console_input(InputFlags flags, Player* & player, World* world, Camera* camera)
+void HandleConsoleInput(InputFlags flags, Player* & player, T_World* world, Camera* camera)
 {
 	if (PressedOnce(flags, KEY_ENTER))
 	{
 		// if empty, just quit
 		if (Console.scratch_buffer[0] == '\0')
 		{
-			quit_console_mode();
+			QuitConsoleMode();
 			return;
 		}
-		const auto buffer_line = commit_buffer();
-		execute_command(buffer_line, player, world, camera);
-		quit_console_mode();
+		const auto buffer_line = CommitBuffer();
+		ExecuteCommand(buffer_line, player, world, camera);
+		QuitConsoleMode();
 	}
 
 	if (PressedOnce(flags, KEY_GRAVE_TICK))
 	{
-		quit_console_mode();
+		QuitConsoleMode();
 	}
 
 	if (PressedOnce(flags, KEY_UP))
 	{
-		move_to_previous_buffer();
+		MoveToPreviousBuffer();
 	}
 
 	if (PressedOnce(flags, KEY_DOWN))
 	{
-		move_to_next_buffer();
+		MoveToNextBuffer();
 	}
 
 	// run through all letters to see if they were hit
-	check_letter_key_presses(flags);
+	CheckLetterKeyPresses(flags);
 }
 
-void check_letter_key_presses(InputFlags flags)
+void CheckLetterKeyPresses(InputFlags flags)
 {
 	if (PressedOnce(flags, KEY_BACKSPACE))
 	{

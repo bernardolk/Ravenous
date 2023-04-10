@@ -16,7 +16,7 @@ namespace Editor
 
 	struct EdToolCallbackArgs
 	{
-		Entity* entity;
+		E_Entity* entity;
 		union
 		{
 			EntityType entity_type;
@@ -96,7 +96,7 @@ namespace Editor
 		u8 snap_cycle = 0;
 		u8 snap_axis = 1;
 		bool snap_inside = false;
-		Entity* snap_reference = nullptr;
+		E_Entity* snap_reference = nullptr;
 		EntityState snap_tracked_state;
 
 		// stretch mode
@@ -114,8 +114,8 @@ namespace Editor
 		bool show_lightbulbs = true;
 
 		// gizmos
-		Entity* tri_axis[3];
-		Entity* tri_axis_letters[3];
+		E_Entity* tri_axis[3];
+		E_Entity* tri_axis_letters[3];
 
 		// debug options
 		bool debug_ledge_detection = false;

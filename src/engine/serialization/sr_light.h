@@ -6,8 +6,6 @@ struct Parser;
 
 struct LightSerializer
 {
-	static inline T_World* world = nullptr;
-
 	static void Parse(Parser& p);
 	static void ParsePointLight(Parser& p);
 	static void ParseSpotLight(Parser& p);

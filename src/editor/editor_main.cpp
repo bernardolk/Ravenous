@@ -52,7 +52,7 @@ namespace Editor
 	// > UPDATE EDITOR
 	//------------------
 
-	void Update(Player* player, World* world, Camera* camera)
+	void Update(Player* player, T_World* world, Camera* camera)
 	{
 		auto& ed_context = *GetContext();
 		auto* GSI = GlobalSceneInfo::Get();
@@ -196,7 +196,7 @@ namespace Editor
 	// > RENDER EDITOR UI
 	//---------------------
 
-	void Render(Player* player, World* world, Camera* camera)
+	void Render(Player* player, T_World* world, Camera* camera)
 	{
 		auto& ed_context = *GetContext();
 
@@ -416,9 +416,9 @@ namespace Editor
 		// load tri axis gizmo
 		const auto axis_mesh = LoadWavefrontObjAsMesh(Paths::Models, "axis");
 
-		const auto x_axis = new Entity();
-		const auto y_axis = new Entity();
-		const auto z_axis = new Entity();
+		auto x_axis = new E_Entity();
+		auto y_axis = new E_Entity();
+		auto z_axis = new E_Entity();
 
 		x_axis->mesh = axis_mesh;
 		y_axis->mesh = axis_mesh;
@@ -452,9 +452,9 @@ namespace Editor
 
 		// load entity panel axis arrows
 		// @todo: refactor this to use the entity_manager
-		const auto x_arrow = new Entity();
-		const auto y_arrow = new Entity();
-		const auto z_arrow = new Entity();
+		auto x_arrow = new E_Entity();
+		auto y_arrow = new E_Entity();
+		auto z_arrow = new E_Entity();
 
 		x_arrow->mesh = axis_mesh;
 		y_arrow->mesh = axis_mesh;
@@ -501,21 +501,24 @@ namespace Editor
 
 		auto* EM = EntityManager::Get();
 		// creates entity rotation gizmos
-		ed_context.entity_panel.rotation_gizmo_x = EM->CreateEditorEntity({
+		ed_context.entity_panel.rotation_gizmo_x = new E_Entity();
+		SetEntityAssets(ed_context.entity_panel.rotation_gizmo_x, {
 		.name = "rotation_gizmo_x",
 		.mesh = "rotation_gizmo",
 		.shader = "ed_entity_arrow_shader",
 		.texture = "red",
 		.collision_mesh = "rotation_gizmo_collision"});
 
-		ed_context.entity_panel.rotation_gizmo_y = EM->CreateEditorEntity({
+		ed_context.entity_panel.rotation_gizmo_y = new E_Entity();
+		SetEntityAssets(ed_context.entity_panel.rotation_gizmo_y,{
 		.name = "rotation_gizmo_y",
 		.mesh = "rotation_gizmo",
 		.shader = "ed_entity_arrow_shader",
 		.texture = "green",
 		.collision_mesh = "rotation_gizmo_collision"});
 
-		ed_context.entity_panel.rotation_gizmo_z = EM->CreateEditorEntity({
+		ed_context.entity_panel.rotation_gizmo_z = new E_Entity();
+		SetEntityAssets(ed_context.entity_panel.rotation_gizmo_z, {
 		.name = "rotation_gizmo_z",
 		.mesh = "rotation_gizmo",
 		.shader = "ed_entity_arrow_shader",
@@ -870,11 +873,12 @@ namespace Editor
 		}
 	}
 
-
-	void RenderEventTriggers(Camera* camera, World* world)
+	//TODO: Reimplement
+	void RenderEventTriggers(Camera* camera, T_World* world)
 	{
-		if (world->interactables.size() == 0)
-			return;
+		/*
+		 if (world->interactables.size() == 0)
+			 return;
 
 		auto find = ShaderCatalogue.find("color");
 		auto shader = find->second;
@@ -891,33 +895,33 @@ namespace Editor
 			shader->SetFloat("opacity", 0.6);
 			RenderMesh(checkpoint->trigger, RenderOptions{});
 		}
+		*/
 	}
 
 
-	void RenderWorldCells(Camera* camera, World* world)
+	void RenderWorldCells(Camera* camera, T_World* world)
 	{
 		auto shader = ShaderCatalogue.find("color")->second;
 		auto cell_mesh = GeometryCatalogue.find("aabb")->second;
 		auto& ed_context = *GetContext();
 
-		for (int i = 0; i < world->cells_in_use_count; i++)
+		auto chunk_iterator = world->GetChunkIterator();
+		while (auto* chunk = chunk_iterator())
 		{
 			RenderOptions opts;
 			opts.wireframe = true;
 
-			auto cell = world->cells_in_use[i];
-
 			vec3 color;
-			if (ed_context.world_panel.cell_coords.x == cell->i &&
-				ed_context.world_panel.cell_coords.y == cell->j &&
-				ed_context.world_panel.cell_coords.z == cell->k)
+			if (ed_context.world_panel.chunk_position_vec.x == chunk->i &&
+				ed_context.world_panel.chunk_position_vec.y == chunk->j &&
+				ed_context.world_panel.chunk_position_vec.z == chunk->k)
 			{
 				opts.line_width = 1.5;
 				color = vec3(0.8, 0.4, 0.2);
 			}
-			else if ((cell->i == WCellsNumX || cell->i == 0) ||
-				(cell->j == WCellsNumY || cell->j == 0) ||
-				(cell->k == WCellsNumZ || cell->k == 0))
+			else if ((chunk->i == WCellsNumX || chunk->i == 0) ||
+				(chunk->j == WCellsNumY || chunk->j == 0) ||
+				(chunk->k == WCellsNumZ || chunk->k == 0))
 			{
 				color = vec3(0.0, 0.0, 0.0);
 			}
@@ -926,7 +930,7 @@ namespace Editor
 
 			// creates model matrix
 			vec3 position = GetWorldCoordinatesFromWorldCellCoordinates(
-				cell->i, cell->j, cell->k
+				chunk->i, chunk->j, chunk->k
 			);
 			glm::mat4 model = translate(Mat4Identity, position);
 			model = scale(model, vec3{WCellLenMeters, WCellLenMeters, WCellLenMeters});
@@ -945,7 +949,7 @@ namespace Editor
 	}
 
 
-	inline void RenderLightbulbs(Camera* camera, World* world)
+	inline void RenderLightbulbs(Camera* camera, T_World* world)
 	{
 		auto& ed_context = *GetContext();
 
@@ -1070,7 +1074,7 @@ namespace Editor
 	}
 
 
-	void RenderEntityControlArrows(EntityPanelContext* panel, World* world, Camera* camera)
+	void RenderEntityControlArrows(EntityPanelContext* panel, T_World* world, Camera* camera)
 	{
 		//@todo: try placing editor objects in a separate z buffer? Maybe manually... so we don't have to use GL_ALWAYS
 		glDepthFunc(GL_ALWAYS);
@@ -1081,7 +1085,7 @@ namespace Editor
 	}
 
 
-	void RenderEntityRotationGizmo(EntityPanelContext* panel, World* world, Camera* camera)
+	void RenderEntityRotationGizmo(EntityPanelContext* panel, T_World* world, Camera* camera)
 	{
 		//@todo: try placing editor objects in a separate z buffer? Maybe manually... so we don't have to use GL_ALWAYS
 		glDepthFunc(GL_ALWAYS);
@@ -1092,7 +1096,7 @@ namespace Editor
 	}
 
 
-	float GetGizmoScalingFactor(Entity* entity, float min, float max)
+	float GetGizmoScalingFactor(E_Entity* entity, float min, float max)
 	{
 		/* Editor gizmos need to follow entities' dimensions so they don't look too big or too small in comparison with the entity 
 		   when displayed. */
@@ -1119,7 +1123,7 @@ namespace Editor
 	{
 		// arrow positioning settings
 		float angles[3] = {270, 0, 90};
-		Entity* arrows[3] = {panel->x_arrow, panel->y_arrow, panel->z_arrow};
+		E_Entity* arrows[3] = {panel->x_arrow, panel->y_arrow, panel->z_arrow};
 		vec3 rot_axis[3] = {UnitZ, UnitX, UnitX};
 
 		auto entity = panel->entity;
@@ -1155,7 +1159,7 @@ namespace Editor
 		// arrow positioning settings
 		float angles[3] = {270, 0, 90};
 		vec3 rot_axis[3] = {UnitZ, UnitX, UnitX};
-		Entity* gizmos[3] = {panel->rotation_gizmo_x, panel->rotation_gizmo_y, panel->rotation_gizmo_z};
+		E_Entity* gizmos[3] = {panel->rotation_gizmo_x, panel->rotation_gizmo_y, panel->rotation_gizmo_z};
 
 		auto entity = panel->entity;
 
@@ -1193,7 +1197,7 @@ namespace Editor
 		}
 	}
 
-	void CheckSelectionToOpenPanel(Player* player, World* world, Camera* camera)
+	void CheckSelectionToOpenPanel(Player* player, T_World* world, Camera* camera)
 	{
 
 		auto* GII = GlobalInputInfo::Get();
@@ -1214,7 +1218,7 @@ namespace Editor
 	}
 
 
-	void CheckSelectionToSelectRelatedEntity(World* world, Camera* camera)
+	void CheckSelectionToSelectRelatedEntity(T_World* world, Camera* camera)
 	{
 		auto* EM = EntityManager::Get();
 		auto* GII = GlobalInputInfo::Get();
@@ -1245,7 +1249,7 @@ namespace Editor
 	}
 
 
-	void CheckSelectionToMoveEntity(World* world, Camera* camera)
+	void CheckSelectionToMoveEntity(T_World* world, Camera* camera)
 	{
 		auto* GII = GlobalInputInfo::Get();
 
@@ -1267,7 +1271,7 @@ namespace Editor
 		auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		RaycastTest test;
 
-		Entity* arrows[3] = {ed_context.entity_panel.x_arrow, ed_context.entity_panel.y_arrow, ed_context.entity_panel.z_arrow};
+		E_Entity* arrows[3] = {ed_context.entity_panel.x_arrow, ed_context.entity_panel.y_arrow, ed_context.entity_panel.z_arrow};
 
 		For(3)
 		{
@@ -1291,7 +1295,7 @@ namespace Editor
 		auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		RaycastTest test;
 
-		Entity* rot_gizmos[3] = {
+		E_Entity* rot_gizmos[3] = {
 		ed_context.entity_panel.rotation_gizmo_x,
 		ed_context.entity_panel.rotation_gizmo_y,
 		ed_context.entity_panel.rotation_gizmo_z

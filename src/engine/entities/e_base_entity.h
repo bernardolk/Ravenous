@@ -12,5 +12,5 @@ struct E_BaseEntity
 	TypeID type_id;
 	u64 id = 0;
 	string name;
-	bool removed = false;
+	bool deleted = false;
 };

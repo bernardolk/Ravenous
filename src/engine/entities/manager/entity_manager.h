@@ -3,6 +3,7 @@
 #include "engine/core/core.h"
 #include "engine/entities/allocator/entity_pool.h"
 #include "engine/entities/entity.h"
+#include "engine/geometry/mesh.h"
 
 struct EntityAttributes
 {
@@ -13,6 +14,15 @@ struct EntityAttributes
 	std::string collision_mesh = "aabb";
 	//EntityType type = EntityType_Static;
 	vec3 scale = vec3{1.0f};
+};
+
+struct CatalogueSearchResult
+{
+	Texture textures[2];
+	int textures_found = 0;
+	Mesh* mesh{};
+	CollisionMesh* collision_mesh{};
+	Shader* shader{};
 };
 
 struct EntityManager
@@ -46,19 +56,15 @@ struct EntityManager
 
 	Entity* CreateEditorEntity(const EntityAttributes& attrs);
 	Entity* CreateEntity(const EntityAttributes& attrs);
-	Entity* CopyEntity(Entity* entity);
+	Entity* CopyEntity(E_Entity* entity);
 
-	[[nodiscard]] static auto FindEntityAssetsInCatalogue(
-		const std::string& mesh,
-		const std::string& collision_mesh,
-		const std::string& shader,
-		const std::string& texture);
+	[[nodiscard]] static CatalogueSearchResult FindEntityAssetsInCatalogue(const string& mesh, const string& collision_mesh, const string& shader, const string& texture);
 
 	void RemoveFromCheckpointRegistry(Entity* entity) const;
 	void RemoveInteractivity(Entity* entity);
 	void MakeInteractable(Entity* entity);
 	void UnsetAllTypeRelatedConfigurations(Entity* entity);
 	// void SetType(Entity* entity, EntityType type);
-	void MarkForDeletion(Entity* entity);
+	void MarkForDeletion(E_Entity* entity);
 	void SafeDeleteMarkedEntities();
 };

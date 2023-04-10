@@ -94,10 +94,10 @@ bool AN_UpdatePlayerJumpingAnimation(Player* player)
 	// // player->half_height = new_half_height;
 
 	// // @todo: should modify collider here
-	// // player->entity_ptr->collision_geometry.cylinder.half_length = new_half_height;
-	// player->entity_ptr->scale.y -= h_diff;
+	// // player->collision_geometry.cylinder.half_length = new_half_height;
+	// player->scale.y -= h_diff;
 	// // compensates player shrinkage so he appears to be lifting the legs up
-	// player->entity_ptr->position.y += h_diff * 2;
+	// player->position.y += h_diff * 2;
 
 	return false;
 }
@@ -112,15 +112,15 @@ bool AN_UpdatePlayerLandingAnimation(Player* player)
 	// if(new_half_height >= player->height)
 	// {
 	//    new_half_height = player->height;
-	//    a_step = player->height - player->entity_ptr->scale.y;
+	//    a_step = player->height - player->scale.y;
 	//    interrupt = true;
 	// }
 
 	// player->half_height = new_half_height;
 
 	// // @todo: should modify collider here
-	// // player->entity_ptr->collision_geometry.cylinder.half_length = new_half_height;
-	// player->entity_ptr->scale.y += a_step;
+	// // player->collision_geometry.cylinder.half_length = new_half_height;
+	// player->scale.y += a_step;
 
 	// return interrupt;
 	return false;
@@ -144,8 +144,8 @@ bool AN_UpdatePlayerLandingFallAnimation(Player* player)
 	//    player->half_height = new_half_height;
 
 	//    // @todo: should modify collider here
-	//    // player->entity_ptr->collision_geometry.cylinder.half_length = new_half_height;
-	//    player->entity_ptr->scale.y -= h_diff;
+	//    // player->collision_geometry.cylinder.half_length = new_half_height;
+	//    player->scale.y -= h_diff;
 	// }
 	// // standing part
 	// else if(player->anim_t > landing_d)
@@ -155,15 +155,15 @@ bool AN_UpdatePlayerLandingFallAnimation(Player* player)
 	//    if(new_half_height >= player->height)
 	//    {
 	//       new_half_height = player->height;
-	//       a_step = player->height - player->entity_ptr->scale.y;
+	//       a_step = player->height - player->scale.y;
 	//       interrupt = true;
 	//    }
 
 	//    player->half_height = new_half_height;
 
 	//    // @todo: should modify collider here
-	//    // player->entity_ptr->collision_geometry.cylinder.half_length = new_half_height;
-	//    player->entity_ptr->scale.y += a_step;
+	//    // player->collision_geometry.cylinder.half_length = new_half_height;
+	//    player->scale.y += a_step;
 	// }
 
 	// return interrupt;
@@ -173,7 +173,7 @@ bool AN_UpdatePlayerLandingFallAnimation(Player* player)
 
 bool AN_PlayerVaulting(Player* player)
 {
-	vec3& p_pos = player->entity_ptr->position;
+	vec3& p_pos = player->position;
 
 	// animation speed in m/s
 	const float v_y = 2.f / 1.f;
@@ -241,8 +241,8 @@ void ForceInterruptPlayerAnimation(Player* player)
 	// player->anim_state = PlayerAnimationState::NoAnimation;
 	// player->anim_t = 0;
 	// // player->half_height = player->height;
-	// player->entity_ptr->scale.y = player->height;
+	// player->scale.y = player->height;
 
 	// // @todo: should modify collider here
-	// // player->entity_ptr->collision_geometry.cylinder.half_length = player->height;
+	// // player->collision_geometry.cylinder.half_length = player->height;
 }

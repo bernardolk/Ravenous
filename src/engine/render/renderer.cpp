@@ -143,7 +143,7 @@ void RenderEntity(E_Entity* entity)
 }
 
 
-void RenderEditorEntity(Entity* entity, World* world, Camera* camera)
+void RenderEditorEntity(E_Entity* entity, T_World* world, Camera* camera)
 {
 	entity->shader->Use();
 	// important that the gizmo dont have a position set.
@@ -173,7 +173,7 @@ void RenderScene(T_World* world, Camera* camera)
 	}
 
 	// TODO: Not worrying about active chunks for now
-	auto world_chunk_it = T_World::Get()->GetIterator();
+	auto world_chunk_it = T_World::Get()->GetChunkIterator();
 	while (auto* chunk = world_chunk_it())
 	{
 		auto entity_iterator = chunk->GetIterator();
@@ -352,7 +352,7 @@ void CreateLightSpaceTransformMatrices()
 // -----------------
 // RENDER DEPTH MAP
 // -----------------
-void RenderDepthMap(World* world)
+void RenderDepthMap()
 {
 	// setup
 	glViewport(0, 0, RShadowBufferWidth, RShadowBufferHeight);
@@ -363,9 +363,9 @@ void RenderDepthMap(World* world)
 	depth_shader->Use();
 	depth_shader->SetMatrix4("lightSpaceMatrix", RDirLightSpaceMatrix);
 
-	for (int it = 0; it < world->entities.size(); it++)
+	auto entity_iterator = T_World::Get()->GetEntityIterator();
+	while (auto* entity = entity_iterator())
 	{
-		Entity* entity = world->entities[0];
 		if (entity->flags & EntityFlags_InvisibleEntity)
 			continue;
 
@@ -378,8 +378,9 @@ void RenderDepthMap(World* world)
 	glViewport(0, 0, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height);
 }
 
-void RenderDepthCubemap(World* world)
+void RenderDepthCubemap()
 {
+	auto* world = T_World::Get();
 	// for now, testing, we are doing this just for the first point light source
 	if (world->point_lights.size() == 0)
 		return;
@@ -415,9 +416,9 @@ void RenderDepthCubemap(World* world)
 	depth_shader->SetFloat("cubemap_far_plane", RCubemapFarPlane);
 	depth_shader->SetFloat3("lightPos", light->position);
 
-	for (int i = 0; i < world->entities.size(); i++)
+	auto entity_iterator = world->GetEntityIterator();
+	while (auto* entity = entity_iterator())
 	{
-		auto entity = world->entities[i];
 		if (entity->flags & EntityFlags_InvisibleEntity)
 			continue;
 

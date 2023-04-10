@@ -3,6 +3,7 @@
 #include "engine/collision/raycast.h"
 #include "engine/core/core.h"
 #include "engine/entities/e_base_entity.h"
+#include "engine/entities/e_entity.h"
 #include "engine/entities/manager/entity_traits_manager.h"
 #include "engine/utils/utils.h"
 
@@ -108,15 +109,14 @@ struct WorldChunkPosition
 	{
 		return other.x == i && other.y == j && other.z == k;
 	}
-};
 
-struct VisitorState
-{
-	bool visiting = false;
-	WorldChunkPosition chunk_position{};
-	struct WorldChunk* chunk_ptr = nullptr;
+	bool operator < (const WorldChunkPosition& other)  const
+	{
+		return other.i < i && other.j < j && other.k < k;
+	}
 
-	void Reset() { new (this) VisitorState(); }
+
+	vec3 GetVec() { return vec3(i,j,k); }
 };
 
 struct WorldChunk
@@ -143,7 +143,7 @@ struct WorldChunk
 
 	vector<E_Entity*> visitors{};
 	
-	
+	WorldChunk(){}
 	WorldChunk(u32 i, u32 j, u32 k) : i(i), j(j), k(k) {}
 
 	WorldChunkEntityIterator GetIterator();
@@ -278,10 +278,11 @@ struct WorldChunkEntityIterator
 			block_idx++;
 		}
 		return nullptr;
-	};
+	}
 };
 
 /** World */
+struct WorldEntityIterator;
 
 struct T_World
 {
@@ -339,7 +340,8 @@ public:
 		return entity;
 	}
 
-	Iterator<WorldChunk> GetIterator();
+	Iterator<WorldChunk> GetChunkIterator();
+	static WorldEntityIterator GetEntityIterator();	
 	
 	RaycastTest Raycast(Ray ray, RayCastType test_type, const E_Entity* skip = nullptr, float max_distance = MaxFloat) const;
 	RaycastTest Raycast(Ray ray, const E_Entity* skip = nullptr, float max_distance = MaxFloat) const;
@@ -350,6 +352,32 @@ public:
 	
 private:
 	T_World();
+};
+
+struct WorldEntityIterator
+{
+	u8 total_active_chunks = 0;
+	u8 current_chunk_index = 0;
+
+	T_World* world;
+	WorldChunkEntityIterator chunk_iterator;
+	
+	WorldEntityIterator() : world(T_World::Get()), chunk_iterator(world->active_chunks[0]->GetIterator())
+	{
+		total_active_chunks = world->active_chunks.size();		
+	}
+	
+	E_Entity* operator()()
+	{
+		E_Entity* entity = chunk_iterator();
+		if (!entity && current_chunk_index < total_active_chunks - 1)
+		{
+			current_chunk_index++;
+			chunk_iterator = world->active_chunks[current_chunk_index]->GetIterator();
+			entity = chunk_iterator();
+		}
+		return entity;
+	}
 };
 
 inline vec3 GetWorldCoordinatesFromWorldCellCoordinates(int i, int j, int k)

@@ -408,7 +408,7 @@ namespace Editor
 		}
 		if (PressedOnce(flags, KEY_GRAVE_TICK))
 		{
-			start_console_mode();
+			StartConsoleMode();
 		}
 		if (flags.key_press & KEY_ESC && flags.key_press & KEY_LEFT_SHIFT)
 		{

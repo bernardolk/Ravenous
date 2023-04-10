@@ -133,10 +133,10 @@ struct Iterator
 {
 	T* it;
 
-	unsigned int it_count;
-	const unsigned int count;
+	u32 it_count;
+	const u64 count;
 
-	explicit Iterator(T* start, const unsigned int&& count) : count(count)
+	explicit Iterator(T* start, const u64 count) : count(count)
 	{
 		it = start;
 		it_count = 0;
@@ -144,7 +144,7 @@ struct Iterator
 
 	T* operator()()
 	{
-		if(it_count < count)
+		if (it_count < count)
 		{
 			return it + it_count++;;
 		}
@@ -174,18 +174,18 @@ const T_Val* Find(const std::map<T_Key, T_Val>& map, T_Key key)
 }
 
 /** Basic iterable array data structure */
-template<typename T, unsigned int Size>
+template<typename T, u64 Size>
 struct Array
 {
 
 public:
 	T data[Size]{};
-	u32 count = 0;
+	u64 count = 0;
 
 	Array() = default;
-	Array(T* data, u32 count)
+	Array(T* data, u64 count)
 	{
-		for (u32 i = 0; i < count; i++)
+		for (u64 i = 0; i < count; i++)
 		{
 			this->data[i] = data[i];
 		}
@@ -202,7 +202,7 @@ public:
 
 	Iterator<T> GetIterator()
 	{
-		Iterator<T> it(&data, Size);
+		Iterator<T> it(&data[0], Size);
 		return it;
 	}
 
@@ -287,7 +287,7 @@ public:
 	using Lambda = bool (*)(T&);
 	bool Eval(Lambda f)
 	{
-		for (u32 i = 0; i < count; i++)
+		for (u64 i = 0; i < count; i++)
 		{
 			if (f(&data[i]))
 			{
@@ -301,7 +301,7 @@ public:
 template<typename A, typename T>
 bool Contains(A& array, T& thing)
 {
-	for (u32 i = 0; i < array.count; i++)
+	for (u64 i = 0; i < array.count; i++)
 	{
 		if (array.data[i] == thing)
 		{
@@ -314,7 +314,7 @@ bool Contains(A& array, T& thing)
 template<typename A>
 bool Contains(A& array, u32 value)
 {
-	for (u32 i = 0; i < array.count; i++)
+	for (u64 i = 0; i < array.count; i++)
 	{
 		if (array.data[i] == value)
 		{

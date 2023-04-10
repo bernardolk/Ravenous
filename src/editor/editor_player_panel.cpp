@@ -9,28 +9,27 @@
 
 namespace Editor
 {
-	void RenderPlayerPanel(Editor::PlayerPanelContext* panel)
+	void RenderPlayerPanel(PlayerPanelContext* panel)
 	{
-		auto& entity = panel->player->entity_ptr;
-		auto& player = panel->player;
+		auto* player = Player::Get();
 
 		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::viewport_width - 550, 370), ImGuiCond_Appearing);
 
 		ImGui::Begin("Player Panel", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
 		panel->focused = ImGui::IsWindowFocused();
 
-		std::string entity_identification = entity->name;
+		std::string entity_identification = player->name;
 		ImGui::Text(entity_identification.c_str());
 
-		std::string entity_id = "Id: " + std::to_string(entity->id);
+		std::string entity_id = "Id: " + std::to_string(player->id);
 		ImGui::Text(entity_id.c_str());
 
 		ImGui::NewLine();
 
-		bool _hide_control = entity->flags & EntityFlags_HiddenEntity;
+		bool _hide_control = player->flags & EntityFlags_HiddenEntity;
 		if (ImGui::Checkbox("Hide Entity", &_hide_control))
 		{
-			entity->flags ^= EntityFlags_HiddenEntity;
+			player->flags ^= EntityFlags_HiddenEntity;
 		}
 		ImGui::NewLine();
 
@@ -39,7 +38,7 @@ namespace Editor
 		ImGui::NewLine();
 
 		ImGui::Text("Velocity: ");
-		ImGui::Text(ToString(player->entity_ptr->velocity).c_str());
+		ImGui::Text(ToString(player->velocity).c_str());
 
 		ImGui::End();
 	}
@@ -48,7 +47,7 @@ namespace Editor
 	{
 		auto& ed_context = *Editor::GetContext();
 
-		ed_context.selected_entity = player->entity_ptr;
+		ed_context.selected_entity = player;
 
 		auto& panel = ed_context.player_panel;
 		panel.active = true;

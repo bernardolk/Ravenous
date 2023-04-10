@@ -40,7 +40,7 @@ namespace Editor
 		ed_context.locate_coords_mode;
 	}
 
-	void EditorEraseEntity(Entity* entity)
+	void EditorEraseEntity(E_Entity* entity)
 	{
 		auto& ed_context = *GetContext();
 
@@ -66,24 +66,29 @@ namespace Editor
 			ed_context.lights_panel.selected_light = -1;
 	}
 
-	void UnhideEntities(const World* world)
+	void UnhideEntities(T_World* world)
 	{
-		for (auto& entity : world->entities)
+		auto chunk_iterator = world->GetChunkIterator();
+		while (auto* chunk = chunk_iterator())
 		{
-			if (entity->flags & EntityFlags_HiddenEntity)
-				entity->flags &= ~EntityFlags_HiddenEntity;
+			auto entity_iterator = chunk->GetIterator();
+			while (auto* entity = entity_iterator())
+			{
+				if (entity->flags & EntityFlags_HiddenEntity)
+					entity->flags &= ~EntityFlags_HiddenEntity;
+			}
 		}
 	}
 
 	// ----------
 	// SNAP TOOL
 	// ----------
-	void ActivateSnapMode(Entity* entity);
-	void SnapEntityToReference(Entity* entity);
+	void ActivateSnapMode(E_Entity* entity);
+	void SnapEntityToReference(E_Entity* entity);
 	void CheckSelectionToSnap();
 	void SnapCommit();
 
-	void ActivateSnapMode(Entity* entity)
+	void ActivateSnapMode(E_Entity* entity)
 	{
 		// deactivate_editor_modes();
 		// ed_context.snap_mode = true;
@@ -98,7 +103,7 @@ namespace Editor
 		// ed_context.undo_stack.track(entity);
 	}
 
-	void SnapEntityToReference(Entity* entity)
+	void SnapEntityToReference(E_Entity* entity)
 	{
 		// auto reference = ed_context.snap_reference;
 		// float diff = 0;
@@ -157,13 +162,13 @@ namespace Editor
 	// -------------
 	// STRETCH TOOL
 	// -------------
-	void ActivateStretchMode(Entity* entity);
+	void ActivateStretchMode(E_Entity* entity);
 	void StretchCommit();
-	auto GetScaleAndPositionChange(Entity* entity, float old_pos, float new_pos, float n);
-	void StretchEntityToReference(Entity* entity);
+	auto GetScaleAndPositionChange(E_Entity* entity, float old_pos, float new_pos, float n);
+	void StretchEntityToReference(E_Entity* entity);
 	void check_selection_to_stretch(EntityPanelContext* panel);
 
-	void ActivateStretchMode(Entity* entity)
+	void ActivateStretchMode(E_Entity* entity)
 	{
 		// deactivate_editor_modes();
 		// ed_context.stretch_mode = true;
@@ -215,7 +220,7 @@ namespace Editor
 		return transform;
 	}
 
-	void stretch_entity_to_reference(Entity* entity, Triangle t)
+	void stretch_entity_to_reference(E_Entity* entity, Triangle t)
 	{
 		// // In this function, we are, obviously, considering that
 		// // the triangle is axis aligned
@@ -615,7 +620,7 @@ namespace Editor
 	// @todo: This will DISAPPEAR after lights become entities!
 	//       We need to provide entity rights to lights too! revolution now!
 
-	void MoveLightWithMouse(std::string type, int index, World* world);
+	void MoveLightWithMouse(std::string type, int index, T_World* world);
 	void ActivateMoveLightMode(std::string type, int index);
 	void PlaceLight(std::string type, int index);
 	void OpenLightsPanel(std::string type, int index, bool focus_tab); //fwd
@@ -633,7 +638,7 @@ namespace Editor
 		ed_context.selected_light_type = type;
 	}
 
-	void MoveLightWithMouse(std::string type, int index, World* world)
+	void MoveLightWithMouse(std::string type, int index, T_World* world)
 	{
 		vec3 position;
 		if (type == "point" && index > -1)
@@ -773,7 +778,7 @@ namespace Editor
 		return mouse_offset * 360.f / 500.f;
 	}
 
-	void RotateEntityWithMouse(Entity* entity)
+	void RotateEntityWithMouse(E_Entity* entity)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto mouse_coords = vec2(GII->mouse_coords.x, GII->mouse_coords.y);

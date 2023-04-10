@@ -11,7 +11,7 @@
 
 void PlayerSerializer::ParseAttribute(Parser& p)
 {
-	Player* player = world->player;
+	Player* player = T_World::Get()->player;
 
 	p.ParseToken();
 	const auto attribute = GetParsed<std::string>(p);
@@ -29,7 +29,7 @@ void PlayerSerializer::ParseAttribute(Parser& p)
 	{
 		p.ParseVec3();
 		const auto position = GetParsed<glm::vec3>(p);
-		player->entity_ptr->position = position;
+		player->position = position;
 		player->checkpoint_pos = position;
 		player->height_before_fall = position.y;
 	}
@@ -38,7 +38,7 @@ void PlayerSerializer::ParseAttribute(Parser& p)
 	{
 		p.ParseVec3();
 		player->initial_velocity = GetParsed<glm::vec3>(p);
-		player->entity_ptr->velocity = player->initial_velocity;
+		player->velocity = player->initial_velocity;
 	}
 
 	else if (attribute == "player_state")
@@ -70,7 +70,7 @@ void PlayerSerializer::ParseAttribute(Parser& p)
 
 void PlayerSerializer::ParseOrientation(Parser& p)
 {
-	Player* player = world->player;
+	Player* player = T_World::Get()->player;
 
 	p.ParseToken();
 	if (GetParsed<std::string>(p) == "player_orientation")
@@ -93,11 +93,12 @@ void PlayerSerializer::ParseOrientation(Parser& p)
 
 void PlayerSerializer::Save(std::ofstream& writer)
 {
-	const auto player = world->player;
+	Player* player = T_World::Get()->player;
+	
 	writer << "@player_position = "
-	<< player->entity_ptr->position.x << " "
-	<< player->entity_ptr->position.y << " "
-	<< player->entity_ptr->position.z << "\n";
+	<< player->position.x << " "
+	<< player->position.y << " "
+	<< player->position.z << "\n";
 	writer << "@player_initial_velocity = "
 	<< player->initial_velocity.x << " "
 	<< player->initial_velocity.y << " "

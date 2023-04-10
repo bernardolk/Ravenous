@@ -16,12 +16,12 @@ namespace Editor
 		int i = 0;
 		for (auto* active_chunk : world->active_chunks)
 		{
-			auto coords = active_chunk->GetChunkPosition();
+			auto chunk_position = active_chunk->GetChunkPosition();
 			// adds indicator in header if player is inside cell
 			string header = active_chunk->GetChunkPositionString();
 			for (auto* player_chunk : player->world_chunks)
 			{
-				if (coords == player_chunk->GetChunkPosition())
+				if (chunk_position == player_chunk->GetChunkPosition())
 				{
 					header += " P";
 					break;
@@ -30,10 +30,10 @@ namespace Editor
 
 			if (ImGui::CollapsingHeader(header.c_str()))
 			{
-				bool is_active = panel->cell_coords == active_chunk->GetChunkPosition();
+				bool is_active = panel->chunk_position_vec == active_chunk->GetChunkPosition();
 				if (ImGui::Checkbox(string( "show##" + to_string(i)).c_str(), &is_active))
 				{
-					panel->cell_coords = is_active ? coords : vec3{-1.0f};
+					panel->chunk_position_vec = is_active ? chunk_position.GetVec() : vec3{-1.0f};
 				}
 
 				ImGui::SameLine();

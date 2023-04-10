@@ -11,7 +11,7 @@
 
 namespace Editor
 {
-	void RenderEntityPanel(EntityPanelContext* panel, World* world)
+	void RenderEntityPanel(EntityPanelContext* panel, T_World* world)
 	{
 		auto* EM = EntityManager::Get();
 		auto& entity = panel->entity;
@@ -175,10 +175,9 @@ namespace Editor
 
 			if (ImGui::CollapsingHeader("World cells"))
 			{
-				for (int i = 0; i < entity->world_cells_count; i++)
+				for (auto* chunk : entity->world_chunks)
 				{
-					auto cell = entity->world_cells[i];
-					ImGui::Text(cell->CoordsStr().c_str());
+					ImGui::Text(chunk->GetChunkPositionString().c_str());
 				}
 			}
 
@@ -197,8 +196,9 @@ namespace Editor
 				if (ImGui::Button("Duplicate", ImVec2(82, 18)))
 				{
 					action_flags |= EntityPanelTA_Duplicate;
-					auto new_entity = EM->CopyEntity(entity);
-					OpenEntityPanel(new_entity);
+					// TODO: reimplement
+					// auto new_entity = EM->CopyEntity(entity);
+					// OpenEntityPanel(new_entity);
 				}
 
 				ImGui::SameLine();
@@ -499,7 +499,7 @@ namespace Editor
 	}
 
 
-	void EntityPanelUpdateEntityAndEditorContext(const EntityPanelContext* panel, u32 action, World* world)
+	void EntityPanelUpdateEntityAndEditorContext(const EntityPanelContext* panel, u32 action, T_World* world)
 	{
 		auto& ed_context = *GetContext();
 
@@ -519,7 +519,7 @@ namespace Editor
 	}
 
 
-	void OpenEntityPanel(Entity* entity)
+	void OpenEntityPanel(E_Entity* entity)
 	{
 		auto& ed_context = *GetContext();
 		ed_context.selected_entity = entity;

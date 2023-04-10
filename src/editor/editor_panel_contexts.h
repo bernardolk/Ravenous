@@ -31,7 +31,7 @@ namespace Editor
 	{
 		bool active = false;
 		bool focused = false;
-		Entity* entity = nullptr;
+		E_Entity* entity = nullptr;
 		vec3 original_position = vec3(0);
 		vec3 original_scale = vec3(0);
 		float original_rotation = 0;
@@ -46,13 +46,13 @@ namespace Editor
 		bool reverse_scale_y = false;
 		bool reverse_scale_z = false;
 
-		Entity* x_arrow;
-		Entity* y_arrow;
-		Entity* z_arrow;
+		E_Entity* x_arrow;
+		E_Entity* y_arrow;
+		E_Entity* z_arrow;
 
-		Entity* rotation_gizmo_x;
-		Entity* rotation_gizmo_y;
-		Entity* rotation_gizmo_z;
+		E_Entity* rotation_gizmo_x;
+		E_Entity* rotation_gizmo_y;
+		E_Entity* rotation_gizmo_z;
 
 		EntityState entity_starting_state;
 		bool tracked_once = false;
@@ -62,7 +62,7 @@ namespace Editor
 		bool show_bounding_box = false;
 
 		bool show_related_entity = false;
-		Entity* related_entity = nullptr;
+		E_Entity* related_entity = nullptr;
 
 		void EmptyRenameBuffer()
 		{
@@ -97,7 +97,7 @@ namespace Editor
 	struct WorldPanelContext
 	{
 		bool active = false;
-		vec3 cell_coords = vec3{-1.0f};
+		vec3 chunk_position_vec = vec3{-1.0f};
 	};
 
 	struct LightsPanelContext

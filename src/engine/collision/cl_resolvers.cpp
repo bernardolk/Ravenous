@@ -148,14 +148,7 @@ bool CL_RunTestsForFallSimulation(Player* player)
 
 	for (int i = 0; i < entity_list_size; i++)
 	{
-		Entity* & entity = buffer->entity;
-
-		// TODO: this is bad, shouldn't need to compare strings and skip player
-		if (entity->name == "Player")
-		{
-			buffer++;
-			continue;
-		}
+		E_Entity* entity = buffer->entity;
 
 		// TODO: here should test for bounding box collision (or any geometric first pass test) FIRST, then do the call below
 		auto result = CL_TestPlayerVsEntity(entity, player);

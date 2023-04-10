@@ -42,7 +42,7 @@ void RenderMesh(const Mesh* mesh, RenderOptions opts = RenderOptions{});
 // RENDER ENTITY
 // --------------
 void RenderEntity(E_Entity* entity);
-void RenderEditorEntity(Entity* entity, T_World* world, Camera* camera);
+void RenderEditorEntity(E_Entity* entity, T_World* world, Camera* camera);
 
 // -------------
 // RENDER SCENE
@@ -64,6 +64,6 @@ void CreateLightSpaceTransformMatrices();
 // -----------------
 // RENDER DEPTH MAP
 // -----------------
-void RenderDepthMap(World* world);
-void RenderDepthCubemap(World* world);
+void RenderDepthMap();
+void RenderDepthCubemap();
 void RenderDepthMapDebug();
