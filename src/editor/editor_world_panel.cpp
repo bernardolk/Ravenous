@@ -1,8 +1,8 @@
 #include "editor_world_panel.h"
 #include <imgui.h>
 #include "editor_panel_contexts.h"
+#include "engine/world/world_chunk.h"
 #include "game/entities/player.h"
-#include "engine/world/world.h"
 
 namespace Editor
 {

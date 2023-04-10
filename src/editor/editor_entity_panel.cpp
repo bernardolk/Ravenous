@@ -7,13 +7,12 @@
 #include "tools/editor_tools.h"
 #include "engine/io/display.h"
 #include "engine/render/shader.h"
-#include "engine/world/world.h"
+#include "engine/world/world_chunk.h"
 
 namespace Editor
 {
 	void RenderEntityPanel(EntityPanelContext* panel, T_World* world)
 	{
-		auto* EM = EntityManager::Get();
 		auto& entity = panel->entity;
 		auto& ed_context = *GetContext();
 

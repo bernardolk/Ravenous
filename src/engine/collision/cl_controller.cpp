@@ -3,8 +3,6 @@
 #include <engine/rvn.h>
 #include <engine/collision/primitives/bounding_box.h>
 #include <iostream>
-#include "engine/entities/entity.h"
-#include <engine/world/world.h>
 #include <engine/collision/cl_gjk.h>
 #include <engine/collision/cl_epa.h>
 #include "game/entities/player.h"
@@ -12,6 +10,7 @@
 #include <engine/collision/cl_resolvers.h>
 #include <engine/collision/cl_controller.h>
 #include <chrono>
+#include "engine/world/world_chunk.h"
 
 // ----------------------------
 // > UPDATE PLAYER WORLD CELLS   

@@ -2,11 +2,10 @@
 #include <iostream>
 #include <fstream>
 #include <engine/core/types.h>
-#include "engine/entities/entity.h"
 #include "game/entities/player.h"
-#include "engine/world/world.h"
 #include "engine/serialization/parsing/parser.h"
 #include "engine/serialization/sr_player.h"
+#include "engine/world/world_chunk.h"
 
 
 void PlayerSerializer::ParseAttribute(Parser& p)

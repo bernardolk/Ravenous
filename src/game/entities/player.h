@@ -141,8 +141,6 @@ struct EntityDecl(Player)
 	void GotoCheckpoint();
 	void Die();
 	void BruteStop();
-	void MakeInvisible();
-	void MakeVisible();
 
 private:
 	friend struct GlobalSceneInfo;

@@ -5,13 +5,13 @@
 #include "sr_entity.h"
 #include "sr_light.h"
 #include "sr_player.h"
+#include "engine/catalogues.h"
 #include "engine/camera/camera.h"
-#include "engine/entities/manager/entity_manager.h"
 #include "engine/core/logging.h"
 #include "engine/rvn.h"
 #include "engine/collision/cl_controller.h"
 #include "engine/world/scene_manager.h"
-#include "engine/world/world.h"
+#include "engine/world/world_chunk.h"
 #include "parsing/parser.h"
 
 

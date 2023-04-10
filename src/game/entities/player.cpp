@@ -78,16 +78,6 @@ void Player::BruteStop()
 	speed = 0;
 }
 
-void Player::MakeInvisible()
-{
-	MakeInvisible();
-}
-
-void Player::MakeVisible()
-{
-	MakeVisible();
-}
-
 Player* Player::ResetPlayer()
 {
 	auto* player = Get();

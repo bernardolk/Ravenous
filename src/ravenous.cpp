@@ -60,14 +60,8 @@
 #include "engine/collision/cl_controller.h"
 #include "engine/render/im_render.h"
 #include "engine/serialization/sr_config.h"
-#include "engine/serialization/sr_entity.h"
-#include "engine/serialization/sr_light.h"
-#include "engine/serialization/sr_player.h"
 #include "engine/serialization/sr_world.h"
-#include "engine/world/world.h"
-
 #include "engine/world/world_chunk.h"
-#include "game/entities/e_door.h"
 
 // FUNCTION PROTOTYPES
 void LoadShaders();
@@ -149,7 +143,7 @@ int main()
 	world->Update();
 
 	/**		NEW STUFF	*/
-	auto* new_world = T_World::Get();
+	//auto* new_world = T_World::Get();
 	
 	// set first one to active
 	// auto* active_chunk = new_world->chunks.GetAt(0, 0, 0);

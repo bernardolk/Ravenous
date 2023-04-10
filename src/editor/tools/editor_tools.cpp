@@ -2,14 +2,12 @@
 
 #include "editor_tools.h"
 #include "editor/editor.h"
-#include "editor/editor_entity_panel.h"
 #include "engine/camera/camera.h"
-#include "engine/entities/manager/entity_manager.h"
 #include "engine/entities/lights.h"
 #include "engine/collision/cl_controller.h"
 #include "engine/io/input.h"
 #include "engine/world/scene_manager.h"
-#include "engine/world/world.h"
+#include "engine/world/world_chunk.h"
 
 namespace Editor
 {
@@ -42,10 +40,9 @@ namespace Editor
 
 	void EditorEraseEntity(E_Entity* entity)
 	{
+		//TODO: To be implemented
 		auto& ed_context = *GetContext();
 
-		auto* EM = EntityManager::Get();
-		EM->MarkForDeletion(entity);
 		ed_context.undo_stack.deletion_log.Add(entity);
 	}
 

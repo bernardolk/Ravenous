@@ -58,7 +58,7 @@ struct E_Entity : E_BaseEntity, T_EntityTypeBase<E_Entity>
 
 	/** World data */
 	// Array<WorldCell*, MaxEntityWorldCells> world_cells{};
-	WorldChunk* world_chunks[MaxEntityWorldChunks]{};
+	vector<WorldChunk*> world_chunks;
 	int world_chunks_count = 0;
 	
 	/** Event trigger */
@@ -80,4 +80,7 @@ public:
 	CollisionMesh GetTriggerCollider();
 	void MakeInvisible();
 	void MakeVisible();
+
+	// MAX E_ENTITY budget
+	E_Entity() { instance_budget = 200; }
 };

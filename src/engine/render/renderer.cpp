@@ -6,7 +6,7 @@
 #include "engine/entities/lights.h"
 #include "engine/entities/entity.h"
 #include "engine/io/display.h"
-#include "engine/world/world.h"
+#include "engine/world/world_chunk.h"
 #include "text/text_renderer.h"
 
 void RenderMesh(const Mesh* mesh, RenderOptions opts)

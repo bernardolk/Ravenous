@@ -18,7 +18,7 @@
 #include "engine/serialization/sr_world.h"
 #include "engine/world/scene_manager.h"
 #include "engine/io/input.h"
-#include "engine/world/world.h"
+#include "engine/world/world_chunk.h"
 
 namespace Editor
 {

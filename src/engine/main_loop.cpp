@@ -10,7 +10,6 @@
 #include "editor/tools/input_recorder.h"
 #include "engine/engine_state.h"
 #include "engine/io/display.h"
-#include "engine/world/world.h"
 #include "editor/console/console.h"
 #include "game/gameplay/gp_game_state.h"
 #include "game/gameplay/gp_update.h"
@@ -20,6 +19,7 @@
 #include "engine/render/im_render.h"
 #include "engine/render/renderer.h"
 #include "engine/world/scene_manager.h"
+#include "world/world_chunk.h"
 
 void StartFrame();
 
@@ -29,7 +29,6 @@ void RavenousMainLoop()
 	auto player = Player::Get();
 	auto world = T_World::Get();
 	auto* GSI = GlobalSceneInfo::Get();
-	auto* EM = EntityManager::Get();
 
 	while (!glfwWindowShouldClose(GlobalDisplayConfig::GetWindow()))
 	{
@@ -133,7 +132,6 @@ void RavenousMainLoop()
 		// -------------
 		// FINISH FRAME
 		// -------------
-		EM->SafeDeleteMarkedEntities();
 		Rvn::rm_buffer->Cleanup();
 		glfwSwapBuffers(GlobalDisplayConfig::GetWindow());
 		if (ES->current_mode == EngineState::ProgramMode::Editor)

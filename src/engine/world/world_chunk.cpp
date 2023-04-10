@@ -1,15 +1,17 @@
 #include "engine/world/world_chunk.h"
 
+#include "engine/catalogues.h"
 #include "engine/entities/e_entity.h"
 #include "engine/entities/lights.h"
-#include "engine/entities/manager/entity_manager.h"
 #include "engine/render/im_render.h"
 #include "engine/utils/utils.h"
 #include "game/entities/player.h"
 
 T_World::T_World()
 {
-	
+	auto* active_chunk = chunks.GetAt(0);
+	active_chunks.push_back(active_chunk);
+	chunks_map[{0,0,0}] = active_chunk;
 }
 
 Iterator<WorldChunk> T_World::GetChunkIterator()
@@ -214,6 +216,7 @@ CellUpdate T_World::UpdateEntityWorldCells(E_Entity* entity)
 	}
 	entity->world_chunks_count = 0;
 
+	auto origin_chunk =  WorldCoordsToCells(entity->position);
 
 	// Add entity to all world cells
 	for (i32 i = i0; i <= i1; i++)
@@ -225,10 +228,13 @@ CellUpdate T_World::UpdateEntityWorldCells(E_Entity* entity)
 				auto chunk_it = this->chunks_map.find({i,j,k});
 				if (chunk_it == chunks_map.end())
 					return CellUpdate{CellUpdate_OUT_OF_BOUNDS, "Coordinates not found in chunks_map.", true};
-
+				
 				auto* chunk = chunk_it->second;
-				chunk->AddVisitor(entity);
-				entity->world_chunks[entity->world_chunks_count++] = chunk;
+				
+				if (origin_chunk != vec3(i,j,k))
+					chunk->AddVisitor(entity);
+				
+				entity->world_chunks.push_back(chunk);
 			}
 		}
 	}
@@ -272,7 +278,7 @@ void SetEntityDefaultAssets(E_Entity* entity)
 		_texture_count,
 		_mesh,
 		_collision_mesh,
-		_shader] = EntityManager::FindEntityAssetsInCatalogue(attrs.mesh, attrs.collision_mesh, attrs.shader, attrs.texture);
+		_shader] = FindEntityAssetsInCatalogue(attrs.mesh, attrs.collision_mesh, attrs.shader, attrs.texture);
 
 	entity->name = attrs.name;
 	entity->shader = _shader;
@@ -292,7 +298,7 @@ void SetEntityAssets(E_Entity* entity, EntityAttributes attrs)
 		_texture_count,
 		_mesh,
 		_collision_mesh,
-		_shader] = EntityManager::FindEntityAssetsInCatalogue(attrs.mesh, attrs.collision_mesh, attrs.shader, attrs.texture);
+		_shader] = FindEntityAssetsInCatalogue(attrs.mesh, attrs.collision_mesh, attrs.shader, attrs.texture);
 
 	entity->name = attrs.name;
 	entity->shader = _shader;

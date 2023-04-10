@@ -9,8 +9,6 @@
 #include <engine/collision/collision_mesh.h>
 #include <glm/gtx/quaternion.hpp>
 #include "engine/geometry/mesh.h"
-#include "engine/entities/entity.h"
-#include "engine/entities/manager/entity_manager.h"
 #include "engine/serialization/parsing/parser.h"
 #include "engine/io/loaders.h"
 #include "engine/render/shader.h"
@@ -42,8 +40,11 @@ void EntitySerializer::Parse(Parser& parser)
 			u64 id = GetParsed<u64>(parser);
 			new_entity.id = id;
 
-			if (manager->next_entity_id < id)
-				manager->next_entity_id = id;
+			DEPRECATED_BLOCK
+			{
+			// if (manager->next_entity_id < id)
+			// 	manager->next_entity_id = id;
+			}
 		}
 
 		else if (property == "position")

@@ -6,7 +6,7 @@
 #include "engine/io/display.h"
 #include "engine/serialization/sr_config.h"
 #include "engine/world/scene_manager.h"
-#include "engine/world/world.h"
+#include "engine/world/world_chunk.h"
 
 namespace Editor
 {

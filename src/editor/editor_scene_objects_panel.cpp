@@ -5,8 +5,8 @@
 #include "editor_player_panel.h"
 #include "game/entities/player.h"
 #include "engine/io/display.h"
-#include "engine/world/world.h"
 #include "engine/utils/utils.h"
+#include "engine/world/world_chunk.h"
 
 namespace Editor
 {

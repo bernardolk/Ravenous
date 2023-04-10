@@ -19,7 +19,6 @@
 #include "engine/render/renderer.h"
 #include "engine/utils/utils.h"
 #include "engine/camera/camera.h"
-#include "engine/entities/manager/entity_manager.h"
 #include "engine/entities/lights.h"
 #include "engine/io/loaders.h"
 #include "engine/geometry/vertex.h"
@@ -30,7 +29,7 @@
 #include "engine/render/text/face.h"
 #include "engine/render/text/text_renderer.h"
 #include "engine/world/scene_manager.h"
-#include "engine/world/world.h"
+#include "engine/world/world_chunk.h"
 #include "game/collision/cl_edge_detection.h"
 
 namespace Editor
@@ -499,7 +498,6 @@ namespace Editor
 		ed_context.entity_panel.y_arrow = y_arrow;
 		ed_context.entity_panel.z_arrow = z_arrow;
 
-		auto* EM = EntityManager::Get();
 		// creates entity rotation gizmos
 		ed_context.entity_panel.rotation_gizmo_x = new E_Entity();
 		SetEntityAssets(ed_context.entity_panel.rotation_gizmo_x, {
@@ -919,9 +917,9 @@ namespace Editor
 				opts.line_width = 1.5;
 				color = vec3(0.8, 0.4, 0.2);
 			}
-			else if ((chunk->i == WCellsNumX || chunk->i == 0) ||
-				(chunk->j == WCellsNumY || chunk->j == 0) ||
-				(chunk->k == WCellsNumZ || chunk->k == 0))
+			else if ((chunk->i == WorldChunkNumX || chunk->i == 0) ||
+				(chunk->j == WorldChunkNumY || chunk->j == 0) ||
+				(chunk->k == WorldChunkNumZ || chunk->k == 0))
 			{
 				color = vec3(0.0, 0.0, 0.0);
 			}
@@ -933,7 +931,7 @@ namespace Editor
 				chunk->i, chunk->j, chunk->k
 			);
 			glm::mat4 model = translate(Mat4Identity, position);
-			model = scale(model, vec3{WCellLenMeters, WCellLenMeters, WCellLenMeters});
+			model = scale(model, vec3{WorldChunkLengthMeters, WorldChunkLengthMeters, WorldChunkLengthMeters});
 
 			//render
 			shader->Use();
@@ -1220,7 +1218,6 @@ namespace Editor
 
 	void CheckSelectionToSelectRelatedEntity(T_World* world, Camera* camera)
 	{
-		auto* EM = EntityManager::Get();
 		auto* GII = GlobalInputInfo::Get();
 		auto& ed_context = *GetContext();
 

@@ -20,10 +20,10 @@
 
 #define PRINT(x) std::cout << (x) << "\n";
 
-#define DEPRECATED_BEGIN
-#define DEPRECATED_END
-#define DEPRECATED_BLOCK
-#define DEPRECATED_LINE 
+#define DEPRECATED_BEGIN ;
+#define DEPRECATED_END ;
+#define DEPRECATED_BLOCK ;
+#define DEPRECATED_LINE ;
 
 #define TO_DEPRECATE_BEGIN
 #define TO_DEPRECATE_END

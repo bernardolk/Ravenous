@@ -3,9 +3,7 @@
 #include <glm/gtx/normal.hpp>
 #include <engine/collision/primitives/ray.h>
 #include <glm/gtx/quaternion.hpp>
-#include "engine/entities/entity.h"
 #include "game/entities/player.h"
-#include <engine/world/world.h>
 #include <engine/collision/cl_types.h>
 #include "engine/utils/colors.h"
 #include <engine/render/im_render.h>
@@ -13,6 +11,7 @@
 
 #include "cl_controller.h"
 #include "engine/utils/utils.h"
+#include "engine/world/world_chunk.h"
 
 
 // ---------------------

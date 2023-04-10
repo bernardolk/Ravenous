@@ -7,11 +7,10 @@
 #include "engine/camera/camera.h"
 #include "engine/rvn.h"
 #include "engine/collision/cl_controller.h"
-#include "engine/collision/cl_gjk.h"
 #include "engine/collision/cl_types.h"
 #include "engine/render/im_render.h"
 #include "engine/world/scene_manager.h"
-#include "engine/world/world.h"
+#include "engine/world/world_chunk.h"
 
 /*	  BIG @TODO
       player collider update is a mess, I've decoupled it from the main player update call, so now

@@ -8,34 +8,32 @@
 #include "engine/utils/utils.h"
 
 struct E_Entity;
-auto WorldCoordsToCells(float x, float y, float z);
+struct WorldChunkPosition WorldCoordsToCells(float x, float y, float z);
 vec3 GetWorldCoordinatesFromWorldCellCoordinates(int i, int j, int k);
 
 // how many cells we have preallocated for the world
-constexpr static int WCellsNumX = 4;
-constexpr static int WCellsNumY = 4;
-constexpr static int WCellsNumZ = 4;
+constexpr static int WorldChunkNumX = 1;
+constexpr static int WorldChunkNumY = 1;
+constexpr static int WorldChunkNumZ = 1;
 
 // how many cells are before and after the origin in each axis
-constexpr static int WCellsOffsetX = WCellsNumX / 2;
-constexpr static int WCellsOffsetY = WCellsNumY / 2;
-constexpr static int WCellsOffsetZ = WCellsNumZ / 2;
+constexpr static float WorldChunkOffsetX = WorldChunkNumX / 2.f;
+constexpr static float WorldChunkOffsetY = WorldChunkNumY / 2.f;
+constexpr static float WorldChunkOffsetZ = WorldChunkNumZ / 2.f;
 
 // how many meters the cell occupies in the world
-constexpr static float WCellLenMeters = 50.0f;
-// how many entities can coexists in a cell
-constexpr static int WorldCellCapacity = 150;
+constexpr static float WorldChunkLengthMeters = 5000.0f;
 
 const static vec3 WUpperBoundsMeters = {
-	WCellsOffsetX * WCellLenMeters,
-	WCellsOffsetY * WCellLenMeters,
-	WCellsOffsetZ * WCellLenMeters
+	WorldChunkOffsetX * WorldChunkLengthMeters,
+	WorldChunkOffsetY * WorldChunkLengthMeters,
+	WorldChunkOffsetZ * WorldChunkLengthMeters
 	};
 
 const static vec3 WLowerBoundsMeters = {
-	-1.0 * WCellsOffsetX * WCellLenMeters,
-	-1.0 * WCellsOffsetX * WCellLenMeters,
-	-1.0 * WCellsOffsetX * WCellLenMeters
+	-1.0 * WorldChunkOffsetX * WorldChunkLengthMeters,
+	-1.0 * WorldChunkOffsetX * WorldChunkLengthMeters,
+	-1.0 * WorldChunkOffsetX * WorldChunkLengthMeters
 	};
 
 enum CellUpdateStatus
@@ -88,8 +86,9 @@ struct EntityStorageBlockMetadata
 struct ChunkStorage
 {
 	using byte = char;
-	
-	inline static constexpr size_t chunk_byte_budget = 1200;
+
+	// MAX BUDGET for ALL entities
+	inline static constexpr size_t chunk_byte_budget = 666000;
 	
 	byte data[chunk_byte_budget]{};
 	byte* next_block_start = &data[0];
@@ -287,7 +286,7 @@ struct WorldEntityIterator;
 struct T_World
 {
 	// static constexpr u8 world_chunk_matrix_order = 10;
-	static constexpr u32 world_size_in_chunks = WCellsNumX * WCellsNumY * WCellsNumZ;
+	static constexpr u32 world_size_in_chunks = WorldChunkNumX * WorldChunkNumY * WorldChunkNumZ;
 
 	// TODO: We can't use world chunk "matrix" position as its ijk position! This is insane! What if we want to unload part A of the world and load part B,
 	// what are the index going to say? Nothing.
@@ -332,7 +331,7 @@ public:
 	T_Entity* CreateEntity(u8 i, u8 j, u8 k)
 	{
 		auto chunk_it = chunks_map.find({i, j, k});
-		if (chunk_it != chunks_map.end())
+		if (chunk_it == chunks_map.end())
 			return nullptr;
 		
 		auto* chunk = chunk_it->second;
@@ -382,19 +381,16 @@ struct WorldEntityIterator
 
 inline vec3 GetWorldCoordinatesFromWorldCellCoordinates(int i, int j, int k)
 {
-	const float world_x = (static_cast<float>(i) - WCellsOffsetX) * WCellLenMeters;
-	const float world_y = (static_cast<float>(j) - WCellsOffsetY) * WCellLenMeters;
-	const float world_z = (static_cast<float>(k) - WCellsOffsetZ) * WCellLenMeters;
+	const float world_x = (static_cast<float>(i) - WorldChunkOffsetX) * WorldChunkLengthMeters;
+	const float world_y = (static_cast<float>(j) - WorldChunkOffsetY) * WorldChunkLengthMeters;
+	const float world_z = (static_cast<float>(k) - WorldChunkOffsetZ) * WorldChunkLengthMeters;
 
 	return vec3{world_x, world_y, world_z};
 }
 
-inline auto WorldCoordsToCells(float x, float y, float z)
+inline WorldChunkPosition WorldCoordsToCells(float x, float y, float z)
 {
-	struct
-	{
-		int i = -1, j = -1, k = -1;
-	} world_cell_coords;
+	WorldChunkPosition world_cell_coords;
 
 	// if out of bounds return -1
 	if (x < WLowerBoundsMeters.x || x > WUpperBoundsMeters.x ||
@@ -405,14 +401,14 @@ inline auto WorldCoordsToCells(float x, float y, float z)
 	}
 
 	// int division to truncate float result to correct cell position
-	world_cell_coords.i = (x + WCellsOffsetX * WCellLenMeters) / WCellLenMeters;
-	world_cell_coords.j = (y + WCellsOffsetY * WCellLenMeters) / WCellLenMeters;
-	world_cell_coords.k = (z + WCellsOffsetZ * WCellLenMeters) / WCellLenMeters;
+	world_cell_coords.i = (x + WorldChunkOffsetX * WorldChunkLengthMeters) / WorldChunkLengthMeters;
+	world_cell_coords.j = (y + WorldChunkOffsetY * WorldChunkLengthMeters) / WorldChunkLengthMeters;
+	world_cell_coords.k = (z + WorldChunkOffsetZ * WorldChunkLengthMeters) / WorldChunkLengthMeters;
 
 	return world_cell_coords;
 }
 
-inline auto WorldCoordsToCells(vec3 position)
+inline WorldChunkPosition WorldCoordsToCells(vec3 position)
 {
 	return WorldCoordsToCells(position.x, position.y, position.z);
 }

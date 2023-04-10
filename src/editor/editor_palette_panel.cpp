@@ -16,7 +16,6 @@ namespace Editor
 		ImGui::SetNextWindowPos(ImVec2(50, 300), ImGuiCond_Always);
 		ImGui::Begin("Palette", &panel->active, ImGuiWindowFlags_NoResize);
 		ImGui::SetWindowSize("Palette", ImVec2(90, 500), ImGuiCond_Always);
-		auto* EM = EntityManager::Get();
 		auto* GSI = GlobalSceneInfo::Get();
 
 		for (unsigned int i = 0; i < panel->count; i++)
