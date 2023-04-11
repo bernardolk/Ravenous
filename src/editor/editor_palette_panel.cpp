@@ -20,15 +20,13 @@ namespace Editor
 
 		for (unsigned int i = 0; i < panel->count; i++)
 		{
-			if (ImGui::ImageButton((void*)static_cast<intptr_t>(panel->textures[i]), ImVec2(64, 64)))
+			if (ImGui::ImageButton((void*) panel->textures[i], ImVec2(64, 64)))
 			{
-				auto* new_entity = T_World::Get()->CreateEntity<E_Entity>(1,1,1);
+				auto* new_entity = T_World::Get()->CreateEntity<E_Entity>(0,0,0);
+				if (!new_entity)
+					continue;
+				
 				auto attributes = panel->entity_palette[i];
-
-				DEPRECATED_BEGIN
-				//const auto new_entity = EM->CreateEntity(attributes);
-				//new_entity->id = EM->next_entity_id++;
-				DEPRECATED_END
 
 				SetEntityAssets(new_entity, attributes);
 				new_entity->position = GSI->camera->position + (2.f * new_entity->scale + 5.f) * GSI->camera->front;

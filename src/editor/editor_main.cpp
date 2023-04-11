@@ -1197,7 +1197,6 @@ namespace Editor
 
 	void CheckSelectionToOpenPanel(Player* player, T_World* world, Camera* camera)
 	{
-
 		auto* GII = GlobalInputInfo::Get();
 		auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		auto test = world->Raycast(pickray, RayCast_TestOnlyVisibleEntities);

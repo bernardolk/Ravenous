@@ -308,17 +308,7 @@ struct T_World
 	// end temp
 		
 public:
-	void Update()
-	{
-		auto* entity_traits_manager = EntityTraitsManager::Get();
-		for (TraitID trait_id : entity_traits_manager->entity_traits)
-		{
-			for (auto* chunk: active_chunks)
-			{
-				chunk->InvokeTraitUpdateOnAllTypes(trait_id);
-			} 
-		}
-	}
+	void Update();
 
 	static T_World* Get()
 	{
@@ -351,6 +341,9 @@ public:
 	
 private:
 	T_World();
+
+	void UpdateTraits();
+	void UpdateTransforms();
 };
 
 struct WorldEntityIterator

@@ -14,6 +14,33 @@ T_World::T_World()
 	chunks_map[{0,0,0}] = active_chunk;
 }
 
+void T_World::Update()
+{
+	UpdateTransforms();
+	UpdateTraits();
+}
+
+void T_World::UpdateTransforms()
+{
+	auto entity_iter = GetEntityIterator();
+	while (auto* entity = entity_iter())
+	{
+		entity->Update();	
+	}
+}
+
+void T_World::UpdateTraits()
+{
+	auto* entity_traits_manager = EntityTraitsManager::Get();
+	for (TraitID trait_id : entity_traits_manager->entity_traits)
+	{
+		for (auto* chunk: active_chunks)
+		{
+			chunk->InvokeTraitUpdateOnAllTypes(trait_id);
+		} 
+	}	
+}
+
 Iterator<WorldChunk> T_World::GetChunkIterator()
 {
 	return chunks.GetIterator();
@@ -43,25 +70,21 @@ RaycastTest T_World::Raycast(const Ray ray, const RayCastType test_type, const E
 	float min_distance = MaxFloat;
 	RaycastTest closest_hit{false, -1};
 
-	auto world_chunk_it = T_World::Get()->GetChunkIterator();
-	while (auto* chunk = world_chunk_it())
+	auto entity_iterator = GetEntityIterator();
+	while (auto* entity = entity_iterator())
 	{
-		auto entity_iterator = chunk->GetIterator();
-		while (E_Entity* entity = entity_iterator())
-		{
-			if (test_type == RayCast_TestOnlyVisibleEntities && entity->flags & EntityFlags_InvisibleEntity)
-				continue;
-			
-			if (skip != nullptr && entity->id == skip->id)
-				continue;
+		if (test_type == RayCast_TestOnlyVisibleEntities && entity->flags & EntityFlags_InvisibleEntity)
+			continue;
+		
+		if (skip != nullptr && entity->id == skip->id)
+			continue;
 
-			const auto test = CL_TestAgainstRay(ray, entity, test_type, max_distance);
-			if (test.hit && test.distance < min_distance && test.distance < max_distance)
-			{
-				closest_hit = test;
-				closest_hit.entity = entity;
-				min_distance = test.distance;
-			}
+		const auto test = CL_TestAgainstRay(ray, entity, test_type, max_distance);
+		if (test.hit && test.distance < min_distance && test.distance < max_distance)
+		{
+			closest_hit = test;
+			closest_hit.entity = entity;
+			min_distance = test.distance;
 		}
 	}
 

@@ -49,23 +49,26 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 	// starts reading
 	auto p = Parser{path};
 
+	DEPRECATED_BLOCK
 	// parses header
-	p.NextLine();
-	p.ParseToken();
-	if (!p.HasToken())
-		Quit_fatal("Scene '" + filename + "' didn't start with NEXT_ENTITY_ID token.")
-
-	const auto next_entity_id_token = GetParsed<std::string>(p);
-	if (next_entity_id_token != "NEXT_ENTITY_ID")
-		Quit_fatal("Scene '" + filename + "' didn't start with NEXT_ENTITY_ID token.")
-
-	p.ParseWhitespace();
-	p.ParseSymbol();
-	if (!p.HasToken() || GetParsed<char>(p) != '=')
-		Quit_fatal("Missing '=' after NEXT_ENTITY_ID.")
-
-	p.ParseWhitespace();
-	p.ParseU64();
+	{
+		// p.NextLine();
+		// p.ParseToken();
+		// if (!p.HasToken())
+		// 	Quit_fatal("Scene '" + filename + "' didn't start with NEXT_ENTITY_ID token.")
+		//
+		// const auto next_entity_id_token = GetParsed<std::string>(p);
+		// if (next_entity_id_token != "NEXT_ENTITY_ID")
+		// 	Quit_fatal("Scene '" + filename + "' didn't start with NEXT_ENTITY_ID token.")
+		//
+		// p.ParseWhitespace();
+		// p.ParseSymbol();
+		// if (!p.HasToken() || GetParsed<char>(p) != '=')
+		// 	Quit_fatal("Missing '=' after NEXT_ENTITY_ID.")
+		//
+		// p.ParseWhitespace();
+		// p.ParseU64();
+	}
 
 	// ENTITY IDs related code
 	DEPRECATED_BLOCK
