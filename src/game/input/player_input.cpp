@@ -117,8 +117,8 @@ void IN_HandleMovementInput(InputFlags flags, Player* player, T_World* world)
 		case PlayerState::Jumping:
 		{
 			// MID-AIR CONTROL IF JUMPING UP
-			if (player->jumping_upwards)
-				IN_ProcessMoveKeys(flags, player->v_dir);
+			// if (player->jumping_upwards)
+			IN_ProcessMoveKeys(flags, player->v_dir);
 
 			if (Pressed(flags, KEY_DASH))
 				player->action = true;
@@ -128,6 +128,8 @@ void IN_HandleMovementInput(InputFlags flags, Player* player, T_World* world)
 
 		case PlayerState::Falling:
 		{
+			IN_ProcessMoveKeys(flags, player->v_dir);
+
 			if (Pressed(flags, KEY_DASH))
 				player->action = true;
 

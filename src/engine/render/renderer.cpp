@@ -6,7 +6,7 @@
 #include "engine/entities/lights.h"
 #include "engine/entities/entity.h"
 #include "engine/io/display.h"
-#include "engine/world/world_chunk.h"
+#include "engine/world/world.h"
 #include "text/text_renderer.h"
 
 void RenderMesh(const Mesh* mesh, RenderOptions opts)
@@ -172,21 +172,17 @@ void RenderScene(T_World* world, Camera* camera)
 		SetShaderLightVariables(world, shader, camera);		
 	}
 
-	// TODO: Not worrying about active chunks for now
-	auto world_chunk_it = T_World::Get()->GetChunkIterator();
-	while (auto* chunk = world_chunk_it())
+	auto entity_iter = world->GetEntityIterator();
+	while (auto* entity = entity_iter())
 	{
-		auto entity_iterator = chunk->GetIterator();
-		while(E_Entity* entity = entity_iterator())
-		{
-			if (entity->flags & EntityFlags_InvisibleEntity)
-				continue;
-		
-			RenderEntity(entity);
-		}
+		if (entity->flags & EntityFlags_InvisibleEntity)
+			continue;
+	
+		RenderEntity(entity);
 	}
 
-	RenderEntity(world->player);
+	if (!(world->player->flags & EntityFlags_InvisibleEntity))
+		RenderEntity(world->player);
 }
 
 

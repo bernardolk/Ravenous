@@ -5,7 +5,7 @@
 #include "game/entities/player.h"
 #include "engine/serialization/parsing/parser.h"
 #include "engine/serialization/sr_player.h"
-#include "engine/world/world_chunk.h"
+#include "engine/world/world.h"
 
 
 void PlayerSerializer::ParseAttribute(Parser& p)
@@ -48,19 +48,6 @@ void PlayerSerializer::ParseAttribute(Parser& p)
 		player->player_state = player->initial_player_state;
 	}
 
-	else if (attribute == "player_fall_speed")
-	{
-		p.ParseAllWhitespace();
-		p.ParseFloat();
-		player->fall_speed = GetParsed<float>(p);
-	}
-
-	else if (attribute == "player_fall_acceleration")
-	{
-		p.ParseAllWhitespace();
-		p.ParseFloat();
-		player->fall_acceleration = GetParsed<float>(p);
-	}
 	else
 	{
 		std::cout << "UNRECOGNIZED ATTRIBUTE AT SCENE DESCRIPTION FILE ('" << p.filepath << "') LINE NUMBER " << p.line_count << "\n";
@@ -107,6 +94,4 @@ void PlayerSerializer::Save(std::ofstream& writer)
 		writer << "@player_state = " << static_cast<int>(PlayerState::Standing) << "\n";
 	else
 		writer << "@player_state = " << static_cast<int>(player->initial_player_state) << "\n";
-
-	writer << "@player_fall_acceleration = " << player->fall_acceleration << "\n";
 }

@@ -15,7 +15,7 @@ void CL_ResolveCollision(ClResults results, Player* player);
 void CL_WallSlidePlayer(Player* player, vec3 wall_normal);
 bool GP_SimulatePlayerCollisionInFallingTrajectory(Player* player, vec2 xz_velocity);
 bool CL_RunTestsForFallSimulation(Player* player);
-void CL_MarkEntityChecked(E_Entity* entity);
+void CL_MarkEntityChecked(const E_Entity* entity);
 
 
 // fwd decl.

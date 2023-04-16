@@ -1,4 +1,4 @@
-#include "engine/world/world_chunk.h"
+#include "engine/world/world.h"
 
 #include "engine/catalogues.h"
 #include "engine/entities/e_entity.h"

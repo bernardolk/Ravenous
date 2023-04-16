@@ -9,7 +9,6 @@
 void Rvn::Init()
 {
 	rm_buffer = new RenderMessageBuffer();
-	entity_buffer = new EntityBuffer();
 }
 
 

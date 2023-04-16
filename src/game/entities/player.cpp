@@ -75,7 +75,7 @@ void Player::Die()
 void Player::BruteStop()
 {
 	// bypass deaceleration steps. Stops player right on his tracks.
-	speed = 0;
+	velocity = vec3(0);
 }
 
 Player* Player::ResetPlayer()

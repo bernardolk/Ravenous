@@ -11,7 +11,7 @@
 #include "engine/rvn.h"
 #include "engine/collision/cl_controller.h"
 #include "engine/world/scene_manager.h"
-#include "engine/world/world_chunk.h"
+#include "engine/world/world.h"
 #include "parsing/parser.h"
 
 
@@ -126,17 +126,13 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 		E_Entity* deferred_entity = nullptr;
 		auto deferred_entity_id = entity_relations.deferred_entity_ids[i];
 
-		auto world_chunk_it = world->GetChunkIterator();
-		while (auto* chunk = world_chunk_it())
+		auto entity_iterator = world->GetEntityIterator();
+		while (auto* entity = entity_iterator())
 		{
-			auto entity_iterator = chunk->GetIterator();
-			while(E_Entity* entity_b = entity_iterator())
+			if (entity->id == deferred_entity_id)
 			{
-				if (entity_b->id == deferred_entity_id)
-				{
-					deferred_entity = entity_b;
-					break;
-				}
+				deferred_entity = entity;
+				break;
 			}
 		}
 
@@ -263,14 +259,10 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 	for (const auto& light : world->directional_lights)
 		LightSerializer::Save(writer, light);
 
-	auto world_chunk_it = world->GetChunkIterator();
-	while (auto* chunk = world_chunk_it())
+	auto entity_iter = world->GetEntityIterator();
+	while (auto* entity = entity_iter())
 	{
-		auto entity_iterator = chunk->GetIterator();
-		while(E_Entity* entity = entity_iterator())
-		{
-			EntitySerializer::Save(writer, *entity);
-		}
+		EntitySerializer::Save(writer, *entity);
 	}
 
 	writer.close();

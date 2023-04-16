@@ -61,7 +61,7 @@
 #include "engine/render/im_render.h"
 #include "engine/serialization/sr_config.h"
 #include "engine/serialization/sr_world.h"
-#include "engine/world/world_chunk.h"
+#include "engine/world/world.h"
 
 // FUNCTION PROTOTYPES
 void LoadShaders();
@@ -96,7 +96,6 @@ int main()
 
 	// Allocate buffers and logs
 	Rvn::Init();
-	std::cout << " BUFFER: " << Rvn::entity_buffer;
 	// COLLISION_LOG           = CL_allocate_collision_log();
 	InitializeConsoleBuffers();
 

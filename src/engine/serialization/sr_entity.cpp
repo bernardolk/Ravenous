@@ -12,7 +12,7 @@
 #include "engine/serialization/parsing/parser.h"
 #include "engine/io/loaders.h"
 #include "engine/render/shader.h"
-#include "engine/world/world_chunk.h"
+#include "engine/world/world.h"
 
 const std::string SrLoadEntity_TypeNotSetErrorMsg = "Need to load entity type before loading type-specific data.";
 

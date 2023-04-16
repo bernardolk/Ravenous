@@ -3,15 +3,12 @@
 #include "cl_resolvers.h"
 
 struct ClResults;
-struct ClResultsArray;
 struct EntityBufferElement;
 
-ClResultsArray CL_TestAndResolveCollisions(Player* player);
+Array<ClResults, 15> CL_TestAndResolveCollisions(Player* player);
 
 ClResults CL_TestCollisionBufferEntitites(
 	Player* player,
-	EntityBufferElement* entity_iterator,
-	int entity_list_size,
 	bool iterative
 );
 

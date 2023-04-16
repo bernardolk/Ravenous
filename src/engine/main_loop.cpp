@@ -19,7 +19,7 @@
 #include "engine/render/im_render.h"
 #include "engine/render/renderer.h"
 #include "engine/world/scene_manager.h"
-#include "world/world_chunk.h"
+#include "engine/world/world.h"
 
 void StartFrame();
 

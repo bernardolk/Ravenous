@@ -96,6 +96,19 @@ inline bool IsEqual(vec3 vec1, vec3 vec2)
 	&& z_diff < VecComparePrecision;
 }
 
+inline bool IsEqual(float x, float y)
+{
+	constexpr int ulp = 2;
+	return std::fabs(x - y) <= std::numeric_limits<float>::epsilon() * std::fabs(x + y) * ulp || std::fabs(x - y) < std::numeric_limits<float>::min();
+}
+
+inline bool IsEqual(double x, double y)
+{
+	constexpr int ulp = 2;
+	return std::fabs(x - y) <= std::numeric_limits<double>::epsilon() * std::fabs(x + y) * ulp || std::fabs(x - y) < std::numeric_limits<double>::min();
+}
+ 
+
 // TYPE GUARANTEES
 
 inline bool operator==(const vec3& lhs, const vec3& rhs)

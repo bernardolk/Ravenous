@@ -100,7 +100,7 @@ void GP_PlayerStateChangeJumpingToFalling(Player* player)
 {
 	player->player_state = PlayerState::Falling;
 	player->velocity.y = 0;
-	player->jumping_upwards = false;
+	// player->jumping_upwards = false;
 
 	// TEMP - DELETE LATER
 	player->skip_collision_with_floor = nullptr;
@@ -109,24 +109,20 @@ void GP_PlayerStateChangeJumpingToFalling(Player* player)
 
 void GP_PlayerStateChangeStandingToJumping(Player* player)
 {
-	auto& v = player->velocity;
-	auto& v_dir = player->v_dir;
-	bool no_move_command = v_dir.x == 0 && v_dir.z == 0;
-
-	if (no_move_command)
+	// If jumping up
+	if ( player->v_dir.x == 0 && player->v_dir.z == 0 && player->GetSpeed() == 0)
 	{
-		player->jumping_upwards = true;
-		player->speed = 0;
+		player->BruteStop();
 	}
 	else
 	{
 		if (player->dashing)
-			v = v_dir * player->jump_horz_dash_thrust;
+			player->velocity = player->v_dir * player->jump_horz_dash_thrust;
 		else
-			v = v_dir * player->jump_horz_thrust;
+			player->velocity = player->v_dir * player->jump_horz_thrust;
 	}
 
-	v.y = player->jump_initial_speed;
+	player->velocity.y = player->jump_initial_speed;
 	player->player_state = PlayerState::Jumping;
 	player->anim_state = PlayerAnimationState::Jumping;
 	player->height_before_fall = player->position.y;
@@ -146,7 +142,7 @@ void GP_PlayerStateChangeStandingToFalling(Player* player)
 void GP_PlayerStateChangeFallingToStanding(Player* player)
 {
 	player->velocity.y = 0;
-	player->speed *= 0.5;
+	player->MultiplySpeed(0.f);
 
 	// take momentum hit from hitting the ground
 	// player->velocity.x *= 0.5;

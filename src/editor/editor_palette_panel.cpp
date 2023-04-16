@@ -7,7 +7,7 @@
 #include "engine/camera/camera.h"
 #include "engine/io/loaders.h"
 #include "engine/world/scene_manager.h"
-#include "engine/world/world_chunk.h"
+#include "engine/world/world.h"
 
 namespace Editor
 {

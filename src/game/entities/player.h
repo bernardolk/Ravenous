@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/core/core.h"
 #include "engine/entities/entity.h"
 #include "engine/entities/traits/entity_traits.h"
 
@@ -49,24 +50,22 @@ struct EntityDecl(Player)
 	// movement variables
 	vec3 v_dir = vec3(0.f);          // intended movement direction
 	vec3 v_dir_historic = vec3(0.f); // last non zero movement direction
-	float speed = 0;                 // accumulated speed scalar
 
 	// movement constants
-	float acceleration = 7.5;
-	float air_delta_speed = 0.05;
-	float run_speed = 4.0;
-	float dash_speed = 6.0;
-	float walk_speed = 0.92;
-	float fall_speed = 0.01;
-	float fall_acceleration = 0.2;
-	float air_speed = 1.00;
-	float jump_initial_speed = 5.0;
-	float jump_horz_thrust = 3.0;
-	float jump_horz_dash_thrust = 5.0;
-	float slide_jump_speed = 6.7;
-	float slide_speed = 2.0;
-	float fall_from_edge_push_speed = 1.5;
-	vec3 gravity = vec3(0, -9.0, 0);
+	static constexpr float acceleration = 12.0;
+	static constexpr float air_speed_acceleration = 15;
+	static constexpr float run_speed = 4.0;
+	static constexpr float dash_speed = 8.0;
+	static constexpr float walk_speed = 0.95;
+	static constexpr float fall_speed = 0.01;
+	static constexpr float air_speed = 2.00;
+	static constexpr float jump_initial_speed = 10.0;
+	static constexpr float jump_horz_thrust = 1.5;
+	static constexpr float jump_horz_dash_thrust = 3.5;
+	static constexpr float slide_jump_speed = 6.7;
+	static constexpr float slide_speed = 2.0;
+	static constexpr float fall_from_edge_push_speed = 1.5;
+	static constexpr vec3 gravity = vec3(0, -20.0, 0);
 
 
 	// movement states
@@ -133,6 +132,16 @@ struct EntityDecl(Player)
 
 	vec3 GetEyePosition() const { return position + vec3(0, height - 0.1, 0); }
 
+	float GetSpeed() const { return length(velocity); }
+
+	float GetHorizontalSpeed() const { vec2 vh = velocity.xz ; return vh.length(); }
+
+	void MultiplySpeed(float multiplier) { velocity = length(velocity) * multiplier * v_dir; }
+	
+	void SetSpeed(float new_speed) { velocity = new_speed * v_dir; }
+
+	void SetHorizontalSpeed(float new_speed) { vec2 hv = new_speed * normalize(vec2(v_dir.xz)); velocity.x = hv.x; velocity.z = hv.y; }
+	
 	vec3 GetLastTerrainContactPoint() const;
 
 	bool MaybeHurtFromFall();

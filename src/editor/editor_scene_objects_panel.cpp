@@ -6,7 +6,7 @@
 #include "game/entities/player.h"
 #include "engine/io/display.h"
 #include "engine/utils/utils.h"
-#include "engine/world/world_chunk.h"
+#include "engine/world/world.h"
 
 namespace Editor
 {
@@ -19,30 +19,26 @@ namespace Editor
 		ImGui::NewLine();
 
 		// copy search text and lowercase it
-		std::string _search_text;
+		string _search_text;
 		_search_text.assign(panel->search_text);
 		Tolower(&_search_text);
 		
-		auto chunk_iterator = world->GetChunkIterator();
-		while (auto* chunk = chunk_iterator())
+		auto entity_iterator = world->GetEntityIterator();
+		while (auto* entity = entity_iterator())
 		{
-			auto entity_iter = chunk->GetIterator();
-			while (auto* entity = entity_iter())
+			string name = entity->name;
+			Tolower(&name);
+
+			if (panel->search_text == "" || name.find(_search_text) != std::string::npos)
 			{
-				std::string name = entity->name;
-				Tolower(&name);
-
-				if (panel->search_text == "" || name.find(_search_text) != std::string::npos)
+				if (ImGui::Button(entity->name.c_str(), ImVec2(200, 28)))
 				{
-					if (ImGui::Button(entity->name.c_str(), ImVec2(200, 28)))
-					{
-						panel->active = false;
+					panel->active = false;
 
-						if (entity->name == PlayerName)
-							OpenPlayerPanel(Player::Get());
-						else
-							OpenEntityPanel(entity);
-					}
+					if (entity->name == PlayerName)
+						OpenPlayerPanel(Player::Get());
+					else
+						OpenEntityPanel(entity);
 				}
 			}
 		}

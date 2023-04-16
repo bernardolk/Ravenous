@@ -7,7 +7,7 @@
 #include "tools/editor_tools.h"
 #include "engine/io/display.h"
 #include "engine/render/shader.h"
-#include "engine/world/world_chunk.h"
+#include "engine/world/world.h"
 
 namespace Editor
 {

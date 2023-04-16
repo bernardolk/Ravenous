@@ -18,7 +18,7 @@
 #include "engine/serialization/sr_world.h"
 #include "engine/world/scene_manager.h"
 #include "engine/io/input.h"
-#include "engine/world/world_chunk.h"
+#include "engine/world/world.h"
 
 namespace Editor
 {
@@ -80,6 +80,8 @@ namespace Editor
 		if (ImGui::GetIO().WantCaptureKeyboard)
 			return;
 
+		//Disabled
+		/*
 		if (PressedOnce(flags, KEY_DELETE))
 		{
 			if (context.entity_panel.active && context.entity_panel.focused)
@@ -97,6 +99,8 @@ namespace Editor
 				return;
 			}
 		}
+		*/
+		
 
 		// ------------------------------------
 		// TOOLS / CAMERA / CHARACTER CONTROLS
@@ -312,7 +316,7 @@ namespace Editor
 		auto* editor_camera = GlobalSceneInfo::GetEditorCam();
 		float camera_speed =
 		GSI->camera->type == THIRD_PERSON ?
-		player->speed * Rvn::frame.duration :
+		player->velocity.length() * Rvn::frame.duration :
 		Rvn::frame.real_duration * editor_camera->acceleration;
 
 		if (flags.key_press & KEY_LEFT_SHIFT)
@@ -410,7 +414,7 @@ namespace Editor
 		{
 			StartConsoleMode();
 		}
-		if (flags.key_press & KEY_ESC && flags.key_press & KEY_LEFT_SHIFT)
+		if (flags.key_press & KEY_DELETE)
 		{
 			auto* GDC = GlobalDisplayConfig::Get();
 			glfwSetWindowShouldClose(GDC->window, true);

@@ -33,10 +33,6 @@ namespace Editor
 		}
 		ImGui::NewLine();
 
-		ImGui::Text("Speed: ");
-		ImGui::Text(FmtTostr(player->speed, 3).c_str());
-		ImGui::NewLine();
-
 		ImGui::Text("Velocity: ");
 		ImGui::Text(ToString(player->velocity).c_str());
 

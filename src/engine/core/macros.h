@@ -27,3 +27,5 @@
 
 #define TO_DEPRECATE_BEGIN
 #define TO_DEPRECATE_END
+
+#define check(x, msg) assert(x)

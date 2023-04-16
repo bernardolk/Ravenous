@@ -4,7 +4,7 @@
 #include "tools/editor_tools.h"
 #include "engine/camera/camera.h"
 #include "engine/entities/lights.h"
-#include "engine/world/world_chunk.h"
+#include "engine/world/world.h"
 
 namespace Editor
 {

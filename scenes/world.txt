@@ -4,7 +4,6 @@ NEXT_ENTITY_ID =
 @player_position = -0.0874 -11.8999 2.4194
 @player_initial_velocity = 0.0000 0.0000 0.0000
 @player_state = 1
-@player_fall_acceleration = 13.0000
 &player_orientation = -0.9953 -0.0941 -0.0247
 
 $point

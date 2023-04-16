@@ -12,9 +12,3 @@ struct ClResults
 	float penetration = 0.f;
 	vec3 normal{};
 };
-
-struct ClResultsArray
-{
-	ClResults results[10]{};
-	int count = 0;
-};

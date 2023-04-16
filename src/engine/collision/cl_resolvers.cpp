@@ -11,7 +11,7 @@
 
 #include "cl_controller.h"
 #include "engine/utils/utils.h"
-#include "engine/world/world_chunk.h"
+#include "engine/world/world.h"
 
 
 // ---------------------
@@ -123,13 +123,13 @@ void CL_WallSlidePlayer(Player* player, vec3 wall_normal)
 	// @todo - this is not good, need to figure out a better solution for
 	//       speed when hitting walls
 	float wall_slide_speed_limit = 1;
-	if (player->speed > wall_slide_speed_limit)
-		player->speed = wall_slide_speed_limit;
+	if (player->velocity.length() > wall_slide_speed_limit)
+		player->velocity = player->v_dir * wall_slide_speed_limit;
 
 	auto up_vec = vec3(0, 1, 0);
 	vec3 horiz_vec = Cross(up_vec, wall_normal);
 
-	pv = dot(pv, horiz_vec) * normalize(horiz_vec) * player->speed;
+	pv = dot(pv, horiz_vec) * normalize(horiz_vec) * player->GetSpeed();
 }
 
 
@@ -140,24 +140,15 @@ bool CL_RunTestsForFallSimulation(Player* player)
 {
 	// It basically the usual test but without collision resolving.
 
-	auto entity_buffer = Rvn::entity_buffer;
-	auto buffer = entity_buffer->buffer;
-	auto entity_list_size = entity_buffer->size;
-	bool terrain_collision = false;
-
-	for (int i = 0; i < entity_list_size; i++)
+	for (auto& entry : Rvn::entity_buffer)
 	{
-		E_Entity* entity = buffer->entity;
-
 		// TODO: here should test for bounding box collision (or any geometric first pass test) FIRST, then do the call below
-		auto result = CL_TestPlayerVsEntity(entity, player);
+		auto result = CL_TestPlayerVsEntity(entry.entity, player);
 
 		if (result.collision)
 		{
 			return true;
 		}
-
-		buffer++;
 	}
 
 	return false;

@@ -10,7 +10,7 @@
 #include <engine/collision/cl_resolvers.h>
 #include <engine/collision/cl_controller.h>
 #include <chrono>
-#include "engine/world/world_chunk.h"
+#include "engine/world/world.h"
 
 // ----------------------------
 // > UPDATE PLAYER WORLD CELLS   
@@ -43,59 +43,36 @@ void CL_RecomputeCollisionBufferEntities(Player* player)
 {
 	// copies collision-check-relevant entity ptrs to a buffer
 	// with metadata about the collision check for the entity
-	auto collision_buffer = Rvn::entity_buffer->buffer;
 
-	int entity_count = 0;
+	// Clears buffer
+	Rvn::entity_buffer.clear();
 	
-	for (auto* chunk : player->world_chunks)
-	{
-		auto entity_iterator = chunk->GetIterator();
-		while(E_Entity* entity = entity_iterator())
-		{
-			// adds to buffer only if not present already
-			bool present = false;
-			for (int k = 0; k < entity_count; k++)
-				if (collision_buffer[k].entity->id == entity->id)
-				{
-					present = true;
-					break;
-				}
-
-			if (!present)
-			{
-				collision_buffer[entity_count].entity = entity;
-				collision_buffer[entity_count].collision_check = false;
-				entity_count++;
-				if (entity_count > Rvn::collision_buffer_capacity)
-					assert(false);
-			}
-		}
+	auto entity_iter = T_World::Get()->GetEntityIterator();
+    while (auto* entity = entity_iter())
+    {
+		Rvn::entity_buffer.push_back(EntityBufferElement(entity, false));
 	}
-
-	Rvn::entity_buffer->size = entity_count;
 }
 
 
 void CL_ResetCollisionBufferChecks()
 {
-	for (int i = 0; i < Rvn::entity_buffer->size; i++)
-		Rvn::entity_buffer->buffer[i].collision_check = false;
+	for (auto& entry : Rvn::entity_buffer)
+		entry.collision_checked = false;
 }
 
 
-void CL_MarkEntityChecked(E_Entity* entity)
+void CL_MarkEntityChecked(const E_Entity* entity)
 {
+	// TODO: We can do a lot better than this.
 	// marks entity in entity buffer as checked so we dont check collisions for this entity twice (nor infinite loop)
-	auto entity_buffer = Rvn::entity_buffer;
-	auto entity_element = entity_buffer->buffer;
-	for (int i = 0; i < entity_buffer->size; ++i)
+	for (auto& entry : Rvn::entity_buffer)
 	{
-		if (entity_element->entity == entity)
+		if (entry.entity == entity)
 		{
-			entity_element->collision_check = true;
+			entry.collision_checked = true;
 			break;
 		}
-		entity_element++;
 	}
 }
 
@@ -112,25 +89,23 @@ void CL_MarkEntityChecked(E_Entity* entity)
    - Once we don't have more collisions, we stop checking.
 */
 
-ClResultsArray CL_TestAndResolveCollisions(Player* player)
+Array<ClResults, 15> CL_TestAndResolveCollisions(Player* player)
 {
 	// iterative collision detection
-	auto results_array = ClResultsArray();
+	Array<ClResults, 15> results_array;
 	auto entity_buffer = Rvn::entity_buffer;
 	int c = -1;
 	while (true)
 	{
 		c++;
 		// places pointer back to start
-		auto buffer = entity_buffer->buffer;
-		auto result = CL_TestCollisionBufferEntitites(player, buffer, entity_buffer->size, true);
+		auto result = CL_TestCollisionBufferEntitites(player, true);
 
 		if (result.collision)
 		{
 			CL_MarkEntityChecked(result.entity);
 			CL_ResolveCollision(result, player);
-			results_array.results[results_array.count] = result;
-			results_array.count++;
+			results_array.Add(result);
 		}
 		else
 			break;
@@ -145,12 +120,10 @@ bool CL_TestCollisions(Player* player)
 {
 	// iterative collision detection
 	bool any_collision = false;
-	auto entity_buffer = Rvn::entity_buffer;
 	while (true)
 	{
 		// places pointer back to start
-		auto buffer = entity_buffer->buffer;
-		auto result = CL_TestCollisionBufferEntitites(player, buffer, entity_buffer->size, true);
+		auto result = CL_TestCollisionBufferEntitites(player, true);
 
 		if (result.collision)
 		{
@@ -171,24 +144,20 @@ bool CL_TestCollisions(Player* player)
 
 ClResults CL_TestCollisionBufferEntitites(
 	Player* player,
-	EntityBufferElement* buffer,
-	int entity_list_size,
 	bool iterative = true)
 {
 
 	bool test = false;
-	for (int i = 0; i < entity_list_size; i++)
+	for (auto& entry : Rvn::entity_buffer)
 	{
-		E_Entity* entity = buffer[i].entity;
+		E_Entity* entity = entry.entity;
 
-		bool entity_is_player = entity->name == "Player";
-		bool checked = iterative && buffer->collision_check;
-
-		if (entity_is_player || checked)
+		if (iterative && entry.collision_checked)
 			continue;
 
 		if (!entity->bounding_box.Test(player->bounding_box))
 			continue;
+		
 		if (!test)
 		{
 			player->UpdateCollider();

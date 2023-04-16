@@ -10,7 +10,7 @@
 #include "engine/collision/cl_types.h"
 #include "engine/render/im_render.h"
 #include "engine/world/scene_manager.h"
-#include "engine/world/world_chunk.h"
+#include "engine/world/world.h"
 
 /*	  BIG @TODO
       player collider update is a mess, I've decoupled it from the main player update call, so now
@@ -23,6 +23,8 @@ void GP_UpdatePlayerState()
 {
 	T_World* world = T_World::Get();
 	Player* player = Player::Get();
+
+	float dt = Rvn::GetFrameDuration();
 	
 	switch (player->player_state)
 	{
@@ -65,24 +67,22 @@ void GP_UpdatePlayerState()
 				// iterate on collision results
 				bool collided_with_terrain = false;
 				ClResults slope;
-				for (int i = 0; i < results.count; i ++)
+				for (auto& collision_result : results)
 				{
-					auto result = results.results[i];
-
-					collided_with_terrain = dot(result.normal, UnitY) > 0;
+					collided_with_terrain = dot(collision_result.normal, UnitY) > 0;
 
 					if (collided_with_terrain)
-						player->last_terrain_contact_normal = result.normal;
+						player->last_terrain_contact_normal = collision_result.normal;
 
-					bool collided_with_slope = dot(result.normal, UnitY) >= SlopeMinAngle;
-					if (collided_with_slope && result.entity->slidable)
-						slope = result;
+					bool collided_with_slope = dot(collision_result.normal, UnitY) >= SlopeMinAngle;
+					if (collided_with_slope && collision_result.entity->slidable)
+						slope = collision_result;
 				}
 
 				// if floor is no longer beneath player's feet
 				if (!vtrace.hit)
 				{
-					float fall_momentum_intensity = player->speed < player->fall_from_edge_push_speed ? player->fall_from_edge_push_speed : player->speed;
+					float fall_momentum_intensity = player->GetSpeed() < player->fall_from_edge_push_speed ? player->fall_from_edge_push_speed : player->GetSpeed();
 					vec2 fall_momentum_dir = player->v_dir_historic.xz;
 					vec2 fall_momentum = fall_momentum_dir * fall_momentum_intensity;
 
@@ -118,15 +118,13 @@ void GP_UpdatePlayerState()
 
 		case PlayerState::Falling:
 		{
-			player->velocity += Rvn::frame.duration * player->gravity;
-			player->position += player->velocity * Rvn::frame.duration;
+			player->velocity += player->gravity * dt;
+			player->position += player->velocity * dt;
 			player->Update(world, true);
 
-			auto [results, count] = CL_TestAndResolveCollisions(player);
-			for (int i = 0; i < count; i ++)
+			auto results = CL_TestAndResolveCollisions(player);
+			for (auto& result : results)
 			{
-				auto result = results[i];
-
 				// slope collision
 				{
 					bool collided_with_slope = dot(result.normal, UnitY) >= SlopeMinAngle;
@@ -161,27 +159,23 @@ void GP_UpdatePlayerState()
 
 		case PlayerState::Jumping:
 		{
-			auto& v = player->velocity;
-
-			bool no_move_command = player->v_dir.x == 0 && player->v_dir.z == 0;
-			if (player->jumping_upwards && !no_move_command)
+			if (player->GetHorizontalSpeed() < player->air_speed)
 			{
-				if (player->speed < player->air_speed)
+				player->velocity += player->v_dir * player->air_speed_acceleration * dt;
+
+				if (player->GetHorizontalSpeed() > player->air_speed)
 				{
-					player->speed += player->air_delta_speed;
-					v += player->v_dir * player->air_delta_speed;
+					player->SetHorizontalSpeed(player->air_speed);
 				}
 			}
 
-			v += Rvn::frame.duration * player->gravity;
-			player->position += player->velocity * Rvn::frame.duration;
+			player->velocity += player->gravity * dt;
+			player->position += player->velocity * dt;
 			player->Update(world, true);
 
 			auto results = CL_TestAndResolveCollisions(player);
-			for (int i = 0; i < results.count; i ++)
+			for (auto& result : results)
 			{
-				auto result = results.results[i];
-
 				// collision with terrain while jumping should be super rare I guess ...
 				// slope collision
 				{
@@ -235,13 +229,12 @@ void GP_UpdatePlayerState()
 
 
 			// RESOLVE COLLISIONS AND CHECK FOR TERRAIN CONTACT
-			auto [results, count] = CL_TestAndResolveCollisions(player);
+			auto results = CL_TestAndResolveCollisions(player);
 
 			bool collided_with_terrain = false;
-			for (int i = 0; i < count; i ++)
+			for (auto& result: results)
 			{
 				// iterate on collision results
-				auto result = results[i];
 				collided_with_terrain = dot(result.normal, UnitY) > 0;
 				if (collided_with_terrain)
 					player->last_terrain_contact_normal = result.normal;
@@ -345,23 +338,15 @@ vec3 GP_PlayerStandingGetNextPosition(Player* player)
 		player->v_dir_historic = normalize(ToXz(GlobalSceneInfo::Get()->views[GameCam]->front));
 	}
 
-	if (player->speed < 0.f || no_move_command)
-	{
-		player->speed = 0;
-	}
-
-	float& speed = player->speed;
 	float d_speed = player->acceleration * dt;
-
-
+	
 	// If stopped
-	if (speed > 0 && no_move_command)
+	if (player->GetSpeed() > 0 && no_move_command)
 	{
-		speed = 0;
 		d_speed = 0;
 	}
 
-	speed += d_speed;
+	player->SetSpeed(player->GetSpeed() + d_speed);
 
 	// TODO: Can refactor to "player->GetSpeedLimit()"
 	float speed_limit = [&player]()-> float {
@@ -377,12 +362,10 @@ vec3 GP_PlayerStandingGetNextPosition(Player* player)
 		return player->run_speed;
 	}();
 
-	if (speed > speed_limit)
+	if (player->GetSpeed() > speed_limit)
 	{
-		speed = speed_limit;
+		player->SetSpeed(speed_limit);
 	}
-
-	player->velocity = speed * player->v_dir; // if no movement command is issued, v_dir = 0,0,
 
 	return player->position + player->velocity * dt;
 }

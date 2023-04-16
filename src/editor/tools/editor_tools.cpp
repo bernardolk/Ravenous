@@ -7,7 +7,7 @@
 #include "engine/collision/cl_controller.h"
 #include "engine/io/input.h"
 #include "engine/world/scene_manager.h"
-#include "engine/world/world_chunk.h"
+#include "engine/world/world.h"
 
 namespace Editor
 {
@@ -65,15 +65,11 @@ namespace Editor
 
 	void UnhideEntities(T_World* world)
 	{
-		auto chunk_iterator = world->GetChunkIterator();
-		while (auto* chunk = chunk_iterator())
+		auto entity_iter = world->GetEntityIterator();
+		while (auto* entity = entity_iter())
 		{
-			auto entity_iterator = chunk->GetIterator();
-			while (auto* entity = entity_iterator())
-			{
-				if (entity->flags & EntityFlags_HiddenEntity)
-					entity->flags &= ~EntityFlags_HiddenEntity;
-			}
+			if (entity->flags & EntityFlags_HiddenEntity)
+				entity->flags &= ~EntityFlags_HiddenEntity;
 		}
 	}
 

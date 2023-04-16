@@ -1,6 +1,6 @@
 #include "engine/serialization/sr_light.h"
 #include "engine/entities/lights.h"
-#include "engine/world/world_chunk.h"
+#include "engine/world/world.h"
 #include "engine/serialization/parsing/parser.h"
 
 
