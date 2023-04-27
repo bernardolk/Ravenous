@@ -53,12 +53,12 @@ struct EntityDecl(Player)
 
 	// movement constants
 	static constexpr float acceleration = 12.0;
-	static constexpr float air_speed_acceleration = 15;
+	static constexpr float air_speed_acceleration = 6;
 	static constexpr float run_speed = 4.0;
 	static constexpr float dash_speed = 8.0;
 	static constexpr float walk_speed = 0.95;
 	static constexpr float fall_speed = 0.01;
-	static constexpr float air_speed = 2.00;
+	static constexpr float max_air_speed = 2.70;
 	static constexpr float jump_initial_speed = 10.0;
 	static constexpr float jump_horz_thrust = 1.5;
 	static constexpr float jump_horz_dash_thrust = 3.5;
@@ -134,7 +134,7 @@ struct EntityDecl(Player)
 
 	float GetSpeed() const { return length(velocity); }
 
-	float GetHorizontalSpeed() const { vec2 vh = velocity.xz ; return vh.length(); }
+	float GetHorizontalSpeed() const { vec2 vh = velocity.xz ; return length(vh); }
 
 	void MultiplySpeed(float multiplier) { velocity = length(velocity) * multiplier * v_dir; }
 	

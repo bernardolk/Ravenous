@@ -9,8 +9,9 @@ struct EntityTraitsManager
 	using UpdateFunc = void(*)(E_BaseEntity*);
 
 	map<TraitID, map<TypeID, UpdateFunc>> trait_registry;
+	map<TypeID, vector<TypeID>> trait_inverse_registry;
 	vector<TraitID> entity_traits;
-	static inline constexpr size_t max_traits = 5; 
+	static inline constexpr size_t max_traits = 5;
 	
 	static EntityTraitsManager* Get()
 	{
@@ -18,20 +19,37 @@ struct EntityTraitsManager
 		return &instance;
 	}
 
+	vector<TypeID>* GetTypesWithTrait(TraitID trait_id)
+	{
+		if(Find(trait_inverse_registry, trait_id))
+		{
+			return &trait_inverse_registry[trait_id];
+		}
+
+		return nullptr;
+	}
+
 	void Register(TypeID type_id, TraitID trait_id, UpdateFunc func)
 	{
 		// registers trait if new
 		if(auto it = trait_registry.find(trait_id); it == trait_registry.end())
 		{
-			trait_registry[trait_id] = std::map<TypeID, UpdateFunc>();
+			trait_registry[trait_id] = map<TypeID, UpdateFunc>();
+			trait_inverse_registry[type_id] = vector<TypeID>();
 		}
         
-		auto& i_map = trait_registry[trait_id];
-        
+		auto& traits_map = trait_registry[trait_id];
+
 		// registers type update call if new
-		if(auto it = i_map.find(type_id); it == i_map.end())
+		if(Find(traits_map, type_id))
 		{
-			i_map[type_id] = func;
+			traits_map[type_id] = func;
+		}
+
+		if(Find(trait_inverse_registry, trait_id))
+		{
+			auto* types = &trait_inverse_registry[trait_id];
+			types->push_back(type_id);
 		}
 	}
 

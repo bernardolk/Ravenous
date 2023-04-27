@@ -291,7 +291,7 @@ namespace Editor
 		if (PressedOnce(flags, KEY_C))
 		{
 			auto pickray = CastPickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
-			auto test = world->Raycast(pickray, player);
+			auto test = world->Raycast(pickray);
 			if (test.hit)
 			{
 				auto surface_point = CL_GetPointFromDetection(pickray, test);

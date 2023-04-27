@@ -112,7 +112,7 @@ RaycastTest T_World::LinearRaycastArray(const Ray first_ray, int qty, float spac
 
 	ForLess(qty)
 	{
-		auto test = this->Raycast(ray, RayCast_TestOnlyFromOutsideIn, player, player->grab_reach);
+		auto test = this->Raycast(ray, RayCast_TestOnlyFromOutsideIn, nullptr, player->grab_reach);
 		if (test.hit)
 		{
 			if (test.distance < shortest_z || (AreEqualFloats(test.distance, shortest_z) && highest_y < ray.origin.y))

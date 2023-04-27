@@ -40,7 +40,7 @@ ClVtraceResult CL_DoStepoverVtrace(Player* player, T_World* world)
 
 	vec3 ray_origin = player->GetLastTerrainContactPoint() + vec3(0, 0.21, 0);
 	auto downward_ray = Ray{ray_origin, -UnitY};
-	RaycastTest raytest = world->Raycast(downward_ray, RayCast_TestOnlyFromOutsideIn, player);
+	RaycastTest raytest = world->Raycast(downward_ray, RayCast_TestOnlyFromOutsideIn);
 
 	if (!raytest.hit)
 		return ClVtraceResult{false};

@@ -174,12 +174,11 @@ struct WorldChunk
 		+ "]";
 	}
 	
-	
-	// TODO: We should refactor this method so it uses a list of TypeIDs from EntityTraitsManager so that we only check the chunk's TypeID to EntityStorageBlockMetadata map
-	// TODO: This way the world chunk storage doesn't need to care about traits at all.
     void InvokeTraitUpdateOnAllTypes(TraitID trait_id)
     {
         auto* etm = EntityTraitsManager::Get();
+		//auto* types = etm->GetTypesWithTrait(trait_id);
+		
         for (auto& block_metadata : storage_metadata_array)
         {
             if (Contains(block_metadata.entity_traits, trait_id))
@@ -193,7 +192,6 @@ struct WorldChunk
             }
         }
     }
-
 
     template<typename T_Entity>
 	void MaybeAllocateForType()
@@ -255,6 +253,7 @@ struct WorldChunk
     }
 };
 
+
 struct WorldChunkEntityIterator
 {
 	WorldChunk* chunk;
@@ -280,6 +279,7 @@ struct WorldChunkEntityIterator
 	}
 };
 
+
 /** World */
 struct WorldEntityIterator;
 
@@ -289,8 +289,8 @@ struct T_World
 	static constexpr u32 world_size_in_chunks = WorldChunkNumX * WorldChunkNumY * WorldChunkNumZ;
 
 	// TODO: We can't use world chunk "matrix" position as its ijk position! This is insane! What if we want to unload part A of the world and load part B,
-	// what are the index going to say? Nothing.
-	// in the future such vector will be replaced with a memory arena
+	//		what are the index going to say? Nothing.
+	//		in the future such vector will be replaced with a memory arena
 	Array<WorldChunk, world_size_in_chunks> chunks;
 	map<WorldChunkPosition, WorldChunk*> chunks_map;
 	vector<WorldChunk*> active_chunks;

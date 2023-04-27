@@ -156,16 +156,17 @@ void GP_UpdatePlayerState()
 			break;
 		}
 
-
 		case PlayerState::Jumping:
 		{
-			if (player->GetHorizontalSpeed() < player->air_speed)
+			// Air movement
+			// TODO: Add clause that checks if player is trying to move in other direction, if so, allows override
+			if (player->GetHorizontalSpeed() < player->max_air_speed)
 			{
 				player->velocity += player->v_dir * player->air_speed_acceleration * dt;
 
-				if (player->GetHorizontalSpeed() > player->air_speed)
+				if (player->GetHorizontalSpeed() > player->max_air_speed)
 				{
-					player->SetHorizontalSpeed(player->air_speed);
+					player->SetHorizontalSpeed(player->max_air_speed);
 				}
 			}
 
