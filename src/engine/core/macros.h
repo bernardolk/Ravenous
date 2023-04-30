@@ -29,3 +29,28 @@
 #define TO_DEPRECATE_END
 
 #define check(x, msg) assert(x)
+
+#define fatal_error(msg) { PRINT(msg); assert(false); }
+
+#define TEXT1(x)								x
+#define TEXT2(x, x2)							x << x2
+#define TEXT3(x, x2, x3)						x << x2 << x3
+#define TEXT4(x, x2, x3, x4)					x << x2 << x3 << x4
+#define TEXT5(x, x2, x3, x4, x5)				x << x2 << x3 << x4 << x5
+#define TEXT6(x, x2, x3, x4, x5, x6)			x << x2 << x3 << x4 << x5 << x6
+
+#define GET_MACRO_6(_1,_2,_3,_4, _5, _6, NAME, ...) NAME
+#define GET_MACRO_4(_1,_2,_3,_4, NAME, ...) NAME
+
+#define TEXT(...) GET_MACRO_6(__VA_ARGS__, TEXT6, TEXT5, TEXT4, TEXT3, TEXT2, TEXT1)(__VA_ARGS__)
+
+#define DeclSingleton(Type) \
+	public:	\
+		static Type* Get() \
+		{ \
+			static Type instance; \
+			return &instance; \
+		} \
+	private: \
+		Type(){}; \
+	public:

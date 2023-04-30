@@ -589,9 +589,6 @@ namespace Editor
 			case PlayerState::Falling:
 				player_state_text = "PLAYER FALLING";
 				break;
-			case PlayerState::FallingFromEdge:
-				player_state_text = "PLAYER FALLING FROM EDGE";
-				break;
 			case PlayerState::Jumping:
 				player_state_text = "PLAYER JUMPING";
 				break;
@@ -600,9 +597,6 @@ namespace Editor
 				break;
 			case PlayerState::SlideFalling:
 				player_state_text = "PLAYER SLIDE FALLING";
-				break;
-			case PlayerState::EvictedFromSlope:
-				player_state_text = "PLAYER EVICTED FROM SLOPE";
 				break;
 		}
 		RenderText("consola18", GlobalDisplayConfig::viewport_width - 400, 30, player_state_text_color, player_state_text);
@@ -1204,11 +1198,7 @@ namespace Editor
 
 		if (test.hit && (!test_light.hit || test_light.distance > test.distance))
 		{
-			if (test.entity->name == PlayerName)
-				OpenPlayerPanel(player);
-			else
-				OpenEntityPanel(test.entity);
-
+			OpenEntityPanel(test.entity);
 		}
 		else if (test_light.hit)
 			OpenLightsPanel(test_light.obj_hit_type, test_light.obj_hit_index, true);

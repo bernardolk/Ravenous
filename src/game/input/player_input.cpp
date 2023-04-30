@@ -9,8 +9,6 @@
 #include "engine/io/input.h"
 #include "engine/io/input_phase.h"
 #include "engine/world/scene_manager.h"
-#include "game/gameplay/gp_player_state.h"
-#include "game/gameplay/gp_update.h"
 
 void IN_AssignKeysToActions()
 {
@@ -74,6 +72,7 @@ void IN_HandleMovementInput(InputFlags flags, Player* player, T_World* world)
 	player->walking = false;
 	player->action = false;
 	player->want_to_grab = false;
+	player->pressing_forward_while_in_air = false;
 
 	// reset player 
 	player->v_dir = vec3(0);
@@ -81,9 +80,10 @@ void IN_HandleMovementInput(InputFlags flags, Player* player, T_World* world)
 	// combines all key presses into one v direction
 	switch (player->player_state)
 	{
-
 		case PlayerState::Standing:
 		{
+			player->stopped_pressing_forward_while_in_air = false;
+			
 			// MOVE
 			IN_ProcessMoveKeys(flags, player->v_dir);
 
@@ -97,7 +97,7 @@ void IN_HandleMovementInput(InputFlags flags, Player* player, T_World* world)
 
 			// JUMP
 			if (flags.key_press & KEY_SPACE)
-				GP_ChangePlayerState(player, PlayerState::Jumping);
+				player->ChangeStateTo(PlayerState::Jumping);
 
 			// VAULT
 			if (Pressed(flags, KEY_LEFT_SHIFT) && MOUSE_LB_CLICK & GlobalInputInfo::Get()->mouse_state)
@@ -120,6 +120,11 @@ void IN_HandleMovementInput(InputFlags flags, Player* player, T_World* world)
 			// if (player->jumping_upwards)
 			IN_ProcessMoveKeys(flags, player->v_dir);
 
+			if (flags.key_press & KEY_MOVE_UP && !player->stopped_pressing_forward_while_in_air)
+				player->pressing_forward_while_in_air = true;
+			else
+				player->stopped_pressing_forward_while_in_air = true; 
+
 			if (Pressed(flags, KEY_DASH))
 				player->action = true;
 
@@ -129,6 +134,9 @@ void IN_HandleMovementInput(InputFlags flags, Player* player, T_World* world)
 		case PlayerState::Falling:
 		{
 			IN_ProcessMoveKeys(flags, player->v_dir);
+
+			if (flags.key_press & KEY_MOVE_UP)
+				player->pressing_forward_while_in_air = true;
 
 			if (Pressed(flags, KEY_DASH))
 				player->action = true;
@@ -154,7 +162,7 @@ void IN_HandleMovementInput(InputFlags flags, Player* player, T_World* world)
 				player->v_dir = normalize(player->v_dir);
 			}
 			if (flags.key_press & KEY_SPACE)
-				GP_ChangePlayerState(player, PlayerState::Jumping);
+				player->ChangeStateTo(PlayerState::Jumping);
 
 			break;
 		}
@@ -165,7 +173,7 @@ void IN_HandleMovementInput(InputFlags flags, Player* player, T_World* world)
 				player->action = true;
 
 				if (Pressed(flags, KEY_MOVE_UP))
-					GP_ChangePlayerState(player, PlayerState::Vaulting);
+					player->ChangeStateTo(PlayerState::Vaulting);
 			}
 
 			break;

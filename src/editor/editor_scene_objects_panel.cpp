@@ -34,11 +34,8 @@ namespace Editor
 				if (ImGui::Button(entity->name.c_str(), ImVec2(200, 28)))
 				{
 					panel->active = false;
-
-					if (entity->name == PlayerName)
-						OpenPlayerPanel(Player::Get());
-					else
-						OpenEntityPanel(entity);
+					
+					OpenEntityPanel(entity);
 				}
 			}
 		}

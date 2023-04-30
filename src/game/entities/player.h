@@ -3,24 +3,49 @@
 #include "engine/core/core.h"
 #include "engine/entities/entity.h"
 #include "engine/entities/traits/entity_traits.h"
+#include "engine/utils/utils.h"
+#include "game/collision/cl_edge_detection.h"
 
-enum class PlayerState
+enum class PlayerState: uint32_t
 {
-	Falling,
-	Standing,
-	Walking,
-	Running,
-	Sprinting,
-	Jumping,
-	Sliding,
-	SlideFalling,
-	Grabbing,
-	FallingFromEdge,
-	EvictedFromSlope,
-	Vaulting
+	// Floor based states
+	Standing				= 100,
+	Walking					= 101,
+	Running					= 102,
+	Sprinting				= 103,
+
+	// Air based states
+	Falling					= 200,
+	Jumping          		= 201,
+
+	// Partially uncontrolled movement states
+	Sliding					= 300,
+	SlideFalling			= 301,
+
+	// Special movement states
+	Grabbing				= 400,
+	Vaulting				= 401,
 };
 
-const static std::string PlayerName = "Player";
+struct PlayerStateChangeArgs
+{
+	// collision
+	E_Entity* entity = nullptr;
+	vec3 normal = vec3(0);
+	float penetration = 0;
+
+	union
+	{
+		// grabbing info
+		struct VaultingData
+		{
+			vec3 final_position;
+			Ledge ledge;
+		} vaulting_data;
+	};
+
+	PlayerStateChangeArgs() : vaulting_data() {}
+};
 
 enum class PlayerAnimationState
 {
@@ -37,7 +62,7 @@ void ForceInterruptPlayerAnimation(Player* player);
 struct EntityDecl(Player)
 {
 	// [start] DROP ALL THESE
-	E_Entity* standing_entity_ptr = nullptr;;
+	E_Entity* standing_entity_ptr = nullptr;
 	E_Entity* slope_player_was_ptr = nullptr;;
 	E_Entity* vaulting_entity_ptr = nullptr;;
 	E_Entity* skip_collision_with_floor = nullptr;
@@ -52,21 +77,25 @@ struct EntityDecl(Player)
 	vec3 v_dir_historic = vec3(0.f); // last non zero movement direction
 
 	// movement constants
-	static constexpr float acceleration = 12.0;
-	static constexpr float air_speed_acceleration = 6;
-	static constexpr float run_speed = 4.0;
-	static constexpr float dash_speed = 8.0;
-	static constexpr float walk_speed = 0.95;
-	static constexpr float fall_speed = 0.01;
-	static constexpr float max_air_speed = 2.70;
-	static constexpr float jump_initial_speed = 10.0;
-	static constexpr float jump_horz_thrust = 1.5;
-	static constexpr float jump_horz_dash_thrust = 3.5;
-	static constexpr float slide_jump_speed = 6.7;
-	static constexpr float slide_speed = 2.0;
-	static constexpr float fall_from_edge_push_speed = 1.5;
-	static constexpr vec3 gravity = vec3(0, -20.0, 0);
+	static const float acceleration;
+	static const float run_speed;
+	static const float dash_speed;
+	static const float walk_speed;
+	static const float fall_speed;
+	static const float air_acceleration;
+	static const float max_air_speed;
+	static const float air_friction;
+	static const float jump_initial_speed;
+	static const float jump_initial_horizontal_thrust;
+	static const float jump_reduced_horizontal_thrust;
+	static const float jump_horz_dash_thrust;
+	static const float slide_jump_speed;
+	static const float slide_speed;
+	static const float fall_from_edge_push_speed;
+	static const vec3 gravity;
 
+	// other constants
+	static constexpr float slope_min_angle = 0.4;
 
 	// movement states
 	// TODO: Turn into flags
@@ -79,6 +108,8 @@ struct EntityDecl(Player)
 	bool want_to_grab = false;
 	bool dodge_btn = false;
 	bool interact_btn = false;
+	bool pressing_forward_while_in_air = false;
+	bool stopped_pressing_forward_while_in_air = false;
 
 	PlayerState player_state;
 	PlayerState initial_player_state;
@@ -86,6 +117,7 @@ struct EntityDecl(Player)
 	vec3 prior_position = vec3(0);
 	vec3 initial_velocity = vec3(0);
 
+	vec3 air_velocity = vec3(0);
 	vec3 orientation;
 
 	// gameplay system variables
@@ -124,9 +156,13 @@ struct EntityDecl(Player)
 		return &instance;
 	}
 
-	void Update(T_World* world, bool update_collider = false);
+	void Update(bool update_collider = false);
 
+	void UpdateState();
+	
 	vec3 GetFeetPosition() const { return position; }
+
+	vec3 MoveForward();
 
 	vec3 GetUpperBoundPosition() const { return -position + vec3(0.0f, height, 0.0f); }
 
@@ -134,7 +170,11 @@ struct EntityDecl(Player)
 
 	float GetSpeed() const { return length(velocity); }
 
-	float GetHorizontalSpeed() const { vec2 vh = velocity.xz ; return length(vh); }
+	float GetSpeedLimit() const;
+
+	float GetHorizontalSpeed() const { return length(vec2(velocity.xz)); }
+
+	vec3 GetHorizontalMovementForwardVector() const { return normalize(ToXz(velocity)); }
 
 	void MultiplySpeed(float multiplier) { velocity = length(velocity) * multiplier * v_dir; }
 	
@@ -144,6 +184,8 @@ struct EntityDecl(Player)
 	
 	vec3 GetLastTerrainContactPoint() const;
 
+	bool IsMovingThisFrame() const { return length(v_dir) > FloatEpsilon; }
+	
 	bool MaybeHurtFromFall();
 	void RestoreHealth();
 	void SetCheckpoint(E_Entity* entity);
@@ -151,8 +193,13 @@ struct EntityDecl(Player)
 	void Die();
 	void BruteStop();
 
+	void ChangeStateTo(PlayerState new_state, PlayerStateChangeArgs args = {});
+
 private:
 	friend struct GlobalSceneInfo;
+
+	void UpdateAirMovement(float dt);
+	
 
 	Player() = default;
 	Player(const Player& other) = delete;

@@ -33,7 +33,7 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 	// Set player's assets
 	{
 		EntityAttributes attrs;
-		attrs.name = PlayerName;
+		attrs.name = "Player";
 		attrs.mesh = "capsule";
 		attrs.shader = "model";
 		attrs.texture = "pink";
@@ -116,9 +116,9 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 	// -----------------------------------
 	//          Post parse steps
 	// -----------------------------------
-	world->player->Update(world, true);
+	world->player->Update(true);
 	// TODO: Address
-	CL_UpdatePlayerWorldCells(Player::Get(), world);
+	CL_UpdatePlayerWorldCells(world->player);
 
 	// connects entities using deferred load buffer
 	For(entity_relations.count)

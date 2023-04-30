@@ -201,7 +201,7 @@ void CheckAllEntitiesHaveIds()
 	auto entity_iterator = T_World::Get()->GetEntityIterator();
 	while(auto* entity = entity_iterator())
 	{
-		if (entity->name != PlayerName && entity->id == -1)
+		if (entity->id == -1)
 			Quit_fatal("There are entities without IDs. Check scene loading code for a flaw.");
 	}
 }

@@ -1,266 +1,9 @@
-#include "gp_update.h"
-
-#include "gp_game_state.h"
-#include "gp_player_state.h"
-#include "game/entities/player.h"
-#include "engine/utils/utils.h"
-#include "engine/camera/camera.h"
-#include "engine/rvn.h"
-#include "engine/collision/cl_controller.h"
-#include "engine/collision/cl_types.h"
-#include "engine/render/im_render.h"
-#include "engine/world/scene_manager.h"
-#include "engine/world/world.h"
 
 /*	  BIG @TODO
       player collider update is a mess, I've decoupled it from the main player update call, so now
       we must update (translate) the player's AABB every time its position changes.
       Lets fix this please.  
 */
-
-
-void GP_UpdatePlayerState()
-{
-	T_World* world = T_World::Get();
-	Player* player = Player::Get();
-
-	float dt = Rvn::GetFrameDuration();
-	
-	switch (player->player_state)
-	{
-		case PlayerState::Standing:
-		{
-			// compute player next position
-			auto next_position = GP_PlayerStandingGetNextPosition(player);
-
-			// TODO: Encapsulate this as a player function
-			// move player forward
-			player->bounding_box.Translate(next_position - player->position);
-			player->position = next_position;
-			player->Update(world);
-
-			vec3 player_btm_sphere_center = player->position + vec3(0, player->radius, 0);
-			vec3 contact_point = player_btm_sphere_center + -player->last_terrain_contact_normal * player->radius;
-			ImDraw::AddLine(IMHASH, player_btm_sphere_center, contact_point, COLOR_YELLOW_1);
-
-			/* Current system: Here we are looping at most twice on the:
-			   "Do stepover Vtrace, Adjust player's position to terrain, check collisions" loop
-			   so we can detect when we try stepping up/down into a place where the player can't
-			   fit in.
-			*/
-			// TODO: Not sure why we are looping here actually. Once I figure out, please explain why we can't run it once.
-			for (int it = 0; it < 2; it ++)
-			{
-				auto vtrace = CL_DoStepoverVtrace(player, world);
-
-				// snap player to the last terrain contact point detected if its a valid stepover hit
-				if (vtrace.hit && (vtrace.delta_y > 0.0004 || vtrace.delta_y < 0))
-				{
-					player->position.y -= vtrace.delta_y;
-					player->bounding_box.Translate(vec3(0, -vtrace.delta_y, 0));
-					player->Update(world);
-				}
-
-				// resolve collisions
-				auto results = CL_TestAndResolveCollisions(player);
-
-				// iterate on collision results
-				bool collided_with_terrain = false;
-				ClResults slope;
-				for (auto& collision_result : results)
-				{
-					collided_with_terrain = dot(collision_result.normal, UnitY) > 0;
-
-					if (collided_with_terrain)
-						player->last_terrain_contact_normal = collision_result.normal;
-
-					bool collided_with_slope = dot(collision_result.normal, UnitY) >= SlopeMinAngle;
-					if (collided_with_slope && collision_result.entity->slidable)
-						slope = collision_result;
-				}
-
-				// if floor is no longer beneath player's feet
-				if (!vtrace.hit)
-				{
-					float fall_momentum_intensity = player->GetSpeed() < player->fall_from_edge_push_speed ? player->fall_from_edge_push_speed : player->GetSpeed();
-					vec2 fall_momentum_dir = player->v_dir_historic.xz;
-					vec2 fall_momentum = fall_momentum_dir * fall_momentum_intensity;
-
-					player->velocity = vec3(fall_momentum.x, 0, fall_momentum.y);
-					GP_ChangePlayerState(player, PlayerState::Falling);
-					player->Update(world, true);
-					break;
-				}
-
-				// Collided with nothing or with terrain only, break
-				if (results.count == 0 || (collided_with_terrain && results.count == 1))
-					break;
-
-				if (slope.collision)
-				{
-					PlayerStateChangeArgs args;
-					args.normal = slope.normal;
-					GP_ChangePlayerState(player, PlayerState::Sliding, args);
-					break;
-				}
-			}
-
-			// Check interactions
-			if (player->want_to_grab)
-			{
-				GP_CheckPlayerGrabbedLedge(player, world);
-				Rvn::Print("Ran check player grabbed ledge", 1000);
-			}
-
-			break;
-		}
-
-
-		case PlayerState::Falling:
-		{
-			player->velocity += player->gravity * dt;
-			player->position += player->velocity * dt;
-			player->Update(world, true);
-
-			auto results = CL_TestAndResolveCollisions(player);
-			for (auto& result : results)
-			{
-				// slope collision
-				{
-					bool collided_with_slope = dot(result.normal, UnitY) >= SlopeMinAngle;
-					if (collided_with_slope && result.entity->slidable)
-					{
-						PlayerStateChangeArgs args;
-						args.normal = result.normal;
-						GP_ChangePlayerState(player, PlayerState::Sliding, args);
-						return;
-					}
-				}
-
-				// floor collision
-				{
-					// If collided with terrain
-					if (dot(result.normal, UnitY) > 0)
-					{
-						GP_ChangePlayerState(player, PlayerState::Standing);
-						return;
-					}
-				}
-
-				// else
-				{
-					CL_WallSlidePlayer(player, result.normal);
-				}
-			}
-
-			break;
-		}
-
-		case PlayerState::Jumping:
-		{
-			// Air movement
-			// TODO: Add clause that checks if player is trying to move in other direction, if so, allows override
-			if (player->GetHorizontalSpeed() < player->max_air_speed)
-			{
-				player->velocity += player->v_dir * player->air_speed_acceleration * dt;
-
-				if (player->GetHorizontalSpeed() > player->max_air_speed)
-				{
-					player->SetHorizontalSpeed(player->max_air_speed);
-				}
-			}
-
-			player->velocity += player->gravity * dt;
-			player->position += player->velocity * dt;
-			player->Update(world, true);
-
-			auto results = CL_TestAndResolveCollisions(player);
-			for (auto& result : results)
-			{
-				// collision with terrain while jumping should be super rare I guess ...
-				// slope collision
-				{
-					bool collided_with_slope = dot(result.normal, UnitY) >= SlopeMinAngle;
-					if (collided_with_slope && result.entity->slidable)
-					{
-						PlayerStateChangeArgs args;
-						args.normal = result.normal;
-						GP_ChangePlayerState(player, PlayerState::Sliding, args);
-						return;
-					}
-				}
-
-				// floor collision 
-				{
-					// If collided with terrain
-					if (dot(result.normal, UnitY) > 0)
-					{
-						GP_ChangePlayerState(player, PlayerState::Standing);
-						return;
-					}
-				}
-
-				// else
-				{
-					CL_WallSlidePlayer(player, result.normal);
-				}
-			}
-
-			// @todo - need to include case that player touches inclined terrain
-			//          in that case it should also stand (or fall from ledge) and not
-			//          directly fall.
-			if (results.count > 0)
-				GP_ChangePlayerState(player, PlayerState::Falling);
-
-			else if (player->velocity.y <= 0)
-				GP_ChangePlayerState(player, PlayerState::Falling);
-
-			break;
-		}
-
-
-		case PlayerState::Sliding:
-		{
-			ImDraw::AddLine(IMHASH, player->position, player->position + 1.f * player->sliding_direction, COLOR_RED_2);
-
-			player->velocity = player->v_dir * player->slide_speed;
-
-			player->position += player->velocity * Rvn::frame.duration;
-			player->Update(world, true);
-
-
-			// RESOLVE COLLISIONS AND CHECK FOR TERRAIN CONTACT
-			auto results = CL_TestAndResolveCollisions(player);
-
-			bool collided_with_terrain = false;
-			for (auto& result: results)
-			{
-				// iterate on collision results
-				collided_with_terrain = dot(result.normal, UnitY) > 0;
-				if (collided_with_terrain)
-					player->last_terrain_contact_normal = result.normal;
-			}
-
-			if (collided_with_terrain)
-			{
-				GP_ChangePlayerState(player, PlayerState::Standing);
-				break;
-			}
-
-			auto vtrace = CL_DoStepoverVtrace(player, world);
-			if (!vtrace.hit)
-			{
-				GP_ChangePlayerState(player, PlayerState::Falling);
-			}
-
-			break;
-		}
-		default:
-			break;
-	}
-
-}
-
 
 // bool GP_scan_for_terrain(vec3 center, float radius, vec2 orientation0, float angle, int subdivisions)
 // {
@@ -323,61 +66,13 @@ void GP_UpdatePlayerState()
 //    return false;
 // }
 
-vec3 GP_PlayerStandingGetNextPosition(Player* player)
-{
-	bool no_move_command = player->v_dir.x == 0 && player->v_dir.z == 0;
-
-	float dt = Rvn::frame.duration;
-
-	// Updates v_dir_historic
-	if (player->v_dir.x != 0 || player->v_dir.y != 0 || player->v_dir.z != 0)
-	{
-		player->v_dir_historic = player->v_dir;
-	}
-	else if (player->v_dir_historic == vec3(0))
-	{
-		player->v_dir_historic = normalize(ToXz(GlobalSceneInfo::Get()->views[GameCam]->front));
-	}
-
-	float d_speed = player->acceleration * dt;
-	
-	// If stopped
-	if (player->GetSpeed() > 0 && no_move_command)
-	{
-		d_speed = 0;
-	}
-
-	player->SetSpeed(player->GetSpeed() + d_speed);
-
-	// TODO: Can refactor to "player->GetSpeedLimit()"
-	float speed_limit = [&player]()-> float {
-		if (player->dashing)
-		{
-			return player->dash_speed;
-		}
-		if (player->walking)
-		{
-			return player->walk_speed;
-		}
-		// default
-		return player->run_speed;
-	}();
-
-	if (player->GetSpeed() > speed_limit)
-	{
-		player->SetSpeed(speed_limit);
-	}
-
-	return player->position + player->velocity * dt;
-}
-
 
 // -------------------
 // > ACTION
 // -------------------
 
-void GP_CheckTriggerInteraction(Player* player, T_World* world)
-{
+// void GP_CheckTriggerInteraction(Player* player, T_World* world)
+// {
 	/**
 	For(world->interactables.size())
 	{
@@ -406,23 +101,23 @@ void GP_CheckTriggerInteraction(Player* player, T_World* world)
 		}
 	}
 	*/
-}
+// }
 
 // -------------------
 // > LEDGE GRABBING
 // -------------------
-void GP_CheckPlayerGrabbedLedge(Player* player, T_World* world)
-{
-	Ledge ledge = CL_PerformLedgeDetection(player, world);
-	if (ledge.empty)
-		return;
-	vec3 position = CL_GetFinalPositionLedgeVaulting(player, ledge);
-
-	PlayerStateChangeArgs args;
-	args.ledge = ledge;
-	args.final_position = position;
-	GP_ChangePlayerState(player, PlayerState::Vaulting, args);
-}
+// void GP_CheckPlayerGrabbedLedge(Player* player, T_World* world)
+// {
+// 	Ledge ledge = CL_PerformLedgeDetection(player, world);
+// 	if (ledge.empty)
+// 		return;
+// 	vec3 position = CL_GetFinalPositionLedgeVaulting(player, ledge);
+//
+// 	PlayerStateChangeArgs args;
+// 	args.ledge = ledge;
+// 	args.final_position = position;
+// 	player->ChangeStateTo(PlayerState::Vaulting, args);
+// }
 
 // void GP_check_player_grabbed_ledge(Player* player)
 // {

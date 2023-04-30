@@ -88,7 +88,7 @@ bool GP_SimulatePlayerCollisionInFallingTrajectory(Player* player, vec2 xz_veloc
 		player->position += vel * d_frame;
 		ImDraw::AddPoint(IM_ITERHASH(iteration), player->position, 2.0, true, COLOR_GREEN_1, 1);
 
-		player->Update(world);
+		player->Update();
 
 		bool collided = CL_RunTestsForFallSimulation(player);
 		if (!collided)
@@ -100,13 +100,13 @@ bool GP_SimulatePlayerCollisionInFallingTrajectory(Player* player, vec2 xz_veloc
 			// if entered here, then we couldn't unstuck the player in max_iterations * d_frame seconds of falling towards
 			// player movement direction, so he can't fall there
 			player->position = pos_0;
-			player->Update(world);
+			player->Update();
 			return false;
 		}
 	}
 
 	player->position = pos_0;
-	player->Update(world);
+	player->Update();
 	return true;
 }
 

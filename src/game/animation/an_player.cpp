@@ -5,7 +5,6 @@
 #include "engine/camera/camera.h"
 #include "engine/rvn.h"
 #include "engine/world/scene_manager.h"
-#include "game/gameplay/gp_player_state.h"
 
 const std::map<PlayerAnimationState, float> PlayerAnimationDurations =
 {
@@ -65,7 +64,7 @@ void AN_AnimatePlayer(Player* player)
 			{
 				if (interrupt)
 				{
-					GP_ChangePlayerState(player, PlayerState::Standing);
+					player->ChangeStateTo(PlayerState::Standing);
 				}
 				break;
 			}

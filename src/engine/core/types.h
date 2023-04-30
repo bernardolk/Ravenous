@@ -77,6 +77,8 @@ inline const vec3 UnitZ = vec3(0, 0, 1);
 
 using std::to_string;
 
+static constexpr float FloatEpsilon = 1.192092896e-07F;
+
 inline bool IsEqual(vec2 vec1, vec2 vec2)
 {
 	float x_diff = abs(vec1.x - vec2.x);

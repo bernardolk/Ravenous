@@ -16,14 +16,14 @@
 // > UPDATE PLAYER WORLD CELLS   
 // ----------------------------
 
-bool CL_UpdatePlayerWorldCells(Player* player, T_World* world)
+bool CL_UpdatePlayerWorldCells(Player* player)
 {
 	/* Updates the player's world cells
 	   Returns whether there were changes or not to the cell list
 	   @todo - the procedures invoked here seem to do more work than necessary. Keep this in mind.
 	*/
 
-	auto update_cells = world->UpdateEntityWorldCells(player);
+	auto update_cells = T_World::Get()->UpdateEntityWorldCells(player);
 	if (!update_cells.status == CellUpdate_OK)
 	{
 		std::cout << update_cells.message << "\n";

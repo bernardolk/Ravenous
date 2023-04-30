@@ -12,7 +12,6 @@
 #include "engine/io/display.h"
 #include "editor/console/console.h"
 #include "game/gameplay/gp_game_state.h"
-#include "game/gameplay/gp_update.h"
 #include "game/input/player_input.h"
 #include "editor/editor_input.h"
 #include "engine/camera/camera.h"
@@ -90,7 +89,7 @@ void RavenousMainLoop()
 				UpdateEditorCamera(GSI->camera, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->position);
 			}
 			GameState.UpdateTimers();
-			GP_UpdatePlayerState();
+			player->UpdateState();
 			AN_AnimatePlayer(player);
 			EntityAnimations.UpdateAnimations();
 		}
@@ -137,6 +136,8 @@ void RavenousMainLoop()
 		if (ES->current_mode == EngineState::ProgramMode::Editor)
 			Editor::EndDearImguiFrame();
 	}
+
+	std::cout << std::flush;
 
 	glfwTerminate();
 }
