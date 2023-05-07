@@ -57,7 +57,7 @@ enum class PlayerAnimationState
 void ForceInterruptPlayerAnimation(Player* player);
 
 
-struct EntityDecl(Player)
+struct Entity(Player)
 {
 	// [start] DROP ALL THESE
 	E_Entity* standing_entity_ptr = nullptr;

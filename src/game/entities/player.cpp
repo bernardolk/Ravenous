@@ -39,7 +39,7 @@ void Player::Update()
 
 	if (CL_UpdatePlayerWorldCells(this))
 	{
-		CL_RecomputeCollisionBufferEntities(this);
+		CL_RecomputeCollisionBufferEntities();
 	}
 }
 

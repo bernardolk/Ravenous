@@ -2,7 +2,7 @@
 #include "engine/entities/e_entity.h"
 #include "engine/entities/traits/entity_traits.h"
 
-struct EntityDecl(SpotLight)
+struct Entity(SpotLight)
 {
 	vec3 direction = vec3(0, -1, 0);
 	vec3 diffuse = vec3(1);
@@ -14,7 +14,7 @@ struct EntityDecl(SpotLight)
 	float intensity_quadratic = 0.032f;
 };
 
-struct EntityDecl(PointLight)
+struct Entity(PointLight)
 {
 	vec3 diffuse = vec3(1);
 	vec3 specular = vec3(1);
@@ -23,7 +23,7 @@ struct EntityDecl(PointLight)
 	float intensity_quadratic = 0.032f;
 };
 
-struct EntityDecl(DirectionalLight)
+struct Entity(DirectionalLight)
 {
 	vec3 direction = vec3(0, -1, 0);
 	vec3 diffuse = vec3(1);

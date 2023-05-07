@@ -396,7 +396,7 @@ namespace Editor
 
 		ed_context.selected_entity->Update();
 		world->UpdateEntityWorldCells(ed_context.selected_entity);
-		CL_RecomputeCollisionBufferEntities(Player::Get());
+		CL_RecomputeCollisionBufferEntities();
 		ed_context.undo_stack.Track(ed_context.selected_entity);
 	}
 

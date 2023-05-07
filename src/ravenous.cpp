@@ -88,7 +88,7 @@ int main()
 	world->ambient_intensity = program_config.ambient_intensity;
 
 	world->UpdateEntityWorldCells(player); // sets player to the world
-	CL_RecomputeCollisionBufferEntities(player);       // populates collision buffer and others
+	CL_RecomputeCollisionBufferEntities();       // populates collision buffer and others
 
 	Editor::Initialize();
 
