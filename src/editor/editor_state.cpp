@@ -1,30 +1,28 @@
-#include "engine_state.h"
+#include "editor_state.h"
 #include <glfw3.h>
-
-#include "camera/camera.h"
+#include "engine/camera/camera.h"
 #include "engine/io/input.h"
 #include "engine/io/display.h"
 #include "game/entities/player.h"
 #include "editor/editor.h"
 #include "engine/rvn.h"
 
-bool EngineState::IsInGameMode()
+bool EditorState::IsInGameMode()
 {
 	return Get()->current_mode == ProgramMode::Game;
 }
 
-bool EngineState::IsInEditorMode()
+bool EditorState::IsInEditorMode()
 {
 	return Get()->current_mode == ProgramMode::Editor;
 }
 
-bool EngineState::IsInConsoleMode()
+bool EditorState::IsInConsoleMode()
 {
 	return Get()->current_mode == ProgramMode::Console;
 }
 
-
-void EngineState::ToggleProgramMode()
+void EditorState::ToggleProgramMode()
 {
 	auto* GII = GlobalInputInfo::Get();
 	auto* GDC = GlobalDisplayConfig::Get();

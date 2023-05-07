@@ -8,7 +8,7 @@
 #include "game/entities/player.h"
 #include "editor/editor.h"
 #include "editor/tools/input_recorder.h"
-#include "engine/engine_state.h"
+#include "editor/editor_state.h"
 #include "engine/io/display.h"
 #include "editor/console/console.h"
 #include "game/gameplay/gp_game_state.h"
@@ -23,7 +23,7 @@ void StartFrame();
 
 void RavenousMainLoop()
 {
-	auto* ES = EngineState::Get();
+	auto* ES = EditorState::Get();
 	auto player = Player::Get();
 	auto world = T_World::Get();
 	auto* cam_manager = CameraManager::Get();
@@ -46,7 +46,7 @@ void RavenousMainLoop()
 		// START FRAME
 		// -------------
 		StartFrame();
-		if (ES->current_mode == EngineState::ProgramMode::Editor)
+		if (ES->current_mode == EditorState::ProgramMode::Editor)
 			Editor::StartDearImguiFrame();
 
 		// ---------------
@@ -54,13 +54,13 @@ void RavenousMainLoop()
 		// ---------------
 		auto* camera = cam_manager->GetCurrentCamera();
 
-		if (EngineState::IsInConsoleMode())
+		if (EditorState::IsInConsoleMode())
 		{
 			HandleConsoleInput(input_flags, player, world, camera);
 		}
 		else
 		{
-			if (EngineState::IsInEditorMode())
+			if (EditorState::IsInEditorMode())
 			{
 				Editor::HandleInputFlagsForEditorMode(input_flags, world);
 				if (!ImGui::GetIO().WantCaptureKeyboard)
@@ -69,7 +69,7 @@ void RavenousMainLoop()
 					Editor::HandleInputFlagsForCommonInput(input_flags, player);
 				}
 			}
-			else if (EngineState::IsInGameMode())
+			else if (EditorState::IsInGameMode())
 			{
 				IN_HandleMovementInput(input_flags, player, world);
 				Editor::HandleInputFlagsForCommonInput(input_flags, player);
@@ -81,11 +81,11 @@ void RavenousMainLoop()
 		//	UPDATE PHASE
 		// -------------
 		{
-			if (ES->current_mode == EngineState::ProgramMode::Game)
+			if (ES->current_mode == EditorState::ProgramMode::Game)
 			{
 				cam_manager->UpdateGameCamera(GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->GetEyePosition());
 			}
-			else if (ES->current_mode == EngineState::ProgramMode::Editor)
+			else if (ES->current_mode == EditorState::ProgramMode::Editor)
 			{
 				cam_manager->UpdateEditorCamera(GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->position);
 			}
@@ -107,18 +107,18 @@ void RavenousMainLoop()
 			//render_depth_map_debug();
 			switch (ES->current_mode)
 			{
-				case EngineState::ProgramMode::Console:
+				case EditorState::ProgramMode::Console:
 				{
 					RenderConsole();
 					break;
 				}
-				case EngineState::ProgramMode::Editor:
+				case EditorState::ProgramMode::Editor:
 				{
 					Editor::Update(player, world, camera);
 					Editor::Render(player, world, camera);
 					break;
 				}
-				case EngineState::ProgramMode::Game:
+				case EditorState::ProgramMode::Game:
 				{
 					RenderGameGui(player);
 					break;
@@ -134,7 +134,7 @@ void RavenousMainLoop()
 		// -------------
 		Rvn::rm_buffer->Cleanup();
 		glfwSwapBuffers(GlobalDisplayConfig::GetWindow());
-		if (ES->current_mode == EngineState::ProgramMode::Editor)
+		if (ES->current_mode == EditorState::ProgramMode::Editor)
 			Editor::EndDearImguiFrame();
 	}
 

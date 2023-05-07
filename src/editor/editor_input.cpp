@@ -6,7 +6,7 @@
 #include <imgui.h>
 
 #include "console/console.h"
-#include "engine/engine_state.h"
+#include "editor/editor_state.h"
 #include "tools/editor_tools.h"
 #include "game/entities/player.h"
 #include "engine/camera/camera.h"
@@ -404,7 +404,7 @@ namespace Editor
 		}
 		if (PressedOnce(flags, KEY_F))
 		{
-			EngineState::ToggleProgramMode();
+			EditorState::ToggleProgramMode();
 		}
 		if (PressedOnce(flags, KEY_GRAVE_TICK))
 		{

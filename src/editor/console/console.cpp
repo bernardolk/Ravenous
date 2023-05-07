@@ -1,7 +1,6 @@
 #include "editor/console/console.h"
-#include "engine/world/scene.h"
 #include "engine/camera/camera.h"
-#include "engine/engine_state.h"
+#include "editor/editor_state.h"
 #include "engine/rvn.h"
 #include "engine/io/display.h"
 #include "engine/io/input.h"
@@ -68,16 +67,16 @@ void CopyBufferToScratchBuffer()
 
 void StartConsoleMode()
 {
-	auto* ES = EngineState::Get();
+	auto* ES = EditorState::Get();
 	ES->last_mode = ES->current_mode;
-	ES->current_mode = EngineState::ProgramMode::Console;
+	ES->current_mode = EditorState::ProgramMode::Console;
 }
 
 void QuitConsoleMode()
 {
-	auto* ES = EngineState::Get();
+	auto* ES = EditorState::Get();
 	ES->current_mode = ES->last_mode;
-	ES->last_mode = EngineState::ProgramMode::Console;
+	ES->last_mode = EditorState::ProgramMode::Console;
 }
 
 std::string CommitBuffer()
@@ -174,7 +173,7 @@ void ExecuteCommand(const std::string& buffer_line, Player* & player, T_World* w
 		// updates scene with new one
 		if (WorldSerializer::LoadFromFile(scene_name))
 		{
-			if (EngineState::IsInEditorMode())
+			if (EditorState::IsInEditorMode())
 			{
 				player->MakeVisible();
 			}
@@ -221,7 +220,7 @@ void ExecuteCommand(const std::string& buffer_line, Player* & player, T_World* w
 				Rvn::rm_buffer->Add("Couldnt save new scene.", 3000);
 			}
 
-			if (EngineState::IsInEditorMode())
+			if (EditorState::IsInEditorMode())
 				player->flags &= ~EntityFlags_InvisibleEntity;
 			else
 				player->flags |= EntityFlags_InvisibleEntity;
@@ -266,7 +265,7 @@ void ExecuteCommand(const std::string& buffer_line, Player* & player, T_World* w
 	{
 		if (WorldSerializer::LoadFromFile(T_World::Get()->scene_name))
 		{
-			if (EngineState::IsInEditorMode())
+			if (EditorState::IsInEditorMode())
 				player->flags &= ~EntityFlags_InvisibleEntity;
 			else
 				player->flags |= EntityFlags_InvisibleEntity;

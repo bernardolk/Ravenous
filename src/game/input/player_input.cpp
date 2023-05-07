@@ -5,13 +5,13 @@
 #include "game/entities/player.h"
 #include "engine/utils/utils.h"
 #include "engine/camera/camera.h"
-#include "engine/engine_state.h"
+#include "editor/editor_state.h"
 #include "engine/io/input.h"
 #include "engine/io/input_phase.h"
 
 void IN_AssignKeysToActions()
 {
-	if (EngineState::IsInEditorMode())
+	if (EditorState::IsInEditorMode())
 	{
 		KEY_MOVE_UP = KEY_UP;
 		KEY_MOVE_DOWN = KEY_DOWN;
@@ -21,7 +21,7 @@ void IN_AssignKeysToActions()
 		KEY_WALK = KEY_X;
 		KEY_ACTION = KEY_J;
 	}
-	else if (EngineState::IsInGameMode())
+	else if (EditorState::IsInGameMode())
 	{
 		KEY_MOVE_UP = KEY_W;
 		KEY_MOVE_DOWN = KEY_S;

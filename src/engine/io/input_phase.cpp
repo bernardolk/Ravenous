@@ -1,7 +1,7 @@
 #include "input_phase.h"
 #include "engine/io/display.h"
 #include "engine/io/input.h"
-#include "engine/engine_state.h"
+#include "editor/editor_state.h"
 #include <glfw3.h>
 #include <imgui.h>
 #include "engine/camera/camera.h"
@@ -338,9 +338,9 @@ u64 ProcessKeyboardInputKeyRelease(GLFWwindow* window)
 void OnMouseMove(GLFWwindow* window, double xpos, double ypos)
 {
 	auto* GII = GlobalInputInfo::Get();
-	auto* ES = EngineState::Get();
+	auto* ES = EditorState::Get();
 
-	if (EngineState::IsInEditorMode() && ImGui::GetIO().WantCaptureMouse)
+	if (EditorState::IsInEditorMode() && ImGui::GetIO().WantCaptureMouse)
 		return;
 
 	// activates mouse dragging if clicking and current mouse position has changed a certain ammount
@@ -367,7 +367,7 @@ void OnMouseMove(GLFWwindow* window, double xpos, double ypos)
 
 	// @todo: should refactor this out of here
 	// MOVE CAMERA WITH MOUSE IF APPROPRIATE
-	if (ES->current_mode == EngineState::ProgramMode::Game || (GII->mouse_state & MOUSE_RB_DRAGGING))
+	if (ES->current_mode == EditorState::ProgramMode::Game || (GII->mouse_state & MOUSE_RB_DRAGGING))
 	{
 		if (GII->block_mouse_move)
 			return;

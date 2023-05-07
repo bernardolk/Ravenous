@@ -3,8 +3,10 @@
 #include "engine/core/core.h"
 
 
-struct EngineState
+struct EditorState
 {
+	DeclSingleton(EditorState)
+	
 	enum class ProgramMode : u8
 	{
 		Game,
@@ -16,11 +18,6 @@ struct EngineState
 	ProgramMode last_mode = ProgramMode::Editor;
 
 public:
-	static EngineState* Get()
-	{
-		static EngineState instance;
-		return &instance;
-	}
 	static bool IsInGameMode();
 	static bool IsInEditorMode();
 	static bool IsInConsoleMode();
