@@ -29,7 +29,7 @@
 #include "engine/render/text/face.h"
 #include "engine/render/text/text_renderer.h"
 #include "engine/world/world.h"
-#include "game/collision/cl_edge_detection.h"
+#include "engine/collision/cl_edge_detection.h"
 
 namespace Editor
 {

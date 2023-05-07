@@ -5,7 +5,7 @@
 #include "engine/entities/traits/entity_traits.h"
 #include "engine/io/input_phase.h"
 #include "engine/utils/utils.h"
-#include "game/collision/cl_edge_detection.h"
+#include "engine/collision/cl_edge_detection.h"
 
 enum class PlayerState: uint32_t
 {

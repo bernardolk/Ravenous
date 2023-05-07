@@ -16,6 +16,6 @@ ClResults CL_TestPlayerVsEntity(E_Entity* entity, Player* player);
 void CL_ResolveCollision(ClResults results, Player* player);
 bool CL_TestCollisions(Player* player);
 void CL_ResetCollisionBufferChecks();
-void CL_RecomputeCollisionBufferEntities(Player* player);
+void CL_RecomputeCollisionBufferEntities();
 bool CL_UpdatePlayerWorldCells(Player* player);
 ClVtraceResult CL_DoStepoverVtrace(Player* player, T_World* world);

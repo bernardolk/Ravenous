@@ -13,27 +13,6 @@
 #include "editor/tools/input_recorder.h"
 #include "engine/platform/gl_window.h"
 
-
-/**
- *	Refactor plan:
- *	
- *	1. Create a engine/core.h and put all essentials there (including fwd declarations of common types)
- *	2. Start moving methods from outer scope to static types that implement a "static T* Get()" and refactor global instances to use that method
- *	3. Refactor ravenous.cpp: Delete unused code, make core loop very high level (refactor input/update/render loops into its own Engine methods)
- *	4. Implement cpp files for header-only code (excluding editor code) and move them into proper place in file structure
- *	5. Make inputs work in this build
- *
- *	Next steps plan:
- *
- *	1. Finish reflection system to work with multiple inheritance
- *	2. Implement the MemoryArena and EntityManager code from the loose files into here
- *	3. Refactor current entity types (doors, markings, etc) into actual entity types
- *	4. Make se/deserialization work for these types
- *	5. Profit $$$
- *	
- */
-
-
 // should be conditional in the future to support multiple platforms and
 // we must abstract the function calls to a common layer which can interop
 // between platform layers depending on the underlying OS.
@@ -48,7 +27,7 @@
 
 #include "game/animation/an_update.h"
 #include "editor/console/console.h"
-#include "game/geometry.h"
+#include "game/geometry_data.h"
 #include "game/entities/player.h"
 #include "editor/editor.h"
 #include "engine/camera/camera.h"

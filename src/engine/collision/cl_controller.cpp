@@ -1,7 +1,6 @@
 #include <engine/core/core.h>
 #include <engine/rvn.h>
 #include <engine/collision/primitives/bounding_box.h>
-#include <iostream>
 #include <engine/collision/cl_gjk.h>
 #include <engine/collision/cl_epa.h>
 #include "game/entities/player.h"
@@ -24,20 +23,18 @@ bool CL_UpdatePlayerWorldCells(Player* player)
 	auto update_cells = T_World::Get()->UpdateEntityWorldCells(player);
 	if (!update_cells.status == CellUpdate_OK)
 	{
-		std::cout << update_cells.message << "\n";
+		print(update_cells.message.c_str());
 		return false;
 	}
 
 	return update_cells.entity_changed_cell;
-	std::cout << " CBUFFER: " << Rvn::rm_buffer;
 }
-
 
 // ------------------------------
 // > COLLISION BUFFER FUNCTIONS
 // ------------------------------
 
-void CL_RecomputeCollisionBufferEntities(Player* player)
+void CL_RecomputeCollisionBufferEntities()
 {
 	// copies collision-check-relevant entity ptrs to a buffer
 	// with metadata about the collision check for the entity
@@ -51,7 +48,6 @@ void CL_RecomputeCollisionBufferEntities(Player* player)
 		Rvn::entity_buffer.push_back(EntityBufferElement{entity, false});
 	}
 }
-
 
 void CL_ResetCollisionBufferChecks()
 {
@@ -113,7 +109,6 @@ Array<ClResults, 15> CL_TestAndResolveCollisions(Player* player)
 	return results_array;
 }
 
-
 bool CL_TestCollisions(Player* player)
 {
 	// iterative collision detection
@@ -166,7 +161,6 @@ ClResults CL_TestCollisionBufferEntitites(Player* player, bool iterative = true)
 // -------------------------
 ClResults CL_TestPlayerVsEntity(E_Entity* entity, Player* player)
 {
-
 	ClResults cl_results;
 	cl_results.entity = entity;
 
