@@ -1,39 +1,7 @@
 #pragma once
 
-/** STD INCLUDES */
-#include <algorithm>
-#include <assert.h>
-#include <chrono>
-#include <ctime>
-#include <fstream>
-#include <iostream>
-#include <iomanip>
-#include <map>
-#include <stack>
-#include <sstream>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
-#include <vector>
-
-
-/** GLM TYPE INCLUDES */
-#define GLM_FORCE_SWIZZLE
-#include <glm/glm.hpp>
-#include <glm/ext/vector_float2.hpp>
-#include <glm/ext/vector_float3.hpp>
-#include <glm/ext/matrix_float4x4.hpp>
-#include <glm/gtx/norm.hpp>
-#include <glm/gtx/normal.hpp>
-#include <glm/gtx/rotate_vector.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/euler_angles.hpp>
-#include <glm/gtx/quaternion.hpp>
-#include <glm/ext/matrix_transform.hpp>
-#include <glm/gtx/compatibility.hpp>
-#include <glm/gtx/quaternion.hpp>
-
+#include "deps.h"
+#include "constants.h"
 
 /** Primitive types */
 using u8 = unsigned char;
@@ -101,13 +69,13 @@ inline bool IsEqual(vec3 vec1, vec3 vec2)
 inline bool IsEqual(float x, float y)
 {
 	constexpr int ulp = 2;
-	return std::fabs(x - y) <= std::numeric_limits<float>::epsilon() * std::fabs(x + y) * ulp || std::fabs(x - y) < std::numeric_limits<float>::min();
+	return fabs(x - y) <= Epsilon * fabs(x + y) * ulp || fabs(x - y) < MinFloat;
 }
 
 inline bool IsEqual(double x, double y)
 {
 	constexpr int ulp = 2;
-	return std::fabs(x - y) <= std::numeric_limits<double>::epsilon() * std::fabs(x + y) * ulp || std::fabs(x - y) < std::numeric_limits<double>::min();
+	return fabs(x - y) <= EpsilonDouble * fabs(x + y) * ulp || fabs(x - y) < MinDouble;
 }
  
 
@@ -135,7 +103,7 @@ inline bool operator!=(const vec2& lhs, const vec2& rhs)
 
 inline vec3 Cross(vec3 a, vec3 b, vec3 c)
 {
-	return glm::cross(glm::cross(a, b), c);
+	return cross(cross(a, b), c);
 }
 
 inline vec3 ToVec3(vec4 vec)
@@ -169,7 +137,7 @@ struct Iterator
 };
 
 template<typename T_Key, typename T_Val>
-T_Val* Find(std::map<T_Key, T_Val>& map, T_Key key)
+T_Val* Find(map<T_Key, T_Val>& map, T_Key key)
 {
 	auto find = map.find(key);
 	if (find == map.end())
@@ -179,7 +147,7 @@ T_Val* Find(std::map<T_Key, T_Val>& map, T_Key key)
 }
 
 template<typename T_Key, typename T_Val>
-const T_Val* Find(const std::map<T_Key, T_Val>& map, T_Key key)
+const T_Val* Find(const map<T_Key, T_Val>& map, T_Key key)
 {
 	auto find = map.find(key);
 	if (find == map.end())

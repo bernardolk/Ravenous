@@ -137,7 +137,5 @@ void RavenousMainLoop()
 			Editor::EndDearImguiFrame();
 	}
 
-	std::cout << std::flush;
-
 	glfwTerminate();
 }

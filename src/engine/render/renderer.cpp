@@ -45,8 +45,7 @@ void RenderMesh(const Mesh* mesh, RenderOptions opts)
 		//glDrawArrays(GL_TRIANGLES, 0, mesh->vertices.size());
 			break;
 		default:
-			std::cout << "WARNING: no drawing method set for mesh '" << mesh->name << "', " <<
-			"it won't be rendered!\n";
+			print("WARNING: no drawing method set for mesh '%s', it won't be rendered!", mesh->name.c_str());
 	}
 
 	// set to defaults
@@ -276,7 +275,6 @@ void RenderGameGui(Player* player)
 		if (PFloor != player->standing_entity_ptr->id)
 		{
 			PFloor = player->standing_entity_ptr->id;
-			std::cout << "new floor: " << PFloor << "\n";
 		}
 	}
 	RenderText(GlobalDisplayConfig::viewport_width - 400, 60, player_floor);

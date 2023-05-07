@@ -38,7 +38,7 @@ namespace Editor
 
 		//rename buffer
 		bool rename_option_active = false;
-		const static size_t _rename_buff_size = 100;
+		const static u32 _rename_buff_size = 100;
 		char rename_buffer[_rename_buff_size];
 
 		bool reverse_scale = false;
@@ -81,7 +81,7 @@ namespace Editor
 					return false;
 			}
 
-			std::cout << "Invalid c-string in rename buffer.\n";
+			printf("Invalid c-string in rename buffer.\n");
 			assert(false);
 			return false;
 		}

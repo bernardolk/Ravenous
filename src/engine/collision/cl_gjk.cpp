@@ -206,28 +206,6 @@ void CL_UpdateSimplexAndDirection(GJK_Iteration* gjk)
 /* ------------------
    Run GJK
 ------------------ */
-[[maybe_unused]] static void get_time(int elapsed)
-{
-	static std::vector<int> times;
-	const int N = 100;
-
-	times.push_back(elapsed);
-
-
-	if (times.size() == N)
-	{
-		int sum = 0;
-		for (int i = 0; i < times.size(); i++)
-			sum += times[i];
-
-		float average = sum * 1.0 / N;
-
-		std::cout << "Average time spent on GJK: " << average << "\n";
-
-		times.clear();
-	}
-}
-
 
 void CL_DebugRenderSimplex(Simplex simplex)
 {
@@ -238,9 +216,6 @@ void CL_DebugRenderSimplex(Simplex simplex)
 
 GJK_Result CL_RunGjk(CollisionMesh* collider_a, CollisionMesh* collider_b)
 {
-	using micro = std::chrono::microseconds;
-	// auto start = std::chrono::high_resolution_clock::now(); 
-
 	GJK_Point support = CL_GetSupportPoint(collider_a, collider_b, UnitX);
 
 	if (support.empty)
@@ -255,16 +230,7 @@ GJK_Result CL_RunGjk(CollisionMesh* collider_a, CollisionMesh* collider_b)
 	int it_count = 0;
 	while (true)
 	{
-		// auto start_it = std::chrono::high_resolution_clock::now(); 
-
-		// auto start = std::chrono::high_resolution_clock::now(); 
 		support = CL_GetSupportPoint(collider_a, collider_b, gjk.direction);
-		// auto finish = std::chrono::high_resolution_clock::now();
-
-		// std::cout << "CL_get_support_point() took "
-		//          << std::chrono::duration_cast<micro>(finish - start).count()
-		//          << " microseconds\n";
-
 		if (support.empty || !CL_SameGeneralDirection(support.point, gjk.direction))
 		{
 			// _CL_debug_render_simplex(gjk.simplex);
@@ -277,19 +243,9 @@ GJK_Result CL_RunGjk(CollisionMesh* collider_a, CollisionMesh* collider_b)
 
 		CL_UpdateSimplexAndDirection(&gjk);
 
-		// auto finish_it = std::chrono::high_resolution_clock::now();
-
-		// std::cout << "GJK Iteration took "
-		//          << std::chrono::duration_cast<micro>(finish_it - start_it).count()
-		//          << " microseconds\n";
-
 		it_count++;
 		if (gjk.finished)
 		{
-			// auto finish = std::chrono::high_resolution_clock::now();
-			// int elapsed = std::chrono::duration_cast<micro>(finish - start).count();
-			// get_time(elapsed);
-
 			//_CL_debug_render_simplex(gjk.simplex);
 			return {.simplex = gjk.simplex, .collision = true};
 		}

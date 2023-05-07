@@ -1,5 +1,7 @@
 #include "sr_world.h"
 
+#include <iomanip>
+
 #include "game/entities/player.h"
 #include "sr_config.h"
 #include "sr_entity.h"
@@ -116,7 +118,7 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 	// -----------------------------------
 	//          Post parse steps
 	// -----------------------------------
-	world->player->Update(true);
+	world->player->Update();
 	// TODO: Address
 	CL_UpdatePlayerWorldCells(world->player);
 
@@ -137,7 +139,7 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 		}
 
 		if (deferred_entity == nullptr)
-			Quit_fatal("Entity with id '" + std::to_string(deferred_entity_id) + "' not found to stablish a defined entity relationship.")
+			fatal_error("Entity with id '%llu' not found to stablish a defined entity relationship.", deferred_entity_id);
 
 		/**
 		switch (relation)
@@ -207,7 +209,7 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 
 		if (do_copy)
 		{
-			std::cout << "please provide a name for the copy.\n";
+			print("please provide a name for the copy.");
 			return false;
 		}
 	}
@@ -217,7 +219,7 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 
 	if (!writer.is_open())
 	{
-		std::cout << "Saving scene failed.\n";
+		print("Saving scene failed.");
 		return false;
 	}
 

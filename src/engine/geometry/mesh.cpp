@@ -19,9 +19,9 @@
 */
 
 
-std::map<std::string, Mesh*> GeometryCatalogue;
-std::map<std::string, CollisionMesh*> CollisionGeometryCatalogue;
-std::map<std::string, Texture> TextureCatalogue;
+map<std::string, Mesh*> GeometryCatalogue;
+map<std::string, CollisionMesh*> CollisionGeometryCatalogue;
+map<std::string, Texture> TextureCatalogue;
 
 void Mesh::SetupGLData()
 {
@@ -206,7 +206,7 @@ void Mesh::ComputeTangentsAndBitangents()
 	}
 }
 
-GLData setup_gl_data_for_lines(const Vertex* vertices, size_t size)
+GLData setup_gl_data_for_lines(const Vertex* vertices, u32 size)
 {
 	GLData gl_data;
 

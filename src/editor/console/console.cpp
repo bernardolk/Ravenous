@@ -17,7 +17,7 @@
 void InitializeConsoleBuffers()
 {
 	auto buffers = static_cast<char**>(malloc(sizeof(char*) * Console.buffer_capacity));
-	for (size_t i = 0; i < Console.buffer_capacity; i++)
+	for (u16 i = 0; i < Console.buffer_capacity; i++)
 	{
 		buffers[i] = static_cast<char*>(calloc(Console.max_chars, sizeof(char)));
 	}
@@ -97,7 +97,7 @@ std::string CommitBuffer()
 		auto prior_capacity = Console.buffer_capacity;
 		Console.buffer_capacity *= 2;
 		Console.buffers = static_cast<char**>(realloc(Console.buffers, sizeof(char*) * Console.buffer_capacity));
-		for (size_t i = prior_capacity; i < Console.buffer_capacity; i++)
+		for (u64 i = prior_capacity; i < Console.buffer_capacity; i++)
 		{
 			Console.buffers[i] = static_cast<char*>(calloc(Console.max_chars, sizeof(char)));
 		}
@@ -260,7 +260,7 @@ void ExecuteCommand(const std::string& buffer_line, Player* & player, T_World* w
 			ConfigSerializer::Save(program_config);
 		}
 		else
-			std::cout << "you can set 'scene' or 'all'. dude. " << command << " won't work.\n";
+			print("you can set 'scene' or 'all'. dude. %s  won't work.", command.c_str());
 	}
 
 	// -----------------
@@ -310,13 +310,13 @@ void ExecuteCommand(const std::string& buffer_line, Player* & player, T_World* w
 		if (argument == "cam")
 		{
 			p.ParseVec3();
-			camera->position = GetParsed<glm::vec3>(p);
+			camera->position = GetParsed<vec3>(p);
 		}
 		else
-			std::cout << "you can move cam only at the moment dude. I don't know what '" << command << " " << argument << "' means man.\n";
+			print("you can move cam only at the moment dude. I don't know what %s %s means man.", command.c_str(), argument.c_str());
 	}
 	else
-		std::cout << "what do you mean with " << command << " man?\n";
+		print("what do you mean with %s man?\n", command.c_str());
 }
 
 void HandleConsoleInput(InputFlags flags, Player* & player, T_World* world, Camera* camera)

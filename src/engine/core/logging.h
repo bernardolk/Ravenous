@@ -9,14 +9,6 @@ enum RavenousLogLevel
 	LOG_ERROR   = 3
 };
 
-#define Quit_fatal(x)  {      std::string mmsx; \
-                              mmsx += "---------------------------------------------------\n"; \
-                              mmsx += "> FATAL error occured. Error description:          \n"; \
-                              mmsx += "---------------------------------------------------\n"; \
-                              std::cout << mmsx << (x) << "\n"; \
-                              assert(false); }
-
-
 inline void Log(RavenousLogLevel level, const std::string& message)
 {
 	std::string message_header = "\n";
@@ -39,5 +31,6 @@ inline void Log(RavenousLogLevel level, const std::string& message)
 		}
 	}
 
-	std::cout << message_header << message << "\n";
+	printf(message_header.c_str());
+	print(message.c_str());
 }

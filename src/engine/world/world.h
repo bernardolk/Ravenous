@@ -72,12 +72,12 @@ struct EntityStorageBlockMetadata
 	
 	// type data
 	TypeID type_id;
-	size_t type_size;
+	u32 type_size;
 	// TODO: We don't need to know about traits at this level, lets only deal with entity Types
 	Array<TraitID, EntityTraitsManager::max_traits> entity_traits{};
 
 	// array bookkeeping
-	size_t max_entity_instances;
+	u32 max_entity_instances;
 	int entity_count = 0;
 	byte* data_start = nullptr;
 };
@@ -88,7 +88,7 @@ struct ChunkStorage
 	using byte = char;
 
 	// MAX BUDGET for ALL entities
-	inline static constexpr size_t chunk_byte_budget = 666000;
+	inline static constexpr u32 chunk_byte_budget = 666000;
 	
 	byte data[chunk_byte_budget]{};
 	byte* next_block_start = &data[0];
@@ -98,6 +98,11 @@ struct ChunkStorage
 struct WorldChunkPosition
 {
 	i32 i = -1, j = -1, k = -1;
+
+	WorldChunkPosition(int i, int j, int k) :
+		i(i), j(j), k(k){}
+
+	WorldChunkPosition(){}
 	
 	bool operator == (const WorldChunkPosition& other)
 	{
@@ -126,7 +131,7 @@ struct WorldChunk
 	
 	// TODO: World chunk ID needs to come from it's world position
     static inline u32 world_chunk_id_count = 0;
-	static inline constexpr size_t max_types_per_storage = 20;
+	static inline constexpr u32 max_types_per_storage = 20;
 	
     unsigned int id = ++world_chunk_id_count;
 
@@ -217,10 +222,7 @@ struct WorldChunk
             storage_metadata_map[type_id] = storage_metadata_array.Add(entity_storage_metadata);
         }
         else
-        {
-            std::cout << "FATAL: Memory budget for World Chunk with id = " << id << " has ended. Could not allocate memory for entity with type_id = " << type_id << "\n"; 
-            assert(false);
-        }
+            fatal_error("FATAL: Memory budget for World Chunk with id = %i has ended. Could not allocate memory for entity with type_id = %i.", id, type_id); 
     };
 
     template<typename T_Entity>
@@ -239,15 +241,10 @@ struct WorldChunk
                 return new_entity;
             }
             else
-            {
-                std::cout << "ERROR: There is no memory budget left in WorldChunk with id = " << id << " for E_Type with id = " << T_Entity::GetTypeId() << ". Could not allocate memory.\n";
-            }
+                print("ERROR: There is no memory budget left in WorldChunk with id = %i for E_Type with id = %i. Could not allocate memory.", id, T_Entity::GetTypeId());
         }
         else
-        {
-            std::cout << "FATAL : This shouldn't have happened.\n";
-            assert(false);
-        }
+           fatal_error("FATAL : This shouldn't have happened.");
     	
         return nullptr;
     }

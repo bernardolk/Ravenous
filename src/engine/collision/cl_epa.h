@@ -16,15 +16,15 @@ struct EPA_Result
 	vec3 direction;
 };
 
-std::pair<std::vector<vec4>, size_t> CL_GetEPAFaceNormalsAndClosestFace(
+std::pair<std::vector<vec4>, u32> CL_GetEPAFaceNormalsAndClosestFace(
 	const std::vector<vec3>& polytope,
-	const std::vector<size_t>& faces);
+	const std::vector<u32>& faces);
 
 void CL_AddIfOuterEdge(
-	std::vector<std::pair<size_t, size_t> >& edges,
-	const std::vector<size_t>& faces,
-	size_t a,
-	size_t b);
+	std::vector<std::pair<u32, u32> >& edges,
+	const std::vector<u32>& faces,
+	u32 a,
+	u32 b);
 
 EPA_Result CL_RunEPA(Simplex simplex, CollisionMesh* collider_a, CollisionMesh* collider_b);
 

@@ -35,27 +35,31 @@ void IN_AssignKeysToActions()
 }
 
 
-void IN_ProcessMoveKeys(InputFlags flags, vec3& v_dir)
+void IN_ProcessMoveKeys(InputFlags flags, vec3& v_dir, bool short_circuit)
 {
 	auto* player_camera = GlobalSceneInfo::GetGameCam();
 
 	if (Pressed(flags, KEY_MOVE_UP))
 	{
 		v_dir += normalize(ToXz(player_camera->front));
+		if (short_circuit) return;
 	}
 	if (Pressed(flags, KEY_MOVE_LEFT))
 	{
 		vec3 onwards_vector = Cross(player_camera->front, player_camera->up);
 		v_dir -= normalize(ToXz(onwards_vector));
+		if (short_circuit) return;
 	}
 	if (Pressed(flags, KEY_MOVE_DOWN))
 	{
 		v_dir -= normalize(ToXz(player_camera->front));
+		if (short_circuit) return;
 	}
 	if (Pressed(flags, KEY_MOVE_RIGHT))
 	{
 		vec3 onwards_vector = Cross(player_camera->front, player_camera->up);
 		v_dir += normalize(ToXz(onwards_vector));
+		if (short_circuit) return;
 	}
 }
 
@@ -73,7 +77,14 @@ void IN_HandleMovementInput(InputFlags flags, Player* player, T_World* world)
 	player->action = false;
 	player->want_to_grab = false;
 	player->pressing_forward_while_in_air = false;
-
+	player->pressing_left_while_in_air = false;
+	player->pressing_right_while_in_air = false;
+	player->pressing_backward_while_in_air = false;
+	player->pressing_forward_while_standing = false;
+	player->pressing_left_while_standing = false;
+	player->pressing_right_while_standing = false;
+	player->pressing_backward_while_standing = false;
+	
 	// reset player 
 	player->v_dir = vec3(0);
 
@@ -85,7 +96,42 @@ void IN_HandleMovementInput(InputFlags flags, Player* player, T_World* world)
 			player->stopped_pressing_forward_while_in_air = false;
 			
 			// MOVE
-			IN_ProcessMoveKeys(flags, player->v_dir);
+			IN_ProcessMoveKeys(flags, player->v_dir, false);
+
+			if (flags.key_press & KEY_MOVE_UP)
+			{
+				player->pressing_forward_while_standing = true;
+			}
+			if (flags.key_press & KEY_MOVE_LEFT)
+			{
+				player->pressing_left_while_standing = true;
+			}
+			if (flags.key_press & KEY_MOVE_RIGHT)
+			{
+				player->pressing_right_while_standing = true;
+			}
+			if (flags.key_press & KEY_MOVE_DOWN)
+			{
+				player->pressing_backward_while_standing = true;
+			}
+
+			// SET PRIMARY MOVEMENT DIRECTION (through pressed key)
+			if (player->IsMovingThisFrame() && player->first_pressed_movement_key_while_standing == KEY_NONE)
+			{
+				if (flags.key_press & KEY_MOVE_UP)
+					player->first_pressed_movement_key_while_standing = KEY_MOVE_UP;
+				
+				else if (flags.key_press & KEY_MOVE_LEFT)
+					player->first_pressed_movement_key_while_standing = KEY_MOVE_LEFT;
+
+				else if (flags.key_press & KEY_MOVE_RIGHT)
+						player->first_pressed_movement_key_while_standing = KEY_MOVE_RIGHT;
+
+				else if (flags.key_press & KEY_MOVE_DOWN)
+						player->first_pressed_movement_key_while_standing = KEY_MOVE_DOWN;
+			}
+			else if (!player->IsMovingThisFrame())
+				player->first_pressed_movement_key_while_standing = KEY_NONE;
 
 			// DASH
 			if (flags.key_press & KEY_DASH)
@@ -118,13 +164,22 @@ void IN_HandleMovementInput(InputFlags flags, Player* player, T_World* world)
 		{
 			// MID-AIR CONTROL IF JUMPING UP
 			// if (player->jumping_upwards)
-			IN_ProcessMoveKeys(flags, player->v_dir);
+			IN_ProcessMoveKeys(flags, player->v_dir, false);
 
-			if (flags.key_press & KEY_MOVE_UP && !player->stopped_pressing_forward_while_in_air)
+			if (flags.key_press & KEY_MOVE_UP)
 				player->pressing_forward_while_in_air = true;
 			else
-				player->stopped_pressing_forward_while_in_air = true; 
+				player->stopped_pressing_forward_while_in_air = true;
 
+			if (flags.key_press & KEY_MOVE_LEFT)
+				player->pressing_left_while_in_air = true;
+			
+			if (flags.key_press & KEY_MOVE_RIGHT)
+				player->pressing_right_while_in_air = true;
+
+			if (flags.key_press & KEY_MOVE_DOWN)
+				player->pressing_backward_while_in_air = true;
+			
 			if (Pressed(flags, KEY_DASH))
 				player->action = true;
 
@@ -133,10 +188,21 @@ void IN_HandleMovementInput(InputFlags flags, Player* player, T_World* world)
 
 		case PlayerState::Falling:
 		{
-			IN_ProcessMoveKeys(flags, player->v_dir);
+			IN_ProcessMoveKeys(flags, player->v_dir, false);
 
 			if (flags.key_press & KEY_MOVE_UP)
 				player->pressing_forward_while_in_air = true;
+			else
+				player->stopped_pressing_forward_while_in_air = true;
+
+			if (flags.key_press & KEY_MOVE_LEFT)
+				player->pressing_left_while_in_air = true;
+			
+			if (flags.key_press & KEY_MOVE_RIGHT)
+				player->pressing_right_while_in_air = true;
+
+			if (flags.key_press & KEY_MOVE_DOWN)
+				player->pressing_backward_while_in_air = true;
 
 			if (Pressed(flags, KEY_DASH))
 				player->action = true;

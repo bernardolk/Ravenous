@@ -1,4 +1,7 @@
 #include "win_platform_layer.h"
+
+#include <stack>
+
 #include "windows.h"
 
 bool WinListFiles(std::string path, std::string mask, std::vector<std::string>& files)

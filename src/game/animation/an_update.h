@@ -4,7 +4,7 @@
 #include "engine/core/core.h"
 
 struct EntityAnimation;
-inline std::map<u32, EntityAnimation> AnimationCatalogue;
+inline map<u32, EntityAnimation> AnimationCatalogue;
 
 constexpr static u32 AnMaxEntityAnimationKeyframes = 16;
 
@@ -45,10 +45,10 @@ struct EntityAnimation
 
 struct EntityAnimationBuffer
 {
-	constexpr static size_t animation_buffer_array_size = 16;
+	constexpr static u32 animation_buffer_array_size = 16;
 	EntityAnimation animations[animation_buffer_array_size];
 
-	size_t FindSlot();
+	u32 FindSlot();
 
 	void StartAnimation(Entity* entity, EntityAnimation* animation);
 

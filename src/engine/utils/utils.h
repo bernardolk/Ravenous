@@ -1,13 +1,7 @@
 #pragma once
 
-#include "engine/core/core.h"
-
 #include <ctime>
-
-inline void PrintVec(vec3 vec, const std::string& prefix)
-{
-	std::cout << prefix << ": (" << vec.x << ", " << vec.y << ", " << vec.z << ") \n";
-}
+#include "engine/core/core.h"
 
 inline std::string FormatFloatTostr(float num, int precision = 3)
 {
@@ -205,10 +199,24 @@ inline vec3 GetRandomColor()
 
 
 // text
-// #TODO: remove this include at some point ... 
-#include <cctype>
+void Tolower(string* data);
 
-inline void Tolower(std::string* data)
+inline float Min(float a, float b)
 {
-	std::transform(data->begin(), data->end(), data->begin(), [](unsigned char c) { return std::tolower(c); });
+	return a <= b? a : b;
+}
+
+inline float Min(float a, float b, float c)
+{
+	return Min(a, Min(b, c));
+}
+
+inline float Max(float a, float b)
+{
+	return a >= b ? a : b;
+}
+
+inline float Max(float a, float b, float c)
+{
+	return  Max(a, Max(b, c));
 }

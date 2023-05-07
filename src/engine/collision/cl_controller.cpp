@@ -1,4 +1,3 @@
-#include <string>
 #include <engine/core/core.h>
 #include <engine/rvn.h>
 #include <engine/collision/primitives/bounding_box.h>
@@ -9,7 +8,6 @@
 #include <engine/collision/cl_types.h>
 #include <engine/collision/cl_resolvers.h>
 #include <engine/collision/cl_controller.h>
-#include <chrono>
 #include "engine/world/world.h"
 
 // ----------------------------
@@ -50,7 +48,7 @@ void CL_RecomputeCollisionBufferEntities(Player* player)
 	auto entity_iter = T_World::Get()->GetEntityIterator();
     while (auto* entity = entity_iter())
     {
-		Rvn::entity_buffer.push_back(EntityBufferElement(entity, false));
+		Rvn::entity_buffer.push_back(EntityBufferElement{entity, false});
 	}
 }
 
@@ -90,7 +88,7 @@ void CL_MarkEntityChecked(const E_Entity* entity)
 */
 
 Array<ClResults, 15> CL_TestAndResolveCollisions(Player* player)
-{
+{	
 	// iterative collision detection
 	Array<ClResults, 15> results_array;
 	auto entity_buffer = Rvn::entity_buffer;
@@ -142,12 +140,8 @@ bool CL_TestCollisions(Player* player)
 // > RUN COLLISION DETECTION
 // ---------------------------
 
-ClResults CL_TestCollisionBufferEntitites(
-	Player* player,
-	bool iterative = true)
+ClResults CL_TestCollisionBufferEntitites(Player* player, bool iterative = true)
 {
-
-	bool test = false;
 	for (auto& entry : Rvn::entity_buffer)
 	{
 		E_Entity* entity = entry.entity;
@@ -157,12 +151,6 @@ ClResults CL_TestCollisionBufferEntitites(
 
 		if (!entity->bounding_box.Test(player->bounding_box))
 			continue;
-		
-		if (!test)
-		{
-			player->UpdateCollider();
-			test = true;
-		}
 
 		auto result = CL_TestPlayerVsEntity(entity, player);
 
@@ -178,7 +166,6 @@ ClResults CL_TestCollisionBufferEntitites(
 // -------------------------
 ClResults CL_TestPlayerVsEntity(E_Entity* entity, Player* player)
 {
-	using micro = std::chrono::microseconds;
 
 	ClResults cl_results;
 	cl_results.entity = entity;
@@ -186,31 +173,14 @@ ClResults CL_TestPlayerVsEntity(E_Entity* entity, Player* player)
 	CollisionMesh* entity_collider = &entity->collider;
 	CollisionMesh* player_collider = &player->collider;
 
-	// auto start = std::chrono::high_resolution_clock::now(); 
 	GJK_Result box_gjk_test = CL_RunGjk(entity_collider, player_collider);
-	// auto finish = std::chrono::high_resolution_clock::now();
 
-	// std::cout << "CL_run_GJK() took "
-	//          << std::chrono::duration_cast<micro>(finish - start).count()
-	//          << " microseconds\n";
-
-	bool b_gjk = false;
-	bool b_epa = false;
 	if (box_gjk_test.collision)
 	{
-		b_gjk = true;
-
-		// start = std::chrono::high_resolution_clock::now(); 
 		EPA_Result epa = CL_RunEPA(box_gjk_test.simplex, entity_collider, player_collider);
-		// finish = std::chrono::high_resolution_clock::now();
-
-		// std::cout << "CL_run_EPA() took "
-		//    << std::chrono::duration_cast<micro>(finish - start).count()
-		//    << " microseconds\n";
 
 		if (epa.collision)
 		{
-			b_epa = true;
 			cl_results.penetration = epa.penetration;
 			cl_results.normal = epa.direction;
 			cl_results.collision = true;

@@ -76,7 +76,7 @@ void EntityAnimation::Update()
 }
 
 
-size_t EntityAnimationBuffer::FindSlot()
+u32 EntityAnimationBuffer::FindSlot()
 {
 	For(animation_buffer_array_size)
 	{
@@ -88,7 +88,7 @@ size_t EntityAnimationBuffer::FindSlot()
 		}
 	}
 
-	Quit_fatal("EntityAnimationBuffer overflow. Too many animations.");
+	fatal_error("EntityAnimationBuffer overflow. Too many animations.");
 	return 0;
 }
 

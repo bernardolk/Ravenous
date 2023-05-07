@@ -3,6 +3,7 @@
 #include "engine/core/core.h"
 #include "engine/entities/entity.h"
 #include "engine/entities/traits/entity_traits.h"
+#include "engine/io/input_phase.h"
 #include "engine/utils/utils.h"
 #include "game/collision/cl_edge_detection.h"
 
@@ -10,9 +11,6 @@ enum class PlayerState: uint32_t
 {
 	// Floor based states
 	Standing				= 100,
-	Walking					= 101,
-	Running					= 102,
-	Sprinting				= 103,
 
 	// Air based states
 	Falling					= 200,
@@ -74,7 +72,7 @@ struct EntityDecl(Player)
 
 	// movement variables
 	vec3 v_dir = vec3(0.f);          // intended movement direction
-	vec3 v_dir_historic = vec3(0.f); // last non zero movement direction
+	vec3 last_recorded_movement_direction = vec3(0.f); // last non zero movement direction
 
 	// movement constants
 	static const float acceleration;
@@ -82,13 +80,14 @@ struct EntityDecl(Player)
 	static const float dash_speed;
 	static const float walk_speed;
 	static const float fall_speed;
-	static const float air_acceleration;
+	static const float air_steering_velocity;
 	static const float max_air_speed;
 	static const float air_friction;
 	static const float jump_initial_speed;
-	static const float jump_initial_horizontal_thrust;
 	static const float jump_reduced_horizontal_thrust;
-	static const float jump_horz_dash_thrust;
+	static const float jump_from_slope_horizontal_thrust;
+	static const float minimum_jump_horizontal_thrust_when_dashing;
+	static const float minimum_jump_horizontal_thrust_when_running;
 	static const float slide_jump_speed;
 	static const float slide_speed;
 	static const float fall_from_edge_push_speed;
@@ -110,14 +109,23 @@ struct EntityDecl(Player)
 	bool interact_btn = false;
 	bool pressing_forward_while_in_air = false;
 	bool stopped_pressing_forward_while_in_air = false;
+	bool pressing_left_while_in_air = false;
+	bool pressing_right_while_in_air = false;
+	bool pressing_backward_while_in_air = false;
+	bool pressing_forward_while_standing = false;
 
+	bool pressing_left_while_standing = false;
+	bool pressing_right_while_standing = false;
+	bool pressing_backward_while_standing = false;
+
+	u64 first_pressed_movement_key_while_standing = KEY_NONE;
+	
 	PlayerState player_state;
 	PlayerState initial_player_state;
 
 	vec3 prior_position = vec3(0);
 	vec3 initial_velocity = vec3(0);
 
-	vec3 air_velocity = vec3(0);
 	vec3 orientation;
 
 	// gameplay system variables
@@ -156,7 +164,7 @@ struct EntityDecl(Player)
 		return &instance;
 	}
 
-	void Update(bool update_collider = false);
+	void Update();
 
 	void UpdateState();
 	
@@ -175,7 +183,7 @@ struct EntityDecl(Player)
 	float GetHorizontalSpeed() const { return length(vec2(velocity.xz)); }
 
 	vec3 GetHorizontalMovementForwardVector() const { return normalize(ToXz(velocity)); }
-
+	
 	void MultiplySpeed(float multiplier) { velocity = length(velocity) * multiplier * v_dir; }
 	
 	void SetSpeed(float new_speed) { velocity = new_speed * v_dir; }

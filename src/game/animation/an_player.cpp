@@ -1,17 +1,17 @@
+#include "engine/core/core.h"
 #include "game/animation/an_player.h"
-
 #include "game/entities/player.h"
 #include "engine/utils/utils.h"
 #include "engine/camera/camera.h"
 #include "engine/rvn.h"
 #include "engine/world/scene_manager.h"
 
-const std::map<PlayerAnimationState, float> PlayerAnimationDurations =
+const map<PlayerAnimationState, float> PlayerAnimationDurations =
 {
-{PlayerAnimationState::Jumping, 400},
-{PlayerAnimationState::Landing, 200},
-{PlayerAnimationState::LandingFall, 400},
-{PlayerAnimationState::Vaulting, 0}
+	{PlayerAnimationState::Jumping, 400},
+	{PlayerAnimationState::Landing, 200},
+	{PlayerAnimationState::LandingFall, 400},
+	{PlayerAnimationState::Vaulting, 0}
 };
 
 void AN_AnimatePlayer(Player* player)
@@ -200,13 +200,13 @@ bool AN_PlayerVaulting(Player* player)
 	{
 		auto* player_camera = GlobalSceneInfo::GetGameCam();
 
-		float orig_sva = VectorAngleSigned(glm::normalize(static_cast<vec2>(player->anim_orig_dir.xz)), player->anim_final_dir.xz);
+		float orig_sva = VectorAngleSigned(normalize(static_cast<vec2>(player->anim_orig_dir.xz)), player->anim_final_dir.xz);
 		float orig_angle = glm::degrees(orig_sva);
 		float orig_sign = Sign(orig_angle);
 		float turn_angle = 0.5 * orig_sign;
 		ChangeCameraDirection(player_camera, turn_angle, 0.f);
 
-		float updated_sva = VectorAngleSigned(glm::normalize(static_cast<vec2>(player_camera->front.xz)), player->anim_final_dir.xz);
+		float updated_sva = VectorAngleSigned(normalize(static_cast<vec2>(player_camera->front.xz)), player->anim_final_dir.xz);
 		float updated_angle = glm::degrees(updated_sva);
 		float updated_sign = Sign(updated_angle);
 		if (updated_sign != orig_sign)

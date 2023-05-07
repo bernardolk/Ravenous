@@ -12,6 +12,9 @@
 #include <glad/glad.h>
 #include <engine/serialization/parsing/parser.h>
 #include "engine/io/loaders.h"
+
+#include <iomanip>
+
 #include "engine/rvn.h"
 #include "engine/io/display.h"
 #include "engine/render/shader.h"
@@ -27,7 +30,7 @@ void LoadTexturesFromAssetsFolder()
 
 			if (texture_id == 0)
 			{
-				std::cout << "Texture '" << texture_filename << "' could not be loaded. \n";
+				print("Texture '%s' could not be loaded.", texture_filename.c_str());
 				assert(false);
 			}
 
@@ -188,20 +191,13 @@ Mesh* LoadWavefrontObjAsMesh(
 			}
 
 			else if (number_of_vertexes_in_face > 4)
-			{
-				Quit_fatal("mesh file " + filename +
-					".obj contain at least one face with unsupported ammount of vertices. Please triangulate or quadfy faces.\n");
-			}
+				fatal_error("mesh file %s.obj contain at least one face with unsupported ammount of vertices. Please triangulate or quadfy faces.", filename.c_str())
 
 			else if (number_of_vertexes_in_face < 3)
-			{
-				Quit_fatal("mesh file " + filename + ".obj contain at least one face with 2 or less vertices. Please review the geometry.\n");
-			}
-			else
-			{
-				faces_count++;
-			}
+				fatal_error("mesh file %s.obj contain at least one face with 2 or less vertices. Please review the geometry.", filename.c_str())
 
+			else
+				faces_count++;
 		}
 	}
 
@@ -322,7 +318,7 @@ unsigned int LoadTextureFromFile(const std::string& filename, const std::string&
 	unsigned char* data = stbi_load(path.c_str(), &width, &height, &nr_components, 0);
 	if (!data)
 	{
-		std::cout << "Texture failed to load at path: " << path << std::endl;
+		print("Texture failed to load at path '%s'", path.c_str())
 		stbi_image_free(data);
 		return 0;
 	}
@@ -368,7 +364,7 @@ StrVec GetFilesINFolder(std::string directory)
 
 	if (find_files_handle == INVALID_HANDLE_VALUE)
 	{
-		std::cout << "Error: Invalid directory '" + directory + "' for finding files.";
+		print("Error: Invalid directory '%s' for finding files.", directory.c_str());
 		return filenames;
 	}
 
@@ -392,7 +388,7 @@ void WriteMeshExtraDataFile(std::string filename, Mesh* mesh)
 	std::ofstream writer(extra_data_path);
 
 	if (!writer.is_open())
-		Quit_fatal("couldn't write mesh extra data.");
+		fatal_error("couldn't write mesh extra data.");
 
 	writer << std::fixed << std::setprecision(4);
 
@@ -471,7 +467,7 @@ void AttachExtraDataToMesh(std::string filename, std::string filepath, Mesh* mes
 		WIN32_FIND_DATA find_data_mesh;
 		HANDLE find_handle_mesh = FindFirstFileA(mesh_path.c_str(), &find_data_mesh);
 		if (find_handle_mesh == INVALID_HANDLE_VALUE)
-			Quit_fatal("Unexpected: couldn't find file handle for mesh obj while checking for extra mesh data.")
+			fatal_error("Unexpected: couldn't find file handle for mesh obj while checking for extra mesh data.")
 
 		if (CompareFileTime(&find_data_mesh.ftLastWriteTime, &find_data_extra_data.ftLastWriteTime) == 1)
 			compute_extra_data = true;
@@ -558,9 +554,10 @@ void LoadShaders()
 		ShaderCatalogue.insert({shader->name, shader});
 
 		if (error)
-			Quit_fatal("Error in shader programs file definition. Couldn't parse line " + std::to_string(p.line_count) + ".");
+			fatal_error("Error in shader programs file definition. Couldn't parse line %i.", p.line_count);
+
 		if (missing_comma)
-			Quit_fatal("Error in shader programs file definition. There is a missing comma in line " + std::to_string(p.line_count) + ".");
+			fatal_error("Error in shader programs file definition. There is a missing comma in line %i.", p.line_count);
 	}
 
 	// setup for text shader

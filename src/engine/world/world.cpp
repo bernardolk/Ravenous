@@ -1,11 +1,10 @@
 #include "engine/world/world.h"
-
 #include "engine/catalogues.h"
 #include "engine/entities/e_entity.h"
-#include "engine/entities/lights.h"
 #include "engine/render/im_render.h"
 #include "engine/utils/utils.h"
 #include "game/entities/player.h"
+#include "engine/entities/lights.h"
 
 T_World::T_World()
 {
@@ -62,7 +61,6 @@ void WorldChunk::RemoveEntity(E_Entity* entity_to_delete)
 	entity_to_delete->deleted = true;
 }
 
-
 RaycastTest T_World::Raycast(const Ray ray, const RayCastType test_type, const E_Entity* skip, const float max_distance) const
 {
 	//@TODO: This should first test ray against world cells, then get the list of entities from these world cells to test against 
@@ -91,12 +89,10 @@ RaycastTest T_World::Raycast(const Ray ray, const RayCastType test_type, const E
 	return closest_hit;
 }
 
-
 RaycastTest T_World::Raycast(const Ray ray, const E_Entity* skip, const float max_distance) const
 {
 	return this->Raycast(ray, RayCast_TestOnlyFromOutsideIn, skip, max_distance);
 }
-
 
 RaycastTest T_World::LinearRaycastArray(const Ray first_ray, int qty, float spacing) const
 {
@@ -268,7 +264,7 @@ CellUpdate T_World::UpdateEntityWorldCells(E_Entity* entity)
 bool WorldChunk::AddVisitor(E_Entity* entity)
 {
 	visitors.push_back(entity);
-	entity->visitor_state = VisitorState(true, vec3(i,j,k), this);
+	entity->visitor_state = VisitorState{true, vec3(i, j, k), this};
 	return true;
 }
 

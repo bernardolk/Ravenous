@@ -141,19 +141,6 @@ int main()
 
 	world->Update();
 
-	/**		NEW STUFF	*/
-	//auto* new_world = T_World::Get();
-	
-	// set first one to active
-	// auto* active_chunk = new_world->chunks.GetAt(0, 0, 0);
-	// new_world->active_chunks.push_back(active_chunk);
-
-	// create entities
-	// auto* door = active_chunk->RequestEntityStorage<E_Door>();
-	
-	// update all entities, trait by trait, world chunk by chunk
-	// new_world->Update();
-
 	RavenousMainLoop();
 }
 
@@ -189,10 +176,10 @@ void CheckAllEntitiesHaveShaders()
 	while(auto* entity = entity_iterator())
 	{
 		if (entity->shader == nullptr)
-			Quit_fatal("shader not set for entity '" + entity->name + "'.");
+			fatal_error("shader not set for entity '%s'.", entity->name.c_str());
 
 		if (entity->mesh->gl_data.VAO == 0)
-			Quit_fatal("GL DATA not set for entity '" + entity->name + "'.");
+			fatal_error("GL DATA not set for entity '%s'.", entity->name.c_str());
 	}
 }
 
@@ -202,7 +189,7 @@ void CheckAllEntitiesHaveIds()
 	while(auto* entity = entity_iterator())
 	{
 		if (entity->id == -1)
-			Quit_fatal("There are entities without IDs. Check scene loading code for a flaw.");
+			fatal_error("There are entities without IDs. Check scene loading code for a flaw.");
 	}
 }
 

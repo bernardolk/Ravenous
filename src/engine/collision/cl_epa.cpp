@@ -1,23 +1,19 @@
-#include <vector>
-#include <map>
 #include <engine/core/types.h>
 #include <engine/collision/simplex.h>
 #include <engine/collision/cl_gjk.h>
 #include <engine/collision/cl_epa.h>
-#include <chrono>
-#include <iostream>
 
 extern const int ClMaxEpaIterations = 100;
 
-std::pair<std::vector<vec4>, size_t> CL_GetEPAFaceNormalsAndClosestFace(
+std::pair<std::vector<vec4>, u32> CL_GetEPAFaceNormalsAndClosestFace(
 	const std::vector<vec3>& polytope,
-	const std::vector<size_t>& faces)
+	const std::vector<u32>& faces)
 {
 	std::vector<vec4> normals;
-	size_t closest_face_index = 0;
+	u32 closest_face_index = 0;
 	float min_distance_to_face = MaxFloat;
 
-	for (size_t i = 0; i < faces.size(); i += 3)
+	for (u32 i = 0; i < faces.size(); i += 3)
 	{
 		vec3 a = polytope[faces[i]];
 		vec3 b = polytope[faces[i + 1]];
@@ -46,10 +42,10 @@ std::pair<std::vector<vec4>, size_t> CL_GetEPAFaceNormalsAndClosestFace(
 
 
 void CL_AddIfOuterEdge(
-	std::vector<std::pair<size_t, size_t> >& edges,
-	const std::vector<size_t>& faces,
-	size_t a,
-	size_t b)
+	std::vector<std::pair<u32, u32> >& edges,
+	const std::vector<u32>& faces,
+	u32 a,
+	u32 b)
 {
 	// if edge is already in list (but in reverse winding order)
 	// then we must exclude it from the list as it is not an outer edge.
@@ -67,38 +63,13 @@ void CL_AddIfOuterEdge(
 		edges.emplace_back(faces[a], faces[b]);
 }
 
-static void get_time(int elapsed)
-{
-	static std::vector<int> times;
-	const int N = 100;
-
-	times.push_back(elapsed);
-
-
-	if (times.size() == N)
-	{
-		int sum = 0;
-		for (int i = 0; i < times.size(); i++)
-			sum += times[i];
-
-		float average = sum * 1.0 / N;
-
-		std::cout << "Average time spent on EPA: " << average << "\n";
-
-		times.clear();
-	}
-}
-
-
 EPA_Result CL_RunEPA(Simplex simplex, CollisionMesh* collider_a, CollisionMesh* collider_b)
 {
-	using micro = std::chrono::microseconds;
-	auto start = std::chrono::high_resolution_clock::now();
 
 	std::vector<vec3> polytope;
 	polytope.insert(polytope.begin(), std::begin(simplex.points), std::end(simplex.points));
 
-	std::vector<size_t> faces = {
+	std::vector<u32> faces = {
 	0, 1, 2,
 	0, 3, 1,
 	0, 2, 3,
@@ -130,12 +101,12 @@ EPA_Result CL_RunEPA(Simplex simplex, CollisionMesh* collider_a, CollisionMesh* 
 			min_distance_to_face = MaxFloat;
 
 			// removes all faces pointing towards the support direction and lists the outer_edges
-			std::vector<std::pair<size_t, size_t> > outer_edges;
-			for (size_t i = 0; i < face_normals.size(); i++)
+			std::vector<std::pair<u32, u32> > outer_edges;
+			for (u32 i = 0; i < face_normals.size(); i++)
 			{
 				if (CL_SameGeneralDirection(face_normals[i], support.point))
 				{
-					size_t f = i * 3;
+					u32 f = i * 3;
 
 					CL_AddIfOuterEdge(outer_edges, faces, f, f + 1);
 					CL_AddIfOuterEdge(outer_edges, faces, f + 1, f + 2);
@@ -156,7 +127,7 @@ EPA_Result CL_RunEPA(Simplex simplex, CollisionMesh* collider_a, CollisionMesh* 
 			}
 
 			// construct new faces from the outer_edges listed before
-			std::vector<size_t> new_faces;
+			std::vector<u32> new_faces;
 			for (auto [edgeIndex1, edgeIndex2] : outer_edges)
 			{
 				new_faces.push_back(edgeIndex1);
@@ -170,7 +141,7 @@ EPA_Result CL_RunEPA(Simplex simplex, CollisionMesh* collider_a, CollisionMesh* 
 			auto [new_normals, new_closest_face_index] = CL_GetEPAFaceNormalsAndClosestFace(polytope, new_faces);
 
 			float old_min_distance_to_face = MaxFloat;
-			for (size_t i = 0; i < face_normals.size(); i++)
+			for (u32 i = 0; i < face_normals.size(); i++)
 			{
 				float dist = face_normals[i].w;
 				if (dist < old_min_distance_to_face)
@@ -205,9 +176,9 @@ EPA_Result CL_RunEPA(Simplex simplex, CollisionMesh* collider_a, CollisionMesh* 
 	//    }
 
 	//    // RENDER EDGES
-	//    for (size_t i = 0; i < face_normals.size(); i++)
+	//    for (u32 i = 0; i < face_normals.size(); i++)
 	//    {
-	//       size_t f = i * 3;
+	//       u32 f = i * 3;
 	//       ImDraw::add_line(IMHASH, polytope[faces[f    ]], polytope[faces[f + 1]], 1.5, true, vec3(0.3, 0.5, 0.2));
 	//       ImDraw::add_line(IMHASH, polytope[faces[f + 1]], polytope[faces[f + 2]], 1.5, true, vec3(0.3, 0.5, 0.2));
 	//       ImDraw::add_line(IMHASH, polytope[faces[f + 2]], polytope[faces[f    ]], 1.5, true, vec3(0.3, 0.5, 0.2));
@@ -230,10 +201,6 @@ EPA_Result CL_RunEPA(Simplex simplex, CollisionMesh* collider_a, CollisionMesh* 
 
 	result.direction = penetration_normal;
 	result.penetration = min_distance_to_face + 0.0001f;
-
-	auto finish = std::chrono::high_resolution_clock::now();
-	int elapsed = std::chrono::duration_cast<micro>(finish - start).count();
-	// get_time(elapsed);
 
 	return result;
 }

@@ -22,14 +22,14 @@ void SetupGLFW(bool debug)
 	GDC->window = glfwCreateWindow(GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, "Ravenous", nullptr, nullptr);
 	if (GDC->window == nullptr)
 	{
-		std::cout << "Failed to create GLFW window" << std::endl;
+		print("Failed to create GLFW window");
 		glfwTerminate();
 	}
 	glfwMakeContextCurrent(GDC->window);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		std::cout << "Failed to initialize GLAD" << std::endl;
+		print("Failed to initialize GLAD");
 	}
 
 	// Setups openGL viewport
@@ -78,7 +78,8 @@ GLenum GLCheckError(const char* file, int line)
 			default:
 				break;
 		}
-		std::cout << error << " | " << file << " (" << line << ")" << std::endl;
+		printf(error.c_str());
+		print(" at file '%s' line: %i", file, line);
 	}
 	return error_code;
 }

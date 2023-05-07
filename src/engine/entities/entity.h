@@ -43,7 +43,7 @@ struct TimerTriggerData
 	Entity* timer_target = nullptr;
 	int timer_duration = 0; // Expressed in seconds
 
-	constexpr static size_t size = 16;
+	constexpr static u32 size = 16;
 	Entity* markings[size]; /* not perfect name, but means the lights that show
                                                            if the player is on track or not towards the timed door */
 	u32 time_checkpoints[size];

@@ -4,7 +4,7 @@
 struct ParseUnit
 {
 	std::string string{};
-	size_t size = 0;
+	u32 size = 0;
 	u8 has_token = 0;
 	union
 	{
@@ -37,10 +37,7 @@ struct Parser
 		this->filepath = filepath;
 		this->reader = std::ifstream(filepath);
 		if (!this->reader.is_open())
-		{
-			std::cout << "Couldn't open file '" + filepath + "', path NOT FOUND \n";
-			assert(false);
-		}
+			fatal_error("Couldn't open file '%s', path NOT FOUND", filepath.c_str());
 	}
 
 	Parser(const std::string& text_buffer, const int buffer_size)
@@ -95,10 +92,7 @@ template<>
 inline glm::vec3 GetParsed(Parser& parser)
 {
 	if (parser.p.has_token == 0)
-	{
-		std::cout << "FATAL: Parse has no vec3 value to be retrieved. Check line being parsed.\n";
-		assert(false);
-	}
+		fatal_error("FATAL: Parse has no vec3 value to be retrieved. Check line being parsed.");
 
 	return glm::vec3{parser.p.vec3[0], parser.p.vec3[1], parser.p.vec3[2]};
 }
@@ -107,10 +101,7 @@ template<>
 inline glm::vec2 GetParsed(Parser& parser)
 {
 	if (parser.p.has_token == 0)
-	{
-		std::cout << "FATAL: Parse has no vec3 value to be retrieved. Check line being parsed.\n";
-		assert(false);
-	}
+		fatal_error("FATAL: Parse has no vec3 value to be retrieved. Check line being parsed.");
 
 	return glm::vec2{parser.p.vec2[0], parser.p.vec2[1]};
 }

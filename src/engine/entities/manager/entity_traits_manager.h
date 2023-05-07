@@ -11,7 +11,7 @@ struct EntityTraitsManager
 	map<TraitID, map<TypeID, UpdateFunc>> trait_registry;
 	map<TypeID, vector<TypeID>> trait_inverse_registry;
 	vector<TraitID> entity_traits;
-	static inline constexpr size_t max_traits = 5;
+	static inline constexpr u32 max_traits = 5;
 	
 	static EntityTraitsManager* Get()
 	{
@@ -77,14 +77,14 @@ struct EntityTraitsManager
 		}
 		else
 		{
-			std::cout << "INVOKE FUNCTION NOT FOUND FOR ENTITY OF TypeID: " << entity->type_id <<  " AND TRAIT of TraitID: " << trait_id << "\n";
+			printf("Invoke function not found for TypeID: %i and trait of TraitID: %i.\n", entity->type_id, trait_id);
 		}
 	}
 
 	template<typename T_Entity, typename T_Trait>
 	byte RegisterTypeAndTraitMatch()
 	{
-		std::cout << "Registering entity of id " << T_Entity::GetTypeId() << " and trait of id " << T_Trait::trait_id << "\n";
+		printf("Registering entity of id '%i' and trait of id '%i'.\n", T_Entity::GetTypeId(), T_Trait::trait_id);
 
 		Register(T_Entity::GetTypeId(), T_Trait::trait_id, 
 		[](E_BaseEntity* in_entity)

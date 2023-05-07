@@ -4,7 +4,7 @@
 struct InputFlags;
 
 void HandleConsoleInput(InputFlags flags, Player* & player, T_World* world, Camera* camera);
-void ExecuteCommand(const std::string& buffer_line, Player* & player, T_World* world, Camera* camera);
+void ExecuteCommand(const string& buffer_line, Player* & player, T_World* world, Camera* camera);
 void CheckLetterKeyPresses(InputFlags flags);
 void ClearConsoleStringBuffer();
 void RenderConsole();

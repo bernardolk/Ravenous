@@ -1,5 +1,7 @@
 #pragma once
 
+#include "engine/utils/utils.h"
+
 struct Triangle;
 
 struct Face
@@ -16,12 +18,12 @@ struct Face
 inline Face FaceFromAxisAlignedTriangle(Triangle t)
 {
 	// computes center
-	float x0 = std::min({t.a.x, t.b.x, t.c.x});
-	float x1 = std::max({t.a.x, t.b.x, t.c.x});
-	float y0 = std::min({t.a.y, t.b.y, t.c.y});
-	float y1 = std::max({t.a.y, t.b.y, t.c.y});
-	float z0 = std::min({t.a.z, t.b.z, t.c.z});
-	float z1 = std::max({t.a.z, t.b.z, t.c.z});
+	float x0 = Min(t.a.x, t.b.x, t.c.x);
+	float x1 = Max(t.a.x, t.b.x, t.c.x);
+	float y0 = Min(t.a.y, t.b.y, t.c.y);
+	float y1 = Max(t.a.y, t.b.y, t.c.y);
+	float z0 = Min(t.a.z, t.b.z, t.c.z);
+	float z1 = Max(t.a.z, t.b.z, t.c.z);
 
 	float mx, my, mz;
 	mx = x0 == x1 ? x0 : ((x1 - x0) / 2.0f) + x0;

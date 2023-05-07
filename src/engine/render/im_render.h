@@ -31,7 +31,7 @@ constexpr inline std::hash<std::string> ImHasher;
 
 struct ImDrawElement
 {
-	size_t hash;
+	u32 hash;
 	bool empty;
 	Mesh mesh;
 	RenderOptions render_options;
@@ -57,22 +57,22 @@ struct ImDraw
 	static void Init();
 	static void Update(float frame_duration);
 	static void Render(Camera* camera);
-	static auto Add(size_t _hash, std::vector<Vertex> vertex_vec, GLenum draw_method, RenderOptions opts = RenderOptions{}) -> void;
-	static void Add(size_t _hash, std::vector<Triangle> triangles, GLenum draw_method, RenderOptions);
-	static void AddLine(size_t _hash, vec3 point_a, vec3 point_b, vec3 color);
-	static void AddLine(size_t _hash, vec3 point_a, vec3 point_b, float line_width = 1.0,
+	static auto Add(u32 _hash, std::vector<Vertex> vertex_vec, GLenum draw_method, RenderOptions opts = RenderOptions{}) -> void;
+	static void Add(u32 _hash, std::vector<Triangle> triangles, GLenum draw_method, RenderOptions);
+	static void AddLine(u32 _hash, vec3 point_a, vec3 point_b, vec3 color);
+	static void AddLine(u32 _hash, vec3 point_a, vec3 point_b, float line_width = 1.0,
 	                    bool always_on_top = false, vec3 color = vec3(0), float duration = 0);
-	static void AddLineLoop(size_t _hash, std::vector<vec3> points, float line_width = 1.0, bool always_on_top = false);
-	static void AddPoint(size_t _hash, vec3 point, float point_size = 1.0,
+	static void AddLineLoop(u32 _hash, std::vector<vec3> points, float line_width = 1.0, bool always_on_top = false);
+	static void AddPoint(u32 _hash, vec3 point, float point_size = 1.0,
 	                     bool always_on_top = false, vec3 color = vec3(0), float duration = 0);
-	static void AddPoint(size_t _hash, vec3 point, vec3 color = vec3(0));
-	static void AddTriangle(size_t _hash, Triangle t, float line_width = 1.0,
+	static void AddPoint(u32 _hash, vec3 point, vec3 color = vec3(0));
+	static void AddTriangle(u32 _hash, Triangle t, float line_width = 1.0,
 	                        bool always_on_top = false, vec3 color = vec3{0.8, 0.2, 0.2});
-	static void AddMesh(size_t _hash, Mesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color = COLOR_BLUE_1, int duration = 2000);
-	static void AddMesh(size_t _hash, Mesh* mesh, vec3 color = COLOR_BLUE_1, float duration = 2000);
-	static void AddMesh(size_t _hash, Entity* entity, int duration);
-	static void AddMesh(size_t _hash, Entity* entity);
-	static void AddMesh(size_t _hash, Entity* entity, vec3 pos);
+	static void AddMesh(u32 _hash, Mesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color = COLOR_BLUE_1, int duration = 2000);
+	static void AddMesh(u32 _hash, Mesh* mesh, vec3 color = COLOR_BLUE_1, float duration = 2000);
+	static void AddMesh(u32 _hash, Entity* entity, int duration);
+	static void AddMesh(u32 _hash, Entity* entity);
+	static void AddMesh(u32 _hash, Entity* entity, vec3 pos);
 
 private:
 	static void SetMesh(int i, std::vector<Vertex> vertices, GLenum draw_method, RenderOptions opts);
@@ -83,5 +83,5 @@ private:
 	static void SetIndices(int i, std::vector<u32> indices);
 	static void EmptySlot(int i);
 
-	static ImDrawSlot FindElementOrEmptySlot(size_t hash);
+	static ImDrawSlot FindElementOrEmptySlot(u32 hash);
 };

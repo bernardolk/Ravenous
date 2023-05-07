@@ -77,7 +77,7 @@ void ImDraw::Render(Camera* camera)
 /* --------------------------- */
 /*      > Add primitives       */
 /* --------------------------- */
-void ImDraw::Add(size_t _hash, std::vector<Vertex> vertex_vec, GLenum draw_method, RenderOptions opts)
+void ImDraw::Add(u32 _hash, std::vector<Vertex> vertex_vec, GLenum draw_method, RenderOptions opts)
 {
 	IM_R_FIND_SLOT();
 
@@ -85,7 +85,7 @@ void ImDraw::Add(size_t _hash, std::vector<Vertex> vertex_vec, GLenum draw_metho
 }
 
 
-void ImDraw::Add(size_t _hash, std::vector<Triangle> triangles, GLenum draw_method = GL_LINE_LOOP, RenderOptions opts = RenderOptions{})
+void ImDraw::Add(u32 _hash, std::vector<Triangle> triangles, GLenum draw_method = GL_LINE_LOOP, RenderOptions opts = RenderOptions{})
 {
 	IM_R_FIND_SLOT();
 
@@ -100,13 +100,13 @@ void ImDraw::Add(size_t _hash, std::vector<Triangle> triangles, GLenum draw_meth
 	SetMesh(slot.index, vertex_vec, draw_method, opts);
 }
 
-void ImDraw::AddLine(size_t _hash, vec3 point_a, vec3 point_b, vec3 color)
+void ImDraw::AddLine(u32 _hash, vec3 point_a, vec3 point_b, vec3 color)
 {
 	AddLine(_hash, point_a, point_b, 1.0, false, color);
 }
 
 
-void ImDraw::AddLine(size_t _hash, vec3 point_a, vec3 point_b, float line_width,
+void ImDraw::AddLine(u32 _hash, vec3 point_a, vec3 point_b, float line_width,
                      bool always_on_top, vec3 color, float duration)
 {
 	IM_R_FIND_SLOT();
@@ -130,7 +130,7 @@ void ImDraw::AddLine(size_t _hash, vec3 point_a, vec3 point_b, float line_width,
 }
 
 
-void ImDraw::AddLineLoop(size_t _hash, std::vector<vec3> points, float line_width, bool always_on_top)
+void ImDraw::AddLineLoop(u32 _hash, std::vector<vec3> points, float line_width, bool always_on_top)
 {
 	IM_R_FIND_SLOT();
 
@@ -147,7 +147,7 @@ void ImDraw::AddLineLoop(size_t _hash, std::vector<vec3> points, float line_widt
 }
 
 
-void ImDraw::AddPoint(size_t _hash, vec3 point, float point_size, bool always_on_top, vec3 color, float duration)
+void ImDraw::AddPoint(u32 _hash, vec3 point, float point_size, bool always_on_top, vec3 color, float duration)
 {
 	IM_R_FIND_SLOT();
 
@@ -168,13 +168,13 @@ void ImDraw::AddPoint(size_t _hash, vec3 point, float point_size, bool always_on
 	SetMesh(slot.index, vertex_vec, GL_POINTS, opts);
 }
 
-void ImDraw::AddPoint(size_t _hash, vec3 point, vec3 color)
+void ImDraw::AddPoint(u32 _hash, vec3 point, vec3 color)
 {
 	AddPoint(_hash, point, 1.0, false, color);
 }
 
 
-void ImDraw::AddTriangle(size_t _hash, Triangle t, float line_width, bool always_on_top, vec3 color)
+void ImDraw::AddTriangle(u32 _hash, Triangle t, float line_width, bool always_on_top, vec3 color)
 {
 	IM_R_FIND_SLOT();
 
@@ -194,7 +194,7 @@ void ImDraw::AddTriangle(size_t _hash, Triangle t, float line_width, bool always
 /* --------------------------- */
 /*        > Add Mesh           */
 /* --------------------------- */
-void ImDraw::AddMesh(size_t _hash, Mesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color, int duration)
+void ImDraw::AddMesh(u32 _hash, Mesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color, int duration)
 {
 	IM_R_FIND_SLOT();
 
@@ -219,7 +219,7 @@ void ImDraw::AddMesh(size_t _hash, Mesh* mesh, vec3 pos, vec3 rot, vec3 scale, v
 }
 
 
-void ImDraw::AddMesh(size_t _hash, Mesh* mesh, vec3 color, float duration)
+void ImDraw::AddMesh(u32 _hash, Mesh* mesh, vec3 color, float duration)
 {
 	IM_R_FIND_SLOT();
 
@@ -242,19 +242,19 @@ void ImDraw::AddMesh(size_t _hash, Mesh* mesh, vec3 color, float duration)
 }
 
 
-void ImDraw::AddMesh(size_t _hash, Entity* entity, int duration)
+void ImDraw::AddMesh(u32 _hash, Entity* entity, int duration)
 {
 	AddMesh(_hash, entity->mesh, entity->position, entity->rotation, entity->scale, vec3(1.0, 0, 0), duration);
 }
 
 
-void ImDraw::AddMesh(size_t _hash, Entity* entity)
+void ImDraw::AddMesh(u32 _hash, Entity* entity)
 {
 	AddMesh(_hash, entity->mesh, entity->position, entity->rotation, entity->scale);
 }
 
 
-void ImDraw::AddMesh(size_t _hash, Entity* entity, vec3 pos)
+void ImDraw::AddMesh(u32 _hash, Entity* entity, vec3 pos)
 {
 	AddMesh(_hash, entity->mesh, pos, entity->rotation, entity->scale);
 }
@@ -278,7 +278,7 @@ void ImDraw::EmptySlot(int i)
 }
 
 
-ImDrawSlot ImDraw::FindElementOrEmptySlot(size_t hash)
+ImDrawSlot ImDraw::FindElementOrEmptySlot(u32 hash)
 {
 	int slot = -1;
 	for (int i = 0; i < im_buffer_size; i++)
@@ -290,7 +290,7 @@ ImDrawSlot ImDraw::FindElementOrEmptySlot(size_t hash)
 	}
 
 	if (slot == -1)
-		std::cout << "IM RENDER BUFFER IS FULL\n";
+		print("IM RENDER BUFFER IS FULL");
 
 	return ImDrawSlot{true, slot};
 }

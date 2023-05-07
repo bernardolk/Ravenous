@@ -464,7 +464,7 @@ namespace Editor
 		{
 			test = CL_TestAgainstRay(ray, t2);
 			if (!test.hit)
-				std::cout << "warning: can't find plane to place entity!\n";
+				print("warning: can't find plane to place entity!");
 		}
 
 		return test;
@@ -704,7 +704,7 @@ namespace Editor
 			test = CL_TestAgainstRay(ray, t2);
 			if (!test.hit)
 			{
-				std::cout << "warning: can't find plane to place light!\n";
+				print("warning: can't find plane to place light!");
 				return;
 			}
 		}

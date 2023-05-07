@@ -12,12 +12,12 @@ struct GLData
 
 struct Mesh
 {
-	std::vector<Vertex> vertices;
-	std::vector<u32> indices;
+	vector<Vertex> vertices;
+	vector<u32> indices;
 	u32 faces_count;
 	u32 render_method;
 	GLData gl_data;
-	std::string name;
+	string name;
 	//  FILETIME               last_written;
 
 	void SetupGLData();
@@ -30,18 +30,18 @@ struct Mesh
 struct Texture
 {
 	unsigned int id;
-	std::string type;
-	std::string path;
-	std::string name;
+	string type;
+	string path;
+	string name;
 };
 
-extern std::map<std::string, Texture> TextureCatalogue;
-extern std::map<std::string, Mesh*> GeometryCatalogue;
-extern std::map<std::string, CollisionMesh*> CollisionGeometryCatalogue;
+extern map<string, Texture> TextureCatalogue;
+extern map<string, Mesh*> GeometryCatalogue;
+extern map<string, CollisionMesh*> CollisionGeometryCatalogue;
 
 
-GLData setup_gl_data_for_lines(const Vertex* vertices, size_t size);
-std::vector<Vertex> construct_cylinder(float radius, float half_lenght, int slices);
+GLData setup_gl_data_for_lines(const Vertex* vertices, u32 size);
+vector<Vertex> construct_cylinder(float radius, float half_lenght, int slices);
 Triangle get_triangle_for_collider_indexed_mesh(const Mesh* mesh, int triangle_index);
 Triangle get_triangle_for_collider_indexed_mesh(const CollisionMesh* mesh, int triangle_index);
 Triangle get_triangle_for_indexed_mesh(Mesh* mesh, glm::mat4 mat_model, int triangle_index);

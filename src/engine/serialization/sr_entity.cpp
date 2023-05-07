@@ -1,10 +1,6 @@
-#include <string>
-#include <vector>
-#include <map>
-#include <iostream>
 #include <engine/core/types.h>
 #include "engine/rvn.h"
-#include "engine/core/logging.h"
+#include <map>
 #include <engine/serialization/sr_entity.h>
 #include <engine/collision/collision_mesh.h>
 #include <glm/gtx/quaternion.hpp>
@@ -39,12 +35,6 @@ void EntitySerializer::Parse(Parser& parser)
 			p.ParseU64();
 			u64 id = GetParsed<u64>(parser);
 			new_entity.id = id;
-
-			DEPRECATED_BLOCK
-			{
-			// if (manager->next_entity_id < id)
-			// 	manager->next_entity_id = id;
-			}
 		}
 
 		else if (property == "position")
@@ -65,10 +55,8 @@ void EntitySerializer::Parse(Parser& parser)
 			const auto s = GetParsed<glm::vec3>(parser);
 
 			if (s.x < 0 || s.y < 0 || s.z < 0)
-			{
-				std::cout << "FATAL: ENTITY SCALE PROPERTY CANNOT BE NEGATIVE. AT '" << parser.filepath
-				<< "' LINE NUMBER " << parser.line_count << "\n";
-			}
+				fatal_error("FATAL: ENTITY SCALE PROPERTY CANNOT BE NEGATIVE. AT '%s' LINE NUMBER %i", parser.filepath.c_str(), parser.line_count);
+
 			new_entity.scale = s;
 		}
 
@@ -89,7 +77,7 @@ void EntitySerializer::Parse(Parser& parser)
 						p.ParseAllWhitespace();
 						p.ParseInt();
 						if (!p.HasToken())
-							Quit_fatal("Scene description contain an entity with box tiled shader without full tile quantity description.");
+							fatal_error("Scene description contain an entity with box tiled shader without full tile quantity description.");
 
 						new_entity.uv_tile_wrap[i] = GetParsed<int>(parser);
 					}
@@ -97,10 +85,7 @@ void EntitySerializer::Parse(Parser& parser)
 				new_entity.shader = find->second;
 			}
 			else
-			{
-				std::cout << "SHADER '" << shader_name << "' NOT FOUND WHILE LOADING SCENE DESCRIPTION FILE \n";
-				assert(false);
-			}
+				fatal_error("SHADER '%s' NOT FOUND WHILE LOADING SCENE DESCRIPTION FILE.", shader_name.c_str());
 		}
 
 		else if (property == "mesh")
@@ -134,18 +119,12 @@ void EntitySerializer::Parse(Parser& parser)
 			// > texture definition error handling
 			// >> check for missing info
 			if (texture_name.empty())
-			{
-				std::cout << "Fatal: Texture for entity '" << new_entity.name << "' is missing name. \n";
-				assert(false);
-			}
+				fatal_error("Fatal: Texture for entity '%s' is missing name.", new_entity.name.c_str())
 
 			// fetches texture in catalogue
 			auto texture = TextureCatalogue.find(texture_name);
 			if (texture == TextureCatalogue.end())
-			{
-				std::cout << "Fatal: '" << texture_name << "' was not found (not pre-loaded) inside Texture Catalogue \n";
-				assert(false);
-			}
+				fatal_error("Fatal: %s was not found (not pre-loaded) inside Texture Catalogue.", texture_name.c_str())
 
 			new_entity.textures.clear();
 			new_entity.textures.push_back(texture->second);
@@ -162,124 +141,6 @@ void EntitySerializer::Parse(Parser& parser)
 		{
 			new_entity.flags |= EntityFlags_HiddenEntity;
 		}
-
-		// else if (property == "type")
-		// {
-		// 	p.ParseAllWhitespace();
-		// 	p.ParseToken();
-		// 	const auto entity_type = GetParsed<std::string>(parser);
-		//
-		// 	if (entity_type == SrEntityType::Static)
-		// 		manager->SetType(new_entity->EntityType_Static);
-		//
-		// 	else if (entity_type == SrEntityType::Checkpoint)
-		// 		manager->SetType(new_entity, EntityType_Checkpoint);
-		//
-		// 	else if (entity_type == SrEntityType::TimerTrigger)
-		// 		manager->SetType(new_entity, EntityType_TimerTrigger);
-		//
-		// 	else if (entity_type == SrEntityType::TimerTarget)
-		// 		manager->SetType(new_entity, EntityType_TimerTarget);
-		//
-		// 	else if (entity_type == SrEntityType::TimerMarking)
-		// 		manager->SetType(new_entity, EntityType_TimerMarking);
-		//
-		// 	else
-		// 		Quit_fatal("Entity type '" + entity_type + "' not identified.");
-		//
-		// 	is_type_set = true;
-		// }
-
-		// ---------------------------------
-		// > entity type related properties
-		// ---------------------------------
-		/*
-		else if (property == "timer_target")
-		{
-			if (!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
-
-			p.ParseAllWhitespace();
-			p.ParseU64();
-			auto timer_target_id = GetParsed<u64>(parser);
-
-			int i = relations.count;
-			relations.deferred_entity_ids[i] = timer_target_id;
-			relations.entities[i] = new_entity;
-			relations.relations[i] = SrEntityRelation_TimerTarget;
-			relations.count++;
-		}
-
-		else if (property == "timer_duration")
-		{
-			if (!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
-
-			p.ParseAllWhitespace();
-			p.ParseFloat();
-			new_entity->timer_trigger_data.timer_duration = GetParsed<int>(parser);
-		}
-
-		else if (property == "timer_target_type")
-		{
-			if (!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
-
-			p.ParseAllWhitespace();
-			p.ParseUint();
-			new_entity->timer_target_data.timer_target_type = static_cast<EntityTimerTargetType>(GetParsed<u32>(parser));
-		}
-
-		else if (property == "timer_start_animation")
-		{
-			if (!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
-
-			p.ParseAllWhitespace();
-			p.ParseUint();
-			new_entity->timer_target_data.timer_start_animation = GetParsed<u32>(parser);
-		}
-
-		else if (property == "timer_stop_animation")
-		{
-			if (!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
-
-			p.ParseAllWhitespace();
-			p.ParseUint();
-			new_entity->timer_target_data.timer_stop_animation = GetParsed<u32>(parser);
-		}
-
-		else if (property == "timer_marking")
-		{
-			if (!is_type_set) Quit_fatal(SrLoadEntity_TypeNotSetErrorMsg);
-
-			p.ParseAllWhitespace();
-			p.ParseUint();
-			const auto marking_id = GetParsed<u32>(parser);
-
-			p.ParseAllWhitespace();
-			p.ParseUint();
-			const auto marking_time_checkpoint = GetParsed<u32>(parser);
-
-			int i = relations.count;
-			relations.deferred_entity_ids[i] = marking_id;
-			relations.entities[i] = new_entity;
-			relations.relations[i] = SrEntityRelation_TimerMarking;
-			relations.aux_uint_buffer[i] = marking_time_checkpoint;
-			relations.count++;
-		}
-
-		else if (property == "timer_marking_color_on")
-		{
-			p.ParseVec3();
-			new_entity->timer_marking_data.color_on = GetParsed<glm::vec3>(parser);
-		}
-
-		else if (property == "timer_marking_color_off")
-		{
-			p.ParseVec3();
-			new_entity->timer_marking_data.color_off = GetParsed<glm::vec3>(parser);
-		}
-
-		*/
-
-		// ---------------------------------
 
 		else if (property == "trigger")
 		{

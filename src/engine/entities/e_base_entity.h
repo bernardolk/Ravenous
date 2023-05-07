@@ -2,7 +2,7 @@
 
 #include "engine/core/core.h"
 
-constexpr static size_t MaxEntityWorldChunks = 20;
+constexpr static u32 MaxEntityWorldChunks = 20;
 const static std::string DefaultEntityShader = "model";
 const static std::string EntityShaderMarking = "color";
 

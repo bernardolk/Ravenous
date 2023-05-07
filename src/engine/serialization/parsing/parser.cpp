@@ -93,7 +93,7 @@ void Parser::ParseName()
 	ClearParseBuffer();
 
 	char string_buffer[50];
-	size_t sb_size = 0;
+	u32 sb_size = 0;
 	do
 	{
 		ParseNameChar();
@@ -127,7 +127,7 @@ void Parser::ParseToken()
 	ClearParseBuffer();
 
 	char string_buffer[50];
-	size_t sb_size = 0;
+	u32 sb_size = 0;
 	do
 	{
 		ParseTokenChar();

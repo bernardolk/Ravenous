@@ -19,10 +19,7 @@ void LightSerializer::Parse(Parser& p)
 		ParseDirectionalLight(p);
 
 	else
-	{
-		std::cout << "FATAL: Unrecognized light source in scene file '" << p.filepath << "', line " << p.line_count << ".\n";
-		assert(false);
-	}
+		fatal_error("FATAL: Unrecognized light source in scene file '%s', line %i.", p.filepath.c_str(), p.line_count);
 }
 
 void LightSerializer::ParsePointLight(Parser& p)

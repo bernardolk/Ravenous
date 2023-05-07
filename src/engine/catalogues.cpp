@@ -30,10 +30,8 @@ CatalogueSearchResult FindEntityAssetsInCatalogue(const string& mesh, const stri
 	{
 		const auto _shader = ShaderCatalogue.find(shader);
 		if (_shader == ShaderCatalogue.end())
-		{
-			std::cout << "FATAL: shader'" << shader << "' not found in shader catalogue.\n";
-			assert(false);
-		}
+			fatal_error("FATAL: shader '%s' not found in shader catalogue.", shader.c_str());
+		
 		attrs.shader = _shader->second;
 	}
 
@@ -43,10 +41,8 @@ CatalogueSearchResult FindEntityAssetsInCatalogue(const string& mesh, const stri
 		{
 			const auto _texture = TextureCatalogue.find(texture);
 			if (_texture == TextureCatalogue.end())
-			{
-				std::cout << "FATAL: texture'" << texture << "' not found in texture catalogue.\n";
-				assert(false);
-			}
+				fatal_error("FATAL: texture '%s' not found in texture catalogue.", shader.c_str());
+			
 			attrs.textures[0] = _texture->second;
 			attrs.textures_found++;
 		}

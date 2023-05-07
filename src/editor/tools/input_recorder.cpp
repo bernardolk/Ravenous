@@ -1,4 +1,8 @@
 #include "input_recorder.h"
+
+#include <sstream>
+#include <iomanip>
+
 #include "engine/platform/platform.h"
 #include "engine/rvn.h"
 #include "engine/serialization/parsing/parser.h"
@@ -92,10 +96,7 @@ void T_InputRecorder::Save(int recording_id)
 	);
 
 	if (!writer.is_open())
-	{
-		std::cout << "Cant save recording to file. \n";
-		assert(false);
-	}
+		fatal_error("Cant save recording to file");
 
 	auto& record = recorded_inputs[recording_id].history;
 

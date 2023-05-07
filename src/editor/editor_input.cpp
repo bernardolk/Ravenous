@@ -233,7 +233,6 @@ namespace Editor
 
 		if (GII->mouse_state & MOUSE_LB_CLICK)
 		{
-			std::cout << "CLICK COUNT\n";
 			if (context.snap_mode)
 			{
 				CheckSelectionToSnap();
@@ -299,7 +298,7 @@ namespace Editor
 				player->player_state = PlayerState::Standing;
 				player->standing_entity_ptr = test.entity;
 				player->velocity = vec3(0, 0, 0);
-				player->Update(world);
+				player->Update();
 			}
 		}
 

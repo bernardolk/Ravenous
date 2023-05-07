@@ -72,6 +72,7 @@ inline constexpr u64 KEY_BACKSPACE = 1LL << 46;
 inline constexpr u64 KEY_COMMA = 1LL << 47;
 inline constexpr u64 KEY_PERIOD = 1LL << 48;
 inline constexpr u64 KEY_DELETE = 1LL << 49;
+inline constexpr u64 KEY_NONE = 1LL << 50;
 
 inline constexpr u16 MOUSE_LB_CLICK = 1 << 0;
 inline constexpr u16 MOUSE_RB_CLICK = 1 << 1;
