@@ -5,7 +5,6 @@
 #include "engine/camera/camera.h"
 #include "engine/io/display.h"
 #include "engine/serialization/sr_config.h"
-#include "engine/world/scene_manager.h"
 #include "engine/world/world.h"
 
 namespace Editor
@@ -17,8 +16,7 @@ namespace Editor
 		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::viewport_width - 230, 180), ImGuiCond_Appearing);
 		ImGui::Begin("Tools", &ed_context.toolbar_active, ImGuiWindowFlags_AlwaysAutoResize);
 
-		auto* GSI = GlobalSceneInfo::Get();
-		std::string scene_name = "Scene name: " + GSI->scene_name;
+		string scene_name = "Scene name: " + T_World::Get()->scene_name;
 		ImGui::Text(scene_name.c_str());
 		ImGui::NewLine();
 
@@ -31,7 +29,7 @@ namespace Editor
 			bool track = false;
 
 			ImGui::Text("Cam speed");
-			ImGui::DragFloat("##camspeed", &GSI->camera->acceleration, 0.1, 0.2, MaxFloat);
+			ImGui::DragFloat("##camspeed", &CameraManager::Get()->GetCurrentCamera()->acceleration, 0.1, 0.2, MaxFloat);
 			track = track || ImGui::IsItemDeactivatedAfterEdit();
 
 			// Ambient light control
@@ -51,7 +49,7 @@ namespace Editor
 			if (track)
 			{
 				auto& program_config = *ProgramConfig::Get();
-				program_config.camspeed = GSI->camera->acceleration;
+				program_config.camspeed = CameraManager::Get()->GetCurrentCamera()->acceleration;
 				program_config.ambient_intensity = world->ambient_intensity;
 				program_config.ambient_light = world->ambient_light;
 				ConfigSerializer::Save(program_config);

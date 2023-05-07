@@ -4,9 +4,7 @@
 #include "engine/engine_state.h"
 #include <glfw3.h>
 #include <imgui.h>
-
 #include "engine/camera/camera.h"
-#include "engine/world/scene_manager.h"
 
 
 InputFlags InputPhase()
@@ -389,11 +387,11 @@ void OnMouseMove(GLFWwindow* window, double xpos, double ypos)
 		GII->mouse_coords.last_x = xpos;
 		GII->mouse_coords.last_y = ypos;
 
-		auto* GSI = GlobalSceneInfo::Get();
-		xoffset *= GSI->camera->sensitivity;
-		yoffset *= GSI->camera->sensitivity;
+		auto* cam_manager = CameraManager::Get();
+		xoffset *= cam_manager->GetCurrentCamera()->sensitivity;
+		yoffset *= cam_manager->GetCurrentCamera()->sensitivity;
 
-		ChangeCameraDirection(GSI->camera, xoffset, yoffset);
+		cam_manager->ChangeCameraDirection(cam_manager->GetCurrentCamera(), xoffset, yoffset);
 	}
 
 	// updates mouse position
@@ -407,8 +405,9 @@ void OnMouseScroll(GLFWwindow* window, double xoffset, double yoffset)
 	if (ImGui::GetIO().WantCaptureMouse)
 		return;
 
-	auto* GSI = GlobalSceneInfo::Get();
-	GSI->camera->position += static_cast<float>(3 * yoffset) * GSI->camera->front;
+	auto* cam_manager = CameraManager::Get();
+	auto* camera = cam_manager->GetCurrentCamera();
+	camera->position += static_cast<float>(3 * yoffset) * camera->front;
 }
 
 

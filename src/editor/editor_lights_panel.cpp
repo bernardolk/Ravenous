@@ -219,7 +219,7 @@ namespace Editor
 					// direction
 					{
 						float yaw, pitch;
-						ComputeAnglesFromDirection(pitch, yaw, light.direction);
+						CameraManager::ComputeAnglesFromDirection(pitch, yaw, light.direction);
 
 						// pitch
 						auto label_pitch = "pitch##spot" + std::to_string(i);

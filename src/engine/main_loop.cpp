@@ -17,7 +17,6 @@
 #include "engine/camera/camera.h"
 #include "engine/render/im_render.h"
 #include "engine/render/renderer.h"
-#include "engine/world/scene_manager.h"
 #include "engine/world/world.h"
 
 void StartFrame();
@@ -27,8 +26,8 @@ void RavenousMainLoop()
 	auto* ES = EngineState::Get();
 	auto player = Player::Get();
 	auto world = T_World::Get();
-	auto* GSI = GlobalSceneInfo::Get();
-
+	auto* cam_manager = CameraManager::Get();
+	
 	while (!glfwWindowShouldClose(GlobalDisplayConfig::GetWindow()))
 	{
 		// -------------
@@ -53,15 +52,17 @@ void RavenousMainLoop()
 		// ---------------
 		// INPUT HANDLING
 		// ---------------
+		auto* camera = cam_manager->GetCurrentCamera();
+
 		if (EngineState::IsInConsoleMode())
 		{
-			HandleConsoleInput(input_flags, player, world, GSI->camera);
+			HandleConsoleInput(input_flags, player, world, camera);
 		}
 		else
 		{
 			if (EngineState::IsInEditorMode())
 			{
-				Editor::HandleInputFlagsForEditorMode(input_flags, world, GSI->camera);
+				Editor::HandleInputFlagsForEditorMode(input_flags, world);
 				if (!ImGui::GetIO().WantCaptureKeyboard)
 				{
 					IN_HandleMovementInput(input_flags, player, world);
@@ -82,11 +83,11 @@ void RavenousMainLoop()
 		{
 			if (ES->current_mode == EngineState::ProgramMode::Game)
 			{
-				UpdateGameCamera(GSI->camera, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->GetEyePosition());
+				cam_manager->UpdateGameCamera(GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->GetEyePosition());
 			}
 			else if (ES->current_mode == EngineState::ProgramMode::Editor)
 			{
-				UpdateEditorCamera(GSI->camera, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->position);
+				cam_manager->UpdateEditorCamera(GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->position);
 			}
 			GameState.UpdateTimers();
 			player->UpdateState();
@@ -102,7 +103,7 @@ void RavenousMainLoop()
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			RenderDepthMap();
 			RenderDepthCubemap();
-			RenderScene(world, GSI->camera);
+			RenderScene(world, camera);
 			//render_depth_map_debug();
 			switch (ES->current_mode)
 			{
@@ -113,8 +114,8 @@ void RavenousMainLoop()
 				}
 				case EngineState::ProgramMode::Editor:
 				{
-					Editor::Update(player, world, GSI->camera);
-					Editor::Render(player, world, GSI->camera);
+					Editor::Update(player, world, camera);
+					Editor::Render(player, world, camera);
 					break;
 				}
 				case EngineState::ProgramMode::Game:
@@ -123,7 +124,7 @@ void RavenousMainLoop()
 					break;
 				}
 			}
-			ImDraw::Render(GSI->camera);
+			ImDraw::Render(camera);
 			ImDraw::Update(Rvn::frame.duration);
 			Rvn::rm_buffer->Render();
 		}

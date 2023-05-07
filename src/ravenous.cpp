@@ -9,11 +9,8 @@
 #include "engine/core/platform.h"
 #include "engine/core/core.h"
 #include <engine/core/ui.h>
-#include "engine/core/logging.h"
 #include <engine/rvn.h>
 #include "editor/tools/input_recorder.h"
-#include "engine/world/scene_manager.h"
-#include "engine/engine_state.h"
 #include "engine/platform/gl_window.h"
 
 
@@ -73,20 +70,16 @@ void CheckAllGeometryHasGlData();
 
 int main()
 {
-	auto* ES = EngineState::Get();
 	auto* world = T_World::Get();
 
 	//@TODO: This here is not working because EntityManager copy constructor was deleted. This is an issue
 	//    with using references it seems? A pointer would never complain about this. I should dig into this.
 	//    If I have to start writing extra code to use references then I can't justify using them.
 	WorldSerializer::world = world;
-	ConfigSerializer::scene_info = GlobalSceneInfo::Get();
 
 	// INITIAL GLFW AND GLAD SETUPS
 	SetupGLFW(true);
 	SetupGL();
-
-	auto* GSI = GlobalSceneInfo::Get();
 
 	// load shaders, textures and geometry
 	stbi_set_flip_vertically_on_load(true);
@@ -111,7 +104,7 @@ int main()
 	player->checkpoint_pos = player->position; // set player initial checkpoint position
 
 	// set scene attrs from global config
-	GSI->camera->acceleration = program_config.camspeed;
+	CameraManager::Get()->GetCurrentCamera()->acceleration = program_config.camspeed;
 	world->ambient_light = program_config.ambient_light;
 	world->ambient_intensity = program_config.ambient_intensity;
 

@@ -6,8 +6,8 @@
 #include "engine/entities/lights.h"
 #include "engine/collision/cl_controller.h"
 #include "engine/io/input.h"
-#include "engine/world/scene_manager.h"
 #include "engine/world/world.h"
+#include "game/entities/player.h"
 
 namespace Editor
 {
@@ -321,10 +321,10 @@ namespace Editor
 	void CheckSelectionToMeasure(const T_World* world)
 	{
 		auto* GII = GlobalInputInfo::Get();
-		auto* GSI = GlobalSceneInfo::Get();
+		auto* cam_manager = CameraManager::Get();
 		auto& ed_context = *GetContext();
 
-		auto pickray = CastPickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
+		auto pickray = CastPickray(cam_manager->GetCurrentCamera(), GII->mouse_coords.x, GII->mouse_coords.y);
 		auto test = world->Raycast(pickray);
 		if (test.hit)
 		{
@@ -367,10 +367,9 @@ namespace Editor
 	void CheckSelectionToLocateCoords(const T_World* world)
 	{
 		auto* GII = GlobalInputInfo::Get();
-		auto* GSI = GlobalSceneInfo::Get();
 		auto& ed_context = *GetContext();
 
-		auto pickray = CastPickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
+		auto pickray = CastPickray(CameraManager::Get()->GetCurrentCamera(), GII->mouse_coords.x, GII->mouse_coords.y);
 		auto test = world->Raycast(pickray);
 		if (test.hit)
 		{
@@ -387,7 +386,6 @@ namespace Editor
 		/* Common function for move/rotate/scale entity tools.
 		   Updates entity, tracks it state and updates world.
 		   To be called at the end of entity modification operation. */
-		auto* GSI = GlobalSceneInfo::Get();
 		auto& ed_context = *GetContext();
 
 		ed_context.move_mode = false;
@@ -398,7 +396,7 @@ namespace Editor
 
 		ed_context.selected_entity->Update();
 		world->UpdateEntityWorldCells(ed_context.selected_entity);
-		CL_RecomputeCollisionBufferEntities(GSI->player);
+		CL_RecomputeCollisionBufferEntities(Player::Get());
 		ed_context.undo_stack.Track(ed_context.selected_entity);
 	}
 
@@ -408,8 +406,8 @@ namespace Editor
 		// position. In the case of Y placement, we need to compute the plane considering the camera orientation.
 		Triangle t1, t2;
 		float plane_size = 500.0f;
-		auto* GSI = GlobalSceneInfo::Get();
 		auto& ed_context = *GetContext();
+		auto* camera = CameraManager::Get()->GetCurrentCamera();
 
 		switch (ed_context.move_axis)
 		{
@@ -426,7 +424,6 @@ namespace Editor
 			case 2: // Y
 			{
 				// creates vector from cam to entity in XZ
-				auto camera = GSI->camera;
 				vec3 cam_to_entity = camera->position - entity->position;
 				cam_to_entity.y = camera->position.y;
 				cam_to_entity = normalize(cam_to_entity);
@@ -456,7 +453,7 @@ namespace Editor
 		// ray casts against created plane
 		auto* GII = GlobalInputInfo::Get();
 
-		auto ray = CastPickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
+		auto ray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		RaycastTest test;
 
 		test = CL_TestAgainstRay(ray, t1);
@@ -486,9 +483,8 @@ namespace Editor
 	void SelectEntityPlacingWithMouseMove(E_Entity* entity, const T_World* world)
 	{
 		auto* GII = GlobalInputInfo::Get();
-		auto* GSI = GlobalSceneInfo::Get();
 
-		auto pickray = CastPickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
+		auto pickray = CastPickray(CameraManager::Get()->GetCurrentCamera(), GII->mouse_coords.x, GII->mouse_coords.y);
 		auto test = world->Raycast(pickray, entity);
 		if (test.hit)
 		{
@@ -642,9 +638,8 @@ namespace Editor
 			assert(false);
 
 		auto* GII = GlobalInputInfo::Get();
-		auto* GSI = GlobalSceneInfo::Get();
-
-		auto ray = CastPickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
+		auto* camera = CameraManager::Get()->GetCurrentCamera();
+		auto ray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
 
 		// create a big plane for placing entity in the world with the mouse using raycast from camera to mouse
 		// position. In the case of Y placement, we need to compute the plane considering the camera orientation.
@@ -668,7 +663,6 @@ namespace Editor
 			case 2: // Y
 			{
 				// creates vector from cam to entity in XZ
-				auto camera = GSI->camera;
 				vec3 cam_to_entity = camera->position - position;
 				cam_to_entity.y = camera->position.y;
 				cam_to_entity = normalize(cam_to_entity);

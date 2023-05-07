@@ -28,7 +28,6 @@
 #include "engine/render/shader.h"
 #include "engine/render/text/face.h"
 #include "engine/render/text/text_renderer.h"
-#include "engine/world/scene_manager.h"
 #include "engine/world/world.h"
 #include "game/collision/cl_edge_detection.h"
 
@@ -54,15 +53,16 @@ namespace Editor
 	void Update(Player* player, T_World* world, Camera* camera)
 	{
 		auto& ed_context = *GetContext();
-		auto* GSI = GlobalSceneInfo::Get();
+		
+		string& scene_name = T_World::Get()->scene_name;
 
-		if (ed_context.last_frame_scene != GSI->scene_name)
+		if (ed_context.last_frame_scene != scene_name)
 		{
 			ed_context.entity_panel.active = false;
 			ed_context.world_panel.active = false;
 		}
 
-		ed_context.last_frame_scene = GSI->scene_name;
+		ed_context.last_frame_scene = scene_name;
 
 		// check for asset changes
 		// CheckForAssetChanges();
@@ -527,8 +527,7 @@ namespace Editor
 		// palette panel
 		InitializePalette(&ed_context.palette_panel);
 
-		auto* GSI = GlobalSceneInfo::Get();
-		ed_context.last_frame_scene = GSI->scene_name;
+		ed_context.last_frame_scene = T_World::Get()->scene_name;
 	}
 
 
@@ -1028,7 +1027,7 @@ namespace Editor
 			if (selected_light_type == "spot")
 			{
 				float pitch, yaw;
-				ComputeAnglesFromDirection(pitch, yaw, light_direction);
+				CameraManager::ComputeAnglesFromDirection(pitch, yaw, light_direction);
 				vec3 arrow_direction = ComputeDirectionFromAngles(pitch, yaw);
 
 				vec3 arrow_origin = light_position - vec3{0.0, 0.56, 0.0};

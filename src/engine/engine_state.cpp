@@ -1,9 +1,10 @@
 #include "engine_state.h"
 #include <glfw3.h>
+
+#include "camera/camera.h"
 #include "engine/io/input.h"
 #include "engine/io/display.h"
 #include "game/entities/player.h"
-#include "engine/world/scene_manager.h"
 #include "editor/editor.h"
 #include "engine/rvn.h"
 
@@ -32,13 +33,12 @@ void EngineState::ToggleProgramMode()
 
 	GII->forget_last_mouse_coords = true;
 	auto* ES = Get();
-	auto* GSI = GlobalSceneInfo::Get();
 
 	if (ES->current_mode == ProgramMode::Editor)
 	{
 		ES->last_mode = ES->current_mode;
 		ES->current_mode = ProgramMode::Game;
-		GSI->camera = GSI->views[1];
+		CameraManager::Get()->SwitchToGameCamera();
 
 		player->MakeInvisible();
 
@@ -53,7 +53,7 @@ void EngineState::ToggleProgramMode()
 	{
 		ES->last_mode = ES->current_mode;
 		ES->current_mode = ProgramMode::Editor;
-		GSI->camera = GSI->views[0];
+		CameraManager::Get()->SwitchToEditorCamera();
 
 		player->MakeVisible();
 

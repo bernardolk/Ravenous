@@ -285,6 +285,8 @@ struct T_World
 	// static constexpr u8 world_chunk_matrix_order = 10;
 	static constexpr u32 world_size_in_chunks = WorldChunkNumX * WorldChunkNumY * WorldChunkNumZ;
 
+	string scene_name;
+
 	// TODO: We can't use world chunk "matrix" position as its ijk position! This is insane! What if we want to unload part A of the world and load part B,
 	//		what are the index going to say? Nothing.
 	//		in the future such vector will be replaced with a memory arena

@@ -12,7 +12,6 @@
 #include "engine/core/logging.h"
 #include "engine/rvn.h"
 #include "engine/collision/cl_controller.h"
-#include "engine/world/scene_manager.h"
 #include "engine/world/world.h"
 #include "parsing/parser.h"
 
@@ -106,7 +105,7 @@ bool WorldSerializer::LoadFromFile(const string& filename)
 	// clear static relations buffer
 	EntitySerializer::ClearBuffer();
 
-	GlobalSceneInfo::Get()->scene_name = filename;
+	T_World::Get()->scene_name = filename;
 	
 	return true;
 }
@@ -122,7 +121,7 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 	std::string filename = new_filename;
 	if (new_filename.empty())
 	{
-		filename = GlobalSceneInfo::Get()->scene_name;
+		filename = T_World::Get()->scene_name;
 
 		if (do_copy)
 		{
@@ -148,7 +147,7 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 	
 	// @TODO: Refactor this at some point
 	// write camera settings to file
-	const auto camera = ConfigSerializer::scene_info->views[0];
+	const auto* camera = CameraManager::Get()->GetEditorCamera();
 	writer << "*"
 	<< camera->position.x << " "
 	<< camera->position.y << " "
@@ -162,11 +161,11 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 
 	// @TODO: Refactor this at some point
 	// write player orientation
-	const auto fps_cam = GlobalSceneInfo::Get()->views[GameCam];
+	const auto* game_cam = CameraManager::Get()->GetGameCamera();
 	writer << "&player_orientation = "
-	<< fps_cam->front.x << " "
-	<< fps_cam->front.y << " "
-	<< fps_cam->front.z << "\n";
+	<< game_cam->front.x << " "
+	<< game_cam->front.y << " "
+	<< game_cam->front.z << "\n";
 
 	// write lights to file
 	for (const auto& light : world->point_lights)
@@ -193,7 +192,7 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 	else if (!new_filename.empty())
 	{
 		Log(LOG_INFO, "Scene saved successfully as '" + filename + ".txt' (now editing it)");
-		GlobalSceneInfo::Get()->scene_name = filename;
+		T_World::Get()->scene_name = filename;
 	}
 	else
 		Log(LOG_INFO, "Scene saved successfully.");

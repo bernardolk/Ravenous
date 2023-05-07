@@ -8,7 +8,6 @@
 #include "engine/engine_state.h"
 #include "engine/io/input.h"
 #include "engine/io/input_phase.h"
-#include "engine/world/scene_manager.h"
 
 void IN_AssignKeysToActions()
 {
@@ -37,7 +36,7 @@ void IN_AssignKeysToActions()
 
 void IN_ProcessMoveKeys(InputFlags flags, vec3& v_dir, bool short_circuit)
 {
-	auto* player_camera = GlobalSceneInfo::GetGameCam();
+	auto* player_camera = CameraManager::Get()->GetGameCamera();
 
 	if (Pressed(flags, KEY_MOVE_UP))
 	{

@@ -33,10 +33,29 @@ struct Camera
 constexpr u8 EditorCam = 0;
 constexpr u8 GameCam = 1;
 
-void UpdateGameCamera(Camera* camera, float viewport_width, float viewport_height, vec3 position);
-void UpdateEditorCamera(Camera* camera, float viewport_width, float viewport_height, vec3 position);
-void ChangeCameraDirection(Camera* camera, float yaw_offset, float pitch_offset);
-void CameraLookAt(Camera* camera, vec3 ref, bool is_position);
-void SetCameraToFreeRoam(Camera* camera);
-void SetCameraToThirdPerson(Camera* camera);
-void ComputeAnglesFromDirection(float& pitch, float& yaw, vec3 direction);
+struct CameraManager
+{
+	DeclSingleton(CameraManager);
+	
+	Camera* GetCurrentCamera() { return current_camera; }
+	Camera* GetGameCamera() { return &game_camera; }
+	Camera* GetEditorCamera() { return &editor_camera; }
+	
+	void SwitchToEditorCamera() { current_camera = &editor_camera; }
+	void SwitchToGameCamera() { current_camera = &game_camera; }
+	
+	void UpdateGameCamera(float viewport_width, float viewport_height, vec3 position);
+	void UpdateEditorCamera(float viewport_width, float viewport_height, vec3 position);
+	void CameraLookAt(Camera* camera, vec3 ref, bool is_position);
+	
+	void SetCameraToFreeRoam();
+	void SetCameraToThirdPerson();
+	
+	static void ComputeAnglesFromDirection(float& pitch, float& yaw, vec3 direction);
+	static void ChangeCameraDirection(Camera* camera, float yaw_offset, float pitch_offset);
+	
+private:
+	Camera game_camera;
+	Camera editor_camera;
+	Camera* current_camera = &editor_camera;
+};

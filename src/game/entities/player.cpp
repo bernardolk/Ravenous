@@ -6,7 +6,6 @@
 #include "engine/collision/cl_types.h"
 #include "engine/io/input.h"
 #include "engine/render/im_render.h"
-#include "engine/world/scene_manager.h"
 #include "engine/world/world.h"
 #include "game/input/player_input.h"
 
@@ -326,7 +325,7 @@ void Player::ChangeStateTo(PlayerState new_state, PlayerStateChangeArgs args)
 			else if (!dashing && horizontal_thrust < minimum_jump_horizontal_thrust_when_running)
 				horizontal_thrust = minimum_jump_horizontal_thrust_when_running;
 
-			auto* player_camera = GlobalSceneInfo::GetGameCam();
+			auto* player_camera = CameraManager::Get()->GetGameCamera();
 			velocity = player_camera->front * horizontal_thrust;
 		}
 
@@ -429,7 +428,7 @@ void Player::ChangeStateTo(PlayerState new_state, PlayerStateChangeArgs args)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		GII->block_mouse_move = true;
-		auto* player_camera = GlobalSceneInfo::GetGameCam();
+		auto* player_camera = CameraManager::Get()->GetGameCamera();
 
 		player_state = PlayerState::Vaulting;
 		anim_state = PlayerAnimationState::Vaulting;
@@ -493,7 +492,7 @@ vec3 Player::MoveForward()
 	float dt = Rvn::frame.duration;
 
 	// Limiting movement angle when moving in diagonals
-	auto* player_camera = GlobalSceneInfo::Get()->GetGameCam();
+	auto* player_camera = CameraManager::Get()->GetGameCamera();
 
 	// TODO: Implement for the other axis as well
 	//		Cleanup the mess of using KEYs for this
@@ -511,7 +510,7 @@ vec3 Player::MoveForward()
 	if (!IsEqual(length(v_dir), 0))
 		last_recorded_movement_direction = v_dir;
 	else if (last_recorded_movement_direction == vec3(0))
-		last_recorded_movement_direction = normalize(ToXz(GlobalSceneInfo::Get()->views[GameCam]->front));
+		last_recorded_movement_direction = normalize(ToXz( CameraManager::Get()->GetGameCamera()->front ));
 	
 	float d_speed = acceleration * dt;
 	

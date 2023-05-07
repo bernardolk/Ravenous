@@ -9,8 +9,6 @@ struct ProgramConfig;
 
 struct ConfigSerializer
 {
-	static inline GlobalSceneInfo* scene_info = nullptr;
-
 	static void ParseCameraSettings(Parser& p);
 	static void LoadGlobalConfigs();
 	static bool Save(const ProgramConfig& config);

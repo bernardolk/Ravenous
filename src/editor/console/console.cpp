@@ -10,7 +10,7 @@
 #include "engine/serialization/sr_config.h"
 #include "engine/serialization/sr_world.h"
 #include "engine/serialization/parsing/parser.h"
-#include "engine/world/scene_manager.h"
+#include "engine/world/world.h"
 #include "game/entities/player.h"
 
 
@@ -138,7 +138,6 @@ void ExecuteCommand(const std::string& buffer_line, Player* & player, T_World* w
 	Parser p{buffer_line, 50};
 	p.ParseToken();
 	const std::string command = GetParsed<std::string>(p);
-	auto* GSI = GlobalSceneInfo::Get();
 	auto& program_config = *ProgramConfig::Get();
 
 	// ---------------
@@ -175,7 +174,6 @@ void ExecuteCommand(const std::string& buffer_line, Player* & player, T_World* w
 		// updates scene with new one
 		if (WorldSerializer::LoadFromFile(scene_name))
 		{
-			player = GSI->player; // not irrelevant! do not delete
 			if (EngineState::IsInEditorMode())
 			{
 				player->MakeVisible();
@@ -199,7 +197,7 @@ void ExecuteCommand(const std::string& buffer_line, Player* & player, T_World* w
 		const std::string scene_name = GetParsed<std::string>(p);
 		if (scene_name != "")
 		{
-			auto current_scene = GSI->scene_name;
+			auto current_scene = T_World::Get()->scene_name;
 			if (WorldSerializer::CheckIfSceneExists(scene_name))
 			{
 				Rvn::rm_buffer->Add("Scene name already exists.", 3000);
@@ -223,7 +221,6 @@ void ExecuteCommand(const std::string& buffer_line, Player* & player, T_World* w
 				Rvn::rm_buffer->Add("Couldnt save new scene.", 3000);
 			}
 
-			player = GSI->player; // not irrelevant! do not delete
 			if (EngineState::IsInEditorMode())
 				player->flags &= ~EntityFlags_InvisibleEntity;
 			else
@@ -246,7 +243,7 @@ void ExecuteCommand(const std::string& buffer_line, Player* & player, T_World* w
 		const std::string argument = GetParsed<std::string>(p);
 		if (argument == "scene")
 		{
-			program_config.initial_scene = GSI->scene_name;
+			program_config.initial_scene = T_World::Get()->scene_name;
 			ConfigSerializer::Save(program_config);
 		}
 		else if (argument == "all")
@@ -255,7 +252,7 @@ void ExecuteCommand(const std::string& buffer_line, Player* & player, T_World* w
 			player->checkpoint_pos = player->position;
 			WorldSerializer::SaveToFile();
 			// set scene
-			program_config.initial_scene = GSI->scene_name;
+			program_config.initial_scene = T_World::Get()->scene_name;
 			ConfigSerializer::Save(program_config);
 		}
 		else
@@ -267,10 +264,8 @@ void ExecuteCommand(const std::string& buffer_line, Player* & player, T_World* w
 	// -----------------
 	else if (command == "reload")
 	{
-		if (WorldSerializer::LoadFromFile(GSI->scene_name))
+		if (WorldSerializer::LoadFromFile(T_World::Get()->scene_name))
 		{
-			player = GSI->player; // not irrelevant! do not delete
-
 			if (EngineState::IsInEditorMode())
 				player->flags &= ~EntityFlags_InvisibleEntity;
 			else

@@ -6,7 +6,6 @@
 #include "tools/editor_tools.h"
 #include "engine/camera/camera.h"
 #include "engine/io/loaders.h"
-#include "engine/world/scene_manager.h"
 #include "engine/world/world.h"
 
 namespace Editor
@@ -16,7 +15,8 @@ namespace Editor
 		ImGui::SetNextWindowPos(ImVec2(50, 300), ImGuiCond_Always);
 		ImGui::Begin("Palette", &panel->active, ImGuiWindowFlags_NoResize);
 		ImGui::SetWindowSize("Palette", ImVec2(90, 500), ImGuiCond_Always);
-		auto* GSI = GlobalSceneInfo::Get();
+		auto* cam_manager = CameraManager::Get();
+		auto* camera = cam_manager->GetCurrentCamera();
 
 		for (unsigned int i = 0; i < panel->count; i++)
 		{
@@ -29,7 +29,7 @@ namespace Editor
 				auto attributes = panel->entity_palette[i];
 
 				SetEntityAssets(new_entity, attributes);
-				new_entity->position = GSI->camera->position + (2.f * new_entity->scale + 5.f) * GSI->camera->front;
+				new_entity->position = camera->position + (2.f * new_entity->scale + 5.f) * camera->front;
 				ActivateMoveMode(new_entity);
 			}
 		}

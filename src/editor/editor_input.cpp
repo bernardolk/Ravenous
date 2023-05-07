@@ -16,13 +16,12 @@
 #include "engine/io/input_phase.h"
 #include "engine/serialization/sr_config.h"
 #include "engine/serialization/sr_world.h"
-#include "engine/world/scene_manager.h"
 #include "engine/io/input.h"
 #include "engine/world/world.h"
 
 namespace Editor
 {
-	void HandleInputFlagsForEditorMode(InputFlags flags, T_World* world, Camera* camera)
+	void HandleInputFlagsForEditorMode(InputFlags flags, T_World* world)
 	{
 		// ------------------------
 		// EDITOR EDITING COMMANDS
@@ -30,10 +29,11 @@ namespace Editor
 		// commands that return once detected,
 		// not allowing for more than one at a time
 		// to be issued.
-		auto* GSI = GlobalSceneInfo::Get();
 		auto& context = *Editor::GetContext();
 		auto* player = Player::Get();
 		auto& program_config = *ProgramConfig::Get();
+		auto* manager = CameraManager::Get();
+		auto* camera = manager->GetCurrentCamera();
 
 		if (Pressed(flags, KEY_LEFT_CTRL) && PressedOnce(flags, KEY_Z))
 		{
@@ -49,7 +49,7 @@ namespace Editor
 			player->checkpoint_pos = player->position;
 			WorldSerializer::SaveToFile();
 			// set scene
-			program_config.initial_scene = GSI->scene_name;
+			program_config.initial_scene = T_World::Get()->scene_name;
 			ConfigSerializer::Save(program_config);
 			Rvn::rm_buffer->Add("world state saved", 1200);
 			return;
@@ -210,10 +210,10 @@ namespace Editor
 		if (PressedOnce(flags, KEY_T))
 		{
 			// toggle camera type
-			if (GSI->camera->type == FREE_ROAM)
-				SetCameraToThirdPerson(GSI->camera);
-			else if (GSI->camera->type == THIRD_PERSON)
-				SetCameraToFreeRoam(GSI->camera);
+			if (camera->type == FREE_ROAM)
+				manager->SetCameraToThirdPerson();
+			else if (camera->type == THIRD_PERSON)
+				manager->SetCameraToFreeRoam();
 		}
 
 		// ---------------
@@ -289,7 +289,7 @@ namespace Editor
 		// -------------------------------
 		if (PressedOnce(flags, KEY_C))
 		{
-			auto pickray = CastPickray(GSI->camera, GII->mouse_coords.x, GII->mouse_coords.y);
+			auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
 			auto test = world->Raycast(pickray);
 			if (test.hit)
 			{
@@ -312,11 +312,8 @@ namespace Editor
 		// CAMERA MOVEMENT CONTROLS
 		// -------------------------
 		// @TODO: this sucks
-		auto* editor_camera = GlobalSceneInfo::GetEditorCam();
-		float camera_speed =
-		GSI->camera->type == THIRD_PERSON ?
-		player->velocity.length() * Rvn::frame.duration :
-		Rvn::frame.real_duration * editor_camera->acceleration;
+		auto* editor_camera = manager->GetEditorCamera();
+		float camera_speed = camera->type == THIRD_PERSON ? length(player->velocity) * Rvn::frame.duration : Rvn::frame.real_duration * editor_camera->acceleration;
 
 		if (flags.key_press & KEY_LEFT_SHIFT)
 		{
@@ -325,38 +322,38 @@ namespace Editor
 
 		if (flags.key_press & KEY_W)
 		{
-			GSI->camera->position += camera_speed * GSI->camera->front;
+			camera->position += camera_speed * camera->front;
 		}
 		if (flags.key_press & KEY_A)
 		{
 			// @TODO: this sucks too
-			if (GSI->camera->type == FREE_ROAM)
-				GSI->camera->position -= camera_speed * normalize(glm::cross(GSI->camera->front, GSI->camera->up));
-			else if (GSI->camera->type == THIRD_PERSON)
-				GSI->camera->orbital_angle -= 0.025;
+			if (camera->type == FREE_ROAM)
+				camera->position -= camera_speed * normalize(glm::cross(camera->front, camera->up));
+			else if (camera->type == THIRD_PERSON)
+				camera->orbital_angle -= 0.025;
 		}
 		if (Pressed(flags, KEY_S))
 		{
-			GSI->camera->position -= camera_speed * GSI->camera->front;
+			camera->position -= camera_speed * camera->front;
 		}
 		if (flags.key_press & KEY_D)
 		{
-			if (GSI->camera->type == FREE_ROAM)
-				GSI->camera->position += camera_speed * normalize(glm::cross(GSI->camera->front, GSI->camera->up));
-			else if (GSI->camera->type == THIRD_PERSON)
-				GSI->camera->orbital_angle += 0.025;
+			if (camera->type == FREE_ROAM)
+				camera->position += camera_speed * normalize(glm::cross(camera->front, camera->up));
+			else if (camera->type == THIRD_PERSON)
+				camera->orbital_angle += 0.025;
 		}
 		if (flags.key_press & KEY_Q)
 		{
-			GSI->camera->position -= camera_speed * GSI->camera->up;
+			camera->position -= camera_speed * camera->up;
 		}
 		if (flags.key_press & KEY_E)
 		{
-			GSI->camera->position += camera_speed * GSI->camera->up;
+			camera->position += camera_speed * camera->up;
 		}
 		if (flags.key_press & KEY_O)
 		{
-			CameraLookAt(GSI->camera, vec3(0.0f, 0.0f, 0.0f), true);
+			manager->CameraLookAt(camera, vec3(0.0f, 0.0f, 0.0f), true);
 		}
 	}
 
@@ -417,11 +414,6 @@ namespace Editor
 		{
 			auto* GDC = GlobalDisplayConfig::Get();
 			glfwSetWindowShouldClose(GDC->window, true);
-		}
-		if (PressedOnce(flags, KEY_Y))
-		{
-			// for testing EPA collision resolve
-			GlobalSceneInfo::Get()->tmp_unstuck_things = true;
 		}
 	}
 }

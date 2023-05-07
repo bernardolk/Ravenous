@@ -7,7 +7,6 @@
 #include "engine/serialization/parsing/parser.h"
 #include "engine/serialization/sr_config.h"
 #include <fstream>
-#include "engine/world/scene_manager.h"
 
 
 void ConfigSerializer::LoadGlobalConfigs()
@@ -63,15 +62,16 @@ void ConfigSerializer::LoadGlobalConfigs()
 
 void ConfigSerializer::ParseCameraSettings(Parser& p)
 {
-	auto* GSI = GlobalSceneInfo::Get();
+	auto* cam_manager = CameraManager::Get();
+	auto* camera = cam_manager->GetCurrentCamera();
 
 	p.ParseAllWhitespace();
 	p.ParseVec3();
-	GSI->camera->position = GetParsed<glm::vec3>(p);
+	camera->position = GetParsed<glm::vec3>(p);
 
 	p.ParseAllWhitespace();
 	p.ParseVec3();
-	CameraLookAt(GSI->camera, GetParsed<glm::vec3>(p), false);
+	cam_manager->CameraLookAt(camera, GetParsed<glm::vec3>(p), false);
 }
 
 
