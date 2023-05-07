@@ -1,10 +1,5 @@
 #include "gp_game_state.h"
-
-#include "game/animation/an_update.h"
 #include "engine/utils/utils.h"
-#include "engine/core/logging.h"
-#include "engine/rvn.h"
-#include "engine/entities/entity.h"
 
 
 void T_GameState::StartTimer(Entity* trigger)

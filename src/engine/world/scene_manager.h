@@ -18,7 +18,6 @@ struct GlobalSceneInfo
 		return &instance;
 	}
 
-	static void RefreshActiveScene();
 	static Camera* GetGameCam();
 	static Camera* GetEditorCam();
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "engine/core/core.h"
-#include "engine/entities/entity.h"
+#include "engine/entities/e_entity.h"
 #include "engine/entities/traits/entity_traits.h"
 #include "engine/io/input_phase.h"
 #include "engine/utils/utils.h"

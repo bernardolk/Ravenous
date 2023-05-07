@@ -186,7 +186,6 @@ void ExecuteCommand(const std::string& buffer_line, Player* & player, T_World* w
 			}
 
 			ConfigSerializer::LoadGlobalConfigs();
-			GSI->active_scene->ReloadGlobalConfigs();
 		}
 	}
 
@@ -278,7 +277,6 @@ void ExecuteCommand(const std::string& buffer_line, Player* & player, T_World* w
 				player->flags |= EntityFlags_InvisibleEntity;
 
 			ConfigSerializer::LoadGlobalConfigs();
-			GSI->active_scene->ReloadGlobalConfigs();
 			GlobalInputInfo::Get()->block_mouse_move = false;
 		}
 	}

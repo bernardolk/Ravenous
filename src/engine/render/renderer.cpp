@@ -4,7 +4,7 @@
 #include "shader.h"
 #include "engine/camera/camera.h"
 #include "engine/entities/lights.h"
-#include "engine/entities/entity.h"
+#include "engine/entities/e_entity.h"
 #include "engine/io/display.h"
 #include "engine/world/world.h"
 #include "text/text_renderer.h"
@@ -163,6 +163,8 @@ void RenderEditorEntity(E_Entity* entity, T_World* world, Camera* camera)
 // -------------
 void RenderScene(T_World* world, Camera* camera)
 {
+	Player* player = Player::Get();
+
 	// set shader settings that are common to the scene
 	// both to "normal" model shader and to tiled model shader
 	static auto shaders = { ShaderCatalogue.find("model")->second, ShaderCatalogue.find("tiledTextureModel")->second, ShaderCatalogue.find("color")->second };
@@ -180,8 +182,8 @@ void RenderScene(T_World* world, Camera* camera)
 		RenderEntity(entity);
 	}
 
-	if (!(world->player->flags & EntityFlags_InvisibleEntity))
-		RenderEntity(world->player);
+	if (!(player->flags & EntityFlags_InvisibleEntity))
+		RenderEntity(player);
 }
 
 

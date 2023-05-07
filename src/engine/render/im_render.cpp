@@ -3,7 +3,7 @@
 #include "engine/camera/camera.h"
 #include "engine/geometry/mesh.h"
 #include "engine/geometry/triangle.h"
-#include "engine/entities/entity.h"
+#include "engine/entities/e_entity.h"
 #include <glad/glad.h>
 #include "engine/geometry/vertex.h"
 
@@ -242,19 +242,19 @@ void ImDraw::AddMesh(u32 _hash, Mesh* mesh, vec3 color, float duration)
 }
 
 
-void ImDraw::AddMesh(u32 _hash, Entity* entity, int duration)
+void ImDraw::AddMesh(u32 _hash, E_Entity* entity, int duration)
 {
 	AddMesh(_hash, entity->mesh, entity->position, entity->rotation, entity->scale, vec3(1.0, 0, 0), duration);
 }
 
 
-void ImDraw::AddMesh(u32 _hash, Entity* entity)
+void ImDraw::AddMesh(u32 _hash, E_Entity* entity)
 {
 	AddMesh(_hash, entity->mesh, entity->position, entity->rotation, entity->scale);
 }
 
 
-void ImDraw::AddMesh(u32 _hash, Entity* entity, vec3 pos)
+void ImDraw::AddMesh(u32 _hash, E_Entity* entity, vec3 pos)
 {
 	AddMesh(_hash, entity->mesh, pos, entity->rotation, entity->scale);
 }

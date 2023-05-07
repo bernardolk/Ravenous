@@ -10,7 +10,7 @@
 
 void PlayerSerializer::ParseAttribute(Parser& p)
 {
-	Player* player = T_World::Get()->player;
+	Player* player = Player::Get();
 
 	p.ParseToken();
 	const auto attribute = GetParsed<std::string>(p);
@@ -56,7 +56,7 @@ void PlayerSerializer::ParseAttribute(Parser& p)
 
 void PlayerSerializer::ParseOrientation(Parser& p)
 {
-	Player* player = T_World::Get()->player;
+	Player* player = Player::Get();
 
 	p.ParseToken();
 	if (GetParsed<std::string>(p) == "player_orientation")
@@ -79,7 +79,7 @@ void PlayerSerializer::ParseOrientation(Parser& p)
 
 void PlayerSerializer::Save(std::ofstream& writer)
 {
-	Player* player = T_World::Get()->player;
+	Player* player = Player::Get();
 	
 	writer << "@player_position = "
 	<< player->position.x << " "

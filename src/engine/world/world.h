@@ -292,8 +292,6 @@ struct T_World
 	map<WorldChunkPosition, WorldChunk*> chunks_map;
 	vector<WorldChunk*> active_chunks;
 
-	Player* player = nullptr;
-
 	float global_shininess = 17;
 	float ambient_intensity = 0;
 	vec3 ambient_light = vec3(1);

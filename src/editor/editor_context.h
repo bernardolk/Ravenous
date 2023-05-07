@@ -3,7 +3,6 @@
 #include "engine/core/core.h"
 #include "editor/editor_panel_contexts.h"
 #include "editor/editor_undo.h"
-#include "engine/entities/entity.h"
 #include "entity_state.h"
 
 namespace Editor
@@ -17,10 +16,6 @@ namespace Editor
 	struct EdToolCallbackArgs
 	{
 		E_Entity* entity;
-		union
-		{
-			EntityType entity_type;
-		};
 	};
 
 	struct EditorContext

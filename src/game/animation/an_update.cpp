@@ -2,7 +2,7 @@
 
 #include "engine/core/logging.h"
 #include "engine/rvn.h"
-#include "engine/entities/entity.h"
+#include "engine/entities/e_entity.h"
 
 void EntityAnimation::Update()
 {
@@ -92,7 +92,7 @@ u32 EntityAnimationBuffer::FindSlot()
 	return 0;
 }
 
-void EntityAnimationBuffer::StartAnimation(Entity* entity, EntityAnimation* animation)
+void EntityAnimationBuffer::StartAnimation(E_Entity* entity, EntityAnimation* animation)
 {
 	// makes a copy of the animation to the Entity_Animations buffer
 

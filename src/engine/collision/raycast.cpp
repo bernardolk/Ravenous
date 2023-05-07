@@ -7,7 +7,7 @@
 #include <engine/collision/primitives/ray.h>
 #include <glm/gtx/quaternion.hpp>
 #include <engine/collision/collision_mesh.h>
-#include "engine/entities/entity.h"
+#include "engine/entities/e_entity.h"
 #include "engine/io/display.h"
 #include "engine/utils/utils.h"
 

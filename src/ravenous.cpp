@@ -107,8 +107,7 @@ int main()
 	auto& program_config = *ProgramConfig::Get();
 	WorldSerializer::LoadFromFile(program_config.initial_scene);
 
-	Player* player = GSI->player;
-	world->player = player;
+	Player* player = Player::Get();
 	player->checkpoint_pos = player->position; // set player initial checkpoint position
 
 	// set scene attrs from global config

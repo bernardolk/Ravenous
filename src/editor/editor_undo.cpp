@@ -1,7 +1,7 @@
 #include "editor_undo.h"
 
 #include "engine/rvn.h"
-#include "engine/entities/entity.h"
+#include "engine/entities/e_entity.h"
 
 namespace Editor
 {

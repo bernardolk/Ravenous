@@ -3,22 +3,6 @@
 #include "game/entities/player.h"
 #include "engine/camera/camera.h"
 
-void GlobalSceneInfo::RefreshActiveScene()
-{
-	auto* GSI = Get();
-	if (GSI->active_scene == nullptr)
-	{
-		GSI->active_scene = new Scene();
-		GSI->player = Player::Get();
-	}
-	else
-	{
-		*GSI->active_scene = Scene{};
-		GSI->player = Player::ResetPlayer();
-	}
-}
-
-
 Camera* GlobalSceneInfo::GetGameCam()
 {
 	auto* GSI = Get();

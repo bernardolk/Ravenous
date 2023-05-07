@@ -1,5 +1,5 @@
 #include "entity_state.h"
-#include "engine/entities/entity.h"
+#include "engine/entities/e_entity.h"
 
 EntityState GetEntityState(E_Entity* entity)
 {

@@ -106,6 +106,8 @@ RaycastTest T_World::LinearRaycastArray(const Ray first_ray, int qty, float spac
 	float shortest_z = MaxFloat;
 	RaycastTest best_hit_results;
 
+	Player* player = Player::Get();
+	
 	ForLess(qty)
 	{
 		auto test = this->Raycast(ray, RayCast_TestOnlyFromOutsideIn, nullptr, player->grab_reach);

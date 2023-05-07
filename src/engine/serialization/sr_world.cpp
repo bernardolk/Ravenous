@@ -16,21 +16,11 @@
 #include "engine/world/world.h"
 #include "parsing/parser.h"
 
-
-bool WorldSerializer::LoadFromFile(const std::string& filename)
+bool WorldSerializer::LoadFromFile(const string& filename)
 {
 	const auto path = Paths::Scenes + filename + ".txt";
 
 	world = T_World::Get();
-	// clears the current scene entity data
-	// world->Clear(manager);
-
-	// Gets a new world struct from scratch
-	// world->Init();
-
-	// Either creates new scene or resets current structures
-	GlobalSceneInfo::RefreshActiveScene();
-	world->player = Player::Get();
 
 	// Set player's assets
 	{
@@ -42,7 +32,7 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 		attrs.collision_mesh = "capsule";
 		attrs.scale = vec3(1);
 		
-		SetEntityAssets(world->player, attrs);
+		SetEntityAssets(Player::Get(), attrs);
 	}
 
 	// creates deferred load buffer for associating entities after loading them all
@@ -50,37 +40,6 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 
 	// starts reading
 	auto p = Parser{path};
-
-	DEPRECATED_BLOCK
-	// parses header
-	{
-		// p.NextLine();
-		// p.ParseToken();
-		// if (!p.HasToken())
-		// 	Quit_fatal("Scene '" + filename + "' didn't start with NEXT_ENTITY_ID token.")
-		//
-		// const auto next_entity_id_token = GetParsed<std::string>(p);
-		// if (next_entity_id_token != "NEXT_ENTITY_ID")
-		// 	Quit_fatal("Scene '" + filename + "' didn't start with NEXT_ENTITY_ID token.")
-		//
-		// p.ParseWhitespace();
-		// p.ParseSymbol();
-		// if (!p.HasToken() || GetParsed<char>(p) != '=')
-		// 	Quit_fatal("Missing '=' after NEXT_ENTITY_ID.")
-		//
-		// p.ParseWhitespace();
-		// p.ParseU64();
-	}
-
-	// ENTITY IDs related code
-	DEPRECATED_BLOCK
-	{
-		// bool recompute_next_entity_id = false;
-		// if (!p.HasToken())
-		// 	recompute_next_entity_id = true;
-		// else
-		// 	manager->next_entity_id = GetParsed<u64>(p);
-	}
 
 	// -----------------------------------
 	//           Parse entities
@@ -118,9 +77,11 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 	// -----------------------------------
 	//          Post parse steps
 	// -----------------------------------
-	world->player->Update();
+	Player* player = Player::Get();
+	player->Update();
+
 	// TODO: Address
-	CL_UpdatePlayerWorldCells(world->player);
+	CL_UpdatePlayerWorldCells(player);
 
 	// connects entities using deferred load buffer
 	For(entity_relations.count)
@@ -140,57 +101,13 @@ bool WorldSerializer::LoadFromFile(const std::string& filename)
 
 		if (deferred_entity == nullptr)
 			fatal_error("Entity with id '%llu' not found to stablish a defined entity relationship.", deferred_entity_id);
-
-		/**
-		switch (relation)
-		{
-			case SrEntityRelation_TimerTarget:
-			{
-				entity->timer_trigger_data.timer_target = deferred_entity;
-				break;
-			}
-
-			case SrEntityRelation_TimerMarking:
-			{
-				u32 time_checkpoint = entity_relations.aux_uint_buffer[i];
-				entity->timer_trigger_data.AddMarking(deferred_entity, time_checkpoint);
-				break;
-			}
-		}
-		*/
 	}
-
-
-	// -----------------------------------
-	//         Entity id bookkeeping
-	// -----------------------------------
-
-	// If missing NEXT_ENTITY_ID in scene header, recompute from collected Ids (If no entity has an ID yet, this will be 1)
-	DEPRECATED_BLOCK
-	{
-	// if (recompute_next_entity_id)
-	// {
-	// 	manager->next_entity_id = MaxEntityId + 1;
-	// }
-	}
-
-	// assign IDs to entities missing them starting from max current id
-	// For(world->entities.size())
-	// {
-	// 	if (auto entity = world->entities[i]; entity->name != PlayerName && entity->id == -1)
-	// 	{
-	// 		entity->id = manager->next_entity_id++;
-	// 	}
-	// }
-
+	
 	// clear static relations buffer
 	EntitySerializer::ClearBuffer();
 
 	GlobalSceneInfo::Get()->scene_name = filename;
-
-	// world->UpdateEntities();
-	// world->UpdateCellsInUseList();
-
+	
 	return true;
 }
 
