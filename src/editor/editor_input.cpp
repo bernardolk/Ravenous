@@ -296,7 +296,6 @@ namespace Editor
 				auto surface_point = CL_GetPointFromDetection(pickray, test);
 				player->position = surface_point;
 				player->player_state = PlayerState::Standing;
-				player->standing_entity_ptr = test.entity;
 				player->velocity = vec3(0, 0, 0);
 				player->Update();
 			}

@@ -109,7 +109,7 @@ void Player::UpdateState()
 			}
 
 			// Collided with nothing or with terrain only, break
-			if (results.count == 0 || (collided_with_terrain && results.count == 1))
+			if (results.Num() == 0 || (collided_with_terrain && results.Num() == 1))
 				break;
 
 			if (slope.collision)
@@ -209,7 +209,7 @@ void Player::UpdateState()
 		// @todo - need to include case that player touches inclined terrain
 		//          in that case it should also stand (or fall from ledge) and not
 		//          directly fall.
-		if (results.count > 0)
+		if (results.Num() > 0)
 			ChangeStateTo(PlayerState::Falling);
 
 		else if (velocity.y <= 0)
@@ -305,9 +305,6 @@ void Player::ChangeStateTo(PlayerState new_state, PlayerStateChangeArgs args)
 		player_state = PlayerState::Falling;
 		velocity.y = 0;
 		// jumping_upwards = false;
-
-		// TEMP - DELETE LATER
-		skip_collision_with_floor = nullptr;
 	}
 
 	else IfStateChange(Standing, Jumping)
@@ -386,8 +383,6 @@ void Player::ChangeStateTo(PlayerState new_state, PlayerStateChangeArgs args)
 
 	else IfStateChange(Standing, SlideFalling)
 	{
-		standing_entity_ptr = args.entity;
-
 		// make player 'snap' to slope velocity-wise
 		// velocity = slide_speed * ramp->collision_geometry.slope.tangent;
 
@@ -420,7 +415,6 @@ void Player::ChangeStateTo(PlayerState new_state, PlayerStateChangeArgs args)
 	{
 		player_state = PlayerState::Vaulting;
 		anim_state = PlayerAnimationState::Vaulting;
-		vaulting_entity_ptr = grabbing_entity;
 		grabbing_entity = nullptr;
 	}
 
@@ -449,8 +443,6 @@ void Player::ChangeStateTo(PlayerState new_state, PlayerStateChangeArgs args)
 		GII->forget_last_mouse_coords = true;
 		GII->block_mouse_move = false;
 		player_state = PlayerState::Standing;
-		standing_entity_ptr = vaulting_entity_ptr;
-		vaulting_entity_ptr = nullptr;
 		anim_finished_turning = false;
 	}
 

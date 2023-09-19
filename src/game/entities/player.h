@@ -59,12 +59,7 @@ void ForceInterruptPlayerAnimation(Player* player);
 
 struct Entity(Player)
 {
-	// [start] DROP ALL THESE
-	E_Entity* standing_entity_ptr = nullptr;
-	E_Entity* slope_player_was_ptr = nullptr;;
-	E_Entity* vaulting_entity_ptr = nullptr;;
-	E_Entity* skip_collision_with_floor = nullptr;
-	// [end]
+	Reflected()
 
 	// geometry
 	float radius = 0.2;

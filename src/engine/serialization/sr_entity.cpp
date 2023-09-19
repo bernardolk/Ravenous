@@ -4,6 +4,8 @@
 #include <engine/serialization/sr_entity.h>
 #include <engine/collision/collision_mesh.h>
 #include <glm/gtx/quaternion.hpp>
+
+#include "engine/entities/E_StaticMesh.h"
 #include "engine/geometry/mesh.h"
 #include "engine/serialization/parsing/parser.h"
 #include "engine/io/loaders.h"
@@ -15,10 +17,11 @@ const std::string SrLoadEntity_TypeNotSetErrorMsg = "Need to load entity type be
 void EntitySerializer::Parse(Parser& parser)
 {
 	auto* world = T_World::Get();
-	// Create new entity (where?)
-	E_Entity new_entity;
-	// auto new_entity.manager->CreateEntity({});
-	// bool is_type_set = false;
+	auto* new_entity_ptr = world->CreateEntity<E_StaticMesh>(0,0,0);
+	if (!new_entity_ptr)
+		fatal_error("Couldnt create entity.")
+
+	auto& new_entity = *new_entity_ptr;
 
 	auto& p = parser;
 	p.ParseName();
@@ -158,10 +161,6 @@ void EntitySerializer::Parse(Parser& parser)
 			break;
 		}
 	}
-
-	auto [i, j , k] = WorldCoordsToCells(new_entity.position);
-	auto* world_entity = world->CreateEntity<E_Entity>(i,j,k);
-	*world_entity = E_Entity(new_entity);
 }
 
 void EntitySerializer::Save(std::ofstream& writer, const E_Entity& entity)

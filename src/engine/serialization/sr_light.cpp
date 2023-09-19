@@ -25,7 +25,8 @@ void LightSerializer::Parse(Parser& p)
 void LightSerializer::ParsePointLight(Parser& p)
 {
 	//@TODO: Deal with this with a memory pool (?)
-	PointLight& point_light = *(new PointLight());
+	PointLight* new_light = new PointLight;
+	auto& point_light = *new_light;
 
 	while (p.NextLine())
 	{

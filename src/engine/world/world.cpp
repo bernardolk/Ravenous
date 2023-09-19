@@ -8,9 +8,14 @@
 
 T_World::T_World()
 {
-	auto* active_chunk = chunks.GetAt(0);
-	active_chunks.push_back(active_chunk);
-	chunks_map[{0,0,0}] = active_chunk;
+	auto& active_chunk = *chunks.AddNew();
+	active_chunks.push_back(&active_chunk);
+	active_chunk.i = 0;
+	active_chunk.j = 0;
+	active_chunk.k = 0;
+
+	// insert in map
+	chunks_map[active_chunk.GetChunkPosition()] = &active_chunk;
 }
 
 void T_World::Update()
@@ -54,6 +59,41 @@ WorldChunkEntityIterator WorldChunk::GetIterator()
 {
 	return WorldChunkEntityIterator(this);
 }
+
+WorldEntityIterator::WorldEntityIterator() : world(T_World::Get()), chunk_iterator(world->active_chunks[0]->GetIterator())
+{
+	total_active_chunks = world->active_chunks.size();		
+}
+
+E_Entity* WorldEntityIterator::operator()()
+{
+	E_Entity* entity = chunk_iterator();
+	if (!entity && current_chunk_index < total_active_chunks - 1)
+	{
+		current_chunk_index++;
+		chunk_iterator = world->active_chunks[current_chunk_index]->GetIterator();
+		entity = chunk_iterator();
+	}
+	return entity;
+}
+
+
+E_Entity* WorldChunkEntityIterator::operator()()
+{
+	if (block_idx < chunk->storage_metadata_array.Num())
+	{
+		auto* block_metadata = chunk->storage_metadata_array.GetAt(block_idx);
+		if (entity_idx < block_metadata->entity_count)
+		{
+			return reinterpret_cast<E_Entity*>(block_metadata->data_start + block_metadata->type_size * entity_idx++);
+		}
+
+		entity_idx = 0;
+		block_idx++;
+	}
+	return nullptr;
+}
+
 
 void WorldChunk::RemoveEntity(E_Entity* entity_to_delete)
 {
@@ -288,6 +328,44 @@ bool WorldChunk::RemoveVisitor(E_Entity* entity)
 	return false;
 }
 
+
+vec3 WorldChunk::GetPositionMetric()
+{
+	return GetWorldCoordinatesFromWorldCellCoordinates(i, j , k);
+}
+
+string WorldChunk::GetChunkPositionString()
+{
+	return "Cell [" + to_string(i) + "," + to_string(j) + "," + to_string(k) + "]";
+}
+
+string WorldChunk::GetChunkPositionMetricString()
+{
+	vec3 mcoords = GetPositionMetric();
+	return "[x: " + FormatFloatTostr(mcoords[0], 1)
+	+ ", y: " + FormatFloatTostr(mcoords[1], 1) + ", z: " + FormatFloatTostr(mcoords[2], 1)
+	+ "]";
+}
+
+void WorldChunk::InvokeTraitUpdateOnAllTypes(TraitID trait_id)
+{
+    auto* etm = EntityTraitsManager::Get();
+	//auto* types = etm->GetTypesWithTrait(trait_id);
+	
+    for (auto& block_metadata : storage_metadata_array)
+    {
+        if (block_metadata.entity_traits.Contains(trait_id))
+        {
+            auto* trait_update_func = etm->GetUpdateFunc(block_metadata.type_id, trait_id);
+            for (int i = 0; i < block_metadata.entity_count; i++)
+            {
+                auto* entity = reinterpret_cast<E_Entity*>(block_metadata.data_start + block_metadata.type_size * i);
+                trait_update_func(entity);
+            }
+        }
+    }
+}
+
 // TODO: Move these elsewhere
 void SetEntityDefaultAssets(E_Entity* entity)
 {
@@ -330,4 +408,38 @@ void SetEntityAssets(E_Entity* entity, EntityAttributes attrs)
 
 	For(_texture_count)
 		entity->textures.push_back(_textures[i]);
+}
+
+vec3 GetWorldCoordinatesFromWorldCellCoordinates(int i, int j, int k)
+{
+	const float world_x = (static_cast<float>(i) - WorldChunkOffsetX) * WorldChunkLengthMeters;
+	const float world_y = (static_cast<float>(j) - WorldChunkOffsetY) * WorldChunkLengthMeters;
+	const float world_z = (static_cast<float>(k) - WorldChunkOffsetZ) * WorldChunkLengthMeters;
+
+	return vec3{world_x, world_y, world_z};
+}
+
+WorldChunkPosition WorldCoordsToCells(float x, float y, float z)
+{
+	WorldChunkPosition world_cell_coords;
+
+	// if out of bounds return -1
+	if (x < WLowerBoundsMeters.x || x > WUpperBoundsMeters.x ||
+		y < WLowerBoundsMeters.y || y > WUpperBoundsMeters.y ||
+		z < WLowerBoundsMeters.z || z > WUpperBoundsMeters.z)
+	{
+		return world_cell_coords;
+	}
+
+	// int division to truncate float result to correct cell position
+	world_cell_coords.i = (x + WorldChunkOffsetX * WorldChunkLengthMeters) / WorldChunkLengthMeters;
+	world_cell_coords.j = (y + WorldChunkOffsetY * WorldChunkLengthMeters) / WorldChunkLengthMeters;
+	world_cell_coords.k = (z + WorldChunkOffsetZ * WorldChunkLengthMeters) / WorldChunkLengthMeters;
+
+	return world_cell_coords;
+}
+
+WorldChunkPosition WorldCoordsToCells(vec3 position)
+{
+	return WorldCoordsToCells(position.x, position.y, position.z);
 }

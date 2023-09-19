@@ -19,7 +19,7 @@ inline void LoadModels()
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 
-		auto text_mesh = new Mesh();
+		auto* text_mesh = new Mesh();
 		text_mesh->name = "text";
 		text_mesh->gl_data = text_gl_data;
 		GeometryCatalogue.insert({text_mesh->name, text_mesh});
@@ -66,7 +66,7 @@ inline void LoadModels()
 	4, 5, 6, 6, 7, 4        // right face (slope)
 	};
 
-	auto slope_mesh = new Mesh();
+	auto* slope_mesh = new Mesh();
 	slope_mesh->name = "slope";
 	slope_mesh->vertices = slope_vertex_vec;
 	slope_mesh->indices = slope_vertex_indices;

@@ -5,6 +5,7 @@
 #include "editor_panel_contexts.h"
 #include "tools/editor_tools.h"
 #include "engine/camera/camera.h"
+#include "engine/entities/E_StaticMesh.h"
 #include "engine/io/loaders.h"
 #include "engine/world/world.h"
 
@@ -22,7 +23,7 @@ namespace Editor
 		{
 			if (ImGui::ImageButton((void*) panel->textures[i], ImVec2(64, 64)))
 			{
-				auto* new_entity = T_World::Get()->CreateEntity<E_Entity>(0,0,0);
+				auto* new_entity = T_World::Get()->CreateEntity<E_StaticMesh>(0,0,0);
 				if (!new_entity)
 					continue;
 				

@@ -2,8 +2,10 @@
 #include "engine/entities/e_entity.h"
 #include "engine/entities/traits/entity_traits.h"
 
-struct Entity(SpotLight)
+struct SpotLight : E_Entity, T_EntityTypeBase<SpotLight>
 {
+	//Reflected()
+	
 	vec3 direction = vec3(0, -1, 0);
 	vec3 diffuse = vec3(1);
 	vec3 specular = vec3(1);
@@ -16,6 +18,8 @@ struct Entity(SpotLight)
 
 struct Entity(PointLight)
 {
+	Reflected()
+	
 	vec3 diffuse = vec3(1);
 	vec3 specular = vec3(1);
 	float intensity_constant = 0.5f;
@@ -25,6 +29,8 @@ struct Entity(PointLight)
 
 struct Entity(DirectionalLight)
 {
+	Reflected()
+	
 	vec3 direction = vec3(0, -1, 0);
 	vec3 diffuse = vec3(1);
 	vec3 specular = vec3(1);

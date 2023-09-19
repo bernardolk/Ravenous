@@ -4,7 +4,7 @@
 #include "editor_context.h"
 #include "engine/rvn.h"
 
-#define WITH_EDITOR
+#define WITH_EDITOR 1
 
 namespace Editor
 {

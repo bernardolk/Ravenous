@@ -97,11 +97,7 @@ bool CheckShaderCompileErrors(Shader* shader, string type, unsigned int id)
 	return false;
 }
 
-Shader* CreateShaderProgram(
-	string name,
-	const string vertex_shader_filename,
-	const string geometry_shader_filename,
-	const string fragment_shader_filename)
+Shader* CreateShaderProgram(string name, const string vertex_shader_filename, const string geometry_shader_filename, const string fragment_shader_filename)
 {
 	auto shader = new Shader();
 	shader->name = name;

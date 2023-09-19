@@ -35,10 +35,6 @@ using Flags = u32;
 using TypeID = u32;
 using TraitID = u32;
 
-extern const float VecComparePrecision;
-extern const float MaxFloat;
-extern const float MinFloat;
-
 inline const vec3 UnitX = vec3(1, 0, 0);
 inline const vec3 UnitY = vec3(0, 1, 0);
 inline const vec3 UnitZ = vec3(0, 0, 1);
@@ -161,27 +157,28 @@ template<typename T, u64 Size>
 struct Array
 {
 
-public:
-	T data[Size]{};
+private:
+	T data[Size];
 	u64 count = 0;
 
+public:
 	Array() = default;
+	
 	Array(T* data, u64 count)
 	{
 		for (u64 i = 0; i < count; i++)
-		{
 			this->data[i] = data[i];
-		}
+		
 		this->count = count;
 	}
 
 	explicit Array(T& default_obj)
 	{
 		for (u32 i = 0; i < Size; i++)
-		{
 			this->data[i] = default_obj;
-		}
 	}
+
+	u32 Num() { return count; }
 
 	Iterator<T> GetIterator()
 	{
@@ -189,83 +186,54 @@ public:
 		return it;
 	}
 
-public:
 	T* GetAt(int i)
 	{
+		if (i >= count)
+			return nullptr;
+		
 		return &data[i];
 	}
 	
-	T* Add(const T instance)
+	T* Add(const T& instance)
 	{
 		if (count < Size)
 		{
 			data[count] = instance;
 			return &data[count++];
 		}
-#ifdef T_ARRAY_OVERFLOW_IS_FATAL
-		else
-		{
-			// Array overflow
-			assert(false);
-		}
-#endif
 
 		return nullptr;
 	};
 
-	T* AddAt(const T& instance, unsigned int i)
-	{
-		if (i < count)
-		{
-			data[i] = instance;
-			return &data[i];
-		}
-		else if (i < Size)
-		{
-			// Operation would introduce holes in array 
-			assert(false);
-		}
-#ifdef T_ARRAY_OVERFLOW_IS_FATAL
-		else
-		{
-		  // Array overflow
-			assert(false);
-		}
-#endif
-
-		return nullptr;
-	};
-	
-	T* GetNextSlot()
+	T* AddNew()
 	{
 		if (count < Size)
 		{
-			return &(data[count++]);
+			data[count] = T();
+			return &data[count++];
 		}
 
 		return nullptr;
-	}
+	};
 
 	unsigned int GetCount() const
 	{
 		return count;
 	}
 
-	T* begin()
+	bool Contains(T& item)
 	{
-		return &data[0];
+		for (u32 i = 0; i < count; i++)
+		{
+			if (data[i] == item)
+				return true;
+		}
+		return false;
 	}
 
-	T* end()
-	{
-		return &data[count];
-	}
-
-	Array Copy()
-	{
-		return Array(&data[0], count);
-	}
-	
+	T* begin() { return &data[0]; }
+	T* end() { return &data[count]; }
+	Array Copy() { return Array(&data[0], count); }
 	
 	using Lambda = bool (*)(T&);
 	bool Eval(Lambda f)
@@ -281,32 +249,6 @@ public:
 	}
 };
 
-template<typename A, typename T>
-bool Contains(A& array, T& thing)
-{
-	for (u64 i = 0; i < array.count; i++)
-	{
-		if (array.data[i] == thing)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-template<typename A>
-bool Contains(A& array, u32 value)
-{
-	for (u64 i = 0; i < array.count; i++)
-	{
-		if (array.data[i] == value)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
 template<typename T, u8 Order, u16 Dimension>
 struct Matrix
 {
@@ -319,7 +261,6 @@ struct Matrix<T, 3, Dimension>
 {
 	Array<Array<Array<T, Dimension>, Dimension>, Dimension> data{};
 
-public:
 	T* GetAt(u8 i, u8 j, u8 k)
 	{
 		return data.GetAt[i].GetAt[j].GetAt[k];

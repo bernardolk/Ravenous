@@ -545,11 +545,9 @@ void LoadShaders()
 		const auto fragment_shader_name = GetParsed<std::string>(p);
 
 		// load shaders code and mounts program from parsed shader attributes
-		Shader* shader;
-		if (has_geometry_shader)
-			shader = CreateShaderProgram(shader_name, vertex_shader_name, geometry_shader_name, fragment_shader_name);
-		else
-			shader = CreateShaderProgram(shader_name, vertex_shader_name, fragment_shader_name);
+		Shader* shader = has_geometry_shader ?
+			CreateShaderProgram(shader_name, vertex_shader_name, geometry_shader_name, fragment_shader_name) :
+			CreateShaderProgram(shader_name, vertex_shader_name, fragment_shader_name);
 
 		ShaderCatalogue.insert({shader->name, shader});
 

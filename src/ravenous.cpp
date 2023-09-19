@@ -49,13 +49,14 @@ void CheckAllGeometryHasGlData();
 
 int main()
 {
+	
 	auto* world = T_World::Get();
 
 	//@TODO: This here is not working because EntityManager copy constructor was deleted. This is an issue
 	//    with using references it seems? A pointer would never complain about this. I should dig into this.
 	//    If I have to start writing extra code to use references then I can't justify using them.
 	WorldSerializer::world = world;
-
+	
 	// INITIAL GLFW AND GLAD SETUPS
 	SetupGLFW(true);
 	SetupGL();
@@ -77,6 +78,7 @@ int main()
 	// loads initial scene
 	ConfigSerializer::LoadGlobalConfigs();
 	auto& program_config = *ProgramConfig::Get();
+	
 	WorldSerializer::LoadFromFile(program_config.initial_scene);
 
 	Player* player = Player::Get();
@@ -113,6 +115,7 @@ int main()
 	world->Update();
 
 	RavenousMainLoop();
+	
 }
 
 //    ----------------------------------------------------------------

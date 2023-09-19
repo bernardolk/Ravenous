@@ -1,12 +1,13 @@
 #pragma once
 
 #include "engine/core/core.h"
-#include "e_base_entity.h"
-#include "engine/entities/e_entity.h"
 #include "engine/collision/collision_mesh.h"
 #include "engine/collision/primitives/bounding_box.h"
 #include "engine/geometry/mesh.h"
-#include "traits/entity_traits.h"
+
+constexpr static u32 MaxEntityWorldChunks = 20;
+const static std::string DefaultEntityShader = "model";
+const static std::string EntityShaderMarking = "color";
 
 enum EntityFlags
 {
@@ -27,8 +28,19 @@ struct VisitorState
 };
 
 /** Represents a rendereable and collidable basic entity. */
-struct E_Entity : E_BaseEntity, T_EntityTypeBase<E_Entity>
+struct E_Entity
 {
+	// Basic data needed for lower level systems to recognize an Entity type.
+	TypeID type_id;
+	u64 id = 0;
+	string name;
+
+protected:
+	friend WorldChunk;
+	bool deleted = false;
+
+	// Renderable, Collidable Entity API Begin:
+public:
 	Flags flags = 0;
 	
 	VisitorState visitor_state;
@@ -81,7 +93,4 @@ public:
 	CollisionMesh GetTriggerCollider();
 	void MakeInvisible();
 	void MakeVisible();
-
-	// MAX E_ENTITY budget
-	E_Entity() { instance_budget = 200; }
 };

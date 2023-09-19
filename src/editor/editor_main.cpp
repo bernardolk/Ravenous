@@ -600,17 +600,10 @@ namespace Editor
 		}
 		RenderText("consola18", GlobalDisplayConfig::viewport_width - 400, 30, player_state_text_color, player_state_text);
 
-
-		std::string player_floor = "player floor: ";
-		if (player->standing_entity_ptr != nullptr)
-			player_floor += player->standing_entity_ptr->name;
-		RenderText(GlobalDisplayConfig::viewport_width - 400, 60, player_floor);
-
 		std::string p_grab = "grabbing: ";
 		if (player->grabbing_entity != nullptr)
 			p_grab += player->grabbing_entity->name;
 		RenderText(GlobalDisplayConfig::viewport_width - 400, 45, p_grab);
-
 
 		// FPS
 		std::string fps = std::to_string(Rvn::frame.fps);

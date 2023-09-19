@@ -269,17 +269,6 @@ void RenderGameGui(Player* player)
 		PGrab += "'" + last_grabbed + "'";
 	}
 	RenderText(GlobalDisplayConfig::viewport_width - 400, 45, PGrab);
-
-	std::string player_floor = "player floor: ";
-	if (player->standing_entity_ptr != nullptr)
-	{
-		player_floor += player->standing_entity_ptr->name;
-		if (PFloor != player->standing_entity_ptr->id)
-		{
-			PFloor = player->standing_entity_ptr->id;
-		}
-	}
-	RenderText(GlobalDisplayConfig::viewport_width - 400, 60, player_floor);
 }
 
 // ----------------

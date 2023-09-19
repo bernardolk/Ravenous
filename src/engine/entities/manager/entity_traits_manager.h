@@ -1,12 +1,12 @@
 #pragma once
 
 #include "engine/core/core.h"
-#include "engine/entities/e_base_entity.h"
+#include "engine/entities/e_entity.h"
 
 struct EntityTraitsManager
 {
 	using byte = char;
-	using UpdateFunc = void(*)(E_BaseEntity*);
+	using UpdateFunc = void(*)(E_Entity*);
 
 	map<TraitID, map<TypeID, UpdateFunc>> trait_registry;
 	map<TypeID, vector<TypeID>> trait_inverse_registry;
@@ -69,7 +69,7 @@ struct EntityTraitsManager
 		return nullptr;
 	}
 
-	void InvokeUpdate(E_BaseEntity* entity, TraitID trait_id)
+	void InvokeUpdate(E_Entity* entity, TraitID trait_id)
 	{
 		if(auto* func = GetUpdateFunc(entity->type_id, trait_id))
 		{
@@ -87,7 +87,7 @@ struct EntityTraitsManager
 		printf("Registering entity of id '%i' and trait of id '%i'.\n", T_Entity::GetTypeId(), T_Trait::trait_id);
 
 		Register(T_Entity::GetTypeId(), T_Trait::trait_id, 
-		[](E_BaseEntity* in_entity)
+		[](E_Entity* in_entity)
 			{
 				auto* fully_cast_entity = static_cast<T_Entity*>(in_entity);
 				T_Trait::Update(*fully_cast_entity);

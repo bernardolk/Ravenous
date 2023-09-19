@@ -2,7 +2,7 @@
 
 #include "engine/collision/raycast.h"
 #include "engine/core/core.h"
-#include "engine/entities/e_base_entity.h"
+#include "engine/entities/e_entity.h"
 #include "engine/entities/e_entity.h"
 #include "engine/entities/manager/entity_traits_manager.h"
 #include "engine/utils/utils.h"
@@ -97,30 +97,18 @@ struct ChunkStorage
 
 struct WorldChunkPosition
 {
-	i32 i = -1, j = -1, k = -1;
+	i32 i = -1;
+	i32 j = -1;
+	i32 k = -1;
 
-	WorldChunkPosition(int i, int j, int k) :
-		i(i), j(j), k(k){}
-
-	WorldChunkPosition(){}
-	
-	bool operator == (const WorldChunkPosition& other)
-	{
-		return other.i == i && other.j == j && other.k == k;
-	}
-
-	bool operator == (const vec3& other)
-	{
-		return other.x == i && other.y == j && other.z == k;
-	}
-
-	bool operator < (const WorldChunkPosition& other)  const
-	{
-		return other.i < i && other.j < j && other.k < k;
-	}
-
+	WorldChunkPosition() = default;
+	WorldChunkPosition(int i, int j, int k) : i(i), j(j), k(k){}
 
 	vec3 GetVec() { return vec3(i,j,k); }
+	
+	bool operator == (const WorldChunkPosition& other) { return other.i == i && other.j == j && other.k == k;}
+	bool operator == (const vec3& other) { return other.x == i && other.y == j && other.z == k; }
+	bool operator < (const WorldChunkPosition& other)  const { return other.i < i && other.j < j && other.k < k; }
 };
 
 struct WorldChunk
@@ -133,9 +121,12 @@ struct WorldChunk
     static inline u32 world_chunk_id_count = 0;
 	static inline constexpr u32 max_types_per_storage = 20;
 	
-    unsigned int id = ++world_chunk_id_count;
+    u32 id = ++world_chunk_id_count;
 
-	u32 i = -1, j = -1, k = -1;
+	// indexes
+	int i = -1;
+	int j = -1;
+	int k = -1;
 
 	// Low level byte array
 	ChunkStorage chunk_storage;
@@ -146,10 +137,10 @@ struct WorldChunk
 	// TODO: Implement a TraitID to array of typeIds
 
 	vector<E_Entity*> visitors{};
-	
-	WorldChunk(){}
-	WorldChunk(u32 i, u32 j, u32 k) : i(i), j(j), k(k) {}
 
+	WorldChunk() = default;
+	WorldChunk(u32 i, u32 j, u32 k) : i(i), j(j), k(k) {}
+	
 	WorldChunkEntityIterator GetIterator();
 
 	WorldChunkPosition GetPosition() { return WorldChunkPosition(i, j, k); }
@@ -159,95 +150,21 @@ struct WorldChunk
 	bool AddVisitor(E_Entity* entity);
 	bool RemoveVisitor(E_Entity* entity);
 
-	vec3 GetPositionMetric()
-	{
-		return GetWorldCoordinatesFromWorldCellCoordinates(i, j , k);
-	}
+	vec3 GetPositionMetric();
 	
 	WorldChunkPosition GetChunkPosition() { return WorldChunkPosition(i,j,k); }
 
-	string GetChunkPositionString()
-	{
-		return "Cell [" + to_string(i) + "," + to_string(j) + "," + to_string(k) + "]";
-	}
+	string GetChunkPositionString();
 
-	string GetChunkPositionMetricString()
-	{
-		vec3 mcoords = GetPositionMetric();
-		return "[x: " + FormatFloatTostr(mcoords[0], 1)
-		+ ", y: " + FormatFloatTostr(mcoords[1], 1) + ", z: " + FormatFloatTostr(mcoords[2], 1)
-		+ "]";
-	}
+	string GetChunkPositionMetricString();
 	
-    void InvokeTraitUpdateOnAllTypes(TraitID trait_id)
-    {
-        auto* etm = EntityTraitsManager::Get();
-		//auto* types = etm->GetTypesWithTrait(trait_id);
-		
-        for (auto& block_metadata : storage_metadata_array)
-        {
-            if (Contains(block_metadata.entity_traits, trait_id))
-            {
-                auto* trait_update_func = etm->GetUpdateFunc(block_metadata.type_id, trait_id);
-                for (int i = 0; i < block_metadata.entity_count; i++)
-                {
-                    auto* entity = reinterpret_cast<E_BaseEntity*>(block_metadata.data_start + block_metadata.type_size * i);
-                    trait_update_func(entity);
-                }
-            }
-        }
-    }
+    void InvokeTraitUpdateOnAllTypes(TraitID trait_id);
 
-    template<typename T_Entity>
-	void MaybeAllocateForType()
-    {
-        auto type_id = T_Entity::GetTypeId();
+	template<typename T_Entity>
+	void WorldChunk::MaybeAllocateForType();
 
-    	if (storage_metadata_map.contains(type_id))
-    		return;
-    	
-        EntityStorageBlockMetadata entity_storage_metadata;
-    	entity_storage_metadata.type_id = type_id;
-    	entity_storage_metadata.type_size =  sizeof(T_Entity);
-    	entity_storage_metadata.max_entity_instances = T_Entity::instance_budget;
-        entity_storage_metadata.entity_traits = T_Entity::traits.Copy();
-        
-        // if we have budget, get a block for the new entity type
-    	u32 total_entity_block_size = entity_storage_metadata.max_entity_instances * entity_storage_metadata.type_size;
-        if(chunk_storage.bytes_consumed + total_entity_block_size <= chunk_storage.chunk_byte_budget)
-        {
-            entity_storage_metadata.data_start = chunk_storage.next_block_start;
-            chunk_storage.next_block_start += total_entity_block_size;
-        	chunk_storage.bytes_consumed += total_entity_block_size;
-            storage_metadata_map[type_id] = storage_metadata_array.Add(entity_storage_metadata);
-        }
-        else
-            fatal_error("FATAL: Memory budget for World Chunk with id = %i has ended. Could not allocate memory for entity with type_id = %i.", id, type_id); 
-    };
-
-    template<typename T_Entity>
-	T_Entity* RequestEntityStorage()
-    {
-        MaybeAllocateForType<T_Entity>();
-
-        if (auto** it = Find(storage_metadata_map, T_Entity::GetTypeId()))
-        {
-        	EntityStorageBlockMetadata* block_metadata = *it;
-            if (block_metadata->entity_count < block_metadata->max_entity_instances)
-            {
-                byte* entity_storage_address = (block_metadata->data_start + block_metadata->entity_count++ * block_metadata->type_size);
-            	auto* new_entity = new (entity_storage_address) T_Entity();
-            	
-                return new_entity;
-            }
-            else
-                print("ERROR: There is no memory budget left in WorldChunk with id = %i for E_Type with id = %i. Could not allocate memory.", id, T_Entity::GetTypeId());
-        }
-        else
-           fatal_error("FATAL : This shouldn't have happened.");
-    	
-        return nullptr;
-    }
+	template<typename T_Entity>
+	T_Entity* WorldChunk::RequestEntityStorage();
 };
 
 
@@ -259,21 +176,7 @@ struct WorldChunkEntityIterator
 	
 	explicit WorldChunkEntityIterator(WorldChunk* chunk) : chunk(chunk){};
 
-	E_Entity* operator()()
-	{
-		if (block_idx < chunk->storage_metadata_array.count)
-		{
-			auto* block_metadata = chunk->storage_metadata_array.GetAt(block_idx);
-			if (entity_idx < block_metadata->entity_count)
-			{
-				return reinterpret_cast<E_Entity*>(block_metadata->data_start + block_metadata->type_size * entity_idx++);
-			}
-
-			entity_idx = 0;
-			block_idx++;
-		}
-		return nullptr;
-	}
+	E_Entity* operator()();
 };
 
 
@@ -304,27 +207,16 @@ struct T_World
 	vector<DirectionalLight*> directional_lights;
 	// end temp
 		
-public:
 	void Update();
 
 	static T_World* Get()
 	{
 		static T_World instance;
 		return &instance;
-	};
-
+	}
 
 	template<typename T_Entity>
-	T_Entity* CreateEntity(u8 i, u8 j, u8 k)
-	{
-		auto chunk_it = chunks_map.find({i, j, k});
-		if (chunk_it == chunks_map.end())
-			return nullptr;
-		
-		auto* chunk = chunk_it->second;
-		auto* entity = chunk->RequestEntityStorage<T_Entity>();
-		return entity;
-	}
+	T_Entity* CreateEntity(u8 i, u8 j, u8 k);
 
 	Iterator<WorldChunk> GetChunkIterator();
 	static WorldEntityIterator GetEntityIterator();	
@@ -351,59 +243,86 @@ struct WorldEntityIterator
 	T_World* world;
 	WorldChunkEntityIterator chunk_iterator;
 	
-	WorldEntityIterator() : world(T_World::Get()), chunk_iterator(world->active_chunks[0]->GetIterator())
-	{
-		total_active_chunks = world->active_chunks.size();		
-	}
+	WorldEntityIterator();
 	
-	E_Entity* operator()()
-	{
-		E_Entity* entity = chunk_iterator();
-		if (!entity && current_chunk_index < total_active_chunks - 1)
-		{
-			current_chunk_index++;
-			chunk_iterator = world->active_chunks[current_chunk_index]->GetIterator();
-			entity = chunk_iterator();
-		}
-		return entity;
-	}
+	E_Entity* operator()();
 };
 
-inline vec3 GetWorldCoordinatesFromWorldCellCoordinates(int i, int j, int k)
-{
-	const float world_x = (static_cast<float>(i) - WorldChunkOffsetX) * WorldChunkLengthMeters;
-	const float world_y = (static_cast<float>(j) - WorldChunkOffsetY) * WorldChunkLengthMeters;
-	const float world_z = (static_cast<float>(k) - WorldChunkOffsetZ) * WorldChunkLengthMeters;
-
-	return vec3{world_x, world_y, world_z};
-}
-
-inline WorldChunkPosition WorldCoordsToCells(float x, float y, float z)
-{
-	WorldChunkPosition world_cell_coords;
-
-	// if out of bounds return -1
-	if (x < WLowerBoundsMeters.x || x > WUpperBoundsMeters.x ||
-		y < WLowerBoundsMeters.y || y > WUpperBoundsMeters.y ||
-		z < WLowerBoundsMeters.z || z > WUpperBoundsMeters.z)
-	{
-		return world_cell_coords;
-	}
-
-	// int division to truncate float result to correct cell position
-	world_cell_coords.i = (x + WorldChunkOffsetX * WorldChunkLengthMeters) / WorldChunkLengthMeters;
-	world_cell_coords.j = (y + WorldChunkOffsetY * WorldChunkLengthMeters) / WorldChunkLengthMeters;
-	world_cell_coords.k = (z + WorldChunkOffsetZ * WorldChunkLengthMeters) / WorldChunkLengthMeters;
-
-	return world_cell_coords;
-}
-
-inline WorldChunkPosition WorldCoordsToCells(vec3 position)
-{
-	return WorldCoordsToCells(position.x, position.y, position.z);
-}
+vec3 GetWorldCoordinatesFromWorldCellCoordinates(int i, int j, int k);
+WorldChunkPosition WorldCoordsToCells(float x, float y, float z);
+WorldChunkPosition WorldCoordsToCells(vec3 position);
 
 
 //TODO: Move these somewhere else
 void SetEntityDefaultAssets(E_Entity* entity);
 void SetEntityAssets(E_Entity* entity, struct EntityAttributes attrs);
+
+
+
+template<typename T_Entity>
+void WorldChunk::MaybeAllocateForType()
+{
+	auto type_id = T_Entity::GetTypeId();
+
+	if (storage_metadata_map.contains(type_id))
+		return;
+
+	// if we have budget, get a block for the new entity type
+	u32 total_entity_block_size = T_Entity::instance_budget * sizeof(T_Entity);
+	if(chunk_storage.bytes_consumed + total_entity_block_size <= chunk_storage.chunk_byte_budget)
+	{
+		auto* new_block = storage_metadata_array.AddNew();
+		if (!new_block)
+			fatal_error("FATAL: Memory budget for World Chunk with id = %i has ended. Could not allocate memory for entity with type_id = %i.", id, type_id); 
+		
+		EntityStorageBlockMetadata& entity_storage_metadata = *new_block;
+		entity_storage_metadata.type_id = type_id;
+		entity_storage_metadata.type_size =  sizeof(T_Entity);
+		entity_storage_metadata.max_entity_instances = T_Entity::instance_budget;
+		entity_storage_metadata.entity_traits = T_Entity::traits.Copy();
+		
+		entity_storage_metadata.data_start = chunk_storage.next_block_start;
+		chunk_storage.next_block_start += total_entity_block_size;
+		chunk_storage.bytes_consumed += total_entity_block_size;
+		storage_metadata_map[type_id] = &entity_storage_metadata;
+	}
+	else
+		fatal_error("FATAL: Memory budget for World Chunk with id = %i has ended. Could not allocate memory for entity with type_id = %i.", id, type_id); 
+};
+
+template<typename T_Entity>
+T_Entity* WorldChunk::RequestEntityStorage()
+{
+	MaybeAllocateForType<T_Entity>();
+
+	if (auto** it = Find(storage_metadata_map, T_Entity::GetTypeId()))
+	{
+		EntityStorageBlockMetadata* block_metadata = *it;
+		if (block_metadata->entity_count < block_metadata->max_entity_instances)
+		{
+			byte* entity_storage_address = block_metadata->data_start + (block_metadata->entity_count * block_metadata->type_size);
+			++block_metadata->entity_count;
+			auto* new_entity = new (entity_storage_address) T_Entity;
+        
+			return new_entity;
+		}
+		else
+			print("ERROR: There is no memory budget left in WorldChunk with id = %i for E_Type with id = %i. Could not allocate memory.", id, T_Entity::GetTypeId());
+	}
+	else
+		fatal_error("FATAL : This shouldn't have happened.");
+
+	return nullptr;
+}
+
+template<typename T_Entity>
+T_Entity* T_World::CreateEntity(u8 i, u8 j, u8 k)
+{
+	auto chunk_it = chunks_map.find({i, j, k});
+	if (chunk_it == chunks_map.end())
+		return nullptr;
+	
+	auto* chunk = chunk_it->second;
+	auto* entity = chunk->RequestEntityStorage<T_Entity>();
+	return entity;
+}

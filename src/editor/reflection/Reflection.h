@@ -14,13 +14,21 @@
 * 1. Create Handle<T> types in engine so we can serialize handle metadata to deal with ptrs serialization
 * ------------------------------------------------------------------------------------------------ */
 
+#define STORE_TYPE_IN_HELPER(TypeName)	\
+	template<> \
+	struct Reflection::TypeNameWrapper<__COUNTER__> \
+	{ \
+		using T = TypeName; \
+		static inline string type_name = #TypeName; \
+	}
+
 #define Reflected() \
-    using Self = Reflection::Helper<__COUNTER__ - 1>::T; \
+    using Self = Reflection::TypeNameWrapper<__COUNTER__ - 1>::T; \
     using DumpFuncType = void(*)(Self& instance, string& serialized); \
 	using LoadFuncType = void(*)(Self& instance, string& field, string& value); \
 	using GetterFuncPtrType = string(*)(Self&); \
 	using SetterFuncPtrType = void (*)(Self*, string&); \
-	\
+	inline static string Reflection_TypeName = Reflection::TypeNameWrapper<__COUNTER__ - 2>::type_name; \
     inline static DumpFuncType Reflection_DumpFunc = nullptr; \
     inline static LoadFuncType Reflection_LoadFunc = nullptr; \
     inline static vector<GetterFuncPtrType> Reflection_GetterFuncPtrs; \
@@ -30,8 +38,7 @@
     { \
         Reflection_InstanceName = &name_var; \
         return default_name; \
-    } \
-
+    }
 
 #define Field(Type, Name, ...) ;  \
     inline static string Reflection_Getter_##Type_##Name(Self& instance) \
@@ -61,7 +68,7 @@
 
 namespace Reflection 
 {
-	template<unsigned long long int N> struct Helper{ };
+	template<unsigned long long int N> struct TypeNameWrapper{ };
 
 	template<typename T, typename Class, typename... Parents>
 	void DumpIterative(T& instance, string& serialized)
@@ -109,8 +116,6 @@ namespace Reflection
 	};
 
 	constexpr static u32 SerializationSize = 1600;
-	
-	template<typename T> string GetTypeName(){ static_assert(false); }
 
 	template<typename T>
 	string Dump(T& instance, bool include_header = true)
@@ -122,9 +127,10 @@ namespace Reflection
 		string body = "";
 	    if (include_header)
 	    {
-			string name = instance.Reflection_InstanceName != nullptr ? "NONAME" : *instance.Reflection_InstanceName;
+			string name; 
     		name.reserve(100);
-    		sprintf(&header[0], "{ \"%s\" : %s = {", name.c_str(), Reflection::GetTypeName<T>().c_str());
+	    	name = instance.Reflection_InstanceName != nullptr ? "NONAME" : *instance.Reflection_InstanceName;
+    		sprintf(&header[0], "{ \"%s\" : %s = {", name.c_str(), T::Reflection_TypeName.c_str());
 	    }
 	    else
 	    {
@@ -230,7 +236,7 @@ struct AssetCatalogue
     }
 };
 
-
+/*
 struct Shader{};
 
 struct ShaderCatalogue : public AssetCatalogue
@@ -276,3 +282,5 @@ private:
     unsigned int version;
     T*(*get_t)(T* ptr, u32 version);
 };
+
+*/

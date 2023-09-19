@@ -14,7 +14,7 @@
  *  per type and that gets initialized when the type is first initialized (such as for
  *  reflection, using macros in conjunction)
  */
-#define STATIC_HELPER static
+#define StaticHelper static
 
 #define StaticHelperByte static inline char
 
