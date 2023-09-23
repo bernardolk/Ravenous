@@ -3,7 +3,7 @@
 #include "engine/core/core.h"
 #include "editor/editor_panel_contexts.h"
 #include "editor/editor_undo.h"
-#include "entity_state.h"
+#include "EntityState.h"
 
 namespace Editor
 {

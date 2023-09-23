@@ -24,12 +24,12 @@
 #include "engine/geometry/vertex.h"
 #include "engine/io/display.h"
 #include "engine/io/input.h"
-#include "engine/render/im_render.h"
+#include "engine/render/ImRender.h"
 #include "engine/render/shader.h"
 #include "engine/render/text/face.h"
-#include "engine/render/text/text_renderer.h"
+#include "engine/render/text/TextRenderer.h"
 #include "engine/world/world.h"
-#include "engine/collision/cl_edge_detection.h"
+#include "engine/collision/ClEdgeDetection.h"
 
 namespace Editor
 {

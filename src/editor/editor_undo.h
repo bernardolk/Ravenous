@@ -1,7 +1,7 @@
 #pragma once
 
 #include "engine/core/core.h"
-#include "entity_state.h"
+#include "EntityState.h"
 
 namespace Editor
 {

@@ -11,19 +11,15 @@
 #include <engine/core/ui.h>
 #include <engine/rvn.h>
 #include "editor/tools/input_recorder.h"
-#include "engine/platform/gl_window.h"
+#include "engine/platform/GlWindow.h"
 
 // should be conditional in the future to support multiple platforms and
 // we must abstract the function calls to a common layer which can interop
 // between platform layers depending on the underlying OS.
-#include <engine/platform/platform.h>
-
 
 // SOURCE INCLUDES
 
 #include <editor/editor_main.h>
-
-#include "engine/entities/traits/entity_traits.h"
 
 #include "game/animation/an_update.h"
 #include "editor/console/console.h"
@@ -32,9 +28,9 @@
 #include "editor/editor.h"
 #include "engine/camera/camera.h"
 #include "engine/io/loaders.h"
-#include "engine/main_loop.h"
-#include "engine/collision/cl_controller.h"
-#include "engine/render/im_render.h"
+#include "engine/MainLoop.h"
+#include "engine/collision/ClController.h"
+#include "engine/render/ImRender.h"
 #include "engine/serialization/sr_config.h"
 #include "engine/serialization/sr_world.h"
 #include "engine/world/world.h"

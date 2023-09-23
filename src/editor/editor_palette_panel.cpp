@@ -5,7 +5,7 @@
 #include "editor_panel_contexts.h"
 #include "tools/editor_tools.h"
 #include "engine/camera/camera.h"
-#include "engine/entities/E_StaticMesh.h"
+#include "engine/entities/EStaticMesh.h"
 #include "engine/io/loaders.h"
 #include "engine/world/world.h"
 

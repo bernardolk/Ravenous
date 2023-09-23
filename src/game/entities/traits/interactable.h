@@ -2,7 +2,7 @@
 // ReSharper disable CppFunctionIsNotImplemented
 
 #include "engine/core/core.h"
-#include "engine/entities/traits/entity_traits.h"
+#include "engine/entities/traits/EntityTraits.h"
 #include "game/entities/player.h"
 
 /*

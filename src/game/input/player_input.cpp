@@ -7,7 +7,7 @@
 #include "engine/camera/camera.h"
 #include "editor/editor_state.h"
 #include "engine/io/input.h"
-#include "engine/io/input_phase.h"
+#include "engine/io/InputPhase.h"
 
 void IN_AssignKeysToActions()
 {

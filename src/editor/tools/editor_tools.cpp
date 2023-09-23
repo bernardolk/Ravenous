@@ -4,7 +4,7 @@
 #include "editor/editor.h"
 #include "engine/camera/camera.h"
 #include "engine/entities/lights.h"
-#include "engine/collision/cl_controller.h"
+#include "engine/collision/ClController.h"
 #include "engine/io/input.h"
 #include "engine/world/world.h"
 #include "game/entities/player.h"

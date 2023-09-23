@@ -1,7 +1,7 @@
 #pragma once
 
 #include "engine/core/core.h"
-#include "engine/io/input_phase.h"
+#include "engine/io/InputPhase.h"
 
 constexpr static int MaxInputRecordings = 20;
 const std::string RecordingsFilenamePrefix = "rec-";

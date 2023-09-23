@@ -2,10 +2,10 @@
 
 #include "engine/rvn.h"
 #include "engine/camera/camera.h"
-#include "engine/collision/cl_controller.h"
-#include "engine/collision/cl_types.h"
+#include "engine/collision/ClController.h"
+#include "engine/collision/ClTypes.h"
 #include "engine/io/input.h"
-#include "engine/render/im_render.h"
+#include "engine/render/ImRender.h"
 #include "engine/world/world.h"
 #include "game/input/player_input.h"
 

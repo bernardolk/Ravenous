@@ -13,7 +13,7 @@
 #include "engine/rvn.h"
 #include "engine/collision/raycast.h"
 #include "engine/io/display.h"
-#include "engine/io/input_phase.h"
+#include "engine/io/InputPhase.h"
 #include "engine/serialization/sr_config.h"
 #include "engine/serialization/sr_world.h"
 #include "engine/io/input.h"

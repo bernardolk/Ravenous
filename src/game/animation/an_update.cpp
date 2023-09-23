@@ -2,7 +2,7 @@
 
 #include "engine/core/logging.h"
 #include "engine/rvn.h"
-#include "engine/entities/e_entity.h"
+#include "engine/entities/EEntity.h"
 
 void EntityAnimation::Update()
 {
