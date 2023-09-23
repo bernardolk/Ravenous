@@ -10,7 +10,7 @@
 
 namespace Editor
 {
-	void RenderSceneObjectsPanel(T_World* world, SceneObjectsPanelContext* panel)
+	void RenderSceneObjectsPanel(World* world, SceneObjectsPanelContext* panel)
 	{
 		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::viewport_width - 600, 50), ImGuiCond_Appearing);
 		ImGui::Begin("Scene objects", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);

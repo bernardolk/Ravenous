@@ -12,8 +12,8 @@ namespace Editor
 	void UpdateEntityControlArrows(EntityPanelContext* panel);
 	void UpdateEntityRotationGizmo(EntityPanelContext* panel);
 	void RenderEntityControlArrows(EntityPanelContext* panel);
-	void RenderEntityPanel(EntityPanelContext* panel, T_World* world);
-	void EntityPanelUpdateEntityAndEditorContext(const EntityPanelContext* panel, u32 action, T_World* world);
+	void RenderEntityPanel(EntityPanelContext* panel, World* world);
+	void EntityPanelUpdateEntityAndEditorContext(const EntityPanelContext* panel, u32 action, World* world);
 	void EntityPanelTrackEntityChanges(EntityPanelContext* panel);
 
 

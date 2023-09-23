@@ -142,7 +142,7 @@ void RenderEntity(E_Entity* entity)
 }
 
 
-void RenderEditorEntity(E_Entity* entity, T_World* world, Camera* camera)
+void RenderEditorEntity(E_Entity* entity, World* world, Camera* camera)
 {
 	entity->shader->Use();
 	// important that the gizmo dont have a position set.
@@ -161,7 +161,7 @@ void RenderEditorEntity(E_Entity* entity, T_World* world, Camera* camera)
 // -------------
 // RENDER SCENE
 // -------------
-void RenderScene(T_World* world, Camera* camera)
+void RenderScene(World* world, Camera* camera)
 {
 	Player* player = Player::Get();
 
@@ -187,7 +187,7 @@ void RenderScene(T_World* world, Camera* camera)
 }
 
 
-void SetShaderLightVariables(T_World* world, Shader* shader, Camera* camera)
+void SetShaderLightVariables(World* world, Shader* shader, Camera* camera)
 {
 	shader->Use();
 
@@ -348,7 +348,7 @@ void RenderDepthMap()
 	depth_shader->Use();
 	depth_shader->SetMatrix4("lightSpaceMatrix", RDirLightSpaceMatrix);
 
-	auto entity_iterator = T_World::Get()->GetEntityIterator();
+	auto entity_iterator = World::Get()->GetEntityIterator();
 	while (auto* entity = entity_iterator())
 	{
 		if (entity->flags & EntityFlags_InvisibleEntity)
@@ -365,7 +365,7 @@ void RenderDepthMap()
 
 void RenderDepthCubemap()
 {
-	auto* world = T_World::Get();
+	auto* world = World::Get();
 	// for now, testing, we are doing this just for the first point light source
 	if (world->point_lights.size() == 0)
 		return;

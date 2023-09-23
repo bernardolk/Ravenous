@@ -4,5 +4,5 @@
 
 namespace Editor
 {
-	void RenderToolbar(T_World* world);
+	void RenderToolbar(World* world);
 }

@@ -50,7 +50,7 @@ void CheckAllGeometryHasGlData();
 int main()
 {
 	
-	auto* world = T_World::Get();
+	auto* world = World::Get();
 
 	//@TODO: This here is not working because EntityManager copy constructor was deleted. This is an issue
 	//    with using references it seems? A pointer would never complain about this. I should dig into this.
@@ -89,7 +89,7 @@ int main()
 	world->ambient_light = program_config.ambient_light;
 	world->ambient_intensity = program_config.ambient_intensity;
 
-	world->UpdateEntityWorldCells(player); // sets player to the world
+	world->UpdateEntityWorldChunk(player); // sets player to the world
 	CL_RecomputeCollisionBufferEntities();       // populates collision buffer and others
 
 	Editor::Initialize();
@@ -146,7 +146,7 @@ void StartFrame()
 
 void CheckAllEntitiesHaveShaders()
 {
-	auto entity_iterator = T_World::Get()->GetEntityIterator();
+	auto entity_iterator = World::Get()->GetEntityIterator();
 	while(auto* entity = entity_iterator())
 	{
 		if (entity->shader == nullptr)
@@ -159,7 +159,7 @@ void CheckAllEntitiesHaveShaders()
 
 void CheckAllEntitiesHaveIds()
 {
-	auto entity_iterator = T_World::Get()->GetEntityIterator();
+	auto entity_iterator = World::Get()->GetEntityIterator();
 	while(auto* entity = entity_iterator())
 	{
 		if (entity->id == -1)

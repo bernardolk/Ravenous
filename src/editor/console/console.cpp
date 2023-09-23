@@ -132,7 +132,7 @@ void ClearScratchBuffer()
 	Console.c_ind = 0;
 }
 
-void ExecuteCommand(const std::string& buffer_line, Player* & player, T_World* world, Camera* camera)
+void ExecuteCommand(const std::string& buffer_line, Player* & player, World* world, Camera* camera)
 {
 	Parser p{buffer_line, 50};
 	p.ParseToken();
@@ -196,7 +196,7 @@ void ExecuteCommand(const std::string& buffer_line, Player* & player, T_World* w
 		const std::string scene_name = GetParsed<std::string>(p);
 		if (scene_name != "")
 		{
-			auto current_scene = T_World::Get()->scene_name;
+			auto current_scene = World::Get()->scene_name;
 			if (WorldSerializer::CheckIfSceneExists(scene_name))
 			{
 				Rvn::rm_buffer->Add("Scene name already exists.", 3000);
@@ -242,7 +242,7 @@ void ExecuteCommand(const std::string& buffer_line, Player* & player, T_World* w
 		const std::string argument = GetParsed<std::string>(p);
 		if (argument == "scene")
 		{
-			program_config.initial_scene = T_World::Get()->scene_name;
+			program_config.initial_scene = World::Get()->scene_name;
 			ConfigSerializer::Save(program_config);
 		}
 		else if (argument == "all")
@@ -251,7 +251,7 @@ void ExecuteCommand(const std::string& buffer_line, Player* & player, T_World* w
 			player->checkpoint_pos = player->position;
 			WorldSerializer::SaveToFile();
 			// set scene
-			program_config.initial_scene = T_World::Get()->scene_name;
+			program_config.initial_scene = World::Get()->scene_name;
 			ConfigSerializer::Save(program_config);
 		}
 		else
@@ -263,7 +263,7 @@ void ExecuteCommand(const std::string& buffer_line, Player* & player, T_World* w
 	// -----------------
 	else if (command == "reload")
 	{
-		if (WorldSerializer::LoadFromFile(T_World::Get()->scene_name))
+		if (WorldSerializer::LoadFromFile(World::Get()->scene_name))
 		{
 			if (EditorState::IsInEditorMode())
 				player->flags &= ~EntityFlags_InvisibleEntity;
@@ -311,7 +311,7 @@ void ExecuteCommand(const std::string& buffer_line, Player* & player, T_World* w
 		print("what do you mean with %s man?\n", command.c_str());
 }
 
-void HandleConsoleInput(InputFlags flags, Player* & player, T_World* world, Camera* camera)
+void HandleConsoleInput(InputFlags flags, Player* & player, World* world, Camera* camera)
 {
 	if (PressedOnce(flags, KEY_ENTER))
 	{

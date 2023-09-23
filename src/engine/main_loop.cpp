@@ -25,7 +25,7 @@ void RavenousMainLoop()
 {
 	auto* ES = EditorState::Get();
 	auto player = Player::Get();
-	auto world = T_World::Get();
+	auto world = World::Get();
 	auto* cam_manager = CameraManager::Get();
 	
 	while (!glfwWindowShouldClose(GlobalDisplayConfig::GetWindow()))

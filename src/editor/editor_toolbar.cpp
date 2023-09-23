@@ -9,14 +9,14 @@
 
 namespace Editor
 {
-	void RenderToolbar(T_World* world)
+	void RenderToolbar(World* world)
 	{
 		auto& ed_context = *GetContext();
 
 		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::viewport_width - 230, 180), ImGuiCond_Appearing);
 		ImGui::Begin("Tools", &ed_context.toolbar_active, ImGuiWindowFlags_AlwaysAutoResize);
 
-		string scene_name = "Scene name: " + T_World::Get()->scene_name;
+		string scene_name = "Scene name: " + World::Get()->scene_name;
 		ImGui::Text(scene_name.c_str());
 		ImGui::NewLine();
 

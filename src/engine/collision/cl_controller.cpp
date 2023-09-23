@@ -20,7 +20,7 @@ bool CL_UpdatePlayerWorldCells(Player* player)
 	   @todo - the procedures invoked here seem to do more work than necessary. Keep this in mind.
 	*/
 
-	auto update_cells = T_World::Get()->UpdateEntityWorldCells(player);
+	auto update_cells = World::Get()->UpdateEntityWorldChunk(player);
 	if (!update_cells.status == CellUpdate_OK)
 	{
 		print(update_cells.message.c_str());
@@ -42,7 +42,7 @@ void CL_RecomputeCollisionBufferEntities()
 	// Clears buffer
 	Rvn::entity_buffer.clear();
 	
-	auto entity_iter = T_World::Get()->GetEntityIterator();
+	auto entity_iter = World::Get()->GetEntityIterator();
     while (auto* entity = entity_iter())
     {
 		Rvn::entity_buffer.push_back(EntityBufferElement{entity, false});

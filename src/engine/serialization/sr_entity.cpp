@@ -16,8 +16,8 @@ const std::string SrLoadEntity_TypeNotSetErrorMsg = "Need to load entity type be
 
 void EntitySerializer::Parse(Parser& parser)
 {
-	auto* world = T_World::Get();
-	auto* new_entity_ptr = world->CreateEntity<E_StaticMesh>(0,0,0);
+	auto* world = World::Get();
+	auto* new_entity_ptr = world->SpawnEntity<E_StaticMesh>();
 	if (!new_entity_ptr)
 		fatal_error("Couldnt create entity.")
 

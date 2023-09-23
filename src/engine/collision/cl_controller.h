@@ -18,4 +18,4 @@ bool CL_TestCollisions(Player* player);
 void CL_ResetCollisionBufferChecks();
 void CL_RecomputeCollisionBufferEntities();
 bool CL_UpdatePlayerWorldCells(Player* player);
-ClVtraceResult CL_DoStepoverVtrace(Player* player, T_World* world);
+ClVtraceResult CL_DoStepoverVtrace(Player* player, World* world);

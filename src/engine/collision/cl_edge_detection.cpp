@@ -6,7 +6,7 @@
 #include "engine/render/im_render.h"
 #include "engine/world/world.h"
 
-Ledge CL_PerformLedgeDetection(Player* player, T_World* world)
+Ledge CL_PerformLedgeDetection(Player* player, World* world)
 {
 	// concepts: front face - where the horizontal rays are going to hit
 	//           top face - where the vertical ray (up towards down) is going to hit

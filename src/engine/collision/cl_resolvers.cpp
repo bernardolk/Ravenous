@@ -31,7 +31,7 @@ void CL_ResolveCollision(ClResults results, Player* player)
 }
 
 
-ClVtraceResult CL_DoStepoverVtrace(Player* player, T_World* world)
+ClVtraceResult CL_DoStepoverVtrace(Player* player, World* world)
 {
 	/* 
 	   Cast a ray at player's last point of contact with terrain to look for something steppable (terrain).
@@ -79,7 +79,7 @@ bool GP_SimulatePlayerCollisionInFallingTrajectory(Player* player, vec2 xz_veloc
 
 	ImDraw::AddPoint(IMHASH, player->position, 2.0, false, COLOR_GREEN_1, 1);
 
-	auto* world = T_World::Get();
+	auto* world = World::Get();
 	
 	int iteration = 0;
 	while (true)

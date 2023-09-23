@@ -19,7 +19,7 @@ bool WorldSerializer::LoadFromFile(const string& filename)
 {
 	const auto path = Paths::Scenes + filename + ".txt";
 
-	world = T_World::Get();
+	world = World::Get();
 
 	// Set player's assets
 	{
@@ -105,7 +105,7 @@ bool WorldSerializer::LoadFromFile(const string& filename)
 	// clear static relations buffer
 	EntitySerializer::ClearBuffer();
 
-	T_World::Get()->scene_name = filename;
+	World::Get()->scene_name = filename;
 	
 	return true;
 }
@@ -121,7 +121,7 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 	std::string filename = new_filename;
 	if (new_filename.empty())
 	{
-		filename = T_World::Get()->scene_name;
+		filename = World::Get()->scene_name;
 
 		if (do_copy)
 		{
@@ -192,7 +192,7 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 	else if (!new_filename.empty())
 	{
 		Log(LOG_INFO, "Scene saved successfully as '" + filename + ".txt' (now editing it)");
-		T_World::Get()->scene_name = filename;
+		World::Get()->scene_name = filename;
 	}
 	else
 		Log(LOG_INFO, "Scene saved successfully.");

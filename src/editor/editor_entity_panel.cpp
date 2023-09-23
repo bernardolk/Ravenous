@@ -11,7 +11,7 @@
 
 namespace Editor
 {
-	void RenderEntityPanel(EntityPanelContext* panel, T_World* world)
+	void RenderEntityPanel(EntityPanelContext* panel, World* world)
 	{
 		auto& entity = panel->entity;
 		auto& ed_context = *GetContext();
@@ -498,7 +498,7 @@ namespace Editor
 	}
 
 
-	void EntityPanelUpdateEntityAndEditorContext(const EntityPanelContext* panel, u32 action, T_World* world)
+	void EntityPanelUpdateEntityAndEditorContext(const EntityPanelContext* panel, u32 action, World* world)
 	{
 		auto& ed_context = *GetContext();
 
@@ -506,7 +506,7 @@ namespace Editor
 			DeactivateEditorModes();
 
 		panel->entity->Update();
-		auto update_cells = world->UpdateEntityWorldCells(panel->entity);
+		auto update_cells = world->UpdateEntityWorldChunk(panel->entity);
 		if (update_cells.status != CellUpdate_OK)
 			Rvn::rm_buffer->Add(update_cells.message, 3500);
 

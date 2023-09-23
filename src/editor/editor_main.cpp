@@ -50,11 +50,11 @@ namespace Editor
 	// > UPDATE EDITOR
 	//------------------
 
-	void Update(Player* player, T_World* world, Camera* camera)
+	void Update(Player* player, World* world, Camera* camera)
 	{
 		auto& ed_context = *GetContext();
 		
-		string& scene_name = T_World::Get()->scene_name;
+		string& scene_name = World::Get()->scene_name;
 
 		if (ed_context.last_frame_scene != scene_name)
 		{
@@ -195,7 +195,7 @@ namespace Editor
 	// > RENDER EDITOR UI
 	//---------------------
 
-	void Render(Player* player, T_World* world, Camera* camera)
+	void Render(Player* player, World* world, Camera* camera)
 	{
 		auto& ed_context = *GetContext();
 
@@ -527,7 +527,7 @@ namespace Editor
 		// palette panel
 		InitializePalette(&ed_context.palette_panel);
 
-		ed_context.last_frame_scene = T_World::Get()->scene_name;
+		ed_context.last_frame_scene = World::Get()->scene_name;
 	}
 
 
@@ -858,7 +858,7 @@ namespace Editor
 	}
 
 	//TODO: Reimplement
-	void RenderEventTriggers(Camera* camera, T_World* world)
+	void RenderEventTriggers(Camera* camera, World* world)
 	{
 		/*
 		 if (world->interactables.size() == 0)
@@ -883,7 +883,7 @@ namespace Editor
 	}
 
 
-	void RenderWorldCells(Camera* camera, T_World* world)
+	void RenderWorldCells(Camera* camera, World* world)
 	{
 		auto shader = ShaderCatalogue.find("color")->second;
 		auto cell_mesh = GeometryCatalogue.find("aabb")->second;
@@ -933,7 +933,7 @@ namespace Editor
 	}
 
 
-	inline void RenderLightbulbs(Camera* camera, T_World* world)
+	inline void RenderLightbulbs(Camera* camera, World* world)
 	{
 		auto& ed_context = *GetContext();
 
@@ -1058,7 +1058,7 @@ namespace Editor
 	}
 
 
-	void RenderEntityControlArrows(EntityPanelContext* panel, T_World* world, Camera* camera)
+	void RenderEntityControlArrows(EntityPanelContext* panel, World* world, Camera* camera)
 	{
 		//@todo: try placing editor objects in a separate z buffer? Maybe manually... so we don't have to use GL_ALWAYS
 		glDepthFunc(GL_ALWAYS);
@@ -1069,7 +1069,7 @@ namespace Editor
 	}
 
 
-	void RenderEntityRotationGizmo(EntityPanelContext* panel, T_World* world, Camera* camera)
+	void RenderEntityRotationGizmo(EntityPanelContext* panel, World* world, Camera* camera)
 	{
 		//@todo: try placing editor objects in a separate z buffer? Maybe manually... so we don't have to use GL_ALWAYS
 		glDepthFunc(GL_ALWAYS);
@@ -1181,7 +1181,7 @@ namespace Editor
 		}
 	}
 
-	void CheckSelectionToOpenPanel(Player* player, T_World* world, Camera* camera)
+	void CheckSelectionToOpenPanel(Player* player, World* world, Camera* camera)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
@@ -1197,7 +1197,7 @@ namespace Editor
 	}
 
 
-	void CheckSelectionToSelectRelatedEntity(T_World* world, Camera* camera)
+	void CheckSelectionToSelectRelatedEntity(World* world, Camera* camera)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto& ed_context = *GetContext();
@@ -1227,7 +1227,7 @@ namespace Editor
 	}
 
 
-	void CheckSelectionToMoveEntity(T_World* world, Camera* camera)
+	void CheckSelectionToMoveEntity(World* world, Camera* camera)
 	{
 		auto* GII = GlobalInputInfo::Get();
 

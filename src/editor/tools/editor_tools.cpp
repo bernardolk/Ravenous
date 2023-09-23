@@ -46,7 +46,7 @@ namespace Editor
 		ed_context.undo_stack.deletion_log.Add(entity);
 	}
 
-	void EditorEraseLight(int index, string type, T_World* world)
+	void EditorEraseLight(int index, string type, World* world)
 	{
 		auto& ed_context = *GetContext();
 
@@ -63,7 +63,7 @@ namespace Editor
 			ed_context.lights_panel.selected_light = -1;
 	}
 
-	void UnhideEntities(T_World* world)
+	void UnhideEntities(World* world)
 	{
 		auto entity_iter = world->GetEntityIterator();
 		while (auto* entity = entity_iter())
@@ -307,7 +307,7 @@ namespace Editor
 	// MEASURE TOOL
 	// -------------
 	void ActivateMeasureMode(u8 axis);
-	void CheckSelectionToMeasure(const T_World* world);
+	void CheckSelectionToMeasure(const World* world);
 
 	void ActivateMeasureMode(u8 axis)
 	{
@@ -318,7 +318,7 @@ namespace Editor
 		ed_context.measure_axis = axis;
 	}
 
-	void CheckSelectionToMeasure(const T_World* world)
+	void CheckSelectionToMeasure(const World* world)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto* cam_manager = CameraManager::Get();
@@ -353,7 +353,7 @@ namespace Editor
 	// LOCATE COORDINATES MODE
 	// ------------------------
 	void ActivateLocateCoordsMode();
-	void CheckSelectionToLocateCoords(const T_World* world);
+	void CheckSelectionToLocateCoords(const World* world);
 
 	void ActivateLocateCoordsMode()
 	{
@@ -364,7 +364,7 @@ namespace Editor
 		ed_context.locate_coords_found_point = false;
 	}
 
-	void CheckSelectionToLocateCoords(const T_World* world)
+	void CheckSelectionToLocateCoords(const World* world)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto& ed_context = *GetContext();
@@ -381,7 +381,7 @@ namespace Editor
 	// -------------
 	// > MOVE TOOLS 
 	// -------------
-	void PlaceEntity(T_World* world)
+	void PlaceEntity(World* world)
 	{
 		/* Common function for move/rotate/scale entity tools.
 		   Updates entity, tracks it state and updates world.
@@ -395,7 +395,7 @@ namespace Editor
 		ed_context.move_entity_by_arrows_ref_point = vec3(0);
 
 		ed_context.selected_entity->Update();
-		world->UpdateEntityWorldCells(ed_context.selected_entity);
+		world->UpdateEntityWorldChunk(ed_context.selected_entity);
 		CL_RecomputeCollisionBufferEntities();
 		ed_context.undo_stack.Track(ed_context.selected_entity);
 	}
@@ -480,7 +480,7 @@ namespace Editor
 		ed_context.undo_stack.Track(entity);
 	}
 
-	void SelectEntityPlacingWithMouseMove(E_Entity* entity, const T_World* world)
+	void SelectEntityPlacingWithMouseMove(E_Entity* entity, const World* world)
 	{
 		auto* GII = GlobalInputInfo::Get();
 
@@ -609,7 +609,7 @@ namespace Editor
 	// @todo: This will DISAPPEAR after lights become entities!
 	//       We need to provide entity rights to lights too! revolution now!
 
-	void MoveLightWithMouse(std::string type, int index, T_World* world);
+	void MoveLightWithMouse(std::string type, int index, World* world);
 	void ActivateMoveLightMode(std::string type, int index);
 	void PlaceLight(std::string type, int index);
 	void OpenLightsPanel(std::string type, int index, bool focus_tab); //fwd
@@ -627,7 +627,7 @@ namespace Editor
 		ed_context.selected_light_type = type;
 	}
 
-	void MoveLightWithMouse(std::string type, int index, T_World* world)
+	void MoveLightWithMouse(std::string type, int index, World* world)
 	{
 		vec3 position;
 		if (type == "point" && index > -1)

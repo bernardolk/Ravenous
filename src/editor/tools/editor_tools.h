@@ -9,8 +9,8 @@ namespace Editor
 	void DeactivateEditorModes();
 	bool CheckModesAreActive();
 	void EditorEraseEntity(E_Entity* entity);
-	void EditorEraseLight(int index, string type, T_World* world);
-	void UnhideEntities(T_World* world);
+	void EditorEraseLight(int index, string type, World* world);
+	void UnhideEntities(World* world);
 
 	// ----------
 	// SNAP TOOL
@@ -33,25 +33,25 @@ namespace Editor
 	// MEASURE TOOL
 	// -------------
 	void ActivateMeasureMode(u8 axis);
-	void CheckSelectionToMeasure(const T_World* world);
+	void CheckSelectionToMeasure(const World* world);
 
 	// ------------------------
 	// LOCATE COORDINATES MODE
 	// ------------------------
 	void ActivateLocateCoordsMode();
-	auto CheckSelectionToLocateCoords(const T_World* world) -> void;
+	auto CheckSelectionToLocateCoords(const World* world) -> void;
 
 	// -------------
 	// > MOVE TOOLS 
 	// -------------
-	void PlaceEntity(T_World* world);
+	void PlaceEntity(World* world);
 	RaycastTest TestRayAgainstEntitySupportPlane(u16 move_axis, E_Entity* entity);
 
 	// --------------
 	// >> PLACE MODE
 	// --------------
 	void ActivatePlaceMode(E_Entity* entity);
-	void SelectEntityPlacingWithMouseMove(E_Entity* entity, const T_World* world);
+	void SelectEntityPlacingWithMouseMove(E_Entity* entity, const World* world);
 	
 	// -------------
 	// >> MOVE MODE
@@ -71,7 +71,7 @@ namespace Editor
 	// @todo: This will DISAPPEAR after lights become entities!
 	//       We need to provide entity rights to lights too! revolution now!
 
-	void MoveLightWithMouse(std::string type, int index, T_World* world);
+	void MoveLightWithMouse(std::string type, int index, World* world);
 	void ActivateMoveLightMode(std::string type, int index);
 	void PlaceLight(std::string type, int index);
 	void PlaceLight();

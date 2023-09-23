@@ -42,13 +42,13 @@ void RenderMesh(const Mesh* mesh, RenderOptions opts = RenderOptions{});
 // RENDER ENTITY
 // --------------
 void RenderEntity(E_Entity* entity);
-void RenderEditorEntity(E_Entity* entity, T_World* world, Camera* camera);
+void RenderEditorEntity(E_Entity* entity, World* world, Camera* camera);
 
 // -------------
 // RENDER SCENE
 // -------------
-void RenderScene(T_World* world, Camera* camera);
-void SetShaderLightVariables(T_World* world, Shader* shader, Camera* camera);
+void RenderScene(World* world, Camera* camera);
+void SetShaderLightVariables(World* world, Shader* shader, Camera* camera);
 
 // -------------------------
 // RENDER GAME GUI

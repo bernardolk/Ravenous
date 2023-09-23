@@ -63,7 +63,7 @@ void IN_ProcessMoveKeys(InputFlags flags, vec3& v_dir, bool short_circuit)
 }
 
 
-void IN_HandleMovementInput(InputFlags flags, Player* player, T_World* world)
+void IN_HandleMovementInput(InputFlags flags, Player* player, World* world)
 {
 	// assign keys
 	IN_AssignKeysToActions();

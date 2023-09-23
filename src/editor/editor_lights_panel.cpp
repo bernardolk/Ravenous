@@ -34,7 +34,7 @@ namespace Editor
 	}
 
 
-	void RenderLightsPanel(LightsPanelContext* panel, T_World* world)
+	void RenderLightsPanel(LightsPanelContext* panel, World* world)
 	{
 		ImGui::SetNextWindowPos(ImVec2(180, 80), ImGuiCond_Appearing);
 		ImGui::Begin("Lights Panel", &panel->active, ImGuiWindowFlags_None);

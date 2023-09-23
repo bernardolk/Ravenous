@@ -45,7 +45,7 @@ void Player::Update()
 
 void Player::UpdateState()
 {
-	T_World* world = T_World::Get();
+	World* world = World::Get();
 	float dt = Rvn::GetFrameDuration();
 
 	// -------------
@@ -607,7 +607,7 @@ float Player::GetSpeedLimit() const
 	}
 }
 
-void GP_CheckPlayerGrabbedLedge(Player* player, T_World* world)
+void GP_CheckPlayerGrabbedLedge(Player* player, World* world)
 {
 	Ledge ledge = CL_PerformLedgeDetection(player, world);
 	if (ledge.empty)

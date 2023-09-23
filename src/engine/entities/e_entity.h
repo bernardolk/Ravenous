@@ -82,15 +82,17 @@ public:
 	mat4 trigger_mat_model{};
 
 public:
-	
 	void Update();
 	void UpdateCollider();
 	void UpdateModelMatrix();
 	void UpdateBoundingBox();
 	void UpdateTrigger();
+	
 	void RotateY(float angle);
 	mat4 GetRotationMatrix();
+	
 	CollisionMesh GetTriggerCollider();
+	
 	void MakeInvisible();
 	void MakeVisible();
 };

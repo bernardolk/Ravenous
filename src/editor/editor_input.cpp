@@ -21,7 +21,7 @@
 
 namespace Editor
 {
-	void HandleInputFlagsForEditorMode(InputFlags flags, T_World* world)
+	void HandleInputFlagsForEditorMode(InputFlags flags, World* world)
 	{
 		// ------------------------
 		// EDITOR EDITING COMMANDS
@@ -49,7 +49,7 @@ namespace Editor
 			player->checkpoint_pos = player->position;
 			WorldSerializer::SaveToFile();
 			// set scene
-			program_config.initial_scene = T_World::Get()->scene_name;
+			program_config.initial_scene = World::Get()->scene_name;
 			ConfigSerializer::Save(program_config);
 			Rvn::rm_buffer->Add("world state saved", 1200);
 			return;

@@ -23,7 +23,7 @@ namespace Editor
 		{
 			if (ImGui::ImageButton((void*) panel->textures[i], ImVec2(64, 64)))
 			{
-				auto* new_entity = T_World::Get()->CreateEntity<E_StaticMesh>(0,0,0);
+				auto* new_entity = World::Get()->SpawnEntity<E_StaticMesh>();
 				if (!new_entity)
 					continue;
 				
