@@ -34,7 +34,7 @@ void IN_AssignKeysToActions()
 }
 
 
-void IN_ProcessMoveKeys(InputFlags flags, vec3& v_dir, bool short_circuit)
+void IN_ProcessMoveKeys(RInputFlags flags, vec3& v_dir, bool short_circuit)
 {
 	auto* player_camera = RCameraManager::Get()->GetGameCamera();
 
@@ -63,7 +63,7 @@ void IN_ProcessMoveKeys(InputFlags flags, vec3& v_dir, bool short_circuit)
 }
 
 
-void IN_HandleMovementInput(InputFlags flags, EPlayer* player, RWorld* world)
+void IN_HandleMovementInput(RInputFlags flags, EPlayer* player, RWorld* world)
 {
 	// assign keys
 	IN_AssignKeysToActions();

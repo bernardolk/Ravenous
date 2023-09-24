@@ -328,7 +328,7 @@ namespace Editor
 			{
 				auto aabb = GeometryCatalogue.find("aabb")->second;
 				auto [pos, scale] = panel.entity->bounding_box.GetPosAndScale();
-				ImDraw::AddMesh(IMHASH, aabb, pos, vec3(0), scale, COLOR_PINK_1, 0);
+				RImDraw::AddMesh(IMHASH, aabb, pos, vec3(0), scale, COLOR_PINK_1, 0);
 			}
 		}
 
@@ -367,7 +367,7 @@ namespace Editor
 			if (ed_context.measure_axis == 2)
 				second_point = vec3(ed_context.measure_from.x, ed_context.measure_from.y, ed_context.measure_to);
 
-			ImDraw::Add(
+			RImDraw::Add(
 				IMHASH,
 				std::vector<RVertex>{
 				RVertex{ed_context.measure_from},
@@ -380,7 +380,7 @@ namespace Editor
 
 		if (ed_context.locate_coords_mode && ed_context.locate_coords_found_point)
 		{
-			ImDraw::AddPoint(IMHASH, ed_context.locate_coords_position, 2.0);
+			RImDraw::AddPoint(IMHASH, ed_context.locate_coords_position, 2.0);
 		}
 
 		RenderToolbar(world);
@@ -1025,7 +1025,7 @@ namespace Editor
 
 				vec3 arrow_origin = light_position - vec3{0.0, 0.56, 0.0};
 				vec3 arrow_end = arrow_origin + arrow_direction * 1.5f;
-				ImDraw::AddLine(IMHASH, arrow_origin, arrow_end, 1.5);
+				RImDraw::AddLine(IMHASH, arrow_origin, arrow_end, 1.5);
 			}
 
 			// @todo: epic fail below (trying to rotate an arrow mesh according to a dir vector)
@@ -1175,9 +1175,9 @@ namespace Editor
 			vec3 normal = triangleNormal(_t.a, _t.b, _t.c);
 			Face f = FaceFromAxisAlignedTriangle(_t);
 
-			ImDraw::AddPoint(IMHASH, f.center, 2.0, true);
+			RImDraw::AddPoint(IMHASH, f.center, 2.0, true);
 
-			ImDraw::AddLine(IMHASH, f.center, f.center + normal * 2.0f, 2.5, true);
+			RImDraw::AddLine(IMHASH, f.center, f.center + normal * 2.0f, 2.5, true);
 		}
 	}
 

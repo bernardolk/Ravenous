@@ -2,10 +2,10 @@
 
 #include "engine/core/core.h"
 
-struct InputFlags;
+struct RInputFlags;
 
 namespace Editor
 {
-	void HandleInputFlagsForEditorMode(InputFlags flags, RWorld* world);
-	void HandleInputFlagsForCommonInput(InputFlags flags, EPlayer* & player);
+	void HandleInputFlagsForEditorMode(RInputFlags flags, RWorld* world);
+	void HandleInputFlagsForCommonInput(RInputFlags flags, EPlayer* & player);
 }

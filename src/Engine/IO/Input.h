@@ -18,7 +18,7 @@ struct GlobalInputInfo
 	
 	bool forget_last_mouse_coords = true;
 	MouseCoordinates mouse_coords;
-	u64 key_state = 0;
-	u8 mouse_state = 0;
+	uint64 key_state = 0;
+	uint8 mouse_state = 0;
 	bool block_mouse_move = false;
 };

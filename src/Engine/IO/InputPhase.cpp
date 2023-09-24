@@ -7,7 +7,7 @@
 #include "engine/camera/camera.h"
 
 
-InputFlags InputPhase()
+RInputFlags StartInputPhase()
 {
 	// first, check if last frame we had a click, if so, 
 	// se it as btn hold (so we dont register clicks more than one time)
@@ -21,13 +21,13 @@ InputFlags InputPhase()
 	auto* GDC = GlobalDisplayState::Get();
 	auto key_press_flags = ProcessKeyboardInputKeyPress(GDC->GetWindow());
 	auto key_release_flags = ProcessKeyboardInputKeyRelease(GDC->GetWindow());
-	return InputFlags{key_press_flags, key_release_flags};
+	return RInputFlags{key_press_flags, key_release_flags};
 }
 
 
-u64 ProcessKeyboardInputKeyPress(GLFWwindow* window)
+uint64 ProcessKeyboardInputKeyPress(GLFWwindow* window)
 {
-	u64 flags = 0;
+	uint64 flags = 0;
 
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
 		flags = flags | KEY_Q;
@@ -183,9 +183,9 @@ u64 ProcessKeyboardInputKeyPress(GLFWwindow* window)
 }
 
 
-u64 ProcessKeyboardInputKeyRelease(GLFWwindow* window)
+uint64 ProcessKeyboardInputKeyRelease(GLFWwindow* window)
 {
-	u64 flags = 0;
+	uint64 flags = 0;
 
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE)
 		flags = flags | KEY_Q;
@@ -459,21 +459,21 @@ void OnMouseBtn(GLFWwindow* window, int button, int action, int mods)
 }
 
 
-bool PressedOnce(InputFlags flags, u64 key)
+bool PressedOnce(RInputFlags flags, uint64 key)
 {
 	auto* GII = GlobalInputInfo::Get();
 	return flags.key_press & key && !(GII->key_state & key);
 }
 
 
-bool PressedOnly(InputFlags flags, u64 key)
+bool PressedOnly(RInputFlags flags, uint64 key)
 {
 	auto* GII = GlobalInputInfo::Get();
 	return flags.key_press == key && !(GII->key_state & key);
 }
 
 
-bool Pressed(InputFlags flags, u64 key)
+bool Pressed(RInputFlags flags, uint64 key)
 {
 	return flags.key_press & key;
 }
@@ -495,7 +495,7 @@ void CheckMouseClickHold()
 }
 
 
-void ResetInputFlags(InputFlags flags)
+void ResetInputFlags(RInputFlags flags)
 {
 	auto* GII = GlobalInputInfo::Get();
 	// here we record a history for if keys were last pressed or released, so to enable smooth toggle

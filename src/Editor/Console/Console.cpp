@@ -18,7 +18,7 @@ void InitializeConsoleBuffers()
 {
 	auto& Console = *RGlobalConsoleState::Get();
 	auto buffers = static_cast<char**>(malloc(sizeof(char*) * Console.buffer_capacity));
-	for (u16 i = 0; i < Console.buffer_capacity; i++)
+	for (uint16 i = 0; i < Console.buffer_capacity; i++)
 	{
 		buffers[i] = static_cast<char*>(calloc(Console.max_chars, sizeof(char)));
 	}
@@ -104,7 +104,7 @@ std::string CommitBuffer()
 		auto prior_capacity = Console.buffer_capacity;
 		Console.buffer_capacity *= 2;
 		Console.buffers = static_cast<char**>(realloc(Console.buffers, sizeof(char*) * Console.buffer_capacity));
-		for (u64 i = prior_capacity; i < Console.buffer_capacity; i++)
+		for (uint64 i = prior_capacity; i < Console.buffer_capacity; i++)
 		{
 			Console.buffers[i] = static_cast<char*>(calloc(Console.max_chars, sizeof(char)));
 		}
@@ -321,7 +321,7 @@ void ExecuteCommand(const std::string& buffer_line, EPlayer* & player, RWorld* w
 		print("what do you mean with %s man?\n", command.c_str());
 }
 
-void HandleConsoleInput(InputFlags flags, EPlayer* & player, RWorld* world, RCamera* camera)
+void HandleConsoleInput(RInputFlags flags, EPlayer* & player, RWorld* world, RCamera* camera)
 {
 	auto& Console = *RGlobalConsoleState::Get();
 
@@ -357,7 +357,7 @@ void HandleConsoleInput(InputFlags flags, EPlayer* & player, RWorld* world, RCam
 	CheckLetterKeyPresses(flags);
 }
 
-void CheckLetterKeyPresses(InputFlags flags)
+void CheckLetterKeyPresses(RInputFlags flags)
 {
 	auto& Console = *RGlobalConsoleState::Get();
 

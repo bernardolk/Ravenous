@@ -77,7 +77,7 @@ void REntityAnimation::Update()
 }
 
 
-u32 REntityAnimationBuffer::FindSlot()
+uint REntityAnimationBuffer::FindSlot()
 {
 	For(animation_buffer_array_size)
 	{

@@ -13,7 +13,7 @@ namespace Editor
 	void UpdateEntityRotationGizmo(REntityPanelContext* panel);
 	void RenderEntityControlArrows(REntityPanelContext* panel);
 	void RenderEntityPanel(REntityPanelContext* panel, RWorld* world);
-	void EntityPanelUpdateEntityAndEditorContext(const REntityPanelContext* panel, u32 action, RWorld* world);
+	void EntityPanelUpdateEntityAndEditorContext(const REntityPanelContext* panel, uint action, RWorld* world);
 	void EntityPanelTrackEntityChanges(REntityPanelContext* panel);
 
 

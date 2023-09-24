@@ -200,7 +200,7 @@ gl_charmap LoadTextTextures(std::string font, int size)
 		// Now store character for later use
 		Character character = {
 		.texture_id = gylphTexture,
-		.advance = static_cast<u32>(face->glyph->advance.x),
+		.advance = static_cast<uint>(face->glyph->advance.x),
 		.size = glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
 		.bearing = glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top)
 		};

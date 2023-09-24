@@ -5,7 +5,7 @@
 #include "engine/collision/primitives/BoundingBox.h"
 #include "engine/geometry/mesh.h"
 
-constexpr static u32 MaxEntityWorldChunks = 20;
+constexpr static uint MaxEntityWorldChunks = 20;
 const static std::string DefaultEntityShader = "model";
 const static std::string EntityShaderMarking = "color";
 
@@ -35,7 +35,7 @@ struct EEntity
 {
 	// Basic data needed for lower level systems to recognize an Entity type.
 	TypeID type_id;
-	u64 id = 0;
+	uint64 id = 0;
 	string name;
 
 protected:

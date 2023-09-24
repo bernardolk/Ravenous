@@ -115,7 +115,7 @@ namespace Reflection
 		}
 	};
 
-	constexpr static u32 SerializationSize = 1600;
+	constexpr static uint SerializationSize = 1600;
 
 	template<typename T>
 	string Dump(T& instance, bool include_header = true)
@@ -196,7 +196,7 @@ namespace Reflection
 
 inline string GetLine(string& text, char delimiter)
 {
-	u32 pos = text.find(delimiter);
+	uint pos = text.find(delimiter);
 	if (pos == std::string::npos)
 		return "";
 	string line = text.substr(0, pos);
@@ -214,12 +214,12 @@ inline string GetLine(string& text, char delimiter)
 
 struct AssetCatalogue
 {
-    u32 asset_instance_size = 0;
+    uint asset_instance_size = 0;
     void* instance_array;
-    u32* version_list;
-    u32 instance_count = 0;
+    uint* version_list;
+    uint instance_count = 0;
 
-    AssetCatalogue(u32 asset_instance_size,  void* instance_array, u32 array_size, u32* version_list) : 
+    AssetCatalogue(uint asset_instance_size,  void* instance_array, uint array_size, uint* version_list) : 
         asset_instance_size(asset_instance_size),
         instance_array(instance_array),
         version_list(version_list),
@@ -229,7 +229,7 @@ struct AssetCatalogue
     }
 
     template<typename T>
-    T* CheckVersion(T* ptr, u32 version)
+    T* CheckVersion(T* ptr, uint version)
     {
         // do ptr arithmetic to get version list index and compare versions
         return nullptr;

@@ -9,7 +9,7 @@ const std::string RecordingsFilenameExtension = ".txt";
 
 struct RRecordedInput
 {
-	std::vector<InputFlags> history;
+	std::vector<RInputFlags> history;
 };
 
 struct RInputRecorder
@@ -25,10 +25,10 @@ struct RInputRecorder
 	int playing_flag_idx = 0;
 
 	void StartRecording();
-	void Record(InputFlags flags);
+	void Record(RInputFlags flags);
 	void StopRecording();
 	void StartPlaying(int recording_id);
-	InputFlags Play();
+	RInputFlags Play();
 	void StopPlaying();
 	void Save(int recording_id);
 	void Load();

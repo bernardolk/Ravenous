@@ -36,7 +36,7 @@ struct RWorld
 	DeclSingleton(RWorld)
 	
 	// static constexpr u8 world_chunk_matrix_order = 10;
-	static constexpr u32 world_size_in_chunks = WorldChunkNumX * WorldChunkNumY * WorldChunkNumZ;
+	static constexpr uint world_size_in_chunks = WorldChunkNumX * WorldChunkNumY * WorldChunkNumZ;
 
 	string scene_name;
 
@@ -84,8 +84,8 @@ private:
 
 struct WorldEntityIterator
 {
-	u8 total_active_chunks = 0;
-	u8 current_chunk_index = 0;
+	uint8 total_active_chunks = 0;
+	uint8 current_chunk_index = 0;
 
 	RWorld* world;
 	RWorldChunkEntityIterator chunk_iterator;

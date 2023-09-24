@@ -16,9 +16,9 @@ struct DeferredEntityRelationBuffer
 	static constexpr int size = 64;
 	int count = 0;
 	EEntity* entities[size];
-	u64 deferred_entity_ids[size];
+	uint64 deferred_entity_ids[size];
 	SrEntityRelation relations[size];
-	u32 aux_uint_buffer[size];
+	uint aux_uint_buffer[size];
 };
 
 struct EntitySerializer

@@ -46,7 +46,7 @@ void RMesh::SetupGLData()
 	glBindBuffer(GL_ARRAY_BUFFER, new_gl_data.VBO);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(RVertex), &(vertices[0]), GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, new_gl_data.EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(u32), &(indices[0]), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint), &(indices[0]), GL_STATIC_DRAW);
 
 	// set the vertex attribute pointers
 	// vertex positions
@@ -206,7 +206,7 @@ void RMesh::ComputeTangentsAndBitangents()
 	}
 }
 
-RGLData setup_gl_data_for_lines(const RVertex* vertices, u32 size)
+RGLData setup_gl_data_for_lines(const RVertex* vertices, uint size)
 {
 	RGLData gl_data;
 

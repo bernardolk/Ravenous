@@ -38,7 +38,7 @@ namespace Editor
 
 		//rename buffer
 		bool rename_option_active = false;
-		const static u32 _rename_buff_size = 100;
+		const static uint _rename_buff_size = 100;
 		char rename_buffer[_rename_buff_size];
 
 		bool reverse_scale = false;

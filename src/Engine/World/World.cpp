@@ -151,7 +151,7 @@ RRaycastTest RWorld::LinearRaycastArray(const RRay first_ray, int qty, float spa
 			}
 		}
 
-		ImDraw::AddLine(IM_ITERHASH(i), ray.origin, ray.origin + ray.direction * player->grab_reach, 1.2f, false, COLOR_GREEN_1);
+		RImDraw::AddLine(IM_ITERHASH(i), ray.origin, ray.origin + ray.direction * player->grab_reach, 1.2f, false, COLOR_GREEN_1);
 
 		ray = RRay{ray.origin + UnitY * spacing, ray.direction};
 	}
@@ -159,7 +159,7 @@ RRaycastTest RWorld::LinearRaycastArray(const RRay first_ray, int qty, float spa
 	if (best_hit_results.hit)
 	{
 		vec3 hitpoint = CL_GetPointFromDetection(best_hit_results.ray, best_hit_results);
-		ImDraw::AddPoint(IMHASH, hitpoint, 2.0, true, COLOR_RED_1);
+		RImDraw::AddPoint(IMHASH, hitpoint, 2.0, true, COLOR_RED_1);
 	}
 
 	return best_hit_results;
@@ -270,11 +270,11 @@ CellUpdate RWorld::UpdateEntityWorldChunk(EEntity* entity)
 	auto origin_chunk =  WorldCoordsToCells(entity->position);
 
 	// Add entity to all world cells
-	for (i32 i = i0; i <= i1; i++)
+	for (int i = i0; i <= i1; i++)
 	{
-		for (i32 j = j0; j <= j1; j++)
+		for (int j = j0; j <= j1; j++)
 		{
-			for (i32 k = k0; k <= k1; k++)
+			for (int k = k0; k <= k1; k++)
 			{
 				auto chunk_it = this->chunks_map.find({i,j,k});
 				if (chunk_it == chunks_map.end())

@@ -104,7 +104,7 @@ RShader* CreateShaderProgram(string name, const string vertex_shader_filename, c
 
 	// OPTIONAL SHADERS
 	bool build_geometry_shader = geometry_shader_filename != "";
-	u32 optional_shaders[5];
+	uint optional_shaders[5];
 	int optional_shaders_count = 0;
 
 	bool problem = false;

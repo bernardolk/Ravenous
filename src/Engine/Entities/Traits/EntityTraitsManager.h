@@ -9,7 +9,7 @@ struct EntityTraitsManager
 	
 	using UpdateFuncPtr = void(*)(EEntity*);
 	
-	static inline constexpr u32 max_traits = 5;
+	static inline constexpr uint max_traits = 5;
 
 	map<TraitID, map<TypeID, UpdateFuncPtr>> trait_registry;
 	map<TypeID, vector<TypeID>> trait_inverse_registry;

@@ -36,7 +36,7 @@ void EntitySerializer::Parse(Parser& parser)
 		{
 			p.ParseAllWhitespace();
 			p.ParseU64();
-			u64 id = GetParsed<u64>(parser);
+			uint64 id = GetParsed<uint64>(parser);
 			new_entity.id = id;
 		}
 

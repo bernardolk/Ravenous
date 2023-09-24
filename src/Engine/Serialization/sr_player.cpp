@@ -44,7 +44,7 @@ void PlayerSerializer::ParseAttribute(Parser& p)
 	{
 		p.ParseAllWhitespace();
 		p.ParseInt();
-		player->initial_player_state = static_cast<NPlayerState>(GetParsed<u32>(p));
+		player->initial_player_state = static_cast<NPlayerState>(GetParsed<uint>(p));
 		player->player_state = player->initial_player_state;
 	}
 

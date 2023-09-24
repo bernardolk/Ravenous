@@ -48,10 +48,10 @@ struct EntityBufferElement
 
 struct Rvn
 {
-	static constexpr u32 collision_log_buffer_capacity = 150;
-	static constexpr u32 collision_log_capacity = 20;
-	static constexpr u32 collision_buffer_capacity = 1000;
-	static constexpr u32 message_buffer_capacity = 300;
+	static constexpr uint collision_log_buffer_capacity = 150;
+	static constexpr uint collision_log_capacity = 20;
+	static constexpr uint collision_buffer_capacity = 1000;
+	static constexpr uint message_buffer_capacity = 300;
 	static constexpr int max_messages_to_render = 8;
 
 	inline static string scene_name;
@@ -76,8 +76,8 @@ struct RenderMessageBufferElement
 
 struct RenderMessageBuffer
 {
-	constexpr static u32 capacity = Rvn::message_buffer_capacity;
-	u16 count = 0;
+	constexpr static uint capacity = Rvn::message_buffer_capacity;
+	uint16 count = 0;
 
 private:
 	RenderMessageBufferElement buffer[capacity]{};

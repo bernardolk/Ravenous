@@ -137,7 +137,7 @@ RMesh* LoadWavefrontObjAsMesh(
 					if (!p.HasToken())
 						break;
 
-					u32 index = GetParsed<u32>(p) - 1;
+					uint index = GetParsed<uint>(p) - 1;
 					v.position = v_pos[index];
 				}
 
@@ -148,7 +148,7 @@ RMesh* LoadWavefrontObjAsMesh(
 					p.ParseUint();
 					if (p.HasToken() && !v_texels.empty())
 					{
-						u32 index = GetParsed<u32>(p) - 1;
+						uint index = GetParsed<uint>(p) - 1;
 						v.tex_coords = v_texels[index];
 					}
 
@@ -159,7 +159,7 @@ RMesh* LoadWavefrontObjAsMesh(
 						p.ParseUint();
 						if (p.HasToken() && !v_normals.empty())
 						{
-							u32 index = GetParsed<u32>(p) - 1;
+							uint index = GetParsed<uint>(p) - 1;
 							v.normal = v_normals[index];
 						}
 					}
@@ -212,7 +212,7 @@ RMesh* LoadWavefrontObjAsMesh(
 		mesh->SetupGLData();
 
 	// sets render method for mesh
-	mesh->render_method = static_cast<u32>(render_method);
+	mesh->render_method = static_cast<uint>(render_method);
 
 
 	// sets texture name and adds to catalogue
@@ -253,7 +253,7 @@ RCollisionMesh* LoadWavefrontObjAsCollisionMesh(std::string path, std::string fi
 		else if (attr == "f")
 		{
 			int number_of_vertexes_in_face = 0;
-			u32 index_buffer[4];
+			uint index_buffer[4];
 			// iterate over face's vertices
 			while (true)
 			{
@@ -266,7 +266,7 @@ RCollisionMesh* LoadWavefrontObjAsCollisionMesh(std::string path, std::string fi
 						break;
 
 					// corrects from 1-first-element convention (from .obj file) to 0-first.
-					const u32 index = GetParsed<u32>(p) - 1;
+					const uint index = GetParsed<uint>(p) - 1;
 					// c_mesh.index.push_back(index);
 					index_buffer[number_of_vertexes_in_face] = index;
 				}
@@ -421,8 +421,8 @@ void LoadMeshExtraData(std::string filename, RMesh* mesh)
 	const auto extra_data_path = Paths::Models + "extra_data/" + filename + ".objplus";
 	Parser p{extra_data_path};
 
-	u32 vtan_i = 0;
-	u32 vbitan_i = 0;
+	uint vtan_i = 0;
+	uint vbitan_i = 0;
 	while (p.NextLine())
 	{
 		p.ParseToken();

@@ -59,7 +59,7 @@ int main()
 	InitializeConsoleBuffers();
 
 	// Initialises immediate draw
-	ImDraw::Init();
+	RImDraw::Init();
 
 	// loads initial scene
 	ConfigSerializer::LoadGlobalConfigs();

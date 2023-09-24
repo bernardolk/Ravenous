@@ -4,9 +4,9 @@
 #include "engine/core/core.h"
 
 struct REntityAnimation;
-inline map<u32, REntityAnimation> AnimationCatalogue;
+inline map<uint, REntityAnimation> AnimationCatalogue;
 
-constexpr static u32 AnMaxEntityAnimationKeyframes = 16;
+constexpr static uint AnMaxEntityAnimationKeyframes = 16;
 
 enum NEntityAnimationKeyframeFlags
 {
@@ -17,7 +17,7 @@ enum NEntityAnimationKeyframeFlags
 
 struct REntityAnimationKeyframe
 {
-	u32 duration; // expressed in milliseconds
+	uint duration; // expressed in milliseconds
 	vec3 final_position;
 	vec3 final_rotation;
 	vec3 final_scale;
@@ -25,7 +25,7 @@ struct REntityAnimationKeyframe
 	vec3 starting_rotation;
 	vec3 starting_scale;
 
-	u32 flags;
+	uint flags;
 };
 
 struct REntityAnimation
@@ -33,11 +33,11 @@ struct REntityAnimation
 	std::string description = "";
 	bool active = false;
 	EEntity* entity = nullptr;
-	u32 keyframes_count = 0;
+	uint keyframes_count = 0;
 	REntityAnimationKeyframe keyframes[AnMaxEntityAnimationKeyframes];
 
 	float runtime = 0; // expressed in milliseconds
-	u32 current_keyframe = 0;
+	uint current_keyframe = 0;
 	float keyframe_runtime = 0;
 
 	void Update();
@@ -45,10 +45,10 @@ struct REntityAnimation
 
 struct REntityAnimationBuffer
 {
-	constexpr static u32 animation_buffer_array_size = 16;
+	constexpr static uint animation_buffer_array_size = 16;
 	REntityAnimation animations[animation_buffer_array_size];
 
-	u32 FindSlot();
+	uint FindSlot();
 
 	void StartAnimation(EEntity* entity, REntityAnimation* animation);
 

@@ -23,12 +23,12 @@ struct REntityStorageBlockMetadata
 	
 	// type data
 	TypeID type_id;
-	u32 type_size;
+	uint type_size;
 	// TODO: We don't need to know about traits at this level, lets only deal with entity Types
 	Array<TraitID, EntityTraitsManager::max_traits> entity_traits{};
 
 	// array bookkeeping
-	u32 max_entity_instances;
+	uint max_entity_instances;
 	int entity_count = 0;
 	byte* data_start = nullptr;
 };
@@ -39,12 +39,12 @@ struct RWorldChunkStorage
 	using byte = char;
 
 	// MAX BUDGET for ALL entities
-	inline static constexpr u32 chunk_byte_budget = 666000;
-	static inline constexpr u32 max_types_per_storage = 20;
+	inline static constexpr uint chunk_byte_budget = 666000;
+	static inline constexpr uint max_types_per_storage = 20;
 
 	byte data[chunk_byte_budget];
 	byte* next_block_start;
-	u32 bytes_consumed = 0;
+	uint bytes_consumed = 0;
 	int parent_chunk_id;
 
 	// Holds the useful metadata about each storage block in chunk storage. Iterate over it to go through all entity types.
@@ -71,8 +71,8 @@ private:
 struct RWorldChunkEntityIterator
 {
 	RWorldChunk* chunk;
-	u32 block_idx = 0;
-	u32 entity_idx = 0;
+	uint block_idx = 0;
+	uint entity_idx = 0;
 	
 	explicit RWorldChunkEntityIterator(RWorldChunk* chunk) : chunk(chunk){}
 
@@ -89,7 +89,7 @@ void RWorldChunkStorage::MaybeAllocateForType()
 		return;
 
 	// if we have budget, get a block for the new entity type
-	u32 total_entity_block_size = T_Entity::instance_budget * sizeof(T_Entity);
+	uint total_entity_block_size = T_Entity::instance_budget * sizeof(T_Entity);
 	if(bytes_consumed + total_entity_block_size <= chunk_byte_budget)
 	{
 		auto* new_block = storage_metadata_array.AddNew();

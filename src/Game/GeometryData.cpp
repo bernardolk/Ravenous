@@ -58,7 +58,7 @@ void LoadModels()
 	RVertex{vec3(0.0f, 1.0f, 1.0f), vec3(-1.0f, 0.0f, 0.0f), vec2(0.5f, 0.5f)}, //17
 	};
 
-	std::vector<u32> slope_vertex_indices =
+	std::vector<uint> slope_vertex_indices =
 	{
 	0, 1, 2, 2, 3, 0,       // bottom face
 	8, 9, 10,               // front

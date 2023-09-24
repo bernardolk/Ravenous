@@ -1,11 +1,11 @@
 #pragma once
 #include "engine/core/core.h"
 
-struct InputFlags;
+struct RInputFlags;
 
-void HandleConsoleInput(InputFlags flags, EPlayer* & player, RWorld* world, RCamera* camera);
+void HandleConsoleInput(RInputFlags flags, EPlayer* & player, RWorld* world, RCamera* camera);
 void ExecuteCommand(const string& buffer_line, EPlayer* & player, RWorld* world, RCamera* camera);
-void CheckLetterKeyPresses(InputFlags flags);
+void CheckLetterKeyPresses(RInputFlags flags);
 void ClearConsoleStringBuffer();
 void RenderConsole();
 void StartConsoleMode();
@@ -21,12 +21,12 @@ struct RGlobalConsoleState
 {
 	DeclSingleton(RGlobalConsoleState)
 	
-	u16 buffer_capacity = 20;
-	constexpr static u16 max_chars = 50;
+	uint16 buffer_capacity = 20;
+	constexpr static uint16 max_chars = 50;
 	char** buffers;
-	u16 b_ind = 0;
-	u16 current_buffer_size = 0;
-	u16 buffer_size_incr = 1;
+	uint16 b_ind = 0;
+	uint16 current_buffer_size = 0;
+	uint16 buffer_size_incr = 1;
 	char scratch_buffer[max_chars];
-	u16 c_ind = 0;
+	uint16 c_ind = 0;
 };

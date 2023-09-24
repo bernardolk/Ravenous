@@ -21,7 +21,7 @@
 
 namespace Editor
 {
-	void HandleInputFlagsForEditorMode(InputFlags flags, RWorld* world)
+	void HandleInputFlagsForEditorMode(RInputFlags flags, RWorld* world)
 	{
 		// ------------------------
 		// EDITOR EDITING COMMANDS
@@ -357,7 +357,7 @@ namespace Editor
 		}
 	}
 
-	void HandleInputFlagsForCommonInput(InputFlags flags, EPlayer* & player)
+	void HandleInputFlagsForCommonInput(RInputFlags flags, EPlayer* & player)
 	{
 		auto& frame = RavenousEngine::GetFrame();
 

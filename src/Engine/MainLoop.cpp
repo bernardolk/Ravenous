@@ -35,7 +35,7 @@ void RavenousMainLoop()
 		//	INPUT PHASE
 		// -------------
 		// This needs to be first or dearImGUI will crash.
-		auto input_flags = InputPhase();
+		auto input_flags = StartInputPhase();
 
 		auto* input_recorder = RInputRecorder::Get();
 		// Input recorder
@@ -128,8 +128,8 @@ void RavenousMainLoop()
 					break;
 				}
 			}
-			ImDraw::Render(camera);
-			ImDraw::Update(frame.duration);
+			RImDraw::Render(camera);
+			RImDraw::Update(frame.duration);
 			Rvn::rm_buffer->Render();
 		}
 

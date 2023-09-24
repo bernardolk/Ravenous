@@ -73,12 +73,12 @@ void RenderEntity(EEntity* entity)
 	entity->shader->SetMatrix4("model", entity->mat_model);
 
 	// bind appropriate textures
-	u32 diffuse_n = 1;
-	u32 specular_n = 1;
-	u32 normal_n = 1;
-	u32 height_n = 1;
+	uint diffuse_n = 1;
+	uint specular_n = 1;
+	uint normal_n = 1;
+	uint height_n = 1;
 
-	u32 i;
+	uint i;
 	for (i = 0; i < entity->textures.size(); i++)
 	{
 		// active proper texture unit before binding

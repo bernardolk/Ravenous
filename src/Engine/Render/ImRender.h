@@ -22,16 +22,16 @@
 #define IMCUSTOMHASH(x) ImHasher(x)
 #define IM_ITERHASH(x) ImHasher(std::string(__FILE__) + "-" + std::to_string(__LINE__) + "-" + std::to_string(x))
 #define IMHASH ImHasher(std::string(__FILE__) + "-" + std::to_string(__LINE__))
-#define IM_R_FIND_SLOT() ImDrawSlot slot = FindElementOrEmptySlot(_hash); \
+#define IM_R_FIND_SLOT() RImDrawSlot slot = FindElementOrEmptySlot(_hash); \
                          if(slot.empty && slot.index == -1) return;
 
 
 struct RenderOptions;
 constexpr inline std::hash<std::string> ImHasher;
 
-struct ImDrawElement
+struct RImDrawElement
 {
-	u32 hash;
+	uint hash;
 	bool empty;
 	RMesh mesh;
 	RenderOptions render_options;
@@ -43,36 +43,36 @@ struct ImDrawElement
 	bool is_multpl_by_matmodel;
 };
 
-struct ImDrawSlot
+struct RImDrawSlot
 {
 	bool empty;
 	int index;
 };
 
-struct ImDraw
+struct RImDraw
 {
 	static constexpr int im_buffer_size = 200;
-	inline static ImDrawElement* list;
+	inline static RImDrawElement* list;
 
 	static void Init();
 	static void Update(float frame_duration);
 	static void Render(RCamera* camera);
-	static auto Add(u32 _hash, vector<RVertex> vertex_vec, GLenum draw_method, RenderOptions opts = RenderOptions{}) -> void;
-	static void Add(u32 _hash, vector<RTriangle> triangles, GLenum draw_method, RenderOptions);
-	static void AddLine(u32 _hash, vec3 point_a, vec3 point_b, vec3 color);
-	static void AddLine(u32 _hash, vec3 point_a, vec3 point_b, float line_width = 1.0,
+	static auto Add(uint _hash, vector<RVertex> vertex_vec, GLenum draw_method, RenderOptions opts = RenderOptions{}) -> void;
+	static void Add(uint _hash, vector<RTriangle> triangles, GLenum draw_method, RenderOptions);
+	static void AddLine(uint _hash, vec3 point_a, vec3 point_b, vec3 color);
+	static void AddLine(uint _hash, vec3 point_a, vec3 point_b, float line_width = 1.0,
 	                    bool always_on_top = false, vec3 color = vec3(0), float duration = 0);
-	static void AddLineLoop(u32 _hash, vector<vec3> points, float line_width = 1.0, bool always_on_top = false);
-	static void AddPoint(u32 _hash, vec3 point, float point_size = 1.0,
+	static void AddLineLoop(uint _hash, vector<vec3> points, float line_width = 1.0, bool always_on_top = false);
+	static void AddPoint(uint _hash, vec3 point, float point_size = 1.0,
 	                     bool always_on_top = false, vec3 color = vec3(0), float duration = 0);
-	static void AddPoint(u32 _hash, vec3 point, vec3 color = vec3(0));
-	static void AddTriangle(u32 _hash, RTriangle t, float line_width = 1.0,
+	static void AddPoint(uint _hash, vec3 point, vec3 color = vec3(0));
+	static void AddTriangle(uint _hash, RTriangle t, float line_width = 1.0,
 	                        bool always_on_top = false, vec3 color = vec3{0.8, 0.2, 0.2});
-	static void AddMesh(u32 _hash, RMesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color = COLOR_BLUE_1, int duration = 2000);
-	static void AddMesh(u32 _hash, RMesh* mesh, vec3 color = COLOR_BLUE_1, float duration = 2000);
-	static void AddMesh(u32 _hash, EEntity* entity, int duration);
-	static void AddMesh(u32 _hash, EEntity* entity);
-	static void AddMesh(u32 _hash, EEntity* entity, vec3 pos);
+	static void AddMesh(uint _hash, RMesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color = COLOR_BLUE_1, int duration = 2000);
+	static void AddMesh(uint _hash, RMesh* mesh, vec3 color = COLOR_BLUE_1, float duration = 2000);
+	static void AddMesh(uint _hash, EEntity* entity, int duration);
+	static void AddMesh(uint _hash, EEntity* entity);
+	static void AddMesh(uint _hash, EEntity* entity, vec3 pos);
 
 private:
 	static void SetMesh(int i, vector<RVertex> vertices, GLenum draw_method, RenderOptions opts);
@@ -80,8 +80,8 @@ private:
 	static void UpdateMesh(int i, vec3 pos, vec3 rot, vec3 scale, vec3 color, int duration);
 	static void UpdateMesh(int i, vec3 color, int duration);
 	static mat4 GetMatModel(vec3 pos, vec3 rot, vec3 scale);
-	static void SetIndices(int i, vector<u32> indices);
+	static void SetIndices(int i, vector<uint> indices);
 	static void EmptySlot(int i);
 
-	static ImDrawSlot FindElementOrEmptySlot(u32 hash);
+	static RImDrawSlot FindElementOrEmptySlot(uint hash);
 };

@@ -12,5 +12,5 @@ void RSimplex::PushFront(vec3 point)
 	assert(this->p_size <= 4);
 }
 
-vec3& RSimplex::operator[](u32 i) { return this->points[i]; }
-u32 RSimplex::size() const { return this->p_size; }
+vec3& RSimplex::operator[](uint i) { return this->points[i]; }
+uint RSimplex::size() const { return this->p_size; }

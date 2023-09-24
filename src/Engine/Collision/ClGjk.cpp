@@ -210,7 +210,7 @@ void CL_UpdateSimplexAndDirection(GJK_Iteration* gjk)
 void CL_DebugRenderSimplex(RSimplex simplex)
 {
 	for (int i = 0; i < simplex.size(); i++)
-		ImDraw::AddPoint(IM_ITERHASH(i), simplex[i], 2.0, true, DebugColors[i]);
+		RImDraw::AddPoint(IM_ITERHASH(i), simplex[i], 2.0, true, DebugColors[i]);
 }
 
 

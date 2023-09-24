@@ -32,7 +32,7 @@ namespace Editor
 	// -------------
 	// MEASURE TOOL
 	// -------------
-	void ActivateMeasureMode(u8 axis);
+	void ActivateMeasureMode(uint8 axis);
 	void CheckSelectionToMeasure(const RWorld* world);
 
 	// ------------------------
@@ -45,7 +45,7 @@ namespace Editor
 	// > MOVE TOOLS 
 	// -------------
 	void PlaceEntity(RWorld* world);
-	RRaycastTest TestRayAgainstEntitySupportPlane(u16 move_axis, EEntity* entity);
+	RRaycastTest TestRayAgainstEntitySupportPlane(uint16 move_axis, EEntity* entity);
 
 	// --------------
 	// >> PLACE MODE
@@ -62,7 +62,7 @@ namespace Editor
 	// -------------------------
 	// >> MOVE ENTITY BY ARROWS
 	// -------------------------
-	void ActivateMoveEntityByArrow(u8 move_axis);
+	void ActivateMoveEntityByArrow(uint8 move_axis);
 	void MoveEntityByArrows(EEntity* entity);
 
 	// ----------------
@@ -80,7 +80,7 @@ namespace Editor
 	// ---------------------
 	// > ROTATE ENTITY TOOL
 	// ---------------------
-	void ActivateRotateEntityWithMouse(u8 move_axis);
+	void ActivateRotateEntityWithMouse(uint8 move_axis);
 	float MouseOffsetToAngularOffset(float mouse_offset);
 	void RotateEntityWithMouse(EEntity* entity);
 

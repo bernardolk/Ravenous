@@ -306,10 +306,10 @@ namespace Editor
 	// -------------
 	// MEASURE TOOL
 	// -------------
-	void ActivateMeasureMode(u8 axis);
+	void ActivateMeasureMode(uint8 axis);
 	void CheckSelectionToMeasure(const RWorld* world);
 
-	void ActivateMeasureMode(u8 axis)
+	void ActivateMeasureMode(uint8 axis)
 	{
 		auto& ed_context = *GetContext();
 
@@ -400,7 +400,7 @@ namespace Editor
 		ed_context.undo_stack.Track(ed_context.selected_entity);
 	}
 
-	RRaycastTest TestRayAgainstEntitySupportPlane(u16 move_axis, EEntity* entity)
+	RRaycastTest TestRayAgainstEntitySupportPlane(uint16 move_axis, EEntity* entity)
 	{
 		// create a big plane for placing entity in the world with the mouse using raycast from camera to mouse
 		// position. In the case of Y placement, we need to compute the plane considering the camera orientation.
@@ -544,11 +544,11 @@ namespace Editor
 	// -------------------------
 	// >> MOVE ENTITY BY ARROWS
 	// -------------------------
-	void ActivateMoveEntityByArrow(u8 move_axis);
+	void ActivateMoveEntityByArrow(uint8 move_axis);
 	void MoveEntityByArrows(EEntity* entity);
 
 
-	void ActivateMoveEntityByArrow(u8 move_axis)
+	void ActivateMoveEntityByArrow(uint8 move_axis)
 	{
 		auto& ed_context = *GetContext();
 
@@ -741,11 +741,11 @@ namespace Editor
 	// ---------------------
 	// > ROTATE ENTITY TOOL
 	// ---------------------
-	void ActivateRotateEntityWithMouse(u8 move_axis);
+	void ActivateRotateEntityWithMouse(uint8 move_axis);
 	float MouseOffsetToAngularOffset(float mouse_offset);
 	void RotateEntityWithMouse(EEntity* entity);
 
-	void ActivateRotateEntityWithMouse(u8 move_axis)
+	void ActivateRotateEntityWithMouse(uint8 move_axis)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto& ed_context = *GetContext();

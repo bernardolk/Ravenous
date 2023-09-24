@@ -3,7 +3,7 @@
 struct RSimplex
 {
 	vec3 points[4];
-	u32 p_size;
+	uint p_size;
 
 	RSimplex()
 	{
@@ -45,6 +45,6 @@ struct RSimplex
 	}
 
 	void PushFront(vec3 point);
-	vec3& operator[](u32 i);
-	u32 size() const;
+	vec3& operator[](uint i);
+	uint size() const;
 };

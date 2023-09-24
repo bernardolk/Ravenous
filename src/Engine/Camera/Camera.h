@@ -30,8 +30,8 @@ struct RCamera
 };
 
 // camera array indexes
-constexpr u8 EditorCam = 0;
-constexpr u8 GameCam = 1;
+constexpr uint8 EditorCam = 0;
+constexpr uint8 GameCam = 1;
 
 struct RCameraManager
 {

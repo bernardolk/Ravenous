@@ -4,15 +4,13 @@
 #include "Constants.h"
 
 /** Primitive types */
-using u8 = unsigned char;
-using u16 = unsigned short int;
-using u32 = unsigned int;
-using u64 = unsigned long long;
+using uint8 = unsigned char;
+using uint16 = unsigned short int;
+using uint = unsigned int;
+using uint64 = unsigned long long;
 
-using i8 = signed char;
-using i16 = short int;
-using i32 = int;
-using i64 = long int;
+using int16 = short int;
+using int64 = long int;
 
 #ifndef OS_WINDOWS_INCLUDED
 using byte = unsigned char;
@@ -34,10 +32,10 @@ using GLenum = unsigned int;
 
 using string = std::string;
 
-using Flags = u32;
+using Flags = uint;
 
-using TypeID = u32;
-using TraitID = u32;
+using TypeID = uint;
+using TraitID = uint;
 
 inline const vec3 UnitX = vec3(1, 0, 0);
 inline const vec3 UnitY = vec3(0, 1, 0);
@@ -116,10 +114,10 @@ struct Iterator
 {
 	T* it;
 
-	u32 it_count;
-	const u64 count;
+	uint it_count;
+	const uint64 count;
 
-	explicit Iterator(T* start, const u64 count) : count(count)
+	explicit Iterator(T* start, const uint64 count) : count(count)
 	{
 		it = start;
 		it_count = 0;
@@ -157,20 +155,20 @@ const T_Val* Find(const map<T_Key, T_Val>& map, T_Key key)
 }
 
 /** Basic iterable array data structure */
-template<typename T, u64 Size>
+template<typename T, uint64 Size>
 struct Array
 {
 
 private:
 	T data[Size];
-	u64 count = 0;
+	uint64 count = 0;
 
 public:
 	Array() = default;
 	
-	Array(T* data, u64 count)
+	Array(T* data, uint64 count)
 	{
-		for (u64 i = 0; i < count; i++)
+		for (uint64 i = 0; i < count; i++)
 			this->data[i] = data[i];
 		
 		this->count = count;
@@ -178,11 +176,11 @@ public:
 
 	explicit Array(T& default_obj)
 	{
-		for (u32 i = 0; i < Size; i++)
+		for (uint i = 0; i < Size; i++)
 			this->data[i] = default_obj;
 	}
 
-	u32 Num() { return count; }
+	uint Num() { return count; }
 
 	Iterator<T> GetIterator()
 	{
@@ -227,7 +225,7 @@ public:
 
 	bool Contains(T& item)
 	{
-		for (u32 i = 0; i < count; i++)
+		for (uint i = 0; i < count; i++)
 		{
 			if (data[i] == item)
 				return true;
@@ -242,7 +240,7 @@ public:
 	using Lambda = bool (*)(T&);
 	bool Eval(Lambda f)
 	{
-		for (u64 i = 0; i < count; i++)
+		for (uint64 i = 0; i < count; i++)
 		{
 			if (f(&data[i]))
 			{
@@ -253,24 +251,24 @@ public:
 	}
 };
 
-template<typename T, u8 Order, u16 Dimension>
+template<typename T, uint8 Order, uint16 Dimension>
 struct Matrix
 {
-	static constexpr u16 dimension = Dimension;
-	static constexpr u8 order = Order;
+	static constexpr uint16 dimension = Dimension;
+	static constexpr uint8 order = Order;
 };
 
-template<typename T, u16 Dimension>
+template<typename T, uint16 Dimension>
 struct Matrix<T, 3, Dimension>
 {
 	Array<Array<Array<T, Dimension>, Dimension>, Dimension> data{};
 
-	T* GetAt(u8 i, u8 j, u8 k)
+	T* GetAt(uint8 i, uint8 j, uint8 k)
 	{
 		return data.GetAt[i].GetAt[j].GetAt[k];
 	}
 
-	T* AddAt(const T& instance, u8 i, u8 j, u8 k)
+	T* AddAt(const T& instance, uint8 i, uint8 j, uint8 k)
 	{
 		if (i < Dimension && j < Dimension && k < Dimension)
 		{

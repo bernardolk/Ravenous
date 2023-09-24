@@ -7,11 +7,11 @@ namespace Editor
 {
 	void RenderCollisionLogPanel(RCollisionLogPanelContext* panel)
 	{
-		constexpr u16 w_width = 450;
-		constexpr u16 w_height = 320;
-		constexpr u8 w_bottom_margin = 30;
-		constexpr u8 table_items_to_show = 100;
-		constexpr u16 table_height = 120;
+		constexpr uint16 w_width = 450;
+		constexpr uint16 w_height = 320;
+		constexpr uint8 w_bottom_margin = 30;
+		constexpr uint8 table_items_to_show = 100;
+		constexpr uint16 table_height = 120;
 
 		ImGui::SetNextWindowPos(
 			ImVec2(GlobalDisplayState::viewport_width - w_width, GlobalDisplayState::viewport_height - w_height - w_bottom_margin),

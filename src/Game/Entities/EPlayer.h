@@ -114,7 +114,7 @@ struct Entity(EPlayer)
 	bool pressing_right_while_standing = false;
 	bool pressing_backward_while_standing = false;
 
-	u64 first_pressed_movement_key_while_standing = KEY_NONE;
+	uint64 first_pressed_movement_key_while_standing = KEY_NONE;
 	
 	NPlayerState player_state;
 	NPlayerState initial_player_state;

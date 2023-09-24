@@ -42,7 +42,7 @@
 /** Global entity type system data */
 namespace EntityTypeSystem
 {
-	static inline u32 TypeIDCounter = 0;
+	static inline uint TypeIDCounter = 0;
 }
 
 /** Used to auto register a new entity type */
@@ -51,7 +51,7 @@ struct T_EntityTypeBase
 {
 	static inline Array<TraitID, EntityTraitsManager::max_traits> traits;
 	// max instances per world chunk
-	static inline u32 instance_budget = 10;
+	static inline uint instance_budget = 10;
 private:
 	static inline TypeID TYPE_ID = ++EntityTypeSystem::TypeIDCounter;
 

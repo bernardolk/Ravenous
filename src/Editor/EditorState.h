@@ -7,7 +7,7 @@ struct REditorState
 {
 	DeclSingleton(REditorState)
 	
-	enum class ProgramMode : u8
+	enum class ProgramMode : uint8
 	{
 		Game,
 		Editor,

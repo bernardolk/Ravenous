@@ -43,8 +43,8 @@ RLedge CL_PerformLedgeDetection(EPlayer* player, RWorld* world)
 			if (top_test.distance <= player->height || top_hitpoint.y - frontal_hitpoint.y > _front_ray_spacing)
 				return ledge;
 
-			ImDraw::AddLine(IMHASH, top_ray.origin, frontal_hitpoint, 1.2f, false, COLOR_PURPLE_1);
-			ImDraw::AddPoint(IMHASH, top_hitpoint, 2.0, true, COLOR_PURPLE_1);
+			RImDraw::AddLine(IMHASH, top_ray.origin, frontal_hitpoint, 1.2f, false, COLOR_PURPLE_1);
+			RImDraw::AddPoint(IMHASH, top_hitpoint, 2.0, true, COLOR_PURPLE_1);
 
 			// test edges
 			vec3 edge1 = top_test.t.b - top_test.t.a; // 1
@@ -53,13 +53,13 @@ RLedge CL_PerformLedgeDetection(EPlayer* player, RWorld* world)
 
 			// for debug: show face normal
 			vec3 front_face_center = front_test.t.GetBarycenter();
-			ImDraw::AddLine(IMHASH, front_face_center, front_face_center + 1.f * front_face_n, 2.0, false, COLOR_BLUE_1);
+			RImDraw::AddLine(IMHASH, front_face_center, front_face_center + 1.f * front_face_n, 2.0, false, COLOR_BLUE_1);
 
 			if (abs(dot(edge1, front_face_n)) < 0.0001f)
 			{
-				ImDraw::AddLine(IMHASH, top_test.t.a, top_test.t.a + edge1, 2.0, true, COLOR_YELLOW_1);
-				ImDraw::AddPoint(IMHASH, top_test.t.a, 2.0, false, COLOR_YELLOW_1);
-				ImDraw::AddPoint(IMHASH, top_test.t.b, 2.0, false, COLOR_YELLOW_1);
+				RImDraw::AddLine(IMHASH, top_test.t.a, top_test.t.a + edge1, 2.0, true, COLOR_YELLOW_1);
+				RImDraw::AddPoint(IMHASH, top_test.t.a, 2.0, false, COLOR_YELLOW_1);
+				RImDraw::AddPoint(IMHASH, top_test.t.b, 2.0, false, COLOR_YELLOW_1);
 
 				ledge.a = top_test.t.a;
 				ledge.b = top_test.t.b;
@@ -69,9 +69,9 @@ RLedge CL_PerformLedgeDetection(EPlayer* player, RWorld* world)
 			}
 			if (abs(dot(edge2, front_face_n)) < 0.0001f)
 			{
-				ImDraw::AddLine(IMHASH, top_test.t.b, top_test.t.b + edge2, 2.0, true, COLOR_YELLOW_1);
-				ImDraw::AddPoint(IMHASH, top_test.t.b, 2.0, false, COLOR_YELLOW_1);
-				ImDraw::AddPoint(IMHASH, top_test.t.c, 2.0, false, COLOR_YELLOW_1);
+				RImDraw::AddLine(IMHASH, top_test.t.b, top_test.t.b + edge2, 2.0, true, COLOR_YELLOW_1);
+				RImDraw::AddPoint(IMHASH, top_test.t.b, 2.0, false, COLOR_YELLOW_1);
+				RImDraw::AddPoint(IMHASH, top_test.t.c, 2.0, false, COLOR_YELLOW_1);
 
 				ledge.a = top_test.t.b;
 				ledge.b = top_test.t.c;
@@ -81,9 +81,9 @@ RLedge CL_PerformLedgeDetection(EPlayer* player, RWorld* world)
 			}
 			if (abs(dot(edge3, front_face_n)) < 0.0001f)
 			{
-				ImDraw::AddLine(IMHASH, top_test.t.c, top_test.t.c + edge3, 2.0, true, COLOR_YELLOW_1);
-				ImDraw::AddPoint(IMHASH, top_test.t.c, 2.0, false, COLOR_YELLOW_1);
-				ImDraw::AddPoint(IMHASH, top_test.t.a, 2.0, false, COLOR_YELLOW_1);
+				RImDraw::AddLine(IMHASH, top_test.t.c, top_test.t.c + edge3, 2.0, true, COLOR_YELLOW_1);
+				RImDraw::AddPoint(IMHASH, top_test.t.c, 2.0, false, COLOR_YELLOW_1);
+				RImDraw::AddPoint(IMHASH, top_test.t.a, 2.0, false, COLOR_YELLOW_1);
 
 				ledge.a = top_test.t.c;
 				ledge.b = top_test.t.a;

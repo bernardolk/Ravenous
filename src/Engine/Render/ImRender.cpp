@@ -7,9 +7,9 @@
 #include <glad/glad.h>
 #include "engine/geometry/vertex.h"
 
-void ImDraw::Init()
+void RImDraw::Init()
 {
-	list = new ImDrawElement[im_buffer_size];
+	list = new RImDrawElement[im_buffer_size];
 	for (int i = 0; i < im_buffer_size; i++)
 	{
 		EmptySlot(i);
@@ -17,7 +17,7 @@ void ImDraw::Init()
 	}
 }
 
-void ImDraw::Update(float frame_duration)
+void RImDraw::Update(float frame_duration)
 {
 	for (int i = 0; i < im_buffer_size; i++)
 	{
@@ -31,7 +31,7 @@ void ImDraw::Update(float frame_duration)
 	}
 }
 
-void ImDraw::Render(RCamera* camera)
+void RImDraw::Render(RCamera* camera)
 {
 	RShader* im_point_shader = ShaderCatalogue.find("immediate_point")->second;
 	RShader* im_mesh_shader = ShaderCatalogue.find("im_mesh")->second;
@@ -77,7 +77,7 @@ void ImDraw::Render(RCamera* camera)
 /* --------------------------- */
 /*      > Add primitives       */
 /* --------------------------- */
-void ImDraw::Add(u32 _hash, std::vector<RVertex> vertex_vec, GLenum draw_method, RenderOptions opts)
+void RImDraw::Add(uint _hash, std::vector<RVertex> vertex_vec, GLenum draw_method, RenderOptions opts)
 {
 	IM_R_FIND_SLOT();
 
@@ -85,7 +85,7 @@ void ImDraw::Add(u32 _hash, std::vector<RVertex> vertex_vec, GLenum draw_method,
 }
 
 
-void ImDraw::Add(u32 _hash, std::vector<RTriangle> triangles, GLenum draw_method = GL_LINE_LOOP, RenderOptions opts = RenderOptions{})
+void RImDraw::Add(uint _hash, std::vector<RTriangle> triangles, GLenum draw_method = GL_LINE_LOOP, RenderOptions opts = RenderOptions{})
 {
 	IM_R_FIND_SLOT();
 
@@ -100,13 +100,13 @@ void ImDraw::Add(u32 _hash, std::vector<RTriangle> triangles, GLenum draw_method
 	SetMesh(slot.index, vertex_vec, draw_method, opts);
 }
 
-void ImDraw::AddLine(u32 _hash, vec3 point_a, vec3 point_b, vec3 color)
+void RImDraw::AddLine(uint _hash, vec3 point_a, vec3 point_b, vec3 color)
 {
 	AddLine(_hash, point_a, point_b, 1.0, false, color);
 }
 
 
-void ImDraw::AddLine(u32 _hash, vec3 point_a, vec3 point_b, float line_width,
+void RImDraw::AddLine(uint _hash, vec3 point_a, vec3 point_b, float line_width,
                      bool always_on_top, vec3 color, float duration)
 {
 	IM_R_FIND_SLOT();
@@ -130,7 +130,7 @@ void ImDraw::AddLine(u32 _hash, vec3 point_a, vec3 point_b, float line_width,
 }
 
 
-void ImDraw::AddLineLoop(u32 _hash, std::vector<vec3> points, float line_width, bool always_on_top)
+void RImDraw::AddLineLoop(uint _hash, std::vector<vec3> points, float line_width, bool always_on_top)
 {
 	IM_R_FIND_SLOT();
 
@@ -147,7 +147,7 @@ void ImDraw::AddLineLoop(u32 _hash, std::vector<vec3> points, float line_width, 
 }
 
 
-void ImDraw::AddPoint(u32 _hash, vec3 point, float point_size, bool always_on_top, vec3 color, float duration)
+void RImDraw::AddPoint(uint _hash, vec3 point, float point_size, bool always_on_top, vec3 color, float duration)
 {
 	IM_R_FIND_SLOT();
 
@@ -168,18 +168,18 @@ void ImDraw::AddPoint(u32 _hash, vec3 point, float point_size, bool always_on_to
 	SetMesh(slot.index, vertex_vec, GL_POINTS, opts);
 }
 
-void ImDraw::AddPoint(u32 _hash, vec3 point, vec3 color)
+void RImDraw::AddPoint(uint _hash, vec3 point, vec3 color)
 {
 	AddPoint(_hash, point, 1.0, false, color);
 }
 
 
-void ImDraw::AddTriangle(u32 _hash, RTriangle t, float line_width, bool always_on_top, vec3 color)
+void RImDraw::AddTriangle(uint _hash, RTriangle t, float line_width, bool always_on_top, vec3 color)
 {
 	IM_R_FIND_SLOT();
 
 	auto vertex_vec = std::vector<RVertex>{RVertex{t.a}, RVertex{t.b}, RVertex{t.c}};
-	auto indices = std::vector<u32>{0, 1, 2};
+	auto indices = std::vector<uint>{0, 1, 2};
 
 	RenderOptions opts;
 	opts.line_width = line_width;
@@ -194,7 +194,7 @@ void ImDraw::AddTriangle(u32 _hash, RTriangle t, float line_width, bool always_o
 /* --------------------------- */
 /*        > Add Mesh           */
 /* --------------------------- */
-void ImDraw::AddMesh(u32 _hash, RMesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color, int duration)
+void RImDraw::AddMesh(uint _hash, RMesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color, int duration)
 {
 	IM_R_FIND_SLOT();
 
@@ -219,7 +219,7 @@ void ImDraw::AddMesh(u32 _hash, RMesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec
 }
 
 
-void ImDraw::AddMesh(u32 _hash, RMesh* mesh, vec3 color, float duration)
+void RImDraw::AddMesh(uint _hash, RMesh* mesh, vec3 color, float duration)
 {
 	IM_R_FIND_SLOT();
 
@@ -242,19 +242,19 @@ void ImDraw::AddMesh(u32 _hash, RMesh* mesh, vec3 color, float duration)
 }
 
 
-void ImDraw::AddMesh(u32 _hash, EEntity* entity, int duration)
+void RImDraw::AddMesh(uint _hash, EEntity* entity, int duration)
 {
 	AddMesh(_hash, entity->mesh, entity->position, entity->rotation, entity->scale, vec3(1.0, 0, 0), duration);
 }
 
 
-void ImDraw::AddMesh(u32 _hash, EEntity* entity)
+void RImDraw::AddMesh(uint _hash, EEntity* entity)
 {
 	AddMesh(_hash, entity->mesh, entity->position, entity->rotation, entity->scale);
 }
 
 
-void ImDraw::AddMesh(u32 _hash, EEntity* entity, vec3 pos)
+void RImDraw::AddMesh(uint _hash, EEntity* entity, vec3 pos)
 {
 	AddMesh(_hash, entity->mesh, pos, entity->rotation, entity->scale);
 }
@@ -262,7 +262,7 @@ void ImDraw::AddMesh(u32 _hash, EEntity* entity, vec3 pos)
 /* --------------------------- */
 /*     > Private functions     */
 /* --------------------------- */
-void ImDraw::EmptySlot(int i)
+void RImDraw::EmptySlot(int i)
 {
 	auto& obj = list[i];
 	obj.mesh.indices.clear();
@@ -278,7 +278,7 @@ void ImDraw::EmptySlot(int i)
 }
 
 
-ImDrawSlot ImDraw::FindElementOrEmptySlot(u32 hash)
+RImDrawSlot RImDraw::FindElementOrEmptySlot(uint hash)
 {
 	int slot = -1;
 	for (int i = 0; i < im_buffer_size; i++)
@@ -286,17 +286,17 @@ ImDrawSlot ImDraw::FindElementOrEmptySlot(u32 hash)
 		if (slot == -1 && list[i].empty)
 			slot = i;
 		if (list[i].hash == hash)
-			return ImDrawSlot{false, i};
+			return RImDrawSlot{false, i};
 	}
 
 	if (slot == -1)
 		print("IM RENDER BUFFER IS FULL");
 
-	return ImDrawSlot{true, slot};
+	return RImDrawSlot{true, slot};
 }
 
 
-void ImDraw::SetMesh(int i, std::vector<RVertex> vertices, GLenum draw_method, RenderOptions opts)
+void RImDraw::SetMesh(int i, std::vector<RVertex> vertices, GLenum draw_method, RenderOptions opts)
 {
 	auto& obj = list[i];
 	obj.mesh.vertices = vertices;
@@ -308,7 +308,7 @@ void ImDraw::SetMesh(int i, std::vector<RVertex> vertices, GLenum draw_method, R
 }
 
 
-void ImDraw::SetMesh(int i, RMesh* mesh, RenderOptions opts)
+void RImDraw::SetMesh(int i, RMesh* mesh, RenderOptions opts)
 {
 	auto& obj = list[i];
 	obj.mesh = *mesh;
@@ -319,7 +319,7 @@ void ImDraw::SetMesh(int i, RMesh* mesh, RenderOptions opts)
 }
 
 
-void ImDraw::UpdateMesh(int i, vec3 pos, vec3 rot, vec3 scale, vec3 color, int duration)
+void RImDraw::UpdateMesh(int i, vec3 pos, vec3 rot, vec3 scale, vec3 color, int duration)
 {
 	auto& obj = list[i];
 	obj.render_options.color = color;
@@ -330,7 +330,7 @@ void ImDraw::UpdateMesh(int i, vec3 pos, vec3 rot, vec3 scale, vec3 color, int d
 }
 
 
-void ImDraw::UpdateMesh(int i, vec3 color, int duration)
+void RImDraw::UpdateMesh(int i, vec3 color, int duration)
 {
 	auto& obj = list[i];
 	obj.render_options.color = color;
@@ -339,7 +339,7 @@ void ImDraw::UpdateMesh(int i, vec3 color, int duration)
 
 
 //@TODO: Probably redundant code
-mat4 ImDraw::GetMatModel(vec3 pos, vec3 rot, vec3 scale)
+mat4 RImDraw::GetMatModel(vec3 pos, vec3 rot, vec3 scale)
 {
 	glm::mat4 model = translate(Mat4Identity, pos);
 	model = rotate(model, glm::radians(rot.x), vec3(1.0f, 0.0f, 0.0f));
@@ -350,7 +350,7 @@ mat4 ImDraw::GetMatModel(vec3 pos, vec3 rot, vec3 scale)
 }
 
 
-void ImDraw::SetIndices(int i, std::vector<u32> indices)
+void RImDraw::SetIndices(int i, std::vector<uint> indices)
 {
 	list[i].mesh.indices = indices;
 }

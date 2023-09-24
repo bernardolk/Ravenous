@@ -14,7 +14,7 @@ void RInputRecorder::StartRecording()
 	is_recording = true;
 }
 
-void RInputRecorder::Record(InputFlags flags)
+void RInputRecorder::Record(RInputFlags flags)
 {
 	recorded_inputs[recording_idx].history.push_back(flags);
 }
@@ -68,7 +68,7 @@ void RInputRecorder::StartPlaying(int recording_id)
 	is_playing = true;
 }
 
-InputFlags RInputRecorder::Play()
+RInputFlags RInputRecorder::Play()
 {
 	auto& record = recorded_inputs[playing_idx];
 	if (playing_flag_idx >= record.history.size() - 1 || record.history.size() == 0)
@@ -131,13 +131,13 @@ void RInputRecorder::Load()
 			while (p.NextLine())
 			{
 				p.ParseU64();
-				const u64 key_press = GetParsed<u64>(p);
+				const uint64 key_press = GetParsed<uint64>(p);
 
 				p.NextLine();
 				p.ParseU64();
-				const u64 key_release = GetParsed<u64>(p);
+				const uint64 key_release = GetParsed<uint64>(p);
 
-				recording.push_back(InputFlags{key_press, key_release});
+				recording.push_back(RInputFlags{key_press, key_release});
 			}
 
 			recording_idx++;

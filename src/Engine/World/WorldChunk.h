@@ -35,9 +35,9 @@ struct RWorldChunkPosition WorldCoordsToCells(vec3 position);
 
 struct RWorldChunkPosition
 {
-	i32 i = -1;
-	i32 j = -1;
-	i32 k = -1;
+	int i = -1;
+	int j = -1;
+	int k = -1;
 
 	RWorldChunkPosition() = default;
 	RWorldChunkPosition(int i, int j, int k) : i(i), j(j), k(k){}
@@ -56,9 +56,9 @@ struct RWorldChunk
 	friend struct RWorldChunkEntityIterator;
 	
 	// TODO: World chunk ID needs to come from it's world position
-	static inline u32 world_chunk_id_count = 0;
+	static inline uint world_chunk_id_count = 0;
 	
-	u32 id = ++world_chunk_id_count;
+	uint id = ++world_chunk_id_count;
 
 	// indexes
 	int i = -1;
@@ -72,7 +72,7 @@ struct RWorldChunk
 	vector<EEntity*> visitors{};
 
 	RWorldChunk() : chunk_storage(id) {} 
-	RWorldChunk(u32 i, u32 j, u32 k) : i(i), j(j), k(k), chunk_storage(id) {}
+	RWorldChunk(uint i, uint j, uint k) : i(i), j(j), k(k), chunk_storage(id) {}
 	
 	RWorldChunkEntityIterator GetIterator();
 

@@ -55,7 +55,7 @@ namespace Editor
 		// move mode
 		bool move_mode = false;
 		bool scale_on_drop = false;
-		u8 move_axis = 0;
+		uint8 move_axis = 0;
 
 		// move entity by arrows
 		bool move_entity_by_arrows = false;
@@ -77,7 +77,7 @@ namespace Editor
 
 		// measure mode
 		bool measure_mode = false;
-		u8 measure_axis = 0; // x,y,z == 0,1,2
+		uint8 measure_axis = 0; // x,y,z == 0,1,2
 		vec3 measure_from;
 		bool first_point_found = false;
 		bool second_point_found = false;
@@ -90,8 +90,8 @@ namespace Editor
 
 		// snap mode
 		bool snap_mode = false;
-		u8 snap_cycle = 0;
-		u8 snap_axis = 1;
+		uint8 snap_cycle = 0;
+		uint8 snap_axis = 1;
 		bool snap_inside = false;
 		EEntity* snap_reference = nullptr;
 		REntityState snap_tracked_state;

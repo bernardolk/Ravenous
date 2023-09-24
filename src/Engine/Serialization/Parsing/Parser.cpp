@@ -93,7 +93,7 @@ void Parser::ParseName()
 	ClearParseBuffer();
 
 	char string_buffer[50];
-	u32 sb_size = 0;
+	uint sb_size = 0;
 	do
 	{
 		ParseNameChar();
@@ -127,7 +127,7 @@ void Parser::ParseToken()
 	ClearParseBuffer();
 
 	char string_buffer[50];
-	u32 sb_size = 0;
+	uint sb_size = 0;
 	do
 	{
 		ParseTokenChar();
@@ -145,7 +145,7 @@ void Parser::ParseInt()
 {
 	ClearParseBuffer();
 
-	u16 sign = 1;
+	uint16 sign = 1;
 	if (p.string[0] == '-')
 	{
 		p.AdvanceChar();
@@ -153,7 +153,7 @@ void Parser::ParseInt()
 	}
 	if (isdigit(p.string[0]))
 	{
-		u16 count = 0;
+		uint16 count = 0;
 		char int_buf[10];
 
 		do
@@ -176,7 +176,7 @@ void Parser::ParseUint()
 
 	if (isdigit(p.string[0]))
 	{
-		u16 count = 0;
+		uint16 count = 0;
 		char int_buf[10];
 		do
 		{
@@ -197,7 +197,7 @@ void Parser::ParseU64()
 
 	if (isdigit(p.string[0]))
 	{
-		u16 count = 0;
+		uint16 count = 0;
 		char int_buf[15];
 		do
 		{

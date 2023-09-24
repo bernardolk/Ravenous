@@ -4,7 +4,7 @@
 struct REntityState
 {
 	EEntity* entity = nullptr;
-	u64 id;
+	uint64 id;
 	vec3 position;
 	vec3 scale;
 	vec3 rotation;

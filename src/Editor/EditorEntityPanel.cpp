@@ -16,7 +16,7 @@ namespace Editor
 		auto& entity = panel->entity;
 		auto& ed_context = *GetContext();
 
-		u32 action_flags = 0;
+		uint action_flags = 0;
 		bool track = false;
 
 		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayState::viewport_width - 550, 200), ImGuiCond_Appearing);
@@ -498,7 +498,7 @@ namespace Editor
 	}
 
 
-	void EntityPanelUpdateEntityAndEditorContext(const REntityPanelContext* panel, u32 action, RWorld* world)
+	void EntityPanelUpdateEntityAndEditorContext(const REntityPanelContext* panel, uint action, RWorld* world)
 	{
 		auto& ed_context = *GetContext();
 

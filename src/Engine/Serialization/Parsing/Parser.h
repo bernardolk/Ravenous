@@ -4,16 +4,16 @@
 struct ParseUnit
 {
 	std::string string{};
-	u32 size = 0;
-	u8 has_token = 0;
+	uint size = 0;
+	uint8 has_token = 0;
 	union
 	{
 		char string_buffer[50]{};
 		int i_token;
 		float f_token;
 		char c_token;
-		u32 ui_token;
-		u64 u64_token;
+		uint ui_token;
+		uint64 u64_token;
 		float vec3[3];
 		float vec2[2];
 	};
@@ -65,7 +65,7 @@ struct Parser
 	void ClearParseBuffer();
 	bool HasToken() const;
 
-	constexpr static u32 ten_powers[10]{
+	constexpr static uint ten_powers[10]{
 	1, 10, 100, 1000, 10000,
 	100000, 1000000, 10000000, 100000000, 1000000000
 	};

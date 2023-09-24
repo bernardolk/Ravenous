@@ -14,7 +14,7 @@ struct RRaycastTest
 	std::string obj_hit_type{};
 	RRay ray{};
 	RTriangle t{};
-	u16 t_index = 0;
+	uint16 t_index = 0;
 };
 
 enum NRayCastType

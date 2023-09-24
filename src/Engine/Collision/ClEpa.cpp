@@ -5,15 +5,15 @@
 
 extern const int ClMaxEpaIterations = 100;
 
-std::pair<std::vector<vec4>, u32> CL_GetEPAFaceNormalsAndClosestFace(
+std::pair<std::vector<vec4>, uint> CL_GetEPAFaceNormalsAndClosestFace(
 	const std::vector<vec3>& polytope,
-	const std::vector<u32>& faces)
+	const std::vector<uint>& faces)
 {
 	std::vector<vec4> normals;
-	u32 closest_face_index = 0;
+	uint closest_face_index = 0;
 	float min_distance_to_face = MaxFloat;
 
-	for (u32 i = 0; i < faces.size(); i += 3)
+	for (uint i = 0; i < faces.size(); i += 3)
 	{
 		vec3 a = polytope[faces[i]];
 		vec3 b = polytope[faces[i + 1]];
@@ -42,10 +42,10 @@ std::pair<std::vector<vec4>, u32> CL_GetEPAFaceNormalsAndClosestFace(
 
 
 void CL_AddIfOuterEdge(
-	std::vector<std::pair<u32, u32> >& edges,
-	const std::vector<u32>& faces,
-	u32 a,
-	u32 b)
+	std::vector<std::pair<uint, uint> >& edges,
+	const std::vector<uint>& faces,
+	uint a,
+	uint b)
 {
 	// if edge is already in list (but in reverse winding order)
 	// then we must exclude it from the list as it is not an outer edge.
@@ -69,7 +69,7 @@ EPA_Result CL_RunEPA(RSimplex simplex, RCollisionMesh* collider_a, RCollisionMes
 	std::vector<vec3> polytope;
 	polytope.insert(polytope.begin(), std::begin(simplex.points), std::end(simplex.points));
 
-	std::vector<u32> faces = {
+	std::vector<uint> faces = {
 	0, 1, 2,
 	0, 3, 1,
 	0, 2, 3,
@@ -101,12 +101,12 @@ EPA_Result CL_RunEPA(RSimplex simplex, RCollisionMesh* collider_a, RCollisionMes
 			min_distance_to_face = MaxFloat;
 
 			// removes all faces pointing towards the support direction and lists the outer_edges
-			std::vector<std::pair<u32, u32> > outer_edges;
-			for (u32 i = 0; i < face_normals.size(); i++)
+			std::vector<std::pair<uint, uint> > outer_edges;
+			for (uint i = 0; i < face_normals.size(); i++)
 			{
 				if (CL_SameGeneralDirection(face_normals[i], support.point))
 				{
-					u32 f = i * 3;
+					uint f = i * 3;
 
 					CL_AddIfOuterEdge(outer_edges, faces, f, f + 1);
 					CL_AddIfOuterEdge(outer_edges, faces, f + 1, f + 2);
@@ -127,7 +127,7 @@ EPA_Result CL_RunEPA(RSimplex simplex, RCollisionMesh* collider_a, RCollisionMes
 			}
 
 			// construct new faces from the outer_edges listed before
-			std::vector<u32> new_faces;
+			std::vector<uint> new_faces;
 			for (auto [edgeIndex1, edgeIndex2] : outer_edges)
 			{
 				new_faces.push_back(edgeIndex1);
@@ -141,7 +141,7 @@ EPA_Result CL_RunEPA(RSimplex simplex, RCollisionMesh* collider_a, RCollisionMes
 			auto [new_normals, new_closest_face_index] = CL_GetEPAFaceNormalsAndClosestFace(polytope, new_faces);
 
 			float old_min_distance_to_face = MaxFloat;
-			for (u32 i = 0; i < face_normals.size(); i++)
+			for (uint i = 0; i < face_normals.size(); i++)
 			{
 				float dist = face_normals[i].w;
 				if (dist < old_min_distance_to_face)

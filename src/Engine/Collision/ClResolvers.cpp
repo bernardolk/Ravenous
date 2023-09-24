@@ -53,8 +53,8 @@ ClVtraceResult CL_DoStepoverVtrace(EPlayer* player, RWorld* world)
 
 	// draw arrow
 	auto hitpoint = CL_GetPointFromDetection(downward_ray, raytest);
-	ImDraw::AddLine(IMHASH, hitpoint, ray_origin, 1.0, true, COLOR_GREEN_1);
-	ImDraw::AddPoint(IMHASH, hitpoint, 1.0, true, COLOR_GREEN_3);
+	RImDraw::AddLine(IMHASH, hitpoint, ray_origin, 1.0, true, COLOR_GREEN_1);
+	RImDraw::AddPoint(IMHASH, hitpoint, 1.0, true, COLOR_GREEN_3);
 
 	if (abs(player->position.y - hitpoint.y) <= PlayerStepoverLimit)
 		return ClVtraceResult{true, player->GetLastTerrainContactPoint().y - hitpoint.y, raytest.entity};
@@ -77,7 +77,7 @@ bool GP_SimulatePlayerCollisionInFallingTrajectory(EPlayer* player, vec2 xz_velo
 
 	float max_iterations = 120;
 
-	ImDraw::AddPoint(IMHASH, player->position, 2.0, false, COLOR_GREEN_1, 1);
+	RImDraw::AddPoint(IMHASH, player->position, 2.0, false, COLOR_GREEN_1, 1);
 
 	auto* world = RWorld::Get();
 	
@@ -86,7 +86,7 @@ bool GP_SimulatePlayerCollisionInFallingTrajectory(EPlayer* player, vec2 xz_velo
 	{
 		vel += d_frame * player->gravity;
 		player->position += vel * d_frame;
-		ImDraw::AddPoint(IM_ITERHASH(iteration), player->position, 2.0, true, COLOR_GREEN_1, 1);
+		RImDraw::AddPoint(IM_ITERHASH(iteration), player->position, 2.0, true, COLOR_GREEN_1, 1);
 
 		player->Update();
 
