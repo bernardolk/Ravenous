@@ -7,8 +7,9 @@
 void EntityAnimation::Update()
 {
 	/* executes current keyframe in entity and updates runtimes, turns animation inactive once it ends. */
+	auto& frame = RavenousEngine::GetFrame();
 
-	float frame_duration_ms = Rvn::frame.duration * 1000;
+	float frame_duration_ms = frame.duration * 1000;
 
 	auto kf = &keyframes[current_keyframe];
 

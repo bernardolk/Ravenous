@@ -27,17 +27,6 @@ struct ProgramConfig
 	float ambient_intensity = 0;
 };
 
-struct FrameData
-{
-	float duration = 0;
-	float real_duration = 0;
-	float last_frame_time = 0;
-	int fps = 0;
-	int fps_counter = 0;
-	float sub_second_counter = 0;
-	float time_step = 1;
-};
-
 
 // stores all relevant entity ptrs for collision detection with player during the frame
 struct EntityBufferElement
@@ -65,7 +54,6 @@ struct Rvn
 	static constexpr u32 message_buffer_capacity = 300;
 	static constexpr int max_messages_to_render = 8;
 
-	inline static FrameData frame;
 	inline static string scene_name;
 
 	inline static vector<EntityBufferElement> entity_buffer{};
@@ -74,8 +62,6 @@ struct Rvn
 	static void Init();
 	static void PrintDynamic(const string& msg, float duration = 0, vec3 color = vec3(-1));
 	static void Print(const string& msg, float duration = 0, vec3 color = vec3(-1));
-
-	static float GetFrameDuration() { return frame.duration; }
 };
 
 

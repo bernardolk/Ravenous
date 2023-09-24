@@ -311,8 +311,9 @@ namespace Editor
 		// CAMERA MOVEMENT CONTROLS
 		// -------------------------
 		// @TODO: this sucks
+		auto& frame = RavenousEngine::GetFrame();
 		auto* editor_camera = manager->GetEditorCamera();
-		float camera_speed = camera->type == THIRD_PERSON ? length(player->velocity) * Rvn::frame.duration : Rvn::frame.real_duration * editor_camera->acceleration;
+		float camera_speed = camera->type == THIRD_PERSON ? length(player->velocity) * frame.duration : frame.real_duration * editor_camera->acceleration;
 
 		if (flags.key_press & KEY_LEFT_SHIFT)
 		{
@@ -358,44 +359,46 @@ namespace Editor
 
 	void HandleInputFlagsForCommonInput(InputFlags flags, Player* & player)
 	{
+		auto& frame = RavenousEngine::GetFrame();
+
 		if (PressedOnce(flags, KEY_COMMA))
 		{
-			if (Rvn::frame.time_step > 0)
+			if (frame.time_step > 0)
 			{
-				Rvn::frame.time_step -= 0.025;
+				frame.time_step -= 0.025;
 			}
 		}
 		if (PressedOnce(flags, KEY_PERIOD))
 		{
-			if (Rvn::frame.time_step < 3)
+			if (frame.time_step < 3)
 			{
-				Rvn::frame.time_step += 0.025;
+				frame.time_step += 0.025;
 			}
 		}
 		if (PressedOnce(flags, KEY_1))
 		{
 			Rvn::rm_buffer->Add("TIME STEP x0.05", 1000);
-			Rvn::frame.time_step = 0.05;
+			frame.time_step = 0.05;
 		}
 		if (PressedOnce(flags, KEY_2))
 		{
 			Rvn::rm_buffer->Add("TIME STEP x0.1", 1000);
-			Rvn::frame.time_step = 0.1;
+			frame.time_step = 0.1;
 		}
 		if (PressedOnce(flags, KEY_3))
 		{
 			Rvn::rm_buffer->Add("TIME STEP x0.3", 1000);
-			Rvn::frame.time_step = 0.3;
+			frame.time_step = 0.3;
 		}
 		if (PressedOnce(flags, KEY_4))
 		{
 			Rvn::rm_buffer->Add("TIME STEP x1.0", 1000);
-			Rvn::frame.time_step = 1.0;
+			frame.time_step = 1.0;
 		}
 		if (PressedOnce(flags, KEY_5))
 		{
 			Rvn::rm_buffer->Add("TIME STEP x2.0", 1000);
-			Rvn::frame.time_step = 2.0;
+			frame.time_step = 2.0;
 		}
 		if (flags.key_press & KEY_K)
 		{

@@ -6,6 +6,10 @@
 #include "engine/entities/EEntity.h"
 #include "engine/utils/utils.h"
 
+namespace RavenousEngine
+{
+	struct FrameData;
+}
 struct EEntity;
 struct WorldChunkPosition WorldCoordsToCells(float x, float y, float z);
 vec3 GetWorldCoordinatesFromWorldCellCoordinates(int i, int j, int k);
@@ -70,6 +74,8 @@ struct World
 	RaycastTest RaycastLights(Ray ray) const;
 
 	CellUpdate UpdateEntityWorldChunk(EEntity* entity);
+
+	RavenousEngine::FrameData& GetFrameData();
 	
 private:
 	void UpdateTraits();

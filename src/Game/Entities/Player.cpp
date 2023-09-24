@@ -48,7 +48,7 @@ void Player::Update()
 void Player::UpdateState()
 {
 	World* world = World::Get();
-	float dt = Rvn::GetFrameDuration();
+	float dt = RavenousEngine::GetFrameDuration();
 
 	// -------------
 	// Standing
@@ -227,7 +227,9 @@ void Player::UpdateState()
 
 		velocity = v_dir * slide_speed;
 
-		position += velocity * Rvn::frame.duration;
+		float frame_duration = RavenousEngine::GetFrameDuration();
+
+		position += velocity * frame_duration;
 		Update();
 
 
@@ -483,7 +485,7 @@ vec3 Player::MoveForward()
 {
 	bool no_move_command = v_dir.x == 0 && v_dir.z == 0;
 
-	float dt = Rvn::frame.duration;
+	float dt = RavenousEngine::GetFrameDuration();
 
 	// Limiting movement angle when moving in diagonals
 	auto* player_camera = CameraManager::Get()->GetGameCamera();

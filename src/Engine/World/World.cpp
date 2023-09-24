@@ -2,6 +2,7 @@
 
 #include "WorldChunk.h"
 #include "engine/catalogues.h"
+#include "Engine/RavenousEngine.h"
 #include "engine/entities/EEntity.h"
 #include "engine/render/ImRender.h"
 #include "engine/utils/utils.h"
@@ -290,6 +291,11 @@ CellUpdate World::UpdateEntityWorldChunk(EEntity* entity)
 	}
 
 	return CellUpdate{CellUpdate_OK, "", true};
+}
+
+auto World::GetFrameData() -> RavenousEngine::FrameData&
+{
+	return RavenousEngine::EngineRuntimeState::Get()->frame;
 }
 
 // TODO: Move these elsewhere

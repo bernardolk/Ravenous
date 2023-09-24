@@ -606,7 +606,7 @@ namespace Editor
 		RenderText(GlobalDisplayState::viewport_width - 400, 45, p_grab);
 
 		// FPS
-		std::string fps = std::to_string(Rvn::frame.fps);
+		std::string fps = std::to_string(RavenousEngine::GetFrame().fps);
 		std::string fps_gui = "FPS: " + fps;
 		RenderText(font, GlobalDisplayState::viewport_width - 110, 40, fps_gui);
 

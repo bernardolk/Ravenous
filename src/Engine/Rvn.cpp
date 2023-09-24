@@ -96,10 +96,12 @@ bool RenderMessageBuffer::AddUnique(const std::string msg, float duration, vec3 
 
 void RenderMessageBuffer::Cleanup()
 {
+	auto& frame = RavenousEngine::GetFrame();
+
 	for (int i = 0; i < capacity; i++)
 	{
 		auto item = &buffer[i];
-		item->elapsed += Rvn::frame.duration * 1000.0;
+		item->elapsed += frame.duration * 1000.0;
 		if (item->elapsed >= item->duration)
 		{
 			new(item) RenderMessageBufferElement();

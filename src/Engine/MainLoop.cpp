@@ -3,6 +3,7 @@
 #include <glfw3.h>
 #include <imgui.h>
 
+#include "RavenousEngine.h"
 #include "game/animation/AnPlayer.h"
 #include "game/animation/AnUpdate.h"
 #include "game/entities/player.h"
@@ -46,7 +47,7 @@ void RavenousMainLoop()
 		// -------------
 		// START FRAME
 		// -------------
-		StartFrame();
+		RavenousEngine::StartFrame();
 		if (ES->current_mode == EditorState::ProgramMode::Editor)
 			Editor::StartDearImguiFrame();
 
@@ -100,6 +101,8 @@ void RavenousMainLoop()
 		//	RENDER PHASE
 		// -------------
 		{
+			auto& frame = RavenousEngine::GetFrame();
+
 			glClearColor(0.196, 0.298, 0.3607, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			RenderDepthMap();
@@ -126,7 +129,7 @@ void RavenousMainLoop()
 				}
 			}
 			ImDraw::Render(camera);
-			ImDraw::Update(Rvn::frame.duration);
+			ImDraw::Update(frame.duration);
 			Rvn::rm_buffer->Render();
 		}
 

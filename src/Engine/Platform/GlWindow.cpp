@@ -1,6 +1,6 @@
 #include "GlWindow.h"
-#include "engine/io/InputPhase.h"
-#include "engine/io/display.h"
+#include "Engine/IO/InputPhase.h"
+#include "Engine/IO/Display.h"
 
 void SetupGLFW()
 {

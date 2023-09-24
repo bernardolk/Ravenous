@@ -17,9 +17,11 @@ void AN_AnimatePlayer(Player* player)
 {
 	if (player->anim_state == PlayerAnimationState::NoAnimation)
 		return;
+	
+	auto& frame = RavenousEngine::GetFrame();
 
 	// updates animation run time
-	player->anim_t += Rvn::frame.duration * 1000;
+	player->anim_t += frame.duration * 1000;
 
 	// check if animation is completed
 	bool end_anim = false;
@@ -171,6 +173,8 @@ bool AN_UpdatePlayerLandingFallAnimation(Player* player)
 
 bool AN_PlayerVaulting(Player* player)
 {
+	auto& frame = RavenousEngine::GetFrame();
+
 	vec3& p_pos = player->position;
 
 	// animation speed in m/s
@@ -181,7 +185,7 @@ bool AN_PlayerVaulting(Player* player)
 
 	vec3 dist = player->anim_final_pos - p_pos;
 	auto dist_sign = vec3(Sign(dist.x), Sign(dist.y), Sign(dist.z));
-	auto ds = vec3(v_xz * Rvn::frame.duration, v_y * Rvn::frame.duration, v_xz * Rvn::frame.duration);
+	auto ds = vec3(v_xz * frame.duration, v_y * frame.duration, v_xz * frame.duration);
 
 	// updates player position
 	for (int i = 0; i < 3; i++)

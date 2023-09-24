@@ -1,6 +1,7 @@
 #include "EditorToolbar.h"
 #include <imgui.h>
 #include "editor.h"
+#include "Engine/RavenousEngine.h"
 #include "tools/EditorTools.h"
 #include "engine/camera/camera.h"
 #include "engine/io/display.h"
@@ -20,7 +21,7 @@ namespace Editor
 		ImGui::Text(scene_name.c_str());
 		ImGui::NewLine();
 
-		ImGui::InputFloat("##timestep", &Rvn::frame.time_step, 0.5, 1.0, "Timestep = %.1f x");
+		ImGui::InputFloat("##timestep", &world->GetFrameData().time_step, 0.5, 1.0, "Timestep = %.1f x");
 
 		ImGui::NewLine();
 

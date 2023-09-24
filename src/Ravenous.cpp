@@ -106,30 +106,6 @@ int main()
 
 //    ----------------------------------------------------------------
 
-void StartFrame()
-{
-	float current_frame_time = Platform::GetCurrentTime();
-	Rvn::frame.real_duration = current_frame_time - Rvn::frame.last_frame_time;
-	Rvn::frame.duration = Rvn::frame.real_duration * Rvn::frame.time_step;
-	Rvn::frame.last_frame_time = current_frame_time;
-
-	// @TODO: Can't remember why this is important...
-	// forces framerate for simulation to be small
-	if (Rvn::frame.duration > 0.02)
-	{
-		Rvn::frame.duration = 0.02;
-	}
-
-	Rvn::frame.sub_second_counter += Rvn::frame.real_duration;
-	Rvn::frame.fps_counter += 1;
-	if (Rvn::frame.sub_second_counter > 1)
-	{
-		Rvn::frame.fps = Rvn::frame.fps_counter;
-		Rvn::frame.fps_counter = 0;
-		Rvn::frame.sub_second_counter -= 1;
-	}
-}
-
 void CheckAllEntitiesHaveShaders()
 {
 	auto entity_iterator = World::Get()->GetEntityIterator();
