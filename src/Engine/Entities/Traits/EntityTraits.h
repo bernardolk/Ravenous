@@ -34,7 +34,7 @@
 
 #define GET_MACRO_ENTITY(_1,_2,_3,_4,_5,_6,_7, NAME, ...) NAME
 
-#define Entity(...) GET_MACRO_ENTITY(__VA_ARGS__, ENTITY7, ENTITY6 ,ENTITY5, ENTITY4, ENTITY3, ENTITY2, ENTITY1)(__VA_ARGS__)
+#define EntityType(...) GET_MACRO_ENTITY(__VA_ARGS__, ENTITY7, ENTITY6 ,ENTITY5, ENTITY4, ENTITY3, ENTITY2, ENTITY1)(__VA_ARGS__)
 
 #define Trait(Name) Name : T_EntityTraitBase<Name>
 

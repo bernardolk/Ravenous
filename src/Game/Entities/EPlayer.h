@@ -57,10 +57,10 @@ enum class RPlayerAnimationState
 void ForceInterruptPlayerAnimation(EPlayer* player);
 
 
-struct Entity(EPlayer)
+struct EntityType(EPlayer)
 {
-	DeclSingleton(EPlayer)
 	Reflected()
+	DeclSingleton(EPlayer)
 
 	// geometry
 	float radius = 0.2f;

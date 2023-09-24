@@ -2,7 +2,7 @@
 
 #include "engine/entities/traits/EntityTraits.h"
 
-struct Entity(EStaticMesh)
+struct EntityType(EStaticMesh)
 {
 	Reflected()
 	

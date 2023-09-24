@@ -16,7 +16,7 @@ struct SpotLight : EEntity, T_EntityTypeBase<SpotLight>
 	float intensity_quadratic = 0.032f;
 };
 
-struct Entity(PointLight)
+struct EntityType(PointLight)
 {
 	Reflected()
 	
@@ -27,7 +27,7 @@ struct Entity(PointLight)
 	float intensity_quadratic = 0.032f;
 };
 
-struct Entity(DirectionalLight)
+struct EntityType(DirectionalLight)
 {
 	Reflected()
 	
