@@ -3,17 +3,17 @@
 #include <glfw3.h>
 #include <imgui.h>
 
-#include "game/animation/an_player.h"
-#include "game/animation/an_update.h"
+#include "game/animation/AnPlayer.h"
+#include "game/animation/AnUpdate.h"
 #include "game/entities/player.h"
 #include "editor/editor.h"
-#include "editor/tools/input_recorder.h"
-#include "editor/editor_state.h"
+#include "editor/tools/InputRecorder.h"
+#include "editor/EditorState.h"
 #include "engine/io/display.h"
 #include "editor/console/console.h"
-#include "game/gameplay/gp_game_state.h"
-#include "game/input/player_input.h"
-#include "editor/editor_input.h"
+#include "game/gameplay/GameState.h"
+#include "game/input/PlayerInput.h"
+#include "editor/EditorInput.h"
 #include "engine/camera/camera.h"
 #include "engine/render/ImRender.h"
 #include "engine/render/renderer.h"
@@ -89,7 +89,7 @@ void RavenousMainLoop()
 			{
 				cam_manager->UpdateEditorCamera(GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->position);
 			}
-			GameState.UpdateTimers();
+			GameState::Get()->UpdateTimers();
 			player->UpdateState();
 			AN_AnimatePlayer(player);
 			EntityAnimations.UpdateAnimations();

@@ -1,7 +1,7 @@
 #include "InputPhase.h"
 #include "engine/io/display.h"
 #include "engine/io/input.h"
-#include "editor/editor_state.h"
+#include "editor/EditorState.h"
 #include <glfw3.h>
 #include <imgui.h>
 #include "engine/camera/camera.h"
