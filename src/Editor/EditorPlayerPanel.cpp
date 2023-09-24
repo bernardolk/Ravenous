@@ -3,15 +3,15 @@
 
 #include "editor.h"
 #include "EditorPanelContexts.h"
-#include "game/entities/player.h"
+#include "game/entities/EPlayer.h"
 #include "engine/utils/utils.h"
 #include "engine/io/display.h"
 
 namespace Editor
 {
-	void RenderPlayerPanel(PlayerPanelContext* panel)
+	void RenderPlayerPanel(RPlayerPanelContext* panel)
 	{
-		auto* player = Player::Get();
+		auto* player = EPlayer::Get();
 
 		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayState::viewport_width - 550, 370), ImGuiCond_Appearing);
 
@@ -39,7 +39,7 @@ namespace Editor
 		ImGui::End();
 	}
 
-	void OpenPlayerPanel(Player* player)
+	void OpenPlayerPanel(EPlayer* player)
 	{
 		auto& ed_context = *Editor::GetContext();
 

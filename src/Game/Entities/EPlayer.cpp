@@ -1,4 +1,4 @@
-#include "game/entities/player.h"
+#include "game/entities/EPlayer.h"
 
 #include "engine/rvn.h"
 #include "engine/camera/camera.h"
@@ -6,36 +6,36 @@
 #include "engine/collision/ClTypes.h"
 #include "engine/io/input.h"
 #include "engine/render/ImRender.h"
-#include "engine/world/world.h"
+#include "engine/world/World.h"
 #include "game/input/PlayerInput.h"
 
-#define IfStateChange(X, Y) if (player_state == PlayerState::X && new_state == PlayerState::Y)
-#define IfState(X) if (player_state == PlayerState::X)
+#define IfStateChange(X, Y) if (player_state == NPlayerState::X && new_state == NPlayerState::Y)
+#define IfState(X) if (player_state == NPlayerState::X)
 
 // -----------------
 // Player Constants
 // -----------------
-const float Player::acceleration = 12.0f;
-const float Player::run_speed = 4.0f;
-const float Player::dash_speed = 8.0f;
-const float Player::walk_speed = 0.95f;
-const float Player::fall_speed = 0.01f;
-const float Player::air_steering_velocity = 1.5f;
-const float Player::max_air_speed = 0.2f;
-const float Player::air_friction = 5.0f;
-const float Player::jump_initial_speed = 7.0f;
-const float Player::jump_reduced_horizontal_thrust = 1.5f;
-const float Player::minimum_jump_horizontal_thrust_when_dashing = 5.5f;
-const float Player::minimum_jump_horizontal_thrust_when_running = 3.0f;
-const float Player::jump_from_slope_horizontal_thrust = 4.0f;
-const float Player::slide_jump_speed = 6.7f;
-const float Player::slide_speed = 2.0f;
-const float Player::fall_from_edge_push_speed = 1.5f;
-const vec3 Player::gravity = vec3(0, -18.0, 0);
+const float EPlayer::acceleration = 12.0f;
+const float EPlayer::run_speed = 4.0f;
+const float EPlayer::dash_speed = 8.0f;
+const float EPlayer::walk_speed = 0.95f;
+const float EPlayer::fall_speed = 0.01f;
+const float EPlayer::air_steering_velocity = 1.5f;
+const float EPlayer::max_air_speed = 0.2f;
+const float EPlayer::air_friction = 5.0f;
+const float EPlayer::jump_initial_speed = 7.0f;
+const float EPlayer::jump_reduced_horizontal_thrust = 1.5f;
+const float EPlayer::minimum_jump_horizontal_thrust_when_dashing = 5.5f;
+const float EPlayer::minimum_jump_horizontal_thrust_when_running = 3.0f;
+const float EPlayer::jump_from_slope_horizontal_thrust = 4.0f;
+const float EPlayer::slide_jump_speed = 6.7f;
+const float EPlayer::slide_speed = 2.0f;
+const float EPlayer::fall_from_edge_push_speed = 1.5f;
+const vec3 EPlayer::gravity = vec3(0, -18.0, 0);
 
-Player::Player() = default;
+EPlayer::EPlayer() = default;
 
-void Player::Update()
+void EPlayer::Update()
 {
 	static_cast<EEntity*>(this)->Update();
 
@@ -45,9 +45,9 @@ void Player::Update()
 	}
 }
 
-void Player::UpdateState()
+void EPlayer::UpdateState()
 {
-	World* world = World::Get();
+	RWorld* world = RWorld::Get();
 	float dt = RavenousEngine::GetFrameDuration();
 
 	// -------------
@@ -84,7 +84,7 @@ void Player::UpdateState()
 
 			// iterate on collision results
 			bool collided_with_terrain = false;
-			ClResults slope;
+			RCollisionResults slope;
 			for (auto& collision_result : results)
 			{
 				collided_with_terrain = dot(collision_result.normal, UnitY) > 0;
@@ -105,7 +105,7 @@ void Player::UpdateState()
 				vec2 fall_momentum = fall_momentum_dir * fall_momentum_intensity;
 
 				velocity = vec3(fall_momentum.x, 0, fall_momentum.y);
-				ChangeStateTo(PlayerState::Falling);
+				ChangeStateTo(NPlayerState::Falling);
 				Update();
 				break;
 			}
@@ -116,9 +116,9 @@ void Player::UpdateState()
 
 			if (slope.collision)
 			{
-				PlayerStateChangeArgs args;
+				RPlayerStateChangeArgs args;
 				args.normal = slope.normal;
-				ChangeStateTo(PlayerState::Sliding, args);
+				ChangeStateTo(NPlayerState::Sliding, args);
 				break;
 			}
 		}
@@ -148,9 +148,9 @@ void Player::UpdateState()
 				bool collided_with_slope = dot(result.normal, UnitY) >= slope_min_angle;
 				if (collided_with_slope && result.entity->slidable)
 				{
-					PlayerStateChangeArgs args;
+					RPlayerStateChangeArgs args;
 					args.normal = result.normal;
-					ChangeStateTo(PlayerState::Sliding, args);
+					ChangeStateTo(NPlayerState::Sliding, args);
 					return;
 				}
 			}
@@ -160,7 +160,7 @@ void Player::UpdateState()
 				// If collided with terrain
 				if (dot(result.normal, UnitY) > 0)
 				{
-					ChangeStateTo(PlayerState::Standing);
+					ChangeStateTo(NPlayerState::Standing);
 					return;
 				}
 			}
@@ -189,9 +189,9 @@ void Player::UpdateState()
 			bool collided_with_slope = dot(result.normal, UnitY) >= slope_min_angle;
 			if (collided_with_slope && result.entity->slidable)
 			{
-				PlayerStateChangeArgs args;
+				RPlayerStateChangeArgs args;
 				args.normal = result.normal;
-				ChangeStateTo(PlayerState::Sliding, args);
+				ChangeStateTo(NPlayerState::Sliding, args);
 				return;
 			}
 			
@@ -200,7 +200,7 @@ void Player::UpdateState()
 			// If collided with terrain
 			else if (dot(result.normal, UnitY) > 0)
 			{
-				ChangeStateTo(PlayerState::Standing);
+				ChangeStateTo(NPlayerState::Standing);
 				return;
 			}
 			
@@ -212,10 +212,10 @@ void Player::UpdateState()
 		//          in that case it should also stand (or fall from ledge) and not
 		//          directly fall.
 		if (results.Num() > 0)
-			ChangeStateTo(PlayerState::Falling);
+			ChangeStateTo(NPlayerState::Falling);
 
 		else if (velocity.y <= 0)
-			ChangeStateTo(PlayerState::Falling);
+			ChangeStateTo(NPlayerState::Falling);
 	}
 	
 	// -------------
@@ -247,19 +247,19 @@ void Player::UpdateState()
 
 		if (collided_with_terrain)
 		{
-			ChangeStateTo(PlayerState::Standing);
+			ChangeStateTo(NPlayerState::Standing);
 			return;
 		}
 
 		auto vtrace = CL_DoStepoverVtrace(this, world);
 		if (!vtrace.hit)
 		{
-			ChangeStateTo(PlayerState::Falling);
+			ChangeStateTo(NPlayerState::Falling);
 		}
 	}
 }
 
-void Player::UpdateAirMovement(float dt)
+void EPlayer::UpdateAirMovement(float dt)
 {
 	velocity += gravity * dt;
 
@@ -278,7 +278,7 @@ void Player::UpdateAirMovement(float dt)
 		position += relative_motion_vec * air_steering_velocity * dt;
 	}
 	// Extra steering if jumping upwards
-	if ((player_state == PlayerState::Jumping && IsEqual(h_speed, 0)) || player_state == PlayerState::Falling)
+	if ((player_state == NPlayerState::Jumping && IsEqual(h_speed, 0)) || player_state == NPlayerState::Falling)
 	{
 		if (pressing_forward_while_in_air || pressing_backward_while_in_air)
 			position += v_dir * air_steering_velocity * dt;
@@ -302,11 +302,11 @@ void Player::UpdateAirMovement(float dt)
 	position += velocity * dt + gravity * dt * dt / 2.f;
 }
 
-void Player::ChangeStateTo(PlayerState new_state, PlayerStateChangeArgs args)
+void EPlayer::ChangeStateTo(NPlayerState new_state, RPlayerStateChangeArgs args)
 {
 	IfStateChange(Jumping, Falling)
 	{
-		player_state = PlayerState::Falling;
+		player_state = NPlayerState::Falling;
 		velocity.y = 0;
 		// jumping_upwards = false;
 	}
@@ -326,19 +326,19 @@ void Player::ChangeStateTo(PlayerState new_state, PlayerStateChangeArgs args)
 			else if (!dashing && horizontal_thrust < minimum_jump_horizontal_thrust_when_running)
 				horizontal_thrust = minimum_jump_horizontal_thrust_when_running;
 
-			auto* player_camera = CameraManager::Get()->GetGameCamera();
+			auto* player_camera = RCameraManager::Get()->GetGameCamera();
 			velocity = player_camera->front * horizontal_thrust;
 		}
 
 		velocity.y = jump_initial_speed;
-		player_state = PlayerState::Jumping;
-		anim_state = PlayerAnimationState::Jumping;
+		player_state = NPlayerState::Jumping;
+		anim_state = RPlayerAnimationState::Jumping;
 		height_before_fall = position.y;
 	}
 
 	else IfStateChange(Standing, Falling)
 	{
-		player_state = PlayerState::Falling;
+		player_state = NPlayerState::Falling;
 		velocity.y = -1 * fall_speed;
 		velocity.x *= 0.5;
 		velocity.z *= 0.5;
@@ -349,13 +349,13 @@ void Player::ChangeStateTo(PlayerState new_state, PlayerStateChangeArgs args)
 	{
 		velocity.y = 0;
 		
-		player_state = PlayerState::Standing;
+		player_state = NPlayerState::Standing;
 
 		// conditional animation: if falling from jump, land, else, land from fall
 		if (height < height) // TODO: ??
-			anim_state = PlayerAnimationState::Landing;
+			anim_state = RPlayerAnimationState::Landing;
 		else
-			anim_state = PlayerAnimationState::LandingFall;
+			anim_state = RPlayerAnimationState::LandingFall;
 
 		MaybeHurtFromFall();
 	}
@@ -366,8 +366,8 @@ void Player::ChangeStateTo(PlayerState new_state, PlayerStateChangeArgs args)
 		
 		MultiplySpeed(0.f);
 
-		player_state = PlayerState::Standing;
-		anim_state = PlayerAnimationState::Landing;
+		player_state = NPlayerState::Standing;
+		anim_state = RPlayerAnimationState::Landing;
 		//MaybeHurtFromFall();
 	}
 
@@ -377,7 +377,7 @@ void Player::ChangeStateTo(PlayerState new_state, PlayerStateChangeArgs args)
 		   - vec3 normal : the normal of the slope (collider triangle) player is currently sliding
 		*/
 
-		player_state = PlayerState::Sliding;
+		player_state = NPlayerState::Sliding;
 
 		auto down_vec_into_n = ProjectVecIntoRef(-UnitY, args.normal);
 		auto sliding_direction = normalize(-UnitY - down_vec_into_n);
@@ -390,7 +390,7 @@ void Player::ChangeStateTo(PlayerState new_state, PlayerStateChangeArgs args)
 		// make player 'snap' to slope velocity-wise
 		// velocity = slide_speed * ramp->collision_geometry.slope.tangent;
 
-		player_state = PlayerState::SlideFalling;
+		player_state = NPlayerState::SlideFalling;
 	}
 
 	else IfStateChange(Jumping, Grabbing)
@@ -417,8 +417,8 @@ void Player::ChangeStateTo(PlayerState new_state, PlayerStateChangeArgs args)
 
 	else IfStateChange(Grabbing, Vaulting)
 	{
-		player_state = PlayerState::Vaulting;
-		anim_state = PlayerAnimationState::Vaulting;
+		player_state = NPlayerState::Vaulting;
+		anim_state = RPlayerAnimationState::Vaulting;
 		grabbing_entity = nullptr;
 	}
 
@@ -426,10 +426,10 @@ void Player::ChangeStateTo(PlayerState new_state, PlayerStateChangeArgs args)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		GII->block_mouse_move = true;
-		auto* player_camera = CameraManager::Get()->GetGameCamera();
+		auto* player_camera = RCameraManager::Get()->GetGameCamera();
 
-		player_state = PlayerState::Vaulting;
-		anim_state = PlayerAnimationState::Vaulting;
+		player_state = NPlayerState::Vaulting;
+		anim_state = RPlayerAnimationState::Vaulting;
 		velocity = vec3(0);
 
 		anim_orig_pos = position;
@@ -446,7 +446,7 @@ void Player::ChangeStateTo(PlayerState new_state, PlayerStateChangeArgs args)
 
 		GII->forget_last_mouse_coords = true;
 		GII->block_mouse_move = false;
-		player_state = PlayerState::Standing;
+		player_state = NPlayerState::Standing;
 		anim_finished_turning = false;
 	}
 
@@ -454,7 +454,7 @@ void Player::ChangeStateTo(PlayerState new_state, PlayerStateChangeArgs args)
 	{
 		sliding_direction = vec3(0);
 		sliding_normal = vec3(0);
-		player_state = PlayerState::Standing;
+		player_state = NPlayerState::Standing;
 	}
 
 	else IfStateChange(Sliding, Jumping)
@@ -465,14 +465,14 @@ void Player::ChangeStateTo(PlayerState new_state, PlayerStateChangeArgs args)
 		velocity = v_dir * jump_from_slope_horizontal_thrust;
 		velocity.y = jump_initial_speed;
 
-		player_state = PlayerState::Jumping;
-		anim_state = PlayerAnimationState::Jumping;
+		player_state = NPlayerState::Jumping;
+		anim_state = RPlayerAnimationState::Jumping;
 		height_before_fall = position.y;
 	}
 
 	else IfStateChange(Sliding, Falling)
 	{
-		player_state = PlayerState::Falling;
+		player_state = NPlayerState::Falling;
 		velocity.y = -fall_speed;
 		height_before_fall = position.y;
 	}
@@ -481,14 +481,14 @@ void Player::ChangeStateTo(PlayerState new_state, PlayerStateChangeArgs args)
 		fatal_error("There is no link to change Player State from %i to %i.", player_state, new_state);
 }
 
-vec3 Player::MoveForward()
+vec3 EPlayer::MoveForward()
 {
 	bool no_move_command = v_dir.x == 0 && v_dir.z == 0;
 
 	float dt = RavenousEngine::GetFrameDuration();
 
 	// Limiting movement angle when moving in diagonals
-	auto* player_camera = CameraManager::Get()->GetGameCamera();
+	auto* player_camera = RCameraManager::Get()->GetGameCamera();
 
 	// TODO: Implement for the other axis as well
 	//		Cleanup the mess of using KEYs for this
@@ -506,7 +506,7 @@ vec3 Player::MoveForward()
 	if (!IsEqual(length(v_dir), 0))
 		last_recorded_movement_direction = v_dir;
 	else if (last_recorded_movement_direction == vec3(0))
-		last_recorded_movement_direction = normalize(ToXz( CameraManager::Get()->GetGameCamera()->front ));
+		last_recorded_movement_direction = normalize(ToXz( RCameraManager::Get()->GetGameCamera()->front ));
 	
 	float d_speed = acceleration * dt;
 	
@@ -528,13 +528,13 @@ vec3 Player::MoveForward()
 	return next_position;
 }
 
-vec3 Player::GetLastTerrainContactPoint() const
+vec3 EPlayer::GetLastTerrainContactPoint() const
 {
 	const vec3 player_btm_sphere_center = position + vec3(0, radius, 0);
 	return player_btm_sphere_center + -last_terrain_contact_normal * radius;
 }
 
-bool Player::MaybeHurtFromFall()
+bool EPlayer::MaybeHurtFromFall()
 {
 	float fall_height = height_before_fall - position.y;
 	fall_height_log = fall_height;
@@ -551,12 +551,12 @@ bool Player::MaybeHurtFromFall()
 	return false;
 }
 
-void Player::RestoreHealth()
+void EPlayer::RestoreHealth()
 {
 	lives = initial_lives;
 }
 
-void Player::SetCheckpoint(EEntity* entity)
+void EPlayer::SetCheckpoint(EEntity* entity)
 {
 	return;
 	/*
@@ -568,34 +568,34 @@ void Player::SetCheckpoint(EEntity* entity)
 	*/
 }
 
-void Player::GotoCheckpoint()
+void EPlayer::GotoCheckpoint()
 {
 	position = checkpoint_pos;
 }
 
-void Player::Die()
+void EPlayer::Die()
 {
 	lives = initial_lives;
 	velocity = vec3(0);
-	player_state = PlayerState::Standing;
+	player_state = NPlayerState::Standing;
 	ForceInterruptPlayerAnimation(this);
 	GotoCheckpoint();
 }
 
-void Player::BruteStop()
+void EPlayer::BruteStop()
 {
 	// bypass deaceleration steps. Stops player right on his tracks.
 	velocity = vec3(0);
 }
 
-Player* Player::ResetPlayer()
+EPlayer* EPlayer::ResetPlayer()
 {
 	auto* player = Get();
-	*player = Player{};
+	*player = EPlayer{};
 	return player;
 }
 
-float Player::GetSpeedLimit() const
+float EPlayer::GetSpeedLimit() const
 {
 	if (dashing)
 	{
@@ -611,15 +611,15 @@ float Player::GetSpeedLimit() const
 	}
 }
 
-void GP_CheckPlayerGrabbedLedge(Player* player, World* world)
+void GP_CheckPlayerGrabbedLedge(EPlayer* player, RWorld* world)
 {
-	Ledge ledge = CL_PerformLedgeDetection(player, world);
+	RLedge ledge = CL_PerformLedgeDetection(player, world);
 	if (ledge.empty)
 		return;
 	vec3 position = CL_GetFinalPositionLedgeVaulting(player, ledge);
 
-	PlayerStateChangeArgs args;
+	RPlayerStateChangeArgs args;
 	args.vaulting_data.ledge = ledge;
 	args.vaulting_data.final_position = position;
-	player->ChangeStateTo(PlayerState::Vaulting, args);
+	player->ChangeStateTo(NPlayerState::Vaulting, args);
 }

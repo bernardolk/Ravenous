@@ -17,7 +17,7 @@
 
 #include "engine/rvn.h"
 #include "engine/io/display.h"
-#include "engine/render/shader.h"
+#include "engine/render/Shader.h"
 
 void LoadTexturesFromAssetsFolder()
 {
@@ -43,7 +43,7 @@ void LoadTexturesFromAssetsFolder()
 				texture_type = "texture_normal";
 			}
 
-			Texture new_texture{
+			RTexture new_texture{
 			texture_id,
 			texture_type,
 			texture_filename,
@@ -55,7 +55,7 @@ void LoadTexturesFromAssetsFolder()
 	}
 }
 
-Mesh* LoadWavefrontObjAsMesh(
+RMesh* LoadWavefrontObjAsMesh(
 	const std::string& path,
 	const std::string& filename,
 	const std::string& name,
@@ -73,7 +73,7 @@ Mesh* LoadWavefrontObjAsMesh(
 	Parser p{full_path};
 
 	// @TODO: use a memory pool
-	auto mesh = new Mesh();
+	auto mesh = new RMesh();
 
 	std::vector<vec3> v_pos;
 	std::vector<vec2> v_texels;
@@ -128,7 +128,7 @@ Mesh* LoadWavefrontObjAsMesh(
 			// iterate over face's vertices. We expect either faces with 3 or 4 vertices only.
 			while (true)
 			{
-				Vertex v;
+				RVertex v;
 				p.ParseAllWhitespace();
 
 				// parses vertex index
@@ -223,7 +223,7 @@ Mesh* LoadWavefrontObjAsMesh(
 	return mesh;
 }
 
-CollisionMesh* LoadWavefrontObjAsCollisionMesh(std::string path, std::string filename, std::string name) 
+RCollisionMesh* LoadWavefrontObjAsCollisionMesh(std::string path, std::string filename, std::string name) 
 {
 	/* Loads a model from the provided path and filename and add it to the Collision_Geometry_Catalogue with provided name */
 
@@ -231,7 +231,7 @@ CollisionMesh* LoadWavefrontObjAsCollisionMesh(std::string path, std::string fil
 	Parser p{full_path};
 
 	// @TODO: Use a memory pool
-	auto c_mesh = new CollisionMesh();
+	auto c_mesh = new RCollisionMesh();
 
 	// Parses file
 	while (p.NextLine())
@@ -382,7 +382,7 @@ StrVec GetFilesINFolder(std::string directory)
 }
 
 
-void WriteMeshExtraDataFile(std::string filename, Mesh* mesh)
+void WriteMeshExtraDataFile(std::string filename, RMesh* mesh)
 {
 	const auto extra_data_path = Paths::Models + "extra_data/" + filename + ".objplus";
 	std::ofstream writer(extra_data_path);
@@ -416,7 +416,7 @@ void WriteMeshExtraDataFile(std::string filename, Mesh* mesh)
 }
 
 
-void LoadMeshExtraData(std::string filename, Mesh* mesh)
+void LoadMeshExtraData(std::string filename, RMesh* mesh)
 {
 	const auto extra_data_path = Paths::Models + "extra_data/" + filename + ".objplus";
 	Parser p{extra_data_path};
@@ -447,7 +447,7 @@ void LoadMeshExtraData(std::string filename, Mesh* mesh)
 }
 
 
-void AttachExtraDataToMesh(std::string filename, std::string filepath, Mesh* mesh)
+void AttachExtraDataToMesh(std::string filename, std::string filepath, RMesh* mesh)
 {
 	/* Attach tangents and bitangents data to the mesh from a precomputation based on mesh vertices.
 	   If the extra mesh data file is outdated from mesh file or inexistent, compute data and write to it.
@@ -545,7 +545,7 @@ void LoadShaders()
 		const auto fragment_shader_name = GetParsed<std::string>(p);
 
 		// load shaders code and mounts program from parsed shader attributes
-		Shader* shader = has_geometry_shader ?
+		RShader* shader = has_geometry_shader ?
 			CreateShaderProgram(shader_name, vertex_shader_name, geometry_shader_name, fragment_shader_name) :
 			CreateShaderProgram(shader_name, vertex_shader_name, fragment_shader_name);
 

@@ -18,29 +18,29 @@ namespace Editor
 
 
 	void Initialize();
-	void Update(Player* player, World* world, Camera* camera);
-	void Render(Player* player, World* world, Camera* camera);
+	void Update(EPlayer* player, RWorld* world, RCamera* camera);
+	void Render(EPlayer* player, RWorld* world, RCamera* camera);
 	void Terminate();
 
 	void UpdateTriaxisGizmo();
-	void CheckSelectionToOpenPanel(Player* player, World* world, Camera* camera);
-	bool CheckSelectionToGrabEntityArrows(Camera* camera);
-	bool CheckSelectionToGrabEntityRotationGizmo(Camera* camera);
-	void CheckSelectionToMoveEntity(World* world, Camera* camera);
-	void CheckSelectionToSelectRelatedEntity(World* world, Camera* camera);
+	void CheckSelectionToOpenPanel(EPlayer* player, RWorld* world, RCamera* camera);
+	bool CheckSelectionToGrabEntityArrows(RCamera* camera);
+	bool CheckSelectionToGrabEntityRotationGizmo(RCamera* camera);
+	void CheckSelectionToMoveEntity(RWorld* world, RCamera* camera);
+	void CheckSelectionToSelectRelatedEntity(RWorld* world, RCamera* camera);
 
-	void RenderTextOverlay(Player* player, Camera* camera);
-	void RenderEventTriggers(Camera* camera, World* world);
-	void UpdateEntityControlArrows(EntityPanelContext* panel);
-	void RenderEntityControlArrows(EntityPanelContext* panel, World* world, Camera* camera);
-	void RenderEntityRotationGizmo(EntityPanelContext* panel, World* world, Camera* camera);
-	void UpdateEntityRotationGizmo(EntityPanelContext* panel);
-	void RenderEntityMeshNormals(EntityPanelContext* panel);
+	void RenderTextOverlay(EPlayer* player, RCamera* camera);
+	void RenderEventTriggers(RCamera* camera, RWorld* world);
+	void UpdateEntityControlArrows(REntityPanelContext* panel);
+	void RenderEntityControlArrows(REntityPanelContext* panel, RWorld* world, RCamera* camera);
+	void RenderEntityRotationGizmo(REntityPanelContext* panel, RWorld* world, RCamera* camera);
+	void UpdateEntityRotationGizmo(REntityPanelContext* panel);
+	void RenderEntityMeshNormals(REntityPanelContext* panel);
 	float GetGizmoScalingFactor(EEntity* entity, float min, float max);
-	void RenderWorldCells(Camera* camera, World* world);
-	void RenderLightbulbs(Camera* camera, World* world);
+	void RenderWorldCells(RCamera* camera, RWorld* world);
+	void RenderLightbulbs(RCamera* camera, RWorld* world);
 	void StartDearImguiFrame();
 	void EndDearImguiFrame();
 
-	inline EditorContext* GetContext() { return EditorContext::Get(); }
+	inline REditorContext* GetContext() { return REditorContext::Get(); }
 }

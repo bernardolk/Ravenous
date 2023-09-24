@@ -14,7 +14,7 @@ COLOR_PURPLE_1,
 /* -----------------------
   GJK Support Functions
 ----------------------- */
-GJK_Point CL_FindFurthestVertex(CollisionMesh* collision_mesh, vec3 direction)
+GJK_Point CL_FindFurthestVertex(RCollisionMesh* collision_mesh, vec3 direction)
 {
 	// Linearly scan the CollisionMesh doing dot products with the vertices and storing the one with max value, then return it
 	// Note: sometimes, the dot product between two points equals the same, but there is always a right and a wrong pair 
@@ -40,7 +40,7 @@ GJK_Point CL_FindFurthestVertex(CollisionMesh* collision_mesh, vec3 direction)
 }
 
 
-GJK_Point CL_GetSupportPoint(CollisionMesh* collision_mesh_a, CollisionMesh* collision_mesh_b, vec3 direction)
+GJK_Point CL_GetSupportPoint(RCollisionMesh* collision_mesh_a, RCollisionMesh* collision_mesh_b, vec3 direction)
 {
 	// Gets a support point in the minkowski difference of both meshes, in the direction supplied.
 
@@ -207,14 +207,14 @@ void CL_UpdateSimplexAndDirection(GJK_Iteration* gjk)
    Run GJK
 ------------------ */
 
-void CL_DebugRenderSimplex(Simplex simplex)
+void CL_DebugRenderSimplex(RSimplex simplex)
 {
 	for (int i = 0; i < simplex.size(); i++)
 		ImDraw::AddPoint(IM_ITERHASH(i), simplex[i], 2.0, true, DebugColors[i]);
 }
 
 
-GJK_Result CL_RunGjk(CollisionMesh* collider_a, CollisionMesh* collider_b)
+GJK_Result CL_RunGjk(RCollisionMesh* collider_a, RCollisionMesh* collider_b)
 {
 	GJK_Point support = CL_GetSupportPoint(collider_a, collider_b, UnitX);
 

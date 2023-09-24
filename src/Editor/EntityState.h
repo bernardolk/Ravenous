@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/core/core.h"
 
-struct EntityState
+struct REntityState
 {
 	EEntity* entity = nullptr;
 	u64 id;
@@ -11,7 +11,7 @@ struct EntityState
 };
 
 //todo Refactor into methods
-EntityState GetEntityState(EEntity* entity);
-void ApplyState(EntityState state);
-bool CompareEntityStates(EntityState state1, EntityState state2);
-mat4 MatModelFromEntityState(EntityState state);
+REntityState GetEntityState(EEntity* entity);
+void ApplyState(REntityState state);
+bool CompareEntityStates(REntityState state1, REntityState state2);
+mat4 MatModelFromEntityState(REntityState state);

@@ -4,5 +4,5 @@
 
 namespace Editor
 {
-	void RenderToolbar(World* world);
+	void RenderToolbar(RWorld* world);
 }

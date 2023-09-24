@@ -1,9 +1,9 @@
 #include "EntityState.h"
-#include "engine/entities/EEntity.h"
+#include "engine/entities/Entity.h"
 
-EntityState GetEntityState(EEntity* entity)
+REntityState GetEntityState(EEntity* entity)
 {
-	EntityState state;
+	REntityState state;
 	state.position = entity->position;
 	state.scale = entity->scale;
 	state.rotation = entity->rotation;
@@ -12,7 +12,7 @@ EntityState GetEntityState(EEntity* entity)
 	return state;
 }
 
-void ApplyState(EntityState state)
+void ApplyState(REntityState state)
 {
 	if (state.entity == nullptr)
 		return;
@@ -23,7 +23,7 @@ void ApplyState(EntityState state)
 	state.entity->Update();
 }
 
-bool CompareEntityStates(EntityState state1, EntityState state2)
+bool CompareEntityStates(REntityState state1, REntityState state2)
 {
 	return state1.id == state2.id
 	&& state1.position == state2.position
@@ -31,7 +31,7 @@ bool CompareEntityStates(EntityState state1, EntityState state2)
 	&& state1.rotation == state2.rotation;
 }
 
-mat4 MatModelFromEntityState(EntityState state)
+mat4 MatModelFromEntityState(REntityState state)
 {
 	glm::mat4 model = translate(Mat4Identity, state.position);
 	model = rotate(model, glm::radians(state.rotation.x), vec3(1.0f, 0.0f, 0.0f));

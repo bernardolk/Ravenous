@@ -10,7 +10,7 @@ void RavenousEngine::Initialize()
 void RavenousEngine::StartFrame()
 {
 	float current_frame_time = Platform::GetCurrentTime();
-	auto& frame = EngineRuntimeState::Get()->frame;
+	auto& frame = REngineRuntimeState::Get()->frame;
 	
 	frame.real_duration = current_frame_time - frame.last_frame_time;
 	frame.duration = frame.real_duration * frame.time_step;
@@ -35,13 +35,13 @@ void RavenousEngine::StartFrame()
 
 float RavenousEngine::GetFrameDuration()
 {
-	return EngineRuntimeState::Get()->frame.duration;	
+	return REngineRuntimeState::Get()->frame.duration;	
 }
 
-RavenousEngine::FrameData& RavenousEngine::GetFrame()
+RavenousEngine::RFrameData& RavenousEngine::GetFrame()
 {
-	return EngineRuntimeState::Get()->frame;	
+	return REngineRuntimeState::Get()->frame;	
 }
 
-RavenousEngine::EngineRuntimeState::EngineRuntimeState() = default;
+RavenousEngine::REngineRuntimeState::REngineRuntimeState() = default;
 

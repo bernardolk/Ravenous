@@ -17,7 +17,7 @@
  */
 
 /** Structure that maintains metadata about entity storage. Does not actually store any data. */
-struct EntityStorageBlockMetadata
+struct REntityStorageBlockMetadata
 {
 	using byte = char;
 	
@@ -34,7 +34,7 @@ struct EntityStorageBlockMetadata
 };
 
 /** Memory Arena for storing all the world chunk's entities's data. */
-struct ChunkStorage
+struct RWorldChunkStorage
 {
 	using byte = char;
 
@@ -48,40 +48,40 @@ struct ChunkStorage
 	int parent_chunk_id;
 
 	// Holds the useful metadata about each storage block in chunk storage. Iterate over it to go through all entity types.
-	Array<EntityStorageBlockMetadata, max_types_per_storage> storage_metadata_array;
+	Array<REntityStorageBlockMetadata, max_types_per_storage> storage_metadata_array;
 	// Convenience map to retrieve storage metadata for a specific entity type.
-	map<TypeID, EntityStorageBlockMetadata*> storage_metadata_map;
+	map<TypeID, REntityStorageBlockMetadata*> storage_metadata_map;
 	// TODO: Implement a TraitID to array of typeIds
 
-	ChunkStorage(int chunk_id) : parent_chunk_id(chunk_id)
+	RWorldChunkStorage(int chunk_id) : parent_chunk_id(chunk_id)
 	{
 		next_block_start = &data[0];
-		storage_metadata_array = Array<EntityStorageBlockMetadata, max_types_per_storage>();
+		storage_metadata_array = Array<REntityStorageBlockMetadata, max_types_per_storage>();
 	}
 	
 	template<typename T_Entity>
-	T_Entity* ChunkStorage::RequestEntityStorage();
+	T_Entity* RWorldChunkStorage::RequestEntityStorage();
 
 private:
 	template<typename T_Entity>
-	void ChunkStorage::MaybeAllocateForType();
+	void RWorldChunkStorage::MaybeAllocateForType();
 };
 
 
-struct WorldChunkEntityIterator
+struct RWorldChunkEntityIterator
 {
-	WorldChunk* chunk;
+	RWorldChunk* chunk;
 	u32 block_idx = 0;
 	u32 entity_idx = 0;
 	
-	explicit WorldChunkEntityIterator(WorldChunk* chunk) : chunk(chunk){}
+	explicit RWorldChunkEntityIterator(RWorldChunk* chunk) : chunk(chunk){}
 
 	EEntity* operator()();
 };
 
 
 template<typename T_Entity>
-void ChunkStorage::MaybeAllocateForType()
+void RWorldChunkStorage::MaybeAllocateForType()
 {
 	auto type_id = T_Entity::GetTypeId();
 
@@ -96,7 +96,7 @@ void ChunkStorage::MaybeAllocateForType()
 		if (!new_block)
 			fatal_error("FATAL: Memory budget for World Chunk with id = %i has ended. Could not allocate memory for entity with type_id = %i.", parent_chunk_id, type_id); 
 		
-		EntityStorageBlockMetadata& entity_storage_metadata = *new_block;
+		REntityStorageBlockMetadata& entity_storage_metadata = *new_block;
 		entity_storage_metadata.type_id = type_id;
 		entity_storage_metadata.type_size =  sizeof(T_Entity);
 		entity_storage_metadata.max_entity_instances = T_Entity::instance_budget;
@@ -112,13 +112,13 @@ void ChunkStorage::MaybeAllocateForType()
 };
 
 template<typename T_Entity>
-T_Entity* ChunkStorage::RequestEntityStorage()
+T_Entity* RWorldChunkStorage::RequestEntityStorage()
 {
 	MaybeAllocateForType<T_Entity>();
 
 	if (auto** it = Find(storage_metadata_map, T_Entity::GetTypeId()))
 	{
-		EntityStorageBlockMetadata* block_metadata = *it;
+		REntityStorageBlockMetadata* block_metadata = *it;
 		if (block_metadata->entity_count < block_metadata->max_entity_instances)
 		{
 			byte* entity_storage_address = block_metadata->data_start + (block_metadata->entity_count * block_metadata->type_size);
@@ -128,7 +128,7 @@ T_Entity* ChunkStorage::RequestEntityStorage()
 			return new_entity;
 		}
 		else
-			print("ERROR: There is no memory budget left in WorldChunk with id = %i for E_Type with id = %i. Could not allocate memory.", parent_chunk_id, T_Entity::GetTypeId());
+			print("ERROR: There is no memory budget left in RWorldChunk with id = %i for E_Type with id = %i. Could not allocate memory.", parent_chunk_id, T_Entity::GetTypeId());
 	}
 	else
 		fatal_error("FATAL : This shouldn't have happened.");

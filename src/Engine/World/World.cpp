@@ -1,15 +1,15 @@
-#include "engine/world/world.h"
+#include "engine/world/World.h"
 
 #include "WorldChunk.h"
 #include "engine/catalogues.h"
 #include "Engine/RavenousEngine.h"
-#include "engine/entities/EEntity.h"
+#include "engine/entities/Entity.h"
 #include "engine/render/ImRender.h"
 #include "engine/utils/utils.h"
-#include "game/entities/player.h"
+#include "game/entities/EPlayer.h"
 #include "engine/entities/lights.h"
 
-World::World()
+RWorld::RWorld()
 {
 	auto& active_chunk = *chunks.AddNew();
 	active_chunks.push_back(&active_chunk);
@@ -21,13 +21,13 @@ World::World()
 	chunks_map[active_chunk.GetChunkPosition()] = &active_chunk;
 }
 
-void World::Update()
+void RWorld::Update()
 {
 	UpdateTransforms();
 	UpdateTraits();
 }
 
-void World::UpdateTransforms()
+void RWorld::UpdateTransforms()
 {
 	auto entity_iter = GetEntityIterator();
 	while (auto* entity = entity_iter())
@@ -36,7 +36,7 @@ void World::UpdateTransforms()
 	}
 }
 
-void World::UpdateTraits()
+void RWorld::UpdateTraits()
 {
 	auto* entity_traits_manager = EntityTraitsManager::Get();
 	for (TraitID trait_id : entity_traits_manager->entity_traits)
@@ -48,17 +48,17 @@ void World::UpdateTraits()
 	}	
 }
 
-Iterator<WorldChunk> World::GetChunkIterator()
+Iterator<RWorldChunk> RWorld::GetChunkIterator()
 {
 	return chunks.GetIterator();
 }
 
-WorldEntityIterator World::GetEntityIterator()
+WorldEntityIterator RWorld::GetEntityIterator()
 {
 	return WorldEntityIterator();
 }
 
-WorldEntityIterator::WorldEntityIterator() : world(World::Get()), chunk_iterator(world->active_chunks[0]->GetIterator())
+WorldEntityIterator::WorldEntityIterator() : world(RWorld::Get()), chunk_iterator(world->active_chunks[0]->GetIterator())
 {
 	total_active_chunks = world->active_chunks.size();		
 }
@@ -75,7 +75,7 @@ EEntity* WorldEntityIterator::operator()()
 	return entity;
 }
 
-EEntity* WorldChunkEntityIterator::operator()()
+EEntity* RWorldChunkEntityIterator::operator()()
 {
 	if (block_idx < chunk->chunk_storage.storage_metadata_array.Num())
 	{
@@ -91,12 +91,12 @@ EEntity* WorldChunkEntityIterator::operator()()
 	return nullptr;
 }
 
-RaycastTest World::Raycast(const Ray ray, const RayCastType test_type, const EEntity* skip, const float max_distance) const
+RRaycastTest RWorld::Raycast(const RRay ray, const NRayCastType test_type, const EEntity* skip, const float max_distance) const
 {
 	//@TODO: This should first test ray against world cells, then get the list of entities from these world cells to test against 
 
 	float min_distance = MaxFloat;
-	RaycastTest closest_hit{false, -1};
+	RRaycastTest closest_hit{false, -1};
 
 	auto entity_iterator = GetEntityIterator();
 	while (auto* entity = entity_iterator())
@@ -119,24 +119,24 @@ RaycastTest World::Raycast(const Ray ray, const RayCastType test_type, const EEn
 	return closest_hit;
 }
 
-RaycastTest World::Raycast(const Ray ray, const EEntity* skip, const float max_distance) const
+RRaycastTest RWorld::Raycast(const RRay ray, const EEntity* skip, const float max_distance) const
 {
 	return this->Raycast(ray, RayCast_TestOnlyFromOutsideIn, skip, max_distance);
 }
 
-RaycastTest World::LinearRaycastArray(const Ray first_ray, int qty, float spacing) const
+RRaycastTest RWorld::LinearRaycastArray(const RRay first_ray, int qty, float spacing) const
 {
 	/* 
 	   Casts multiple ray towards the first_ray direction, with dir pointing upwards,
 	   qty says how many rays to shoot and spacing, well, the spacing between each ray.
 	*/
 
-	Ray ray = first_ray;
+	RRay ray = first_ray;
 	float highest_y = MinFloat;
 	float shortest_z = MaxFloat;
-	RaycastTest best_hit_results;
+	RRaycastTest best_hit_results;
 
-	Player* player = Player::Get();
+	EPlayer* player = EPlayer::Get();
 	
 	ForLess(qty)
 	{
@@ -153,7 +153,7 @@ RaycastTest World::LinearRaycastArray(const Ray first_ray, int qty, float spacin
 
 		ImDraw::AddLine(IM_ITERHASH(i), ray.origin, ray.origin + ray.direction * player->grab_reach, 1.2f, false, COLOR_GREEN_1);
 
-		ray = Ray{ray.origin + UnitY * spacing, ray.direction};
+		ray = RRay{ray.origin + UnitY * spacing, ray.direction};
 	}
 
 	if (best_hit_results.hit)
@@ -165,10 +165,10 @@ RaycastTest World::LinearRaycastArray(const Ray first_ray, int qty, float spacin
 	return best_hit_results;
 }
 
-RaycastTest World::RaycastLights(const Ray ray) const
+RRaycastTest RWorld::RaycastLights(const RRay ray) const
 {
 	float min_distance = MaxFloat;
-	RaycastTest closest_hit{.hit = false, .distance = -1};
+	RRaycastTest closest_hit{.hit = false, .distance = -1};
 
 	const auto aabb_mesh = GeometryCatalogue.find("aabb")->second;
 
@@ -211,7 +211,7 @@ RaycastTest World::RaycastLights(const Ray ray) const
 	return closest_hit;
 }
 
-CellUpdate World::UpdateEntityWorldChunk(EEntity* entity)
+CellUpdate RWorld::UpdateEntityWorldChunk(EEntity* entity)
 {
 	std::string message;
 
@@ -293,16 +293,16 @@ CellUpdate World::UpdateEntityWorldChunk(EEntity* entity)
 	return CellUpdate{CellUpdate_OK, "", true};
 }
 
-auto World::GetFrameData() -> RavenousEngine::FrameData&
+auto RWorld::GetFrameData() -> RavenousEngine::RFrameData&
 {
-	return RavenousEngine::EngineRuntimeState::Get()->frame;
+	return RavenousEngine::REngineRuntimeState::Get()->frame;
 }
 
 // TODO: Move these elsewhere
 void SetEntityDefaultAssets(EEntity* entity)
 {
 	// Trusting type defaults
-	EntityAttributes attrs;
+	REntityAttributes attrs;
 
 	auto [
 		_textures,
@@ -322,7 +322,7 @@ void SetEntityDefaultAssets(EEntity* entity)
 		entity->textures.push_back(_textures[i]);
 }
 	
-void SetEntityAssets(EEntity* entity, EntityAttributes attrs)
+void SetEntityAssets(EEntity* entity, REntityAttributes attrs)
 {
 	auto [
 		_textures,

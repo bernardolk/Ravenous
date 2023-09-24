@@ -5,18 +5,18 @@
 #include <engine/collision/CollisionMesh.h>
 #include <glm/gtx/quaternion.hpp>
 
-#include "engine/entities/EStaticMesh.h"
+#include "engine/entities/StaticMesh.h"
 #include "engine/geometry/mesh.h"
 #include "engine/serialization/parsing/parser.h"
 #include "engine/io/loaders.h"
-#include "engine/render/shader.h"
-#include "engine/world/world.h"
+#include "engine/render/Shader.h"
+#include "engine/world/World.h"
 
 const std::string SrLoadEntity_TypeNotSetErrorMsg = "Need to load entity type before loading type-specific data.";
 
 void EntitySerializer::Parse(Parser& parser)
 {
-	auto* world = World::Get();
+	auto* world = RWorld::Get();
 	auto* new_entity_ptr = world->SpawnEntity<EStaticMesh>();
 	if (!new_entity_ptr)
 		fatal_error("Couldnt create entity.")
@@ -196,7 +196,7 @@ void EntitySerializer::Save(std::ofstream& writer, const EEntity& entity)
 	int textures = entity.textures.size();
 	For(textures)
 	{
-		Texture texture = entity.textures[i];
+		RTexture texture = entity.textures[i];
 		if (texture.type == "texture_diffuse")
 			writer << "texture " << texture.name << "\n";
 	}

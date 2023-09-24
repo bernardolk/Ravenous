@@ -8,7 +8,7 @@
 #include "console/console.h"
 #include "editor/EditorState.h"
 #include "tools/EditorTools.h"
-#include "game/entities/player.h"
+#include "game/entities/EPlayer.h"
 #include "engine/camera/camera.h"
 #include "engine/rvn.h"
 #include "engine/collision/raycast.h"
@@ -17,11 +17,11 @@
 #include "engine/serialization/sr_config.h"
 #include "engine/serialization/sr_world.h"
 #include "engine/io/input.h"
-#include "engine/world/world.h"
+#include "engine/world/World.h"
 
 namespace Editor
 {
-	void HandleInputFlagsForEditorMode(InputFlags flags, World* world)
+	void HandleInputFlagsForEditorMode(InputFlags flags, RWorld* world)
 	{
 		// ------------------------
 		// EDITOR EDITING COMMANDS
@@ -30,9 +30,9 @@ namespace Editor
 		// not allowing for more than one at a time
 		// to be issued.
 		auto& context = *Editor::GetContext();
-		auto* player = Player::Get();
+		auto* player = EPlayer::Get();
 		auto& program_config = *ProgramConfig::Get();
-		auto* manager = CameraManager::Get();
+		auto* manager = RCameraManager::Get();
 		auto* camera = manager->GetCurrentCamera();
 
 		if (Pressed(flags, KEY_LEFT_CTRL) && PressedOnce(flags, KEY_Z))
@@ -49,7 +49,7 @@ namespace Editor
 			player->checkpoint_pos = player->position;
 			WorldSerializer::SaveToFile();
 			// set scene
-			program_config.initial_scene = World::Get()->scene_name;
+			program_config.initial_scene = RWorld::Get()->scene_name;
 			ConfigSerializer::Save(program_config);
 			Rvn::rm_buffer->Add("world state saved", 1200);
 			return;
@@ -295,7 +295,7 @@ namespace Editor
 			{
 				auto surface_point = CL_GetPointFromDetection(pickray, test);
 				player->position = surface_point;
-				player->player_state = PlayerState::Standing;
+				player->player_state = NPlayerState::Standing;
 				player->velocity = vec3(0, 0, 0);
 				player->Update();
 			}
@@ -357,7 +357,7 @@ namespace Editor
 		}
 	}
 
-	void HandleInputFlagsForCommonInput(InputFlags flags, Player* & player)
+	void HandleInputFlagsForCommonInput(InputFlags flags, EPlayer* & player)
 	{
 		auto& frame = RavenousEngine::GetFrame();
 
@@ -406,7 +406,7 @@ namespace Editor
 		}
 		if (PressedOnce(flags, KEY_F))
 		{
-			EditorState::ToggleProgramMode();
+			REditorState::ToggleProgramMode();
 		}
 		if (PressedOnce(flags, KEY_GRAVE_TICK))
 		{

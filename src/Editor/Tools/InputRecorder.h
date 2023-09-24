@@ -7,19 +7,19 @@ constexpr static int MaxInputRecordings = 20;
 const std::string RecordingsFilenamePrefix = "rec-";
 const std::string RecordingsFilenameExtension = ".txt";
 
-struct RecordedInput
+struct RRecordedInput
 {
 	std::vector<InputFlags> history;
 };
 
-struct InputRecorder
+struct RInputRecorder
 {
-	DeclSingleton(InputRecorder)
+	DeclSingleton(RInputRecorder)
 	
 	bool is_recording = false;
 	bool is_playing = false;
 
-	RecordedInput recorded_inputs[MaxInputRecordings];
+	RRecordedInput recorded_inputs[MaxInputRecordings];
 	int recording_idx = 0;
 	int playing_idx = 0;
 	int playing_flag_idx = 0;

@@ -3,8 +3,8 @@
 
 struct InputFlags;
 
-void HandleConsoleInput(InputFlags flags, Player* & player, World* world, Camera* camera);
-void ExecuteCommand(const string& buffer_line, Player* & player, World* world, Camera* camera);
+void HandleConsoleInput(InputFlags flags, EPlayer* & player, RWorld* world, RCamera* camera);
+void ExecuteCommand(const string& buffer_line, EPlayer* & player, RWorld* world, RCamera* camera);
 void CheckLetterKeyPresses(InputFlags flags);
 void ClearConsoleStringBuffer();
 void RenderConsole();
@@ -17,8 +17,10 @@ void InitializeConsoleBuffers();
 void CopyBufferToScratchBuffer();
 void ClearScratchBuffer();
 
-struct GlobalConsoleState
+struct RGlobalConsoleState
 {
+	DeclSingleton(RGlobalConsoleState)
+	
 	u16 buffer_capacity = 20;
 	constexpr static u16 max_chars = 50;
 	char** buffers;
@@ -28,6 +30,3 @@ struct GlobalConsoleState
 	char scratch_buffer[max_chars];
 	u16 c_ind = 0;
 };
-
-//todo: refactor global
-inline GlobalConsoleState Console;

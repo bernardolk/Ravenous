@@ -2,8 +2,8 @@
 
 namespace Editor
 {
-	struct PalettePanelContext;
+	struct RPalettePanelContext;
 
-	void RenderPalettePanel(PalettePanelContext* panel);
-	void InitializePalette(PalettePanelContext* panel);
+	void RenderPalettePanel(RPalettePanelContext* panel);
+	void InitializePalette(RPalettePanelContext* panel);
 }

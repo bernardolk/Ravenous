@@ -1,3 +1,3 @@
 #include "Editor/EditorContext.h"
 
-Editor::EditorContext::EditorContext() = default;
+Editor::REditorContext::REditorContext() = default;

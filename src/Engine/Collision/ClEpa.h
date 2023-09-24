@@ -4,8 +4,8 @@
 // Uses the output of GJK to compute a penetration vector, useful for resolving collisions
 #pragma once
 
-struct CollisionMesh;
-struct Simplex;
+struct RCollisionMesh;
+struct RSimplex;
 
 extern const int ClMaxEpaIterations;
 
@@ -26,7 +26,7 @@ void CL_AddIfOuterEdge(
 	u32 a,
 	u32 b);
 
-EPA_Result CL_RunEPA(Simplex simplex, CollisionMesh* collider_a, CollisionMesh* collider_b);
+EPA_Result CL_RunEPA(RSimplex simplex, RCollisionMesh* collider_a, RCollisionMesh* collider_b);
 
 
 inline bool CL_SupportIsInPolytope(std::vector<vec3> polytope, vec3 support_point)

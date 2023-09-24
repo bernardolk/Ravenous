@@ -2,7 +2,7 @@
 
 #include "game/input/PlayerInput.h"
 #include "editor/console/console.h"
-#include "game/entities/player.h"
+#include "game/entities/EPlayer.h"
 #include "engine/utils/utils.h"
 #include "engine/camera/camera.h"
 #include "editor/EditorState.h"
@@ -11,7 +11,7 @@
 
 void IN_AssignKeysToActions()
 {
-	if (EditorState::IsInEditorMode())
+	if (REditorState::IsInEditorMode())
 	{
 		KEY_MOVE_UP = KEY_UP;
 		KEY_MOVE_DOWN = KEY_DOWN;
@@ -21,7 +21,7 @@ void IN_AssignKeysToActions()
 		KEY_WALK = KEY_X;
 		KEY_ACTION = KEY_J;
 	}
-	else if (EditorState::IsInGameMode())
+	else if (REditorState::IsInGameMode())
 	{
 		KEY_MOVE_UP = KEY_W;
 		KEY_MOVE_DOWN = KEY_S;
@@ -36,7 +36,7 @@ void IN_AssignKeysToActions()
 
 void IN_ProcessMoveKeys(InputFlags flags, vec3& v_dir, bool short_circuit)
 {
-	auto* player_camera = CameraManager::Get()->GetGameCamera();
+	auto* player_camera = RCameraManager::Get()->GetGameCamera();
 
 	if (Pressed(flags, KEY_MOVE_UP))
 	{
@@ -63,7 +63,7 @@ void IN_ProcessMoveKeys(InputFlags flags, vec3& v_dir, bool short_circuit)
 }
 
 
-void IN_HandleMovementInput(InputFlags flags, Player* player, World* world)
+void IN_HandleMovementInput(InputFlags flags, EPlayer* player, RWorld* world)
 {
 	// assign keys
 	IN_AssignKeysToActions();
@@ -90,7 +90,7 @@ void IN_HandleMovementInput(InputFlags flags, Player* player, World* world)
 	// combines all key presses into one v direction
 	switch (player->player_state)
 	{
-		case PlayerState::Standing:
+		case NPlayerState::Standing:
 		{
 			player->stopped_pressing_forward_while_in_air = false;
 			
@@ -142,7 +142,7 @@ void IN_HandleMovementInput(InputFlags flags, Player* player, World* world)
 
 			// JUMP
 			if (flags.key_press & KEY_SPACE)
-				player->ChangeStateTo(PlayerState::Jumping);
+				player->ChangeStateTo(NPlayerState::Jumping);
 
 			// VAULT
 			if (Pressed(flags, KEY_LEFT_SHIFT) && MOUSE_LB_CLICK & GlobalInputInfo::Get()->mouse_state)
@@ -159,7 +159,7 @@ void IN_HandleMovementInput(InputFlags flags, Player* player, World* world)
 			break;
 		}
 
-		case PlayerState::Jumping:
+		case NPlayerState::Jumping:
 		{
 			// MID-AIR CONTROL IF JUMPING UP
 			// if (player->jumping_upwards)
@@ -185,7 +185,7 @@ void IN_HandleMovementInput(InputFlags flags, Player* player, World* world)
 			break;
 		}
 
-		case PlayerState::Falling:
+		case NPlayerState::Falling:
 		{
 			IN_ProcessMoveKeys(flags, player->v_dir, false);
 
@@ -209,7 +209,7 @@ void IN_HandleMovementInput(InputFlags flags, Player* player, World* world)
 			break;
 		}
 
-		case PlayerState::Sliding:
+		case NPlayerState::Sliding:
 		{
 			player->v_dir = player->sliding_direction;
 
@@ -227,18 +227,18 @@ void IN_HandleMovementInput(InputFlags flags, Player* player, World* world)
 				player->v_dir = normalize(player->v_dir);
 			}
 			if (flags.key_press & KEY_SPACE)
-				player->ChangeStateTo(PlayerState::Jumping);
+				player->ChangeStateTo(NPlayerState::Jumping);
 
 			break;
 		}
-		case PlayerState::Grabbing:
+		case NPlayerState::Grabbing:
 		{
 			if (Pressed(flags, KEY_DASH))
 			{
 				player->action = true;
 
 				if (Pressed(flags, KEY_MOVE_UP))
-					player->ChangeStateTo(PlayerState::Vaulting);
+					player->ChangeStateTo(NPlayerState::Vaulting);
 			}
 
 			break;

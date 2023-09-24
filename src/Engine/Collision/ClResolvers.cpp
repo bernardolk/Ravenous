@@ -3,7 +3,7 @@
 #include <glm/gtx/normal.hpp>
 #include <engine/collision/primitives/ray.h>
 #include <glm/gtx/quaternion.hpp>
-#include "game/entities/player.h"
+#include "game/entities/EPlayer.h"
 #include <engine/collision/ClTypes.h>
 #include "engine/utils/colors.h"
 #include <engine/render/ImRender.h>
@@ -11,14 +11,14 @@
 
 #include "ClController.h"
 #include "engine/utils/utils.h"
-#include "engine/world/world.h"
+#include "engine/world/World.h"
 
 
 // ---------------------
 // > RESOLVE COLLISION
 // ---------------------
 
-void CL_ResolveCollision(ClResults results, Player* player)
+void CL_ResolveCollision(RCollisionResults results, EPlayer* player)
 {
 	// unstuck player
 	vec3 offset = results.normal * results.penetration;
@@ -31,7 +31,7 @@ void CL_ResolveCollision(ClResults results, Player* player)
 }
 
 
-ClVtraceResult CL_DoStepoverVtrace(Player* player, World* world)
+ClVtraceResult CL_DoStepoverVtrace(EPlayer* player, RWorld* world)
 {
 	/* 
 	   Cast a ray at player's last point of contact with terrain to look for something steppable (terrain).
@@ -39,8 +39,8 @@ ClVtraceResult CL_DoStepoverVtrace(Player* player, World* world)
 	   player's current height. */
 
 	vec3 ray_origin = player->GetLastTerrainContactPoint() + vec3(0, 0.21, 0);
-	auto downward_ray = Ray{ray_origin, -UnitY};
-	RaycastTest raytest = world->Raycast(downward_ray, RayCast_TestOnlyFromOutsideIn);
+	auto downward_ray = RRay{ray_origin, -UnitY};
+	RRaycastTest raytest = world->Raycast(downward_ray, RayCast_TestOnlyFromOutsideIn);
 
 	if (!raytest.hit)
 		return ClVtraceResult{false};
@@ -63,7 +63,7 @@ ClVtraceResult CL_DoStepoverVtrace(Player* player, World* world)
 }
 
 
-bool GP_SimulatePlayerCollisionInFallingTrajectory(Player* player, vec2 xz_velocity)
+bool GP_SimulatePlayerCollisionInFallingTrajectory(EPlayer* player, vec2 xz_velocity)
 {
 	/*    
 	   Simulates how it would be if player fell following the xz_velocity vector.
@@ -79,7 +79,7 @@ bool GP_SimulatePlayerCollisionInFallingTrajectory(Player* player, vec2 xz_veloc
 
 	ImDraw::AddPoint(IMHASH, player->position, 2.0, false, COLOR_GREEN_1, 1);
 
-	auto* world = World::Get();
+	auto* world = RWorld::Get();
 	
 	int iteration = 0;
 	while (true)
@@ -113,7 +113,7 @@ bool GP_SimulatePlayerCollisionInFallingTrajectory(Player* player, vec2 xz_veloc
 // ---------------------
 // > WALL SLIDE PLAYER
 // ---------------------
-void CL_WallSlidePlayer(Player* player, vec3 wall_normal)
+void CL_WallSlidePlayer(EPlayer* player, vec3 wall_normal)
 {
 	// changes player velocity to be facing a wall parallel and dampens his speed
 	auto& pv = player->velocity;
@@ -136,7 +136,7 @@ void CL_WallSlidePlayer(Player* player, vec3 wall_normal)
 // --------------------------------------
 // > CL_run_tests_for_fall_simulation
 // --------------------------------------
-bool CL_RunTestsForFallSimulation(Player* player)
+bool CL_RunTestsForFallSimulation(EPlayer* player)
 {
 	// It basically the usual test but without collision resolving.
 

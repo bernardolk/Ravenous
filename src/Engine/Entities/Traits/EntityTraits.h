@@ -1,7 +1,7 @@
 #pragma once
 
 #include "engine/core/core.h"
-#include "engine/entities/EEntity.h"
+#include "engine/entities/Entity.h"
 #include "Engine/Entities/Traits/EntityTraitsManager.h"
 
 // Define empty macros for editor-only features in shipping build.

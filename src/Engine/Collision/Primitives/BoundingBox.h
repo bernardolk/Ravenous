@@ -1,6 +1,6 @@
 #pragma once
 
-struct BoundingBox
+struct RBoundingBox
 {
 	float minx;
 	float maxx;
@@ -55,7 +55,7 @@ struct BoundingBox
 	}
 
 	/** Performs a collision test between this and another BoundingBox.*/
-	bool Test(BoundingBox other)
+	bool Test(RBoundingBox other)
 	{
 		// Exit with no intersection if separated along an axis
 		if (this->maxx < other.minx || this->minx > other.maxx)

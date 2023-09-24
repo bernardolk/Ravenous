@@ -2,7 +2,7 @@
 
 struct Parser;
 struct EntityManager;
-struct World;
+struct RWorld;
 struct ProgramConfig;
 
 //@TODO: This is not ideal (GlobalSceneInfo must die)

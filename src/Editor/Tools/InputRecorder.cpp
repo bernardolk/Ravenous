@@ -7,19 +7,19 @@
 #include "Engine/Rvn.h"
 #include "Engine/Serialization/Parsing/Parser.h"
 
-InputRecorder::InputRecorder() = default;
+RInputRecorder::RInputRecorder() = default;
 
-void InputRecorder::StartRecording()
+void RInputRecorder::StartRecording()
 {
 	is_recording = true;
 }
 
-void InputRecorder::Record(InputFlags flags)
+void RInputRecorder::Record(InputFlags flags)
 {
 	recorded_inputs[recording_idx].history.push_back(flags);
 }
 
-void InputRecorder::StopRecording()
+void RInputRecorder::StopRecording()
 {
 	is_recording = false;
 
@@ -59,7 +59,7 @@ void InputRecorder::StopRecording()
 	}
 }
 
-void InputRecorder::StartPlaying(int recording_id)
+void RInputRecorder::StartPlaying(int recording_id)
 {
 	if (recording_id == -1)
 		playing_idx = recording_idx - 1;
@@ -68,7 +68,7 @@ void InputRecorder::StartPlaying(int recording_id)
 	is_playing = true;
 }
 
-InputFlags InputRecorder::Play()
+InputFlags RInputRecorder::Play()
 {
 	auto& record = recorded_inputs[playing_idx];
 	if (playing_flag_idx >= record.history.size() - 1 || record.history.size() == 0)
@@ -77,13 +77,13 @@ InputFlags InputRecorder::Play()
 	return record.history[playing_flag_idx++];
 }
 
-void InputRecorder::StopPlaying()
+void RInputRecorder::StopPlaying()
 {
 	is_playing = false;
 	playing_flag_idx = 0;
 }
 
-void InputRecorder::Save(int recording_id)
+void RInputRecorder::Save(int recording_id)
 {
 	auto t = std::time(nullptr);
 	auto tm = *std::localtime(&t);
@@ -110,7 +110,7 @@ void InputRecorder::Save(int recording_id)
 
 }
 
-void InputRecorder::Load()
+void RInputRecorder::Load()
 {
 	// this will load up to memory the last MAX_INPUT_RECORDINGS recordings
 	// it will *wipe* all previous in-memory stored recordings.

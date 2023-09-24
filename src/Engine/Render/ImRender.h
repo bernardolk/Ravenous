@@ -33,7 +33,7 @@ struct ImDrawElement
 {
 	u32 hash;
 	bool empty;
-	Mesh mesh;
+	RMesh mesh;
 	RenderOptions render_options;
 	int duration;
 	bool is_mesh;
@@ -56,9 +56,9 @@ struct ImDraw
 
 	static void Init();
 	static void Update(float frame_duration);
-	static void Render(Camera* camera);
-	static auto Add(u32 _hash, vector<Vertex> vertex_vec, GLenum draw_method, RenderOptions opts = RenderOptions{}) -> void;
-	static void Add(u32 _hash, vector<Triangle> triangles, GLenum draw_method, RenderOptions);
+	static void Render(RCamera* camera);
+	static auto Add(u32 _hash, vector<RVertex> vertex_vec, GLenum draw_method, RenderOptions opts = RenderOptions{}) -> void;
+	static void Add(u32 _hash, vector<RTriangle> triangles, GLenum draw_method, RenderOptions);
 	static void AddLine(u32 _hash, vec3 point_a, vec3 point_b, vec3 color);
 	static void AddLine(u32 _hash, vec3 point_a, vec3 point_b, float line_width = 1.0,
 	                    bool always_on_top = false, vec3 color = vec3(0), float duration = 0);
@@ -66,17 +66,17 @@ struct ImDraw
 	static void AddPoint(u32 _hash, vec3 point, float point_size = 1.0,
 	                     bool always_on_top = false, vec3 color = vec3(0), float duration = 0);
 	static void AddPoint(u32 _hash, vec3 point, vec3 color = vec3(0));
-	static void AddTriangle(u32 _hash, Triangle t, float line_width = 1.0,
+	static void AddTriangle(u32 _hash, RTriangle t, float line_width = 1.0,
 	                        bool always_on_top = false, vec3 color = vec3{0.8, 0.2, 0.2});
-	static void AddMesh(u32 _hash, Mesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color = COLOR_BLUE_1, int duration = 2000);
-	static void AddMesh(u32 _hash, Mesh* mesh, vec3 color = COLOR_BLUE_1, float duration = 2000);
+	static void AddMesh(u32 _hash, RMesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color = COLOR_BLUE_1, int duration = 2000);
+	static void AddMesh(u32 _hash, RMesh* mesh, vec3 color = COLOR_BLUE_1, float duration = 2000);
 	static void AddMesh(u32 _hash, EEntity* entity, int duration);
 	static void AddMesh(u32 _hash, EEntity* entity);
 	static void AddMesh(u32 _hash, EEntity* entity, vec3 pos);
 
 private:
-	static void SetMesh(int i, vector<Vertex> vertices, GLenum draw_method, RenderOptions opts);
-	static void SetMesh(int i, Mesh* mesh, RenderOptions opts);
+	static void SetMesh(int i, vector<RVertex> vertices, GLenum draw_method, RenderOptions opts);
+	static void SetMesh(int i, RMesh* mesh, RenderOptions opts);
 	static void UpdateMesh(int i, vec3 pos, vec3 rot, vec3 scale, vec3 color, int duration);
 	static void UpdateMesh(int i, vec3 color, int duration);
 	static mat4 GetMatModel(vec3 pos, vec3 rot, vec3 scale);

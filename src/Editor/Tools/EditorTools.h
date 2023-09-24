@@ -9,8 +9,8 @@ namespace Editor
 	void DeactivateEditorModes();
 	bool CheckModesAreActive();
 	void EditorEraseEntity(EEntity* entity);
-	void EditorEraseLight(int index, string type, World* world);
-	void UnhideEntities(World* world);
+	void EditorEraseLight(int index, string type, RWorld* world);
+	void UnhideEntities(RWorld* world);
 
 	// ----------
 	// SNAP TOOL
@@ -33,25 +33,25 @@ namespace Editor
 	// MEASURE TOOL
 	// -------------
 	void ActivateMeasureMode(u8 axis);
-	void CheckSelectionToMeasure(const World* world);
+	void CheckSelectionToMeasure(const RWorld* world);
 
 	// ------------------------
 	// LOCATE COORDINATES MODE
 	// ------------------------
 	void ActivateLocateCoordsMode();
-	auto CheckSelectionToLocateCoords(const World* world) -> void;
+	auto CheckSelectionToLocateCoords(const RWorld* world) -> void;
 
 	// -------------
 	// > MOVE TOOLS 
 	// -------------
-	void PlaceEntity(World* world);
-	RaycastTest TestRayAgainstEntitySupportPlane(u16 move_axis, EEntity* entity);
+	void PlaceEntity(RWorld* world);
+	RRaycastTest TestRayAgainstEntitySupportPlane(u16 move_axis, EEntity* entity);
 
 	// --------------
 	// >> PLACE MODE
 	// --------------
 	void ActivatePlaceMode(EEntity* entity);
-	void SelectEntityPlacingWithMouseMove(EEntity* entity, const World* world);
+	void SelectEntityPlacingWithMouseMove(EEntity* entity, const RWorld* world);
 	
 	// -------------
 	// >> MOVE MODE
@@ -71,7 +71,7 @@ namespace Editor
 	// @todo: This will DISAPPEAR after lights become entities!
 	//       We need to provide entity rights to lights too! revolution now!
 
-	void MoveLightWithMouse(std::string type, int index, World* world);
+	void MoveLightWithMouse(std::string type, int index, RWorld* world);
 	void ActivateMoveLightMode(std::string type, int index);
 	void PlaceLight(std::string type, int index);
 	void PlaceLight();
@@ -93,7 +93,7 @@ namespace Editor
 	// SELECT ENTITY AUX TOOL
 	// -----------------------
 	// used in entity panel to select other entity to attribute 1 to 1 relationships
-	void ActivateSelectEntityAuxTool(EEntity** entity_slot, EdToolCallback callback = EdToolCallback_NoCallback, EdToolCallbackArgs args = EdToolCallbackArgs{});
+	void ActivateSelectEntityAuxTool(EEntity** entity_slot, NEdToolCallback callback = EdToolCallback_NoCallback, REditorToolCallbackArgs args = REditorToolCallbackArgs{});
 
 	// -------------
 	// MISCELANEOUS

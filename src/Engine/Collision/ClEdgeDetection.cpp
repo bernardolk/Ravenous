@@ -1,16 +1,16 @@
 #include "ClEdgeDetection.h"
-#include "game/entities/player.h"
+#include "game/entities/EPlayer.h"
 #include "engine/utils/utils.h"
 #include "engine/collision/raycast.h"
 #include "engine/collision/primitives/ray.h"
 #include "engine/render/ImRender.h"
-#include "engine/world/world.h"
+#include "engine/world/World.h"
 
-Ledge CL_PerformLedgeDetection(Player* player, World* world)
+RLedge CL_PerformLedgeDetection(EPlayer* player, RWorld* world)
 {
 	// concepts: front face - where the horizontal rays are going to hit
 	//           top face - where the vertical ray (up towards down) is going to hit
-	Ledge ledge;
+	RLedge ledge;
 
 	// settings
 	constexpr float _front_ray_first_ray_delta_y = 0.6f;
@@ -18,7 +18,7 @@ Ledge CL_PerformLedgeDetection(Player* player, World* world)
 	constexpr int _front_ray_qty = 24;
 
 	auto orientation_xz = ToXz(player->orientation);
-	auto first_ray = Ray{player->GetEyePosition() - UnitY * _front_ray_first_ray_delta_y, orientation_xz};
+	auto first_ray = RRay{player->GetEyePosition() - UnitY * _front_ray_first_ray_delta_y, orientation_xz};
 	ledge.detection_direction = first_ray.direction;
 
 	auto front_test = world->LinearRaycastArray(first_ray, _front_ray_qty, _front_ray_spacing);
@@ -31,7 +31,7 @@ Ledge CL_PerformLedgeDetection(Player* player, World* world)
 			return ledge;
 
 		constexpr float _top_ray_height = 2.0f;
-		auto top_ray = Ray{frontal_hitpoint + front_test.ray.direction * 0.0001f + UnitY * _top_ray_height, -UnitY};
+		auto top_ray = RRay{frontal_hitpoint + front_test.ray.direction * 0.0001f + UnitY * _top_ray_height, -UnitY};
 
 		auto top_test = world->Raycast(top_ray, RayCast_TestOnlyFromOutsideIn, nullptr, _top_ray_height);
 
@@ -99,7 +99,7 @@ Ledge CL_PerformLedgeDetection(Player* player, World* world)
 }
 
 
-vec3 CL_GetFinalPositionLedgeVaulting(Player* player, Ledge ledge)
+vec3 CL_GetFinalPositionLedgeVaulting(EPlayer* player, RLedge ledge)
 {
 	/* Returns the player's position after finishing vaulting across the given ledge */
 	vec3 inward_normal = normalize(Cross(ledge.a - ledge.b, UnitY));

@@ -3,26 +3,26 @@
 #include "engine/utils/utils.h"
 
 
-WorldChunkEntityIterator WorldChunk::GetIterator()
+RWorldChunkEntityIterator RWorldChunk::GetIterator()
 {
-	return WorldChunkEntityIterator(this);
+	return RWorldChunkEntityIterator(this);
 }
 
-void WorldChunk::RemoveEntity(EEntity* entity_to_delete)
+void RWorldChunk::RemoveEntity(EEntity* entity_to_delete)
 {
 	// TODO: We are not dealing with actually removing entities yet, we only mark them so they can be skipped/overwritten.
 	entity_to_delete->deleted = true;
 }
 
 
-bool WorldChunk::AddVisitor(EEntity* entity)
+bool RWorldChunk::AddVisitor(EEntity* entity)
 {
 	visitors.push_back(entity);
 	entity->visitor_state = VisitorState{true, vec3(i, j, k), this};
 	return true;
 }
 
-bool WorldChunk::RemoveVisitor(EEntity* entity)
+bool RWorldChunk::RemoveVisitor(EEntity* entity)
 {
 	int i = 0;
 	for (auto* visitor: visitors)
@@ -40,17 +40,17 @@ bool WorldChunk::RemoveVisitor(EEntity* entity)
 	return false;
 }
 
-vec3 WorldChunk::GetPositionMetric()
+vec3 RWorldChunk::GetPositionMetric()
 {
 	return GetWorldCoordinatesFromWorldCellCoordinates(i, j , k);
 }
 
-string WorldChunk::GetChunkPositionString()
+string RWorldChunk::GetChunkPositionString()
 {
 	return "Cell [" + to_string(i) + "," + to_string(j) + "," + to_string(k) + "]";
 }
 
-string WorldChunk::GetChunkPositionMetricString()
+string RWorldChunk::GetChunkPositionMetricString()
 {
 	vec3 mcoords = GetPositionMetric();
 	return "[x: " + FormatFloatTostr(mcoords[0], 1)
@@ -58,7 +58,7 @@ string WorldChunk::GetChunkPositionMetricString()
 	+ "]";
 }
 
-void WorldChunk::InvokeTraitUpdateOnAllTypes(TraitID trait_id)
+void RWorldChunk::InvokeTraitUpdateOnAllTypes(TraitID trait_id)
 {
 	auto* etm = EntityTraitsManager::Get();
 	//auto* types = etm->GetTypesWithTrait(trait_id);
@@ -86,9 +86,9 @@ vec3 GetWorldCoordinatesFromWorldCellCoordinates(int i, int j, int k)
 	return vec3{world_x, world_y, world_z};
 }
 
-WorldChunkPosition WorldCoordsToCells(float x, float y, float z)
+RWorldChunkPosition WorldCoordsToCells(float x, float y, float z)
 {
-	WorldChunkPosition world_cell_coords;
+	RWorldChunkPosition world_cell_coords;
 
 	// if out of bounds return -1
 	if (x < WLowerBoundsMeters.x || x > WUpperBoundsMeters.x ||
@@ -106,7 +106,7 @@ WorldChunkPosition WorldCoordsToCells(float x, float y, float z)
 	return world_cell_coords;
 }
 
-WorldChunkPosition WorldCoordsToCells(vec3 position)
+RWorldChunkPosition WorldCoordsToCells(vec3 position)
 {
 	return WorldCoordsToCells(position.x, position.y, position.z);
 }

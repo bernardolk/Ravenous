@@ -17,7 +17,7 @@
 #include "game/animation/AnUpdate.h"
 #include "editor/console/console.h"
 #include "game/GeometryData.h"
-#include "game/entities/player.h"
+#include "game/entities/EPlayer.h"
 #include "editor/editor.h"
 #include "engine/camera/camera.h"
 #include "engine/io/loaders.h"
@@ -27,7 +27,7 @@
 #include "engine/render/ImRender.h"
 #include "engine/serialization/sr_config.h"
 #include "engine/serialization/sr_world.h"
-#include "engine/world/world.h"
+#include "engine/world/World.h"
 
 // FUNCTION PROTOTYPES
 void LoadShaders();
@@ -40,7 +40,7 @@ int main()
 {
 	RavenousEngine::Initialize();
 	
-	auto* world = World::Get();
+	auto* world = RWorld::Get();
 
 	//@TODO: This here is not working because EntityManager copy constructor was deleted. This is an issue
 	//    with using references it seems? A pointer would never complain about this. I should dig into this.
@@ -67,11 +67,11 @@ int main()
 	
 	WorldSerializer::LoadFromFile(program_config.initial_scene);
 
-	Player* player = Player::Get();
+	EPlayer* player = EPlayer::Get();
 	player->checkpoint_pos = player->position; // set player initial checkpoint position
 
 	// set scene attrs from global config
-	CameraManager::Get()->GetCurrentCamera()->acceleration = program_config.camspeed;
+	RCameraManager::Get()->GetCurrentCamera()->acceleration = program_config.camspeed;
 	world->ambient_light = program_config.ambient_light;
 	world->ambient_intensity = program_config.ambient_intensity;
 
@@ -90,7 +90,7 @@ int main()
 	CheckAllGeometryHasGlData();
 
 	// load pre recorded input recordings
-	InputRecorder::Get()->Load();
+	RInputRecorder::Get()->Load();
 
 	// create hardcoded animations
 	AN_CreateHardcodedAnimations();
@@ -108,7 +108,7 @@ int main()
 
 void CheckAllEntitiesHaveShaders()
 {
-	auto entity_iterator = World::Get()->GetEntityIterator();
+	auto entity_iterator = RWorld::Get()->GetEntityIterator();
 	while(auto* entity = entity_iterator())
 	{
 		if (entity->shader == nullptr)
@@ -121,7 +121,7 @@ void CheckAllEntitiesHaveShaders()
 
 void CheckAllEntitiesHaveIds()
 {
-	auto entity_iterator = World::Get()->GetEntityIterator();
+	auto entity_iterator = RWorld::Get()->GetEntityIterator();
 	while(auto* entity = entity_iterator())
 	{
 		if (entity->id == -1)

@@ -3,9 +3,9 @@
 #include "engine/core/core.h"
 
 
-struct EditorState
+struct REditorState
 {
-	DeclSingleton(EditorState)
+	DeclSingleton(REditorState)
 	
 	enum class ProgramMode : u8
 	{

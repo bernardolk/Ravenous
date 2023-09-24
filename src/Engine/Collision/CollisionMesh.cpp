@@ -8,7 +8,7 @@
 #include <engine/collision/CollisionMesh.h>
 
 
-BoundingBox CollisionMesh::ComputeBoundingBox()
+RBoundingBox RCollisionMesh::ComputeBoundingBox()
 {
 	// This returns a bounding box that contains the mesh
 	// Vertices of the bounding box do not necessarely match vertices in the mesh
@@ -61,7 +61,7 @@ BoundingBox CollisionMesh::ComputeBoundingBox()
 		}
 	}
 
-	BoundingBox bb;
+	RBoundingBox bb;
 	bb.Set(vec3(minx, miny, minz), vec3(maxx, maxy, maxz));
 	return bb;
 }

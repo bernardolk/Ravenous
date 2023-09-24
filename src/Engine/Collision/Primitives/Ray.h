@@ -1,6 +1,6 @@
 #pragma once
 
-struct Ray
+struct RRay
 {
 	vec3 origin;
 	vec3 direction;

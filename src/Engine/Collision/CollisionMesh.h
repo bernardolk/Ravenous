@@ -1,14 +1,14 @@
 #pragma once
 
-struct BoundingBox;
-struct Mesh;
+struct RBoundingBox;
+struct RMesh;
 
-struct CollisionMesh
+struct RCollisionMesh
 {
 	std::vector<vec3> vertices;
 	std::vector<u32> indices;
 
-	BoundingBox ComputeBoundingBox();
+	RBoundingBox ComputeBoundingBox();
 };
 
 // CollisionMesh* cmesh_from_mesh(Mesh* mesh);

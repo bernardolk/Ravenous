@@ -1,5 +1,5 @@
 
-#include "engine/entities/EEntity.h"
+#include "engine/entities/Entity.h"
 #include "engine/geometry/mesh.h"
 
 /** Main update function, shouldn't run every frame. */
@@ -72,9 +72,9 @@ mat4 EEntity::GetRotationMatrix()
 	return rotation_matrix;
 }
 
-CollisionMesh EEntity::GetTriggerCollider()
+RCollisionMesh EEntity::GetTriggerCollider()
 {
-	CollisionMesh trigger_collider;
+	RCollisionMesh trigger_collider;
 
 	// multiplies model matrix to collision mesh
 	for (int i = 0; i < trigger->vertices.size(); i++)

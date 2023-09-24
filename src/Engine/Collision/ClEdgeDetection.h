@@ -9,7 +9,7 @@
 //    it must not be blocked above it. Meaning that the division between two stacked blocks, for instance, do not
 //    contain a ledge (but it does contain an edge).
 
-struct Ledge
+struct RLedge
 {
 	bool empty = true;
 	vec3 a;
@@ -19,8 +19,8 @@ struct Ledge
 	vec3 surface_point;       // The point in the horizontal surface that proves this is an actual ledge
 };
 
-struct RaycastTest;
+struct RRaycastTest;
 
-RaycastTest CL_GetTopHitFromMultipleRaycasts(Ray first_ray, int qty, float spacing, Player* player);
-Ledge CL_PerformLedgeDetection(Player* player, World* world);
-vec3 CL_GetFinalPositionLedgeVaulting(Player* player, Ledge ledge);
+RRaycastTest CL_GetTopHitFromMultipleRaycasts(RRay first_ray, int qty, float spacing, EPlayer* player);
+RLedge CL_PerformLedgeDetection(EPlayer* player, RWorld* world);
+vec3 CL_GetFinalPositionLedgeVaulting(EPlayer* player, RLedge ledge);

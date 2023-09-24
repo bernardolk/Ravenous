@@ -3,14 +3,14 @@
 #include "engine/core/core.h"
 #include "game/animation/AnUpdate.h"
 
-struct GameState
+struct RGameState
 {
-	DeclSingleton(GameState)
+	DeclSingleton(RGameState)
 	
 	// Timed events (timers)
 	constexpr static u32 timers_array_size = 64;
 
-	EntityAnimationKeyframe tmp_kf;
+	REntityAnimationKeyframe tmp_kf;
 
 	void StartTimer(EEntity* trigger);
 	void UpdateTimers();

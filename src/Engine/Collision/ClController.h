@@ -2,20 +2,20 @@
 #include "engine/core/core.h"
 #include "ClResolvers.h"
 
-struct ClResults;
+struct RCollisionResults;
 struct EntityBufferElement;
 
-Array<ClResults, 15> CL_TestAndResolveCollisions(Player* player);
+Array<RCollisionResults, 15> CL_TestAndResolveCollisions(EPlayer* player);
 
-ClResults CL_TestCollisionBufferEntitites(
-	Player* player,
+RCollisionResults CL_TestCollisionBufferEntitites(
+	EPlayer* player,
 	bool iterative
 );
 
-ClResults CL_TestPlayerVsEntity(EEntity* entity, Player* player);
-void CL_ResolveCollision(ClResults results, Player* player);
-bool CL_TestCollisions(Player* player);
+RCollisionResults CL_TestPlayerVsEntity(EEntity* entity, EPlayer* player);
+void CL_ResolveCollision(RCollisionResults results, EPlayer* player);
+bool CL_TestCollisions(EPlayer* player);
 void CL_ResetCollisionBufferChecks();
 void CL_RecomputeCollisionBufferEntities();
-bool CL_UpdatePlayerWorldCells(Player* player);
-ClVtraceResult CL_DoStepoverVtrace(Player* player, World* world);
+bool CL_UpdatePlayerWorldCells(EPlayer* player);
+ClVtraceResult CL_DoStepoverVtrace(EPlayer* player, RWorld* world);

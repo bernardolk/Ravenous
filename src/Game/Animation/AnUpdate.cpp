@@ -2,9 +2,9 @@
 
 #include "engine/core/logging.h"
 #include "engine/rvn.h"
-#include "engine/entities/EEntity.h"
+#include "engine/entities/Entity.h"
 
-void EntityAnimation::Update()
+void REntityAnimation::Update()
 {
 	/* executes current keyframe in entity and updates runtimes, turns animation inactive once it ends. */
 	auto& frame = RavenousEngine::GetFrame();
@@ -77,14 +77,14 @@ void EntityAnimation::Update()
 }
 
 
-u32 EntityAnimationBuffer::FindSlot()
+u32 REntityAnimationBuffer::FindSlot()
 {
 	For(animation_buffer_array_size)
 	{
 		if (!animations[i].active)
 		{
 			// reset slot
-			animations[i] = EntityAnimation();
+			animations[i] = REntityAnimation();
 			return i;
 		}
 	}
@@ -93,7 +93,7 @@ u32 EntityAnimationBuffer::FindSlot()
 	return 0;
 }
 
-void EntityAnimationBuffer::StartAnimation(EEntity* entity, EntityAnimation* animation)
+void REntityAnimationBuffer::StartAnimation(EEntity* entity, REntityAnimation* animation)
 {
 	// makes a copy of the animation to the Entity_Animations buffer
 
@@ -105,7 +105,7 @@ void EntityAnimationBuffer::StartAnimation(EEntity* entity, EntityAnimation* ani
 	_animation->entity = entity;
 }
 
-void EntityAnimationBuffer::UpdateAnimations()
+void REntityAnimationBuffer::UpdateAnimations()
 {
 	For(EntityAnimations.animation_buffer_array_size)
 	{
@@ -124,14 +124,14 @@ void AN_CreateHardcodedAnimations()
 	{
 		// > SLIDING UP
 		{
-			auto kf = EntityAnimationKeyframe();
+			auto kf = REntityAnimationKeyframe();
 			kf.duration = 2000;
 			kf.starting_scale = vec3{0.24, 1.6, 2.350};
 			kf.final_scale = kf.starting_scale;
 			kf.final_scale.z = 0.2;
 			kf.flags |= EntityAnimKfFlags_ChangeScale;
 
-			auto anim = EntityAnimation();
+			auto anim = REntityAnimation();
 			anim.description = "vertical_door_slide_up";
 			anim.keyframes_count = 1;
 			anim.keyframes[0] = kf;
@@ -141,14 +141,14 @@ void AN_CreateHardcodedAnimations()
 
 		// > SLIDING DOWN
 		{
-			auto kf = EntityAnimationKeyframe();
+			auto kf = REntityAnimationKeyframe();
 			kf.duration = 2000;
 			kf.starting_scale = vec3{0.24, 1.6, 0.2};
 			kf.final_scale = kf.starting_scale;
 			kf.final_scale.z = 2.350;
 			kf.flags |= EntityAnimKfFlags_ChangeScale;
 
-			auto anim = EntityAnimation();
+			auto anim = REntityAnimation();
 			anim.description = "vertical_door_slide_down";
 			anim.keyframes_count = 1;
 			anim.keyframes[0] = kf;

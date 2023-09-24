@@ -4,7 +4,7 @@
 #include "tools/EditorTools.h"
 #include "engine/camera/camera.h"
 #include "engine/entities/lights.h"
-#include "engine/world/world.h"
+#include "engine/world/World.h"
 
 namespace Editor
 {
@@ -34,7 +34,7 @@ namespace Editor
 	}
 
 
-	void RenderLightsPanel(LightsPanelContext* panel, World* world)
+	void RenderLightsPanel(RLightsPanelContext* panel, RWorld* world)
 	{
 		ImGui::SetNextWindowPos(ImVec2(180, 80), ImGuiCond_Appearing);
 		ImGui::Begin("Lights Panel", &panel->active, ImGuiWindowFlags_None);
@@ -219,7 +219,7 @@ namespace Editor
 					// direction
 					{
 						float yaw, pitch;
-						CameraManager::ComputeAnglesFromDirection(pitch, yaw, light.direction);
+						RCameraManager::ComputeAnglesFromDirection(pitch, yaw, light.direction);
 
 						// pitch
 						auto label_pitch = "pitch##spot" + std::to_string(i);

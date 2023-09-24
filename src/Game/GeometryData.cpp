@@ -9,7 +9,7 @@ void LoadModels()
 {
 	//TEXT
 	{
-		GLData text_gl_data;
+		RGLData text_gl_data;
 		glGenVertexArrays(1, &text_gl_data.VAO);
 		glGenBuffers(1, &text_gl_data.VBO);
 		glBindVertexArray(text_gl_data.VAO);
@@ -20,7 +20,7 @@ void LoadModels()
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 
-		auto* text_mesh = new Mesh();
+		auto* text_mesh = new RMesh();
 		text_mesh->name = "text";
 		text_mesh->gl_data = text_gl_data;
 		GeometryCatalogue.insert({text_mesh->name, text_mesh});
@@ -32,30 +32,30 @@ void LoadModels()
 
 	// SLOPE
 	// with Z coming at the screen, X to the right, slope starts at x=0 high and goes low on x=1
-	std::vector<Vertex> slope_vertex_vec = {
+	std::vector<RVertex> slope_vertex_vec = {
 	// bottom
-	Vertex{vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f), vec2(0.5f, 0.5f)}, //0
-	Vertex{vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f), vec2(1.0f, 0.5f)}, //1
-	Vertex{vec3(1.0f, 0.0f, 1.0f), vec3(0.0f, -1.0f, 0.0f), vec2(1.0f, 1.0f)}, //2
-	Vertex{vec3(0.0f, 0.0f, 1.0f), vec3(0.0f, -1.0f, 0.0f), vec2(0.5f, 1.0f)}, //3
+	RVertex{vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f), vec2(0.5f, 0.5f)}, //0
+	RVertex{vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f), vec2(1.0f, 0.5f)}, //1
+	RVertex{vec3(1.0f, 0.0f, 1.0f), vec3(0.0f, -1.0f, 0.0f), vec2(1.0f, 1.0f)}, //2
+	RVertex{vec3(0.0f, 0.0f, 1.0f), vec3(0.0f, -1.0f, 0.0f), vec2(0.5f, 1.0f)}, //3
 	// right   
-	Vertex{vec3(1.0f, 0.0f, 1.0f), vec3(0.5f, 0.5f, 0.0f), vec2(1.0f, 0.5f)}, //4
-	Vertex{vec3(1.0f, 0.0f, 0.0f), vec3(0.5f, 0.5f, 0.0f), vec2(0.5f, 0.5f)}, //5
-	Vertex{vec3(0.0f, 1.0f, 0.0f), vec3(0.5f, 0.5f, 0.0f), vec2(1.0f, 1.0f)}, //6
-	Vertex{vec3(0.0f, 1.0f, 1.0f), vec3(0.5f, 0.5f, 0.0f), vec2(0.5f, 1.0f)}, //7
+	RVertex{vec3(1.0f, 0.0f, 1.0f), vec3(0.5f, 0.5f, 0.0f), vec2(1.0f, 0.5f)}, //4
+	RVertex{vec3(1.0f, 0.0f, 0.0f), vec3(0.5f, 0.5f, 0.0f), vec2(0.5f, 0.5f)}, //5
+	RVertex{vec3(0.0f, 1.0f, 0.0f), vec3(0.5f, 0.5f, 0.0f), vec2(1.0f, 1.0f)}, //6
+	RVertex{vec3(0.0f, 1.0f, 1.0f), vec3(0.5f, 0.5f, 0.0f), vec2(0.5f, 1.0f)}, //7
 	// front       
-	Vertex{vec3(0.0f, 0.0f, 1.0f), vec3(0.0f, 0.0f, 1.0f), vec2(0.0f, 0.0f)}, //8
-	Vertex{vec3(1.0f, 0.0f, 1.0f), vec3(0.0f, 0.0f, 1.0f), vec2(0.5f, 0.0f)}, //9
-	Vertex{vec3(0.0f, 1.0f, 1.0f), vec3(0.0f, 0.0f, 1.0f), vec2(0.0f, 0.5f)}, //10
+	RVertex{vec3(0.0f, 0.0f, 1.0f), vec3(0.0f, 0.0f, 1.0f), vec2(0.0f, 0.0f)}, //8
+	RVertex{vec3(1.0f, 0.0f, 1.0f), vec3(0.0f, 0.0f, 1.0f), vec2(0.5f, 0.0f)}, //9
+	RVertex{vec3(0.0f, 1.0f, 1.0f), vec3(0.0f, 0.0f, 1.0f), vec2(0.0f, 0.5f)}, //10
 	// back
-	Vertex{vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f), vec2(0.0f, 0.0f)}, //11
-	Vertex{vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f), vec2(0.0f, 0.5f)}, //12
-	Vertex{vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f), vec2(0.5f, 0.0f)}, //13
+	RVertex{vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f), vec2(0.0f, 0.0f)}, //11
+	RVertex{vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f), vec2(0.0f, 0.5f)}, //12
+	RVertex{vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f), vec2(0.5f, 0.0f)}, //13
 	// left
-	Vertex{vec3(0.0f, 0.0f, 0.0f), vec3(-1.0f, 0.0f, 0.0f), vec2(0.0f, 0.0f)}, //14
-	Vertex{vec3(0.0f, 0.0f, 1.0f), vec3(-1.0f, 0.0f, 0.0f), vec2(0.5f, 0.0f)}, //15
-	Vertex{vec3(0.0f, 1.0f, 0.0f), vec3(-1.0f, 0.0f, 0.0f), vec2(0.0f, 0.5f)}, //16
-	Vertex{vec3(0.0f, 1.0f, 1.0f), vec3(-1.0f, 0.0f, 0.0f), vec2(0.5f, 0.5f)}, //17
+	RVertex{vec3(0.0f, 0.0f, 0.0f), vec3(-1.0f, 0.0f, 0.0f), vec2(0.0f, 0.0f)}, //14
+	RVertex{vec3(0.0f, 0.0f, 1.0f), vec3(-1.0f, 0.0f, 0.0f), vec2(0.5f, 0.0f)}, //15
+	RVertex{vec3(0.0f, 1.0f, 0.0f), vec3(-1.0f, 0.0f, 0.0f), vec2(0.0f, 0.5f)}, //16
+	RVertex{vec3(0.0f, 1.0f, 1.0f), vec3(-1.0f, 0.0f, 0.0f), vec2(0.5f, 0.5f)}, //17
 	};
 
 	std::vector<u32> slope_vertex_indices =
@@ -67,7 +67,7 @@ void LoadModels()
 	4, 5, 6, 6, 7, 4        // right face (slope)
 	};
 
-	auto* slope_mesh = new Mesh();
+	auto* slope_mesh = new RMesh();
 	slope_mesh->name = "slope";
 	slope_mesh->vertices = slope_vertex_vec;
 	slope_mesh->indices = slope_vertex_indices;

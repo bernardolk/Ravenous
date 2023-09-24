@@ -2,7 +2,7 @@
 
 #include "engine/core/core.h"
 
-struct Shader
+struct RShader
 {
 	unsigned int gl_program_id;
 	string name;
@@ -24,15 +24,15 @@ struct Shader
 	void SetMatrix4(const string& name, mat4 mat) const;
 };
 
-extern map<string, Shader*> ShaderCatalogue;
+extern map<string, RShader*> ShaderCatalogue;
 
-bool CheckShaderCompileErrors(Shader* shader, string type, unsigned int id);
+bool CheckShaderCompileErrors(RShader* shader, string type, unsigned int id);
 
-Shader* CreateShaderProgram(
+RShader* CreateShaderProgram(
 	string name,
 	string vertex_shader_filename,
 	string geometry_shader_filename,
 	string fragment_shader_filename
 );
 
-Shader* CreateShaderProgram(string name, string vertex_shader_filename, string fragment_shader_filename);
+RShader* CreateShaderProgram(string name, string vertex_shader_filename, string fragment_shader_filename);

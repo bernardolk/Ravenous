@@ -1,6 +1,6 @@
 #include "engine/serialization/sr_light.h"
 #include "engine/entities/lights.h"
-#include "engine/world/world.h"
+#include "engine/world/World.h"
 #include "engine/serialization/parsing/parser.h"
 
 
@@ -76,7 +76,7 @@ void LightSerializer::ParsePointLight(Parser& p)
 			break;
 	}
 
-	World::Get()->point_lights.push_back(&point_light);
+	RWorld::Get()->point_lights.push_back(&point_light);
 }
 
 void LightSerializer::ParseSpotLight(Parser& p)
@@ -143,7 +143,7 @@ void LightSerializer::ParseSpotLight(Parser& p)
 			break;
 	}
 
-	World::Get()->spot_lights.push_back(&spotlight);
+	RWorld::Get()->spot_lights.push_back(&spotlight);
 }
 
 void LightSerializer::ParseDirectionalLight(Parser& p)
@@ -175,7 +175,7 @@ void LightSerializer::ParseDirectionalLight(Parser& p)
 			break;
 	}
 
-	World::Get()->directional_lights.push_back(&light);
+	RWorld::Get()->directional_lights.push_back(&light);
 }
 
 void LightSerializer::Save(std::ofstream& writer, const PointLight* light)

@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/entities/EEntity.h"
+#include "engine/entities/Entity.h"
 #include "engine/entities/traits/EntityTraits.h"
 
 struct SpotLight : EEntity, T_EntityTypeBase<SpotLight>

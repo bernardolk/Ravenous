@@ -3,12 +3,10 @@
 // --------------
 #pragma once
 
-struct Entity;
-
-struct ClResults
+struct RCollisionResults
 {
 	bool collision = false;
-	EEntity* entity = nullptr;
+	struct EEntity* entity = nullptr;
 	float penetration = 0.f;
-	vec3 normal{};
+	vec3 normal;
 };

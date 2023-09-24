@@ -2,7 +2,7 @@
 
 #include "engine/core/core.h"
 
-struct Vertex
+struct RVertex
 {
 	vec3 position;
 	vec3 normal;
@@ -10,7 +10,7 @@ struct Vertex
 	vec3 tangent;
 	vec3 bitangent;
 
-	Vertex operator*(mat4 mat)
+	RVertex operator*(mat4 mat)
 	{
 		// should do something for tex_coords ???
 
@@ -19,10 +19,10 @@ struct Vertex
 		auto n_tangent = vec3(mat * vec4(tangent, 1.f));
 		auto n_bitangent = vec3(mat * vec4(bitangent, 1.f));
 
-		return Vertex{n_position, n_normal, tex_coords, n_tangent, n_bitangent};
+		return RVertex{n_position, n_normal, tex_coords, n_tangent, n_bitangent};
 	};
 
-	Vertex& operator*=(mat4 mat)
+	RVertex& operator*=(mat4 mat)
 	{
 		// should do something for tex_coords ???
 

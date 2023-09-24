@@ -1,4 +1,4 @@
-#include "shader.h"
+#include "Shader.h"
 #ifndef GLAD_INCL
 #define GLAD_INCL
 #include <glad/glad.h>
@@ -8,66 +8,66 @@
 #include <engine/rvn.h>
 #include <engine/serialization/parsing/parser.h>
 
-map<string, Shader*> ShaderCatalogue;
+map<string, RShader*> ShaderCatalogue;
 
-void Shader::Use()
+void RShader::Use()
 {
 	glUseProgram(this->gl_program_id);
 }
 
-void Shader::SetBool(const string& name, bool value) const
+void RShader::SetBool(const string& name, bool value) const
 {
 	glUniform1i(glGetUniformLocation(this->gl_program_id, name.c_str()), static_cast<int>(value));
 }
 
-void Shader::SetInt(const string& name, int value) const
+void RShader::SetInt(const string& name, int value) const
 {
 	glUniform1i(glGetUniformLocation(this->gl_program_id, name.c_str()), value);
 }
 
-void Shader::SetFloat(const string& name, float value) const
+void RShader::SetFloat(const string& name, float value) const
 {
 	glUniform1f(glGetUniformLocation(this->gl_program_id, name.c_str()), value);
 }
 
-void Shader::SetFloat2(const string& name, float value0, float value1) const
+void RShader::SetFloat2(const string& name, float value0, float value1) const
 {
 	glUniform2f(glGetUniformLocation(this->gl_program_id, name.c_str()), value0, value1);
 }
 
-void Shader::SetFloat2(const string& name, vec2 vec) const
+void RShader::SetFloat2(const string& name, vec2 vec) const
 {
 	glUniform2f(glGetUniformLocation(this->gl_program_id, name.c_str()), vec.x, vec.y);
 }
 
-void Shader::SetFloat3(const string& name, float value0, float value1, float value2) const
+void RShader::SetFloat3(const string& name, float value0, float value1, float value2) const
 {
 	glUniform3f(glGetUniformLocation(this->gl_program_id, name.c_str()), value0, value1, value2);
 }
 
-void Shader::SetFloat3(const string& name, vec3 vec) const
+void RShader::SetFloat3(const string& name, vec3 vec) const
 {
 	glUniform3f(glGetUniformLocation(this->gl_program_id, name.c_str()), vec.x, vec.y, vec.z);
 }
 
-void Shader::SetFloat4(const string& name, float value0, float value1, float value2, float value3) const
+void RShader::SetFloat4(const string& name, float value0, float value1, float value2, float value3) const
 {
 	glUniform4f(glGetUniformLocation(this->gl_program_id, name.c_str()), value0, value1, value2, value3);
 }
 
-void Shader::SetFloat4(const string& name, glm::vec4 vec) const
+void RShader::SetFloat4(const string& name, glm::vec4 vec) const
 {
 	glUniform4f(glGetUniformLocation(this->gl_program_id, name.c_str()), vec.x, vec.y, vec.z, vec.w);
 }
 
-void Shader::SetMatrix4(const string& name, glm::mat4 mat) const
+void RShader::SetMatrix4(const string& name, glm::mat4 mat) const
 {
 	glUniformMatrix4fv(glGetUniformLocation(this->gl_program_id, name.c_str()), 1, GL_FALSE, value_ptr(mat));
 }
 
 
 
-bool CheckShaderCompileErrors(Shader* shader, string type, unsigned int id)
+bool CheckShaderCompileErrors(RShader* shader, string type, unsigned int id)
 {
 	// returns true if we have a compilation problem in the shader program
 	int success;
@@ -97,9 +97,9 @@ bool CheckShaderCompileErrors(Shader* shader, string type, unsigned int id)
 	return false;
 }
 
-Shader* CreateShaderProgram(string name, const string vertex_shader_filename, const string geometry_shader_filename, const string fragment_shader_filename)
+RShader* CreateShaderProgram(string name, const string vertex_shader_filename, const string geometry_shader_filename, const string fragment_shader_filename)
 {
-	auto shader = new Shader();
+	auto shader = new RShader();
 	shader->name = name;
 
 	// OPTIONAL SHADERS
@@ -229,7 +229,7 @@ Shader* CreateShaderProgram(string name, const string vertex_shader_filename, co
 	return shader;
 }
 
-Shader* CreateShaderProgram(std::string name, const std::string vertex_shader_filename, const std::string fragment_shader_filename)
+RShader* CreateShaderProgram(std::string name, const std::string vertex_shader_filename, const std::string fragment_shader_filename)
 {
 	return CreateShaderProgram(name, vertex_shader_filename, "", fragment_shader_filename);
 }

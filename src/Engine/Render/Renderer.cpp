@@ -1,15 +1,15 @@
 #include "engine/render/renderer.h"
 #include "glad/glad.h"
-#include "game/entities/player.h"
-#include "shader.h"
+#include "game/entities/EPlayer.h"
+#include "Shader.h"
 #include "engine/camera/camera.h"
 #include "engine/entities/lights.h"
-#include "engine/entities/EEntity.h"
+#include "engine/entities/Entity.h"
 #include "engine/io/display.h"
-#include "engine/world/world.h"
+#include "engine/world/World.h"
 #include "text/TextRenderer.h"
 
-void RenderMesh(const Mesh* mesh, RenderOptions opts)
+void RenderMesh(const RMesh* mesh, RenderOptions opts)
 {
 	glBindVertexArray(mesh->gl_data.VAO);
 
@@ -142,7 +142,7 @@ void RenderEntity(EEntity* entity)
 }
 
 
-void RenderEditorEntity(EEntity* entity, World* world, Camera* camera)
+void RenderEditorEntity(EEntity* entity, RWorld* world, RCamera* camera)
 {
 	entity->shader->Use();
 	// important that the gizmo dont have a position set.
@@ -161,9 +161,9 @@ void RenderEditorEntity(EEntity* entity, World* world, Camera* camera)
 // -------------
 // RENDER SCENE
 // -------------
-void RenderScene(World* world, Camera* camera)
+void RenderScene(RWorld* world, RCamera* camera)
 {
-	Player* player = Player::Get();
+	EPlayer* player = EPlayer::Get();
 
 	// set shader settings that are common to the scene
 	// both to "normal" model shader and to tiled model shader
@@ -187,7 +187,7 @@ void RenderScene(World* world, Camera* camera)
 }
 
 
-void SetShaderLightVariables(World* world, Shader* shader, Camera* camera)
+void SetShaderLightVariables(RWorld* world, RShader* shader, RCamera* camera)
 {
 	shader->Use();
 
@@ -257,7 +257,7 @@ void SetShaderLightVariables(World* world, Shader* shader, Camera* camera)
 // -------------------------
 // RENDER GAME GUI
 // -------------------------
-void RenderGameGui(Player* player)
+void RenderGameGui(EPlayer* player)
 {
 	auto color = player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1};
 	RenderText("consola42", 25, 75, color, std::to_string(player->lives));
@@ -348,7 +348,7 @@ void RenderDepthMap()
 	depth_shader->Use();
 	depth_shader->SetMatrix4("lightSpaceMatrix", RDirLightSpaceMatrix);
 
-	auto entity_iterator = World::Get()->GetEntityIterator();
+	auto entity_iterator = RWorld::Get()->GetEntityIterator();
 	while (auto* entity = entity_iterator())
 	{
 		if (entity->flags & EntityFlags_InvisibleEntity)
@@ -365,7 +365,7 @@ void RenderDepthMap()
 
 void RenderDepthCubemap()
 {
-	auto* world = World::Get();
+	auto* world = RWorld::Get();
 	// for now, testing, we are doing this just for the first point light source
 	if (world->point_lights.size() == 0)
 		return;

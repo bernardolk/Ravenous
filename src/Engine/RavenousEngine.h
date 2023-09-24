@@ -3,7 +3,7 @@
 
 namespace RavenousEngine
 {
-	struct FrameData
+	struct RFrameData
 	{
 		float duration = 0;
 		float real_duration = 0;
@@ -14,15 +14,15 @@ namespace RavenousEngine
 		float time_step = 1;
 	};
 
-	struct EngineRuntimeState
+	struct REngineRuntimeState
 	{
-		DeclSingleton(EngineRuntimeState)
+		DeclSingleton(REngineRuntimeState)
 		
-		FrameData frame;
+		RFrameData frame;
 	};
 	
 	void Initialize();
 	void StartFrame();
 	float GetFrameDuration();
-	FrameData& GetFrame();
+	RFrameData& GetFrame();
 }

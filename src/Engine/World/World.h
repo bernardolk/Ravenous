@@ -3,15 +3,15 @@
 #include "WorldChunk.h"
 #include "engine/collision/raycast.h"
 #include "engine/core/core.h"
-#include "engine/entities/EEntity.h"
+#include "engine/entities/Entity.h"
 #include "engine/utils/utils.h"
 
 namespace RavenousEngine
 {
-	struct FrameData;
+	struct RFrameData;
 }
 struct EEntity;
-struct WorldChunkPosition WorldCoordsToCells(float x, float y, float z);
+struct RWorldChunkPosition WorldCoordsToCells(float x, float y, float z);
 vec3 GetWorldCoordinatesFromWorldCellCoordinates(int i, int j, int k);
 
 enum CellUpdateStatus
@@ -31,9 +31,9 @@ struct CellUpdate
 };
 
 
-struct World
+struct RWorld
 {
-	DeclSingleton(World)
+	DeclSingleton(RWorld)
 	
 	// static constexpr u8 world_chunk_matrix_order = 10;
 	static constexpr u32 world_size_in_chunks = WorldChunkNumX * WorldChunkNumY * WorldChunkNumZ;
@@ -43,9 +43,9 @@ struct World
 	// TODO: We can't use world chunk "matrix" position as its ijk position! This is insane! What if we want to unload part A of the world and load part B,
 	//		what are the index going to say? Nothing.
 	//		in the future such vector will be replaced with a memory arena
-	Array<WorldChunk, world_size_in_chunks> chunks;
-	map<WorldChunkPosition, WorldChunk*> chunks_map;
-	vector<WorldChunk*> active_chunks;
+	Array<RWorldChunk, world_size_in_chunks> chunks;
+	map<RWorldChunkPosition, RWorldChunk*> chunks_map;
+	vector<RWorldChunk*> active_chunks;
 
 	float global_shininess = 17;
 	float ambient_intensity = 0;
@@ -63,19 +63,19 @@ struct World
 	T_Entity* SpawnEntity();
 
 	template<typename T_Entity>
-	T_Entity* World::SpawnEntityAtPosition(vec3 position);
+	T_Entity* RWorld::SpawnEntityAtPosition(vec3 position);
 
-	Iterator<WorldChunk> GetChunkIterator();
+	Iterator<RWorldChunk> GetChunkIterator();
 	static WorldEntityIterator GetEntityIterator();	
 	
-	RaycastTest Raycast(Ray ray, RayCastType test_type, const EEntity* skip = nullptr, float max_distance = MaxFloat) const;
-	RaycastTest Raycast(Ray ray, const EEntity* skip = nullptr, float max_distance = MaxFloat) const;
-	RaycastTest LinearRaycastArray(Ray first_ray, int qty, float spacing) const;
-	RaycastTest RaycastLights(Ray ray) const;
+	RRaycastTest Raycast(RRay ray, NRayCastType test_type, const EEntity* skip = nullptr, float max_distance = MaxFloat) const;
+	RRaycastTest Raycast(RRay ray, const EEntity* skip = nullptr, float max_distance = MaxFloat) const;
+	RRaycastTest LinearRaycastArray(RRay first_ray, int qty, float spacing) const;
+	RRaycastTest RaycastLights(RRay ray) const;
 
 	CellUpdate UpdateEntityWorldChunk(EEntity* entity);
 
-	RavenousEngine::FrameData& GetFrameData();
+	RavenousEngine::RFrameData& GetFrameData();
 	
 private:
 	void UpdateTraits();
@@ -87,8 +87,8 @@ struct WorldEntityIterator
 	u8 total_active_chunks = 0;
 	u8 current_chunk_index = 0;
 
-	World* world;
-	WorldChunkEntityIterator chunk_iterator;
+	RWorld* world;
+	RWorldChunkEntityIterator chunk_iterator;
 	
 	WorldEntityIterator();
 	
@@ -98,11 +98,11 @@ struct WorldEntityIterator
 
 //TODO: Move these somewhere else
 void SetEntityDefaultAssets(EEntity* entity);
-void SetEntityAssets(EEntity* entity, struct EntityAttributes attrs);
+void SetEntityAssets(EEntity* entity, struct REntityAttributes attrs);
 
 
 template<typename T_Entity>
-T_Entity* World::SpawnEntity()
+T_Entity* RWorld::SpawnEntity()
 {
 	auto* first_chunk_available = chunks_map.begin()->second;
 	if (!first_chunk_available) return nullptr;
@@ -111,7 +111,7 @@ T_Entity* World::SpawnEntity()
 }
 
 template<typename T_Entity>
-T_Entity* World::SpawnEntityAtPosition(vec3 position)
+T_Entity* RWorld::SpawnEntityAtPosition(vec3 position)
 {
 	auto* first_chunk_available = chunks_map.begin()->second;
 	if (!first_chunk_available) return nullptr;

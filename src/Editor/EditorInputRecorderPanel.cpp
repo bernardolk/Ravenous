@@ -9,12 +9,12 @@
 
 namespace Editor
 {
-	void RenderInputRecorderPanel(InputRecorderPanelContext* panel)
+	void RenderInputRecorderPanel(RInputRecorderPanelContext* panel)
 	{
 		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayState::viewport_width - 400, 800), ImGuiCond_Once);
 		ImGui::Begin("Input Recorder Panel", &panel->active, ImGuiWindowFlags_None);
 		ImGui::SetWindowSize("Input Recorder Panel", ImVec2(350, 220), ImGuiCond_Always);
-		auto* input_recorder = InputRecorder::Get();
+		auto* input_recorder = RInputRecorder::Get();
 		ImGui::Text("Recordings");
 		for (int i = 0; i < input_recorder->recording_idx; i++)
 		{

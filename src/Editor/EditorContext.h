@@ -7,20 +7,20 @@
 
 namespace Editor
 {
-	enum EdToolCallback
+	enum NEdToolCallback
 	{
 		EdToolCallback_NoCallback           = 0,
 		EdToolCallback_EntityManagerSetType = 1,
 	};
 
-	struct EdToolCallbackArgs
+	struct REditorToolCallbackArgs
 	{
 		EEntity* entity;
 	};
 
-	struct EditorContext
+	struct REditorContext
 	{
-		DeclSingleton(EditorContext)
+		DeclSingleton(REditorContext)
 		
 		struct ImGuiStyle* im_style;
 
@@ -28,20 +28,20 @@ namespace Editor
 		std::string last_frame_scene;
 
 		// undo stack
-		UndoStack undo_stack;
+		RUndoStack undo_stack;
 
 		// deletion log
-		DeletedEntityLog deletion_log;
+		RDeletedEntityLog deletion_log;
 
 		// panels
-		SceneObjectsPanelContext scene_objects_panel;
-		EntityPanelContext entity_panel;
-		PlayerPanelContext player_panel;
-		WorldPanelContext world_panel;
-		PalettePanelContext palette_panel;
-		LightsPanelContext lights_panel;
-		CollisionLogPanelContext collision_log_panel;
-		InputRecorderPanelContext input_recorder_panel;
+		RSceneObjectsPanelContext scene_objects_panel;
+		REntityPanelContext entity_panel;
+		RPlayerPanelContext player_panel;
+		RWorldPanelContext world_panel;
+		RPalettePanelContext palette_panel;
+		RLightsPanelContext lights_panel;
+		RCollisionLogPanelContext collision_log_panel;
+		RInputRecorderPanelContext input_recorder_panel;
 
 		// toolbar
 		bool toolbar_active = true;
@@ -94,7 +94,7 @@ namespace Editor
 		u8 snap_axis = 1;
 		bool snap_inside = false;
 		EEntity* snap_reference = nullptr;
-		EntityState snap_tracked_state;
+		REntityState snap_tracked_state;
 
 		// stretch mode
 		bool stretch_mode = false;
@@ -102,8 +102,8 @@ namespace Editor
 		// select entity aux tool
 		bool select_entity_aux_mode = false;
 		EEntity** select_entity_aux_mode_entity_slot = nullptr;
-		EdToolCallback select_entity_aux_mode_callback = EdToolCallback_NoCallback;
-		EdToolCallbackArgs select_entity_aux_mode_callback_args = EdToolCallbackArgs{};
+		NEdToolCallback select_entity_aux_mode_callback = EdToolCallback_NoCallback;
+		REditorToolCallbackArgs select_entity_aux_mode_callback_args = REditorToolCallbackArgs{};
 
 		// show things 
 		bool show_event_triggers = false;

@@ -7,11 +7,9 @@
 // Basically, it contains two buffers, a main and a swap one. Once the main is filled up, it starts writing in the swap,
 // while still reading from the main buffer with an offset exactly equal to the write_count in the swap buffer, like
 // a moving window. Once both are completely filled, we just swap the read and write buffers so we always start reading at
-// the the tail and writing at the head with the same number of total entries. 
+// the the tail and writing at the head with the same number of total entries.
 
-struct Entity;
-
-struct CollisionLogEntry
+struct RCollisionLogEntry
 {
 	EEntity* entity;
 	float penetration;
@@ -19,15 +17,15 @@ struct CollisionLogEntry
 };
 
 
-struct CollisionLog
+struct RCollisionLog
 {
 	// buffers
-	CollisionLogEntry* main;
-	CollisionLogEntry* swap;
+	RCollisionLogEntry* main;
+	RCollisionLogEntry* swap;
 	int write_count = 0;
 	// window
-	CollisionLogEntry* read;
-	CollisionLogEntry* write;
+	RCollisionLogEntry* read;
+	RCollisionLogEntry* write;
 	const u32 window_size = COLLISION_LOG_CAPACITY;
 };
 
@@ -41,7 +39,7 @@ struct CollisionLog
 // };
 
 //@TODO
-extern CollisionLog* COLLISION_LOG;
+extern RCollisionLog* COLLISION_LOG;
 
 inline void CL_log_collision(CL_Results data, int iteration)
 {
@@ -64,7 +62,7 @@ inline void CL_log_collision(CL_Results data, int iteration)
 		log->write_count = 0;
 	}
 
-	CollisionLogEntry entry;
+	RCollisionLogEntry entry;
 	entry.entity = data.entity;
 	entry.penetration = data.penetration;
 	entry.normal = data.normal;
@@ -72,7 +70,7 @@ inline void CL_log_collision(CL_Results data, int iteration)
 }
 
 
-inline CollisionLogEntry* CL_read_collision_log_entry(int i)
+inline RCollisionLogEntry* CL_read_collision_log_entry(int i)
 {
 	auto& log = COLLISION_LOG;
 
@@ -95,16 +93,16 @@ inline CollisionLogEntry* CL_read_collision_log_entry(int i)
 }
 
 
-inline CollisionLog* CL_allocate_collision_log()
+inline RCollisionLog* CL_allocate_collision_log()
 {
 	u32 size = COLLISION_LOG_CAPACITY;
-	auto collision_log = new CollisionLog;
-	collision_log->main = static_cast<CollisionLogEntry*>(malloc(sizeof(CollisionLogEntry) * size * 2));
+	auto collision_log = new RCollisionLog;
+	collision_log->main = static_cast<RCollisionLogEntry*>(malloc(sizeof(RCollisionLogEntry) * size * 2));
 	collision_log->swap = collision_log->main + size;
 
 	// initializes memory
 	for(int i = 0; i < size * 2; i++)
-		collision_log->main[i] = CollisionLogEntry{NULL};
+		collision_log->main[i] = RCollisionLogEntry{NULL};
 
 	// set ptrs
 	collision_log->read = collision_log->main;

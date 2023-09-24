@@ -6,28 +6,28 @@
 
 namespace Editor
 {
-	struct InputRecorderPanelContext
+	struct RInputRecorderPanelContext
 	{
 		bool active = false;
 		int selected_recording = -1;
 	};
 
-	struct PalettePanelContext
+	struct RPalettePanelContext
 	{
 		bool active = true;
 		unsigned int textures[15];
-		EntityAttributes entity_palette[15];
+		REntityAttributes entity_palette[15];
 		unsigned int count = 0;
 	};
 
-	struct SceneObjectsPanelContext
+	struct RSceneObjectsPanelContext
 	{
 		bool active = false;
 		bool focused = false;
 		std::string search_text = "";
 	};
 
-	struct EntityPanelContext
+	struct REntityPanelContext
 	{
 		bool active = false;
 		bool focused = false;
@@ -54,7 +54,7 @@ namespace Editor
 		EEntity* rotation_gizmo_y;
 		EEntity* rotation_gizmo_z;
 
-		EntityState entity_starting_state;
+		REntityState entity_starting_state;
 		bool tracked_once = false;
 
 		bool show_normals = false;
@@ -87,20 +87,20 @@ namespace Editor
 		}
 	};
 
-	struct PlayerPanelContext
+	struct RPlayerPanelContext
 	{
 		bool active = false;
 		bool focused = false;
-		Player* player;
+		EPlayer* player;
 	};
 
-	struct WorldPanelContext
+	struct RWorldPanelContext
 	{
 		bool active = false;
 		vec3 chunk_position_vec = vec3{-1.0f};
 	};
 
-	struct LightsPanelContext
+	struct RLightsPanelContext
 	{
 		bool active = false;
 		bool focused = false;
@@ -113,7 +113,7 @@ namespace Editor
 		std::string selected_light_type;
 	};
 
-	struct CollisionLogPanelContext
+	struct RCollisionLogPanelContext
 	{
 		bool active = false;
 		bool focused = false;

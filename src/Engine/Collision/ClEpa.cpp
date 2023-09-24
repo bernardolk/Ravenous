@@ -63,7 +63,7 @@ void CL_AddIfOuterEdge(
 		edges.emplace_back(faces[a], faces[b]);
 }
 
-EPA_Result CL_RunEPA(Simplex simplex, CollisionMesh* collider_a, CollisionMesh* collider_b)
+EPA_Result CL_RunEPA(RSimplex simplex, RCollisionMesh* collider_a, RCollisionMesh* collider_b)
 {
 
 	std::vector<vec3> polytope;

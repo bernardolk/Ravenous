@@ -1,11 +1,11 @@
 #include "EditorUndo.h"
 
 #include "engine/rvn.h"
-#include "engine/entities/EEntity.h"
+#include "engine/entities/Entity.h"
 
 namespace Editor
 {
-	void DeletedEntityLog::Add(const EEntity* entity)
+	void RDeletedEntityLog::Add(const EEntity* entity)
 	{
 		if (size + 1 == capacity)
 		{
@@ -16,9 +16,9 @@ namespace Editor
 		entity_ids[size++] = entity->id;
 	};
 
-	void UndoStack::Track(EEntity* entity)
+	void RUndoStack::Track(EEntity* entity)
 	{
-		auto state = EntityState{
+		auto state = REntityState{
 		entity,
 		entity->id,
 		entity->position,
@@ -29,7 +29,7 @@ namespace Editor
 		Track(state);
 	}
 
-	void UndoStack::Track(EntityState state)
+	void RUndoStack::Track(REntityState state)
 	{
 		//log(LOG_INFO, "Tracking entity '" + state.entity->name + "'.");
 
@@ -47,13 +47,13 @@ namespace Editor
 		full = IsBufferFull();
 	}
 
-	void UndoStack::Undo()
+	void RUndoStack::Undo()
 	{
 		if (pos == 0)
 			return;
 
 		// gets a valid state to undo
-		EntityState state;
+		REntityState state;
 		do
 		{
 			state = GetStateAndMoveBack();
@@ -64,13 +64,13 @@ namespace Editor
 		ApplyState(state);
 	}
 
-	void UndoStack::Redo()
+	void RUndoStack::Redo()
 	{
 		if (pos == 0)
 			return;
 
 		// gets a valid state to redo
-		EntityState state;
+		REntityState state;
 		do
 		{
 			state = GetStateAndMoveUp();
@@ -81,41 +81,41 @@ namespace Editor
 		ApplyState(state);
 	}
 
-	EntityState UndoStack::Check()
+	REntityState RUndoStack::Check()
 	{
 		if (pos > 0)
 			return stack[pos];
-		return EntityState{};
+		return REntityState{};
 	}
 
 	// internal
-	EntityState UndoStack::GetStateAndMoveBack()
+	REntityState RUndoStack::GetStateAndMoveBack()
 	{
 		if (pos > 1)
 			return stack[--pos];
 		if (pos == 1)
 			return stack[pos];
-		return EntityState{};
+		return REntityState{};
 	}
 
 	// internal
-	EntityState UndoStack::GetStateAndMoveUp()
+	REntityState RUndoStack::GetStateAndMoveUp()
 	{
 		if (pos < limit)
 			return stack[++pos];
 		if (pos == limit)
 			return stack[pos];
-		return EntityState{};
+		return REntityState{};
 	}
 
 	// internal
-	bool UndoStack::IsBufferFull()
+	bool RUndoStack::IsBufferFull()
 	{
 		return limit + 1 == capacity;
 	}
 
 	// internal
-	bool UndoStack::IsStateValid(EntityState state)
+	bool RUndoStack::IsStateValid(REntityState state)
 	{
 		// if entity was deleted, it isnt valid
 		for (int i = 0; i < deletion_log.size; i++)

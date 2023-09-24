@@ -6,7 +6,7 @@
 #include "RavenousEngine.h"
 #include "game/animation/AnPlayer.h"
 #include "game/animation/AnUpdate.h"
-#include "game/entities/player.h"
+#include "game/entities/EPlayer.h"
 #include "editor/editor.h"
 #include "editor/tools/InputRecorder.h"
 #include "editor/EditorState.h"
@@ -18,16 +18,16 @@
 #include "engine/camera/camera.h"
 #include "engine/render/ImRender.h"
 #include "engine/render/renderer.h"
-#include "engine/world/world.h"
+#include "engine/world/World.h"
 
 void StartFrame();
 
 void RavenousMainLoop()
 {
-	auto* ES = EditorState::Get();
-	auto player = Player::Get();
-	auto world = World::Get();
-	auto* cam_manager = CameraManager::Get();
+	auto* ES = REditorState::Get();
+	auto player = EPlayer::Get();
+	auto world = RWorld::Get();
+	auto* cam_manager = RCameraManager::Get();
 	
 	while (!glfwWindowShouldClose(GlobalDisplayState::Get()->GetWindow()))
 	{
@@ -37,7 +37,7 @@ void RavenousMainLoop()
 		// This needs to be first or dearImGUI will crash.
 		auto input_flags = InputPhase();
 
-		auto* input_recorder = InputRecorder::Get();
+		auto* input_recorder = RInputRecorder::Get();
 		// Input recorder
 		if (input_recorder->is_recording)
 			input_recorder->Record(input_flags);
@@ -48,7 +48,7 @@ void RavenousMainLoop()
 		// START FRAME
 		// -------------
 		RavenousEngine::StartFrame();
-		if (ES->current_mode == EditorState::ProgramMode::Editor)
+		if (ES->current_mode == REditorState::ProgramMode::Editor)
 			Editor::StartDearImguiFrame();
 
 		// ---------------
@@ -56,13 +56,13 @@ void RavenousMainLoop()
 		// ---------------
 		auto* camera = cam_manager->GetCurrentCamera();
 
-		if (EditorState::IsInConsoleMode())
+		if (REditorState::IsInConsoleMode())
 		{
 			HandleConsoleInput(input_flags, player, world, camera);
 		}
 		else
 		{
-			if (EditorState::IsInEditorMode())
+			if (REditorState::IsInEditorMode())
 			{
 				Editor::HandleInputFlagsForEditorMode(input_flags, world);
 				if (!ImGui::GetIO().WantCaptureKeyboard)
@@ -71,7 +71,7 @@ void RavenousMainLoop()
 					Editor::HandleInputFlagsForCommonInput(input_flags, player);
 				}
 			}
-			else if (EditorState::IsInGameMode())
+			else if (REditorState::IsInGameMode())
 			{
 				IN_HandleMovementInput(input_flags, player, world);
 				Editor::HandleInputFlagsForCommonInput(input_flags, player);
@@ -83,15 +83,15 @@ void RavenousMainLoop()
 		//	UPDATE PHASE
 		// -------------
 		{
-			if (ES->current_mode == EditorState::ProgramMode::Game)
+			if (ES->current_mode == REditorState::ProgramMode::Game)
 			{
 				cam_manager->UpdateGameCamera(GlobalDisplayState::viewport_width, GlobalDisplayState::viewport_height, player->GetEyePosition());
 			}
-			else if (ES->current_mode == EditorState::ProgramMode::Editor)
+			else if (ES->current_mode == REditorState::ProgramMode::Editor)
 			{
 				cam_manager->UpdateEditorCamera(GlobalDisplayState::viewport_width, GlobalDisplayState::viewport_height, player->position);
 			}
-			GameState::Get()->UpdateTimers();
+			RGameState::Get()->UpdateTimers();
 			player->UpdateState();
 			AN_AnimatePlayer(player);
 			EntityAnimations.UpdateAnimations();
@@ -111,18 +111,18 @@ void RavenousMainLoop()
 			//render_depth_map_debug();
 			switch (ES->current_mode)
 			{
-				case EditorState::ProgramMode::Console:
+				case REditorState::ProgramMode::Console:
 				{
 					RenderConsole();
 					break;
 				}
-				case EditorState::ProgramMode::Editor:
+				case REditorState::ProgramMode::Editor:
 				{
 					Editor::Update(player, world, camera);
 					Editor::Render(player, world, camera);
 					break;
 				}
-				case EditorState::ProgramMode::Game:
+				case REditorState::ProgramMode::Game:
 				{
 					RenderGameGui(player);
 					break;
@@ -138,7 +138,7 @@ void RavenousMainLoop()
 		// -------------
 		Rvn::rm_buffer->Cleanup();
 		glfwSwapBuffers(GlobalDisplayState::Get()->GetWindow());
-		if (ES->current_mode == EditorState::ProgramMode::Editor)
+		if (ES->current_mode == REditorState::ProgramMode::Editor)
 			Editor::EndDearImguiFrame();
 	}
 

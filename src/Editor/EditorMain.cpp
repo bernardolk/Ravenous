@@ -15,7 +15,7 @@
 #include "editor/EditorSceneObjectsPanel.h"
 #include "editor/EditorColors.h"
 #include "engine/utils/colors.h"
-#include "game/entities/player.h"
+#include "game/entities/EPlayer.h"
 #include "engine/render/renderer.h"
 #include "engine/utils/utils.h"
 #include "engine/camera/camera.h"
@@ -25,10 +25,10 @@
 #include "engine/io/display.h"
 #include "engine/io/input.h"
 #include "engine/render/ImRender.h"
-#include "engine/render/shader.h"
+#include "engine/render/Shader.h"
 #include "engine/render/text/face.h"
 #include "engine/render/text/TextRenderer.h"
-#include "engine/world/world.h"
+#include "engine/world/World.h"
 #include "engine/collision/ClEdgeDetection.h"
 
 namespace Editor
@@ -50,11 +50,11 @@ namespace Editor
 	// > UPDATE EDITOR
 	//------------------
 
-	void Update(Player* player, World* world, Camera* camera)
+	void Update(EPlayer* player, RWorld* world, RCamera* camera)
 	{
 		auto& ed_context = *GetContext();
 		
-		string& scene_name = World::Get()->scene_name;
+		string& scene_name = RWorld::Get()->scene_name;
 
 		if (ed_context.last_frame_scene != scene_name)
 		{
@@ -195,7 +195,7 @@ namespace Editor
 	// > RENDER EDITOR UI
 	//---------------------
 
-	void Render(Player* player, World* world, Camera* camera)
+	void Render(EPlayer* player, RWorld* world, RCamera* camera)
 	{
 		auto& ed_context = *GetContext();
 
@@ -369,9 +369,9 @@ namespace Editor
 
 			ImDraw::Add(
 				IMHASH,
-				std::vector<Vertex>{
-				Vertex{ed_context.measure_from},
-				Vertex{second_point}
+				std::vector<RVertex>{
+				RVertex{ed_context.measure_from},
+				RVertex{second_point}
 				},
 				GL_LINE_LOOP,
 				render_opts
@@ -427,9 +427,9 @@ namespace Editor
 		const auto green_tex = LoadTextureFromFile("green.jpg", Paths::Textures);
 		const auto red_tex = LoadTextureFromFile("red.jpg", Paths::Textures);
 
-		x_axis->textures.push_back(Texture{red_tex, "texture_diffuse", "red.jpg", "red axis"});
-		y_axis->textures.push_back(Texture{green_tex, "texture_diffuse", "green.jpg", "green axis"});
-		z_axis->textures.push_back(Texture{blue_tex, "texture_diffuse", "blue.jpg", "blue axis"});
+		x_axis->textures.push_back(RTexture{red_tex, "texture_diffuse", "red.jpg", "red axis"});
+		y_axis->textures.push_back(RTexture{green_tex, "texture_diffuse", "green.jpg", "green axis"});
+		z_axis->textures.push_back(RTexture{blue_tex, "texture_diffuse", "blue.jpg", "blue axis"});
 
 		const auto shader = ShaderCatalogue.find("ortho_gui")->second;
 		x_axis->shader = shader;
@@ -472,12 +472,12 @@ namespace Editor
 		z_arrow->scale = vec3(0.5, 0.5, 0.5);
 		z_arrow->rotation = vec3(0);
 
-		x_arrow->textures.push_back(Texture{red_tex, "texture_diffuse", "red.jpg", "red axis"});
-		y_arrow->textures.push_back(Texture{green_tex, "texture_diffuse", "green.jpg", "green axis"});
-		z_arrow->textures.push_back(Texture{blue_tex, "texture_diffuse", "blue.jpg", "blue axis"});
+		x_arrow->textures.push_back(RTexture{red_tex, "texture_diffuse", "red.jpg", "red axis"});
+		y_arrow->textures.push_back(RTexture{green_tex, "texture_diffuse", "green.jpg", "green axis"});
+		z_arrow->textures.push_back(RTexture{blue_tex, "texture_diffuse", "blue.jpg", "blue axis"});
 
 		// CollisionMesh
-		const auto arrow_collider = new CollisionMesh();
+		const auto arrow_collider = new RCollisionMesh();
 
 		For(axis_mesh->vertices.size())
 			arrow_collider->vertices.push_back(axis_mesh->vertices[i].position);
@@ -527,11 +527,11 @@ namespace Editor
 		// palette panel
 		InitializePalette(&ed_context.palette_panel);
 
-		ed_context.last_frame_scene = World::Get()->scene_name;
+		ed_context.last_frame_scene = RWorld::Get()->scene_name;
 	}
 
 
-	void RenderTextOverlay(Player* player, Camera* camera)
+	void RenderTextOverlay(EPlayer* player, RCamera* camera)
 	{
 		float GUI_y = GlobalDisplayState::viewport_height - 60;
 		float SCREEN_HEIGHT = GlobalDisplayState::viewport_height;
@@ -582,19 +582,19 @@ namespace Editor
 		std::string player_state_text;
 		switch (player->player_state)
 		{
-			case PlayerState::Standing:
+			case NPlayerState::Standing:
 				player_state_text = "PLAYER PlayerState::Standing";
 				break;
-			case PlayerState::Falling:
+			case NPlayerState::Falling:
 				player_state_text = "PLAYER FALLING";
 				break;
-			case PlayerState::Jumping:
+			case NPlayerState::Jumping:
 				player_state_text = "PLAYER JUMPING";
 				break;
-			case PlayerState::Sliding:
+			case NPlayerState::Sliding:
 				player_state_text = "PLAYER SLIDING";
 				break;
-			case PlayerState::SlideFalling:
+			case NPlayerState::SlideFalling:
 				player_state_text = "PLAYER SLIDE FALLING";
 				break;
 		}
@@ -858,7 +858,7 @@ namespace Editor
 	}
 
 	//TODO: Reimplement
-	void RenderEventTriggers(Camera* camera, World* world)
+	void RenderEventTriggers(RCamera* camera, RWorld* world)
 	{
 		/*
 		 if (world->interactables.size() == 0)
@@ -883,7 +883,7 @@ namespace Editor
 	}
 
 
-	void RenderWorldCells(Camera* camera, World* world)
+	void RenderWorldCells(RCamera* camera, RWorld* world)
 	{
 		auto shader = ShaderCatalogue.find("color")->second;
 		auto cell_mesh = GeometryCatalogue.find("aabb")->second;
@@ -933,7 +933,7 @@ namespace Editor
 	}
 
 
-	inline void RenderLightbulbs(Camera* camera, World* world)
+	inline void RenderLightbulbs(RCamera* camera, RWorld* world)
 	{
 		auto& ed_context = *GetContext();
 
@@ -1020,7 +1020,7 @@ namespace Editor
 			if (selected_light_type == "spot")
 			{
 				float pitch, yaw;
-				CameraManager::ComputeAnglesFromDirection(pitch, yaw, light_direction);
+				RCameraManager::ComputeAnglesFromDirection(pitch, yaw, light_direction);
 				vec3 arrow_direction = ComputeDirectionFromAngles(pitch, yaw);
 
 				vec3 arrow_origin = light_position - vec3{0.0, 0.56, 0.0};
@@ -1058,7 +1058,7 @@ namespace Editor
 	}
 
 
-	void RenderEntityControlArrows(EntityPanelContext* panel, World* world, Camera* camera)
+	void RenderEntityControlArrows(REntityPanelContext* panel, RWorld* world, RCamera* camera)
 	{
 		//@todo: try placing editor objects in a separate z buffer? Maybe manually... so we don't have to use GL_ALWAYS
 		glDepthFunc(GL_ALWAYS);
@@ -1069,7 +1069,7 @@ namespace Editor
 	}
 
 
-	void RenderEntityRotationGizmo(EntityPanelContext* panel, World* world, Camera* camera)
+	void RenderEntityRotationGizmo(REntityPanelContext* panel, RWorld* world, RCamera* camera)
 	{
 		//@todo: try placing editor objects in a separate z buffer? Maybe manually... so we don't have to use GL_ALWAYS
 		glDepthFunc(GL_ALWAYS);
@@ -1103,7 +1103,7 @@ namespace Editor
 	}
 
 
-	void UpdateEntityControlArrows(EntityPanelContext* panel)
+	void UpdateEntityControlArrows(REntityPanelContext* panel)
 	{
 		// arrow positioning settings
 		float angles[3] = {270, 0, 90};
@@ -1138,7 +1138,7 @@ namespace Editor
 	}
 
 
-	void UpdateEntityRotationGizmo(EntityPanelContext* panel)
+	void UpdateEntityRotationGizmo(REntityPanelContext* panel)
 	{
 		// arrow positioning settings
 		float angles[3] = {270, 0, 90};
@@ -1163,7 +1163,7 @@ namespace Editor
 	}
 
 
-	void RenderEntityMeshNormals(EntityPanelContext* panel)
+	void RenderEntityMeshNormals(REntityPanelContext* panel)
 	{
 		// only for aabb
 		auto entity = panel->entity;
@@ -1171,7 +1171,7 @@ namespace Editor
 		int triangles = entity->mesh->indices.size() / 3;
 		for (int i = 0; i < triangles; i++)
 		{
-			Triangle _t = get_triangle_for_indexed_mesh(entity->mesh, entity->mat_model, i);
+			RTriangle _t = get_triangle_for_indexed_mesh(entity->mesh, entity->mat_model, i);
 			vec3 normal = triangleNormal(_t.a, _t.b, _t.c);
 			Face f = FaceFromAxisAlignedTriangle(_t);
 
@@ -1181,7 +1181,7 @@ namespace Editor
 		}
 	}
 
-	void CheckSelectionToOpenPanel(Player* player, World* world, Camera* camera)
+	void CheckSelectionToOpenPanel(EPlayer* player, RWorld* world, RCamera* camera)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
@@ -1197,7 +1197,7 @@ namespace Editor
 	}
 
 
-	void CheckSelectionToSelectRelatedEntity(World* world, Camera* camera)
+	void CheckSelectionToSelectRelatedEntity(RWorld* world, RCamera* camera)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto& ed_context = *GetContext();
@@ -1227,7 +1227,7 @@ namespace Editor
 	}
 
 
-	void CheckSelectionToMoveEntity(World* world, Camera* camera)
+	void CheckSelectionToMoveEntity(RWorld* world, RCamera* camera)
 	{
 		auto* GII = GlobalInputInfo::Get();
 
@@ -1241,13 +1241,13 @@ namespace Editor
 	}
 
 
-	bool CheckSelectionToGrabEntityArrows(Camera* camera)
+	bool CheckSelectionToGrabEntityArrows(RCamera* camera)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto& ed_context = *GetContext();
 
 		auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
-		RaycastTest test;
+		RRaycastTest test;
 
 		EEntity* arrows[3] = {ed_context.entity_panel.x_arrow, ed_context.entity_panel.y_arrow, ed_context.entity_panel.z_arrow};
 
@@ -1265,13 +1265,13 @@ namespace Editor
 	}
 
 
-	bool CheckSelectionToGrabEntityRotationGizmo(Camera* camera)
+	bool CheckSelectionToGrabEntityRotationGizmo(RCamera* camera)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto& ed_context = *GetContext();
 
 		auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
-		RaycastTest test;
+		RRaycastTest test;
 
 		EEntity* rot_gizmos[3] = {
 		ed_context.entity_panel.rotation_gizmo_x,

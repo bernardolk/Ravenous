@@ -2,15 +2,15 @@
 #include <iostream>
 #include <fstream>
 #include <engine/core/types.h>
-#include "game/entities/player.h"
+#include "game/entities/EPlayer.h"
 #include "engine/serialization/parsing/parser.h"
 #include "engine/serialization/sr_player.h"
-#include "engine/world/world.h"
+#include "engine/world/World.h"
 
 
 void PlayerSerializer::ParseAttribute(Parser& p)
 {
-	Player* player = Player::Get();
+	EPlayer* player = EPlayer::Get();
 
 	p.ParseToken();
 	const auto attribute = GetParsed<std::string>(p);
@@ -44,7 +44,7 @@ void PlayerSerializer::ParseAttribute(Parser& p)
 	{
 		p.ParseAllWhitespace();
 		p.ParseInt();
-		player->initial_player_state = static_cast<PlayerState>(GetParsed<u32>(p));
+		player->initial_player_state = static_cast<NPlayerState>(GetParsed<u32>(p));
 		player->player_state = player->initial_player_state;
 	}
 
@@ -56,7 +56,7 @@ void PlayerSerializer::ParseAttribute(Parser& p)
 
 void PlayerSerializer::ParseOrientation(Parser& p)
 {
-	Player* player = Player::Get();
+	EPlayer* player = EPlayer::Get();
 
 	p.ParseToken();
 	if (GetParsed<std::string>(p) == "player_orientation")
@@ -79,7 +79,7 @@ void PlayerSerializer::ParseOrientation(Parser& p)
 
 void PlayerSerializer::Save(std::ofstream& writer)
 {
-	Player* player = Player::Get();
+	EPlayer* player = EPlayer::Get();
 	
 	writer << "@player_position = "
 	<< player->position.x << " "
@@ -90,8 +90,8 @@ void PlayerSerializer::Save(std::ofstream& writer)
 	<< player->initial_velocity.y << " "
 	<< player->initial_velocity.z << "\n";
 
-	if (player->player_state == PlayerState::Standing)
-		writer << "@player_state = " << static_cast<int>(PlayerState::Standing) << "\n";
+	if (player->player_state == NPlayerState::Standing)
+		writer << "@player_state = " << static_cast<int>(NPlayerState::Standing) << "\n";
 	else
 		writer << "@player_state = " << static_cast<int>(player->initial_player_state) << "\n";
 }

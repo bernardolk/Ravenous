@@ -2,7 +2,7 @@
 
 #include "engine/core/core.h"
 
-struct ClResults;
+struct RCollisionResults;
 
 struct ClVtraceResult
 {
@@ -11,15 +11,15 @@ struct ClVtraceResult
 	EEntity* entity;
 };
 
-void CL_ResolveCollision(ClResults results, Player* player);
-void CL_WallSlidePlayer(Player* player, vec3 wall_normal);
-bool GP_SimulatePlayerCollisionInFallingTrajectory(Player* player, vec2 xz_velocity);
-bool CL_RunTestsForFallSimulation(Player* player);
+void CL_ResolveCollision(RCollisionResults results, EPlayer* player);
+void CL_WallSlidePlayer(EPlayer* player, vec3 wall_normal);
+bool GP_SimulatePlayerCollisionInFallingTrajectory(EPlayer* player, vec2 xz_velocity);
+bool CL_RunTestsForFallSimulation(EPlayer* player);
 void CL_MarkEntityChecked(const EEntity* entity);
 
 
 // fwd decl.
 void GP_UpdatePlayerState();
-ClResults CLTestPlayerVsEntity(EEntity* entity, Player* player);
+RCollisionResults CLTestPlayerVsEntity(EEntity* entity, EPlayer* player);
 
 constexpr static float PlayerStepoverLimit = 0.21;

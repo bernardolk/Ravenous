@@ -1,12 +1,12 @@
 #include "EditorWorldPanel.h"
 #include <imgui.h>
 #include "EditorPanelContexts.h"
-#include "engine/world/world.h"
-#include "game/entities/player.h"
+#include "engine/world/World.h"
+#include "game/entities/EPlayer.h"
 
 namespace Editor
 {
-	void RenderWorldPanel(WorldPanelContext* panel, const World* world, const Player* player)
+	void RenderWorldPanel(RWorldPanelContext* panel, const RWorld* world, const EPlayer* player)
 	{
 		ImGui::SetNextWindowPos(ImVec2(100, 300), ImGuiCond_Appearing);
 		ImGui::Begin("World Panel", &panel->active, ImGuiWindowFlags_None);

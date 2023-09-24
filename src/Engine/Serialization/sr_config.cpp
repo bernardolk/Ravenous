@@ -62,7 +62,7 @@ void ConfigSerializer::LoadGlobalConfigs()
 
 void ConfigSerializer::ParseCameraSettings(Parser& p)
 {
-	auto* cam_manager = CameraManager::Get();
+	auto* cam_manager = RCameraManager::Get();
 	auto* camera = cam_manager->GetCurrentCamera();
 
 	p.ParseAllWhitespace();

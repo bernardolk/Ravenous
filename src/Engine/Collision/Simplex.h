@@ -1,11 +1,11 @@
 #pragma once
 
-struct Simplex
+struct RSimplex
 {
 	vec3 points[4];
 	u32 p_size;
 
-	Simplex()
+	RSimplex()
 	{
 		points[0] = vec3(0);
 		points[1] = vec3(0);
@@ -14,20 +14,20 @@ struct Simplex
 		p_size = 0;
 	}
 
-	Simplex(vec3 a)
+	RSimplex(vec3 a)
 	{
 		points[0] = a;
 		p_size = 1;
 	}
 
-	Simplex(vec3 a, vec3 b)
+	RSimplex(vec3 a, vec3 b)
 	{
 		points[0] = a;
 		points[1] = b;
 		p_size = 2;
 	}
 
-	Simplex(vec3 a, vec3 b, vec3 c)
+	RSimplex(vec3 a, vec3 b, vec3 c)
 	{
 		points[0] = a;
 		points[1] = b;
@@ -35,7 +35,7 @@ struct Simplex
 		p_size = 3;
 	}
 
-	Simplex(vec3 a, vec3 b, vec3 c, vec3 d)
+	RSimplex(vec3 a, vec3 b, vec3 c, vec3 d)
 	{
 		points[0] = a;
 		points[1] = b;

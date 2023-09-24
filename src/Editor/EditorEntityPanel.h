@@ -4,17 +4,17 @@
 
 namespace Editor
 {
-	struct EntityPanelContext;
+	struct REntityPanelContext;
 
 	void UndoSelectedEntityMoveChanges();
 	void OpenEntityPanel(EEntity* entity);
 	void CheckForAssetChanges();
-	void UpdateEntityControlArrows(EntityPanelContext* panel);
-	void UpdateEntityRotationGizmo(EntityPanelContext* panel);
-	void RenderEntityControlArrows(EntityPanelContext* panel);
-	void RenderEntityPanel(EntityPanelContext* panel, World* world);
-	void EntityPanelUpdateEntityAndEditorContext(const EntityPanelContext* panel, u32 action, World* world);
-	void EntityPanelTrackEntityChanges(EntityPanelContext* panel);
+	void UpdateEntityControlArrows(REntityPanelContext* panel);
+	void UpdateEntityRotationGizmo(REntityPanelContext* panel);
+	void RenderEntityControlArrows(REntityPanelContext* panel);
+	void RenderEntityPanel(REntityPanelContext* panel, RWorld* world);
+	void EntityPanelUpdateEntityAndEditorContext(const REntityPanelContext* panel, u32 action, RWorld* world);
+	void EntityPanelTrackEntityChanges(REntityPanelContext* panel);
 
 
 	enum EntityPanelTrackableAction

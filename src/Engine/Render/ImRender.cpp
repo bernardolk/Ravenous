@@ -1,9 +1,9 @@
 #include "ImRender.h"
-#include "shader.h"
+#include "Shader.h"
 #include "engine/camera/camera.h"
 #include "engine/geometry/mesh.h"
 #include "engine/geometry/triangle.h"
-#include "engine/entities/EEntity.h"
+#include "engine/entities/Entity.h"
 #include <glad/glad.h>
 #include "engine/geometry/vertex.h"
 
@@ -31,11 +31,11 @@ void ImDraw::Update(float frame_duration)
 	}
 }
 
-void ImDraw::Render(Camera* camera)
+void ImDraw::Render(RCamera* camera)
 {
-	Shader* im_point_shader = ShaderCatalogue.find("immediate_point")->second;
-	Shader* im_mesh_shader = ShaderCatalogue.find("im_mesh")->second;
-	Shader* shader = im_point_shader;
+	RShader* im_point_shader = ShaderCatalogue.find("immediate_point")->second;
+	RShader* im_mesh_shader = ShaderCatalogue.find("im_mesh")->second;
+	RShader* shader = im_point_shader;
 	for (int i = 0; i < im_buffer_size; i++)
 	{
 		auto& obj = list[i];
@@ -77,7 +77,7 @@ void ImDraw::Render(Camera* camera)
 /* --------------------------- */
 /*      > Add primitives       */
 /* --------------------------- */
-void ImDraw::Add(u32 _hash, std::vector<Vertex> vertex_vec, GLenum draw_method, RenderOptions opts)
+void ImDraw::Add(u32 _hash, std::vector<RVertex> vertex_vec, GLenum draw_method, RenderOptions opts)
 {
 	IM_R_FIND_SLOT();
 
@@ -85,16 +85,16 @@ void ImDraw::Add(u32 _hash, std::vector<Vertex> vertex_vec, GLenum draw_method, 
 }
 
 
-void ImDraw::Add(u32 _hash, std::vector<Triangle> triangles, GLenum draw_method = GL_LINE_LOOP, RenderOptions opts = RenderOptions{})
+void ImDraw::Add(u32 _hash, std::vector<RTriangle> triangles, GLenum draw_method = GL_LINE_LOOP, RenderOptions opts = RenderOptions{})
 {
 	IM_R_FIND_SLOT();
 
-	std::vector<Vertex> vertex_vec;
+	std::vector<RVertex> vertex_vec;
 	for (int i = 0; i < triangles.size(); i++)
 	{
-		vertex_vec.push_back(Vertex{triangles[i].a});
-		vertex_vec.push_back(Vertex{triangles[i].b});
-		vertex_vec.push_back(Vertex{triangles[i].c});
+		vertex_vec.push_back(RVertex{triangles[i].a});
+		vertex_vec.push_back(RVertex{triangles[i].b});
+		vertex_vec.push_back(RVertex{triangles[i].c});
 	}
 
 	SetMesh(slot.index, vertex_vec, draw_method, opts);
@@ -111,7 +111,7 @@ void ImDraw::AddLine(u32 _hash, vec3 point_a, vec3 point_b, float line_width,
 {
 	IM_R_FIND_SLOT();
 
-	auto vertex_vec = std::vector<Vertex>{Vertex{point_a}, Vertex{point_b}};
+	auto vertex_vec = std::vector<RVertex>{RVertex{point_a}, RVertex{point_b}};
 
 	RenderOptions opts;
 	opts.line_width = line_width;
@@ -134,9 +134,9 @@ void ImDraw::AddLineLoop(u32 _hash, std::vector<vec3> points, float line_width, 
 {
 	IM_R_FIND_SLOT();
 
-	auto vertex_vec = std::vector<Vertex>();
+	auto vertex_vec = std::vector<RVertex>();
 	for (int i = 0; i < points.size(); i++)
-		vertex_vec.push_back(Vertex{points[i]});
+		vertex_vec.push_back(RVertex{points[i]});
 
 	RenderOptions opts;
 	opts.line_width = line_width;
@@ -158,7 +158,7 @@ void ImDraw::AddPoint(u32 _hash, vec3 point, float point_size, bool always_on_to
 		obj.duration = duration;
 	}
 
-	auto vertex_vec = std::vector<Vertex>{Vertex{point}};
+	auto vertex_vec = std::vector<RVertex>{RVertex{point}};
 
 	RenderOptions opts;
 	opts.point_size = point_size;
@@ -174,11 +174,11 @@ void ImDraw::AddPoint(u32 _hash, vec3 point, vec3 color)
 }
 
 
-void ImDraw::AddTriangle(u32 _hash, Triangle t, float line_width, bool always_on_top, vec3 color)
+void ImDraw::AddTriangle(u32 _hash, RTriangle t, float line_width, bool always_on_top, vec3 color)
 {
 	IM_R_FIND_SLOT();
 
-	auto vertex_vec = std::vector<Vertex>{Vertex{t.a}, Vertex{t.b}, Vertex{t.c}};
+	auto vertex_vec = std::vector<RVertex>{RVertex{t.a}, RVertex{t.b}, RVertex{t.c}};
 	auto indices = std::vector<u32>{0, 1, 2};
 
 	RenderOptions opts;
@@ -194,7 +194,7 @@ void ImDraw::AddTriangle(u32 _hash, Triangle t, float line_width, bool always_on
 /* --------------------------- */
 /*        > Add Mesh           */
 /* --------------------------- */
-void ImDraw::AddMesh(u32 _hash, Mesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color, int duration)
+void ImDraw::AddMesh(u32 _hash, RMesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color, int duration)
 {
 	IM_R_FIND_SLOT();
 
@@ -219,7 +219,7 @@ void ImDraw::AddMesh(u32 _hash, Mesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3
 }
 
 
-void ImDraw::AddMesh(u32 _hash, Mesh* mesh, vec3 color, float duration)
+void ImDraw::AddMesh(u32 _hash, RMesh* mesh, vec3 color, float duration)
 {
 	IM_R_FIND_SLOT();
 
@@ -296,7 +296,7 @@ ImDrawSlot ImDraw::FindElementOrEmptySlot(u32 hash)
 }
 
 
-void ImDraw::SetMesh(int i, std::vector<Vertex> vertices, GLenum draw_method, RenderOptions opts)
+void ImDraw::SetMesh(int i, std::vector<RVertex> vertices, GLenum draw_method, RenderOptions opts)
 {
 	auto& obj = list[i];
 	obj.mesh.vertices = vertices;
@@ -308,7 +308,7 @@ void ImDraw::SetMesh(int i, std::vector<Vertex> vertices, GLenum draw_method, Re
 }
 
 
-void ImDraw::SetMesh(int i, Mesh* mesh, RenderOptions opts)
+void ImDraw::SetMesh(int i, RMesh* mesh, RenderOptions opts)
 {
 	auto& obj = list[i];
 	obj.mesh = *mesh;

@@ -1,21 +1,21 @@
 #include "engine/core/core.h"
 #include "game/animation/AnPlayer.h"
-#include "game/entities/player.h"
+#include "game/entities/EPlayer.h"
 #include "engine/utils/utils.h"
 #include "engine/camera/camera.h"
 #include "engine/rvn.h"
 
-const map<PlayerAnimationState, float> PlayerAnimationDurations =
+const map<RPlayerAnimationState, float> PlayerAnimationDurations =
 {
-	{PlayerAnimationState::Jumping, 400},
-	{PlayerAnimationState::Landing, 200},
-	{PlayerAnimationState::LandingFall, 400},
-	{PlayerAnimationState::Vaulting, 0}
+	{RPlayerAnimationState::Jumping, 400},
+	{RPlayerAnimationState::Landing, 200},
+	{RPlayerAnimationState::LandingFall, 400},
+	{RPlayerAnimationState::Vaulting, 0}
 };
 
-void AN_AnimatePlayer(Player* player)
+void AN_AnimatePlayer(EPlayer* player)
 {
-	if (player->anim_state == PlayerAnimationState::NoAnimation)
+	if (player->anim_state == RPlayerAnimationState::NoAnimation)
 		return;
 	
 	auto& frame = RavenousEngine::GetFrame();
@@ -41,31 +41,31 @@ void AN_AnimatePlayer(Player* player)
 	bool interrupt = false;
 	switch (player->anim_state)
 	{
-		case PlayerAnimationState::Jumping:
+		case RPlayerAnimationState::Jumping:
 		{
 			interrupt = AN_UpdatePlayerJumpingAnimation(player);
 			break;
 		}
 
-		case PlayerAnimationState::Landing:
+		case RPlayerAnimationState::Landing:
 		{
 			interrupt = AN_UpdatePlayerLandingAnimation(player);
 			break;
 		}
 
-		case PlayerAnimationState::LandingFall:
+		case RPlayerAnimationState::LandingFall:
 		{
 			interrupt = AN_UpdatePlayerLandingFallAnimation(player);
 			break;
 		}
 
-		case PlayerAnimationState::Vaulting:
+		case RPlayerAnimationState::Vaulting:
 		{
 			interrupt = AN_PlayerVaulting(player);
 			{
 				if (interrupt)
 				{
-					player->ChangeStateTo(PlayerState::Standing);
+					player->ChangeStateTo(NPlayerState::Standing);
 				}
 				break;
 			}
@@ -78,13 +78,13 @@ void AN_AnimatePlayer(Player* player)
 	// stop animation if completed or interrupted
 	if (end_anim || interrupt)
 	{
-		player->anim_state = PlayerAnimationState::NoAnimation;
+		player->anim_state = RPlayerAnimationState::NoAnimation;
 		player->anim_t = 0;
 	}
 }
 
 
-bool AN_UpdatePlayerJumpingAnimation(Player* player)
+bool AN_UpdatePlayerJumpingAnimation(EPlayer* player)
 {
 	// // interpolate between 0 and duration the player's height
 	// float anim_d            = PLAYER_ANIMATION_DURATIONS[PlayerAnimationState::Jumping];
@@ -103,7 +103,7 @@ bool AN_UpdatePlayerJumpingAnimation(Player* player)
 }
 
 
-bool AN_UpdatePlayerLandingAnimation(Player* player)
+bool AN_UpdatePlayerLandingAnimation(EPlayer* player)
 {
 	// bool interrupt = false;
 	// // add a linear height step of 0.5m per second
@@ -127,7 +127,7 @@ bool AN_UpdatePlayerLandingAnimation(Player* player)
 }
 
 
-bool AN_UpdatePlayerLandingFallAnimation(Player* player)
+bool AN_UpdatePlayerLandingFallAnimation(EPlayer* player)
 {
 	// float anim_d = PLAYER_ANIMATION_DURATIONS[PlayerAnimationState::LandingFall];
 	// bool interrupt = false;
@@ -171,7 +171,7 @@ bool AN_UpdatePlayerLandingFallAnimation(Player* player)
 }
 
 
-bool AN_PlayerVaulting(Player* player)
+bool AN_PlayerVaulting(EPlayer* player)
 {
 	auto& frame = RavenousEngine::GetFrame();
 
@@ -201,20 +201,20 @@ bool AN_PlayerVaulting(Player* player)
 	// camera direction animation
 	if (!player->anim_finished_turning)
 	{
-		auto* player_camera = CameraManager::Get()->GetGameCamera();
+		auto* player_camera = RCameraManager::Get()->GetGameCamera();
 
 		float orig_sva = VectorAngleSigned(normalize(static_cast<vec2>(player->anim_orig_dir.xz)), player->anim_final_dir.xz);
 		float orig_angle = glm::degrees(orig_sva);
 		float orig_sign = Sign(orig_angle);
 		float turn_angle = 0.5 * orig_sign;
-		CameraManager::ChangeCameraDirection(player_camera, turn_angle, 0.f);
+		RCameraManager::ChangeCameraDirection(player_camera, turn_angle, 0.f);
 
 		float updated_sva = VectorAngleSigned(normalize(static_cast<vec2>(player_camera->front.xz)), player->anim_final_dir.xz);
 		float updated_angle = glm::degrees(updated_sva);
 		float updated_sign = Sign(updated_angle);
 		if (updated_sign != orig_sign)
 		{
-			CameraManager::ChangeCameraDirection(player_camera, -1.0 * updated_angle, 0.f);
+			RCameraManager::ChangeCameraDirection(player_camera, -1.0 * updated_angle, 0.f);
 			player->anim_finished_turning = true;
 		}
 	}
@@ -238,7 +238,7 @@ bool AN_PlayerVaulting(Player* player)
 }
 
 
-void ForceInterruptPlayerAnimation(Player* player)
+void ForceInterruptPlayerAnimation(EPlayer* player)
 {
 	// player->anim_state = PlayerAnimationState::NoAnimation;
 	// player->anim_t = 0;

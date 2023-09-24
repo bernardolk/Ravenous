@@ -2,15 +2,15 @@
 
 #include "engine/core/core.h"
 
-struct Player;
+struct EPlayer;
 
-enum CameraType
+enum NCameraType
 {
 	FREE_ROAM    = 0,
 	THIRD_PERSON = 1
 };
 
-struct Camera
+struct RCamera
 {
 	vec3 position = vec3(0.0f);
 	vec3 front = vec3(1.0f, 0.0f, 0.0f);
@@ -25,7 +25,7 @@ struct Camera
 	glm::mat4 mat_view;
 	glm::mat4 mat_projection;
 
-	CameraType type = FREE_ROAM;
+	NCameraType type = FREE_ROAM;
 	float orbital_angle = 0;
 };
 
@@ -33,29 +33,29 @@ struct Camera
 constexpr u8 EditorCam = 0;
 constexpr u8 GameCam = 1;
 
-struct CameraManager
+struct RCameraManager
 {
-	DeclSingleton(CameraManager);
+	DeclSingleton(RCameraManager);
 	
-	Camera* GetCurrentCamera() { return current_camera; }
-	Camera* GetGameCamera() { return &game_camera; }
-	Camera* GetEditorCamera() { return &editor_camera; }
+	RCamera* GetCurrentCamera() { return current_camera; }
+	RCamera* GetGameCamera() { return &game_camera; }
+	RCamera* GetEditorCamera() { return &editor_camera; }
 	
 	void SwitchToEditorCamera() { current_camera = &editor_camera; }
 	void SwitchToGameCamera() { current_camera = &game_camera; }
 	
 	void UpdateGameCamera(float viewport_width, float viewport_height, vec3 position);
 	void UpdateEditorCamera(float viewport_width, float viewport_height, vec3 position);
-	void CameraLookAt(Camera* camera, vec3 ref, bool is_position);
+	void CameraLookAt(RCamera* camera, vec3 ref, bool is_position);
 	
 	void SetCameraToFreeRoam();
 	void SetCameraToThirdPerson();
 	
 	static void ComputeAnglesFromDirection(float& pitch, float& yaw, vec3 direction);
-	static void ChangeCameraDirection(Camera* camera, float yaw_offset, float pitch_offset);
+	static void ChangeCameraDirection(RCamera* camera, float yaw_offset, float pitch_offset);
 	
 private:
-	Camera game_camera;
-	Camera editor_camera;
-	Camera* current_camera = &editor_camera;
+	RCamera game_camera;
+	RCamera editor_camera;
+	RCamera* current_camera = &editor_camera;
 };

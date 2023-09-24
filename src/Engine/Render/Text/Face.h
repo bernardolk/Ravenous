@@ -2,12 +2,12 @@
 
 #include "engine/utils/utils.h"
 
-struct Triangle;
+struct RTriangle;
 
 struct Face
 {
-	Triangle a;
-	Triangle b;
+	RTriangle a;
+	RTriangle b;
 	vec3 center;
 };
 
@@ -15,7 +15,7 @@ struct Face
 // -----------------------------
 // > Triangle / Face operations
 // -----------------------------
-inline Face FaceFromAxisAlignedTriangle(Triangle t)
+inline Face FaceFromAxisAlignedTriangle(RTriangle t)
 {
 	// computes center
 	float x0 = Min(t.a.x, t.b.x, t.c.x);
@@ -49,7 +49,7 @@ inline Face FaceFromAxisAlignedTriangle(Triangle t)
 	b2 += translation * 2.0f;
 	c2 += translation * 2.0f;
 
-	auto t2 = Triangle{a2, b2, c2};
+	auto t2 = RTriangle{a2, b2, c2};
 
 	Face f;
 	f.a = t;

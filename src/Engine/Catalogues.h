@@ -4,7 +4,7 @@
 #include "engine/geometry/mesh.h"
 
 
-struct EntityAttributes
+struct REntityAttributes
 {
 	std::string name = "NONAME";
 	std::string mesh = "aabb";
@@ -15,14 +15,14 @@ struct EntityAttributes
 	vec3 scale = vec3{1.0f};
 };
 
-struct CatalogueSearchResult
+struct RCatalogueSearchResult
 {
-	Texture textures[2];
+	RTexture textures[2];
 	int textures_found = 0;
-	Mesh* mesh{};
-	CollisionMesh* collision_mesh{};
-	Shader* shader{};
+	RMesh* mesh{};
+	RCollisionMesh* collision_mesh{};
+	RShader* shader{};
 };
 
 
-CatalogueSearchResult FindEntityAssetsInCatalogue(const string& mesh, const string& collision_mesh, const string& shader, const string& texture);
+RCatalogueSearchResult FindEntityAssetsInCatalogue(const string& mesh, const string& collision_mesh, const string& shader, const string& texture);

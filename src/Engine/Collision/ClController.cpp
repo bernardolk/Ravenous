@@ -3,24 +3,24 @@
 #include <engine/collision/primitives/BoundingBox.h>
 #include <engine/collision/ClGjk.h>
 #include <engine/collision/ClEpa.h>
-#include "game/entities/player.h"
+#include "game/entities/EPlayer.h"
 #include <engine/collision/ClTypes.h>
 #include <engine/collision/ClResolvers.h>
 #include <engine/collision/ClController.h>
-#include "engine/world/world.h"
+#include "engine/world/World.h"
 
 // ----------------------------
 // > UPDATE PLAYER WORLD CELLS   
 // ----------------------------
 
-bool CL_UpdatePlayerWorldCells(Player* player)
+bool CL_UpdatePlayerWorldCells(EPlayer* player)
 {
 	/* Updates the player's world cells
 	   Returns whether there were changes or not to the cell list
 	   @todo - the procedures invoked here seem to do more work than necessary. Keep this in mind.
 	*/
 
-	auto update_cells = World::Get()->UpdateEntityWorldChunk(player);
+	auto update_cells = RWorld::Get()->UpdateEntityWorldChunk(player);
 	if (!update_cells.status == CellUpdate_OK)
 	{
 		print(update_cells.message.c_str());
@@ -42,7 +42,7 @@ void CL_RecomputeCollisionBufferEntities()
 	// Clears buffer
 	Rvn::entity_buffer.clear();
 	
-	auto entity_iter = World::Get()->GetEntityIterator();
+	auto entity_iter = RWorld::Get()->GetEntityIterator();
     while (auto* entity = entity_iter())
     {
 		Rvn::entity_buffer.push_back(EntityBufferElement{entity, false});
@@ -83,10 +83,10 @@ void CL_MarkEntityChecked(const EEntity* entity)
    - Once we don't have more collisions, we stop checking.
 */
 
-Array<ClResults, 15> CL_TestAndResolveCollisions(Player* player)
+Array<RCollisionResults, 15> CL_TestAndResolveCollisions(EPlayer* player)
 {	
 	// iterative collision detection
-	Array<ClResults, 15> results_array;
+	Array<RCollisionResults, 15> results_array;
 	auto entity_buffer = Rvn::entity_buffer;
 	int c = -1;
 	while (true)
@@ -109,7 +109,7 @@ Array<ClResults, 15> CL_TestAndResolveCollisions(Player* player)
 	return results_array;
 }
 
-bool CL_TestCollisions(Player* player)
+bool CL_TestCollisions(EPlayer* player)
 {
 	// iterative collision detection
 	bool any_collision = false;
@@ -135,7 +135,7 @@ bool CL_TestCollisions(Player* player)
 // > RUN COLLISION DETECTION
 // ---------------------------
 
-ClResults CL_TestCollisionBufferEntitites(Player* player, bool iterative = true)
+RCollisionResults CL_TestCollisionBufferEntitites(EPlayer* player, bool iterative = true)
 {
 	for (auto& entry : Rvn::entity_buffer)
 	{
@@ -159,13 +159,13 @@ ClResults CL_TestCollisionBufferEntitites(Player* player, bool iterative = true)
 // -------------------------
 // > TEST PLAYER VS ENTITY
 // -------------------------
-ClResults CL_TestPlayerVsEntity(EEntity* entity, Player* player)
+RCollisionResults CL_TestPlayerVsEntity(EEntity* entity, EPlayer* player)
 {
-	ClResults cl_results;
+	RCollisionResults cl_results;
 	cl_results.entity = entity;
 
-	CollisionMesh* entity_collider = &entity->collider;
-	CollisionMesh* player_collider = &player->collider;
+	RCollisionMesh* entity_collider = &entity->collider;
+	RCollisionMesh* player_collider = &player->collider;
 
 	GJK_Result box_gjk_test = CL_RunGjk(entity_collider, player_collider);
 

@@ -6,12 +6,12 @@
 #include "EditorPanelContexts.h"
 #include "tools/EditorTools.h"
 #include "engine/io/display.h"
-#include "engine/render/shader.h"
-#include "engine/world/world.h"
+#include "engine/render/Shader.h"
+#include "engine/world/World.h"
 
 namespace Editor
 {
-	void RenderEntityPanel(EntityPanelContext* panel, World* world)
+	void RenderEntityPanel(REntityPanelContext* panel, RWorld* world)
 	{
 		auto& entity = panel->entity;
 		auto& ed_context = *GetContext();
@@ -479,7 +479,7 @@ namespace Editor
 	}
 
 
-	void EntityPanelTrackEntityChanges(EntityPanelContext* panel)
+	void EntityPanelTrackEntityChanges(REntityPanelContext* panel)
 	{
 		auto& ed_context = *GetContext();
 
@@ -488,7 +488,7 @@ namespace Editor
 		// we don't track, since these tools have their own tracking calls.
 		if (!panel->tracked_once)
 		{
-			EntityState last_recorded_state = ed_context.undo_stack.Check();
+			REntityState last_recorded_state = ed_context.undo_stack.Check();
 			if (last_recorded_state.entity == nullptr || last_recorded_state.entity->id != panel->entity->id)
 				ed_context.undo_stack.Track(panel->entity_starting_state);
 			panel->tracked_once = true;
@@ -498,7 +498,7 @@ namespace Editor
 	}
 
 
-	void EntityPanelUpdateEntityAndEditorContext(const EntityPanelContext* panel, u32 action, World* world)
+	void EntityPanelUpdateEntityAndEditorContext(const REntityPanelContext* panel, u32 action, RWorld* world)
 	{
 		auto& ed_context = *GetContext();
 

@@ -22,7 +22,7 @@ struct VisitorState
 {
 	bool visiting = false;
 	vec3 chunk_position = vec3(0.f);
-	WorldChunk* chunk_ptr = nullptr;
+	RWorldChunk* chunk_ptr = nullptr;
 
 	void Reset() { new (this) VisitorState(); }
 };
@@ -39,7 +39,7 @@ struct EEntity
 	string name;
 
 protected:
-	friend WorldChunk;
+	friend RWorldChunk;
 	bool deleted = false;
 
 	// Renderable, Collidable Entity API Begin:
@@ -56,30 +56,30 @@ public:
 	//glm::quat quaternion{};
 	
 	/** Render data */
-	Shader* shader = nullptr;
-	Mesh* mesh = nullptr;
-	vector<Texture> textures;
+	RShader* shader = nullptr;
+	RMesh* mesh = nullptr;
+	vector<RTexture> textures;
 	mat4 mat_model = Mat4Identity;
 	
 	// tmp? should probably be part of a texture data struct
 	int uv_tile_wrap[6] = {1, 1, 1, 1, 1, 1};
 	
 	//@TODO: Get rid of collider (and include)
-	CollisionMesh* collision_mesh = nullptr; // static collision mesh vertex data
-	CollisionMesh collider{};                // dynamic collision mesh, obtained by multiplying static collision mesh with model matrix
-	BoundingBox bounding_box{};              // computed using the collider mesh, used for fast first pass collision tests
+	RCollisionMesh* collision_mesh = nullptr; // static collision mesh vertex data
+	RCollisionMesh collider{};                // dynamic collision mesh, obtained by multiplying static collision mesh with model matrix
+	RBoundingBox bounding_box{};              // computed using the collider mesh, used for fast first pass collision tests
 
 	// collider settings
 	bool slidable = false;
 
 	/** World data */
 	// Array<WorldCell*, MaxEntityWorldCells> world_cells{};
-	vector<WorldChunk*> world_chunks;
+	vector<RWorldChunk*> world_chunks;
 	int world_chunks_count = 0;
 	
 	/** Event trigger */
 	// TODO: Will only be necessary on I_Interactable
-	Mesh* trigger = nullptr;
+	RMesh* trigger = nullptr;
 	vec3 trigger_scale = vec3(1.5f, 1.f, 0.f);
 	vec3 trigger_pos = vec3(0.0f);
 	mat4 trigger_mat_model{};
@@ -94,7 +94,7 @@ public:
 	void RotateY(float angle);
 	mat4 GetRotationMatrix();
 	
-	CollisionMesh GetTriggerCollider();
+	RCollisionMesh GetTriggerCollider();
 	
 	void MakeInvisible();
 	void MakeVisible();

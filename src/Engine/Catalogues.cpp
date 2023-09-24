@@ -2,11 +2,11 @@
 
 #include "rvn.h"
 #include "io/loaders.h"
-#include "render/shader.h"
+#include "render/Shader.h"
 
-CatalogueSearchResult FindEntityAssetsInCatalogue(const string& mesh, const string& collision_mesh, const string& shader, const string& texture)
+RCatalogueSearchResult FindEntityAssetsInCatalogue(const string& mesh, const string& collision_mesh, const string& shader, const string& texture)
 {
-	CatalogueSearchResult attrs;
+	RCatalogueSearchResult attrs;
 
 	if (!mesh.empty())
 	{

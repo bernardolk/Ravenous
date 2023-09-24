@@ -6,18 +6,18 @@
 #include "engine/camera/camera.h"
 #include "engine/io/display.h"
 #include "engine/serialization/sr_config.h"
-#include "engine/world/world.h"
+#include "engine/world/World.h"
 
 namespace Editor
 {
-	void RenderToolbar(World* world)
+	void RenderToolbar(RWorld* world)
 	{
 		auto& ed_context = *GetContext();
 
 		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayState::viewport_width - 230, 180), ImGuiCond_Appearing);
 		ImGui::Begin("Tools", &ed_context.toolbar_active, ImGuiWindowFlags_AlwaysAutoResize);
 
-		string scene_name = "Scene name: " + World::Get()->scene_name;
+		string scene_name = "Scene name: " + RWorld::Get()->scene_name;
 		ImGui::Text(scene_name.c_str());
 		ImGui::NewLine();
 
@@ -30,7 +30,7 @@ namespace Editor
 			bool track = false;
 
 			ImGui::Text("Cam speed");
-			ImGui::DragFloat("##camspeed", &CameraManager::Get()->GetCurrentCamera()->acceleration, 0.1, 0.2, MaxFloat);
+			ImGui::DragFloat("##camspeed", &RCameraManager::Get()->GetCurrentCamera()->acceleration, 0.1, 0.2, MaxFloat);
 			track = track || ImGui::IsItemDeactivatedAfterEdit();
 
 			// Ambient light control
@@ -50,7 +50,7 @@ namespace Editor
 			if (track)
 			{
 				auto& program_config = *ProgramConfig::Get();
-				program_config.camspeed = CameraManager::Get()->GetCurrentCamera()->acceleration;
+				program_config.camspeed = RCameraManager::Get()->GetCurrentCamera()->acceleration;
 				program_config.ambient_intensity = world->ambient_intensity;
 				program_config.ambient_light = world->ambient_light;
 				ConfigSerializer::Save(program_config);

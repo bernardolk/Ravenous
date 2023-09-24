@@ -35,24 +35,24 @@ inline int PFloor = -1;
 // --------------
 // RENDER MESH
 // --------------
-void RenderMesh(const Mesh* mesh, RenderOptions opts = RenderOptions{});
+void RenderMesh(const RMesh* mesh, RenderOptions opts = RenderOptions{});
 
 // --------------
 // RENDER ENTITY
 // --------------
 void RenderEntity(EEntity* entity);
-void RenderEditorEntity(EEntity* entity, World* world, Camera* camera);
+void RenderEditorEntity(EEntity* entity, RWorld* world, RCamera* camera);
 
 // -------------
 // RENDER SCENE
 // -------------
-void RenderScene(World* world, Camera* camera);
-void SetShaderLightVariables(World* world, Shader* shader, Camera* camera);
+void RenderScene(RWorld* world, RCamera* camera);
+void SetShaderLightVariables(RWorld* world, RShader* shader, RCamera* camera);
 
 // -------------------------
 // RENDER GAME GUI
 // -------------------------
-void RenderGameGui(Player* player);
+void RenderGameGui(EPlayer* player);
 
 // ----------------
 // RENDER FEATURES

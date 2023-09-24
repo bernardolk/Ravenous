@@ -3,34 +3,34 @@
 #include "engine/camera/camera.h"
 #include "engine/io/input.h"
 #include "engine/io/display.h"
-#include "game/entities/player.h"
+#include "game/entities/EPlayer.h"
 #include "editor/editor.h"
 #include "engine/rvn.h"
 
-EditorState::EditorState() = default;
+REditorState::REditorState() = default;
 
 
-bool EditorState::IsInGameMode()
+bool REditorState::IsInGameMode()
 {
 	return Get()->current_mode == ProgramMode::Game;
 }
 
-bool EditorState::IsInEditorMode()
+bool REditorState::IsInEditorMode()
 {
 	return Get()->current_mode == ProgramMode::Editor;
 }
 
-bool EditorState::IsInConsoleMode()
+bool REditorState::IsInConsoleMode()
 {
 	return Get()->current_mode == ProgramMode::Console;
 }
 
-void EditorState::ToggleProgramMode()
+void REditorState::ToggleProgramMode()
 {
 	auto* GII = GlobalInputInfo::Get();
 	auto* GDC = GlobalDisplayState::Get();
 
-	auto* player = Player::Get();
+	auto* player = EPlayer::Get();
 
 	GII->forget_last_mouse_coords = true;
 	auto* ES = Get();
@@ -39,7 +39,7 @@ void EditorState::ToggleProgramMode()
 	{
 		ES->last_mode = ES->current_mode;
 		ES->current_mode = ProgramMode::Game;
-		CameraManager::Get()->SwitchToGameCamera();
+		RCameraManager::Get()->SwitchToGameCamera();
 
 		player->MakeInvisible();
 
@@ -54,7 +54,7 @@ void EditorState::ToggleProgramMode()
 	{
 		ES->last_mode = ES->current_mode;
 		ES->current_mode = ProgramMode::Editor;
-		CameraManager::Get()->SwitchToEditorCamera();
+		RCameraManager::Get()->SwitchToEditorCamera();
 
 		player->MakeVisible();
 

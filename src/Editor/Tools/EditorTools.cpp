@@ -6,8 +6,8 @@
 #include "engine/entities/lights.h"
 #include "engine/collision/ClController.h"
 #include "engine/io/input.h"
-#include "engine/world/world.h"
-#include "game/entities/player.h"
+#include "engine/world/World.h"
+#include "game/entities/EPlayer.h"
 
 namespace Editor
 {
@@ -46,7 +46,7 @@ namespace Editor
 		ed_context.undo_stack.deletion_log.Add(entity);
 	}
 
-	void EditorEraseLight(int index, string type, World* world)
+	void EditorEraseLight(int index, string type, RWorld* world)
 	{
 		auto& ed_context = *GetContext();
 
@@ -63,7 +63,7 @@ namespace Editor
 			ed_context.lights_panel.selected_light = -1;
 	}
 
-	void UnhideEntities(World* world)
+	void UnhideEntities(RWorld* world)
 	{
 		auto entity_iter = world->GetEntityIterator();
 		while (auto* entity = entity_iter())
@@ -159,7 +159,7 @@ namespace Editor
 	void StretchCommit();
 	auto GetScaleAndPositionChange(EEntity* entity, float old_pos, float new_pos, float n);
 	void StretchEntityToReference(EEntity* entity);
-	void check_selection_to_stretch(EntityPanelContext* panel);
+	void check_selection_to_stretch(REntityPanelContext* panel);
 
 	void ActivateStretchMode(EEntity* entity)
 	{
@@ -213,7 +213,7 @@ namespace Editor
 		return transform;
 	}
 
-	void stretch_entity_to_reference(EEntity* entity, Triangle t)
+	void stretch_entity_to_reference(EEntity* entity, RTriangle t)
 	{
 		// // In this function, we are, obviously, considering that
 		// // the triangle is axis aligned
@@ -307,7 +307,7 @@ namespace Editor
 	// MEASURE TOOL
 	// -------------
 	void ActivateMeasureMode(u8 axis);
-	void CheckSelectionToMeasure(const World* world);
+	void CheckSelectionToMeasure(const RWorld* world);
 
 	void ActivateMeasureMode(u8 axis)
 	{
@@ -318,10 +318,10 @@ namespace Editor
 		ed_context.measure_axis = axis;
 	}
 
-	void CheckSelectionToMeasure(const World* world)
+	void CheckSelectionToMeasure(const RWorld* world)
 	{
 		auto* GII = GlobalInputInfo::Get();
-		auto* cam_manager = CameraManager::Get();
+		auto* cam_manager = RCameraManager::Get();
 		auto& ed_context = *GetContext();
 
 		auto pickray = CastPickray(cam_manager->GetCurrentCamera(), GII->mouse_coords.x, GII->mouse_coords.y);
@@ -353,7 +353,7 @@ namespace Editor
 	// LOCATE COORDINATES MODE
 	// ------------------------
 	void ActivateLocateCoordsMode();
-	void CheckSelectionToLocateCoords(const World* world);
+	void CheckSelectionToLocateCoords(const RWorld* world);
 
 	void ActivateLocateCoordsMode()
 	{
@@ -364,12 +364,12 @@ namespace Editor
 		ed_context.locate_coords_found_point = false;
 	}
 
-	void CheckSelectionToLocateCoords(const World* world)
+	void CheckSelectionToLocateCoords(const RWorld* world)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto& ed_context = *GetContext();
 
-		auto pickray = CastPickray(CameraManager::Get()->GetCurrentCamera(), GII->mouse_coords.x, GII->mouse_coords.y);
+		auto pickray = CastPickray(RCameraManager::Get()->GetCurrentCamera(), GII->mouse_coords.x, GII->mouse_coords.y);
 		auto test = world->Raycast(pickray);
 		if (test.hit)
 		{
@@ -381,7 +381,7 @@ namespace Editor
 	// -------------
 	// > MOVE TOOLS 
 	// -------------
-	void PlaceEntity(World* world)
+	void PlaceEntity(RWorld* world)
 	{
 		/* Common function for move/rotate/scale entity tools.
 		   Updates entity, tracks it state and updates world.
@@ -400,14 +400,14 @@ namespace Editor
 		ed_context.undo_stack.Track(ed_context.selected_entity);
 	}
 
-	RaycastTest TestRayAgainstEntitySupportPlane(u16 move_axis, EEntity* entity)
+	RRaycastTest TestRayAgainstEntitySupportPlane(u16 move_axis, EEntity* entity)
 	{
 		// create a big plane for placing entity in the world with the mouse using raycast from camera to mouse
 		// position. In the case of Y placement, we need to compute the plane considering the camera orientation.
-		Triangle t1, t2;
+		RTriangle t1, t2;
 		float plane_size = 500.0f;
 		auto& ed_context = *GetContext();
-		auto* camera = CameraManager::Get()->GetCurrentCamera();
+		auto* camera = RCameraManager::Get()->GetCurrentCamera();
 
 		switch (ed_context.move_axis)
 		{
@@ -454,7 +454,7 @@ namespace Editor
 		auto* GII = GlobalInputInfo::Get();
 
 		auto ray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
-		RaycastTest test;
+		RRaycastTest test;
 
 		test = CL_TestAgainstRay(ray, t1);
 		if (!test.hit)
@@ -480,11 +480,11 @@ namespace Editor
 		ed_context.undo_stack.Track(entity);
 	}
 
-	void SelectEntityPlacingWithMouseMove(EEntity* entity, const World* world)
+	void SelectEntityPlacingWithMouseMove(EEntity* entity, const RWorld* world)
 	{
 		auto* GII = GlobalInputInfo::Get();
 
-		auto pickray = CastPickray(CameraManager::Get()->GetCurrentCamera(), GII->mouse_coords.x, GII->mouse_coords.y);
+		auto pickray = CastPickray(RCameraManager::Get()->GetCurrentCamera(), GII->mouse_coords.x, GII->mouse_coords.y);
 		auto test = world->Raycast(pickray, entity);
 		if (test.hit)
 		{
@@ -512,11 +512,11 @@ namespace Editor
 	{
 		auto& ed_context = *GetContext();
 
-		RaycastTest test = TestRayAgainstEntitySupportPlane(ed_context.move_axis, entity);
+		RRaycastTest test = TestRayAgainstEntitySupportPlane(ed_context.move_axis, entity);
 		if (!test.hit)
 			return;
 
-		Ray ray = test.ray;
+		RRay ray = test.ray;
 		vec3 pos = ray.origin + ray.direction * test.distance;
 
 		// places entity accordingly
@@ -564,11 +564,11 @@ namespace Editor
 	{
 		auto& ed_context = *GetContext();
 
-		RaycastTest test = TestRayAgainstEntitySupportPlane(ed_context.move_axis, entity);
+		RRaycastTest test = TestRayAgainstEntitySupportPlane(ed_context.move_axis, entity);
 		if (!test.hit)
 			return;
 
-		Ray ray = test.ray;
+		RRay ray = test.ray;
 		vec3 pos = ray.origin + ray.direction * test.distance;
 
 		// gets the offset from the mouse drag starting point, and not absolute position
@@ -609,7 +609,7 @@ namespace Editor
 	// @todo: This will DISAPPEAR after lights become entities!
 	//       We need to provide entity rights to lights too! revolution now!
 
-	void MoveLightWithMouse(std::string type, int index, World* world);
+	void MoveLightWithMouse(std::string type, int index, RWorld* world);
 	void ActivateMoveLightMode(std::string type, int index);
 	void PlaceLight(std::string type, int index);
 	void OpenLightsPanel(std::string type, int index, bool focus_tab); //fwd
@@ -627,7 +627,7 @@ namespace Editor
 		ed_context.selected_light_type = type;
 	}
 
-	void MoveLightWithMouse(std::string type, int index, World* world)
+	void MoveLightWithMouse(std::string type, int index, RWorld* world)
 	{
 		vec3 position;
 		if (type == "point" && index > -1)
@@ -638,12 +638,12 @@ namespace Editor
 			assert(false);
 
 		auto* GII = GlobalInputInfo::Get();
-		auto* camera = CameraManager::Get()->GetCurrentCamera();
+		auto* camera = RCameraManager::Get()->GetCurrentCamera();
 		auto ray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
 
 		// create a big plane for placing entity in the world with the mouse using raycast from camera to mouse
 		// position. In the case of Y placement, we need to compute the plane considering the camera orientation.
-		Triangle t1, t2;
+		RTriangle t1, t2;
 		float plane_size = 500.0f;
 
 		auto& ed_context = *GetContext();
@@ -690,7 +690,7 @@ namespace Editor
 		}
 
 		// ray casts against created plane
-		RaycastTest test;
+		RRaycastTest test;
 
 		test = CL_TestAgainstRay(ray, t1);
 		if (!test.hit)
@@ -818,7 +818,7 @@ namespace Editor
 	// SELECT ENTITY AUX TOOL
 	// -----------------------
 	// used in entity panel to select other entity to attribute 1 to 1 relationships
-	void ActivateSelectEntityAuxTool(EEntity** entity_slot, EdToolCallback callback, EdToolCallbackArgs args)
+	void ActivateSelectEntityAuxTool(EEntity** entity_slot, NEdToolCallback callback, REditorToolCallbackArgs args)
 	{
 		auto& ed_context = *GetContext();
 

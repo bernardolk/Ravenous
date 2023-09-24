@@ -1,6 +1,6 @@
 #pragma once
 
-struct Triangle
+struct RTriangle
 {
 	vec3 a;
 	vec3 b;
@@ -22,7 +22,7 @@ struct Triangle
 		return a != b && a != c && b != c;
 	}
 
-	bool operator ==(const Triangle& other)
+	bool operator ==(const RTriangle& other)
 	{
 		return a == other.a && b == other.b && c == other.c;
 	}

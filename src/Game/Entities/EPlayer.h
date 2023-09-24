@@ -1,13 +1,13 @@
 #pragma once
 
 #include "engine/core/core.h"
-#include "engine/entities/EEntity.h"
+#include "engine/entities/Entity.h"
 #include "engine/entities/traits/EntityTraits.h"
 #include "engine/io/InputPhase.h"
 #include "engine/utils/utils.h"
 #include "engine/collision/ClEdgeDetection.h"
 
-enum class PlayerState: uint32_t
+enum class NPlayerState: uint32_t
 {
 	// Floor based states
 	Standing				= 100,
@@ -25,7 +25,7 @@ enum class PlayerState: uint32_t
 	Vaulting				= 401,
 };
 
-struct PlayerStateChangeArgs
+struct RPlayerStateChangeArgs
 {
 	// collision
 	EEntity* entity = nullptr;
@@ -38,14 +38,14 @@ struct PlayerStateChangeArgs
 		struct VaultingData
 		{
 			vec3 final_position;
-			Ledge ledge;
+			RLedge ledge;
 		} vaulting_data;
 	};
 
-	PlayerStateChangeArgs() : vaulting_data() {}
+	RPlayerStateChangeArgs() : vaulting_data() {}
 };
 
-enum class PlayerAnimationState
+enum class RPlayerAnimationState
 {
 	NoAnimation,
 	Jumping,
@@ -54,12 +54,12 @@ enum class PlayerAnimationState
 	Vaulting
 };
 
-void ForceInterruptPlayerAnimation(Player* player);
+void ForceInterruptPlayerAnimation(EPlayer* player);
 
 
-struct Entity(Player)
+struct Entity(EPlayer)
 {
-	DeclSingleton(Player)
+	DeclSingleton(EPlayer)
 	Reflected()
 
 	// geometry
@@ -116,8 +116,8 @@ struct Entity(Player)
 
 	u64 first_pressed_movement_key_while_standing = KEY_NONE;
 	
-	PlayerState player_state;
-	PlayerState initial_player_state;
+	NPlayerState player_state;
+	NPlayerState initial_player_state;
 
 	vec3 prior_position = vec3(0);
 	vec3 initial_velocity = vec3(0);
@@ -147,7 +147,7 @@ struct Entity(Player)
 
 	// animation
 	float anim_t = 0;                                                    // animation timer
-	PlayerAnimationState anim_state = PlayerAnimationState::NoAnimation; // animation state
+	RPlayerAnimationState anim_state = RPlayerAnimationState::NoAnimation; // animation state
 	vec3 anim_final_pos = vec3(0);                                       // final position after translation animation
 	vec3 anim_orig_pos = vec3(0);                                        // original position
 	vec3 anim_final_dir = vec3(0);                                       // final player orientation
@@ -191,12 +191,12 @@ struct Entity(Player)
 	void Die();
 	void BruteStop();
 
-	void ChangeStateTo(PlayerState new_state, PlayerStateChangeArgs args = {});
+	void ChangeStateTo(NPlayerState new_state, RPlayerStateChangeArgs args = {});
 
 private:
 	friend struct GlobalSceneInfo;
 
 	void UpdateAirMovement(float dt);
 	
-	static Player* ResetPlayer();
+	static EPlayer* ResetPlayer();
 };

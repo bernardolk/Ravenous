@@ -338,9 +338,9 @@ u64 ProcessKeyboardInputKeyRelease(GLFWwindow* window)
 void OnMouseMove(GLFWwindow* window, double xpos, double ypos)
 {
 	auto* GII = GlobalInputInfo::Get();
-	auto* ES = EditorState::Get();
+	auto* ES = REditorState::Get();
 
-	if (EditorState::IsInEditorMode() && ImGui::GetIO().WantCaptureMouse)
+	if (REditorState::IsInEditorMode() && ImGui::GetIO().WantCaptureMouse)
 		return;
 
 	// activates mouse dragging if clicking and current mouse position has changed a certain ammount
@@ -367,7 +367,7 @@ void OnMouseMove(GLFWwindow* window, double xpos, double ypos)
 
 	// @todo: should refactor this out of here
 	// MOVE CAMERA WITH MOUSE IF APPROPRIATE
-	if (ES->current_mode == EditorState::ProgramMode::Game || (GII->mouse_state & MOUSE_RB_DRAGGING))
+	if (ES->current_mode == REditorState::ProgramMode::Game || (GII->mouse_state & MOUSE_RB_DRAGGING))
 	{
 		if (GII->block_mouse_move)
 			return;
@@ -387,7 +387,7 @@ void OnMouseMove(GLFWwindow* window, double xpos, double ypos)
 		GII->mouse_coords.last_x = xpos;
 		GII->mouse_coords.last_y = ypos;
 
-		auto* cam_manager = CameraManager::Get();
+		auto* cam_manager = RCameraManager::Get();
 		xoffset *= cam_manager->GetCurrentCamera()->sensitivity;
 		yoffset *= cam_manager->GetCurrentCamera()->sensitivity;
 
@@ -405,7 +405,7 @@ void OnMouseScroll(GLFWwindow* window, double xoffset, double yoffset)
 	if (ImGui::GetIO().WantCaptureMouse)
 		return;
 
-	auto* cam_manager = CameraManager::Get();
+	auto* cam_manager = RCameraManager::Get();
 	auto* camera = cam_manager->GetCurrentCamera();
 	camera->position += static_cast<float>(3 * yoffset) * camera->front;
 }

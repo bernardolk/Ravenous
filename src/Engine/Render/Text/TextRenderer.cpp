@@ -1,7 +1,7 @@
 #include <engine/core/types.h>
 #include <string>
 #include <map>
-#include <engine/render/shader.h>
+#include <engine/render/Shader.h>
 #include <engine/render/text/character.h>
 #ifndef GLAD_INCL
 #define GLAD_INCL

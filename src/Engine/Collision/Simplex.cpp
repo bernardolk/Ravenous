@@ -1,7 +1,7 @@
 #include <engine/core/types.h>
 #include <engine/collision/simplex.h>
 
-void Simplex::PushFront(vec3 point)
+void RSimplex::PushFront(vec3 point)
 {
 	this->points[3] = this->points[2];
 	this->points[2] = this->points[1];
@@ -12,5 +12,5 @@ void Simplex::PushFront(vec3 point)
 	assert(this->p_size <= 4);
 }
 
-vec3& Simplex::operator[](u32 i) { return this->points[i]; }
-u32 Simplex::size() const { return this->p_size; }
+vec3& RSimplex::operator[](u32 i) { return this->points[i]; }
+u32 RSimplex::size() const { return this->p_size; }

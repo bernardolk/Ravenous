@@ -2,7 +2,7 @@
 
 #include <iomanip>
 
-#include "game/entities/player.h"
+#include "game/entities/EPlayer.h"
 #include "sr_config.h"
 #include "sr_entity.h"
 #include "sr_light.h"
@@ -12,18 +12,18 @@
 #include "engine/core/logging.h"
 #include "engine/rvn.h"
 #include "engine/collision/ClController.h"
-#include "engine/world/world.h"
+#include "engine/world/World.h"
 #include "parsing/parser.h"
 
 bool WorldSerializer::LoadFromFile(const string& filename)
 {
 	const auto path = Paths::Scenes + filename + ".txt";
 
-	world = World::Get();
+	world = RWorld::Get();
 
 	// Set player's assets
 	{
-		EntityAttributes attrs;
+		REntityAttributes attrs;
 		attrs.name = "Player";
 		attrs.mesh = "capsule";
 		attrs.shader = "model";
@@ -31,7 +31,7 @@ bool WorldSerializer::LoadFromFile(const string& filename)
 		attrs.collision_mesh = "capsule";
 		attrs.scale = vec3(1);
 		
-		SetEntityAssets(Player::Get(), attrs);
+		SetEntityAssets(EPlayer::Get(), attrs);
 	}
 
 	// creates deferred load buffer for associating entities after loading them all
@@ -76,7 +76,7 @@ bool WorldSerializer::LoadFromFile(const string& filename)
 	// -----------------------------------
 	//          Post parse steps
 	// -----------------------------------
-	Player* player = Player::Get();
+	EPlayer* player = EPlayer::Get();
 	player->Update();
 
 	// TODO: Address
@@ -105,7 +105,7 @@ bool WorldSerializer::LoadFromFile(const string& filename)
 	// clear static relations buffer
 	EntitySerializer::ClearBuffer();
 
-	World::Get()->scene_name = filename;
+	RWorld::Get()->scene_name = filename;
 	
 	return true;
 }
@@ -121,7 +121,7 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 	std::string filename = new_filename;
 	if (new_filename.empty())
 	{
-		filename = World::Get()->scene_name;
+		filename = RWorld::Get()->scene_name;
 
 		if (do_copy)
 		{
@@ -147,7 +147,7 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 	
 	// @TODO: Refactor this at some point
 	// write camera settings to file
-	const auto* camera = CameraManager::Get()->GetEditorCamera();
+	const auto* camera = RCameraManager::Get()->GetEditorCamera();
 	writer << "*"
 	<< camera->position.x << " "
 	<< camera->position.y << " "
@@ -161,7 +161,7 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 
 	// @TODO: Refactor this at some point
 	// write player orientation
-	const auto* game_cam = CameraManager::Get()->GetGameCamera();
+	const auto* game_cam = RCameraManager::Get()->GetGameCamera();
 	writer << "&player_orientation = "
 	<< game_cam->front.x << " "
 	<< game_cam->front.y << " "
@@ -192,7 +192,7 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 	else if (!new_filename.empty())
 	{
 		Log(LOG_INFO, "Scene saved successfully as '" + filename + ".txt' (now editing it)");
-		World::Get()->scene_name = filename;
+		RWorld::Get()->scene_name = filename;
 	}
 	else
 		Log(LOG_INFO, "Scene saved successfully.");

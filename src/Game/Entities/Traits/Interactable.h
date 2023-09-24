@@ -3,13 +3,13 @@
 
 #include "engine/core/core.h"
 #include "engine/entities/traits/EntityTraits.h"
-#include "game/entities/player.h"
+#include "game/entities/EPlayer.h"
 
 /*
  * Trait that allows entities to be interacted with via action key or touching their trigger volume.
  */
 
-struct Trait(I_Interactable)
+struct Trait(TInteractable)
 {
 	void BlockInteractions();
 	void UnblockInteractions();
@@ -41,7 +41,7 @@ protected:
 	{
 		if (!entity.block_interaction)
 		{
-			if (entity.passive_interaction || Player::Get()->interact_btn)
+			if (entity.passive_interaction || EPlayer::Get()->interact_btn)
 			{
 				if (entity.IsVolumeCollidingWithPlayer())
 				{

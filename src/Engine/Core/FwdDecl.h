@@ -1,11 +1,11 @@
 #pragma once
 
 // B
-struct BoundingBox;
+struct RBoundingBox;
 
 // C
-struct Camera;
-struct CollisionMesh;
+struct RCamera;
+struct RCollisionMesh;
 
 // D
 struct DirectionalLight;
@@ -25,28 +25,28 @@ struct GLFWwindow;
 #endif
 
 // M
-struct Mesh;
+struct RMesh;
 
 // P
-struct Player;
+struct EPlayer;
 struct PointLight;
 
 // R
-struct Ray;
+struct RRay;
 
 // S
 struct Scene;
-struct Shader;
+struct RShader;
 struct SpotLight;
 
 // T
-struct Triangle;
-struct Texture;
+struct RTriangle;
+struct RTexture;
 
 // W
-struct World;
+struct RWorld;
 struct WorldCell;
-struct WorldChunk;
+struct RWorldChunk;
 struct WorldEntityIterator;
-struct WorldChunkEntityIterator;
-struct WorldChunkPosition;
+struct RWorldChunkEntityIterator;
+struct RWorldChunkPosition;

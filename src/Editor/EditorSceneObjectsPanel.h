@@ -4,7 +4,7 @@
 
 namespace Editor
 {
-	struct SceneObjectsPanelContext;
+	struct RSceneObjectsPanelContext;
 
-	void RenderSceneObjectsPanel(World* world, SceneObjectsPanelContext* panel);
+	void RenderSceneObjectsPanel(RWorld* world, RSceneObjectsPanelContext* panel);
 }

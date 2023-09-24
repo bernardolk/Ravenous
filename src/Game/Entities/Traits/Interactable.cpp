@@ -1,31 +1,31 @@
 #include "interactable.h"
 
-void I_Interactable::BlockInteractions()
+void TInteractable::BlockInteractions()
 {
 	block_interaction = true;
 }
 
-void I_Interactable::UnblockInteractions()
+void TInteractable::UnblockInteractions()
 {
 	block_interaction = false;
 }
 
-bool I_Interactable::AreInteractionsBlocked()
+bool TInteractable::AreInteractionsBlocked()
 {
 	return block_interaction;
 }
 
-void I_Interactable::SetPassiveInteraction(bool value)
+void TInteractable::SetPassiveInteraction(bool value)
 {
 	passive_interaction = value;
 }
 
-bool I_Interactable::IsInteractionPassive()
+bool TInteractable::IsInteractionPassive()
 {
 	return passive_interaction;
 }
 
-bool I_Interactable::IsVolumeCollidingWithPlayer()
+bool TInteractable::IsVolumeCollidingWithPlayer()
 {
 	// TODO: Obviously
 	return true;
