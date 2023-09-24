@@ -92,7 +92,7 @@ u32 EntityAnimationBuffer::FindSlot()
 	return 0;
 }
 
-void EntityAnimationBuffer::StartAnimation(E_Entity* entity, EntityAnimation* animation)
+void EntityAnimationBuffer::StartAnimation(EEntity* entity, EntityAnimation* animation)
 {
 	// makes a copy of the animation to the Entity_Animations buffer
 

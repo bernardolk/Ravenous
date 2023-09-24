@@ -32,7 +32,7 @@ struct EntityAnimation
 {
 	std::string description = "";
 	bool active = false;
-	E_Entity* entity = nullptr;
+	EEntity* entity = nullptr;
 	u32 keyframes_count = 0;
 	EntityAnimationKeyframe keyframes[AnMaxEntityAnimationKeyframes];
 
@@ -50,7 +50,7 @@ struct EntityAnimationBuffer
 
 	u32 FindSlot();
 
-	void StartAnimation(E_Entity* entity, EntityAnimation* animation);
+	void StartAnimation(EEntity* entity, EntityAnimation* animation);
 
 	static void UpdateAnimations();
 

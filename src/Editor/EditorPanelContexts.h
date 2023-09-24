@@ -31,7 +31,7 @@ namespace Editor
 	{
 		bool active = false;
 		bool focused = false;
-		E_Entity* entity = nullptr;
+		EEntity* entity = nullptr;
 		vec3 original_position = vec3(0);
 		vec3 original_scale = vec3(0);
 		float original_rotation = 0;
@@ -46,13 +46,13 @@ namespace Editor
 		bool reverse_scale_y = false;
 		bool reverse_scale_z = false;
 
-		E_Entity* x_arrow;
-		E_Entity* y_arrow;
-		E_Entity* z_arrow;
+		EEntity* x_arrow;
+		EEntity* y_arrow;
+		EEntity* z_arrow;
 
-		E_Entity* rotation_gizmo_x;
-		E_Entity* rotation_gizmo_y;
-		E_Entity* rotation_gizmo_z;
+		EEntity* rotation_gizmo_x;
+		EEntity* rotation_gizmo_y;
+		EEntity* rotation_gizmo_z;
 
 		EntityState entity_starting_state;
 		bool tracked_once = false;
@@ -62,7 +62,7 @@ namespace Editor
 		bool show_bounding_box = false;
 
 		bool show_related_entity = false;
-		E_Entity* related_entity = nullptr;
+		EEntity* related_entity = nullptr;
 
 		void EmptyRenameBuffer()
 		{

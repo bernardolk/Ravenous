@@ -13,7 +13,7 @@ struct Entity;
 
 struct CollisionLogEntry
 {
-	Entity* entity;
+	EEntity* entity;
 	float penetration;
 	vec3 normal;
 };

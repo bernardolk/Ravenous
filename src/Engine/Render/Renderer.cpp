@@ -1,5 +1,5 @@
-#include <engine/render/renderer.h>
-#include <glad/glad.h>
+#include "engine/render/renderer.h"
+#include "glad/glad.h"
 #include "game/entities/player.h"
 #include "shader.h"
 #include "engine/camera/camera.h"
@@ -67,7 +67,7 @@ void RenderMesh(const Mesh* mesh, RenderOptions opts)
 // --------------
 // RENDER ENTITY
 // --------------
-void RenderEntity(E_Entity* entity)
+void RenderEntity(EEntity* entity)
 {
 	entity->shader->Use();
 	entity->shader->SetMatrix4("model", entity->mat_model);
@@ -142,7 +142,7 @@ void RenderEntity(E_Entity* entity)
 }
 
 
-void RenderEditorEntity(E_Entity* entity, World* world, Camera* camera)
+void RenderEditorEntity(EEntity* entity, World* world, Camera* camera)
 {
 	entity->shader->Use();
 	// important that the gizmo dont have a position set.
@@ -268,7 +268,7 @@ void RenderGameGui(Player* player)
 		std::string last_grabbed = player->grabbing_entity->name;
 		PGrab += "'" + last_grabbed + "'";
 	}
-	RenderText(GlobalDisplayConfig::viewport_width - 400, 45, PGrab);
+	RenderText(GlobalDisplayState::viewport_width - 400, 45, PGrab);
 }
 
 // ----------------
@@ -360,7 +360,7 @@ void RenderDepthMap()
 
 	// de-setup
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height);
+	glViewport(0, 0, GlobalDisplayState::viewport_width, GlobalDisplayState::viewport_height);
 }
 
 void RenderDepthCubemap()
@@ -413,12 +413,12 @@ void RenderDepthCubemap()
 
 	// de-setup
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height);
+	glViewport(0, 0, GlobalDisplayState::viewport_width, GlobalDisplayState::viewport_height);
 }
 
 void RenderDepthMapDebug()
 {
-	glViewport(0, 0, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height);
+	glViewport(0, 0, GlobalDisplayState::viewport_width, GlobalDisplayState::viewport_height);
 	//glClearColor(0.196, 0.298, 0.3607, 1.0f);
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// shadow map texture

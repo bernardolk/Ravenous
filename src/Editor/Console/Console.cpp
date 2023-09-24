@@ -26,8 +26,8 @@ void InitializeConsoleBuffers()
 
 void RenderConsole()
 {
-	RenderText(15, GlobalDisplayConfig::viewport_height - 20, Console.scratch_buffer);
-	RenderText(15, GlobalDisplayConfig::viewport_height - 35, std::to_string(Console.b_ind));
+	RenderText(15, GlobalDisplayState::viewport_height - 20, Console.scratch_buffer);
+	RenderText(15, GlobalDisplayState::viewport_height - 35, std::to_string(Console.b_ind));
 }
 
 void MoveToNextBuffer()

@@ -19,21 +19,12 @@ namespace Paths
 
 struct ProgramConfig
 {
+	DeclSingleton(ProgramConfig);
+
 	string initial_scene;
 	float camspeed = 1;
 	vec3 ambient_light{};
 	float ambient_intensity = 0;
-
-public:
-	static ProgramConfig* Get()
-	{
-		static ProgramConfig instance;
-		return &instance;
-	}
-
-private:
-	ProgramConfig() = default;
-	ProgramConfig(const ProgramConfig& other) = delete;
 };
 
 struct FrameData
@@ -51,7 +42,7 @@ struct FrameData
 // stores all relevant entity ptrs for collision detection with player during the frame
 struct EntityBufferElement
 {
-	E_Entity* entity = nullptr;
+	EEntity* entity = nullptr;
 	bool collision_checked = false;
 };
 

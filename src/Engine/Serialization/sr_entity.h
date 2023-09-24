@@ -15,7 +15,7 @@ struct DeferredEntityRelationBuffer
 {
 	static constexpr int size = 64;
 	int count = 0;
-	E_Entity* entities[size];
+	EEntity* entities[size];
 	u64 deferred_entity_ids[size];
 	SrEntityRelation relations[size];
 	u32 aux_uint_buffer[size];
@@ -27,7 +27,7 @@ struct EntitySerializer
 	inline static DeferredEntityRelationBuffer relations{};
 
 	static void Parse(Parser& parser);
-	static void Save(std::ofstream& writer, const E_Entity& entity);
+	static void Save(std::ofstream& writer, const EEntity& entity);
 
 	static void ClearBuffer();
 };

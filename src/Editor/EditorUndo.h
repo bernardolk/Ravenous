@@ -12,7 +12,7 @@ namespace Editor
 		int entity_ids[capacity];
 
 	public:
-		void Add(const E_Entity* entity);
+		void Add(const EEntity* entity);
 	};
 
 	struct UndoStack
@@ -25,7 +25,7 @@ namespace Editor
 		bool full = false;                  // helps avoid writing out of stack mem boundaries
 
 	public:
-		void Track(E_Entity* entity);
+		void Track(EEntity* entity);
 		void Track(EntityState state);
 		void Undo();
 		void Redo();

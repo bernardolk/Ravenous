@@ -28,7 +28,7 @@ enum class PlayerState: uint32_t
 struct PlayerStateChangeArgs
 {
 	// collision
-	E_Entity* entity = nullptr;
+	EEntity* entity = nullptr;
 	vec3 normal = vec3(0);
 	float penetration = 0;
 
@@ -59,11 +59,12 @@ void ForceInterruptPlayerAnimation(Player* player);
 
 struct Entity(Player)
 {
+	DeclSingleton(Player)
 	Reflected()
 
 	// geometry
-	float radius = 0.2;
-	float height = 1.75;
+	float radius = 0.2f;
+	float height = 1.75f;
 
 	// movement variables
 	vec3 v_dir = vec3(0.f);          // intended movement direction
@@ -125,7 +126,7 @@ struct Entity(Player)
 
 	// gameplay system variables
 	vec3 last_terrain_contact_normal = vec3(0, 1.f, 0);
-	E_Entity* grabbing_entity = nullptr;
+	EEntity* grabbing_entity = nullptr;
 	float grab_reach = 0.9; // radius + arms reach, 0.5 + 0.4  
 
 	// sliding
@@ -141,7 +142,7 @@ struct Entity(Player)
 	float fall_height_log = 0; // set when checking for fall, read-only!
 
 	// checkpoints
-	E_Entity* checkpoint = nullptr;
+	EEntity* checkpoint = nullptr;
 	vec3 checkpoint_pos;
 
 	// animation
@@ -153,12 +154,6 @@ struct Entity(Player)
 	vec3 anim_orig_dir = vec3(0);                                        // original player orientation
 	bool anim_finished_turning = false;                                  // player has finished turning his camera
 
-	static Player* Get()
-	{
-		static Player instance;
-		return &instance;
-	}
-
 	void Update();
 
 	void UpdateState();
@@ -169,7 +164,7 @@ struct Entity(Player)
 
 	vec3 GetUpperBoundPosition() const { return -position + vec3(0.0f, height, 0.0f); }
 
-	vec3 GetEyePosition() const { return position + vec3(0, height - 0.1, 0); }
+	vec3 GetEyePosition() const { return position + vec3(0, height - 0.1f, 0); }
 
 	float GetSpeed() const { return length(velocity); }
 
@@ -191,7 +186,7 @@ struct Entity(Player)
 	
 	bool MaybeHurtFromFall();
 	void RestoreHealth();
-	void SetCheckpoint(E_Entity* entity);
+	void SetCheckpoint(EEntity* entity);
 	void GotoCheckpoint();
 	void Die();
 	void BruteStop();
@@ -203,9 +198,5 @@ private:
 
 	void UpdateAirMovement(float dt);
 	
-
-	Player() = default;
-	Player(const Player& other) = delete;
-
 	static Player* ResetPlayer();
 };

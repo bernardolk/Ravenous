@@ -7,6 +7,9 @@
 #include "editor/editor.h"
 #include "engine/rvn.h"
 
+EditorState::EditorState() = default;
+
+
 bool EditorState::IsInGameMode()
 {
 	return Get()->current_mode == ProgramMode::Game;
@@ -25,7 +28,7 @@ bool EditorState::IsInConsoleMode()
 void EditorState::ToggleProgramMode()
 {
 	auto* GII = GlobalInputInfo::Get();
-	auto* GDC = GlobalDisplayConfig::Get();
+	auto* GDC = GlobalDisplayState::Get();
 
 	auto* player = Player::Get();
 
@@ -40,7 +43,7 @@ void EditorState::ToggleProgramMode()
 
 		player->MakeInvisible();
 
-		glfwSetInputMode(GDC->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetInputMode(GDC->GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		Editor::EndDearImguiFrame();
 
 		Rvn::rm_buffer->Add("Game Mode", 2000);
@@ -55,7 +58,7 @@ void EditorState::ToggleProgramMode()
 
 		player->MakeVisible();
 
-		glfwSetInputMode(GDC->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		glfwSetInputMode(GDC->GetWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		Editor::StartDearImguiFrame();
 
 		Rvn::rm_buffer->Add("Editor Mode", 2000);

@@ -28,7 +28,7 @@ void RavenousMainLoop()
 	auto world = World::Get();
 	auto* cam_manager = CameraManager::Get();
 	
-	while (!glfwWindowShouldClose(GlobalDisplayConfig::GetWindow()))
+	while (!glfwWindowShouldClose(GlobalDisplayState::Get()->GetWindow()))
 	{
 		// -------------
 		//	INPUT PHASE
@@ -36,11 +36,12 @@ void RavenousMainLoop()
 		// This needs to be first or dearImGUI will crash.
 		auto input_flags = InputPhase();
 
+		auto* input_recorder = InputRecorder::Get();
 		// Input recorder
-		if (InputRecorder.is_recording)
-			InputRecorder.Record(input_flags);
-		else if (InputRecorder.is_playing)
-			input_flags = InputRecorder.Play();
+		if (input_recorder->is_recording)
+			input_recorder->Record(input_flags);
+		else if (input_recorder->is_playing)
+			input_flags = input_recorder->Play();
 
 		// -------------
 		// START FRAME
@@ -83,11 +84,11 @@ void RavenousMainLoop()
 		{
 			if (ES->current_mode == EditorState::ProgramMode::Game)
 			{
-				cam_manager->UpdateGameCamera(GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->GetEyePosition());
+				cam_manager->UpdateGameCamera(GlobalDisplayState::viewport_width, GlobalDisplayState::viewport_height, player->GetEyePosition());
 			}
 			else if (ES->current_mode == EditorState::ProgramMode::Editor)
 			{
-				cam_manager->UpdateEditorCamera(GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, player->position);
+				cam_manager->UpdateEditorCamera(GlobalDisplayState::viewport_width, GlobalDisplayState::viewport_height, player->position);
 			}
 			GameState::Get()->UpdateTimers();
 			player->UpdateState();
@@ -133,7 +134,7 @@ void RavenousMainLoop()
 		// FINISH FRAME
 		// -------------
 		Rvn::rm_buffer->Cleanup();
-		glfwSwapBuffers(GlobalDisplayConfig::GetWindow());
+		glfwSwapBuffers(GlobalDisplayState::Get()->GetWindow());
 		if (ES->current_mode == EditorState::ProgramMode::Editor)
 			Editor::EndDearImguiFrame();
 	}

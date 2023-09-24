@@ -43,7 +43,7 @@ bool CL_TestAgainstRay(Ray ray, BoundingBox box)
 // > TEST RAY AGAINST ENTITY
 // --------------------------
 RaycastTest CL_TestAgainstRay(
-	Ray ray, E_Entity* entity,
+	Ray ray, EEntity* entity,
 	RayCastType test_type = RayCast_TestOnlyFromOutsideIn,
 	float max_distance = MaxFloat)
 {
@@ -65,7 +65,7 @@ RaycastTest CL_TestAgainstRay(
 }
 
 
-RaycastTest CL_TestAgainstRay(Ray ray, E_Entity* entity)
+RaycastTest CL_TestAgainstRay(Ray ray, EEntity* entity)
 {
 	return CL_TestAgainstRay(ray, entity, RayCast_TestOnlyFromOutsideIn, MaxFloat);
 }
@@ -175,12 +175,12 @@ RaycastTest CL_TestAgainstRay(Ray ray, Triangle triangle, bool test_both_sides)
 Ray CastPickray(Camera* camera, double screen_x, double screen_y)
 {
 	float screen_x_normalized = (
-		(screen_x - GlobalDisplayConfig::viewport_width / 2)
-		/ (GlobalDisplayConfig::viewport_width / 2)
+		(screen_x - GlobalDisplayState::viewport_width / 2)
+		/ (GlobalDisplayState::viewport_width / 2)
 	);
 	float screen_y_normalized = (
-		-1 * (screen_y - GlobalDisplayConfig::viewport_height / 2)
-		/ (GlobalDisplayConfig::viewport_height / 2)
+		-1 * (screen_y - GlobalDisplayState::viewport_height / 2)
+		/ (GlobalDisplayState::viewport_height / 2)
 	);
 
 	auto ray_clip = glm::vec4(screen_x_normalized, screen_y_normalized, -1.0, 1.0);

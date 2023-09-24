@@ -4,12 +4,12 @@
 #include "primitives/ray.h"
 #include "engine/geometry/triangle.h"
 
-struct E_Entity;
+struct EEntity;
 struct RaycastTest
 {
 	bool hit = false;
 	float distance = 0;
-	E_Entity* entity = nullptr;
+	EEntity* entity = nullptr;
 	int obj_hit_index = -1;
 	std::string obj_hit_type{};
 	Ray ray{};
@@ -25,8 +25,8 @@ enum RayCastType
 };
 
 Ray CastPickray(Camera* camera, double screen_x, double screen_y);
-RaycastTest CL_TestAgainstRay(Ray ray, E_Entity* entity, RayCastType test_type, float max_distance);
-RaycastTest CL_TestAgainstRay(Ray ray, E_Entity* entity);
+RaycastTest CL_TestAgainstRay(Ray ray, EEntity* entity, RayCastType test_type, float max_distance);
+RaycastTest CL_TestAgainstRay(Ray ray, EEntity* entity);
 RaycastTest CL_TestAgainstRay(Ray ray, Mesh* mesh, glm::mat4 mat_model, RayCastType test_type);
 RaycastTest CL_TestAgainstRay(Ray ray, Triangle triangle, bool test_both_sides = true);
 RaycastTest CL_TestAgainstRay(Ray ray, CollisionMesh* collider, RayCastType test_type);

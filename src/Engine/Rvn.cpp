@@ -1,10 +1,14 @@
 #include <string>
 #include <iostream>
 #include <engine/core/types.h>
-#include <map>
 #include <engine/render/text/TextRenderer.h>
 #include <engine/rvn.h>
 #include "engine/io/display.h"
+
+ProgramConfig::ProgramConfig()
+{
+	
+};
 
 void Rvn::Init()
 {
@@ -118,8 +122,8 @@ void RenderMessageBuffer::Render()
 			items_rendered++;
 			RenderText(
 				"consola20",
-				GlobalDisplayConfig::viewport_width / 2,
-				GlobalDisplayConfig::viewport_height - 120 - items_rendered * 25,
+				GlobalDisplayState::viewport_width / 2,
+				GlobalDisplayState::viewport_height - 120 - items_rendered * 25,
 				item.color == vec3(-1) ? vec3(0.8, 0.8, 0.2) : item.color,
 				true,
 				item.message

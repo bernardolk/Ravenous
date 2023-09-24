@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <cstring>
+#include <assert.h>
 
 
 /** GLM TYPE INCLUDES */

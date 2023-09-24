@@ -17,7 +17,6 @@ struct EditorState
 	ProgramMode current_mode = ProgramMode::Editor;
 	ProgramMode last_mode = ProgramMode::Editor;
 
-public:
 	static bool IsInGameMode();
 	static bool IsInEditorMode();
 	static bool IsInConsoleMode();

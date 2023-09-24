@@ -2,7 +2,7 @@
 
 #include "engine/core/core.h"
 #include "engine/entities/EEntity.h"
-#include "engine/entities/manager/EntityTraitsManager.h"
+#include "Engine/Entities/Traits/EntityTraitsManager.h"
 
 // Define empty macros for editor-only features in shipping build.
 #ifndef WITH_EDITOR
@@ -15,21 +15,21 @@
 // Reflection is only necessary in editor builds. We shouldn't ship the game with reflection on unless really necessary.
 #ifdef WITH_EDITOR
 	#include "editor/reflection/Reflection.h"
-	#define ENTITY1(TypeName)                               						TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : E_Entity, T_EntityTypeBase<TypeName>, Reflection::ReflectionGetterSetter<TypeName>
-	#define ENTITY2(TypeName, Trait1)                       						TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : E_Entity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, Reflection::ReflectionGetterSetter<TypeName, Trait1>
-	#define ENTITY3(TypeName, Trait1, Trait2)               						TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : E_Entity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>, Reflection::ReflectionGetterSetter<TypeName, Trait1, Trait2>
-	#define ENTITY4(TypeName, Trait1, Trait2, Trait3)								TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : E_Entity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>, T_TraitMixin<TypeName, Trait3>, Reflection::ReflectionGetterSetter<TypeName, Trait1, Trait2, Trait3>
-	#define ENTITY5(TypeName, Trait1, Trait2, Trait3, Trait4)						TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : E_Entity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>, T_TraitMixin<TypeName, Trait3>, T_TraitMixin<TypeName, Trait4>, Reflection::ReflectionGetterSetter<TypeName, Trait1, Trait2, Trait3, Trait4>
-	#define ENTITY6(TypeName, Trait1, Trait2, Trait3, Trait4, Trait5)				TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : E_Entity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>, T_TraitMixin<TypeName, Trait3>, T_TraitMixin<TypeName, Trait4>, T_TraitMixin<TypeName, Trait5>, Reflection::ReflectionGetterSetter<TypeName, Trait1, Trait2, Trait3, Trait4, Trait5>
-	#define ENTITY7(TypeName, Trait1, Trait2, Trait3, Trait4, Trait5, Trait6)       TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : E_Entity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>, T_TraitMixin<TypeName, Trait3>, T_TraitMixin<TypeName, Trait4>, T_TraitMixin<TypeName, Trait5>, T_TraitMixin<TypeName, Trait6>, Reflection::ReflectionGetterSetter<TypeName, Trait1, Trait2, Trait3, Trait4, Trait5, Trait6>
+	#define ENTITY1(TypeName)                               						TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : EEntity, T_EntityTypeBase<TypeName>, Reflection::ReflectionGetterSetter<TypeName>
+	#define ENTITY2(TypeName, Trait1)                       						TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : EEntity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, Reflection::ReflectionGetterSetter<TypeName, Trait1>
+	#define ENTITY3(TypeName, Trait1, Trait2)               						TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : EEntity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>, Reflection::ReflectionGetterSetter<TypeName, Trait1, Trait2>
+	#define ENTITY4(TypeName, Trait1, Trait2, Trait3)								TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : EEntity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>, T_TraitMixin<TypeName, Trait3>, Reflection::ReflectionGetterSetter<TypeName, Trait1, Trait2, Trait3>
+	#define ENTITY5(TypeName, Trait1, Trait2, Trait3, Trait4)						TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : EEntity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>, T_TraitMixin<TypeName, Trait3>, T_TraitMixin<TypeName, Trait4>, Reflection::ReflectionGetterSetter<TypeName, Trait1, Trait2, Trait3, Trait4>
+	#define ENTITY6(TypeName, Trait1, Trait2, Trait3, Trait4, Trait5)				TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : EEntity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>, T_TraitMixin<TypeName, Trait3>, T_TraitMixin<TypeName, Trait4>, T_TraitMixin<TypeName, Trait5>, Reflection::ReflectionGetterSetter<TypeName, Trait1, Trait2, Trait3, Trait4, Trait5>
+	#define ENTITY7(TypeName, Trait1, Trait2, Trait3, Trait4, Trait5, Trait6)       TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : EEntity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>, T_TraitMixin<TypeName, Trait3>, T_TraitMixin<TypeName, Trait4>, T_TraitMixin<TypeName, Trait5>, T_TraitMixin<TypeName, Trait6>, Reflection::ReflectionGetterSetter<TypeName, Trait1, Trait2, Trait3, Trait4, Trait5, Trait6>
 #else
-	#define ENTITY1(TypeName)                               						TypeName : E_Entity, T_EntityTypeBase<TypeName>
-	#define ENTITY2(TypeName, Trait1)                       						TypeName : E_Entity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>
-	#define ENTITY3(TypeName, Trait1, Trait2)               						TypeName : E_Entity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>
-	#define ENTITY4(TypeName, Trait1, Trait2, Trait3)       						TypeName : E_Entity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>, T_TraitMixin<TypeName, Trait3>
-	#define ENTITY5(TypeName, Trait1, Trait2, Trait3, Trait4)						TypeName : E_Entity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>, T_TraitMixin<TypeName, Trait3>, T_TraitMixin<TypeName, Trait4>
-	#define ENTITY6(TypeName, Trait1, Trait2, Trait3, Trait4, Trait5)				TypeName : E_Entity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>, T_TraitMixin<TypeName, Trait3>, T_TraitMixin<TypeName, Trait4>, T_TraitMixin<TypeName, Trait5>
-	#define ENTITY7(TypeName, Trait1, Trait2, Trait3, Trait4, Trait5, Trait6)       TypeName : E_Entity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>, T_TraitMixin<TypeName, Trait3>, T_TraitMixin<TypeName, Trait4>, T_TraitMixin<TypeName, Trait5>, T_TraitMixin<TypeName, Trait6>
+	#define ENTITY1(TypeName)                               						TypeName : EEntity, T_EntityTypeBase<TypeName>
+	#define ENTITY2(TypeName, Trait1)                       						TypeName : EEntity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>
+	#define ENTITY3(TypeName, Trait1, Trait2)               						TypeName : EEntity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>
+	#define ENTITY4(TypeName, Trait1, Trait2, Trait3)       						TypeName : EEntity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>, T_TraitMixin<TypeName, Trait3>
+	#define ENTITY5(TypeName, Trait1, Trait2, Trait3, Trait4)						TypeName : EEntity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>, T_TraitMixin<TypeName, Trait3>, T_TraitMixin<TypeName, Trait4>
+	#define ENTITY6(TypeName, Trait1, Trait2, Trait3, Trait4, Trait5)				TypeName : EEntity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>, T_TraitMixin<TypeName, Trait3>, T_TraitMixin<TypeName, Trait4>, T_TraitMixin<TypeName, Trait5>
+	#define ENTITY7(TypeName, Trait1, Trait2, Trait3, Trait4, Trait5, Trait6)       TypeName : EEntity, T_EntityTypeBase<TypeName>, T_TraitMixin<TypeName, Trait1>, T_TraitMixin<TypeName, Trait2>, T_TraitMixin<TypeName, Trait3>, T_TraitMixin<TypeName, Trait4>, T_TraitMixin<TypeName, Trait5>, T_TraitMixin<TypeName, Trait6>
 #endif
 
 #define GET_MACRO_ENTITY(_1,_2,_3,_4,_5,_6,_7, NAME, ...) NAME
@@ -59,7 +59,7 @@ public:
 	// sets the type_id at construction
 	T_EntityTypeBase()
 	{
-		reinterpret_cast<E_Entity*>(this)->type_id = TYPE_ID;
+		reinterpret_cast<EEntity*>(this)->type_id = TYPE_ID;
 	};
 
 	static TypeID GetTypeId() { return TYPE_ID; }

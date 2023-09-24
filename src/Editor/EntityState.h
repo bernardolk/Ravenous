@@ -3,7 +3,7 @@
 
 struct EntityState
 {
-	E_Entity* entity = nullptr;
+	EEntity* entity = nullptr;
 	u64 id;
 	vec3 position;
 	vec3 scale;
@@ -11,7 +11,7 @@ struct EntityState
 };
 
 //todo Refactor into methods
-EntityState GetEntityState(E_Entity* entity);
+EntityState GetEntityState(EEntity* entity);
 void ApplyState(EntityState state);
 bool CompareEntityStates(EntityState state1, EntityState state2);
 mat4 MatModelFromEntityState(EntityState state);

@@ -5,7 +5,7 @@
 
 namespace Editor
 {
-	void DeletedEntityLog::Add(const E_Entity* entity)
+	void DeletedEntityLog::Add(const EEntity* entity)
 	{
 		if (size + 1 == capacity)
 		{
@@ -16,7 +16,7 @@ namespace Editor
 		entity_ids[size++] = entity->id;
 	};
 
-	void UndoStack::Track(E_Entity* entity)
+	void UndoStack::Track(EEntity* entity)
 	{
 		auto state = EntityState{
 		entity,

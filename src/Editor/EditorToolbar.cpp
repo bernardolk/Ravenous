@@ -13,7 +13,7 @@ namespace Editor
 	{
 		auto& ed_context = *GetContext();
 
-		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::viewport_width - 230, 180), ImGuiCond_Appearing);
+		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayState::viewport_width - 230, 180), ImGuiCond_Appearing);
 		ImGui::Begin("Tools", &ed_context.toolbar_active, ImGuiWindowFlags_AlwaysAutoResize);
 
 		string scene_name = "Scene name: " + World::Get()->scene_name;

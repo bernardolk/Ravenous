@@ -411,8 +411,8 @@ namespace Editor
 		}
 		if (flags.key_press & KEY_DELETE)
 		{
-			auto* GDC = GlobalDisplayConfig::Get();
-			glfwSetWindowShouldClose(GDC->window, true);
+			auto* GDC = GlobalDisplayState::Get();
+			glfwSetWindowShouldClose(GDC->GetWindow(), true);
 		}
 	}
 }

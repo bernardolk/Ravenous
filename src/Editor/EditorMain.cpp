@@ -405,7 +405,7 @@ namespace Editor
 
 		ImGui::CreateContext();
 		auto& io = ImGui::GetIO();
-		ImGui_ImplGlfw_InitForOpenGL(GlobalDisplayConfig::GetWindow(), true);
+		ImGui_ImplGlfw_InitForOpenGL(GlobalDisplayState::Get()->GetWindow(), true);
 		ImGui_ImplOpenGL3_Init("#version 330");
 
 		ImGui::StyleColorsDark();
@@ -415,9 +415,9 @@ namespace Editor
 		// load tri axis gizmo
 		const auto axis_mesh = LoadWavefrontObjAsMesh(Paths::Models, "axis");
 
-		auto x_axis = new E_Entity();
-		auto y_axis = new E_Entity();
-		auto z_axis = new E_Entity();
+		auto x_axis = new EEntity();
+		auto y_axis = new EEntity();
+		auto z_axis = new EEntity();
 
 		x_axis->mesh = axis_mesh;
 		y_axis->mesh = axis_mesh;
@@ -451,9 +451,9 @@ namespace Editor
 
 		// load entity panel axis arrows
 		// @todo: refactor this to use the entity_manager
-		auto x_arrow = new E_Entity();
-		auto y_arrow = new E_Entity();
-		auto z_arrow = new E_Entity();
+		auto x_arrow = new EEntity();
+		auto y_arrow = new EEntity();
+		auto z_arrow = new EEntity();
 
 		x_arrow->mesh = axis_mesh;
 		y_arrow->mesh = axis_mesh;
@@ -499,7 +499,7 @@ namespace Editor
 		ed_context.entity_panel.z_arrow = z_arrow;
 
 		// creates entity rotation gizmos
-		ed_context.entity_panel.rotation_gizmo_x = new E_Entity();
+		ed_context.entity_panel.rotation_gizmo_x = new EEntity();
 		SetEntityAssets(ed_context.entity_panel.rotation_gizmo_x, {
 		.name = "rotation_gizmo_x",
 		.mesh = "rotation_gizmo",
@@ -507,7 +507,7 @@ namespace Editor
 		.texture = "red",
 		.collision_mesh = "rotation_gizmo_collision"});
 
-		ed_context.entity_panel.rotation_gizmo_y = new E_Entity();
+		ed_context.entity_panel.rotation_gizmo_y = new EEntity();
 		SetEntityAssets(ed_context.entity_panel.rotation_gizmo_y,{
 		.name = "rotation_gizmo_y",
 		.mesh = "rotation_gizmo",
@@ -515,7 +515,7 @@ namespace Editor
 		.texture = "green",
 		.collision_mesh = "rotation_gizmo_collision"});
 
-		ed_context.entity_panel.rotation_gizmo_z = new E_Entity();
+		ed_context.entity_panel.rotation_gizmo_z = new EEntity();
 		SetEntityAssets(ed_context.entity_panel.rotation_gizmo_z, {
 		.name = "rotation_gizmo_z",
 		.mesh = "rotation_gizmo",
@@ -533,8 +533,8 @@ namespace Editor
 
 	void RenderTextOverlay(Player* player, Camera* camera)
 	{
-		float GUI_y = GlobalDisplayConfig::viewport_height - 60;
-		float SCREEN_HEIGHT = GlobalDisplayConfig::viewport_height;
+		float GUI_y = GlobalDisplayState::viewport_height - 60;
+		float SCREEN_HEIGHT = GlobalDisplayState::viewport_height;
 
 		std::string font = "consola18";
 		std::string font_center = "swanseait38";
@@ -570,7 +570,7 @@ namespace Editor
 		std::string lives = std::to_string(player->lives);
 		RenderText(
 			font,
-			GlobalDisplayConfig::viewport_width - 400,
+			GlobalDisplayState::viewport_width - 400,
 			90,
 			player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1},
 			lives
@@ -598,17 +598,17 @@ namespace Editor
 				player_state_text = "PLAYER SLIDE FALLING";
 				break;
 		}
-		RenderText("consola18", GlobalDisplayConfig::viewport_width - 400, 30, player_state_text_color, player_state_text);
+		RenderText("consola18", GlobalDisplayState::viewport_width - 400, 30, player_state_text_color, player_state_text);
 
 		std::string p_grab = "grabbing: ";
 		if (player->grabbing_entity != nullptr)
 			p_grab += player->grabbing_entity->name;
-		RenderText(GlobalDisplayConfig::viewport_width - 400, 45, p_grab);
+		RenderText(GlobalDisplayState::viewport_width - 400, 45, p_grab);
 
 		// FPS
 		std::string fps = std::to_string(Rvn::frame.fps);
 		std::string fps_gui = "FPS: " + fps;
-		RenderText(font, GlobalDisplayConfig::viewport_width - 110, 40, fps_gui);
+		RenderText(font, GlobalDisplayState::viewport_width - 110, 40, fps_gui);
 
 
 		// EDITOR TOOLS INDICATORS
@@ -670,7 +670,7 @@ namespace Editor
 
 			RenderText(
 				font_center,
-				GlobalDisplayConfig::viewport_width / 2,
+				GlobalDisplayState::viewport_width / 2,
 				centered_text_height,
 				tool_text_color_yellow,
 				true,
@@ -679,7 +679,7 @@ namespace Editor
 
 			RenderText(
 				font_center_small,
-				GlobalDisplayConfig::viewport_width / 2,
+				GlobalDisplayState::viewport_width / 2,
 				centered_text_height_small,
 				snap_mode_subtext_color,
 				true,
@@ -699,7 +699,7 @@ namespace Editor
 
 			RenderText(
 				font_center,
-				GlobalDisplayConfig::viewport_width / 2,
+				GlobalDisplayState::viewport_width / 2,
 				centered_text_height,
 				vec3(0.8, 0.8, 0.2),
 				true,
@@ -715,7 +715,7 @@ namespace Editor
 
 				RenderText(
 					font_center,
-					GlobalDisplayConfig::viewport_width / 2,
+					GlobalDisplayState::viewport_width / 2,
 					centered_text_height_small,
 					vec3(0.8, 0.8, 0.2),
 					true,
@@ -748,7 +748,7 @@ namespace Editor
 
 			RenderText(
 				font_center,
-				GlobalDisplayConfig::viewport_width / 2,
+				GlobalDisplayState::viewport_width / 2,
 				centered_text_height,
 				vec3(0.8, 0.8, 0.2),
 				true,
@@ -757,7 +757,7 @@ namespace Editor
 
 			RenderText(
 				font_center,
-				GlobalDisplayConfig::viewport_width / 2,
+				GlobalDisplayState::viewport_width / 2,
 				centered_text_height_small,
 				vec3(0.8, 0.8, 0.2),
 				true,
@@ -772,7 +772,7 @@ namespace Editor
 		{
 			RenderText(
 				font_center,
-				GlobalDisplayConfig::viewport_width / 2,
+				GlobalDisplayState::viewport_width / 2,
 				centered_text_height,
 				vec3(0.8, 0.8, 0.2),
 				true,
@@ -781,7 +781,7 @@ namespace Editor
 
 			RenderText(
 				font_center_small,
-				GlobalDisplayConfig::viewport_width / 2,
+				GlobalDisplayState::viewport_width / 2,
 				centered_text_height_small,
 				vec3(0.8, 0.8, 0.2),
 				true,
@@ -796,7 +796,7 @@ namespace Editor
 		{
 			RenderText(
 				font_center,
-				GlobalDisplayConfig::viewport_width / 2,
+				GlobalDisplayState::viewport_width / 2,
 				centered_text_height,
 				vec3(0.8, 0.8, 0.2),
 				true,
@@ -818,7 +818,7 @@ namespace Editor
 
 			RenderText(
 				font_center_small,
-				GlobalDisplayConfig::viewport_width / 2,
+				GlobalDisplayState::viewport_width / 2,
 				centered_text_height - 40,
 				tool_text_color_green,
 				true,
@@ -833,7 +833,7 @@ namespace Editor
 		{
 			RenderText(
 				font_center,
-				GlobalDisplayConfig::viewport_width / 2,
+				GlobalDisplayState::viewport_width / 2,
 				centered_text_height,
 				vec3(0.8, 0.8, 0.2),
 				true,
@@ -848,7 +848,7 @@ namespace Editor
 		{
 			RenderText(
 				font_center,
-				GlobalDisplayConfig::viewport_width / 2,
+				GlobalDisplayState::viewport_width / 2,
 				centered_text_height,
 				vec3(0.8, 0.8, 0.2),
 				true,
@@ -1080,7 +1080,7 @@ namespace Editor
 	}
 
 
-	float GetGizmoScalingFactor(E_Entity* entity, float min, float max)
+	float GetGizmoScalingFactor(EEntity* entity, float min, float max)
 	{
 		/* Editor gizmos need to follow entities' dimensions so they don't look too big or too small in comparison with the entity 
 		   when displayed. */
@@ -1107,7 +1107,7 @@ namespace Editor
 	{
 		// arrow positioning settings
 		float angles[3] = {270, 0, 90};
-		E_Entity* arrows[3] = {panel->x_arrow, panel->y_arrow, panel->z_arrow};
+		EEntity* arrows[3] = {panel->x_arrow, panel->y_arrow, panel->z_arrow};
 		vec3 rot_axis[3] = {UnitZ, UnitX, UnitX};
 
 		auto entity = panel->entity;
@@ -1143,7 +1143,7 @@ namespace Editor
 		// arrow positioning settings
 		float angles[3] = {270, 0, 90};
 		vec3 rot_axis[3] = {UnitZ, UnitX, UnitX};
-		E_Entity* gizmos[3] = {panel->rotation_gizmo_x, panel->rotation_gizmo_y, panel->rotation_gizmo_z};
+		EEntity* gizmos[3] = {panel->rotation_gizmo_x, panel->rotation_gizmo_y, panel->rotation_gizmo_z};
 
 		auto entity = panel->entity;
 
@@ -1249,7 +1249,7 @@ namespace Editor
 		auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		RaycastTest test;
 
-		E_Entity* arrows[3] = {ed_context.entity_panel.x_arrow, ed_context.entity_panel.y_arrow, ed_context.entity_panel.z_arrow};
+		EEntity* arrows[3] = {ed_context.entity_panel.x_arrow, ed_context.entity_panel.y_arrow, ed_context.entity_panel.z_arrow};
 
 		For(3)
 		{
@@ -1273,7 +1273,7 @@ namespace Editor
 		auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
 		RaycastTest test;
 
-		E_Entity* rot_gizmos[3] = {
+		EEntity* rot_gizmos[3] = {
 		ed_context.entity_panel.rotation_gizmo_x,
 		ed_context.entity_panel.rotation_gizmo_y,
 		ed_context.entity_panel.rotation_gizmo_z

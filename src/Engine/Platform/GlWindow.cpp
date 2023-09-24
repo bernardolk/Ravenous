@@ -1,14 +1,8 @@
 #include "GlWindow.h"
-#ifndef GLAD_INCL
-#define GLAD_INCL
-#include <glad/glad.h>
-#endif
-#include <glfw3.h>
 #include "engine/io/InputPhase.h"
 #include "engine/io/display.h"
 
-
-void SetupGLFW(bool debug)
+void SetupGLFW()
 {
 	// Setup the window
 	glfwInit();
@@ -18,14 +12,16 @@ void SetupGLFW(bool debug)
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
 	// Creates the window
-	auto* GDC = GlobalDisplayConfig::Get();
-	GDC->window = glfwCreateWindow(GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height, "Ravenous", nullptr, nullptr);
-	if (GDC->window == nullptr)
+	auto* display_state = GlobalDisplayState::Get();
+	auto* new_window = glfwCreateWindow(GlobalDisplayState::viewport_width, GlobalDisplayState::viewport_height, "Ravenous", nullptr, nullptr);
+	if (new_window == nullptr)
 	{
 		print("Failed to create GLFW window");
 		glfwTerminate();
 	}
-	glfwMakeContextCurrent(GDC->window);
+	
+	auto* window = display_state->Initialize(new_window);
+	glfwMakeContextCurrent(window);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -33,16 +29,15 @@ void SetupGLFW(bool debug)
 	}
 
 	// Setups openGL viewport
-	glViewport(0, 0, GlobalDisplayConfig::viewport_width, GlobalDisplayConfig::viewport_height);
-	glfwSetFramebufferSizeCallback(GDC->window, FramebufferSizeCallback);
-	glfwSetCursorPosCallback(GDC->window, OnMouseMove);
-	glfwSetScrollCallback(GDC->window, OnMouseScroll);
-	glfwSetMouseButtonCallback(GDC->window, OnMouseBtn);
+	glViewport(0, 0, GlobalDisplayState::viewport_width, GlobalDisplayState::viewport_height);
+	glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
+	glfwSetCursorPosCallback(window, OnMouseMove);
+	glfwSetScrollCallback(window, OnMouseScroll);
+	glfwSetMouseButtonCallback(window, OnMouseBtn);
 
-	if (debug)
-	{
+#ifdef DEBUG_BUILD
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-	}
+#endif
 }
 
 void FramebufferSizeCallback(GLFWwindow* window, int width, int height)

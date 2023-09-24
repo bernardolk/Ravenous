@@ -13,7 +13,7 @@ namespace Editor
 	{
 		auto* player = Player::Get();
 
-		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::viewport_width - 550, 370), ImGuiCond_Appearing);
+		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayState::viewport_width - 550, 370), ImGuiCond_Appearing);
 
 		ImGui::Begin("Player Panel", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
 		panel->focused = ImGui::IsWindowFocused();

@@ -3,7 +3,7 @@
 #include "engine/geometry/mesh.h"
 
 /** Main update function, shouldn't run every frame. */
-void E_Entity::Update()
+void EEntity::Update()
 {
 	/* Order here is very important */
 	UpdateModelMatrix();
@@ -14,7 +14,7 @@ void E_Entity::Update()
 	// 	UpdateTrigger();
 }
 
-void E_Entity::UpdateCollider()
+void EEntity::UpdateCollider()
 {
 	// // empty collider
 	// collider.vertices.clear();
@@ -26,7 +26,7 @@ void E_Entity::UpdateCollider()
 	}
 }
 
-void E_Entity::UpdateModelMatrix()
+void EEntity::UpdateModelMatrix()
 {
 	glm::mat4 model = translate(Mat4Identity, position);
 	model = rotate(model, glm::radians(rotation.x), vec3(1.0f, 0.0f, 0.0f));
@@ -36,13 +36,13 @@ void E_Entity::UpdateModelMatrix()
 	mat_model = model;
 }
 
-void E_Entity::UpdateBoundingBox()
+void EEntity::UpdateBoundingBox()
 {
 	// uses the collider to compute an AABB 
 	bounding_box = collider.ComputeBoundingBox();
 }
 
-void E_Entity::UpdateTrigger()
+void EEntity::UpdateTrigger()
 {
 	auto centroid = bounding_box.GetCentroid();
 	glm::mat4 model = translate(Mat4Identity, centroid);
@@ -54,7 +54,7 @@ void E_Entity::UpdateTrigger()
 	trigger_mat_model = model;
 }
 
-void E_Entity::RotateY(float angle)
+void EEntity::RotateY(float angle)
 {
 	rotation.y += angle;
 	rotation.y = static_cast<int>(rotation.y) % 360;
@@ -62,7 +62,7 @@ void E_Entity::RotateY(float angle)
 		rotation.y = 360 + rotation.y;
 }
 
-mat4 E_Entity::GetRotationMatrix()
+mat4 EEntity::GetRotationMatrix()
 {
 	mat4 rotation_matrix;
 	rotation_matrix = rotate(Mat4Identity, glm::radians(rotation.x), vec3(1.0f, 0.0f, 0.0f));
@@ -72,7 +72,7 @@ mat4 E_Entity::GetRotationMatrix()
 	return rotation_matrix;
 }
 
-CollisionMesh E_Entity::GetTriggerCollider()
+CollisionMesh EEntity::GetTriggerCollider()
 {
 	CollisionMesh trigger_collider;
 
@@ -87,12 +87,12 @@ CollisionMesh E_Entity::GetTriggerCollider()
 	return trigger_collider;
 }
 
-void E_Entity::MakeInvisible()
+void EEntity::MakeInvisible()
 {
 	flags |= EntityFlags_InvisibleEntity;
 }
 
-void E_Entity::MakeVisible()
+void EEntity::MakeVisible()
 {
 	flags &= ~EntityFlags_InvisibleEntity;
 }

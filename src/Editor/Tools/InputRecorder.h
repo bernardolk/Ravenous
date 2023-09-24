@@ -12,8 +12,10 @@ struct RecordedInput
 	std::vector<InputFlags> history;
 };
 
-struct T_InputRecorder
+struct InputRecorder
 {
+	DeclSingleton(InputRecorder)
+	
 	bool is_recording = false;
 	bool is_playing = false;
 
@@ -22,12 +24,6 @@ struct T_InputRecorder
 	int playing_idx = 0;
 	int playing_flag_idx = 0;
 
-public:
-	static T_InputRecorder* Get()
-	{
-		static T_InputRecorder instance;
-		return &instance;
-	}
 	void StartRecording();
 	void Record(InputFlags flags);
 	void StopRecording();
@@ -37,4 +33,4 @@ public:
 	void Save(int recording_id);
 	void Load();
 
-} inline InputRecorder;
+};

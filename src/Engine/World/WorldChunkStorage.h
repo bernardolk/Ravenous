@@ -1,7 +1,7 @@
 #pragma once
 
 #include "engine/core/core.h"
-#include "engine/entities/manager/EntityTraitsManager.h"
+#include "Engine/Entities/Traits/EntityTraitsManager.h"
 
 /**
  * TODO:
@@ -76,7 +76,7 @@ struct WorldChunkEntityIterator
 	
 	explicit WorldChunkEntityIterator(WorldChunk* chunk) : chunk(chunk){}
 
-	E_Entity* operator()();
+	EEntity* operator()();
 };
 
 

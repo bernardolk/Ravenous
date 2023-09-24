@@ -14,15 +14,11 @@ struct MouseCoordinates
 
 struct GlobalInputInfo
 {
+	DeclSingleton(GlobalInputInfo)
+	
 	bool forget_last_mouse_coords = true;
 	MouseCoordinates mouse_coords;
 	u64 key_state = 0;
 	u8 mouse_state = 0;
 	bool block_mouse_move = false;
-
-	static GlobalInputInfo* Get()
-	{
-		static GlobalInputInfo instance;
-		return &instance;
-	}
 };

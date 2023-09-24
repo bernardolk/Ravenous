@@ -12,7 +12,7 @@ ClResults CL_TestCollisionBufferEntitites(
 	bool iterative
 );
 
-ClResults CL_TestPlayerVsEntity(E_Entity* entity, Player* player);
+ClResults CL_TestPlayerVsEntity(EEntity* entity, Player* player);
 void CL_ResolveCollision(ClResults results, Player* player);
 bool CL_TestCollisions(Player* player);
 void CL_ResetCollisionBufferChecks();

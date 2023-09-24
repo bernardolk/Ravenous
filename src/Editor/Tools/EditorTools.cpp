@@ -38,7 +38,7 @@ namespace Editor
 		ed_context.locate_coords_mode;
 	}
 
-	void EditorEraseEntity(E_Entity* entity)
+	void EditorEraseEntity(EEntity* entity)
 	{
 		//TODO: To be implemented
 		auto& ed_context = *GetContext();
@@ -76,12 +76,12 @@ namespace Editor
 	// ----------
 	// SNAP TOOL
 	// ----------
-	void ActivateSnapMode(E_Entity* entity);
-	void SnapEntityToReference(E_Entity* entity);
+	void ActivateSnapMode(EEntity* entity);
+	void SnapEntityToReference(EEntity* entity);
 	void CheckSelectionToSnap();
 	void SnapCommit();
 
-	void ActivateSnapMode(E_Entity* entity)
+	void ActivateSnapMode(EEntity* entity)
 	{
 		// deactivate_editor_modes();
 		// ed_context.snap_mode = true;
@@ -96,7 +96,7 @@ namespace Editor
 		// ed_context.undo_stack.track(entity);
 	}
 
-	void SnapEntityToReference(E_Entity* entity)
+	void SnapEntityToReference(EEntity* entity)
 	{
 		// auto reference = ed_context.snap_reference;
 		// float diff = 0;
@@ -155,13 +155,13 @@ namespace Editor
 	// -------------
 	// STRETCH TOOL
 	// -------------
-	void ActivateStretchMode(E_Entity* entity);
+	void ActivateStretchMode(EEntity* entity);
 	void StretchCommit();
-	auto GetScaleAndPositionChange(E_Entity* entity, float old_pos, float new_pos, float n);
-	void StretchEntityToReference(E_Entity* entity);
+	auto GetScaleAndPositionChange(EEntity* entity, float old_pos, float new_pos, float n);
+	void StretchEntityToReference(EEntity* entity);
 	void check_selection_to_stretch(EntityPanelContext* panel);
 
-	void ActivateStretchMode(E_Entity* entity)
+	void ActivateStretchMode(EEntity* entity)
 	{
 		// deactivate_editor_modes();
 		// ed_context.stretch_mode = true;
@@ -213,7 +213,7 @@ namespace Editor
 		return transform;
 	}
 
-	void stretch_entity_to_reference(E_Entity* entity, Triangle t)
+	void stretch_entity_to_reference(EEntity* entity, Triangle t)
 	{
 		// // In this function, we are, obviously, considering that
 		// // the triangle is axis aligned
@@ -400,7 +400,7 @@ namespace Editor
 		ed_context.undo_stack.Track(ed_context.selected_entity);
 	}
 
-	RaycastTest TestRayAgainstEntitySupportPlane(u16 move_axis, E_Entity* entity)
+	RaycastTest TestRayAgainstEntitySupportPlane(u16 move_axis, EEntity* entity)
 	{
 		// create a big plane for placing entity in the world with the mouse using raycast from camera to mouse
 		// position. In the case of Y placement, we need to compute the plane considering the camera orientation.
@@ -470,7 +470,7 @@ namespace Editor
 	// --------------
 	// >> PLACE MODE
 	// --------------
-	void ActivatePlaceMode(E_Entity* entity)
+	void ActivatePlaceMode(EEntity* entity)
 	{
 		auto& ed_context = *GetContext();
 
@@ -480,7 +480,7 @@ namespace Editor
 		ed_context.undo_stack.Track(entity);
 	}
 
-	void SelectEntityPlacingWithMouseMove(E_Entity* entity, const World* world)
+	void SelectEntityPlacingWithMouseMove(EEntity* entity, const World* world)
 	{
 		auto* GII = GlobalInputInfo::Get();
 
@@ -497,7 +497,7 @@ namespace Editor
 	// -------------
 	// >> MOVE MODE
 	// -------------
-	void ActivateMoveMode(E_Entity* entity)
+	void ActivateMoveMode(EEntity* entity)
 	{
 		auto& ed_context = *GetContext();
 
@@ -508,7 +508,7 @@ namespace Editor
 		ed_context.undo_stack.Track(entity);
 	}
 
-	void MoveEntityWithMouse(E_Entity* entity)
+	void MoveEntityWithMouse(EEntity* entity)
 	{
 		auto& ed_context = *GetContext();
 
@@ -545,7 +545,7 @@ namespace Editor
 	// >> MOVE ENTITY BY ARROWS
 	// -------------------------
 	void ActivateMoveEntityByArrow(u8 move_axis);
-	void MoveEntityByArrows(Entity* entity);
+	void MoveEntityByArrows(EEntity* entity);
 
 
 	void ActivateMoveEntityByArrow(u8 move_axis)
@@ -560,7 +560,7 @@ namespace Editor
 	}
 
 
-	void MoveEntityByArrows(E_Entity* entity)
+	void MoveEntityByArrows(EEntity* entity)
 	{
 		auto& ed_context = *GetContext();
 
@@ -743,7 +743,7 @@ namespace Editor
 	// ---------------------
 	void ActivateRotateEntityWithMouse(u8 move_axis);
 	float MouseOffsetToAngularOffset(float mouse_offset);
-	void RotateEntityWithMouse(Entity* entity);
+	void RotateEntityWithMouse(EEntity* entity);
 
 	void ActivateRotateEntityWithMouse(u8 move_axis)
 	{
@@ -765,7 +765,7 @@ namespace Editor
 		return mouse_offset * 360.f / 500.f;
 	}
 
-	void RotateEntityWithMouse(E_Entity* entity)
+	void RotateEntityWithMouse(EEntity* entity)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto mouse_coords = vec2(GII->mouse_coords.x, GII->mouse_coords.y);
@@ -808,7 +808,7 @@ namespace Editor
 	// ------------------
 	// SCALE ENTITY TOOL
 	// ------------------
-	void ScaleEntityWithMouse(E_Entity* entity)
+	void ScaleEntityWithMouse(EEntity* entity)
 	{
 		// NOT IMPLEMENTED
 	}
@@ -818,7 +818,7 @@ namespace Editor
 	// SELECT ENTITY AUX TOOL
 	// -----------------------
 	// used in entity panel to select other entity to attribute 1 to 1 relationships
-	void ActivateSelectEntityAuxTool(E_Entity** entity_slot, EdToolCallback callback, EdToolCallbackArgs args)
+	void ActivateSelectEntityAuxTool(EEntity** entity_slot, EdToolCallback callback, EdToolCallbackArgs args)
 	{
 		auto& ed_context = *GetContext();
 
@@ -833,7 +833,7 @@ namespace Editor
 	// MISCELANEOUS
 	// -------------
 	// void CheckForAssetChanges();
-	void RenderAabbBoundaries(Entity* entity);
+	void RenderAabbBoundaries(EEntity* entity);
 
 	// void CheckForAssetChanges()
 	// {
@@ -866,7 +866,7 @@ namespace Editor
 	//    }
 	// }
 
-	void RenderAabbBoundaries(Entity* entity)
+	void RenderAabbBoundaries(EEntity* entity)
 	{
 		// auto bounds = entity->collision_geometry.aabb;
 		// ImDraw::add(

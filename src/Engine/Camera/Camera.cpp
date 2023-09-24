@@ -1,5 +1,11 @@
 #include "engine/camera/camera.h"
 
+CameraManager::CameraManager()
+{
+	game_camera = Camera{};
+	editor_camera = Camera{};
+}
+
 void CameraManager::SetCameraToFreeRoam()
 {
 	current_camera->type = FREE_ROAM;

@@ -1,7 +1,7 @@
 #include "EntityState.h"
 #include "engine/entities/EEntity.h"
 
-EntityState GetEntityState(E_Entity* entity)
+EntityState GetEntityState(EEntity* entity)
 {
 	EntityState state;
 	state.position = entity->position;

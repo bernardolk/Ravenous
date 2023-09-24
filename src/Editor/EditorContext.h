@@ -15,11 +15,13 @@ namespace Editor
 
 	struct EdToolCallbackArgs
 	{
-		E_Entity* entity;
+		EEntity* entity;
 	};
 
 	struct EditorContext
 	{
+		DeclSingleton(EditorContext)
+		
 		struct ImGuiStyle* im_style;
 
 		// scene tracking
@@ -48,7 +50,7 @@ namespace Editor
 		bool mouse_click = false;
 		bool mouse_dragging = false;
 
-		E_Entity* selected_entity = nullptr;
+		EEntity* selected_entity = nullptr;
 
 		// move mode
 		bool move_mode = false;
@@ -91,7 +93,7 @@ namespace Editor
 		u8 snap_cycle = 0;
 		u8 snap_axis = 1;
 		bool snap_inside = false;
-		E_Entity* snap_reference = nullptr;
+		EEntity* snap_reference = nullptr;
 		EntityState snap_tracked_state;
 
 		// stretch mode
@@ -99,7 +101,7 @@ namespace Editor
 
 		// select entity aux tool
 		bool select_entity_aux_mode = false;
-		E_Entity** select_entity_aux_mode_entity_slot = nullptr;
+		EEntity** select_entity_aux_mode_entity_slot = nullptr;
 		EdToolCallback select_entity_aux_mode_callback = EdToolCallback_NoCallback;
 		EdToolCallbackArgs select_entity_aux_mode_callback_args = EdToolCallbackArgs{};
 
@@ -109,17 +111,10 @@ namespace Editor
 		bool show_lightbulbs = true;
 
 		// gizmos
-		E_Entity* tri_axis[3];
-		E_Entity* tri_axis_letters[3];
+		EEntity* tri_axis[3];
+		EEntity* tri_axis_letters[3];
 
 		// debug options
 		bool debug_ledge_detection = false;
-
-	public:
-		static EditorContext* Get()
-		{
-			static EditorContext instance;
-			return &instance;
-		}
 	};
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "deps.h"
+#include "Deps.h"
 #include "Constants.h"
 
 /** Primitive types */
@@ -13,6 +13,10 @@ using i8 = signed char;
 using i16 = short int;
 using i32 = int;
 using i64 = long int;
+
+#ifndef OS_WINDOWS_INCLUDED
+using byte = unsigned char;
+#endif
 
 /** GLM type aliases */
 using vec4 = glm::vec4;

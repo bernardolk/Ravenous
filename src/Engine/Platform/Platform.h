@@ -1,20 +1,31 @@
-// ridiculous "platform abstraction" just to express the idea. That's not how this is done at all.
 #pragma once
 
-enum SupportedPlatforms
-{
-	OS_WINDOWS = 0
-};
-
-constexpr static SupportedPlatforms Platform = OS_WINDOWS;
+#include "Engine/Core/Core.h"
 
 #if PLATFORM == OS_WINDOWS
-#include <engine/platform/PlatformLayerWin.h>
+#include "Engine/Platform/PlatformLayerWin.h"
 #endif
 
-inline bool OSListFiles(std::string path, std::string filetype, std::vector<std::string>& files)
+namespace Platform
 {
-#if PLATFORM == OS_WINDOWS
-	return WinListFiles(path, filetype, files);
-#endif
+	inline void Initialize()
+	{
+	#if PLATFORM == OS_WINDOWS
+		WinPlatformInitialize();
+	#endif
+	}
+
+	inline bool ListFilesInDir(string path, string filetype, vector<string>& out_files)
+	{
+	#if PLATFORM == OS_WINDOWS
+		return WinListFiles(path, filetype, out_files);
+	#endif
+	}
+
+	inline float GetCurrentTime()
+	{
+	#if PLATFORM == OS_WINDOWS
+		return WinGetCurrentTime();
+	#endif
+	}
 }

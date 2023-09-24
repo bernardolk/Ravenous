@@ -8,21 +8,21 @@ WorldChunkEntityIterator WorldChunk::GetIterator()
 	return WorldChunkEntityIterator(this);
 }
 
-void WorldChunk::RemoveEntity(E_Entity* entity_to_delete)
+void WorldChunk::RemoveEntity(EEntity* entity_to_delete)
 {
 	// TODO: We are not dealing with actually removing entities yet, we only mark them so they can be skipped/overwritten.
 	entity_to_delete->deleted = true;
 }
 
 
-bool WorldChunk::AddVisitor(E_Entity* entity)
+bool WorldChunk::AddVisitor(EEntity* entity)
 {
 	visitors.push_back(entity);
 	entity->visitor_state = VisitorState{true, vec3(i, j, k), this};
 	return true;
 }
 
-bool WorldChunk::RemoveVisitor(E_Entity* entity)
+bool WorldChunk::RemoveVisitor(EEntity* entity)
 {
 	int i = 0;
 	for (auto* visitor: visitors)
@@ -70,7 +70,7 @@ void WorldChunk::InvokeTraitUpdateOnAllTypes(TraitID trait_id)
 			auto* trait_update_func = etm->GetUpdateFunc(block_metadata.type_id, trait_id);
 			for (int i = 0; i < block_metadata.entity_count; i++)
 			{
-				auto* entity = reinterpret_cast<E_Entity*>(block_metadata.data_start + block_metadata.type_size * i);
+				auto* entity = reinterpret_cast<EEntity*>(block_metadata.data_start + block_metadata.type_size * i);
 				trait_update_func(entity);
 			}
 		}

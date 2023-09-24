@@ -51,9 +51,10 @@
 	public:	\
 		static Type* Get() \
 		{ \
-			static Type instance; \
+			static auto instance = Type{}; \
 			return &instance; \
 		} \
 	private: \
-		Type(){}; \
+		Type(); \
+		Type(const Type& other) = delete; \
 	public:

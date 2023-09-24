@@ -8,25 +8,25 @@ namespace Editor
 {
 	void DeactivateEditorModes();
 	bool CheckModesAreActive();
-	void EditorEraseEntity(E_Entity* entity);
+	void EditorEraseEntity(EEntity* entity);
 	void EditorEraseLight(int index, string type, World* world);
 	void UnhideEntities(World* world);
 
 	// ----------
 	// SNAP TOOL
 	// ----------
-	void ActivateSnapMode(E_Entity* entity);
-	void SnapEntityToReference(E_Entity* entity);
+	void ActivateSnapMode(EEntity* entity);
+	void SnapEntityToReference(EEntity* entity);
 	void CheckSelectionToSnap();
 	void SnapCommit();
 
 	// -------------
 	// STRETCH TOOL
 	// -------------
-	void ActivateStretchMode(E_Entity* entity);
+	void ActivateStretchMode(EEntity* entity);
 	void StretchCommit();
-	auto GetScaleAndPositionChange(E_Entity* entity, float old_pos, float new_pos, float n);
-	void StretchEntityToReference(E_Entity* entity);
+	auto GetScaleAndPositionChange(EEntity* entity, float old_pos, float new_pos, float n);
+	void StretchEntityToReference(EEntity* entity);
 	void CheckSelectionToStretch();
 
 	// -------------
@@ -45,25 +45,25 @@ namespace Editor
 	// > MOVE TOOLS 
 	// -------------
 	void PlaceEntity(World* world);
-	RaycastTest TestRayAgainstEntitySupportPlane(u16 move_axis, E_Entity* entity);
+	RaycastTest TestRayAgainstEntitySupportPlane(u16 move_axis, EEntity* entity);
 
 	// --------------
 	// >> PLACE MODE
 	// --------------
-	void ActivatePlaceMode(E_Entity* entity);
-	void SelectEntityPlacingWithMouseMove(E_Entity* entity, const World* world);
+	void ActivatePlaceMode(EEntity* entity);
+	void SelectEntityPlacingWithMouseMove(EEntity* entity, const World* world);
 	
 	// -------------
 	// >> MOVE MODE
 	// -------------
-	void ActivateMoveMode(E_Entity* entity);
-	void MoveEntityWithMouse(E_Entity* entity);
+	void ActivateMoveMode(EEntity* entity);
+	void MoveEntityWithMouse(EEntity* entity);
 	
 	// -------------------------
 	// >> MOVE ENTITY BY ARROWS
 	// -------------------------
 	void ActivateMoveEntityByArrow(u8 move_axis);
-	void MoveEntityByArrows(E_Entity* entity);
+	void MoveEntityByArrows(EEntity* entity);
 
 	// ----------------
 	// MOVE LIGHT TOOL
@@ -82,22 +82,22 @@ namespace Editor
 	// ---------------------
 	void ActivateRotateEntityWithMouse(u8 move_axis);
 	float MouseOffsetToAngularOffset(float mouse_offset);
-	void RotateEntityWithMouse(E_Entity* entity);
+	void RotateEntityWithMouse(EEntity* entity);
 
 	// ------------------
 	// SCALE ENTITY TOOL
 	// ------------------
-	void ScaleEntityWithMouse(E_Entity* entity);
+	void ScaleEntityWithMouse(EEntity* entity);
 
 	// -----------------------
 	// SELECT ENTITY AUX TOOL
 	// -----------------------
 	// used in entity panel to select other entity to attribute 1 to 1 relationships
-	void ActivateSelectEntityAuxTool(E_Entity** entity_slot, EdToolCallback callback = EdToolCallback_NoCallback, EdToolCallbackArgs args = EdToolCallbackArgs{});
+	void ActivateSelectEntityAuxTool(EEntity** entity_slot, EdToolCallback callback = EdToolCallback_NoCallback, EdToolCallbackArgs args = EdToolCallbackArgs{});
 
 	// -------------
 	// MISCELANEOUS
 	// -------------
 	// void CheckForAssetChanges();
-	void RenderAabbBoundaries(E_Entity* entity);
+	void RenderAabbBoundaries(EEntity* entity);
 }

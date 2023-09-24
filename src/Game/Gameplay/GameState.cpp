@@ -1,8 +1,9 @@
 #include "GameState.h"
 #include "engine/utils/utils.h"
 
+GameState::GameState() = default;
 
-void GameState::StartTimer(Entity* trigger)
+void GameState::StartTimer(EEntity* trigger)
 {
 	/**
 	For(timers_array_size)

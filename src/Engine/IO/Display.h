@@ -1,19 +1,18 @@
 #pragma once
 
-struct GlobalDisplayConfig
+#include "Engine/Core/Core.h"
+
+// @TODO: This code leaks platform-dependent types to the rest of the codebase, fixit. 
+struct GlobalDisplayState
 {
-	GLFWwindow* window;
+	DeclSingleton(GlobalDisplayState)
+	
 	constexpr inline static float viewport_width = 1980;
 	constexpr inline static float viewport_height = 1080;
 
-	static GlobalDisplayConfig* Get()
-	{
-		static GlobalDisplayConfig instance;
-		return &instance;
-	}
-	static GLFWwindow* GetWindow()
-	{
-		auto* GDC = Get();
-		return GDC->window;
-	}
+	GLFWwindow* GetWindow() const { assert(window); return window; }
+	GLFWwindow* Initialize(GLFWwindow* new_window) { window = new_window; return GetWindow(); }
+
+private:
+	GLFWwindow* window = nullptr;
 };

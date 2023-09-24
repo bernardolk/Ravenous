@@ -18,9 +18,9 @@ InputFlags InputPhase()
 	// then respond to all glfw callbacks
 	glfwPollEvents();
 	// set the flags and return
-	auto* GDC = GlobalDisplayConfig::Get();
-	auto key_press_flags = ProcessKeyboardInputKeyPress(GDC->window);
-	auto key_release_flags = ProcessKeyboardInputKeyRelease(GDC->window);
+	auto* GDC = GlobalDisplayState::Get();
+	auto key_press_flags = ProcessKeyboardInputKeyPress(GDC->GetWindow());
+	auto key_release_flags = ProcessKeyboardInputKeyRelease(GDC->GetWindow());
 	return InputFlags{key_press_flags, key_release_flags};
 }
 

@@ -69,7 +69,7 @@ struct WorldChunk
 	ChunkStorage chunk_storage;
 
 	//TODO: I don't think we need this
-	vector<E_Entity*> visitors{};
+	vector<EEntity*> visitors{};
 
 	WorldChunk() : chunk_storage(id) {} 
 	WorldChunk(u32 i, u32 j, u32 k) : i(i), j(j), k(k), chunk_storage(id) {}
@@ -78,9 +78,9 @@ struct WorldChunk
 
 	WorldChunkPosition GetPosition() { return WorldChunkPosition(i, j, k); }
 
-	void RemoveEntity(E_Entity* entity);
-	bool AddVisitor(E_Entity* entity);
-	bool RemoveVisitor(E_Entity* entity);
+	void RemoveEntity(EEntity* entity);
+	bool AddVisitor(EEntity* entity);
+	bool RemoveVisitor(EEntity* entity);
 
 	template<typename T_Entity>
 	T_Entity* AddEntity()

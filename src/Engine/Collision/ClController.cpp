@@ -56,7 +56,7 @@ void CL_ResetCollisionBufferChecks()
 }
 
 
-void CL_MarkEntityChecked(const E_Entity* entity)
+void CL_MarkEntityChecked(const EEntity* entity)
 {
 	// TODO: We can do a lot better than this.
 	// marks entity in entity buffer as checked so we dont check collisions for this entity twice (nor infinite loop)
@@ -139,7 +139,7 @@ ClResults CL_TestCollisionBufferEntitites(Player* player, bool iterative = true)
 {
 	for (auto& entry : Rvn::entity_buffer)
 	{
-		E_Entity* entity = entry.entity;
+		EEntity* entity = entry.entity;
 
 		if (iterative && entry.collision_checked)
 			continue;
@@ -159,7 +159,7 @@ ClResults CL_TestCollisionBufferEntitites(Player* player, bool iterative = true)
 // -------------------------
 // > TEST PLAYER VS ENTITY
 // -------------------------
-ClResults CL_TestPlayerVsEntity(E_Entity* entity, Player* player)
+ClResults CL_TestPlayerVsEntity(EEntity* entity, Player* player)
 {
 	ClResults cl_results;
 	cl_results.entity = entity;

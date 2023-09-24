@@ -36,7 +36,7 @@ namespace Editor
 	void RenderEntityRotationGizmo(EntityPanelContext* panel, World* world, Camera* camera);
 	void UpdateEntityRotationGizmo(EntityPanelContext* panel);
 	void RenderEntityMeshNormals(EntityPanelContext* panel);
-	float GetGizmoScalingFactor(E_Entity* entity, float min, float max);
+	float GetGizmoScalingFactor(EEntity* entity, float min, float max);
 	void RenderWorldCells(Camera* camera, World* world);
 	void RenderLightbulbs(Camera* camera, World* world);
 	void StartDearImguiFrame();

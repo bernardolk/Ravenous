@@ -3,21 +3,23 @@
 #include <sstream>
 #include <iomanip>
 
-#include "engine/platform/platform.h"
-#include "engine/rvn.h"
-#include "engine/serialization/parsing/parser.h"
+#include "Engine/Platform/Platform.h"
+#include "Engine/Rvn.h"
+#include "Engine/Serialization/Parsing/Parser.h"
 
-void T_InputRecorder::StartRecording()
+InputRecorder::InputRecorder() = default;
+
+void InputRecorder::StartRecording()
 {
 	is_recording = true;
 }
 
-void T_InputRecorder::Record(InputFlags flags)
+void InputRecorder::Record(InputFlags flags)
 {
 	recorded_inputs[recording_idx].history.push_back(flags);
 }
 
-void T_InputRecorder::StopRecording()
+void InputRecorder::StopRecording()
 {
 	is_recording = false;
 
@@ -57,7 +59,7 @@ void T_InputRecorder::StopRecording()
 	}
 }
 
-void T_InputRecorder::StartPlaying(int recording_id)
+void InputRecorder::StartPlaying(int recording_id)
 {
 	if (recording_id == -1)
 		playing_idx = recording_idx - 1;
@@ -66,7 +68,7 @@ void T_InputRecorder::StartPlaying(int recording_id)
 	is_playing = true;
 }
 
-InputFlags T_InputRecorder::Play()
+InputFlags InputRecorder::Play()
 {
 	auto& record = recorded_inputs[playing_idx];
 	if (playing_flag_idx >= record.history.size() - 1 || record.history.size() == 0)
@@ -75,13 +77,13 @@ InputFlags T_InputRecorder::Play()
 	return record.history[playing_flag_idx++];
 }
 
-void T_InputRecorder::StopPlaying()
+void InputRecorder::StopPlaying()
 {
 	is_playing = false;
 	playing_flag_idx = 0;
 }
 
-void T_InputRecorder::Save(int recording_id)
+void InputRecorder::Save(int recording_id)
 {
 	auto t = std::time(nullptr);
 	auto tm = *std::localtime(&t);
@@ -108,18 +110,18 @@ void T_InputRecorder::Save(int recording_id)
 
 }
 
-void T_InputRecorder::Load()
+void InputRecorder::Load()
 {
 	// this will load up to memory the last MAX_INPUT_RECORDINGS recordings
 	// it will *wipe* all previous in-memory stored recordings.
 	// For that reason, should be used only at startup.
 
-	std::vector<std::string> files;
-	if (OSListFiles(Paths::InputRecordings, "*", files))
+	vector<string> out_files;
+	if (Platform::ListFilesInDir(Paths::InputRecordings, "*", out_files))
 	{
 		recording_idx = 0;
 
-		for (auto& file : files)
+		for (auto& file : out_files)
 		{
 			Parser p{file};
 

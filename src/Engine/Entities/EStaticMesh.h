@@ -2,9 +2,9 @@
 
 #include "engine/entities/traits/EntityTraits.h"
 
-struct Entity(E_StaticMesh)
+struct Entity(EStaticMesh)
 {
 	Reflected()
 	
-	E_StaticMesh() { instance_budget = 200; }
+	EStaticMesh() { instance_budget = 200; }
 };

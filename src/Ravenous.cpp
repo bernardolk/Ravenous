@@ -4,20 +4,13 @@
      By Bernardo L. Knackfuss - 2020 - 2023 
    ========================================== */
 
+#define PLATFORM OS_WINDOWS
+#define DEBUG_BUILD
 
-// DEPENDENCY INCLUDES
-#include "engine/core/platform.h"
-#include "engine/core/core.h"
+#include "Engine/Platform/Platform.h"
 #include "engine/core/ui.h"
 #include "engine/rvn.h"
 #include "editor/tools/InputRecorder.h"
-#include "engine/platform/GlWindow.h"
-
-// should be conditional in the future to support multiple platforms and
-// we must abstract the function calls to a common layer which can interop
-// between platform layers depending on the underlying OS.
-
-// SOURCE INCLUDES
 
 #include "editor/EditorMain.h"
 
@@ -29,6 +22,7 @@
 #include "engine/camera/camera.h"
 #include "engine/io/loaders.h"
 #include "engine/MainLoop.h"
+#include "Engine/RavenousEngine.h"
 #include "engine/collision/ClController.h"
 #include "engine/render/ImRender.h"
 #include "engine/serialization/sr_config.h"
@@ -37,7 +31,6 @@
 
 // FUNCTION PROTOTYPES
 void LoadShaders();
-
 void StartFrame();
 void CheckAllEntitiesHaveShaders();
 void CheckAllEntitiesHaveIds();
@@ -45,6 +38,7 @@ void CheckAllGeometryHasGlData();
 
 int main()
 {
+	RavenousEngine::Initialize();
 	
 	auto* world = World::Get();
 
@@ -52,10 +46,6 @@ int main()
 	//    with using references it seems? A pointer would never complain about this. I should dig into this.
 	//    If I have to start writing extra code to use references then I can't justify using them.
 	WorldSerializer::world = world;
-	
-	// INITIAL GLFW AND GLAD SETUPS
-	SetupGLFW(true);
-	SetupGL();
 
 	// load shaders, textures and geometry
 	stbi_set_flip_vertically_on_load(true);
@@ -100,7 +90,7 @@ int main()
 	CheckAllGeometryHasGlData();
 
 	// load pre recorded input recordings
-	InputRecorder.Load();
+	InputRecorder::Get()->Load();
 
 	// create hardcoded animations
 	AN_CreateHardcodedAnimations();
@@ -118,7 +108,7 @@ int main()
 
 void StartFrame()
 {
-	float current_frame_time = glfwGetTime();
+	float current_frame_time = Platform::GetCurrentTime();
 	Rvn::frame.real_duration = current_frame_time - Rvn::frame.last_frame_time;
 	Rvn::frame.duration = Rvn::frame.real_duration * Rvn::frame.time_step;
 	Rvn::frame.last_frame_time = current_frame_time;

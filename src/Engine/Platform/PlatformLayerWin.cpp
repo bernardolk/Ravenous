@@ -1,8 +1,7 @@
 #include "PlatformLayerWin.h"
-
+#include <windows.h>
 #include <stack>
-
-#include "windows.h"
+#include "GlWindow.h"
 
 bool WinListFiles(std::string path, std::string mask, std::vector<std::string>& files)
 {
@@ -53,4 +52,15 @@ bool WinListFiles(std::string path, std::string mask, std::vector<std::string>& 
 	}
 
 	return true;
+}
+
+void WinPlatformInitialize()
+{
+	SetupGLFW();
+	SetupGL();
+}
+
+float WinGetCurrentTime()
+{
+	return glfwGetTime();
 }

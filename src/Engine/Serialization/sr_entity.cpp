@@ -17,7 +17,7 @@ const std::string SrLoadEntity_TypeNotSetErrorMsg = "Need to load entity type be
 void EntitySerializer::Parse(Parser& parser)
 {
 	auto* world = World::Get();
-	auto* new_entity_ptr = world->SpawnEntity<E_StaticMesh>();
+	auto* new_entity_ptr = world->SpawnEntity<EStaticMesh>();
 	if (!new_entity_ptr)
 		fatal_error("Couldnt create entity.")
 
@@ -163,7 +163,7 @@ void EntitySerializer::Parse(Parser& parser)
 	}
 }
 
-void EntitySerializer::Save(std::ofstream& writer, const E_Entity& entity)
+void EntitySerializer::Save(std::ofstream& writer, const EEntity& entity)
 {
 	writer << "\n#" << entity.name << "\n";
 	writer << "id " << entity.id << "\n";

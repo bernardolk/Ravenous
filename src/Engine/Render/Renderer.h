@@ -1,7 +1,6 @@
 #pragma once
 
 #include "engine/core/core.h"
-#include "engine/entities/EEntity.h"
 
 constexpr unsigned int RShadowBufferWidth = 1920, RShadowBufferHeight = 1080;
 inline unsigned int RDepthMapFbo;
@@ -41,8 +40,8 @@ void RenderMesh(const Mesh* mesh, RenderOptions opts = RenderOptions{});
 // --------------
 // RENDER ENTITY
 // --------------
-void RenderEntity(E_Entity* entity);
-void RenderEditorEntity(E_Entity* entity, World* world, Camera* camera);
+void RenderEntity(EEntity* entity);
+void RenderEditorEntity(EEntity* entity, World* world, Camera* camera);
 
 // -------------
 // RENDER SCENE

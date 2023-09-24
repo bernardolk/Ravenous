@@ -70,9 +70,9 @@ struct ImDraw
 	                        bool always_on_top = false, vec3 color = vec3{0.8, 0.2, 0.2});
 	static void AddMesh(u32 _hash, Mesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color = COLOR_BLUE_1, int duration = 2000);
 	static void AddMesh(u32 _hash, Mesh* mesh, vec3 color = COLOR_BLUE_1, float duration = 2000);
-	static void AddMesh(u32 _hash, E_Entity* entity, int duration);
-	static void AddMesh(u32 _hash, E_Entity* entity);
-	static void AddMesh(u32 _hash, E_Entity* entity, vec3 pos);
+	static void AddMesh(u32 _hash, EEntity* entity, int duration);
+	static void AddMesh(u32 _hash, EEntity* entity);
+	static void AddMesh(u32 _hash, EEntity* entity, vec3 pos);
 
 private:
 	static void SetMesh(int i, vector<Vertex> vertices, GLenum draw_method, RenderOptions opts);

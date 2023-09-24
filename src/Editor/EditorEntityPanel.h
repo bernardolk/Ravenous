@@ -7,7 +7,7 @@ namespace Editor
 	struct EntityPanelContext;
 
 	void UndoSelectedEntityMoveChanges();
-	void OpenEntityPanel(E_Entity* entity);
+	void OpenEntityPanel(EEntity* entity);
 	void CheckForAssetChanges();
 	void UpdateEntityControlArrows(EntityPanelContext* panel);
 	void UpdateEntityRotationGizmo(EntityPanelContext* panel);

@@ -27,8 +27,11 @@ struct VisitorState
 	void Reset() { new (this) VisitorState(); }
 };
 
-/** Represents a rendereable and collidable basic entity. */
-struct E_Entity
+/**  ---------------------------------------------------------------------
+/*		EEntity: Basic Entity type which all entities inherit from.
+/*			Represents a rendereable and collidable basic entity.
+/**  --------------------------------------------------------------------- */
+struct EEntity
 {
 	// Basic data needed for lower level systems to recognize an Entity type.
 	TypeID type_id;

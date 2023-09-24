@@ -561,5 +561,5 @@ void LoadShaders()
 	// setup for text shader
 	auto text_shader = ShaderCatalogue.find("text")->second;
 	text_shader->Use();
-	text_shader->SetMatrix4("projection", glm::ortho(0.0f, GlobalDisplayConfig::viewport_width, 0.0f, GlobalDisplayConfig::viewport_height));
+	text_shader->SetMatrix4("projection", glm::ortho(0.0f, GlobalDisplayState::viewport_width, 0.0f, GlobalDisplayState::viewport_height));
 }

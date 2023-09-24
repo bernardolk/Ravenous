@@ -62,9 +62,9 @@ WorldEntityIterator::WorldEntityIterator() : world(World::Get()), chunk_iterator
 	total_active_chunks = world->active_chunks.size();		
 }
 
-E_Entity* WorldEntityIterator::operator()()
+EEntity* WorldEntityIterator::operator()()
 {
-	E_Entity* entity = chunk_iterator();
+	EEntity* entity = chunk_iterator();
 	if (!entity && current_chunk_index < total_active_chunks - 1)
 	{
 		current_chunk_index++;
@@ -74,14 +74,14 @@ E_Entity* WorldEntityIterator::operator()()
 	return entity;
 }
 
-E_Entity* WorldChunkEntityIterator::operator()()
+EEntity* WorldChunkEntityIterator::operator()()
 {
 	if (block_idx < chunk->chunk_storage.storage_metadata_array.Num())
 	{
 		auto* block_metadata = chunk->chunk_storage.storage_metadata_array.GetAt(block_idx);
 		if (entity_idx < block_metadata->entity_count)
 		{
-			return reinterpret_cast<E_Entity*>(block_metadata->data_start + block_metadata->type_size * entity_idx++);
+			return reinterpret_cast<EEntity*>(block_metadata->data_start + block_metadata->type_size * entity_idx++);
 		}
 
 		entity_idx = 0;
@@ -90,7 +90,7 @@ E_Entity* WorldChunkEntityIterator::operator()()
 	return nullptr;
 }
 
-RaycastTest World::Raycast(const Ray ray, const RayCastType test_type, const E_Entity* skip, const float max_distance) const
+RaycastTest World::Raycast(const Ray ray, const RayCastType test_type, const EEntity* skip, const float max_distance) const
 {
 	//@TODO: This should first test ray against world cells, then get the list of entities from these world cells to test against 
 
@@ -118,7 +118,7 @@ RaycastTest World::Raycast(const Ray ray, const RayCastType test_type, const E_E
 	return closest_hit;
 }
 
-RaycastTest World::Raycast(const Ray ray, const E_Entity* skip, const float max_distance) const
+RaycastTest World::Raycast(const Ray ray, const EEntity* skip, const float max_distance) const
 {
 	return this->Raycast(ray, RayCast_TestOnlyFromOutsideIn, skip, max_distance);
 }
@@ -210,7 +210,7 @@ RaycastTest World::RaycastLights(const Ray ray) const
 	return closest_hit;
 }
 
-CellUpdate World::UpdateEntityWorldChunk(E_Entity* entity)
+CellUpdate World::UpdateEntityWorldChunk(EEntity* entity)
 {
 	std::string message;
 
@@ -293,7 +293,7 @@ CellUpdate World::UpdateEntityWorldChunk(E_Entity* entity)
 }
 
 // TODO: Move these elsewhere
-void SetEntityDefaultAssets(E_Entity* entity)
+void SetEntityDefaultAssets(EEntity* entity)
 {
 	// Trusting type defaults
 	EntityAttributes attrs;
@@ -316,7 +316,7 @@ void SetEntityDefaultAssets(E_Entity* entity)
 		entity->textures.push_back(_textures[i]);
 }
 	
-void SetEntityAssets(E_Entity* entity, EntityAttributes attrs)
+void SetEntityAssets(EEntity* entity, EntityAttributes attrs)
 {
 	auto [
 		_textures,

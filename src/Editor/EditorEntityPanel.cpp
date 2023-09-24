@@ -19,7 +19,7 @@ namespace Editor
 		u32 action_flags = 0;
 		bool track = false;
 
-		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayConfig::viewport_width - 550, 200), ImGuiCond_Appearing);
+		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayState::viewport_width - 550, 200), ImGuiCond_Appearing);
 		ImGui::Begin("Entity Panel", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
 		panel->focused = ImGui::IsWindowFocused();
 
@@ -518,7 +518,7 @@ namespace Editor
 	}
 
 
-	void OpenEntityPanel(E_Entity* entity)
+	void OpenEntityPanel(EEntity* entity)
 	{
 		auto& ed_context = *GetContext();
 		ed_context.selected_entity = entity;

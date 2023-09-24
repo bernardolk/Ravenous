@@ -33,9 +33,11 @@ const float Player::slide_speed = 2.0f;
 const float Player::fall_from_edge_push_speed = 1.5f;
 const vec3 Player::gravity = vec3(0, -18.0, 0);
 
+Player::Player() = default;
+
 void Player::Update()
 {
-	static_cast<E_Entity*>(this)->Update();
+	static_cast<EEntity*>(this)->Update();
 
 	if (CL_UpdatePlayerWorldCells(this))
 	{
@@ -552,7 +554,7 @@ void Player::RestoreHealth()
 	lives = initial_lives;
 }
 
-void Player::SetCheckpoint(E_Entity* entity)
+void Player::SetCheckpoint(EEntity* entity)
 {
 	return;
 	/*

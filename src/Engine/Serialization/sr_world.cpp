@@ -85,7 +85,7 @@ bool WorldSerializer::LoadFromFile(const string& filename)
 	// connects entities using deferred load buffer
 	For(entity_relations.count)
 	{
-		E_Entity* deferred_entity = nullptr;
+		EEntity* deferred_entity = nullptr;
 		auto deferred_entity_id = entity_relations.deferred_entity_ids[i];
 
 		auto entity_iterator = world->GetEntityIterator();

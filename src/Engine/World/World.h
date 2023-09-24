@@ -6,7 +6,7 @@
 #include "engine/entities/EEntity.h"
 #include "engine/utils/utils.h"
 
-struct E_Entity;
+struct EEntity;
 struct WorldChunkPosition WorldCoordsToCells(float x, float y, float z);
 vec3 GetWorldCoordinatesFromWorldCellCoordinates(int i, int j, int k);
 
@@ -27,11 +27,10 @@ struct CellUpdate
 };
 
 
-/** World */
-struct WorldEntityIterator;
-
 struct World
 {
+	DeclSingleton(World)
+	
 	// static constexpr u8 world_chunk_matrix_order = 10;
 	static constexpr u32 world_size_in_chunks = WorldChunkNumX * WorldChunkNumY * WorldChunkNumZ;
 
@@ -56,12 +55,6 @@ struct World
 		
 	void Update();
 
-	static World* Get()
-	{
-		static World instance;
-		return &instance;
-	}
-
 	template<typename T_Entity>
 	T_Entity* SpawnEntity();
 
@@ -71,16 +64,14 @@ struct World
 	Iterator<WorldChunk> GetChunkIterator();
 	static WorldEntityIterator GetEntityIterator();	
 	
-	RaycastTest Raycast(Ray ray, RayCastType test_type, const E_Entity* skip = nullptr, float max_distance = MaxFloat) const;
-	RaycastTest Raycast(Ray ray, const E_Entity* skip = nullptr, float max_distance = MaxFloat) const;
+	RaycastTest Raycast(Ray ray, RayCastType test_type, const EEntity* skip = nullptr, float max_distance = MaxFloat) const;
+	RaycastTest Raycast(Ray ray, const EEntity* skip = nullptr, float max_distance = MaxFloat) const;
 	RaycastTest LinearRaycastArray(Ray first_ray, int qty, float spacing) const;
 	RaycastTest RaycastLights(Ray ray) const;
 
-	CellUpdate UpdateEntityWorldChunk(E_Entity* entity);
+	CellUpdate UpdateEntityWorldChunk(EEntity* entity);
 	
 private:
-	World();
-
 	void UpdateTraits();
 	void UpdateTransforms();
 };
@@ -95,13 +86,13 @@ struct WorldEntityIterator
 	
 	WorldEntityIterator();
 	
-	E_Entity* operator()();
+	EEntity* operator()();
 };
 
 
 //TODO: Move these somewhere else
-void SetEntityDefaultAssets(E_Entity* entity);
-void SetEntityAssets(E_Entity* entity, struct EntityAttributes attrs);
+void SetEntityDefaultAssets(EEntity* entity);
+void SetEntityAssets(EEntity* entity, struct EntityAttributes attrs);
 
 
 template<typename T_Entity>
