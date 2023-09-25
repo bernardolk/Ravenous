@@ -9,44 +9,44 @@
 
 namespace Editor
 {
-	void RenderPlayerPanel(RPlayerPanelContext* panel)
+	void RenderPlayerPanel(RPlayerPanelContext* Panel)
 	{
-		auto* player = EPlayer::Get();
+		auto* Player = EPlayer::Get();
 
-		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayState::viewport_width - 550, 370), ImGuiCond_Appearing);
+		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayState::ViewportWidth - 550, 370), ImGuiCond_Appearing);
 
-		ImGui::Begin("Player Panel", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
-		panel->focused = ImGui::IsWindowFocused();
+		ImGui::Begin("Player Panel", &Panel->Active, ImGuiWindowFlags_AlwaysAutoResize);
+		Panel->Focused = ImGui::IsWindowFocused();
 
-		std::string entity_identification = player->name;
-		ImGui::Text(entity_identification.c_str());
+		string EntityIdentification = Player->Name;
+		ImGui::Text(EntityIdentification.c_str());
 
-		std::string entity_id = "Id: " + std::to_string(player->id);
-		ImGui::Text(entity_id.c_str());
+		string EntityId = "Id: " + std::to_string(Player->ID);
+		ImGui::Text(EntityId.c_str());
 
 		ImGui::NewLine();
 
-		bool _hide_control = player->flags & EntityFlags_HiddenEntity;
-		if (ImGui::Checkbox("Hide Entity", &_hide_control))
+		bool HideControl = Player->Flags & EntityFlags_HiddenEntity;
+		if (ImGui::Checkbox("Hide Entity", &HideControl))
 		{
-			player->flags ^= EntityFlags_HiddenEntity;
+			Player->Flags ^= EntityFlags_HiddenEntity;
 		}
 		ImGui::NewLine();
 
 		ImGui::Text("Velocity: ");
-		ImGui::Text(ToString(player->velocity).c_str());
+		ImGui::Text(ToString(Player->Velocity).c_str());
 
 		ImGui::End();
 	}
 
-	void OpenPlayerPanel(EPlayer* player)
+	void OpenPlayerPanel(EPlayer* Player)
 	{
-		auto& ed_context = *Editor::GetContext();
+		auto& EdContext = *GetContext();
 
-		ed_context.selected_entity = player;
+		EdContext.SelectedEntity = Player;
 
-		auto& panel = ed_context.player_panel;
-		panel.active = true;
-		panel.player = player;
+		auto& Panel = EdContext.PlayerPanel;
+		Panel.Active = true;
+		Panel.Player = Player;
 	}
 }

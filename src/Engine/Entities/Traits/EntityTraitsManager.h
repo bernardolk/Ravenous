@@ -6,39 +6,37 @@
 struct EntityTraitsManager
 {
 	DeclSingleton(EntityTraitsManager)
-	
 	using UpdateFuncPtr = void(*)(EEntity*);
-	
-	static inline constexpr uint max_traits = 5;
 
-	map<TraitID, map<TypeID, UpdateFuncPtr>> trait_registry;
-	map<TypeID, vector<TypeID>> trait_inverse_registry;
-	vector<TraitID> entity_traits;
+	static inline constexpr uint MaxTraits = 5;
 
-	void Register(TypeID type_id, TraitID trait_id, UpdateFuncPtr func);
-	void InvokeUpdate(EEntity* entity, TraitID trait_id);
-	vector<TypeID>* GetTypesWithTrait(TraitID trait_id);
-	UpdateFuncPtr GetUpdateFunc(TypeID type_id, TraitID trait_id);
+	map<TraitID, map<TypeID, UpdateFuncPtr> > TraitRegistry;
+	map<TypeID, vector<TypeID> > TraitInverseRegistry;
+	vector<TraitID> EntityTraits;
 
-	template<typename T_Entity, typename T_Trait>
+	void Register(TypeID TypeId, TraitID TraitId, UpdateFuncPtr Func);
+	void InvokeUpdate(EEntity* Entity, TraitID TraitId);
+	vector<TypeID>* GetTypesWithTrait(TraitID TraitID);
+	UpdateFuncPtr GetUpdateFunc(TypeID TypeId, TraitID TraitId);
+
+	template<typename TEntity, typename TTrait>
 	byte RegisterTypeAndTraitMatch();
-	
+
 };
 
-template<typename T_Entity, typename T_Trait>
+template<typename TEntity, typename TTrait>
 byte EntityTraitsManager::RegisterTypeAndTraitMatch()
 {
-	printf("Registering entity of id '%i' and trait of id '%i'.\n", T_Entity::GetTypeId(), T_Trait::trait_id);
+	printf("Registering entity of id '%i' and trait of id '%i'.\n", TEntity::GetTypeId(), TTrait::trait_id);
 
-	Register(T_Entity::GetTypeId(), T_Trait::trait_id, 
-	[](EEntity* in_entity)
-		{
-			auto* fully_cast_entity = static_cast<T_Entity*>(in_entity);
-			T_Trait::Update(*fully_cast_entity);
+	Register(TEntity::GetTypeId(), TTrait::trait_id,
+		[](EEntity* InEntity) {
+			auto* FullyCastEntity = static_cast<TEntity*>(InEntity);
+			TTrait::Update(*FullyCastEntity);
 		}
 	);
 
-	T_Entity::traits.Add(T_Trait::trait_id);
+	TEntity::traits.Add(TTrait::trait_id);
 
 	return 0;
 }

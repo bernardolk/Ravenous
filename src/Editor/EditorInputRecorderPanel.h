@@ -3,5 +3,5 @@
 namespace Editor
 {
 	struct RInputRecorderPanelContext;
-	void RenderInputRecorderPanel(RInputRecorderPanelContext* panel);
+	void RenderInputRecorderPanel(RInputRecorderPanelContext* Panel);
 }

@@ -19,323 +19,323 @@ RInputFlags StartInputPhase()
 	glfwPollEvents();
 	// set the flags and return
 	auto* GDC = GlobalDisplayState::Get();
-	auto key_press_flags = ProcessKeyboardInputKeyPress(GDC->GetWindow());
-	auto key_release_flags = ProcessKeyboardInputKeyRelease(GDC->GetWindow());
-	return RInputFlags{key_press_flags, key_release_flags};
+	auto KeyPressFlags = ProcessKeyboardInputKeyPress(GDC->GetWindow());
+	auto KeyReleaseFlags = ProcessKeyboardInputKeyRelease(GDC->GetWindow());
+	return RInputFlags{KeyPressFlags, KeyReleaseFlags};
 }
 
 
-uint64 ProcessKeyboardInputKeyPress(GLFWwindow* window)
+uint64 ProcessKeyboardInputKeyPress(GLFWwindow* Window)
 {
-	uint64 flags = 0;
+	uint64 Flags = 0;
 
-	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		flags = flags | KEY_Q;
+	if (glfwGetKey(Window, GLFW_KEY_Q) == GLFW_PRESS)
+		Flags = Flags | KeyQ;
 
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		flags = flags | KEY_W;
+	if (glfwGetKey(Window, GLFW_KEY_W) == GLFW_PRESS)
+		Flags = Flags | KeyW;
 
-	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-		flags = flags | KEY_E;
+	if (glfwGetKey(Window, GLFW_KEY_E) == GLFW_PRESS)
+		Flags = Flags | KeyE;
 
-	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
-		flags = flags | KEY_R;
+	if (glfwGetKey(Window, GLFW_KEY_R) == GLFW_PRESS)
+		Flags = Flags | KeyR;
 
-	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
-		flags = flags | KEY_T;
+	if (glfwGetKey(Window, GLFW_KEY_T) == GLFW_PRESS)
+		Flags = Flags | KeyT;
 
-	if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)
-		flags = flags | KEY_Y;
+	if (glfwGetKey(Window, GLFW_KEY_Y) == GLFW_PRESS)
+		Flags = Flags | KeyY;
 
-	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
-		flags = flags | KEY_U;
+	if (glfwGetKey(Window, GLFW_KEY_U) == GLFW_PRESS)
+		Flags = Flags | KeyU;
 
-	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
-		flags = flags | KEY_I;
+	if (glfwGetKey(Window, GLFW_KEY_I) == GLFW_PRESS)
+		Flags = Flags | KeyI;
 
-	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
-		flags = flags | KEY_O;
+	if (glfwGetKey(Window, GLFW_KEY_O) == GLFW_PRESS)
+		Flags = Flags | KeyO;
 
-	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
-		flags = flags | KEY_P;
+	if (glfwGetKey(Window, GLFW_KEY_P) == GLFW_PRESS)
+		Flags = Flags | KeyP;
 
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		flags = flags | KEY_A;
+	if (glfwGetKey(Window, GLFW_KEY_A) == GLFW_PRESS)
+		Flags = Flags | KeyA;
 
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		flags = flags | KEY_S;
+	if (glfwGetKey(Window, GLFW_KEY_S) == GLFW_PRESS)
+		Flags = Flags | KeyS;
 
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		flags = flags | KEY_D;
+	if (glfwGetKey(Window, GLFW_KEY_D) == GLFW_PRESS)
+		Flags = Flags | KeyD;
 
-	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
-		flags = flags | KEY_F;
+	if (glfwGetKey(Window, GLFW_KEY_F) == GLFW_PRESS)
+		Flags = Flags | KeyF;
 
-	if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS)
-		flags = flags | KEY_G;
+	if (glfwGetKey(Window, GLFW_KEY_G) == GLFW_PRESS)
+		Flags = Flags | KeyG;
 
-	if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
-		flags = flags | KEY_H;
+	if (glfwGetKey(Window, GLFW_KEY_H) == GLFW_PRESS)
+		Flags = Flags | KeyH;
 
-	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
-		flags = flags | KEY_J;
+	if (glfwGetKey(Window, GLFW_KEY_J) == GLFW_PRESS)
+		Flags = Flags | KeyJ;
 
-	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
-		flags = flags | KEY_K;
+	if (glfwGetKey(Window, GLFW_KEY_K) == GLFW_PRESS)
+		Flags = Flags | KeyK;
 
-	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
-		flags = flags | KEY_L;
+	if (glfwGetKey(Window, GLFW_KEY_L) == GLFW_PRESS)
+		Flags = Flags | KeyL;
 
-	if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-		flags = flags | KEY_Z;
+	if (glfwGetKey(Window, GLFW_KEY_Z) == GLFW_PRESS)
+		Flags = Flags | KeyZ;
 
-	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-		flags = flags | KEY_X;
+	if (glfwGetKey(Window, GLFW_KEY_X) == GLFW_PRESS)
+		Flags = Flags | KeyX;
 
-	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
-		flags = flags | KEY_C;
+	if (glfwGetKey(Window, GLFW_KEY_C) == GLFW_PRESS)
+		Flags = Flags | KeyC;
 
-	if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
-		flags = flags | KEY_V;
+	if (glfwGetKey(Window, GLFW_KEY_V) == GLFW_PRESS)
+		Flags = Flags | KeyV;
 
-	if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
-		flags = flags | KEY_B;
+	if (glfwGetKey(Window, GLFW_KEY_B) == GLFW_PRESS)
+		Flags = Flags | KeyB;
 
-	if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
-		flags = flags | KEY_N;
+	if (glfwGetKey(Window, GLFW_KEY_N) == GLFW_PRESS)
+		Flags = Flags | KeyN;
 
-	if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
-		flags = flags | KEY_M;
+	if (glfwGetKey(Window, GLFW_KEY_M) == GLFW_PRESS)
+		Flags = Flags | KeyM;
 
-	if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)
-		flags = flags | KEY_0;
+	if (glfwGetKey(Window, GLFW_KEY_0) == GLFW_PRESS)
+		Flags = Flags | Key0;
 
-	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
-		flags = flags | KEY_1;
+	if (glfwGetKey(Window, GLFW_KEY_1) == GLFW_PRESS)
+		Flags = Flags | Key1;
 
-	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
-		flags = flags | KEY_2;
+	if (glfwGetKey(Window, GLFW_KEY_2) == GLFW_PRESS)
+		Flags = Flags | Key2;
 
-	if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
-		flags = flags | KEY_3;
+	if (glfwGetKey(Window, GLFW_KEY_3) == GLFW_PRESS)
+		Flags = Flags | Key3;
 
-	if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
-		flags = flags | KEY_4;
+	if (glfwGetKey(Window, GLFW_KEY_4) == GLFW_PRESS)
+		Flags = Flags | Key4;
 
-	if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS)
-		flags = flags | KEY_5;
+	if (glfwGetKey(Window, GLFW_KEY_5) == GLFW_PRESS)
+		Flags = Flags | Key5;
 
-	if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS)
-		flags = flags | KEY_6;
+	if (glfwGetKey(Window, GLFW_KEY_6) == GLFW_PRESS)
+		Flags = Flags | Key6;
 
-	if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS)
-		flags = flags | KEY_7;
+	if (glfwGetKey(Window, GLFW_KEY_7) == GLFW_PRESS)
+		Flags = Flags | Key7;
 
-	if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS)
-		flags = flags | KEY_8;
+	if (glfwGetKey(Window, GLFW_KEY_8) == GLFW_PRESS)
+		Flags = Flags | Key8;
 
-	if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS)
-		flags = flags | KEY_9;
+	if (glfwGetKey(Window, GLFW_KEY_9) == GLFW_PRESS)
+		Flags = Flags | Key9;
 
-	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-		flags = flags | KEY_LEFT_SHIFT;
+	if (glfwGetKey(Window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+		Flags = Flags | KeyLeftShift;
 
-	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-		flags = flags | KEY_LEFT_CTRL;
+	if (glfwGetKey(Window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+		Flags = Flags | KeyLeftCtrl;
 
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		flags = flags | KEY_ESC;
+	if (glfwGetKey(Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		Flags = Flags | KeyEsc;
 
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-		flags = flags | KEY_UP;
+	if (glfwGetKey(Window, GLFW_KEY_UP) == GLFW_PRESS)
+		Flags = Flags | KeyUp;
 
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-		flags = flags | KEY_DOWN;
+	if (glfwGetKey(Window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		Flags = Flags | KeyDown;
 
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-		flags = flags | KEY_LEFT;
+	if (glfwGetKey(Window, GLFW_KEY_LEFT) == GLFW_PRESS)
+		Flags = Flags | KeyLeft;
 
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-		flags = flags | KEY_RIGHT;
+	if (glfwGetKey(Window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		Flags = Flags | KeyRight;
 
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		flags = flags | KEY_SPACE;
+	if (glfwGetKey(Window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		Flags = Flags | KeySpace;
 
-	if (glfwGetKey(window, GLFW_KEY_GRAVE_ACCENT) == GLFW_PRESS)
-		flags = flags | KEY_GRAVE_TICK;
+	if (glfwGetKey(Window, GLFW_KEY_GRAVE_ACCENT) == GLFW_PRESS)
+		Flags = Flags | KeyGraveTick;
 
-	if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
-		flags = flags | KEY_ENTER;
+	if (glfwGetKey(Window, GLFW_KEY_ENTER) == GLFW_PRESS)
+		Flags = Flags | KeyEnter;
 
-	if (glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_PRESS)
-		flags = flags | KEY_BACKSPACE;
+	if (glfwGetKey(Window, GLFW_KEY_BACKSPACE) == GLFW_PRESS)
+		Flags = Flags | KeyBackspace;
 
-	if (glfwGetKey(window, GLFW_KEY_COMMA) == GLFW_PRESS)
-		flags = flags | KEY_COMMA;
+	if (glfwGetKey(Window, GLFW_KEY_COMMA) == GLFW_PRESS)
+		Flags = Flags | KeyComma;
 
-	if (glfwGetKey(window, GLFW_KEY_PERIOD) == GLFW_PRESS)
-		flags = flags | KEY_PERIOD;
+	if (glfwGetKey(Window, GLFW_KEY_PERIOD) == GLFW_PRESS)
+		Flags = Flags | KeyPeriod;
 
-	if (glfwGetKey(window, GLFW_KEY_DELETE) == GLFW_PRESS)
-		flags = flags | KEY_DELETE;
+	if (glfwGetKey(Window, GLFW_KEY_DELETE) == GLFW_PRESS)
+		Flags = Flags | KeyDelete;
 
-	return flags;
+	return Flags;
 }
 
 
-uint64 ProcessKeyboardInputKeyRelease(GLFWwindow* window)
+uint64 ProcessKeyboardInputKeyRelease(GLFWwindow* Window)
 {
-	uint64 flags = 0;
+	uint64 Flags = 0;
 
-	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE)
-		flags = flags | KEY_Q;
+	if (glfwGetKey(Window, GLFW_KEY_Q) == GLFW_RELEASE)
+		Flags = Flags | KeyQ;
 
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_RELEASE)
-		flags = flags | KEY_W;
+	if (glfwGetKey(Window, GLFW_KEY_W) == GLFW_RELEASE)
+		Flags = Flags | KeyW;
 
-	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE)
-		flags = flags | KEY_E;
+	if (glfwGetKey(Window, GLFW_KEY_E) == GLFW_RELEASE)
+		Flags = Flags | KeyE;
 
-	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_RELEASE)
-		flags = flags | KEY_R;
+	if (glfwGetKey(Window, GLFW_KEY_R) == GLFW_RELEASE)
+		Flags = Flags | KeyR;
 
-	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_RELEASE)
-		flags = flags | KEY_T;
+	if (glfwGetKey(Window, GLFW_KEY_T) == GLFW_RELEASE)
+		Flags = Flags | KeyT;
 
-	if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_RELEASE)
-		flags = flags | KEY_Y;
+	if (glfwGetKey(Window, GLFW_KEY_Y) == GLFW_RELEASE)
+		Flags = Flags | KeyY;
 
-	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_RELEASE)
-		flags = flags | KEY_U;
+	if (glfwGetKey(Window, GLFW_KEY_U) == GLFW_RELEASE)
+		Flags = Flags | KeyU;
 
-	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_RELEASE)
-		flags = flags | KEY_I;
+	if (glfwGetKey(Window, GLFW_KEY_I) == GLFW_RELEASE)
+		Flags = Flags | KeyI;
 
-	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_RELEASE)
-		flags = flags | KEY_O;
+	if (glfwGetKey(Window, GLFW_KEY_O) == GLFW_RELEASE)
+		Flags = Flags | KeyO;
 
-	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_RELEASE)
-		flags = flags | KEY_P;
+	if (glfwGetKey(Window, GLFW_KEY_P) == GLFW_RELEASE)
+		Flags = Flags | KeyP;
 
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_RELEASE)
-		flags = flags | KEY_A;
+	if (glfwGetKey(Window, GLFW_KEY_A) == GLFW_RELEASE)
+		Flags = Flags | KeyA;
 
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_RELEASE)
-		flags = flags | KEY_S;
+	if (glfwGetKey(Window, GLFW_KEY_S) == GLFW_RELEASE)
+		Flags = Flags | KeyS;
 
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_RELEASE)
-		flags = flags | KEY_D;
+	if (glfwGetKey(Window, GLFW_KEY_D) == GLFW_RELEASE)
+		Flags = Flags | KeyD;
 
-	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_RELEASE)
-		flags = flags | KEY_F;
+	if (glfwGetKey(Window, GLFW_KEY_F) == GLFW_RELEASE)
+		Flags = Flags | KeyF;
 
-	if (glfwGetKey(window, GLFW_KEY_G) == GLFW_RELEASE)
-		flags = flags | KEY_G;
+	if (glfwGetKey(Window, GLFW_KEY_G) == GLFW_RELEASE)
+		Flags = Flags | KeyG;
 
-	if (glfwGetKey(window, GLFW_KEY_H) == GLFW_RELEASE)
-		flags = flags | KEY_H;
+	if (glfwGetKey(Window, GLFW_KEY_H) == GLFW_RELEASE)
+		Flags = Flags | KeyH;
 
-	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_RELEASE)
-		flags = flags | KEY_J;
+	if (glfwGetKey(Window, GLFW_KEY_J) == GLFW_RELEASE)
+		Flags = Flags | KeyJ;
 
-	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_RELEASE)
-		flags = flags | KEY_K;
+	if (glfwGetKey(Window, GLFW_KEY_K) == GLFW_RELEASE)
+		Flags = Flags | KeyK;
 
-	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_RELEASE)
-		flags = flags | KEY_L;
+	if (glfwGetKey(Window, GLFW_KEY_L) == GLFW_RELEASE)
+		Flags = Flags | KeyL;
 
-	if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_RELEASE)
-		flags = flags | KEY_Z;
+	if (glfwGetKey(Window, GLFW_KEY_Z) == GLFW_RELEASE)
+		Flags = Flags | KeyZ;
 
-	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_RELEASE)
-		flags = flags | KEY_X;
+	if (glfwGetKey(Window, GLFW_KEY_X) == GLFW_RELEASE)
+		Flags = Flags | KeyX;
 
-	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_RELEASE)
-		flags = flags | KEY_C;
+	if (glfwGetKey(Window, GLFW_KEY_C) == GLFW_RELEASE)
+		Flags = Flags | KeyC;
 
-	if (glfwGetKey(window, GLFW_KEY_V) == GLFW_RELEASE)
-		flags = flags | KEY_V;
+	if (glfwGetKey(Window, GLFW_KEY_V) == GLFW_RELEASE)
+		Flags = Flags | KeyV;
 
-	if (glfwGetKey(window, GLFW_KEY_B) == GLFW_RELEASE)
-		flags = flags | KEY_B;
+	if (glfwGetKey(Window, GLFW_KEY_B) == GLFW_RELEASE)
+		Flags = Flags | KeyB;
 
-	if (glfwGetKey(window, GLFW_KEY_N) == GLFW_RELEASE)
-		flags = flags | KEY_N;
+	if (glfwGetKey(Window, GLFW_KEY_N) == GLFW_RELEASE)
+		Flags = Flags | KeyN;
 
-	if (glfwGetKey(window, GLFW_KEY_M) == GLFW_RELEASE)
-		flags = flags | KEY_M;
+	if (glfwGetKey(Window, GLFW_KEY_M) == GLFW_RELEASE)
+		Flags = Flags | KeyM;
 
-	if (glfwGetKey(window, GLFW_KEY_0) == GLFW_RELEASE)
-		flags = flags | KEY_0;
+	if (glfwGetKey(Window, GLFW_KEY_0) == GLFW_RELEASE)
+		Flags = Flags | Key0;
 
-	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_RELEASE)
-		flags = flags | KEY_1;
+	if (glfwGetKey(Window, GLFW_KEY_1) == GLFW_RELEASE)
+		Flags = Flags | Key1;
 
-	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_RELEASE)
-		flags = flags | KEY_2;
+	if (glfwGetKey(Window, GLFW_KEY_2) == GLFW_RELEASE)
+		Flags = Flags | Key2;
 
-	if (glfwGetKey(window, GLFW_KEY_3) == GLFW_RELEASE)
-		flags = flags | KEY_3;
+	if (glfwGetKey(Window, GLFW_KEY_3) == GLFW_RELEASE)
+		Flags = Flags | Key3;
 
-	if (glfwGetKey(window, GLFW_KEY_4) == GLFW_RELEASE)
-		flags = flags | KEY_4;
+	if (glfwGetKey(Window, GLFW_KEY_4) == GLFW_RELEASE)
+		Flags = Flags | Key4;
 
-	if (glfwGetKey(window, GLFW_KEY_5) == GLFW_RELEASE)
-		flags = flags | KEY_5;
+	if (glfwGetKey(Window, GLFW_KEY_5) == GLFW_RELEASE)
+		Flags = Flags | Key5;
 
-	if (glfwGetKey(window, GLFW_KEY_6) == GLFW_RELEASE)
-		flags = flags | KEY_6;
+	if (glfwGetKey(Window, GLFW_KEY_6) == GLFW_RELEASE)
+		Flags = Flags | Key6;
 
-	if (glfwGetKey(window, GLFW_KEY_7) == GLFW_RELEASE)
-		flags = flags | KEY_7;
+	if (glfwGetKey(Window, GLFW_KEY_7) == GLFW_RELEASE)
+		Flags = Flags | Key7;
 
-	if (glfwGetKey(window, GLFW_KEY_8) == GLFW_RELEASE)
-		flags = flags | KEY_8;
+	if (glfwGetKey(Window, GLFW_KEY_8) == GLFW_RELEASE)
+		Flags = Flags | Key8;
 
-	if (glfwGetKey(window, GLFW_KEY_9) == GLFW_RELEASE)
-		flags = flags | KEY_9;
+	if (glfwGetKey(Window, GLFW_KEY_9) == GLFW_RELEASE)
+		Flags = Flags | Key9;
 
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_RELEASE)
-		flags = flags | KEY_UP;
+	if (glfwGetKey(Window, GLFW_KEY_UP) == GLFW_RELEASE)
+		Flags = Flags | KeyUp;
 
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_RELEASE)
-		flags = flags | KEY_DOWN;
+	if (glfwGetKey(Window, GLFW_KEY_DOWN) == GLFW_RELEASE)
+		Flags = Flags | KeyDown;
 
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_RELEASE)
-		flags = flags | KEY_LEFT;
+	if (glfwGetKey(Window, GLFW_KEY_LEFT) == GLFW_RELEASE)
+		Flags = Flags | KeyLeft;
 
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_RELEASE)
-		flags = flags | KEY_RIGHT;
+	if (glfwGetKey(Window, GLFW_KEY_RIGHT) == GLFW_RELEASE)
+		Flags = Flags | KeyRight;
 
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE)
-		flags = flags | KEY_SPACE;
+	if (glfwGetKey(Window, GLFW_KEY_SPACE) == GLFW_RELEASE)
+		Flags = Flags | KeySpace;
 
-	if (glfwGetKey(window, GLFW_KEY_GRAVE_ACCENT) == GLFW_RELEASE)
-		flags = flags | KEY_GRAVE_TICK;
+	if (glfwGetKey(Window, GLFW_KEY_GRAVE_ACCENT) == GLFW_RELEASE)
+		Flags = Flags | KeyGraveTick;
 
-	if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE)
-		flags = flags | KEY_ENTER;
+	if (glfwGetKey(Window, GLFW_KEY_ENTER) == GLFW_RELEASE)
+		Flags = Flags | KeyEnter;
 
-	if (glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_RELEASE)
-		flags = flags | KEY_BACKSPACE;
+	if (glfwGetKey(Window, GLFW_KEY_BACKSPACE) == GLFW_RELEASE)
+		Flags = Flags | KeyBackspace;
 
-	if (glfwGetKey(window, GLFW_KEY_COMMA) == GLFW_RELEASE)
-		flags = flags | KEY_COMMA;
+	if (glfwGetKey(Window, GLFW_KEY_COMMA) == GLFW_RELEASE)
+		Flags = Flags | KeyComma;
 
-	if (glfwGetKey(window, GLFW_KEY_PERIOD) == GLFW_RELEASE)
-		flags = flags | KEY_PERIOD;
+	if (glfwGetKey(Window, GLFW_KEY_PERIOD) == GLFW_RELEASE)
+		Flags = Flags | KeyPeriod;
 
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_RELEASE)
-		flags = flags | KEY_ESC;
+	if (glfwGetKey(Window, GLFW_KEY_ESCAPE) == GLFW_RELEASE)
+		Flags = Flags | KeyEsc;
 
-	if (glfwGetKey(window, GLFW_KEY_DELETE) == GLFW_RELEASE)
-		flags = flags | KEY_DELETE;
+	if (glfwGetKey(Window, GLFW_KEY_DELETE) == GLFW_RELEASE)
+		Flags = Flags | KeyDelete;
 
-	return flags;
+	return Flags;
 }
 
 
-void OnMouseMove(GLFWwindow* window, double xpos, double ypos)
+void OnMouseMove(GLFWwindow* Window, double Xpos, double Ypos)
 {
 	auto* GII = GlobalInputInfo::Get();
 	auto* ES = REditorState::Get();
@@ -344,74 +344,74 @@ void OnMouseMove(GLFWwindow* window, double xpos, double ypos)
 		return;
 
 	// activates mouse dragging if clicking and current mouse position has changed a certain ammount
-	if (!(GII->mouse_state & MOUSE_RB_DRAGGING) && GII->mouse_state & MOUSE_RB_HOLD)
+	if (!(GII->MouseState & MouseRbDragging) && GII->MouseState & MouseRbHold)
 	{
-		auto offset_from_click_x = abs(GII->mouse_coords.click_x - GII->mouse_coords.x);
-		auto offset_from_click_y = abs(GII->mouse_coords.click_y - GII->mouse_coords.y);
-		if (offset_from_click_x > 2 || offset_from_click_y > 2)
+		auto OffsetFromClickX = abs(GII->MouseCoords.ClickX - GII->MouseCoords.X);
+		auto OffsetFromClickY = abs(GII->MouseCoords.ClickY - GII->MouseCoords.Y);
+		if (OffsetFromClickX > 2 || OffsetFromClickY > 2)
 		{
-			GII->mouse_state |= MOUSE_RB_DRAGGING;
+			GII->MouseState |= MouseRbDragging;
 		}
 	}
 
 	// do the same for LB
-	if (!(GII->mouse_state & MOUSE_LB_DRAGGING) && GII->mouse_state & MOUSE_LB_HOLD)
+	if (!(GII->MouseState & MouseLbDragging) && GII->MouseState & MouseLbHold)
 	{
-		auto offset_from_click_x = abs(GII->mouse_coords.click_x - GII->mouse_coords.x);
-		auto offset_from_click_y = abs(GII->mouse_coords.click_y - GII->mouse_coords.y);
-		if (offset_from_click_x > 2 || offset_from_click_y > 2)
+		auto OffsetFromClickX = abs(GII->MouseCoords.ClickX - GII->MouseCoords.X);
+		auto OffsetFromClickY = abs(GII->MouseCoords.ClickY - GII->MouseCoords.Y);
+		if (OffsetFromClickX > 2 || OffsetFromClickY > 2)
 		{
-			GII->mouse_state |= MOUSE_LB_DRAGGING;
+			GII->MouseState |= MouseLbDragging;
 		}
 	}
 
 	// @todo: should refactor this out of here
 	// MOVE CAMERA WITH MOUSE IF APPROPRIATE
-	if (ES->current_mode == REditorState::ProgramMode::Game || (GII->mouse_state & MOUSE_RB_DRAGGING))
+	if (ES->CurrentMode == REditorState::ProgramMode::Game || (GII->MouseState & MouseRbDragging))
 	{
-		if (GII->block_mouse_move)
+		if (GII->BlockMouseMove)
 			return;
 
 		// 'teleports' stored coordinates to current mouse coordinates
-		if (GII->forget_last_mouse_coords)
+		if (GII->ForgetLastMouseCoords)
 		{
-			GII->mouse_coords.last_x = xpos;
-			GII->mouse_coords.last_y = ypos;
-			GII->forget_last_mouse_coords = false;
+			GII->MouseCoords.LastX = Xpos;
+			GII->MouseCoords.LastY = Ypos;
+			GII->ForgetLastMouseCoords = false;
 			return;
 		}
 
 		// calculates offsets and updates last x and y pos
-		float xoffset = xpos - GII->mouse_coords.last_x;
-		float yoffset = GII->mouse_coords.last_y - ypos;
-		GII->mouse_coords.last_x = xpos;
-		GII->mouse_coords.last_y = ypos;
+		float Xoffset = Xpos - GII->MouseCoords.LastX;
+		float Yoffset = GII->MouseCoords.LastY - Ypos;
+		GII->MouseCoords.LastX = Xpos;
+		GII->MouseCoords.LastY = Ypos;
 
-		auto* cam_manager = RCameraManager::Get();
-		xoffset *= cam_manager->GetCurrentCamera()->sensitivity;
-		yoffset *= cam_manager->GetCurrentCamera()->sensitivity;
+		auto* CamManager = RCameraManager::Get();
+		Xoffset *= CamManager->GetCurrentCamera()->Sensitivity;
+		Yoffset *= CamManager->GetCurrentCamera()->Sensitivity;
 
-		cam_manager->ChangeCameraDirection(cam_manager->GetCurrentCamera(), xoffset, yoffset);
+		CamManager->ChangeCameraDirection(CamManager->GetCurrentCamera(), Xoffset, Yoffset);
 	}
 
 	// updates mouse position
-	GII->mouse_coords.x = xpos;
-	GII->mouse_coords.y = ypos;
+	GII->MouseCoords.X = Xpos;
+	GII->MouseCoords.Y = Ypos;
 }
 
 
-void OnMouseScroll(GLFWwindow* window, double xoffset, double yoffset)
+void OnMouseScroll(GLFWwindow* Window, double Xoffset, double Yoffset)
 {
 	if (ImGui::GetIO().WantCaptureMouse)
 		return;
 
-	auto* cam_manager = RCameraManager::Get();
-	auto* camera = cam_manager->GetCurrentCamera();
-	camera->position += static_cast<float>(3 * yoffset) * camera->front;
+	auto* CamManager = RCameraManager::Get();
+	auto* Camera = CamManager->GetCurrentCamera();
+	Camera->Position += static_cast<float>(3 * Yoffset) * Camera->Front;
 }
 
 
-void OnMouseBtn(GLFWwindow* window, int button, int action, int mods)
+void OnMouseBtn(GLFWwindow* Window, int Button, int Action, int Mods)
 {
 	auto* GII = GlobalInputInfo::Get();
 
@@ -420,36 +420,36 @@ void OnMouseBtn(GLFWwindow* window, int button, int action, int mods)
 	if (ImGui::GetIO().WantCaptureMouse)
 		return;
 
-	switch (button)
+	switch (Button)
 	{
 		case GLFW_MOUSE_BUTTON_LEFT:
 		{
-			if (action == GLFW_PRESS)
+			if (Action == GLFW_PRESS)
 			{
-				GII->mouse_state |= MOUSE_LB_CLICK;
+				GII->MouseState |= MouseLbClick;
 			}
-			else if (action == GLFW_RELEASE)
+			else if (Action == GLFW_RELEASE)
 			{
-				GII->mouse_state &= ~(MOUSE_LB_CLICK);
-				GII->mouse_state &= ~(MOUSE_LB_HOLD);
-				GII->mouse_state &= ~(MOUSE_LB_DRAGGING);
+				GII->MouseState &= ~(MouseLbClick);
+				GII->MouseState &= ~(MouseLbHold);
+				GII->MouseState &= ~(MouseLbDragging);
 			}
 			break;
 		}
 		case GLFW_MOUSE_BUTTON_RIGHT:
 		{
-			if (action == GLFW_PRESS)
+			if (Action == GLFW_PRESS)
 			{
-				GII->mouse_state |= MOUSE_RB_CLICK;
-				GII->forget_last_mouse_coords = true;
-				GII->mouse_coords.click_x = GII->mouse_coords.x;
-				GII->mouse_coords.click_y = GII->mouse_coords.y;
+				GII->MouseState |= MouseRbClick;
+				GII->ForgetLastMouseCoords = true;
+				GII->MouseCoords.ClickX = GII->MouseCoords.X;
+				GII->MouseCoords.ClickY = GII->MouseCoords.Y;
 			}
-			else if (action == GLFW_RELEASE)
+			else if (Action == GLFW_RELEASE)
 			{
-				GII->mouse_state &= ~(MOUSE_RB_CLICK);
-				GII->mouse_state &= ~(MOUSE_RB_HOLD);
-				GII->mouse_state &= ~(MOUSE_RB_DRAGGING);
+				GII->MouseState &= ~(MouseRbClick);
+				GII->MouseState &= ~(MouseRbHold);
+				GII->MouseState &= ~(MouseRbDragging);
 			}
 			break;
 		}
@@ -459,46 +459,46 @@ void OnMouseBtn(GLFWwindow* window, int button, int action, int mods)
 }
 
 
-bool PressedOnce(RInputFlags flags, uint64 key)
+bool PressedOnce(RInputFlags Flags, uint64 Key)
 {
 	auto* GII = GlobalInputInfo::Get();
-	return flags.key_press & key && !(GII->key_state & key);
+	return Flags.KeyPress & Key && !(GII->KeyState & Key);
 }
 
 
-bool PressedOnly(RInputFlags flags, uint64 key)
+bool PressedOnly(RInputFlags Flags, uint64 Key)
 {
 	auto* GII = GlobalInputInfo::Get();
-	return flags.key_press == key && !(GII->key_state & key);
+	return Flags.KeyPress == Key && !(GII->KeyState & Key);
 }
 
 
-bool Pressed(RInputFlags flags, uint64 key)
+bool Pressed(RInputFlags Flags, uint64 Key)
 {
-	return flags.key_press & key;
+	return Flags.KeyPress & Key;
 }
 
 
 void CheckMouseClickHold()
 {
 	auto* GII = GlobalInputInfo::Get();
-	if ((GII->mouse_state & MOUSE_LB_CLICK))
+	if ((GII->MouseState & MouseLbClick))
 	{
-		GII->mouse_state &= ~(MOUSE_LB_CLICK);
-		GII->mouse_state |= MOUSE_LB_HOLD;
+		GII->MouseState &= ~(MouseLbClick);
+		GII->MouseState |= MouseLbHold;
 	}
-	if ((GII->mouse_state & MOUSE_RB_CLICK))
+	if ((GII->MouseState & MouseRbClick))
 	{
-		GII->mouse_state &= ~(MOUSE_RB_CLICK);
-		GII->mouse_state |= MOUSE_RB_HOLD;
+		GII->MouseState &= ~(MouseRbClick);
+		GII->MouseState |= MouseRbHold;
 	}
 }
 
 
-void ResetInputFlags(RInputFlags flags)
+void ResetInputFlags(RInputFlags Flags)
 {
 	auto* GII = GlobalInputInfo::Get();
 	// here we record a history for if keys were last pressed or released, so to enable smooth toggle
-	GII->key_state |= flags.key_press;
-	GII->key_state &= ~flags.key_release;
+	GII->KeyState |= Flags.KeyPress;
+	GII->KeyState &= ~Flags.KeyRelease;
 }

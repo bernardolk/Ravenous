@@ -11,16 +11,16 @@
 
 struct RLedge
 {
-	bool empty = true;
-	vec3 a;
-	vec3 b;
+	bool Empty = true;
+	vec3 A;
+	vec3 B;
 
-	vec3 detection_direction; // The direction of the ray / rays that detected the ledge
-	vec3 surface_point;       // The point in the horizontal surface that proves this is an actual ledge
+	vec3 DetectionDirection; // The direction of the ray / rays that detected the ledge
+	vec3 SurfacePoint;       // The point in the horizontal surface that proves this is an actual ledge
 };
 
 struct RRaycastTest;
 
-RRaycastTest CL_GetTopHitFromMultipleRaycasts(RRay first_ray, int qty, float spacing, EPlayer* player);
-RLedge CL_PerformLedgeDetection(EPlayer* player, RWorld* world);
-vec3 CL_GetFinalPositionLedgeVaulting(EPlayer* player, RLedge ledge);
+RRaycastTest ClGetTopHitFromMultipleRaycasts(RRay FirstRay, int Qty, float Spacing, EPlayer* Player);
+RLedge ClPerformLedgeDetection(EPlayer* Player, RWorld* World);
+vec3 ClGetFinalPositionLedgeVaulting(EPlayer* Player, RLedge Ledge);

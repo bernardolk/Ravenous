@@ -6,7 +6,6 @@
 struct REditorState
 {
 	DeclSingleton(REditorState)
-	
 	enum class ProgramMode : uint8
 	{
 		Game,
@@ -14,8 +13,8 @@ struct REditorState
 		Console
 	};
 
-	ProgramMode current_mode = ProgramMode::Editor;
-	ProgramMode last_mode = ProgramMode::Editor;
+	ProgramMode CurrentMode = ProgramMode::Editor;
+	ProgramMode LastMode = ProgramMode::Editor;
 
 	static bool IsInGameMode();
 	static bool IsInEditorMode();

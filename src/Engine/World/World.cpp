@@ -7,18 +7,18 @@
 #include "engine/render/ImRender.h"
 #include "engine/utils/utils.h"
 #include "game/entities/EPlayer.h"
-#include "engine/entities/lights.h"
+#include "engine/entities/Lights.h"
 
 RWorld::RWorld()
 {
-	auto& active_chunk = *chunks.AddNew();
-	active_chunks.push_back(&active_chunk);
-	active_chunk.i = 0;
-	active_chunk.j = 0;
-	active_chunk.k = 0;
+	auto& ActiveChunk = *Chunks.AddNew();
+	ActiveChunks.push_back(&ActiveChunk);
+	ActiveChunk.i = 0;
+	ActiveChunk.j = 0;
+	ActiveChunk.k = 0;
 
 	// insert in map
-	chunks_map[active_chunk.GetChunkPosition()] = &active_chunk;
+	ChunksMap[ActiveChunk.GetChunkPosition()] = &ActiveChunk;
 }
 
 void RWorld::Update()
@@ -29,28 +29,28 @@ void RWorld::Update()
 
 void RWorld::UpdateTransforms()
 {
-	auto entity_iter = GetEntityIterator();
-	while (auto* entity = entity_iter())
+	auto EntityIter = GetEntityIterator();
+	while (auto* Entity = EntityIter())
 	{
-		entity->Update();	
+		Entity->Update();
 	}
 }
 
 void RWorld::UpdateTraits()
 {
-	auto* entity_traits_manager = EntityTraitsManager::Get();
-	for (TraitID trait_id : entity_traits_manager->entity_traits)
+	auto* TraitsManager = EntityTraitsManager::Get();
+	for (TraitID TraitId : TraitsManager->EntityTraits)
 	{
-		for (auto* chunk: active_chunks)
+		for (auto* Chunk : ActiveChunks)
 		{
-			chunk->InvokeTraitUpdateOnAllTypes(trait_id);
-		} 
-	}	
+			Chunk->InvokeTraitUpdateOnAllTypes(TraitId);
+		}
+	}
 }
 
-Iterator<RWorldChunk> RWorld::GetChunkIterator()
+TIterator<RWorldChunk> RWorld::GetChunkIterator()
 {
-	return chunks.GetIterator();
+	return Chunks.GetIterator();
 }
 
 WorldEntityIterator RWorld::GetEntityIterator()
@@ -58,234 +58,233 @@ WorldEntityIterator RWorld::GetEntityIterator()
 	return WorldEntityIterator();
 }
 
-WorldEntityIterator::WorldEntityIterator() : world(RWorld::Get()), chunk_iterator(world->active_chunks[0]->GetIterator())
+WorldEntityIterator::WorldEntityIterator() :
+	World(RWorld::Get()), ChunkIterator(World->ActiveChunks[0]->GetIterator())
 {
-	total_active_chunks = world->active_chunks.size();		
+	TotalActiveChunks = World->ActiveChunks.size();
 }
 
 EEntity* WorldEntityIterator::operator()()
 {
-	EEntity* entity = chunk_iterator();
-	if (!entity && current_chunk_index < total_active_chunks - 1)
+	EEntity* Entity = ChunkIterator();
+	if (!Entity && CurrentChunkIndex < TotalActiveChunks - 1)
 	{
-		current_chunk_index++;
-		chunk_iterator = world->active_chunks[current_chunk_index]->GetIterator();
-		entity = chunk_iterator();
+		CurrentChunkIndex++;
+		ChunkIterator = World->ActiveChunks[CurrentChunkIndex]->GetIterator();
+		Entity = ChunkIterator();
 	}
-	return entity;
+	return Entity;
 }
 
 EEntity* RWorldChunkEntityIterator::operator()()
 {
-	if (block_idx < chunk->chunk_storage.storage_metadata_array.Num())
+	if (BlockIdx < Chunk->ChunkStorage.StorageMetadataArray.Num())
 	{
-		auto* block_metadata = chunk->chunk_storage.storage_metadata_array.GetAt(block_idx);
-		if (entity_idx < block_metadata->entity_count)
+		auto* BlockMetadata = Chunk->ChunkStorage.StorageMetadataArray.GetAt(BlockIdx);
+		if (EntityIdx < BlockMetadata->EntityCount)
 		{
-			return reinterpret_cast<EEntity*>(block_metadata->data_start + block_metadata->type_size * entity_idx++);
+			return reinterpret_cast<EEntity*>(BlockMetadata->DataStart + BlockMetadata->TypeSize * EntityIdx++);
 		}
 
-		entity_idx = 0;
-		block_idx++;
+		EntityIdx = 0;
+		BlockIdx++;
 	}
 	return nullptr;
 }
 
-RRaycastTest RWorld::Raycast(const RRay ray, const NRayCastType test_type, const EEntity* skip, const float max_distance) const
+RRaycastTest RWorld::Raycast(const RRay Ray, const NRayCastType TestType, const EEntity* Skip, const float MaxDistance) const
 {
-	//@TODO: This should first test ray against world cells, then get the list of entities from these world cells to test against 
+	//@TODO: This should first Test Ray against world cells, then get the list of entities from these world cells to Test against 
 
-	float min_distance = MaxFloat;
-	RRaycastTest closest_hit{false, -1};
+	float MinDistance = MaxFloat;
+	RRaycastTest ClosestHit{false, -1};
 
-	auto entity_iterator = GetEntityIterator();
-	while (auto* entity = entity_iterator())
+	auto EntityIterator = GetEntityIterator();
+	while (auto* Entity = EntityIterator())
 	{
-		if (test_type == RayCast_TestOnlyVisibleEntities && entity->flags & EntityFlags_InvisibleEntity)
-			continue;
-		
-		if (skip != nullptr && entity->id == skip->id)
+		if (TestType == RayCast_TestOnlyVisibleEntities && Entity->Flags & EntityFlags_InvisibleEntity)
 			continue;
 
-		const auto test = CL_TestAgainstRay(ray, entity, test_type, max_distance);
-		if (test.hit && test.distance < min_distance && test.distance < max_distance)
+		if (Skip != nullptr && Entity->ID == Skip->ID)
+			continue;
+
+		const auto Test = CL_TestAgainstRay(Ray, Entity, TestType, MaxDistance);
+		if (Test.Hit && Test.Distance < MinDistance && Test.Distance < MaxDistance)
 		{
-			closest_hit = test;
-			closest_hit.entity = entity;
-			min_distance = test.distance;
+			ClosestHit = Test;
+			ClosestHit.Entity = Entity;
+			MinDistance = Test.Distance;
 		}
 	}
 
-	return closest_hit;
+	return ClosestHit;
 }
 
-RRaycastTest RWorld::Raycast(const RRay ray, const EEntity* skip, const float max_distance) const
+RRaycastTest RWorld::Raycast(const RRay Ray, const EEntity* Skip, const float MaxDistance) const
 {
-	return this->Raycast(ray, RayCast_TestOnlyFromOutsideIn, skip, max_distance);
+	return this->Raycast(Ray, RayCast_TestOnlyFromOutsideIn, Skip, MaxDistance);
 }
 
-RRaycastTest RWorld::LinearRaycastArray(const RRay first_ray, int qty, float spacing) const
+RRaycastTest RWorld::LinearRaycastArray(const RRay FirstRay, int Qty, float Spacing) const
 {
 	/* 
-	   Casts multiple ray towards the first_ray direction, with dir pointing upwards,
-	   qty says how many rays to shoot and spacing, well, the spacing between each ray.
+	   Casts multiple Ray towards the first_Ray direction, with dir pointing upwards,
+	   qty says how many Rays to shoot and spacing, well, the spacing between each Ray.
 	*/
 
-	RRay ray = first_ray;
-	float highest_y = MinFloat;
-	float shortest_z = MaxFloat;
-	RRaycastTest best_hit_results;
+	RRay Ray = FirstRay;
+	float HighestY = MinFloat;
+	float ShorTestZ = MaxFloat;
+	RRaycastTest BestHitResults;
 
-	EPlayer* player = EPlayer::Get();
-	
-	ForLess(qty)
+	EPlayer* Player = EPlayer::Get();
+
+	ForLess(Qty)
 	{
-		auto test = this->Raycast(ray, RayCast_TestOnlyFromOutsideIn, nullptr, player->grab_reach);
-		if (test.hit)
+		auto Test = this->Raycast(Ray, RayCast_TestOnlyFromOutsideIn, nullptr, Player->grab_reach);
+		if (Test.Hit)
 		{
-			if (test.distance < shortest_z || (AreEqualFloats(test.distance, shortest_z) && highest_y < ray.origin.y))
+			if (Test.Distance < ShorTestZ || (AreEqualFloats(Test.Distance, ShorTestZ) && HighestY < Ray.Origin.y))
 			{
-				highest_y = ray.origin.y;
-				shortest_z = test.distance;
-				best_hit_results = test;
+				HighestY = Ray.Origin.y;
+				ShorTestZ = Test.Distance;
+				BestHitResults = Test;
 			}
 		}
 
-		RImDraw::AddLine(IM_ITERHASH(i), ray.origin, ray.origin + ray.direction * player->grab_reach, 1.2f, false, COLOR_GREEN_1);
+		RImDraw::AddLine(IM_ITERHASH(i), Ray.Origin, Ray.Origin + Ray.Direction * Player->grab_reach, 1.2f, false, COLOR_GREEN_1);
 
-		ray = RRay{ray.origin + UnitY * spacing, ray.direction};
+		Ray = RRay{Ray.Origin + UnitY * Spacing, Ray.Direction};
 	}
 
-	if (best_hit_results.hit)
+	if (BestHitResults.Hit)
 	{
-		vec3 hitpoint = CL_GetPointFromDetection(best_hit_results.ray, best_hit_results);
-		RImDraw::AddPoint(IMHASH, hitpoint, 2.0, true, COLOR_RED_1);
+		vec3 Hitpoint = CL_GetPointFromDetection(BestHitResults.Ray, BestHitResults);
+		RImDraw::AddPoint(IMHASH, Hitpoint, 2.0, true, COLOR_RED_1);
 	}
 
-	return best_hit_results;
+	return BestHitResults;
 }
 
-RRaycastTest RWorld::RaycastLights(const RRay ray) const
+RRaycastTest RWorld::RaycastLights(const RRay Ray) const
 {
-	float min_distance = MaxFloat;
-	RRaycastTest closest_hit{.hit = false, .distance = -1};
+	float MinDistance = MaxFloat;
+	RRaycastTest ClosestHit{.Hit = false, .Distance = -1};
 
-	const auto aabb_mesh = GeometryCatalogue.find("aabb")->second;
+	const auto AabbMesh = GeometryCatalogue.find("aabb")->second;
 
-	int point_c = 0;
-	for (auto& light : this->point_lights)
+	int PointC = 0;
+	for (auto& Light : this->PointLights)
 	{
-		// subtract lightbulb model size from position
-		auto position = light->position - vec3{0.1575, 0, 0.1575};
-		auto aabb_model = translate(Mat4Identity, position);
-		aabb_model = scale(aabb_model, vec3{0.3f, 0.6f, 0.3f});
+		// subtract Lightbulb model size from Position
+		auto Position = Light->Position - vec3{0.1575, 0, 0.1575};
+		auto AabbModel = translate(Mat4Identity, Position);
+		AabbModel = scale(AabbModel, vec3{0.3f, 0.6f, 0.3f});
 
-		auto test = CL_TestAgainstRay(ray, aabb_mesh, aabb_model, RayCast_TestBothSidesOfTriangle);
-		if (test.hit && test.distance < min_distance)
+		auto Test = CL_TestAgainstRay(Ray, AabbMesh, AabbModel, RayCast_TestBothSidesOfTriangle);
+		if (Test.Hit && Test.Distance < MinDistance)
 		{
-			closest_hit = {true, test.distance, nullptr, point_c, "point"};
-			min_distance = test.distance;
+			ClosestHit = {true, Test.Distance, nullptr, PointC, "point"};
+			MinDistance = Test.Distance;
 		}
-		point_c++;
+		PointC++;
 	}
 
-	int spot_c = 0;
-	for (auto& light : this->spot_lights)
+	int SpotC = 0;
+	for (auto& Light : this->SpotLights)
 	{
-		// subtract lightbulb model size from position
-		auto position = light->position - vec3{0.1575, 0, 0.1575};
-		auto aabb_model = translate(Mat4Identity, position);
-		aabb_model = scale(aabb_model, vec3{0.3f, 0.6f, 0.3f});
+		// subtract Lightbulb model size from Position
+		auto Position = Light->Position - vec3{0.1575, 0, 0.1575};
+		auto AabbModel = translate(Mat4Identity, Position);
+		AabbModel = scale(AabbModel, vec3{0.3f, 0.6f, 0.3f});
 
-		const auto test = CL_TestAgainstRay(ray, aabb_mesh, aabb_model, RayCast_TestBothSidesOfTriangle);
-		if (test.hit && test.distance < min_distance)
+		const auto Test = CL_TestAgainstRay(Ray, AabbMesh, AabbModel, RayCast_TestBothSidesOfTriangle);
+		if (Test.Hit && Test.Distance < MinDistance)
 		{
-			closest_hit = {
-			.hit = true, .distance = test.distance, .entity = nullptr, .obj_hit_index = spot_c, .obj_hit_type = "spot"
-			};
-			min_distance = test.distance;
+			ClosestHit = {.Hit = true, .Distance = Test.Distance, .Entity = nullptr, .ObjHitIndex = SpotC, .ObjHitType = "spot"};
+			MinDistance = Test.Distance;
 		}
-		spot_c++;
+		SpotC++;
 	}
 
-	return closest_hit;
+	return ClosestHit;
 }
 
-CellUpdate RWorld::UpdateEntityWorldChunk(EEntity* entity)
+CellUpdate RWorld::UpdateEntityWorldChunk(EEntity* Entity)
 {
-	std::string message;
+	string Message;
 
 	// Computes which cells the entity is occupying based on its axis aligned bounding box
-	auto [bb_min, bb_max] = entity->bounding_box.Bounds();
+	auto [bb_min, bb_max] = Entity->BoundingBox.Bounds();
 	auto [i0, j0, k0] = WorldCoordsToCells(bb_min);
 	auto [i1, j1, k1] = WorldCoordsToCells(bb_max);
 
 	// Out of bounds catch
 	if (i0 == -1 || i1 == -1)
 	{
-		message = "Entity '" + entity->name + "' is located out of current world bounds.";
-		return CellUpdate{CellUpdate_OUT_OF_BOUNDS, message};
+		Message = "Entity '" + Entity->Name + "' is located out of current world bounds.";
+		return CellUpdate{CellUpdate_OUT_OF_BOUNDS, Message};
 	}
 
 	// Unexpected output
 	if (!(i1 >= i0 && j1 >= j0 && k1 >= k0))
 	{
-		message = "Entity '" + entity->name + "' yielded invalid (inverted) world cell coordinates.";
-		return CellUpdate{CellUpdate_UNEXPECTED, message};
+		Message = "Entity '" + Entity->Name + "' yielded invalid (inverted) world cell coordinates.";
+		return CellUpdate{CellUpdate_UNEXPECTED, Message};
 	}
 
 
-	bool b_changed_wc =
-		entity->world_chunks_count == 0 ||
-		entity->world_chunks[0]->i != i0 ||
-		entity->world_chunks[0]->j != j0 ||
-		entity->world_chunks[0]->k != k0 ||
-		entity->world_chunks[entity->world_chunks_count - 1]->i != i1 ||
-		entity->world_chunks[entity->world_chunks_count - 1]->j != j1 ||
-		entity->world_chunks[entity->world_chunks_count - 1]->k != k1;
+	bool BChangedWc =
+	Entity->WorldChunksCount == 0 ||
+	Entity->WorldChunks[0]->i != i0 ||
+	Entity->WorldChunks[0]->j != j0 ||
+	Entity->WorldChunks[0]->k != k0 ||
+	Entity->WorldChunks[Entity->WorldChunksCount - 1]->i != i1 ||
+	Entity->WorldChunks[Entity->WorldChunksCount - 1]->j != j1 ||
+	Entity->WorldChunks[Entity->WorldChunksCount - 1]->k != k1;
 
-	if (!b_changed_wc)
+	if (!BChangedWc)
 	{
 		return CellUpdate{CellUpdate_OK, "", false};
 	}
 
-	const int new_cells_count = (i1 - i0 + 1) * (j1 - j0 + 1) * (k1 - k0 + 1);
+	const int NewCellsCount = (i1 - i0 + 1) * (j1 - j0 + 1) * (k1 - k0 + 1);
 
 	// Entity too large catch
-	if (new_cells_count > MaxEntityWorldChunks)
+	if (NewCellsCount > MaxEntityWorldChunks)
 	{
-		message = "Entity '" + entity->name + "' is too large and it occupies more than " +
+		Message = "Entity '" + Entity->Name + "' is too large and it occupies more than " +
 		"the limit of " + std::to_string(MaxEntityWorldChunks) + " world cells at a time.";
 
-		return CellUpdate{CellUpdate_ENTITY_TOO_BIG, message};
+		return CellUpdate{CellUpdate_ENTITY_TOO_BIG, Message};
 	}
 
 	// Remove entity from all world cells (inneficient due to defrag)
-	for (int i = 0; i < entity->world_chunks_count; i++)
+	for (int I = 0; I < Entity->WorldChunksCount; I++)
 	{
-		entity->world_chunks[i]->RemoveEntity(entity);
+		Entity->WorldChunks[I]->RemoveEntity(Entity);
 	}
-	entity->world_chunks_count = 0;
+	Entity->WorldChunksCount = 0;
 
-	auto origin_chunk =  WorldCoordsToCells(entity->position);
+	auto OriginChunk = WorldCoordsToCells(Entity->Position);
 
 	// Add entity to all world cells
-	for (int i = i0; i <= i1; i++)
+	for (int I = i0; I <= i1; I++)
 	{
-		for (int j = j0; j <= j1; j++)
+		for (int J = j0; J <= j1; J++)
 		{
-			for (int k = k0; k <= k1; k++)
+			for (int K = k0; K <= k1; K++)
 			{
-				auto chunk_it = this->chunks_map.find({i,j,k});
-				if (chunk_it == chunks_map.end())
+				auto ChunkIt = this->ChunksMap.find({I, J, K});
+				if (ChunkIt == ChunksMap.end())
 					return CellUpdate{CellUpdate_OUT_OF_BOUNDS, "Coordinates not found in chunks_map.", true};
-				
-				auto* chunk = chunk_it->second;
-				
-				if (origin_chunk != vec3(i,j,k))
-					chunk->AddVisitor(entity);
-				
-				entity->world_chunks.push_back(chunk);
+
+				auto* Chunk = ChunkIt->second;
+
+				if (OriginChunk != vec3(I, J, K))
+					Chunk->AddVisitor(Entity);
+
+				Entity->WorldChunks.push_back(Chunk);
 			}
 		}
 	}
@@ -295,49 +294,49 @@ CellUpdate RWorld::UpdateEntityWorldChunk(EEntity* entity)
 
 auto RWorld::GetFrameData() -> RavenousEngine::RFrameData&
 {
-	return RavenousEngine::REngineRuntimeState::Get()->frame;
+	return RavenousEngine::REngineRuntimeState::Get()->Frame;
 }
 
 // TODO: Move these elsewhere
-void SetEntityDefaultAssets(EEntity* entity)
+void SetEntityDefaultAssets(EEntity* Entity)
 {
 	// Trusting type defaults
-	REntityAttributes attrs;
+	REntityAttributes Attrs;
 
 	auto [
-		_textures,
-		_texture_count,
-		_mesh,
-		_collision_mesh,
-		_shader] = FindEntityAssetsInCatalogue(attrs.mesh, attrs.collision_mesh, attrs.shader, attrs.texture);
+		 Textures,
+		 TextureCount,
+		 Mesh,
+		 CollisionMesh,
+		_Shader] = FindEntityAssetsInCatalogue(Attrs.Mesh, Attrs.CollisionMesh, Attrs.Shader, Attrs.Texture);
 
-	entity->name = attrs.name;
-	entity->shader = _shader;
-	entity->mesh = _mesh;
-	entity->scale = attrs.scale;
-	entity->collision_mesh = _collision_mesh;
-	entity->collider = *_collision_mesh;
+	Entity->Name = Attrs.Name;
+	Entity->Shader = _Shader;
+	Entity->Mesh =  Mesh;
+	Entity->Scale = Attrs.Scale;
+	Entity->CollisionMesh =  CollisionMesh;
+	Entity->Collider = * CollisionMesh;
 
-	For(_texture_count)
-		entity->textures.push_back(_textures[i]);
+	For( TextureCount)
+		Entity->Textures.push_back( Textures[i]);
 }
-	
-void SetEntityAssets(EEntity* entity, REntityAttributes attrs)
+
+void SetEntityAssets(EEntity* Entity, REntityAttributes Attrs)
 {
 	auto [
-		_textures,
-		_texture_count,
-		_mesh,
-		_collision_mesh,
-		_shader] = FindEntityAssetsInCatalogue(attrs.mesh, attrs.collision_mesh, attrs.shader, attrs.texture);
+		 Textures,
+		 TextureCount,
+		 Mesh,
+		 CollisionMesh,
+		_Shader] = FindEntityAssetsInCatalogue(Attrs.Mesh, Attrs.CollisionMesh, Attrs.Shader, Attrs.Texture);
 
-	entity->name = attrs.name;
-	entity->shader = _shader;
-	entity->mesh = _mesh;
-	entity->scale = attrs.scale;
-	entity->collision_mesh = _collision_mesh;
-	entity->collider = *_collision_mesh;
+	Entity->Name = Attrs.Name;
+	Entity->Shader = _Shader;
+	Entity->Mesh =  Mesh;
+	Entity->Scale = Attrs.Scale;
+	Entity->CollisionMesh =  CollisionMesh;
+	Entity->Collider = * CollisionMesh;
 
-	For(_texture_count)
-		entity->textures.push_back(_textures[i]);
+	For( TextureCount)
+		Entity->Textures.push_back( Textures[i]);
 }

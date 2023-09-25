@@ -5,125 +5,117 @@
 
 namespace Editor
 {
-	void RDeletedEntityLog::Add(const EEntity* entity)
+	void RDeletedEntityLog::Add(const EEntity* Entity)
 	{
-		if (size + 1 == capacity)
+		if (Size + 1 == Capacity)
 		{
-			Rvn::rm_buffer->Add("DeletedEntityLog is FULL!", 3000);
+			Rvn::RmBuffer->Add("DeletedEntityLog is FULL!", 3000);
 			return;
 		}
 
-		entity_ids[size++] = entity->id;
+		EntityIds[Size++] = Entity->ID;
 	};
 
-	void RUndoStack::Track(EEntity* entity)
+	void RUndoStack::Track(EEntity* Entity)
 	{
-		auto state = REntityState{
-		entity,
-		entity->id,
-		entity->position,
-		entity->scale,
-		entity->rotation
-		};
-
-		Track(state);
+		Track(REntityState{Entity, Entity->ID, Entity->Position, Entity->Scale, Entity->Rotation});
 	}
 
-	void RUndoStack::Track(REntityState state)
+	void RUndoStack::Track(REntityState State)
 	{
 		//log(LOG_INFO, "Tracking entity '" + state.entity->name + "'.");
 
-		if (full)
+		if (Full)
 		{
-			Rvn::rm_buffer->Add("UNDO/REDO STACK FULL.", 800);
+			Rvn::RmBuffer->Add("UNDO/REDO STACK FULL.", 800);
 			return;
 		}
 
-		if (!CompareEntityStates(state, Check()))
+		if (!CompareEntityStates(State, Check()))
 		{
-			stack[++pos] = state;
-			limit = pos;
+			Stack[++Pos] = State;
+			Limit = Pos;
 		}
-		full = IsBufferFull();
+		Full = IsBufferFull();
 	}
 
 	void RUndoStack::Undo()
 	{
-		if (pos == 0)
+		if (Pos == 0)
 			return;
 
 		// gets a valid state to undo
-		REntityState state;
+		REntityState State;
 		do
 		{
-			state = GetStateAndMoveBack();
-			if (pos == 1 && !IsStateValid(state))
+			State = GetStateAndMoveBack();
+			if (Pos == 1 && !IsStateValid(State))
 				return;
-		} while (!IsStateValid(state));
+		} while (!IsStateValid(State));
 
-		ApplyState(state);
+		ApplyState(State);
 	}
 
 	void RUndoStack::Redo()
 	{
-		if (pos == 0)
+		if (Pos == 0)
 			return;
 
 		// gets a valid state to redo
-		REntityState state;
+		REntityState State;
 		do
 		{
-			state = GetStateAndMoveUp();
-			if (pos == limit && !IsStateValid(state))
+			State = GetStateAndMoveUp();
+			if (Pos == Limit && !IsStateValid(State))
 				return;
-		} while (!IsStateValid(state));
+		} while (!IsStateValid(State));
 
-		ApplyState(state);
+		ApplyState(State);
 	}
 
 	REntityState RUndoStack::Check()
 	{
-		if (pos > 0)
-			return stack[pos];
+		if (Pos > 0)
+			return Stack[Pos];
 		return REntityState{};
 	}
 
 	// internal
 	REntityState RUndoStack::GetStateAndMoveBack()
 	{
-		if (pos > 1)
-			return stack[--pos];
-		if (pos == 1)
-			return stack[pos];
+		if (Pos > 1)
+			return Stack[--Pos];
+		if (Pos == 1)
+			return Stack[Pos];
 		return REntityState{};
 	}
 
 	// internal
 	REntityState RUndoStack::GetStateAndMoveUp()
 	{
-		if (pos < limit)
-			return stack[++pos];
-		if (pos == limit)
-			return stack[pos];
+		if (Pos < Limit)
+			return Stack[++Pos];
+		if (Pos == Limit)
+			return Stack[Pos];
 		return REntityState{};
 	}
 
 	// internal
 	bool RUndoStack::IsBufferFull()
 	{
-		return limit + 1 == capacity;
+		return Limit + 1 == Capacity;
 	}
 
 	// internal
-	bool RUndoStack::IsStateValid(REntityState state)
+	bool RUndoStack::IsStateValid(REntityState State)
 	{
 		// if entity was deleted, it isnt valid
-		for (int i = 0; i < deletion_log.size; i++)
-			if (deletion_log.entity_ids[i] == state.id)
+		for (int I = 0; I < DeletionLog.Size; I++)
+			if (DeletionLog.EntityIds[I] == State.ID)
 				return false;
 
 		// if entity current state is equal to state in stack
 		// then is not valid for undo also
-		return !CompareEntityStates(GetEntityState(state.entity), state);
+		return !CompareEntityStates(GetEntityState(State.Entity), State);
 	}
 };

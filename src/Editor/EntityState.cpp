@@ -1,42 +1,42 @@
 #include "EntityState.h"
 #include "engine/entities/Entity.h"
 
-REntityState GetEntityState(EEntity* entity)
+REntityState GetEntityState(EEntity* Entity)
 {
-	REntityState state;
-	state.position = entity->position;
-	state.scale = entity->scale;
-	state.rotation = entity->rotation;
-	state.entity = entity;
-	state.id = entity->id;
-	return state;
+	REntityState State;
+	State.Position = Entity->Position;
+	State.Scale = Entity->Scale;
+	State.Rotation = Entity->Rotation;
+	State.Entity = Entity;
+	State.ID = Entity->ID;
+	return State;
 }
 
-void ApplyState(REntityState state)
+void ApplyState(REntityState State)
 {
-	if (state.entity == nullptr)
+	if (State.Entity == nullptr)
 		return;
 
-	state.entity->position = state.position;
-	state.entity->scale = state.scale;
-	state.entity->rotation = state.rotation;
-	state.entity->Update();
+	State.Entity->Position = State.Position;
+	State.Entity->Scale = State.Scale;
+	State.Entity->Rotation = State.Rotation;
+	State.Entity->Update();
 }
 
-bool CompareEntityStates(REntityState state1, REntityState state2)
+bool CompareEntityStates(REntityState State1, REntityState State2)
 {
-	return state1.id == state2.id
-	&& state1.position == state2.position
-	&& state1.scale == state2.scale
-	&& state1.rotation == state2.rotation;
+	return State1.ID == State2.ID
+	&& State1.Position == State2.Position
+	&& State1.Scale == State2.Scale
+	&& State1.Rotation == State2.Rotation;
 }
 
-mat4 MatModelFromEntityState(REntityState state)
+mat4 MatModelFromEntityState(REntityState State)
 {
-	glm::mat4 model = translate(Mat4Identity, state.position);
-	model = rotate(model, glm::radians(state.rotation.x), vec3(1.0f, 0.0f, 0.0f));
-	model = rotate(model, glm::radians(state.rotation.y), vec3(0.0f, 1.0f, 0.0f));
-	model = rotate(model, glm::radians(state.rotation.z), vec3(0.0f, 0.0f, 1.0f));
-	model = scale(model, state.scale);
-	return model;
+	glm::mat4 Model = translate(Mat4Identity, State.Position);
+	Model = rotate(Model, glm::radians(State.Rotation.x), vec3(1.0f, 0.0f, 0.0f));
+	Model = rotate(Model, glm::radians(State.Rotation.y), vec3(0.0f, 1.0f, 0.0f));
+	Model = rotate(Model, glm::radians(State.Rotation.z), vec3(0.0f, 0.0f, 1.0f));
+	Model = scale(Model, State.Scale);
+	return Model;
 }

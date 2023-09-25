@@ -3,47 +3,47 @@
 
 struct ParseUnit
 {
-	std::string string{};
-	uint size = 0;
-	uint8 has_token = 0;
+	string String;
+	uint Size = 0;
+	uint8 HasToken = 0;
 	union
 	{
-		char string_buffer[50]{};
-		int i_token;
-		float f_token;
-		char c_token;
-		uint ui_token;
-		uint64 u64_token;
-		float vec3[3];
-		float vec2[2];
+		char StringBuffer[50]{};
+		int IToken;
+		float FToken;
+		char CToken;
+		uint UiToken;
+		uint64 U64Token;
+		float Vec3[3];
+		float Vec2[2];
 	};
 
 	void AdvanceChar()
 	{
-		string = &(string[1]);
-		size--;
+		String = &(String[1]);
+		Size--;
 	}
 };
 
 struct Parser
 {
-	int line_count = 0;
-	std::ifstream reader;
-	std::string filepath;
-	ParseUnit p{};
+	int LineCount = 0;
+	std::ifstream Reader;
+	string Filepath;
+	ParseUnit P{};
 
-	explicit Parser(const std::string& filepath)
+	explicit Parser(const string& Filepath)
 	{
-		this->filepath = filepath;
-		this->reader = std::ifstream(filepath);
-		if (!this->reader.is_open())
-			fatal_error("Couldn't open file '%s', path NOT FOUND", filepath.c_str());
+		this->Filepath = Filepath;
+		this->Reader = std::ifstream(Filepath);
+		if (!this->Reader.is_open())
+			fatal_error("Couldn't open file '%s', path NOT FOUND", Filepath.c_str());
 	}
 
-	Parser(const std::string& text_buffer, const int buffer_size)
+	Parser(const string& TextBuffer, const int BufferSize)
 	{
-		this->p.string = text_buffer.c_str();
-		this->p.size = buffer_size;
+		this->P.String = TextBuffer.c_str();
+		this->P.Size = BufferSize;
 	}
 
 	bool NextLine();
@@ -65,43 +65,45 @@ struct Parser
 	void ClearParseBuffer();
 	bool HasToken() const;
 
-	constexpr static uint ten_powers[10]{
-	1, 10, 100, 1000, 10000,
-	100000, 1000000, 10000000, 100000000, 1000000000
+	constexpr static uint TenPowers[10]
+	{
+		1, 10, 100, 1000, 10000,
+		100000, 1000000, 10000000, 100000000, 1000000000
 	};
 
-	constexpr static float ten_inverse_powers[10]{
-	0.1f, 0.01f, 0.001f, 0.0001f, 0.00001f,
-	0.000001f, 0.0000001f, 0.00000001f, 0.000000001f, 0.0000000001f
+	constexpr static float TenInversePowers[10]
+	{
+		0.1f, 0.01f, 0.001f, 0.0001f, 0.00001f,
+		0.000001f, 0.0000001f, 0.00000001f, 0.000000001f, 0.0000000001f
 	};
 };
 
 template<typename T>
-T GetParsed(Parser& parser)
+T GetParsed(Parser& Parser)
 {
-	return *reinterpret_cast<T*>(&parser.p.i_token);
+	return *reinterpret_cast<T*>(&Parser.P.IToken);
 }
 
 template<>
-inline std::string GetParsed(Parser& parser)
+inline string GetParsed(Parser& Parser)
 {
-	return parser.p.string_buffer;
+	return Parser.P.StringBuffer;
 }
 
 template<>
-inline glm::vec3 GetParsed(Parser& parser)
+inline glm::vec3 GetParsed(Parser& Parser)
 {
-	if (parser.p.has_token == 0)
+	if (Parser.P.HasToken == 0)
 		fatal_error("FATAL: Parse has no vec3 value to be retrieved. Check line being parsed.");
 
-	return glm::vec3{parser.p.vec3[0], parser.p.vec3[1], parser.p.vec3[2]};
+	return glm::vec3{Parser.P.Vec3[0], Parser.P.Vec3[1], Parser.P.Vec3[2]};
 }
 
 template<>
-inline glm::vec2 GetParsed(Parser& parser)
+inline glm::vec2 GetParsed(Parser& Parser)
 {
-	if (parser.p.has_token == 0)
+	if (Parser.P.HasToken == 0)
 		fatal_error("FATAL: Parse has no vec3 value to be retrieved. Check line being parsed.");
 
-	return glm::vec2{parser.p.vec2[0], parser.p.vec2[1]};
+	return glm::vec2{Parser.P.Vec2[0], Parser.P.Vec2[1]};
 }

@@ -6,5 +6,5 @@ namespace Editor
 {
 	struct RWorldPanelContext;
 
-	void RenderWorldPanel(RWorldPanelContext* panel, const RWorld* world, const EPlayer* player);
+	void RenderWorldPanel(RWorldPanelContext* Panel, const RWorld* World, const EPlayer* Player);
 }

@@ -22,8 +22,7 @@
 #define IMCUSTOMHASH(x) ImHasher(x)
 #define IM_ITERHASH(x) ImHasher(std::string(__FILE__) + "-" + std::to_string(__LINE__) + "-" + std::to_string(x))
 #define IMHASH ImHasher(std::string(__FILE__) + "-" + std::to_string(__LINE__))
-#define IM_R_FIND_SLOT() RImDrawSlot slot = FindElementOrEmptySlot(_hash); \
-                         if(slot.empty && slot.index == -1) return;
+#define IM_R_FIND_SLOT() FindElementOrEmptySlot(_hash); if(Slot.Empty && Slot.Index == -1) return;
 
 
 struct RenderOptions;
@@ -31,57 +30,54 @@ constexpr inline std::hash<std::string> ImHasher;
 
 struct RImDrawElement
 {
-	uint hash;
-	bool empty;
-	RMesh mesh;
-	RenderOptions render_options;
-	int duration;
-	bool is_mesh;
-	vec3 pos;
-	vec3 rot;
-	vec3 scale;
-	bool is_multpl_by_matmodel;
+	uint Hash;
+	bool Empty;
+	RMesh Mesh;
+	RenderOptions RenderOptions;
+	int Duration;
+	bool IsMesh;
+	vec3 Position;
+	vec3 Rotation;
+	vec3 Scale;
+	bool IsMultplByMatmodel;
 };
 
 struct RImDrawSlot
 {
-	bool empty;
-	int index;
+	bool Empty;
+	int Index;
 };
 
 struct RImDraw
 {
-	static constexpr int im_buffer_size = 200;
-	inline static RImDrawElement* list;
+	static constexpr int ImBufferSize = 200;
+	inline static RImDrawElement* List;
 
 	static void Init();
-	static void Update(float frame_duration);
-	static void Render(RCamera* camera);
-	static auto Add(uint _hash, vector<RVertex> vertex_vec, GLenum draw_method, RenderOptions opts = RenderOptions{}) -> void;
-	static void Add(uint _hash, vector<RTriangle> triangles, GLenum draw_method, RenderOptions);
-	static void AddLine(uint _hash, vec3 point_a, vec3 point_b, vec3 color);
-	static void AddLine(uint _hash, vec3 point_a, vec3 point_b, float line_width = 1.0,
-	                    bool always_on_top = false, vec3 color = vec3(0), float duration = 0);
-	static void AddLineLoop(uint _hash, vector<vec3> points, float line_width = 1.0, bool always_on_top = false);
-	static void AddPoint(uint _hash, vec3 point, float point_size = 1.0,
-	                     bool always_on_top = false, vec3 color = vec3(0), float duration = 0);
-	static void AddPoint(uint _hash, vec3 point, vec3 color = vec3(0));
-	static void AddTriangle(uint _hash, RTriangle t, float line_width = 1.0,
-	                        bool always_on_top = false, vec3 color = vec3{0.8, 0.2, 0.2});
-	static void AddMesh(uint _hash, RMesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color = COLOR_BLUE_1, int duration = 2000);
-	static void AddMesh(uint _hash, RMesh* mesh, vec3 color = COLOR_BLUE_1, float duration = 2000);
-	static void AddMesh(uint _hash, EEntity* entity, int duration);
-	static void AddMesh(uint _hash, EEntity* entity);
-	static void AddMesh(uint _hash, EEntity* entity, vec3 pos);
+	static void Update(float FrameDuration);
+	static void Render(RCamera* Camera);
+	static auto Add(uint Hash, vector<RVertex> VertexVec, GLenum DrawMethod, RenderOptions Opts = RenderOptions{}) -> void;
+	static void Add(uint Hash, vector<RTriangle> Triangles, GLenum DrawMethod, RenderOptions);
+	static void AddLine(uint Hash, vec3 PointA, vec3 PointB, vec3 Color);
+	static void AddLine(uint Hash, vec3 PointA, vec3 PointB, float LineWidth = 1.0, bool AlwaysOnTop = false, vec3 Color = vec3(0), float Duration = 0);
+	static void AddLineLoop(uint Hash, vector<vec3> Points, float LineWidth = 1.0, bool AlwaysOnTop = false);
+	static void AddPoint(uint Hash, vec3 Point, float PointSize = 1.0, bool AlwaysOnTop = false, vec3 Color = vec3(0), float Duration = 0);
+	static void AddPoint(uint Hash, vec3 Point, vec3 Color = vec3(0));
+	static void AddTriangle(uint Hash, RTriangle Triangle, float LineWidth = 1.0, bool AlwaysOnTop = false, vec3 Color = vec3{0.8, 0.2, 0.2});
+	static void AddMesh(uint Hash, RMesh* Mesh, vec3 Position, vec3 Rotation, vec3 Scale, vec3 Color = COLOR_BLUE_1, int Duration = 2000);
+	static void AddMesh(uint Hash, RMesh* Mesh, vec3 Color = COLOR_BLUE_1, float Duration = 2000);
+	static void AddMesh(uint Hash, EEntity* Entity, int Duration);
+	static void AddMesh(uint Hash, EEntity* Entity);
+	static void AddMesh(uint Hash, EEntity* Entity, vec3 Position);
 
 private:
-	static void SetMesh(int i, vector<RVertex> vertices, GLenum draw_method, RenderOptions opts);
-	static void SetMesh(int i, RMesh* mesh, RenderOptions opts);
-	static void UpdateMesh(int i, vec3 pos, vec3 rot, vec3 scale, vec3 color, int duration);
-	static void UpdateMesh(int i, vec3 color, int duration);
-	static mat4 GetMatModel(vec3 pos, vec3 rot, vec3 scale);
-	static void SetIndices(int i, vector<uint> indices);
-	static void EmptySlot(int i);
+	static void SetMesh(int Index, vector<RVertex> Vertices, GLenum DrawMethod, RenderOptions Opts);
+	static void SetMesh(int Index, RMesh* Mesh, RenderOptions Opts);
+	static void UpdateMesh(int Index, vec3 Position, vec3 Rotation, vec3 Scale, vec3 Color, int Duration);
+	static void UpdateMesh(int Index, vec3 Color, int Duration);
+	static mat4 GetMatModel(vec3 Position, vec3 Rotation, vec3 Scale);
+	static void SetIndices(int Index, vector<uint> Indices);
+	static void EmptySlot(int Index);
 
-	static RImDrawSlot FindElementOrEmptySlot(uint hash);
+	static RImDrawSlot FindElementOrEmptySlot(uint Hash);
 };

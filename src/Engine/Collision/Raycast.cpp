@@ -14,38 +14,38 @@
 // --------------------------
 // > TEST RAY AGAINST AABB
 // --------------------------
-bool CL_TestAgainstRay(RRay ray, RBoundingBox box)
+bool ClTestAgainstRay(RRay Ray, RBoundingBox Box)
 {
-	vec3 ray_inv = ray.GetInv();
+	vec3 RayInv = Ray.GetInv();
 
-	float tx1 = (box.minx - ray.origin.x) * ray_inv.x;
-	float tx2 = (box.maxx - ray.origin.x) * ray_inv.x;
+	float Tx1 = (Box.MinX - Ray.Origin.x) * RayInv.x;
+	float Tx2 = (Box.MaxX - Ray.Origin.x) * RayInv.x;
 
-	float tmin = Min(tx1, tx2);
-	float tmax = Max(tx1, tx2);
+	float Tmin = Min(Tx1, Tx2);
+	float Tmax = Max(Tx1, Tx2);
 
-	float ty1 = (box.miny - ray.origin.y) * ray_inv.y;
-	float ty2 = (box.maxy - ray.origin.y) * ray_inv.y;
+	float Ty1 = (Box.MinY - Ray.Origin.y) * RayInv.y;
+	float Ty2 = (Box.MaxY - Ray.Origin.y) * RayInv.y;
 
-	tmin = Max(tmin, Min(ty1, ty2));
-	tmax = Min(tmax, Max(ty1, ty2));
+	Tmin = Max(Tmin, Min(Ty1, Ty2));
+	Tmax = Min(Tmax, Max(Ty1, Ty2));
 
-	float tz1 = (box.minz - ray.origin.z) * ray_inv.z;
-	float tz2 = (box.maxz - ray.origin.z) * ray_inv.z;
+	float Tz1 = (Box.MinZ - Ray.Origin.z) * RayInv.z;
+	float Tz2 = (Box.MaxZ - Ray.Origin.z) * RayInv.z;
 
-	tmin = Max(tmin, Min(tz1, tz2));
-	tmax = Min(tmax, Max(tz1, tz2));
+	Tmin = Max(Tmin, Min(Tz1, Tz2));
+	Tmax = Min(Tmax, Max(Tz1, Tz2));
 
-	return tmax >= tmin;
+	return Tmax >= Tmin;
 }
 
 // --------------------------
 // > TEST RAY AGAINST ENTITY
 // --------------------------
-RRaycastTest CL_TestAgainstRay(
-	RRay ray, EEntity* entity,
-	NRayCastType test_type = RayCast_TestOnlyFromOutsideIn,
-	float max_distance = MaxFloat)
+RRaycastTest ClTestAgainstRay(
+	RRay Ray, EEntity* Entity,
+	NRayCastType TestType = RayCast_TestOnlyFromOutsideIn,
+	float MaxDistance = MaxFloat)
 {
 	// @TODO: when testing against player, we could:
 	//      a) find the closest point between player's column and the ray
@@ -54,116 +54,116 @@ RRaycastTest CL_TestAgainstRay(
 
 
 	// first check collision with bounding box
-	if (CL_TestAgainstRay(ray, entity->bounding_box))
+	if (ClTestAgainstRay(Ray, Entity->BoundingBox))
 	{
 		//@TODO: We are not updating player's collider everytime now, so we must do it now on a raycast call
-		entity->UpdateCollider();
-		return CL_TestAgainstRay(ray, &entity->collider, test_type);
+		Entity->UpdateCollider();
+		return ClTestAgainstRay(Ray, &Entity->Collider, TestType);
 	}
 
 	return RRaycastTest{false};
 }
 
 
-RRaycastTest CL_TestAgainstRay(RRay ray, EEntity* entity)
+RRaycastTest ClTestAgainstRay(RRay Ray, EEntity* Entity)
 {
-	return CL_TestAgainstRay(ray, entity, RayCast_TestOnlyFromOutsideIn, MaxFloat);
+	return ClTestAgainstRay(Ray, Entity, RayCast_TestOnlyFromOutsideIn, MaxFloat);
 }
 
 // ---------------------------
 // > TEST RAY AGAINT COLLIDER
 // ---------------------------
 // This doesn't take a matModel
-RRaycastTest CL_TestAgainstRay(RRay ray, RCollisionMesh* collider, NRayCastType test_type)
+RRaycastTest ClTestAgainstRay(RRay Ray, RCollisionMesh* Collider, NRayCastType TestType)
 {
 
-	int triangles = collider->indices.size() / 3;
-	float min_distance = MaxFloat;
-	RRaycastTest min_hit_test{false, -1};
-	for (int i = 0; i < triangles; i++)
+	int Triangles = Collider->Indices.size() / 3;
+	float MinDistance = MaxFloat;
+	RRaycastTest MinHitTest{false, -1};
+	for (int I = 0; I < Triangles; I++)
 	{
-		RTriangle t = get_triangle_for_collider_indexed_mesh(collider, i);
-		bool test_both_sides = test_type == RayCast_TestBothSidesOfTriangle;
-		auto test = CL_TestAgainstRay(ray, t, test_both_sides);
-		if (test.hit && test.distance < min_distance)
+		RTriangle T = get_triangle_for_collider_indexed_mesh(Collider, I);
+		bool TestBothSides = TestType == RayCast_TestBothSidesOfTriangle;
+		auto Test = ClTestAgainstRay(Ray, T, TestBothSides);
+		if (Test.Hit && Test.Distance < MinDistance)
 		{
-			min_hit_test = test;
-			min_hit_test.t_index = i;
-			min_distance = test.distance;
+			MinHitTest = Test;
+			MinHitTest.TriangleIndex = I;
+			MinDistance = Test.Distance;
 		}
 	}
 
-	return min_hit_test;
+	return MinHitTest;
 }
 
 // ------------------------
 // > TEST RAY AGAINST MESH
 // ------------------------
 // This does take a matModel
-RRaycastTest CL_TestAgainstRay(RRay ray, RMesh* mesh, glm::mat4 mat_model, NRayCastType test_type)
+RRaycastTest ClTestAgainstRay(RRay Ray, RMesh* Mesh, glm::mat4 MatModel, NRayCastType TestType)
 {
-	int triangles = mesh->indices.size() / 3;
-	float min_distance = MaxFloat;
-	RRaycastTest min_hit_test{false, -1};
-	for (int i = 0; i < triangles; i++)
+	int Triangles = Mesh->Indices.size() / 3;
+	float MinDistance = MaxFloat;
+	RRaycastTest MinHitTest{false, -1};
+	for (int i = 0; i < Triangles; i++)
 	{
-		RTriangle t = get_triangle_for_indexed_mesh(mesh, mat_model, i);
-		bool test_both_sides = test_type == RayCast_TestBothSidesOfTriangle;
-		auto test = CL_TestAgainstRay(ray, t, test_both_sides);
-		if (test.hit && test.distance < min_distance)
+		RTriangle T = get_triangle_for_indexed_mesh(Mesh, MatModel, i);
+		bool TestBothSides = TestType == RayCast_TestBothSidesOfTriangle;
+		auto Test = ClTestAgainstRay(Ray, T, TestBothSides);
+		if (Test.Hit && Test.Distance < MinDistance)
 		{
-			min_hit_test = test;
-			min_hit_test.t_index = i;
-			min_distance = test.distance;
+			MinHitTest = Test;
+			MinHitTest.TriangleIndex = i;
+			MinDistance = Test.Distance;
 		}
 	}
 
-	return min_hit_test;
+	return MinHitTest;
 }
 
 // ----------------------------
 // > TEST RAY AGAINST TRIANGLE
 // ----------------------------
-RRaycastTest CL_TestAgainstRay(RRay ray, RTriangle triangle, bool test_both_sides)
+RRaycastTest ClTestAgainstRay(RRay Ray, RTriangle Triangle, bool TestBothSides)
 {
-	auto& A = triangle.a;
-	auto& B = triangle.b;
-	auto& C = triangle.c;
+	auto& A = Triangle.A;
+	auto& B = Triangle.B;
+	auto& C = Triangle.C;
 	vec3 E1 = B - A;
 	vec3 E2 = C - A;
-	vec3 AO = ray.origin - A;
+	vec3 AO = Ray.Origin - A;
 
 	// check hit with one side of triangle
 	vec3 N = cross(E1, E2);
-	float det = -dot(ray.direction, N);
-	float invdet = 1.0 / det;
-	vec3 DAO = cross(AO, ray.direction);
-	float u = dot(E2, DAO) * invdet;
-	float v = -dot(E1, DAO) * invdet;
-	float t = dot(AO, N) * invdet;
-	bool test = (det >= 1e-6 && t >= 0.0 && u >= 0.0 && v >= 0.0 && (u + v) <= 1.0);
+	float Det = -dot(Ray.Direction, N);
+	float Invdet = 1.0 / Det;
+	vec3 DAO = cross(AO, Ray.Direction);
+	float U = dot(E2, DAO) * Invdet;
+	float V = -dot(E1, DAO) * Invdet;
+	float T = dot(AO, N) * Invdet;
+	bool Test = (Det >= 1e-6 && T >= 0.0 && U >= 0.0 && V >= 0.0 && (U + V) <= 1.0);
 
-	if (!test && test_both_sides)
+	if (!Test && TestBothSides)
 	{
 		// check other side
 		N = cross(E2, E1);
-		det = -dot(ray.direction, N);
-		invdet = 1.0 / det;
-		DAO = cross(ray.direction, AO);
-		u = dot(E2, DAO) * invdet;
-		v = -dot(E1, DAO) * invdet;
-		t = dot(AO, N) * invdet;
-		test = (det >= 1e-6 && t >= 0.0 && u >= 0.0 && v >= 0.0 && (u + v) <= 1.0);
+		Det = -dot(Ray.Direction, N);
+		Invdet = 1.0 / Det;
+		DAO = cross(Ray.Direction, AO);
+		U = dot(E2, DAO) * Invdet;
+		V = -dot(E1, DAO) * Invdet;
+		T = dot(AO, N) * Invdet;
+		Test = (Det >= 1e-6 && T >= 0.0 && U >= 0.0 && V >= 0.0 && (U + V) <= 1.0);
 	}
 
-	if (test)
+	if (Test)
 	{
-		RRaycastTest result;
-		result.hit = true;
-		result.distance = t;
-		result.t = triangle;
-		result.ray = ray;
-		return result;
+		RRaycastTest Result;
+		Result.Hit = true;
+		Result.Distance = T;
+		Result.Triangle = Triangle;
+		Result.Ray = Ray;
+		return Result;
 	}
 
 	return RRaycastTest{false, -1};
@@ -172,30 +172,30 @@ RRaycastTest CL_TestAgainstRay(RRay ray, RTriangle triangle, bool test_both_side
 // ---------------
 // > CAST PICKRAY
 // ---------------
-RRay CastPickray(RCamera* camera, double screen_x, double screen_y)
+RRay CastPickray(RCamera* Camera, double ScreenX, double ScreenY)
 {
-	float screen_x_normalized = (
-		(screen_x - GlobalDisplayState::viewport_width / 2)
-		/ (GlobalDisplayState::viewport_width / 2)
+	float ScreenXNormalized = (
+		(ScreenX - GlobalDisplayState::ViewportWidth / 2)
+		/ (GlobalDisplayState::ViewportWidth / 2)
 	);
-	float screen_y_normalized = (
-		-1 * (screen_y - GlobalDisplayState::viewport_height / 2)
-		/ (GlobalDisplayState::viewport_height / 2)
+	float ScreenYNormalized = (
+		-1 * (ScreenY - GlobalDisplayState::ViewportHeight / 2)
+		/ (GlobalDisplayState::ViewportHeight / 2)
 	);
 
-	auto ray_clip = glm::vec4(screen_x_normalized, screen_y_normalized, -1.0, 1.0);
-	glm::mat4 inv_view = inverse(camera->mat_view);
-	glm::mat4 inv_proj = inverse(camera->mat_projection);
-	vec3 ray_eye_3 = (inv_proj * ray_clip);
-	auto ray_eye = glm::vec4(ray_eye_3.x, ray_eye_3.y, -1.0, 0.0);
-	auto direction = normalize(inv_view * ray_eye);
-	auto origin = camera->position;
+	auto RayClip = glm::vec4(ScreenXNormalized, ScreenYNormalized, -1.0, 1.0);
+	glm::mat4 InvView = glm::inverse(Camera->MatView);
+	glm::mat4 InvProj = glm::inverse(Camera->MatProjection);
+	vec3 RayEye3 = (InvProj * RayClip);
+	auto RayEye = glm::vec4(RayEye3.x, RayEye3.y, -1.0, 0.0);
+	auto Direction = glm::normalize(InvView * RayEye);
+	auto Origin = Camera->Position;
 
-	return RRay{origin, direction};
+	return RRay{Origin, Direction};
 }
 
-vec3 CL_GetPointFromDetection(RRay ray, RRaycastTest result)
+vec3 ClGetPointFromDetection(RRay Ray, RRaycastTest Result)
 {
-	assert(result.hit);
-	return ray.origin + ray.direction * result.distance;
+	assert(Result.Hit);
+	return Ray.Origin + Ray.Direction * Result.Distance;
 }

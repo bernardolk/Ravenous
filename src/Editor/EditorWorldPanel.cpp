@@ -6,47 +6,47 @@
 
 namespace Editor
 {
-	void RenderWorldPanel(RWorldPanelContext* panel, const RWorld* world, const EPlayer* player)
+	void RenderWorldPanel(RWorldPanelContext* Panel, const RWorld* World, const EPlayer* Player)
 	{
 		ImGui::SetNextWindowPos(ImVec2(100, 300), ImGuiCond_Appearing);
-		ImGui::Begin("World Panel", &panel->active, ImGuiWindowFlags_None);
+		ImGui::Begin("World Panel", &Panel->Active, ImGuiWindowFlags_None);
 		ImGui::SetWindowSize("World Panel", ImVec2(500, 700), ImGuiCond_Appearing);
 
 		ImGui::Text("World Cells");
 		int i = 0;
-		for (auto* active_chunk : world->active_chunks)
+		for (auto* ActiveChunk : World->ActiveChunks)
 		{
-			auto chunk_position = active_chunk->GetChunkPosition();
+			auto ChunkPosition = ActiveChunk->GetChunkPosition();
 			// adds indicator in header if player is inside cell
-			string header = active_chunk->GetChunkPositionString();
-			for (auto* player_chunk : player->world_chunks)
+			string Header = ActiveChunk->GetChunkPositionString();
+			for (auto* PlayerChunk : Player->WorldChunks)
 			{
-				if (chunk_position == player_chunk->GetChunkPosition())
+				if (ChunkPosition == PlayerChunk->GetChunkPosition())
 				{
-					header += " P";
+					Header += " P";
 					break;
 				}
 			}
 
-			if (ImGui::CollapsingHeader(header.c_str()))
+			if (ImGui::CollapsingHeader(Header.c_str()))
 			{
-				bool is_active = panel->chunk_position_vec == active_chunk->GetChunkPosition();
-				if (ImGui::Checkbox(string( "show##" + to_string(i)).c_str(), &is_active))
+				bool IsActive = Panel->ChunkPositionVec == ActiveChunk->GetChunkPosition();
+				if (ImGui::Checkbox(string("show##" + to_string(i)).c_str(), &IsActive))
 				{
-					panel->chunk_position_vec = is_active ? chunk_position.GetVec() : vec3{-1.0f};
+					Panel->ChunkPositionVec = IsActive ? ChunkPosition.GetVec() : vec3{-1.0f};
 				}
 
 				ImGui::SameLine();
 
-				string coords_meters = active_chunk->GetChunkPositionMetricString();
-				ImGui::Text(coords_meters.c_str());
+				string CoordsMeters = ActiveChunk->GetChunkPositionMetricString();
+				ImGui::Text(CoordsMeters.c_str());
 
-				auto entity_iter = active_chunk->GetIterator();
-				int entity_count = 1;
-				while(auto* entity = entity_iter())
+				auto EntityIter = ActiveChunk->GetIterator();
+				int EntityCount = 1;
+				while (auto* Entity = EntityIter())
 				{
-					string line = to_string(entity_count++) + ". " + entity->name;
-					ImGui::Text(line.c_str());
+					string Line = to_string(EntityCount++) + ". " + Entity->name;
+					ImGui::Text(Line.c_str());
 				}
 			}
 			i++;

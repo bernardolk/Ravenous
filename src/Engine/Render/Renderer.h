@@ -18,14 +18,14 @@ inline float RCubemapFarPlane = 25.0f;
 
 struct RenderOptions
 {
-	bool wireframe = false;
-	bool always_on_top = false;
-	float point_size = 1.0;
-	float line_width = 1.0;
+	bool Wireframe = false;
+	bool AlwaysOnTop = false;
+	float PointSize = 1.0;
+	float LineWidth = 1.0;
 	// for immediate point shader
-	vec3 color = vec3{-1.0};
-	float opacity = 1.0;
-	bool dont_cull_face = false;
+	vec3 Color = vec3{-1.0};
+	float Opacity = 1.0;
+	bool DontCullFace = false;
 };
 
 // leave for debugging
@@ -35,24 +35,24 @@ inline int PFloor = -1;
 // --------------
 // RENDER MESH
 // --------------
-void RenderMesh(const RMesh* mesh, RenderOptions opts = RenderOptions{});
+void RenderMesh(const RMesh* Mesh, RenderOptions Opts = RenderOptions{});
 
 // --------------
 // RENDER ENTITY
 // --------------
-void RenderEntity(EEntity* entity);
-void RenderEditorEntity(EEntity* entity, RWorld* world, RCamera* camera);
+void RenderEntity(EEntity* Entity);
+void RenderEditorEntity(EEntity* Entity, RWorld* World, RCamera* Camera);
 
 // -------------
 // RENDER SCENE
 // -------------
-void RenderScene(RWorld* world, RCamera* camera);
-void SetShaderLightVariables(RWorld* world, RShader* shader, RCamera* camera);
+void RenderScene(RWorld* World, RCamera* Camera);
+void SetShaderLightVariables(RWorld* World, RShader* Shader, RCamera* Camera);
 
 // -------------------------
 // RENDER GAME GUI
 // -------------------------
-void RenderGameGui(EPlayer* player);
+void RenderGameGui(EPlayer* Player);
 
 // ----------------
 // RENDER FEATURES

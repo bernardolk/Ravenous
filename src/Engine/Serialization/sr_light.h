@@ -6,12 +6,12 @@ struct Parser;
 
 struct LightSerializer
 {
-	static void Parse(Parser& p);
-	static void ParsePointLight(Parser& p);
-	static void ParseSpotLight(Parser& p);
-	static void ParseDirectionalLight(Parser& p);
+	static void Parse(Parser& P);
+	static void ParsePointLight(Parser& P);
+	static void ParseSpotLight(Parser& P);
+	static void ParseDirectionalLight(Parser& P);
 
-	static void Save(std::ofstream& writer, const PointLight* light);
-	static void Save(std::ofstream& writer, const SpotLight* light);
-	static void Save(std::ofstream& writer, const DirectionalLight* light);
+	static void Save(std::ofstream& Writer, const PointLight* Light);
+	static void Save(std::ofstream& Writer, const SpotLight* Light);
+	static void Save(std::ofstream& Writer, const DirectionalLight* Light);
 };

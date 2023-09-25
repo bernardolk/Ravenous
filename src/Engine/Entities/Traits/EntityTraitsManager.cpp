@@ -3,64 +3,64 @@
 EntityTraitsManager::EntityTraitsManager() = default;
 
 
-vector<TypeID>* EntityTraitsManager::GetTypesWithTrait(TraitID trait_id)
+vector<TypeID>* EntityTraitsManager::GetTypesWithTrait(TraitID TraitID)
 {
-	if(Find(trait_inverse_registry, trait_id))
+	if (Find(TraitInverseRegistry, TraitID))
 	{
-		return &trait_inverse_registry[trait_id];
+		return &TraitInverseRegistry[TraitID];
 	}
 
 	return nullptr;
 }
 
-void EntityTraitsManager::Register(TypeID type_id, TraitID trait_id, UpdateFuncPtr func)
+void EntityTraitsManager::Register(TypeID TypeId, TraitID TraitId, UpdateFuncPtr Func)
 {
 	// registers trait if new
-	if(auto it = trait_registry.find(trait_id); it == trait_registry.end())
+	if (auto It = TraitRegistry.find(TraitId); It == TraitRegistry.end())
 	{
-		trait_registry[trait_id] = map<TypeID, UpdateFuncPtr>();
-		trait_inverse_registry[type_id] = vector<TypeID>();
+		TraitRegistry[TraitId] = map<TypeID, UpdateFuncPtr>();
+		TraitInverseRegistry[TypeId] = vector<TypeID>();
 	}
-        
-	auto& traits_map = trait_registry[trait_id];
+
+	auto& TraitsMap = TraitRegistry[TraitId];
 
 	// registers type update call if new
-	if(Find(traits_map, type_id))
+	if (Find(TraitsMap, TypeId))
 	{
-		traits_map[type_id] = func;
+		TraitsMap[TypeId] = Func;
 	}
 
-	if(Find(trait_inverse_registry, trait_id))
+	if (Find(TraitInverseRegistry, TraitId))
 	{
-		auto* types = &trait_inverse_registry[trait_id];
-		types->push_back(type_id);
+		auto* Types = &TraitInverseRegistry[TraitId];
+		Types->push_back(TypeId);
 	}
 }
 
-auto EntityTraitsManager::GetUpdateFunc(TypeID type_id, TraitID trait_id) -> UpdateFuncPtr
+auto EntityTraitsManager::GetUpdateFunc(TypeID TypeId, TraitID TraitId) -> UpdateFuncPtr
 {
 	// perform lookup based on trait and type id and execute lambda / wrapped update call.
-	if(auto it = trait_registry.find(trait_id); it != trait_registry.end())
+	if (auto It = TraitRegistry.find(TraitId); It != TraitRegistry.end())
 	{
-		auto& type_map = it->second;
+		auto& TypeMap = It->second;
 
-		if(auto it2 = type_map.find(type_id); it2 != type_map.end())
+		if (auto It2 = TypeMap.find(TypeId); It2 != TypeMap.end())
 		{
-			return it2->second;
+			return It2->second;
 		}
 	}
 
 	return nullptr;
 }
 
-void EntityTraitsManager::InvokeUpdate(EEntity* entity, TraitID trait_id)
+void EntityTraitsManager::InvokeUpdate(EEntity* Entity, TraitID TraitId)
 {
-	if(auto* func = GetUpdateFunc(entity->type_id, trait_id))
+	if (auto* Func = GetUpdateFunc(Entity->TypeID, TraitId))
 	{
-		func(entity);
+		Func(Entity);
 	}
 	else
 	{
-		printf("Invoke function not found for TypeID: %i and trait of TraitID: %i.\n", entity->type_id, trait_id);
+		printf("Invoke function not found for TypeID: %i and trait of TraitID: %i.\n", Entity->TypeID, TraitId);
 	}
 }

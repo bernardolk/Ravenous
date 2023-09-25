@@ -1,117 +1,117 @@
-#include "engine/camera/camera.h"
+#include "engine/Camera/Camera.h"
 
 RCameraManager::RCameraManager()
 {
-	game_camera = RCamera{};
-	editor_camera = RCamera{};
+	GameCamera = RCamera{};
+	EditorCamera = RCamera{};
 }
 
 void RCameraManager::SetCameraToFreeRoam()
 {
-	current_camera->type = FREE_ROAM;
+	CurrentCamera->Type = FreeRoam;
 }
 
 void RCameraManager::SetCameraToThirdPerson()
 {
-	current_camera->type = THIRD_PERSON;
+	CurrentCamera->Type = ThirdPerson;
 }
 
-void RCameraManager::UpdateGameCamera(float viewport_width, float viewport_height, vec3 position)
+void RCameraManager::UpdateGameCamera(float ViewportWidth, float ViewportHeight, vec3 Position)
 {
-	RCamera* camera = GetGameCamera();
-	camera->mat_view = lookAt(camera->position, camera->position + camera->front, camera->up);
-	camera->mat_projection = glm::perspective(
-		glm::radians(camera->fov_y),
-		viewport_width / viewport_height,
-		camera->near_plane, camera->far_plane
+	RCamera* Camera = GetGameCamera();
+	Camera->MatView = lookAt(Camera->Position, Camera->Position + Camera->Front, Camera->Up);
+	Camera->MatProjection = glm::perspective(
+		glm::radians(Camera->FovY),
+		ViewportWidth / ViewportHeight,
+		Camera->NearPlane, Camera->FarPlane
 	);
 
-	camera->position = position;
+	Camera->Position = Position;
 }
 
-void RCameraManager::UpdateEditorCamera(float viewport_width, float viewport_height, vec3 position)
+void RCameraManager::UpdateEditorCamera(float ViewportWidth, float ViewportHeight, vec3 Position)
 {
-	RCamera* camera = GetEditorCamera();
+	RCamera* Camera = GetEditorCamera();
 
-	camera->mat_view = lookAt(camera->position, camera->position + camera->front, camera->up);
-	camera->mat_projection = glm::perspective(
-		glm::radians(camera->fov_y),
-		viewport_width / viewport_height,
-		camera->near_plane, camera->far_plane
+	Camera->MatView = lookAt(Camera->Position, Camera->Position + Camera->Front, Camera->Up);
+	Camera->MatProjection = glm::perspective(
+		glm::radians(Camera->FovY),
+		ViewportWidth / ViewportHeight,
+		Camera->NearPlane, Camera->FarPlane
 	);
 
-	if (camera->type == THIRD_PERSON)
+	if (Camera->Type == ThirdPerson)
 	{
-		// camera->Position = player->entity_ptr->position;
-		camera->position = position;
-		camera->position.y += 1.75;
+		// Camera->Position = player->entity_ptr->position;
+		Camera->Position = Position;
+		Camera->Position.y += 1.75;
 
-		if (camera->orbital_angle > 360.0f)
-			camera->orbital_angle -= 360.0;
-		if (camera->orbital_angle < -360.0f)
-			camera->orbital_angle += 360.0;
+		if (Camera->OrbitalAngle > 360.0f)
+			Camera->OrbitalAngle -= 360.0;
+		if (Camera->OrbitalAngle < -360.0f)
+			Camera->OrbitalAngle += 360.0;
 
-		float distance = 3;
-		camera->position.x += distance * cos(camera->orbital_angle);
-		camera->position.z += distance * sin(camera->orbital_angle);
-		CameraLookAt(camera, position, true);
+		float Distance = 3;
+		Camera->Position.x += Distance * cos(Camera->OrbitalAngle);
+		Camera->Position.z += Distance * sin(Camera->OrbitalAngle);
+		CameraLookAt(Camera, Position, true);
 	}
 }
 
-void RCameraManager::ChangeCameraDirection(RCamera* camera, float yaw_offset, float pitch_offset)
+void RCameraManager::ChangeCameraDirection(RCamera* Camera, float YawOffset, float PitchOffset)
 {
-	float pitch, yaw;
-	ComputeAnglesFromDirection(pitch, yaw, camera->front);
+	float Pitch, Yaw;
+	ComputeAnglesFromDirection(Pitch, Yaw, Camera->Front);
 
-	pitch += pitch_offset;
-	yaw += yaw_offset;
+	Pitch += PitchOffset;
+	Yaw += YawOffset;
 
-	// Unallows camera to perform a flip
-	if (pitch > 89.0f)
-		pitch = 89.0f;
-	if (pitch < -89.0f)
-		pitch = -89.0f;
+	// Unallows Camera to perform a flip
+	if (Pitch > 89.0f)
+		Pitch = 89.0f;
+	if (Pitch < -89.0f)
+		Pitch = -89.0f;
 
-	// Make sure we don't overflow floats when camera is spinning indefinetely
-	if (yaw > 360.0f)
-		yaw -= 360.0f;
-	if (yaw < -360.0f)
-		yaw += 360.0f;
+	// Make sure we don't overflow floats when Camera is spinning indefinetely
+	if (Yaw > 360.0f)
+		Yaw -= 360.0f;
+	if (Yaw < -360.0f)
+		Yaw += 360.0f;
 
-	camera->front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
-	camera->front.y = sin(glm::radians(pitch));
-	camera->front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-	camera->front = normalize(camera->front);
+	Camera->Front.x = cos(glm::radians(Pitch)) * cos(glm::radians(Yaw));
+	Camera->Front.y = sin(glm::radians(Pitch));
+	Camera->Front.z = cos(glm::radians(Pitch)) * sin(glm::radians(Yaw));
+	Camera->Front = normalize(Camera->Front);
 }
 
 
-void RCameraManager::CameraLookAt(RCamera* camera, vec3 ref, bool is_position)
+void RCameraManager::CameraLookAt(RCamera* Camera, vec3 Reference, bool IsPosition)
 {
 	// vec3 ref -> either a position or a direction vector (no need to be normalised)
-	vec3 look_vec = ref;
-	if (is_position)
-		look_vec = ref - vec3(camera->position.x, camera->position.y, camera->position.z);
-	look_vec = normalize(look_vec);
+	vec3 LookVector = Reference;
+	if (IsPosition)
+		LookVector = Reference - vec3(Camera->Position.x, Camera->Position.y, Camera->Position.z);
+	LookVector = glm::normalize(LookVector);
 
-	float pitch = glm::degrees(glm::asin(look_vec.y));
-	float yaw = glm::degrees(atan2(look_vec.x, -1 * look_vec.z) - PI / 2);
+	float Pitch = glm::degrees(glm::asin(LookVector.y));
+	float Yaw = glm::degrees(atan2(LookVector.x, -1 * LookVector.z) - PI / 2);
 
-	camera->front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
-	camera->front.y = sin(glm::radians(pitch));
-	camera->front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-	camera->front = normalize(camera->front);
+	Camera->Front.x = cos(glm::radians(Pitch)) * cos(glm::radians(Yaw));
+	Camera->Front.y = sin(glm::radians(Pitch));
+	Camera->Front.z = cos(glm::radians(Pitch)) * sin(glm::radians(Yaw));
+	Camera->Front = normalize(Camera->Front);
 }
 
-void RCameraManager::ComputeAnglesFromDirection(float& pitch, float& yaw, vec3 direction)
+void RCameraManager::ComputeAnglesFromDirection(float& Pitch, float& Yaw, vec3 Direction)
 {
-	pitch = glm::degrees(glm::asin(direction.y));
-	yaw = glm::degrees(atan2(direction.x, -1 * direction.z) - PI / 2);
-	if (pitch > 89.0f)
-		pitch = 89.0f;
-	if (pitch < -89.0f)
-		pitch = -89.0f;
-	if (yaw > 360.0f)
-		yaw -= 360.0f;
-	if (yaw < -360.0f)
-		yaw += 360.0f;
+	Pitch = glm::degrees(glm::asin(Direction.y));
+	Yaw = glm::degrees(atan2(Direction.x, -1 * Direction.z) - PI / 2);
+	if (Pitch > 89.0f)
+		Pitch = 89.0f;
+	if (Pitch < -89.0f)
+		Pitch = -89.0f;
+	if (Yaw > 360.0f)
+		Yaw -= 360.0f;
+	if (Yaw < -360.0f)
+		Yaw += 360.0f;
 }

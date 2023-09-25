@@ -15,7 +15,6 @@ struct RRecordedInput
 struct RInputRecorder
 {
 	DeclSingleton(RInputRecorder)
-	
 	bool is_recording = false;
 	bool is_playing = false;
 
@@ -25,12 +24,12 @@ struct RInputRecorder
 	int playing_flag_idx = 0;
 
 	void StartRecording();
-	void Record(RInputFlags flags);
+	void Record(RInputFlags Flags);
 	void StopRecording();
-	void StartPlaying(int recording_id);
+	void StartPlaying(int RecordingId);
 	RInputFlags Play();
 	void StopPlaying();
-	void Save(int recording_id);
+	void Save(int RecordingId);
 	void Load();
 
 };

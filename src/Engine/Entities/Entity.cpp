@@ -1,4 +1,3 @@
-
 #include "engine/entities/Entity.h"
 #include "engine/geometry/mesh.h"
 
@@ -20,79 +19,79 @@ void EEntity::UpdateCollider()
 	// collider.vertices.clear();
 
 	// multiplies model matrix to collision mesh
-	for (int i = 0; i < collision_mesh->vertices.size(); i++)
+	for (int i = 0; i < CollisionMesh->Vertices.size(); i++)
 	{
-		collider.vertices[i] = vec3(mat_model * vec4(collision_mesh->vertices[i], 1.0));
+		Collider.Vertices[i] = vec3(MatModel * vec4(CollisionMesh->Vertices[i], 1.0));
 	}
 }
 
 void EEntity::UpdateModelMatrix()
 {
-	glm::mat4 model = translate(Mat4Identity, position);
-	model = rotate(model, glm::radians(rotation.x), vec3(1.0f, 0.0f, 0.0f));
-	model = rotate(model, glm::radians(rotation.y), vec3(0.0f, 1.0f, 0.0f));
-	model = rotate(model, glm::radians(rotation.z), vec3(0.0f, 0.0f, 1.0f));
-	model = glm::scale(model, scale);
-	mat_model = model;
+	glm::mat4 Model = translate(Mat4Identity, Position);
+	Model = rotate(Model, glm::radians(Rotation.x), vec3(1.0f, 0.0f, 0.0f));
+	Model = rotate(Model, glm::radians(Rotation.y), vec3(0.0f, 1.0f, 0.0f));
+	Model = rotate(Model, glm::radians(Rotation.z), vec3(0.0f, 0.0f, 1.0f));
+	Model = glm::scale(Model, Scale);
+	MatModel = Model;
 }
 
 void EEntity::UpdateBoundingBox()
 {
 	// uses the collider to compute an AABB 
-	bounding_box = collider.ComputeBoundingBox();
+	BoundingBox = Collider.ComputeBoundingBox();
 }
 
 void EEntity::UpdateTrigger()
 {
-	auto centroid = bounding_box.GetCentroid();
-	glm::mat4 model = translate(Mat4Identity, centroid);
+	auto Centroid = BoundingBox.GetCentroid();
+	glm::mat4 Model = translate(Mat4Identity, Centroid);
 
 	// to avoid elipsoids
-	trigger_scale.z = trigger_scale.x;
-	model = glm::scale(model, trigger_scale);
+	TriggerScale.z = TriggerScale.x;
+	Model = glm::scale(Model, TriggerScale);
 
-	trigger_mat_model = model;
+	TriggerMatModel = Model;
 }
 
-void EEntity::RotateY(float angle)
+void EEntity::RotateY(float Angle)
 {
-	rotation.y += angle;
-	rotation.y = static_cast<int>(rotation.y) % 360;
-	if (rotation.y < 0)
-		rotation.y = 360 + rotation.y;
+	Rotation.y += Angle;
+	Rotation.y = static_cast<int>(Rotation.y) % 360;
+	if (Rotation.y < 0)
+		Rotation.y = 360 + Rotation.y;
 }
 
 mat4 EEntity::GetRotationMatrix()
 {
-	mat4 rotation_matrix;
-	rotation_matrix = rotate(Mat4Identity, glm::radians(rotation.x), vec3(1.0f, 0.0f, 0.0f));
-	rotation_matrix = rotate(rotation_matrix, glm::radians(rotation.y), vec3(0.0f, 1.0f, 0.0f));
-	rotation_matrix = rotate(rotation_matrix, glm::radians(rotation.z), vec3(0.0f, 0.0f, 1.0f));
-	
-	return rotation_matrix;
+	mat4 RotationMatrix;
+	RotationMatrix = rotate(Mat4Identity, glm::radians(Rotation.x), vec3(1.0f, 0.0f, 0.0f));
+	RotationMatrix = rotate(RotationMatrix, glm::radians(Rotation.y), vec3(0.0f, 1.0f, 0.0f));
+	RotationMatrix = rotate(RotationMatrix, glm::radians(Rotation.z), vec3(0.0f, 0.0f, 1.0f));
+
+	return RotationMatrix;
 }
 
 RCollisionMesh EEntity::GetTriggerCollider()
 {
-	RCollisionMesh trigger_collider;
+	RCollisionMesh TriggerCollider;
 
 	// multiplies model matrix to collision mesh
-	for (int i = 0; i < trigger->vertices.size(); i++)
-		trigger_collider.vertices.push_back(vec3(vec4(trigger->vertices[i].position, 1) * trigger_mat_model));
-	
-	for (int i = 0; i < trigger->indices.size(); i++)
-		trigger_collider.indices.push_back(trigger->indices[i]);
+	for (int i = 0; i < Trigger->Vertices.size(); i++)
+		TriggerCollider.Vertices.push_back(vec3(vec4(Trigger->Vertices[i].Position, 1) * TriggerMatModel));
+
+	for (int I = 0; I < Trigger->Indices.size(); I++)
+		TriggerCollider.Indices.push_back(Trigger->Indices[I]);
 
 
-	return trigger_collider;
+	return TriggerCollider;
 }
 
 void EEntity::MakeInvisible()
 {
-	flags |= EntityFlags_InvisibleEntity;
+	Flags |= EntityFlags_InvisibleEntity;
 }
 
 void EEntity::MakeVisible()
 {
-	flags &= ~EntityFlags_InvisibleEntity;
+	Flags &= ~EntityFlags_InvisibleEntity;
 }

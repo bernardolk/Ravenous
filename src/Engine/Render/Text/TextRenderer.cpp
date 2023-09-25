@@ -7,13 +7,9 @@
 #define GLAD_INCL
 #include <glad/glad.h>
 #endif
-#include <vector>
 #include "engine/geometry/mesh.h"
 #include <iostream>
 #include <glm/gtx/normal.hpp>
-#include "engine/geometry/triangle.h"
-#include <glm/gtx/rotate_vector.hpp>
-#include <engine/render/text/face.h>
 #include "engine/core/logging.h"
 #include <engine/rvn.h>
 #include <engine/render/text/TextRenderer.h>
@@ -24,173 +20,173 @@
 map<string, gl_charmap> FontCatalogue;
 
 
-void RenderText(float x, float y, string text)
+void RenderText(float X, float Y, string Text)
 {
-	RenderText("consola12", x, y, vec3{1.0, 1.0, 1.0}, 1.0, false, text);
+	RenderText("consola12", X, Y, vec3{1.0, 1.0, 1.0}, 1.0, false, Text);
 }
 
-void RenderText(string font, float x, float y, string text)
+void RenderText(string Font, float X, float Y, string Text)
 {
-	RenderText(font, x, y, vec3{1.0, 1.0, 1.0}, 1.0, false, text);
+	RenderText(Font, X, Y, vec3{1.0, 1.0, 1.0}, 1.0, false, Text);
 }
 
-void RenderText(float x, float y, vec3 color, string text)
+void RenderText(float X, float Y, vec3 Color, string Text)
 {
-	RenderText("consola12", x, y, color, 1.0, false, text);
+	RenderText("consola12", X, Y, Color, 1.0, false, Text);
 }
 
-void RenderText(string font, float x, float y, bool center, string text)
+void RenderText(string Font, float X, float Y, bool Center, string Text)
 {
-	RenderText(font, x, y, vec3{1.0, 1.0, 1.0}, 1.0, center, text);
+	RenderText(Font, X, Y, vec3{1.0, 1.0, 1.0}, 1.0, Center, Text);
 }
 
-void RenderText(string font, float x, float y, vec3 color, string text)
+void RenderText(string Font, float X, float Y, vec3 Color, string Text)
 {
-	RenderText(font, x, y, color, 1.0, false, text);
+	RenderText(Font, X, Y, Color, 1.0, false, Text);
 }
 
-void RenderText(string font, float x, float y, vec3 color, bool center, string text)
+void RenderText(string Font, float X, float Y, vec3 Color, bool Center, string Text)
 {
-	RenderText(font, x, y, color, 1.0, center, text);
+	RenderText(Font, X, Y, Color, 1.0, Center, Text);
 }
 
-void RenderText(string font, float x, float y, float scale, string text)
+void RenderText(string Font, float X, float Y, float Scale, string Text)
 {
-	RenderText(font, x, y, vec3{1.0, 1.0, 1.0}, scale, false, text);
+	RenderText(Font, X, Y, vec3{1.0, 1.0, 1.0}, Scale, false, Text);
 }
 
-void RenderText(string font, float x, float y, vec3 color, float scale, string text)
+void RenderText(string Font, float X, float Y, vec3 Color, float Scale, string Text)
 {
-	RenderText(font, x, y, color, scale, false, text);
+	RenderText(Font, X, Y, Color, Scale, false, Text);
 }
 
-void RenderText(string font, float x, float y, vec3 color, float scale, bool center, string text)
+void RenderText(string Font, float X, float Y, vec3 Color, float Scale, bool Center, string Text)
 {
 	// Finds text shader in catalogue and set variables 
-	auto text_shader = ShaderCatalogue.find("text")->second;
-	text_shader->Use();
-	text_shader->SetFloat3("textColor", color.x, color.y, color.z);
+	auto TextShader = ShaderCatalogue.find("text")->second;
+	TextShader->Use();
+	TextShader->SetFloat3("textColor", Color.x, Color.y, Color.z);
 
 	// Finds text drawing geometry in geometry catalogue
-	auto text_geometry = GeometryCatalogue.find("text")->second;
+	auto TextGeometry = GeometryCatalogue.find("text")->second;
 	glActiveTexture(GL_TEXTURE0);
-	glBindVertexArray(text_geometry->gl_data.VAO);
+	glBindVertexArray(TextGeometry->gl_data.VAO);
 
 	// Try finding font in catalogue, if doesn't find, tries loading it
-	gl_charmap charmap;
-	auto font_query = FontCatalogue.find(font);
-	if (font_query == FontCatalogue.end())
+	gl_charmap Charmap;
+	auto FontQuery = FontCatalogue.find(Font);
+	if (FontQuery == FontCatalogue.end())
 	{
 		// search for font size in font name (e.g. Consola12) and loads it
-		int ind = 0;
+		int Index = 0;
 		while (true)
 		{
-			if (!isalpha(font[ind]))
+			if (!isalpha(Font[Index]))
 				break;
-			if (ind + 1 == font.size())
+			if (Index + 1 == Font.size())
 			{
-				print("Font '%s' could not be loaded because no size was appended to its name in render_text function call.", font.c_str());
+				print("Font '%s' could not be loaded because no size was appended to its name in render_text function call.", Font.c_str());
 				return;
 			}
 
-			ind++;
+			Index++;
 		}
 
-		std::string size_str = font.substr(ind, font.size());
-		std::string font_filename = font.substr(0, ind) + ".ttf";
+		string SizeStr = Font.substr(Index, Font.size());
+		string FontFilename = Font.substr(0, Index) + ".ttf";
 
-		int font_size = std::stoi(size_str);
-		charmap = LoadTextTextures(font_filename, font_size);
+		int FontSize = std::stoi(SizeStr);
+		Charmap = LoadTextTextures(FontFilename, FontSize);
 	}
 	else
 	{
-		charmap = font_query->second;
+		Charmap = FontQuery->second;
 	}
 
 	//@todo add enum to CENTER, LEFT ALIGN (default, no extra work) and RIGHT ALIGN
-	if (center)
+	if (Center)
 	{
-		std::string::iterator it;
-		float x_sum = 0;
-		for (it = text.begin(); it != text.end(); ++it)
+		std::string::iterator It;
+		float XSum = 0;
+		for (It = Text.begin(); It != Text.end(); ++It)
 		{
-			auto ch = charmap[*it];
-			x_sum += ch.bearing.x * scale + ch.size.x * scale;
+			auto Ch = Charmap[*It];
+			XSum += Ch.bearing.x * Scale + Ch.size.x * Scale;
 		}
-		x -= x_sum / 2.0;
+		X -= XSum / 2.0;
 	}
 
 
 	glDepthFunc(GL_ALWAYS);
-	std::string::iterator c;
-	for (c = text.begin(); c != text.end(); ++c)
+	std::string::iterator CharIt;
+	for (CharIt = Text.begin(); CharIt != Text.end(); ++CharIt)
 	{
-		Character ch = charmap[*c];
+		RCharacter Ch = Charmap[*CharIt];
 
-		GLfloat xpos = x + ch.bearing.x * scale;
-		GLfloat ypos = y - (ch.size.y - ch.bearing.y) * scale;
-		GLfloat w = ch.size.x * scale;
-		GLfloat h = ch.size.y * scale;
+		GLfloat Xpos = X + Ch.Bearing.x * Scale;
+		GLfloat Ypos = Y - (Ch.Size.y - Ch.Bearing.y) * Scale;
+		GLfloat W = Ch.Size.x * Scale;
+		GLfloat H = Ch.Size.y * Scale;
 		// Update VBO for each character
-		GLfloat vertices[6][4] = {
-		{xpos, ypos + h, 0.0, 0.0},
-		{xpos, ypos, 0.0, 1.0},
-		{xpos + w, ypos, 1.0, 1.0},
-		{xpos, ypos + h, 0.0, 0.0},
-		{xpos + w, ypos, 1.0, 1.0},
-		{xpos + w, ypos + h, 1.0, 0.0}
+		GLfloat Vertices[6][4] = {
+		{Xpos, Ypos + H, 0.0, 0.0},
+		{Xpos, Ypos, 0.0, 1.0},
+		{Xpos + W, Ypos, 1.0, 1.0},
+		{Xpos, Ypos + H, 0.0, 0.0},
+		{Xpos + W, Ypos, 1.0, 1.0},
+		{Xpos + W, Ypos + H, 1.0, 0.0}
 		};
 
 		// Render glyph texture over quad
-		glBindTexture(GL_TEXTURE_2D, ch.texture_id);
+		glBindTexture(GL_TEXTURE_2D, Ch.TextureID);
 		// Update content of VBO memory
-		glBindBuffer(GL_ARRAY_BUFFER, text_geometry->gl_data.VBO);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+		glBindBuffer(GL_ARRAY_BUFFER, TextGeometry->gl_data.VBO);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertices), Vertices);
 		// Render quad
 		glDrawArrays(GL_TRIANGLES, 0, 6);
-		x += (ch.advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
+		X += (Ch.Advance >> 6) * Scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
 	}
 	glDepthFunc(GL_LESS);
 }
 
-gl_charmap LoadTextTextures(std::string font, int size)
+gl_charmap LoadTextTextures(string Font, int Size)
 {
 	// Load font
-	FT_Library ft;
-	if (FT_Init_FreeType(&ft))
+	FT_Library Ft;
+	if (FT_Init_FreeType(&Ft))
 		fatal_error("Freetype: Could not init FreeType Library");
 
-	FT_Face face;
-	std::string filepath = Paths::Fonts + font;
-	if (FT_New_Face(ft, filepath.c_str(), 0, &face))
+	FT_Face Face;
+	string Filepath = Paths::Fonts + Font;
+	if (FT_New_Face(Ft, Filepath.c_str(), 0, &Face))
 		Log(LOG_ERROR, "Freetype: Failed to load font");
 
-	FT_Set_Pixel_Sizes(face, 0, size);
+	FT_Set_Pixel_Sizes(Face, 0, Size);
 
-	gl_charmap font_charmap;
+	gl_charmap FontCharmap;
 	//we will store all characters inside the Characters map
-	for (GLubyte c = 0; c < 128; c++)
+	for (GLubyte C = 0; C < 128; C++)
 	{
 		//Load character glyph
-		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+		if (FT_Load_Char(Face, C, FT_LOAD_RENDER))
 		{
 			Log(LOG_ERROR, "Freetype: Failed to load Glyph");
 			continue;
 		}
 
-		GLuint gylphTexture;
-		glGenTextures(1, &gylphTexture);
-		glBindTexture(GL_TEXTURE_2D, gylphTexture);
+		GLuint GylphTexture;
+		glGenTextures(1, &GylphTexture);
+		glBindTexture(GL_TEXTURE_2D, GylphTexture);
 		glTexImage2D(
 			GL_TEXTURE_2D,
 			0,
 			GL_RED,
-			face->glyph->bitmap.width,
-			face->glyph->bitmap.rows,
+			Face->glyph->bitmap.width,
+			Face->glyph->bitmap.rows,
 			0,
 			GL_RED,
 			GL_UNSIGNED_BYTE,
-			face->glyph->bitmap.buffer
+			Face->glyph->bitmap.buffer
 		);
 		// Set texture options
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -198,26 +194,26 @@ gl_charmap LoadTextTextures(std::string font, int size)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		// Now store character for later use
-		Character character = {
-		.texture_id = gylphTexture,
-		.advance = static_cast<uint>(face->glyph->advance.x),
-		.size = glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-		.bearing = glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top)
+		RCharacter Character = {
+			.TextureID = GylphTexture,
+			.Advance = static_cast<uint>(Face->glyph->advance.x),
+			.Size = glm::ivec2(Face->glyph->bitmap.width, Face->glyph->bitmap.rows),
+			.Bearing = glm::ivec2(Face->glyph->bitmap_left, Face->glyph->bitmap_top)
 		};
 
-		font_charmap.insert(std::pair<GLchar, Character>(c, character));
+		FontCharmap.insert(std::pair<GLchar, RCharacter>(C, Character));
 	}
 
 	// saves font chars to catalogue
-	auto separator = font.find('.');
-	std::string font_name = font.substr(0, separator);
-	std::string font_catalogue_name = font_name + std::to_string(size);
+	auto Separator = Font.find('.');
+	string FontName = Font.substr(0, Separator);
+	string FontCatalogueName = FontName + std::to_string(Size);
 
-	FontCatalogue.insert({font_catalogue_name, font_charmap});
+	FontCatalogue.insert({FontCatalogueName, FontCharmap});
 
 	glBindTexture(GL_TEXTURE_2D, 0);
-	FT_Done_Face(face);
-	FT_Done_FreeType(ft);
+	FT_Done_Face(Face);
+	FT_Done_FreeType(Ft);
 
-	return font_charmap;
+	return FontCharmap;
 }

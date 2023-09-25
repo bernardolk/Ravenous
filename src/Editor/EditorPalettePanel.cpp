@@ -11,27 +11,27 @@
 
 namespace Editor
 {
-	void RenderPalettePanel(RPalettePanelContext* panel)
+	void RenderPalettePanel(RPalettePanelContext* Panel)
 	{
 		ImGui::SetNextWindowPos(ImVec2(50, 300), ImGuiCond_Always);
-		ImGui::Begin("Palette", &panel->active, ImGuiWindowFlags_NoResize);
+		ImGui::Begin("Palette", &Panel->Active, ImGuiWindowFlags_NoResize);
 		ImGui::SetWindowSize("Palette", ImVec2(90, 500), ImGuiCond_Always);
-		auto* cam_manager = RCameraManager::Get();
-		auto* camera = cam_manager->GetCurrentCamera();
+		auto* CamManager = RCameraManager::Get();
+		auto* Camera = CamManager->GetCurrentCamera();
 
-		for (unsigned int i = 0; i < panel->count; i++)
+		for (unsigned int I = 0; I < Panel->Count; I++)
 		{
-			if (ImGui::ImageButton((void*) panel->textures[i], ImVec2(64, 64)))
+			if (ImGui::ImageButton((void*)Panel->Textures[I], ImVec2(64, 64)))
 			{
-				auto* new_entity = RWorld::Get()->SpawnEntity<EStaticMesh>();
-				if (!new_entity)
+				auto* NewEntity = RWorld::Get()->SpawnEntity<EStaticMesh>();
+				if (!NewEntity)
 					continue;
-				
-				auto attributes = panel->entity_palette[i];
 
-				SetEntityAssets(new_entity, attributes);
-				new_entity->position = camera->position + (2.f * new_entity->scale + 5.f) * camera->front;
-				ActivateMoveMode(new_entity);
+				auto Attributes = Panel->EntityPalette[I];
+
+				SetEntityAssets(NewEntity, Attributes);
+				NewEntity->Position = Camera->Position + (2.f * NewEntity->Scale + 5.f) * Camera->Front;
+				ActivateMoveMode(NewEntity);
 			}
 		}
 
@@ -39,42 +39,42 @@ namespace Editor
 	}
 
 
-	void InitializePalette(RPalettePanelContext* panel)
+	void InitializePalette(RPalettePanelContext* Panel)
 	{
-		int texture_count = 0;
+		int TextureCount = 0;
 
 		stbi_set_flip_vertically_on_load(false);
-		panel->textures[texture_count++] = LoadTextureFromFile("box.png", EditorAssets);
-		panel->textures[texture_count++] = LoadTextureFromFile("slope.png", EditorAssets);
-		panel->textures[texture_count++] = LoadTextureFromFile("checkpoint.png", EditorAssets);
+		Panel->Textures[TextureCount++] = LoadTextureFromFile("box.png", EditorAssets);
+		Panel->Textures[TextureCount++] = LoadTextureFromFile("slope.png", EditorAssets);
+		Panel->Textures[TextureCount++] = LoadTextureFromFile("checkpoint.png", EditorAssets);
 		stbi_set_flip_vertically_on_load(true);
 
 		// 0
-		panel->entity_palette[panel->count++] = REntityAttributes{
-		.name = "NONAME",
-		.mesh = "aabb",
-		.shader = "model",
-		.texture = "grey",
-		.collision_mesh = "aabb",
+		Panel->EntityPalette[Panel->Count++] = REntityAttributes{
+		.Name = "NONAME",
+		.Mesh = "aabb",
+		.Shader = "model",
+		.Texture = "grey",
+		.CollisionMesh = "aabb",
 		};
 
 		// 1
-		panel->entity_palette[panel->count++] = REntityAttributes{
-		.name = "NONAME",
-		.mesh = "slope",
-		.shader = "model",
-		.texture = "grey",
-		.collision_mesh = "slope",
+		Panel->EntityPalette[Panel->Count++] = REntityAttributes{
+		.Name = "NONAME",
+		.Mesh = "slope",
+		.Shader = "model",
+		.Texture = "grey",
+		.CollisionMesh = "slope",
 		};
 
 		// 3
-		panel->entity_palette[panel->count++] = REntityAttributes{
-		.name = "NONAME-CHECKPOINT",
-		.mesh = "aabb",
-		.shader = "model",
-		.texture = "grey",
-		.collision_mesh = "aabb",
-		.scale = vec3(0.3, 1.2, 0.3)
+		Panel->EntityPalette[Panel->Count++] = REntityAttributes{
+		.Name = "NONAME-CHECKPOINT",
+		.Mesh = "aabb",
+		.Shader = "model",
+		.Texture = "grey",
+		.CollisionMesh = "aabb",
+		.Scale = vec3(0.3, 1.2, 0.3)
 		};
 	}
 }

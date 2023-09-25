@@ -4,32 +4,32 @@
 
 struct RVertex
 {
-	vec3 position;
-	vec3 normal;
-	vec2 tex_coords;
-	vec3 tangent;
-	vec3 bitangent;
+	vec3 Position;
+	vec3 Normal;
+	vec2 TexCoords;
+	vec3 Tangent;
+	vec3 Bitangent;
 
-	RVertex operator*(mat4 mat)
+	RVertex operator*(mat4 Mat)
 	{
 		// should do something for tex_coords ???
 
-		auto n_position = vec3(mat * vec4(position, 1.f));
-		auto n_normal = vec3(mat * vec4(normal, 1.f));
-		auto n_tangent = vec3(mat * vec4(tangent, 1.f));
-		auto n_bitangent = vec3(mat * vec4(bitangent, 1.f));
+		auto NPosition = vec3(Mat * vec4(Position, 1.f));
+		auto NNormal = vec3(Mat * vec4(Normal, 1.f));
+		auto NTangent = vec3(Mat * vec4(Tangent, 1.f));
+		auto NBitangent = vec3(Mat * vec4(Bitangent, 1.f));
 
-		return RVertex{n_position, n_normal, tex_coords, n_tangent, n_bitangent};
+		return RVertex{NPosition, NNormal, TexCoords, NTangent, NBitangent};
 	};
 
-	RVertex& operator*=(mat4 mat)
+	RVertex& operator*=(mat4 Mat)
 	{
 		// should do something for tex_coords ???
 
-		position = vec3(mat * vec4(position, 1.f));
-		normal = vec3(mat * vec4(normal, 1.f));
-		tangent = vec3(mat * vec4(tangent, 1.f));
-		bitangent = vec3(mat * vec4(bitangent, 1.f));
+		Position = vec3(Mat * vec4(Position, 1.f));
+		Normal = vec3(Mat * vec4(Normal, 1.f));
+		Tangent = vec3(Mat * vec4(Tangent, 1.f));
+		Bitangent = vec3(Mat * vec4(Bitangent, 1.f));
 
 		return *this;
 	};

@@ -4,21 +4,20 @@
 
 struct MouseCoordinates
 {
-	double last_x = 0;
-	double last_y = 0;
-	double click_x;
-	double click_y;
-	double x;
-	double y;
+	double LastX = 0;
+	double LastY = 0;
+	double ClickX;
+	double ClickY;
+	double X;
+	double Y;
 };
 
 struct GlobalInputInfo
 {
 	DeclSingleton(GlobalInputInfo)
-	
-	bool forget_last_mouse_coords = true;
-	MouseCoordinates mouse_coords;
-	uint64 key_state = 0;
-	uint8 mouse_state = 0;
-	bool block_mouse_move = false;
+	bool ForgetLastMouseCoords = true;
+	MouseCoordinates MouseCoords;
+	uint64 KeyState = 0;
+	uint8 MouseState = 0;
+	bool BlockMouseMove = false;
 };

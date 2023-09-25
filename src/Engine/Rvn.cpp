@@ -5,59 +5,56 @@
 #include <engine/rvn.h>
 #include "engine/io/display.h"
 
-ProgramConfig::ProgramConfig()
-{
-	
-};
+ProgramConfig::ProgramConfig() = default;
 
 void Rvn::Init()
 {
-	rm_buffer = new RenderMessageBuffer();
+	RmBuffer = new RenderMessageBuffer();
 }
 
 
-void Rvn::PrintDynamic(const std::string& msg, float duration, vec3 color)
+void Rvn::PrintDynamic(const std::string& Msg, float Duration, vec3 Color)
 {
-	rm_buffer->Add(msg, duration, color);
+	RmBuffer->Add(Msg, Duration, Color);
 }
 
 
-void Rvn::Print(const std::string& msg, float duration, vec3 color)
+void Rvn::Print(const std::string& Msg, float Duration, vec3 Color)
 {
 	/*
-	   Will add a persistent message, that can't be updated later on, to the buffer.
+	   Will add a persistent Message, that can't be updated later on, to the buffer.
 	*/
-	rm_buffer->AddUnique(msg, duration, color);
+	RmBuffer->AddUnique(Msg, Duration, Color);
 }
 
 
-bool RenderMessageBuffer::Add(const std::string msg, float duration, vec3 color)
+bool RenderMessageBuffer::Add(const std::string Msg, float Duration, vec3 Color)
 {
-	if (count >= capacity)
+	if (Count >= Capacity)
 	{
-		std::cout << "WARNING: message has not been addded to message buffer" << "because it is FULL. Message was: " << msg << "\n";
+		std::cout << "WARNING: Message has not been addded to Message buffer" << "because it is FULL. Message was: " << Msg << "\n";
 		return false;
 	}
 
 	// @TODO: This is dumb :D
-	for (int i = 0; i < capacity; i++)
+	for (int i = 0; i < Capacity; i++)
 	{
-		auto item = &buffer[i];
-		// refresh message instead of adding if already exists
-		if (item->message == msg)
+		auto Item = &Buffer[i];
+		// refresh Message instead of adding if already exists
+		if (Item->Message == Msg)
 		{
-			item->elapsed = 0;
+			Item->Elapsed = 0;
 			break;
 		}
-		if (item->message == "")
+		if (Item->Message == "")
 		{
-			new(item) RenderMessageBufferElement{
-			.message = msg,
-			.elapsed = 0,
-			.duration = duration,
-			.color = color
+			new(Item) RenderMessageBufferElement{
+			.Message = Msg,
+			.Elapsed = 0,
+			.Duration = Duration,
+			.Color = Color
 			};
-			count++;
+			Count++;
 			break;
 		}
 	}
@@ -66,27 +63,27 @@ bool RenderMessageBuffer::Add(const std::string msg, float duration, vec3 color)
 }
 
 
-bool RenderMessageBuffer::AddUnique(const std::string msg, float duration, vec3 color)
+bool RenderMessageBuffer::AddUnique(const std::string Msg, float Duration, vec3 Color)
 {
-	if (count >= capacity)
+	if (Count >= Capacity)
 	{
-		std::cout << "WARNING: message has not been addded to message buffer" << "because it is FULL. Message was: " << msg << "\n";
+		std::cout << "WARNING: Message has not been addded to Message buffer" << "because it is FULL. Message was: " << Msg << "\n";
 		return false;
 	}
 
 	// @TODO: This is dumb :D
-	for (int i = 0; i < capacity; i++)
+	for (int i = 0; i < Capacity; i++)
 	{
-		auto item = &buffer[i];
-		if (item->message == "")
+		auto Item = &Buffer[i];
+		if (Item->Message == "")
 		{
-			new(item) RenderMessageBufferElement{
-			.message = msg,
-			.elapsed = 0,
-			.duration = duration,
-			.color = color
+			new(Item) RenderMessageBufferElement{
+			.Message = Msg,
+			.Elapsed = 0,
+			.Duration = Duration,
+			.Color = Color
 			};
-			count++;
+			Count++;
 			break;
 		}
 	}
@@ -96,39 +93,39 @@ bool RenderMessageBuffer::AddUnique(const std::string msg, float duration, vec3 
 
 void RenderMessageBuffer::Cleanup()
 {
-	auto& frame = RavenousEngine::GetFrame();
+	auto& Frame = RavenousEngine::GetFrame();
 
-	for (int i = 0; i < capacity; i++)
+	for (int i = 0; i < Capacity; i++)
 	{
-		auto item = &buffer[i];
-		item->elapsed += frame.duration * 1000.0;
-		if (item->elapsed >= item->duration)
+		auto Item = &Buffer[i];
+		Item->Elapsed += Frame.Duration * 1000.0;
+		if (Item->Elapsed >= Item->Duration)
 		{
-			new(item) RenderMessageBufferElement();
-			count -= 1;
+			new(Item) RenderMessageBufferElement();
+			Count -= 1;
 		}
 	}
 }
 
 void RenderMessageBuffer::Render()
 {
-	int items_rendered = 0;
-	for (int i = 0; i < capacity; i++)
+	int ItemsRendered = 0;
+	for (int i = 0; i < Capacity; i++)
 	{
-		auto& item = buffer[i];
-		if (items_rendered == Rvn::max_messages_to_render)
+		auto& Item = Buffer[i];
+		if (ItemsRendered == Rvn::MaxMessagesToRender)
 			break;
 
-		if (item.message != "")
+		if (Item.Message != "")
 		{
-			items_rendered++;
+			ItemsRendered++;
 			RenderText(
 				"consola20",
-				GlobalDisplayState::viewport_width / 2,
-				GlobalDisplayState::viewport_height - 120 - items_rendered * 25,
-				item.color == vec3(-1) ? vec3(0.8, 0.8, 0.2) : item.color,
+				GlobalDisplayState::ViewportWidth / 2,
+				GlobalDisplayState::ViewportHeight - 120 - ItemsRendered * 25,
+				Item.Color == vec3(-1) ? vec3(0.8, 0.8, 0.2) : Item.Color,
 				true,
-				item.message
+				Item.Message
 			);
 		}
 	}

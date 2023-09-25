@@ -6,23 +6,23 @@
 
 struct REntityAttributes
 {
-	std::string name = "NONAME";
-	std::string mesh = "aabb";
-	std::string shader = "model";
-	std::string texture = "grey";
-	std::string collision_mesh = "aabb";
+	string Name = "NONAME";
+	string Mesh = "aabb";
+	string Shader = "model";
+	string Texture = "grey";
+	string CollisionMesh = "aabb";
 	//EntityType type = EntityType_Static;
-	vec3 scale = vec3{1.0f};
+	vec3 Scale = vec3{1.0f};
 };
 
 struct RCatalogueSearchResult
 {
-	RTexture textures[2];
-	int textures_found = 0;
-	RMesh* mesh{};
-	RCollisionMesh* collision_mesh{};
-	RShader* shader{};
+	RTexture Textures[2];
+	int TexturesFound = 0;
+	RMesh* Mesh = nullptr;
+	RCollisionMesh* CollisionMesh = nullptr;
+	RShader* Shader = nullptr;
 };
 
 
-RCatalogueSearchResult FindEntityAssetsInCatalogue(const string& mesh, const string& collision_mesh, const string& shader, const string& texture);
+RCatalogueSearchResult FindEntityAssetsInCatalogue(const string& MeshName, const string& CollisionMeshName, const string& ShaderName, const string& TextureName);

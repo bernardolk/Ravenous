@@ -11,17 +11,17 @@
 
 namespace Editor
 {
-	void RenderEntityPanel(REntityPanelContext* panel, RWorld* world)
+	void RenderEntityPanel(REntityPanelContext* Panel, RWorld* World)
 	{
-		auto& entity = panel->entity;
-		auto& ed_context = *GetContext();
+		auto& Entity = Panel->Entity;
+		auto& EdContext = *GetContext();
 
-		uint action_flags = 0;
-		bool track = false;
+		uint ActionFlags = 0;
+		bool Track = false;
 
 		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayState::viewport_width - 550, 200), ImGuiCond_Appearing);
-		ImGui::Begin("Entity Panel", &panel->active, ImGuiWindowFlags_AlwaysAutoResize);
-		panel->focused = ImGui::IsWindowFocused();
+		ImGui::Begin("Entity Panel", &Panel->Active, ImGuiWindowFlags_AlwaysAutoResize);
+		Panel->Focused = ImGui::IsWindowFocused();
 
 		ImGui::BeginTabBar("##Entity");
 
@@ -30,42 +30,42 @@ namespace Editor
 		// ----------------
 		if (ImGui::BeginTabItem("Controls", nullptr, ImGuiTabItemFlags_None))
 		{
-			ImGui::Text(("Name: " + entity->name).c_str());
+			ImGui::Text(("Name: " + Entity->Name).c_str());
 			ImGui::Text(("Id: " + std::to_string(entity->id)).c_str());
-			ImGui::Text(("Shader: " + entity->shader->name).c_str());
+			ImGui::Text(("Shader: " + Entity->Shader->Name).c_str());
 
 			// RENAME
 			ImGui::NewLine();
-			if (!panel->rename_option_active)
+			if (!Panel->RenameOptionActive)
 			{
 				if (ImGui::Button("Rename Entity", ImVec2(120, 18)))
-					panel->rename_option_active = true;
+					Panel->RenameOptionActive = true;
 			}
 			else
 			{
-				ImGui::InputText("New name", &panel->rename_buffer[0], 100);
+				ImGui::InputText("New name", &Panel->RenameBuffer[0], 100);
 				if (ImGui::Button("Apply", ImVec2(64, 18)))
 				{
-					if (panel->ValidateRenameBufferContents())
+					if (Panel->ValidateRenameBufferContents())
 					{
-						entity->name = panel->rename_buffer;
-						panel->EmptyRenameBuffer();
-						panel->rename_option_active = false;
+						Entity->Name = Panel->RenameBuffer;
+						Panel->EmptyRenameBuffer();
+						Panel->RenameOptionActive = false;
 					}
 				}
 				ImGui::SameLine();
 				if (ImGui::Button("Cancel", ImVec2(64, 18)))
 				{
-					panel->rename_option_active = false;
+					Panel->RenameOptionActive = false;
 				}
 			}
 
 			// HIDE ENTITY
 			ImGui::SameLine();
-			bool _hide_control = entity->flags & EntityFlags_HiddenEntity;
-			if (ImGui::Checkbox("Hide Entity", &_hide_control))
+			bool HideControl = Entity->Flags & EntityFlags_HiddenEntity;
+			if (ImGui::Checkbox("Hide Entity", &HideControl))
 			{
-				entity->flags ^= EntityFlags_HiddenEntity;
+				Entity->Flags ^= EntityFlags_HiddenEntity;
 			}
 
 			// MODEL PROPERTIES
@@ -76,42 +76,42 @@ namespace Editor
 
 			// POSITION
 			{
-				float positions[]{entity->position.x, entity->position.y, entity->position.z};
-				if (ImGui::DragFloat3("Position", positions, 0.1))
+				float Positions[]{Entity->Position.x, Entity->Position.y, Entity->Position.z};
+				if (ImGui::DragFloat3("Position", Positions, 0.1))
 				{
-					action_flags |= EntityPanelTA_Position;
+					ActionFlags |= EntityPanelTA_Position;
 					entity->position = vec3{positions[0], positions[1], positions[2]};
 				}
-				track = track || ImGui::IsItemDeactivatedAfterEdit();
+				Track = Track || ImGui::IsItemDeactivatedAfterEdit();
 			}
 
 			// ROTATION
 			{
-				float rotations[]{entity->rotation.x, entity->rotation.y, entity->rotation.z};
-				if (ImGui::DragFloat3("Rotation", rotations, 1, -360, 360))
+				float Rotations[]{Entity->Rotation.x, Entity->Rotation.y, Entity->Rotation.z};
+				if (ImGui::DragFloat3("Rotation", Rotations, 1, -360, 360))
 				{
-					action_flags |= EntityPanelTA_Rotation;
+					ActionFlags |= EntityPanelTA_Rotation;
 					entity->rotation = vec3{rotations[0], rotations[1], rotations[2]};
 				}
-				track = track || ImGui::IsItemDeactivatedAfterEdit();
+				Track = Track || ImGui::IsItemDeactivatedAfterEdit();
 			}
 
 			// SCALE
 			{
-				float scaling[]{entity->scale.x, entity->scale.y, entity->scale.z};
-				if (ImGui::DragFloat3("Scale", scaling, 0.05, 0, MaxFloat, nullptr))
-					action_flags |= EntityPanelTA_Scale;
+				float Scaling[]{Entity->Scale.x, Entity->Scale.y, Entity->Scale.z};
+				if (ImGui::DragFloat3("Scale", Scaling, 0.05, 0, MaxFloat, nullptr))
+					ActionFlags |= EntityPanelTA_Scale;
 
-				track = track || ImGui::IsItemDeactivatedAfterEdit();
+				Track = Track || ImGui::IsItemDeactivatedAfterEdit();
 
 				ImGui::SameLine();
-				ImGui::Checkbox("Reverse", &panel->reverse_scale);
+				ImGui::Checkbox("Reverse", &Panel->ReverseScale);
 
-				if (action_flags & EntityPanelTA_Scale)
+				if (ActionFlags & EntityPanelTA_Scale)
 				{
-					if (panel->reverse_scale)
+					if (Panel->ReverseScale)
 					{
-						auto rot_matrix = entity->GetRotationMatrix();
+						auto RotMatrix = Entity->GetRotationMatrix();
 
 						if (scaling[0] != entity->scale.x)
 							entity->position -= ToVec3(rot_matrix * vec4(scaling[0] - entity->scale.x, 0.f, 0.f, 1.f));
@@ -129,7 +129,7 @@ namespace Editor
 
 			if (ImGui::Button("Place", ImVec2(82, 18)))
 			{
-				ActivatePlaceMode(entity);
+				ActivatePlaceMode(Entity);
 			}
 
 
@@ -154,19 +154,19 @@ namespace Editor
 			// ENTITY POSITIONING TOOLS
 			if (ImGui::Button("Snap", ImVec2(82, 18)))
 			{
-				ActivateSnapMode(entity);
+				ActivateSnapMode(Entity);
 			}
 
 			ImGui::SameLine();
-			if (ImGui::Checkbox("inside", &ed_context.snap_inside))
+			if (ImGui::Checkbox("inside", &EdContext.SnapInside))
 			{
-				if (ed_context.snap_reference != nullptr)
-					SnapEntityToReference(panel->entity);
+				if (EdContext.SnapReference != nullptr)
+					SnapEntityToReference(Panel->Entity);
 			}
 
 			if (ImGui::Button("Stretch", ImVec2(82, 18)))
 			{
-				ActivateStretchMode(entity);
+				ActivateStretchMode(Entity);
 			}
 
 			ImGui::NewLine();
@@ -182,11 +182,11 @@ namespace Editor
 
 			// SHOW GEOMETRIC PROPERTIES
 			ImGui::Text("Show:");
-			ImGui::Checkbox("Normals", &panel->show_normals);
+			ImGui::Checkbox("Normals", &Panel->ShowNormals);
 			ImGui::SameLine();
-			ImGui::Checkbox("Collider", &panel->show_collider);
+			ImGui::Checkbox("Collider", &Panel->ShowCollider);
 			ImGui::SameLine();
-			ImGui::Checkbox("Bounding box", &panel->show_bounding_box);
+			ImGui::Checkbox("Bounding box", &Panel->ShowBoundingBox);
 
 			// ENTITY INSTANCE CONTROLS
 			{
@@ -194,7 +194,7 @@ namespace Editor
 				ImGui::NewLine();
 				if (ImGui::Button("Duplicate", ImVec2(82, 18)))
 				{
-					action_flags |= EntityPanelTA_Duplicate;
+					ActionFlags |= EntityPanelTA_Duplicate;
 					// TODO: reimplement
 					// auto new_entity = EM->CopyEntity(entity);
 					// OpenEntityPanel(new_entity);
@@ -206,9 +206,9 @@ namespace Editor
 				ImGui::PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor::HSV(0.03f, 0.8f, 0.8f)));
 				if (ImGui::Button("Delete", ImVec2(82, 18)))
 				{
-					action_flags |= EntityPanelTA_Delete;
-					ed_context.entity_panel.active = false;
-					EditorEraseEntity(entity);
+					ActionFlags |= EntityPanelTA_Delete;
+					EdContext.EntityPanel.Active = false;
+					EditorEraseEntity(Entity);
 				}
 				ImGui::PopStyleColor(3);
 			}
@@ -427,25 +427,25 @@ namespace Editor
 				}
 			}
 
-			bool _tiled_texture = entity->flags & EntityFlags_RenderTiledTexture;
-			if (ImGui::Checkbox("Tiled texture", &_tiled_texture))
+			bool TiledTexture = Entity->Flags & EntityFlags_RenderTiledTexture;
+			if (ImGui::Checkbox("Tiled texture", &TiledTexture))
 			{
-				entity->flags ^= EntityFlags_RenderTiledTexture;
-				if (_tiled_texture)
-					entity->shader = ShaderCatalogue.find("tiledTextureModel")->second;
+				Entity->Flags ^= EntityFlags_RenderTiledTexture;
+				if (TiledTexture)
+					Entity->Shader = ShaderCatalogue.find("tiledTextureModel")->second;
 				else
-					entity->shader = ShaderCatalogue.find("model")->second;
+					Entity->Shader = ShaderCatalogue.find("model")->second;
 			}
 
-			if (entity->flags & EntityFlags_RenderTiledTexture)
+			if (Entity->Flags & EntityFlags_RenderTiledTexture)
 			{
 				ImGui::Text("Number of tiles for each face:");
-				ImGui::SliderInt("Top face", &entity->uv_tile_wrap[0], 0, 15);
-				ImGui::SliderInt("Bottom face", &entity->uv_tile_wrap[1], 0, 15);
-				ImGui::SliderInt("Front face", &entity->uv_tile_wrap[2], 0, 15);
-				ImGui::SliderInt("Left face", &entity->uv_tile_wrap[3], 0, 15);
-				ImGui::SliderInt("Right face", &entity->uv_tile_wrap[4], 0, 15);
-				ImGui::SliderInt("Back face", &entity->uv_tile_wrap[5], 0, 15);
+				ImGui::SliderInt("Top face", &Entity->UvTileWrap[0], 0, 15);
+				ImGui::SliderInt("Bottom face", &Entity->UvTileWrap[1], 0, 15);
+				ImGui::SliderInt("Front face", &Entity->UvTileWrap[2], 0, 15);
+				ImGui::SliderInt("Left face", &Entity->UvTileWrap[3], 0, 15);
+				ImGui::SliderInt("Right face", &Entity->UvTileWrap[4], 0, 15);
+				ImGui::SliderInt("Back face", &Entity->UvTileWrap[5], 0, 15);
 			}
 
 			ImGui::EndTabItem();
@@ -472,60 +472,60 @@ namespace Editor
 
 		ImGui::End();
 
-		if (action_flags > 0)
-			EntityPanelUpdateEntityAndEditorContext(panel, action_flags, world);
-		if (track)
-			EntityPanelTrackEntityChanges(panel);
+		if (ActionFlags > 0)
+			EntityPanelUpdateEntityAndEditorContext(Panel, ActionFlags, World);
+		if (Track)
+			EntityPanelTrackEntityChanges(Panel);
 	}
 
 
-	void EntityPanelTrackEntityChanges(REntityPanelContext* panel)
+	void EntityPanelTrackEntityChanges(REntityPanelContext* Panel)
 	{
-		auto& ed_context = *GetContext();
+		auto& EdContext = *GetContext();
 
 		// the following block makes sure that we track the entity original state if necessary.
 		// if we already tracked it or we used an external tool from the panel, like grab/move tool, 
 		// we don't track, since these tools have their own tracking calls.
-		if (!panel->tracked_once)
+		if (!Panel->TrackedOnce)
 		{
-			REntityState last_recorded_state = ed_context.undo_stack.Check();
-			if (last_recorded_state.entity == nullptr || last_recorded_state.entity->id != panel->entity->id)
-				ed_context.undo_stack.Track(panel->entity_starting_state);
-			panel->tracked_once = true;
+			REntityState LastRecordedState = EdContext.UndoStack.Check();
+			if (LastRecordedState.Entity == nullptr || LastRecordedState.Entity->ID != Panel->Entity->ID)
+				EdContext.UndoStack.Track(Panel->EntityStartingState);
+			Panel->TrackedOnce = true;
 		}
 
-		ed_context.undo_stack.Track(panel->entity);
+		EdContext.UndoStack.Track(Panel->Entity);
 	}
 
 
-	void EntityPanelUpdateEntityAndEditorContext(const REntityPanelContext* panel, uint action, RWorld* world)
+	void EntityPanelUpdateEntityAndEditorContext(const REntityPanelContext* Panel, uint Action, RWorld* World)
 	{
-		auto& ed_context = *GetContext();
+		auto& EdContext = *GetContext();
 
-		if (!(action & EntityPanelTA_Duplicate || action & EntityPanelTA_Delete))
+		if (!(Action & EntityPanelTA_Duplicate || Action & EntityPanelTA_Delete))
 			DeactivateEditorModes();
 
-		panel->entity->Update();
-		auto update_cells = world->UpdateEntityWorldChunk(panel->entity);
-		if (update_cells.status != CellUpdate_OK)
-			Rvn::rm_buffer->Add(update_cells.message, 3500);
+		Panel->Entity->Update();
+		auto UpdateCells = World->UpdateEntityWorldChunk(Panel->Entity);
+		if (UpdateCells.Status != CellUpdate_OK)
+			Rvn::RmBuffer->Add(UpdateCells.Message, 3500);
 
 		// world->UpdateCellsInUseList();
 
 		// TODO: We should _know_ when entities move and be able to act programatically upon that knowledge instead of randomly checking everywhere.
-		UpdateEntityControlArrows(&ed_context.entity_panel);
-		UpdateEntityRotationGizmo(&ed_context.entity_panel);
+		UpdateEntityControlArrows(&EdContext.EntityPanel);
+		UpdateEntityRotationGizmo(&EdContext.EntityPanel);
 	}
 
 
-	void OpenEntityPanel(EEntity* entity)
+	void OpenEntityPanel(EEntity* Entity)
 	{
-		auto& ed_context = *GetContext();
-		ed_context.selected_entity = entity;
+		auto& EdContext = *GetContext();
+		EdContext.SelectedEntity = Entity;
 
-		auto& panel = ed_context.entity_panel;
+		auto& Panel = EdContext.EntityPanel;
 		panel.active = true;
-		panel.entity = entity;
+		panel.entity = Entity;
 		panel.reverse_scale_x = false;
 		panel.reverse_scale_y = false;
 		panel.reverse_scale_z = false;
@@ -536,7 +536,7 @@ namespace Editor
 		panel.tracked_once = false;
 		panel.show_related_entity = false;
 		panel.related_entity = nullptr;
-		panel.entity_starting_state = GetEntityState(entity);
+		panel.entity_starting_state = GetEntityState(Entity);
 		panel.EmptyRenameBuffer();
 
 		// TODO: We should _know_ when entities move and be able to act programatically upon that knowledge instead of randomly checking everywhere.

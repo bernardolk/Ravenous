@@ -13,21 +13,21 @@ enum SrEntityRelation
 // Allows storing relationships between parsed entities to be set after parsing is done
 struct DeferredEntityRelationBuffer
 {
-	static constexpr int size = 64;
+	static constexpr int Size = 64;
 	int count = 0;
-	EEntity* entities[size];
-	uint64 deferred_entity_ids[size];
-	SrEntityRelation relations[size];
-	uint aux_uint_buffer[size];
+	EEntity* entities[Size];
+	uint64 deferred_entity_ids[Size];
+	SrEntityRelation relations[Size];
+	uint aux_uint_buffer[Size];
 };
 
 struct EntitySerializer
 {
-	inline static EntityManager* manager = nullptr;
-	inline static DeferredEntityRelationBuffer relations{};
+	inline static EntityManager* Manager = nullptr;
+	inline static DeferredEntityRelationBuffer Relations{};
 
-	static void Parse(Parser& parser);
-	static void Save(std::ofstream& writer, const EEntity& entity);
+	static void Parse(Parser& Parser);
+	static void Save(std::ofstream& Writer, const EEntity& Entity);
 
 	static void ClearBuffer();
 };

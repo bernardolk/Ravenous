@@ -12,17 +12,17 @@ REditorState::REditorState() = default;
 
 bool REditorState::IsInGameMode()
 {
-	return Get()->current_mode == ProgramMode::Game;
+	return Get()->CurrentMode == ProgramMode::Game;
 }
 
 bool REditorState::IsInEditorMode()
 {
-	return Get()->current_mode == ProgramMode::Editor;
+	return Get()->CurrentMode == ProgramMode::Editor;
 }
 
 bool REditorState::IsInConsoleMode()
 {
-	return Get()->current_mode == ProgramMode::Console;
+	return Get()->CurrentMode == ProgramMode::Console;
 }
 
 void REditorState::ToggleProgramMode()
@@ -30,37 +30,37 @@ void REditorState::ToggleProgramMode()
 	auto* GII = GlobalInputInfo::Get();
 	auto* GDC = GlobalDisplayState::Get();
 
-	auto* player = EPlayer::Get();
+	auto* Player = EPlayer::Get();
 
-	GII->forget_last_mouse_coords = true;
+	GII->ForgetLastMouseCoords = true;
 	auto* ES = Get();
 
-	if (ES->current_mode == ProgramMode::Editor)
+	if (ES->CurrentMode == ProgramMode::Editor)
 	{
-		ES->last_mode = ES->current_mode;
-		ES->current_mode = ProgramMode::Game;
+		ES->LastMode = ES->CurrentMode;
+		ES->CurrentMode = ProgramMode::Game;
 		RCameraManager::Get()->SwitchToGameCamera();
 
-		player->MakeInvisible();
+		Player->MakeInvisible();
 
 		glfwSetInputMode(GDC->GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		Editor::EndDearImguiFrame();
 
-		Rvn::rm_buffer->Add("Game Mode", 2000);
+		Rvn::RmBuffer->Add("Game Mode", 2000);
 
 	}
 
-	else if (ES->current_mode == ProgramMode::Game)
+	else if (ES->CurrentMode == ProgramMode::Game)
 	{
-		ES->last_mode = ES->current_mode;
-		ES->current_mode = ProgramMode::Editor;
+		ES->LastMode = ES->CurrentMode;
+		ES->CurrentMode = ProgramMode::Editor;
 		RCameraManager::Get()->SwitchToEditorCamera();
 
-		player->MakeVisible();
+		Player->MakeVisible();
 
 		glfwSetInputMode(GDC->GetWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		Editor::StartDearImguiFrame();
 
-		Rvn::rm_buffer->Add("Editor Mode", 2000);
+		Rvn::RmBuffer->Add("Editor Mode", 2000);
 	}
 }

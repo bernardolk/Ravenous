@@ -2,28 +2,28 @@
 
 struct RTriangle
 {
-	vec3 a;
-	vec3 b;
-	vec3 c;
+	vec3 A;
+	vec3 B;
+	vec3 C;
 
-	vec3 GetNormal() { return triangleNormal(a, b, c); }
+	vec3 GetNormal() { return triangleNormal(A, B, C); }
 
 	vec3 GetBarycenter()
 	{
-		auto bx = (a.x + b.x + c.x) / 3;
-		auto by = (a.y + b.y + c.y) / 3;
-		auto bz = (a.z + b.z + c.z) / 3;
-		return vec3(bx, by, bz);
+		auto Bx = (A.x + B.x + C.x) / 3;
+		auto By = (A.y + B.y + C.y) / 3;
+		auto Bz = (A.z + B.z + C.z) / 3;
+		return vec3(Bx, By, Bz);
 	}
 
 	bool IsValid()
 	{
 		// checks if vertices are not in a single point
-		return a != b && a != c && b != c;
+		return A != B && A != C && B != C;
 	}
 
-	bool operator ==(const RTriangle& other)
+	bool operator ==(const RTriangle& Other)
 	{
-		return a == other.a && b == other.b && c == other.c;
+		return A == Other.A && B == Other.B && C == Other.C;
 	}
 };

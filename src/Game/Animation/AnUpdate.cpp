@@ -7,71 +7,71 @@
 void REntityAnimation::Update()
 {
 	/* executes current keyframe in entity and updates runtimes, turns animation inactive once it ends. */
-	auto& frame = RavenousEngine::GetFrame();
+	auto& Frame = RavenousEngine::GetFrame();
 
-	float frame_duration_ms = frame.duration * 1000;
+	float FrameDurationMs = Frame.Duration * 1000;
 
-	auto kf = &keyframes[current_keyframe];
+	auto Kf = &Keyframes[CurrentKeyframe];
 
-	keyframe_runtime += frame_duration_ms;
-	runtime += frame_duration_ms;
+	KeyframeRuntime += FrameDurationMs;
+	Runtime += FrameDurationMs;
 
 	// --------------------
 	// > Perform animation
 	// --------------------
 
-	float speed;
+	float Speed;
 	// Update entity position
-	if (kf->flags & EntityAnimKfFlags_ChangePosition)
+	if (Kf->Flags & EntityAnimKfFlags_ChangePosition)
 	{
 		//x
-		speed = (kf->final_position.x - kf->starting_position.x) / kf->duration;
-		entity->position.x += speed * frame_duration_ms;
+		Speed = (Kf->FinalPosition.x - Kf->StartingPosition.x) / Kf->Duration;
+		Entity->Position.x += Speed * FrameDurationMs;
 		//y
-		speed = (kf->final_position.y - kf->starting_position.y) / kf->duration;
-		entity->position.y += speed * frame_duration_ms;
+		Speed = (Kf->FinalPosition.y - Kf->StartingPosition.y) / Kf->Duration;
+		Entity->Position.y += Speed * FrameDurationMs;
 		//z
-		speed = (kf->final_position.z - kf->starting_position.z) / kf->duration;
-		entity->position.z += speed * frame_duration_ms;
+		Speed = (Kf->FinalPosition.z - Kf->StartingPosition.z) / Kf->Duration;
+		Entity->Position.z += Speed * FrameDurationMs;
 	}
 
 	// Update entity rotation
-	if (kf->flags & EntityAnimKfFlags_ChangeRotation)
+	if (Kf->Flags & EntityAnimKfFlags_ChangeRotation)
 	{
 		//x
-		speed = (kf->final_rotation.x - kf->starting_rotation.x) / kf->duration;
-		entity->rotation.x += speed * frame_duration_ms;
+		Speed = (Kf->FinalRotation.x - Kf->StartingRotation.x) / Kf->Duration;
+		Entity->Rotation.x += Speed * FrameDurationMs;
 		//y
-		speed = (kf->final_rotation.y - kf->starting_rotation.y) / kf->duration;
-		entity->rotation.y += speed * frame_duration_ms;
+		Speed = (Kf->FinalRotation.y - Kf->StartingRotation.y) / Kf->Duration;
+		Entity->Rotation.y += Speed * FrameDurationMs;
 		//z
-		speed = (kf->final_rotation.z - kf->starting_rotation.z) / kf->duration;
-		entity->rotation.z += speed * frame_duration_ms;
+		Speed = (Kf->FinalRotation.z - Kf->StartingRotation.z) / Kf->Duration;
+		Entity->Rotation.z += Speed * FrameDurationMs;
 	}
 
 	// Update entity scale
-	if (kf->flags & EntityAnimKfFlags_ChangeScale)
+	if (Kf->Flags & EntityAnimKfFlags_ChangeScale)
 	{
 		//x
-		speed = (kf->final_scale.x - kf->starting_scale.x) / kf->duration;
-		entity->scale.x += speed * frame_duration_ms;
+		Speed = (Kf->FinalScale.x - Kf->StartingScale.x) / Kf->Duration;
+		Entity->Scale.x += Speed * FrameDurationMs;
 		//y
-		speed = (kf->final_scale.y - kf->starting_scale.y) / kf->duration;
-		entity->scale.y += speed * frame_duration_ms;
+		Speed = (Kf->FinalScale.y - Kf->StartingScale.y) / Kf->Duration;
+		Entity->Scale.y += Speed * FrameDurationMs;
 		//z
-		speed = (kf->final_scale.z - kf->starting_scale.z) / kf->duration;
-		entity->scale.z += speed * frame_duration_ms;
+		Speed = (Kf->FinalScale.z - Kf->StartingScale.z) / Kf->Duration;
+		Entity->Scale.z += Speed * FrameDurationMs;
 	}
 
-	entity->Update();
+	Entity->Update();
 
 	// updates keyframe if necessary
-	if (keyframe_runtime >= kf->duration)
+	if (KeyframeRuntime >= Kf->Duration)
 	{
-		current_keyframe++;
-		if (current_keyframe > keyframes_count)
+		CurrentKeyframe++;
+		if (CurrentKeyframe > KeyframesCount)
 		{
-			active = false;
+			Active = false;
 		}
 	}
 }
@@ -79,12 +79,12 @@ void REntityAnimation::Update()
 
 uint REntityAnimationBuffer::FindSlot()
 {
-	For(animation_buffer_array_size)
+	For(AnimationBufferArraySize)
 	{
-		if (!animations[i].active)
+		if (!Animations[i].Active)
 		{
 			// reset slot
-			animations[i] = REntityAnimation();
+			Animations[i] = REntityAnimation();
 			return i;
 		}
 	}
@@ -93,67 +93,67 @@ uint REntityAnimationBuffer::FindSlot()
 	return 0;
 }
 
-void REntityAnimationBuffer::StartAnimation(EEntity* entity, REntityAnimation* animation)
+void REntityAnimationBuffer::StartAnimation(EEntity* Entity, REntityAnimation* InAnimation)
 {
 	// makes a copy of the animation to the Entity_Animations buffer
 
 	auto i = FindSlot();
-	auto _animation = &animations[i];
+	auto* Animation = &Animations[i];
 
-	*_animation = *animation;
-	_animation->active = true;
-	_animation->entity = entity;
+	*Animation = *InAnimation;
+	Animation->Active = true;
+	Animation->Entity = Entity;
 }
 
 void REntityAnimationBuffer::UpdateAnimations()
 {
-	For(EntityAnimations.animation_buffer_array_size)
+	For(EntityAnimations.AnimationBufferArraySize)
 	{
-		auto anim = &EntityAnimations.animations[i];
+		auto Anim = &EntityAnimations.Animations[i];
 
-		if (anim->active)
-			anim->Update();
+		if (Anim->Active)
+			Anim->Update();
 	}
 }
 
 
 
-void AN_CreateHardcodedAnimations()
+void AnCreateHardcodedAnimations()
 {
 	// >> VERTICAL DOOR 
 	{
 		// > SLIDING UP
 		{
-			auto kf = REntityAnimationKeyframe();
-			kf.duration = 2000;
-			kf.starting_scale = vec3{0.24, 1.6, 2.350};
-			kf.final_scale = kf.starting_scale;
-			kf.final_scale.z = 0.2;
-			kf.flags |= EntityAnimKfFlags_ChangeScale;
+			auto Kf = REntityAnimationKeyframe();
+			Kf.Duration = 2000;
+			Kf.StartingScale = vec3{0.24, 1.6, 2.350};
+			Kf.FinalScale = Kf.StartingScale;
+			Kf.FinalScale.z = 0.2;
+			Kf.Flags |= EntityAnimKfFlags_ChangeScale;
 
-			auto anim = REntityAnimation();
-			anim.description = "vertical_door_slide_up";
-			anim.keyframes_count = 1;
-			anim.keyframes[0] = kf;
+			auto Anim = REntityAnimation();
+			Anim.Description = "vertical_door_slide_up";
+			Anim.KeyframesCount = 1;
+			Anim.Keyframes[0] = Kf;
 
-			AnimationCatalogue.insert({1, anim});
+			AnimationCatalogue.insert({1, Anim});
 		}
 
 		// > SLIDING DOWN
 		{
-			auto kf = REntityAnimationKeyframe();
-			kf.duration = 2000;
-			kf.starting_scale = vec3{0.24, 1.6, 0.2};
-			kf.final_scale = kf.starting_scale;
-			kf.final_scale.z = 2.350;
-			kf.flags |= EntityAnimKfFlags_ChangeScale;
+			auto Kf = REntityAnimationKeyframe();
+			Kf.Duration = 2000;
+			Kf.StartingScale = vec3{0.24, 1.6, 0.2};
+			Kf.FinalScale = Kf.StartingScale;
+			Kf.FinalScale.z = 2.350;
+			Kf.Flags |= EntityAnimKfFlags_ChangeScale;
 
-			auto anim = REntityAnimation();
-			anim.description = "vertical_door_slide_down";
-			anim.keyframes_count = 1;
-			anim.keyframes[0] = kf;
+			auto Anim = REntityAnimation();
+			Anim.Description = "vertical_door_slide_down";
+			Anim.KeyframesCount = 1;
+			Anim.Keyframes[0] = Kf;
 
-			AnimationCatalogue.insert({2, anim});
+			AnimationCatalogue.insert({2, Anim});
 		}
 	}
 }

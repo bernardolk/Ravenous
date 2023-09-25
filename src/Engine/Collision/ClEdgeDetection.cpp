@@ -6,102 +6,102 @@
 #include "engine/render/ImRender.h"
 #include "engine/world/World.h"
 
-RLedge CL_PerformLedgeDetection(EPlayer* player, RWorld* world)
+RLedge ClPerformLedgeDetection(EPlayer* Player, RWorld* World)
 {
 	// concepts: front face - where the horizontal rays are going to hit
 	//           top face - where the vertical ray (up towards down) is going to hit
-	RLedge ledge;
+	RLedge Ledge;
 
 	// settings
-	constexpr float _front_ray_first_ray_delta_y = 0.6f;
-	constexpr float _front_ray_spacing = 0.03f;
-	constexpr int _front_ray_qty = 24;
+	constexpr float FrontRayFirstRayDeltaY = 0.6f;
+	constexpr float FrontRaySpacing = 0.03f;
+	constexpr int FrontRayQty = 24;
 
-	auto orientation_xz = ToXz(player->orientation);
-	auto first_ray = RRay{player->GetEyePosition() - UnitY * _front_ray_first_ray_delta_y, orientation_xz};
-	ledge.detection_direction = first_ray.direction;
+	auto OrientationXz = ToXz(Player->orientation);
+	auto FirstRay = RRay{Player->GetEyePosition() - UnitY * FrontRayFirstRayDeltaY, OrientationXz};
+	Ledge.DetectionDirection = FirstRay.Direction;
 
-	auto front_test = world->LinearRaycastArray(first_ray, _front_ray_qty, _front_ray_spacing);
-	if (front_test.hit)
+	
+	if (auto FrontTest = World->LinearRaycastArray(FirstRay, FrontRayQty, FrontRaySpacing); FrontTest.Hit)
 	{
-		vec3 frontal_hitpoint = CL_GetPointFromDetection(front_test.ray, front_test);
-		vec3 front_face_n = front_test.t.GetNormal();
+		vec3 FrontalHitpoint = ClGetPointFromDetection(FrontTest.Ray, FrontTest);
+		vec3 FrontFaceN = FrontTest.Triangle.GetNormal();
 
-		if (dot(UnitY, front_face_n) > 0.0001f)
-			return ledge;
+		if (dot(UnitY, FrontFaceN) > 0.0001f)
+			return Ledge;
 
-		constexpr float _top_ray_height = 2.0f;
-		auto top_ray = RRay{frontal_hitpoint + front_test.ray.direction * 0.0001f + UnitY * _top_ray_height, -UnitY};
+		constexpr float TopRayHeight = 2.0f;
+		auto TopRay = RRay{FrontalHitpoint + FrontTest.Ray.Direction * 0.0001f + UnitY * TopRayHeight, -UnitY};
 
-		auto top_test = world->Raycast(top_ray, RayCast_TestOnlyFromOutsideIn, nullptr, _top_ray_height);
+		auto TopTest = World->Raycast(TopRay, RayCast_TestOnlyFromOutsideIn, nullptr, TopRayHeight);
 
-		if (top_test.hit)
+		if (TopTest.Hit)
 		{
-			vec3 top_hitpoint = CL_GetPointFromDetection(top_test.ray, top_test);
-			ledge.surface_point = top_hitpoint;
+			vec3 TopHitpoint = ClGetPointFromDetection(TopTest.Ray, TopTest);
+			Ledge.SurfacePoint = TopHitpoint;
 
-			if (top_test.distance <= player->height || top_hitpoint.y - frontal_hitpoint.y > _front_ray_spacing)
-				return ledge;
+			if (TopTest.Distance <= Player->height || TopHitpoint.y - FrontalHitpoint.y > FrontRaySpacing)
+				return Ledge;
 
-			RImDraw::AddLine(IMHASH, top_ray.origin, frontal_hitpoint, 1.2f, false, COLOR_PURPLE_1);
-			RImDraw::AddPoint(IMHASH, top_hitpoint, 2.0, true, COLOR_PURPLE_1);
+			RImDraw::AddLine(IMHASH, TopRay.Origin, FrontalHitpoint, 1.2f, false, COLOR_PURPLE_1);
+			RImDraw::AddPoint(IMHASH, TopHitpoint, 2.0, true, COLOR_PURPLE_1);
 
 			// test edges
-			vec3 edge1 = top_test.t.b - top_test.t.a; // 1
-			vec3 edge2 = top_test.t.c - top_test.t.b; // 2
-			vec3 edge3 = top_test.t.a - top_test.t.c; // 3
+			vec3 Edge1 = TopTest.Triangle.B - TopTest.Triangle.A; // 1
+			vec3 Edge2 = TopTest.Triangle.C - TopTest.Triangle.B; // 2
+			vec3 Edge3 = TopTest.Triangle.A - TopTest.Triangle.C; // 3
 
 			// for debug: show face normal
-			vec3 front_face_center = front_test.t.GetBarycenter();
-			RImDraw::AddLine(IMHASH, front_face_center, front_face_center + 1.f * front_face_n, 2.0, false, COLOR_BLUE_1);
+			vec3 FrontFaceCenter = FrontTest.Triangle.GetBarycenter();
+			RImDraw::AddLine(IMHASH, FrontFaceCenter, FrontFaceCenter + 1.f * FrontFaceN, 2.0, false, COLOR_BLUE_1);
 
-			if (abs(dot(edge1, front_face_n)) < 0.0001f)
+			if (abs(dot(Edge1, FrontFaceN)) < 0.0001f)
 			{
-				RImDraw::AddLine(IMHASH, top_test.t.a, top_test.t.a + edge1, 2.0, true, COLOR_YELLOW_1);
-				RImDraw::AddPoint(IMHASH, top_test.t.a, 2.0, false, COLOR_YELLOW_1);
-				RImDraw::AddPoint(IMHASH, top_test.t.b, 2.0, false, COLOR_YELLOW_1);
+				RImDraw::AddLine(IMHASH, TopTest.Triangle.A, TopTest.Triangle.A + Edge1, 2.0, true, COLOR_YELLOW_1);
+				RImDraw::AddPoint(IMHASH, TopTest.Triangle.A, 2.0, false, COLOR_YELLOW_1);
+				RImDraw::AddPoint(IMHASH, TopTest.Triangle.B, 2.0, false, COLOR_YELLOW_1);
 
-				ledge.a = top_test.t.a;
-				ledge.b = top_test.t.b;
+				Ledge.A = TopTest.Triangle.A;
+				Ledge.B = TopTest.Triangle.B;
 
-				ledge.empty = false;
-				return ledge;
+				Ledge.Empty = false;
+				return Ledge;
 			}
-			if (abs(dot(edge2, front_face_n)) < 0.0001f)
+			if (abs(dot(Edge2, FrontFaceN)) < 0.0001f)
 			{
-				RImDraw::AddLine(IMHASH, top_test.t.b, top_test.t.b + edge2, 2.0, true, COLOR_YELLOW_1);
-				RImDraw::AddPoint(IMHASH, top_test.t.b, 2.0, false, COLOR_YELLOW_1);
-				RImDraw::AddPoint(IMHASH, top_test.t.c, 2.0, false, COLOR_YELLOW_1);
+				RImDraw::AddLine(IMHASH, TopTest.Triangle.B, TopTest.Triangle.B + Edge2, 2.0, true, COLOR_YELLOW_1);
+				RImDraw::AddPoint(IMHASH, TopTest.Triangle.B, 2.0, false, COLOR_YELLOW_1);
+				RImDraw::AddPoint(IMHASH, TopTest.Triangle.C, 2.0, false, COLOR_YELLOW_1);
 
-				ledge.a = top_test.t.b;
-				ledge.b = top_test.t.c;
+				Ledge.A = TopTest.Triangle.B;
+				Ledge.B = TopTest.Triangle.C;
 
-				ledge.empty = false;
-				return ledge;
+				Ledge.Empty = false;
+				return Ledge;
 			}
-			if (abs(dot(edge3, front_face_n)) < 0.0001f)
+			if (abs(dot(Edge3, FrontFaceN)) < 0.0001f)
 			{
-				RImDraw::AddLine(IMHASH, top_test.t.c, top_test.t.c + edge3, 2.0, true, COLOR_YELLOW_1);
-				RImDraw::AddPoint(IMHASH, top_test.t.c, 2.0, false, COLOR_YELLOW_1);
-				RImDraw::AddPoint(IMHASH, top_test.t.a, 2.0, false, COLOR_YELLOW_1);
+				RImDraw::AddLine(IMHASH, TopTest.Triangle.C, TopTest.Triangle.C + Edge3, 2.0, true, COLOR_YELLOW_1);
+				RImDraw::AddPoint(IMHASH, TopTest.Triangle.C, 2.0, false, COLOR_YELLOW_1);
+				RImDraw::AddPoint(IMHASH, TopTest.Triangle.A, 2.0, false, COLOR_YELLOW_1);
 
-				ledge.a = top_test.t.c;
-				ledge.b = top_test.t.a;
+				Ledge.A = TopTest.Triangle.C;
+				Ledge.B = TopTest.Triangle.A;
 
-				ledge.empty = false;
-				return ledge;
+				Ledge.Empty = false;
+				return Ledge;
 			}
 		}
 	}
 
-	ledge.empty = true;
-	return ledge;
+	Ledge.Empty = true;
+	return Ledge;
 }
 
 
-vec3 CL_GetFinalPositionLedgeVaulting(EPlayer* player, RLedge ledge)
+vec3 ClGetFinalPositionLedgeVaulting(EPlayer* Player, RLedge Ledge)
 {
 	/* Returns the player's position after finishing vaulting across the given ledge */
-	vec3 inward_normal = normalize(Cross(ledge.a - ledge.b, UnitY));
-	return ledge.surface_point + inward_normal * player->radius * 2.f;
+	vec3 InwardNormal = normalize(Cross(Ledge.A - Ledge.B, UnitY));
+	return Ledge.SurfacePoint + InwardNormal * Player->radius * 2.f;
 }

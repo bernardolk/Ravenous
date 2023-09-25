@@ -7,24 +7,24 @@ namespace Editor
 {
 	struct RDeletedEntityLog
 	{
-		uint8 size = 0;
-		constexpr static uint8 capacity = 100;
-		int entity_ids[capacity];
+		uint8 Size = 0;
+		constexpr static uint8 Capacity = 100;
+		int EntityIds[Capacity];
 
-		void Add(const EEntity* entity);
+		void Add(const EEntity* Entity);
 	};
 
 	struct RUndoStack
 	{
-		uint8 limit = 0;                       // index of last added item
-		uint8 pos = 0;                         // current index
-		constexpr static uint8 capacity = 100; // max items - 1 (pos = 0 is never assigned)
-		REntityState stack[100];             // actual stack
-		RDeletedEntityLog deletion_log;      // stores ids of entities that have been deleted
-		bool full = false;                  // helps avoid writing out of stack mem boundaries
+		uint8 Limit = 0;                       // index of last added item
+		uint8 Pos = 0;                         // current index
+		constexpr static uint8 Capacity = 100; // max items - 1 (pos = 0 is never assigned)
+		REntityState Stack[100];               // actual stack
+		RDeletedEntityLog DeletionLog;        // stores ids of entities that have been deleted
+		bool Full = false;                     // helps avoid writing out of stack mem boundaries
 
-		void Track(EEntity* entity);
-		void Track(REntityState state);
+		void Track(EEntity* Entity);
+		void Track(REntityState State);
 		void Undo();
 		void Redo();
 		REntityState Check();
@@ -35,6 +35,6 @@ namespace Editor
 		// internal
 		bool IsBufferFull();
 		// internal
-		bool IsStateValid(REntityState state);
+		bool IsStateValid(REntityState State);
 	};
 }

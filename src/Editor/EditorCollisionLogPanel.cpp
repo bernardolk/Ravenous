@@ -5,35 +5,35 @@
 
 namespace Editor
 {
-	void RenderCollisionLogPanel(RCollisionLogPanelContext* panel)
+	void RenderCollisionLogPanel(RCollisionLogPanelContext* Panel)
 	{
-		constexpr uint16 w_width = 450;
-		constexpr uint16 w_height = 320;
-		constexpr uint8 w_bottom_margin = 30;
-		constexpr uint8 table_items_to_show = 100;
-		constexpr uint16 table_height = 120;
+		constexpr uint16 WWidth = 450;
+		constexpr uint16 WHeight = 320;
+		constexpr uint8 WBottomMargin = 30;
+		constexpr uint8 TableItemsToShow = 100;
+		constexpr uint16 TableHeight = 120;
 
 		ImGui::SetNextWindowPos(
 			ImVec2(GlobalDisplayState::viewport_width - w_width, GlobalDisplayState::viewport_height - w_height - w_bottom_margin),
 			ImGuiCond_Appearing
 		);
 
-		ImGui::Begin("Collision Log Panel", &panel->active, ImGuiWindowFlags_None);
-		ImGui::SetWindowSize("Collision Log Panel", ImVec2(w_width, w_height), ImGuiCond_Once);
-		panel->focused = ImGui::IsWindowFocused();
+		ImGui::Begin("Collision Log Panel", &Panel->Active, ImGuiWindowFlags_None);
+		ImGui::SetWindowSize("Collision Log Panel", ImVec2(WWidth, WHeight), ImGuiCond_Once);
+		Panel->Focused = ImGui::IsWindowFocused();
 
-		ImGuiTableFlags flags =
+		ImGuiTableFlags Flags =
 		ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter |
 		ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
 
 		PushStyleCompact();
-		ImGui::CheckboxFlags("ImGuiTableFlags_ScrollY", &flags, ImGuiTableFlags_ScrollY);
+		ImGui::CheckboxFlags("ImGuiTableFlags_ScrollY", &Flags, ImGuiTableFlags_ScrollY);
 		PopStyleCompact();
 
 		// When using ScrollX or ScrollY we need to specify a size for our table container!
 		// Otherwise by default the table will fit all available space, like a BeginChild() call.
-		auto outer_size = ImVec2(0.0f, table_height);
-		if (ImGui::BeginTable("table_scrolly", 4, flags, outer_size))
+		auto OuterSize = ImVec2(0.0f, TableHeight);
+		if (ImGui::BeginTable("table_scrolly", 4, Flags, OuterSize))
 		{
 			ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
 			ImGui::TableSetupColumn(".", ImGuiTableColumnFlags_None);
@@ -42,9 +42,9 @@ namespace Editor
 			ImGui::TableSetupColumn("Normal", ImGuiTableColumnFlags_None);
 			ImGui::TableHeadersRow();
 
-			ImGuiListClipper clipper;
-			clipper.Begin(table_items_to_show);
-			while (clipper.Step())
+			ImGuiListClipper Clipper;
+			Clipper.Begin(TableItemsToShow);
+			while (Clipper.Step())
 			{
 				// for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
 				// {
@@ -71,9 +71,9 @@ namespace Editor
 
 	void PushStyleCompact()
 	{
-		ImGuiStyle& style = ImGui::GetStyle();
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(style.FramePadding.x, static_cast<float>((int)(style.FramePadding.y * 0.60f))));
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(style.ItemSpacing.x, static_cast<float>((int)(style.ItemSpacing.y * 0.60f))));
+		ImGuiStyle& Style = ImGui::GetStyle();
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(Style.FramePadding.x, static_cast<float>((int)(Style.FramePadding.y * 0.60f))));
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(Style.ItemSpacing.x, static_cast<float>((int)(Style.ItemSpacing.y * 0.60f))));
 	}
 
 	void PopStyleCompact()

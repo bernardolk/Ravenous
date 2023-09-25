@@ -4,7 +4,7 @@
 
 #define OS_WINDOWS_INCLUDED
 
-bool WinListFiles(std::string path, std::string mask, std::vector<std::string>& files);
+bool WinListFiles(string Path, string Mask, vector<string>& Files);
 
 void WinPlatformInitialize();
 

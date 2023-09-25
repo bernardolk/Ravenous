@@ -14,38 +14,38 @@ struct Trait(TInteractable)
 	void BlockInteractions();
 	void UnblockInteractions();
 	bool AreInteractionsBlocked();
-	void SetPassiveInteraction(bool value);
+	void SetPassiveInteraction(bool Value);
 	bool IsInteractionPassive();
-	
+
 private:
-	bool block_interaction = false;
-	bool passive_interaction = false;
+	bool BlockInteraction = false;
+	bool PassiveInteraction = false;
 
 protected:
 	void Interact();
 
 	struct Cylinder
 	{
-		float radius;
-		struct 
+		float Radius;
+		struct
 		{
-			float x, y, z;
-		} position;
-	} collision_volume{};
+			float X, Y, Z;
+		} Position;
+	} CollisionVolume{};
 
 	bool IsVolumeCollidingWithPlayer();
 
-	public:
+public:
 	template<typename T_Entity>
-	static void Update(T_Entity& entity)
+	static void Update(T_Entity& Entity)
 	{
-		if (!entity.block_interaction)
+		if (!Entity.block_interaction)
 		{
-			if (entity.passive_interaction || EPlayer::Get()->interact_btn)
+			if (Entity.passive_interaction || EPlayer::Get()->interact_btn)
 			{
-				if (entity.IsVolumeCollidingWithPlayer())
+				if (Entity.IsVolumeCollidingWithPlayer())
 				{
-					entity.Interact();
+					Entity.Interact();
 				}
 			}
 		}

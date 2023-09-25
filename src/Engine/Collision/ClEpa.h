@@ -9,31 +9,25 @@ struct RSimplex;
 
 extern const int ClMaxEpaIterations;
 
-struct EPA_Result
+struct EpaResult
 {
-	bool collision = false;
-	float penetration;
-	vec3 direction;
+	bool Collision = false;
+	float Penetration;
+	vec3 Direction;
 };
 
-std::pair<std::vector<vec4>, uint> CL_GetEPAFaceNormalsAndClosestFace(
-	const std::vector<vec3>& polytope,
-	const std::vector<uint>& faces);
+std::pair<vector<vec4>, uint> ClGetEPAFaceNormalsAndClosestFace(const vector<vec3>& Polytope, const vector<uint>& Faces);
 
-void CL_AddIfOuterEdge(
-	std::vector<std::pair<uint, uint> >& edges,
-	const std::vector<uint>& faces,
-	uint a,
-	uint b);
+void ClAddIfOuterEdge(vector<std::pair<uint, uint> >& Edges,const vector<uint>& Faces, uint A, uint B);
 
-EPA_Result CL_RunEPA(RSimplex simplex, RCollisionMesh* collider_a, RCollisionMesh* collider_b);
+EpaResult ClRunEpa(RSimplex Simplex, RCollisionMesh* ColliderA, RCollisionMesh* ColliderB);
 
 
-inline bool CL_SupportIsInPolytope(std::vector<vec3> polytope, vec3 support_point)
+inline bool ClSupportIsInPolytope(vector<vec3> Polytope, vec3 SupportPoint)
 {
-	for (int i = 0; i < polytope.size(); i++)
+	for (int i = 0; i < Polytope.size(); i++)
 	{
-		if (polytope[i] == support_point)
+		if (Polytope[i] == SupportPoint)
 			return true;
 	}
 

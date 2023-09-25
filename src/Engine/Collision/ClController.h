@@ -5,17 +5,17 @@
 struct RCollisionResults;
 struct EntityBufferElement;
 
-Array<RCollisionResults, 15> CL_TestAndResolveCollisions(EPlayer* player);
+Array<RCollisionResults, 15> ClTestAndResolveCollisions(EPlayer* Player);
 
-RCollisionResults CL_TestCollisionBufferEntitites(
-	EPlayer* player,
-	bool iterative
+RCollisionResults ClTestCollisionBufferEntitites(
+	EPlayer* Player,
+	bool Iterative
 );
 
-RCollisionResults CL_TestPlayerVsEntity(EEntity* entity, EPlayer* player);
-void CL_ResolveCollision(RCollisionResults results, EPlayer* player);
-bool CL_TestCollisions(EPlayer* player);
-void CL_ResetCollisionBufferChecks();
-void CL_RecomputeCollisionBufferEntities();
-bool CL_UpdatePlayerWorldCells(EPlayer* player);
-ClVtraceResult CL_DoStepoverVtrace(EPlayer* player, RWorld* world);
+RCollisionResults ClTestPlayerVsEntity(EEntity* Entity, EPlayer* Player);
+void ResolveCollision(RCollisionResults Results, EPlayer* Player);
+bool ClTestCollisions(EPlayer* Player);
+void ClResetCollisionBufferChecks();
+void ClRecomputeCollisionBufferEntities();
+bool ClUpdatePlayerWorldCells(EPlayer* Player);
+ClVtraceResult ClDoStepoverVtrace(EPlayer* Player, RWorld* World);

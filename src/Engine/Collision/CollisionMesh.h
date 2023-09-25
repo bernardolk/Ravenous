@@ -5,8 +5,8 @@ struct RMesh;
 
 struct RCollisionMesh
 {
-	std::vector<vec3> vertices;
-	std::vector<uint> indices;
+	vector<vec3> Vertices;
+	vector<uint> Indices;
 
 	RBoundingBox ComputeBoundingBox();
 };

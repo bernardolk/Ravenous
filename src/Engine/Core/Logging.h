@@ -9,28 +9,28 @@ enum RavenousLogLevel
 	LOG_ERROR   = 3
 };
 
-inline void Log(RavenousLogLevel level, const std::string& message)
+inline void Log(RavenousLogLevel Level, const string& Message)
 {
-	std::string message_header = "\n";
-	switch (level)
+	string MessageHeader = "\n";
+	switch (Level)
 	{
 		case LOG_INFO:
 		{
-			message_header += "> INFO message: ";
+			MessageHeader += "> INFO message: ";
 			break;
 		}
 		case LOG_WARNING:
 		{
-			message_header += "> WARNING message: ";
+			MessageHeader += "> WARNING message: ";
 			break;
 		}
 		case LOG_ERROR:
 		{
-			message_header += "> ERROR message: ";
+			MessageHeader += "> ERROR message: ";
 			break;
 		}
 	}
 
-	printf(message_header.c_str());
-	print(message.c_str());
+	printf(MessageHeader.c_str());
+	print(Message.c_str());
 }

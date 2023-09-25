@@ -21,7 +21,7 @@
 
 namespace Editor
 {
-	void HandleInputFlagsForEditorMode(RInputFlags flags, RWorld* world)
+	void HandleInputFlagsForEditorMode(RInputFlags Flags, RWorld* World)
 	{
 		// ------------------------
 		// EDITOR EDITING COMMANDS
@@ -29,37 +29,37 @@ namespace Editor
 		// commands that return once detected,
 		// not allowing for more than one at a time
 		// to be issued.
-		auto& context = *Editor::GetContext();
-		auto* player = EPlayer::Get();
-		auto& program_config = *ProgramConfig::Get();
-		auto* manager = RCameraManager::Get();
-		auto* camera = manager->GetCurrentCamera();
+		auto& Context = *Editor::GetContext();
+		auto* Player = EPlayer::Get();
+		auto& ProgramConfig = *ProgramConfig::Get();
+		auto* Manager = RCameraManager::Get();
+		auto* Camera = Manager->GetCurrentCamera();
 
 		if (Pressed(flags, KEY_LEFT_CTRL) && PressedOnce(flags, KEY_Z))
 		{
 			// snap mode controls the undo stack while it is active.
-			if (!context.snap_mode)
-				context.undo_stack.Undo();
+			if (!Context.SnapMode)
+				Context.UndoStack.Undo();
 			return;
 		}
 
 		if (Pressed(flags, KEY_LEFT_CTRL) && PressedOnce(flags, KEY_S))
 		{
 			// save scene
-			player->checkpoint_pos = player->position;
+			Player->checkpoint_pos = Player->Position;
 			WorldSerializer::SaveToFile();
 			// set scene
-			program_config.initial_scene = RWorld::Get()->scene_name;
-			ConfigSerializer::Save(program_config);
-			Rvn::rm_buffer->Add("world state saved", 1200);
+			ProgramConfig.InitialScene = RWorld::Get()->SceneName;
+			ConfigSerializer::Save(ProgramConfig);
+			Rvn::RmBuffer->Add("world state saved", 1200);
 			return;
 		}
 
 		if (Pressed(flags, KEY_LEFT_CTRL) && PressedOnce(flags, KEY_Y))
 		{
 			// snap mode controls the undo stack while it is active.
-			if (!context.snap_mode)
-				context.undo_stack.Redo();
+			if (!Context.SnapMode)
+				Context.UndoStack.Redo();
 			return;
 		}
 
@@ -67,12 +67,12 @@ namespace Editor
 		{
 			if (Editor::CheckModesAreActive())
 				DeactivateEditorModes();
-			else if (context.entity_panel.active)
-				context.entity_panel.active = false;
-			else if (context.world_panel.active)
-				context.world_panel.active = false;
-			else if (context.lights_panel.active)
-				context.lights_panel.active = false;
+			else if (Context.EntityPanel.Active)
+				Context.EntityPanel.Active = false;
+			else if (Context.WorldPanel.Active)
+				Context.WorldPanel.Active = false;
+			else if (Context.LightsPanel.Active)
+				Context.LightsPanel.Active = false;
 			return;
 		}
 
@@ -100,7 +100,7 @@ namespace Editor
 			}
 		}
 		*/
-		
+
 
 		// ------------------------------------
 		// TOOLS / CAMERA / CHARACTER CONTROLS
@@ -109,7 +109,7 @@ namespace Editor
 		// --------------------
 		// SNAP MODE SHORTCUTS
 		// --------------------
-		if (context.snap_mode == true)
+		if (Context.SnapMode == true)
 		{
 			if (PressedOnce(flags, KEY_ENTER))
 			{
@@ -117,76 +117,76 @@ namespace Editor
 			}
 			if (PressedOnly(flags, KEY_X))
 			{
-				if (context.snap_axis == 0)
-					context.snap_cycle = (context.snap_cycle + 1) % 3;
+				if (Context.SnapAxis == 0)
+					Context.SnapCycle = (Context.SnapCycle + 1) % 3;
 				else
 				{
-					ApplyState(context.snap_tracked_state);
-					context.snap_cycle = 0;
-					context.snap_axis = 0;
+					ApplyState(Context.SnapTrackedState);
+					Context.SnapCycle = 0;
+					Context.SnapAxis = 0;
 				}
-				if (context.snap_reference != nullptr)
-					SnapEntityToReference(context.entity_panel.entity);
+				if (Context.SnapReference != nullptr)
+					SnapEntityToReference(Context.EntityPanel.Entity);
 			}
 			if (PressedOnly(flags, KEY_Y))
 			{
-				if (context.snap_axis == 1)
-					context.snap_cycle = (context.snap_cycle + 1) % 3;
+				if (Context.SnapAxis == 1)
+					Context.SnapCycle = (Context.SnapCycle + 1) % 3;
 				else
 				{
-					ApplyState(context.snap_tracked_state);
-					context.snap_cycle = 0;
-					context.snap_axis = 1;
+					ApplyState(Context.SnapTrackedState);
+					Context.SnapCycle = 0;
+					Context.SnapAxis = 1;
 				}
-				if (context.snap_reference != nullptr)
-					SnapEntityToReference(context.entity_panel.entity);
+				if (Context.SnapReference != nullptr)
+					SnapEntityToReference(Context.EntityPanel.Entity);
 			}
 			if (PressedOnly(flags, KEY_Z))
 			{
-				if (context.snap_axis == 2)
-					context.snap_cycle = (context.snap_cycle + 1) % 3;
+				if (Context.SnapAxis == 2)
+					Context.SnapCycle = (Context.SnapCycle + 1) % 3;
 				else
 				{
-					ApplyState(context.snap_tracked_state);
-					context.snap_cycle = 0;
-					context.snap_axis = 2;
+					ApplyState(Context.SnapTrackedState);
+					Context.SnapCycle = 0;
+					Context.SnapAxis = 2;
 				}
-				if (context.snap_reference != nullptr)
-					SnapEntityToReference(context.entity_panel.entity);
+				if (Context.SnapReference != nullptr)
+					SnapEntityToReference(Context.EntityPanel.Entity);
 			}
 			if (PressedOnly(flags, KEY_I))
 			{
-				context.snap_inside = !context.snap_inside;
-				if (context.snap_reference != nullptr)
-					SnapEntityToReference(context.entity_panel.entity);
+				Context.SnapInside = !Context.SnapInside;
+				if (Context.SnapReference != nullptr)
+					SnapEntityToReference(Context.EntityPanel.Entity);
 			}
 		}
 
 		// --------------------
 		// MOVE MODE SHORTCUTS
 		// --------------------
-		if (context.move_mode == true)
+		if (Context.MoveMode == true)
 		{
 			if (Pressed(flags, KEY_X) && Pressed(flags, KEY_Z))
 			{
-				context.move_axis = 0;
+				Context.MoveAxis = 0;
 			}
 			if (PressedOnly(flags, KEY_X))
 			{
-				context.move_axis = 1;
+				Context.MoveAxis = 1;
 			}
 			if (PressedOnly(flags, KEY_Y))
 			{
-				context.move_axis = 2;
+				Context.MoveAxis = 2;
 			}
 			if (PressedOnly(flags, KEY_Z))
 			{
-				context.move_axis = 3;
+				Context.MoveAxis = 3;
 			}
 			if (PressedOnly(flags, KEY_M))
 			{
-				context.move_mode = false;
-				context.place_mode = true;
+				Context.MoveMode = false;
+				Context.PlaceMode = true;
 				return;
 			}
 		}
@@ -194,12 +194,12 @@ namespace Editor
 		// ---------------------
 		// PLACE MODE SHORTCUTS
 		// ---------------------
-		if (context.place_mode == true)
+		if (Context.PlaceMode == true)
 		{
 			if (PressedOnly(flags, KEY_M))
 			{
-				context.place_mode = false;
-				context.move_mode = true;
+				Context.PlaceMode = false;
+				Context.MoveMode = true;
 				return;
 			}
 		}
@@ -210,10 +210,10 @@ namespace Editor
 		if (PressedOnce(flags, KEY_T))
 		{
 			// toggle camera type
-			if (camera->type == FREE_ROAM)
-				manager->SetCameraToThirdPerson();
-			else if (camera->type == THIRD_PERSON)
-				manager->SetCameraToFreeRoam();
+			if (Camera->Type == FreeRoam)
+				Manager->SetCameraToThirdPerson();
+			else if (Camera->Type == ThirdPerson)
+				Manager->SetCameraToFreeRoam();
 		}
 
 		// ---------------
@@ -226,61 +226,61 @@ namespace Editor
 		// Either way, there is code for handling clicks and etc both here and at editor_main which is confusing
 		// and is, currently, causing some bugs in the editor.
 
-		context.mouse_click = false;
-		context.mouse_dragging = false;
+		Context.MouseClick = false;
+		Context.MouseDragging = false;
 
 		auto* GII = GlobalInputInfo::Get();
 
-		if (GII->mouse_state & MOUSE_LB_CLICK)
+		if (GII->MouseState & MOUSE_LB_CLICK)
 		{
-			if (context.snap_mode)
+			if (Context.SnapMode)
 			{
 				CheckSelectionToSnap();
 			}
-			else if (context.measure_mode)
+			else if (Context.MeasureMode)
 			{
-				CheckSelectionToMeasure(world);
+				CheckSelectionToMeasure(World);
 			}
-			else if (context.locate_coords_mode)
+			else if (Context.LocateCoordsMode)
 			{
-				CheckSelectionToLocateCoords(world);
+				CheckSelectionToLocateCoords(World);
 			}
-			else if (context.stretch_mode)
+			else if (Context.StretchMode)
 			{
 				CheckSelectionToStretch();
 			}
 			else if (flags.key_press & KEY_G)
 			{
-				CheckSelectionToMoveEntity(world, camera);
+				CheckSelectionToMoveEntity(World, Camera);
 			}
 			else
 			{
-				context.mouse_click = true;
+				Context.MouseClick = true;
 
-				if (context.entity_panel.active)
+				if (Context.EntityPanel.Active)
 				{
-					if (context.select_entity_aux_mode)
+					if (Context.SelectEntityAuxMode)
 						return;
-					if (CheckSelectionToGrabEntityArrows(camera))
+					if (CheckSelectionToGrabEntityArrows(Camera))
 						return;
-					if (CheckSelectionToGrabEntityRotationGizmo(camera))
+					if (CheckSelectionToGrabEntityRotationGizmo(Camera))
 						return;
 				}
 
-				if (context.move_mode || context.place_mode)
+				if (Context.MoveMode || Context.PlaceMode)
 					return;
 
-				CheckSelectionToOpenPanel(player, world, camera);
+				CheckSelectionToOpenPanel(Player, World, Camera);
 			}
 		}
 
-		else if (GII->mouse_state & MOUSE_LB_DRAGGING)
+		else if (GII->MouseState & MOUSE_LB_DRAGGING)
 		{
-			context.mouse_dragging = true;
+			Context.MouseDragging = true;
 		}
-		else if (GII->mouse_state & MOUSE_LB_HOLD)
+		else if (GII->MouseState & MOUSE_LB_HOLD)
 		{
-			context.mouse_dragging = true;
+			Context.MouseDragging = true;
 		}
 
 
@@ -289,15 +289,15 @@ namespace Editor
 		// -------------------------------
 		if (PressedOnce(flags, KEY_C))
 		{
-			auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
-			auto test = world->Raycast(pickray);
-			if (test.hit)
+			auto Pickray = CastPickray(Camera, GII->MouseCoords.X, GII->MouseCoords.Y);
+			auto Test = World->Raycast(Pickray);
+			if (Test.Hit)
 			{
-				auto surface_point = CL_GetPointFromDetection(pickray, test);
-				player->position = surface_point;
-				player->player_state = NPlayerState::Standing;
-				player->velocity = vec3(0, 0, 0);
-				player->Update();
+				auto SurfacePoint = CL_GetPointFromDetection(pickray, test);
+				Player->Position = surface_point;
+				Player->player_state = NPlayerState::Standing;
+				Player->Velocity = vec3(0, 0, 0);
+				Player->Update();
 			}
 		}
 
@@ -311,98 +311,98 @@ namespace Editor
 		// CAMERA MOVEMENT CONTROLS
 		// -------------------------
 		// @TODO: this sucks
-		auto& frame = RavenousEngine::GetFrame();
-		auto* editor_camera = manager->GetEditorCamera();
-		float camera_speed = camera->type == THIRD_PERSON ? length(player->velocity) * frame.duration : frame.real_duration * editor_camera->acceleration;
+		auto& Frame = RavenousEngine::GetFrame();
+		auto* EditorCamera = Manager->GetEditorCamera();
+		float CameraSpeed = Camera->Type == ThirdPerson ? length(Player->Velocity) * Frame.Duration : Frame.RealDuration * EditorCamera->Acceleration;
 
 		if (flags.key_press & KEY_LEFT_SHIFT)
 		{
-			camera_speed = camera_speed * 2;
+			CameraSpeed = CameraSpeed * 2;
 		}
 
 		if (flags.key_press & KEY_W)
 		{
-			camera->position += camera_speed * camera->front;
+			Camera->Position += CameraSpeed * Camera->Front;
 		}
 		if (flags.key_press & KEY_A)
 		{
 			// @TODO: this sucks too
-			if (camera->type == FREE_ROAM)
+			if (Camera->Type == FreeRoam)
 				camera->position -= camera_speed * normalize(glm::cross(camera->front, camera->up));
-			else if (camera->type == THIRD_PERSON)
-				camera->orbital_angle -= 0.025;
+			else if (Camera->Type == ThirdPerson)
+				Camera->OrbitalAngle -= 0.025;
 		}
 		if (Pressed(flags, KEY_S))
 		{
-			camera->position -= camera_speed * camera->front;
+			Camera->Position -= CameraSpeed * Camera->Front;
 		}
 		if (flags.key_press & KEY_D)
 		{
-			if (camera->type == FREE_ROAM)
+			if (Camera->Type == FreeRoam)
 				camera->position += camera_speed * normalize(glm::cross(camera->front, camera->up));
-			else if (camera->type == THIRD_PERSON)
-				camera->orbital_angle += 0.025;
+			else if (Camera->Type == ThirdPerson)
+				Camera->OrbitalAngle += 0.025;
 		}
 		if (flags.key_press & KEY_Q)
 		{
-			camera->position -= camera_speed * camera->up;
+			Camera->Position -= CameraSpeed * Camera->Up;
 		}
 		if (flags.key_press & KEY_E)
 		{
-			camera->position += camera_speed * camera->up;
+			Camera->Position += CameraSpeed * Camera->Up;
 		}
 		if (flags.key_press & KEY_O)
 		{
-			manager->CameraLookAt(camera, vec3(0.0f, 0.0f, 0.0f), true);
+			Manager->CameraLookAt(Camera, vec3(0.0f, 0.0f, 0.0f), true);
 		}
 	}
 
-	void HandleInputFlagsForCommonInput(RInputFlags flags, EPlayer* & player)
+	void HandleInputFlagsForCommonInput(RInputFlags Flags, EPlayer* & Player)
 	{
-		auto& frame = RavenousEngine::GetFrame();
+		auto& Frame = RavenousEngine::GetFrame();
 
 		if (PressedOnce(flags, KEY_COMMA))
 		{
-			if (frame.time_step > 0)
+			if (Frame.TimeStep > 0)
 			{
-				frame.time_step -= 0.025;
+				Frame.TimeStep -= 0.025;
 			}
 		}
 		if (PressedOnce(flags, KEY_PERIOD))
 		{
-			if (frame.time_step < 3)
+			if (Frame.TimeStep < 3)
 			{
-				frame.time_step += 0.025;
+				Frame.TimeStep += 0.025;
 			}
 		}
 		if (PressedOnce(flags, KEY_1))
 		{
-			Rvn::rm_buffer->Add("TIME STEP x0.05", 1000);
-			frame.time_step = 0.05;
+			Rvn::RmBuffer->Add("TIME STEP x0.05", 1000);
+			Frame.TimeStep = 0.05;
 		}
 		if (PressedOnce(flags, KEY_2))
 		{
-			Rvn::rm_buffer->Add("TIME STEP x0.1", 1000);
-			frame.time_step = 0.1;
+			Rvn::RmBuffer->Add("TIME STEP x0.1", 1000);
+			Frame.TimeStep = 0.1;
 		}
 		if (PressedOnce(flags, KEY_3))
 		{
-			Rvn::rm_buffer->Add("TIME STEP x0.3", 1000);
-			frame.time_step = 0.3;
+			Rvn::RmBuffer->Add("TIME STEP x0.3", 1000);
+			Frame.TimeStep = 0.3;
 		}
 		if (PressedOnce(flags, KEY_4))
 		{
-			Rvn::rm_buffer->Add("TIME STEP x1.0", 1000);
-			frame.time_step = 1.0;
+			Rvn::RmBuffer->Add("TIME STEP x1.0", 1000);
+			Frame.TimeStep = 1.0;
 		}
 		if (PressedOnce(flags, KEY_5))
 		{
-			Rvn::rm_buffer->Add("TIME STEP x2.0", 1000);
-			frame.time_step = 2.0;
+			Rvn::RmBuffer->Add("TIME STEP x2.0", 1000);
+			Frame.TimeStep = 2.0;
 		}
 		if (flags.key_press & KEY_K)
 		{
-			player->Die();
+			Player->Die();
 		}
 		if (PressedOnce(flags, KEY_F))
 		{

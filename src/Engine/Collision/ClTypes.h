@@ -5,8 +5,8 @@
 
 struct RCollisionResults
 {
-	bool collision = false;
-	struct EEntity* entity = nullptr;
-	float penetration = 0.f;
-	vec3 normal;
+	bool Collision = false;
+	struct EEntity* Entity = nullptr;
+	float Penetration = 0.f;
+	vec3 Normal;
 };

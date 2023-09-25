@@ -5,119 +5,113 @@
 
 extern const int ClMaxEpaIterations = 100;
 
-std::pair<std::vector<vec4>, uint> CL_GetEPAFaceNormalsAndClosestFace(
-	const std::vector<vec3>& polytope,
-	const std::vector<uint>& faces)
+std::pair<vector<vec4>, uint> ClGetEPAFaceNormalsAndClosestFace(const vector<vec3>& Polytope, const vector<uint>& Faces)
 {
-	std::vector<vec4> normals;
-	uint closest_face_index = 0;
-	float min_distance_to_face = MaxFloat;
+	vector<vec4> Normals;
+	uint ClosestFaceIndex = 0;
+	float MinDistanceToFace = MaxFloat;
 
-	for (uint i = 0; i < faces.size(); i += 3)
+	for (uint i = 0; i < Faces.size(); i += 3)
 	{
-		vec3 a = polytope[faces[i]];
-		vec3 b = polytope[faces[i + 1]];
-		vec3 c = polytope[faces[i + 2]];
+		vec3 A = Polytope[Faces[i]];
+		vec3 B = Polytope[Faces[i + 1]];
+		vec3 C = Polytope[Faces[i + 2]];
 
-		vec3 normal = normalize(glm::cross(b - a, c - a));
-		float distance = dot(normal, c);
+		vec3 Normal = normalize(glm::cross(B - A, C - A));
+		float Distance = dot(Normal, C);
 
-		if (distance < 0)
+		if (Distance < 0)
 		{
-			normal *= -1;
-			distance *= -1;
+			Normal *= -1;
+			Distance *= -1;
 		}
 
-		normals.emplace_back(normal, distance);
+		Normals.emplace_back(Normal, Distance);
 
-		if (distance < min_distance_to_face)
+		if (Distance < MinDistanceToFace)
 		{
-			closest_face_index = i / 3;
-			min_distance_to_face = distance;
+			ClosestFaceIndex = i / 3;
+			MinDistanceToFace = Distance;
 		}
 	}
 
-	return {normals, closest_face_index};
+	return {Normals, ClosestFaceIndex};
 }
 
 
-void CL_AddIfOuterEdge(
-	std::vector<std::pair<uint, uint> >& edges,
-	const std::vector<uint>& faces,
-	uint a,
-	uint b)
+void ClAddIfOuterEdge(vector<std::pair<uint, uint> >& Edges, const vector<uint>& Faces, uint A, uint B)
 {
 	// if edge is already in list (but in reverse winding order)
 	// then we must exclude it from the list as it is not an outer edge.
 	// if we don't find it, just add.
 
-	auto reverse = std::find(              //      0--<--3
-		edges.begin(),                     //     / \ B /   A: 2-0
-		edges.end(),                       //    / A \ /    B: 0-2
-		std::make_pair(faces[b], faces[a]) //   1-->--2
+	auto Reverse = std::find(              //      0--<--3
+		Edges.begin(),                     //     / \ B /   A: 2-0
+		Edges.end(),                       //    / A \ /    B: 0-2
+		std::make_pair(Faces[B], Faces[A]) //   1-->--2
 	);
 
-	if (reverse != edges.end())
-		edges.erase(reverse);
+	if (Reverse != Edges.end())
+		Edges.erase(Reverse);
 	else
-		edges.emplace_back(faces[a], faces[b]);
+		Edges.emplace_back(Faces[A], Faces[B]);
 }
 
-EPA_Result CL_RunEPA(RSimplex simplex, RCollisionMesh* collider_a, RCollisionMesh* collider_b)
+EpaResult ClRunEpa(RSimplex Simplex, RCollisionMesh* ColliderA, RCollisionMesh* ColliderB)
 {
 
-	std::vector<vec3> polytope;
-	polytope.insert(polytope.begin(), std::begin(simplex.points), std::end(simplex.points));
+	vector<vec3> Polytope;
+	Polytope.insert(Polytope.begin(), std::begin(Simplex.Points), std::end(Simplex.Points));
 
-	std::vector<uint> faces = {
-	0, 1, 2,
-	0, 3, 1,
-	0, 2, 3,
-	1, 3, 2
+	vector<uint> Faces = {
+		0, 1, 2,
+		0, 3, 1,
+		0, 2, 3,
+		1, 3, 2
 	};
 
-	auto [face_normals, closest_face_index] = CL_GetEPAFaceNormalsAndClosestFace(polytope, faces);
+	auto [face_normals, closest_face_index] = ClGetEPAFaceNormalsAndClosestFace(Polytope, Faces);
 
-	vec3 penetration_normal;
-	float min_distance_to_face = MaxFloat;
+	vec3 PenetrationNormal;
+	float MinDistanceToFace = MaxFloat;
 
-	int EPA_iterations = 0;
+	int EPAIterations = 0;
 
-	while (min_distance_to_face == MaxFloat && EPA_iterations < ClMaxEpaIterations)
+	while (MinDistanceToFace == MaxFloat && EPAIterations < ClMaxEpaIterations)
 	{
-		EPA_iterations++;
-		penetration_normal = vec3(face_normals[closest_face_index]);
-		min_distance_to_face = face_normals[closest_face_index].w;
+		EPAIterations++;
+		PenetrationNormal = vec3(face_normals[closest_face_index]);
+		MinDistanceToFace = face_normals[closest_face_index].w;
 
-		GJK_Point support = CL_GetSupportPoint(collider_a, collider_b, penetration_normal);
-		if (support.empty || CL_SupportIsInPolytope(polytope, support.point))
+		GjkPoint Support = ClGetSupportPoint(ColliderA, ColliderB, PenetrationNormal);
+		if (Support.Empty || ClSupportIsInPolytope(Polytope, Support.Point))
 			break;
 
-		float s_distance = dot(penetration_normal, support.point);
+		float SDistance = dot(PenetrationNormal, Support.Point);
 
 		// if we have a vertex in support direction and its farther enough to check
-		if (abs(s_distance - min_distance_to_face) > 0.001f)
+		if (abs(SDistance - MinDistanceToFace) > 0.001f)
 		{
-			min_distance_to_face = MaxFloat;
+			MinDistanceToFace = MaxFloat;
 
 			// removes all faces pointing towards the support direction and lists the outer_edges
-			std::vector<std::pair<uint, uint> > outer_edges;
+			vector<std::pair<uint, uint> > OuterEdges;
 			for (uint i = 0; i < face_normals.size(); i++)
 			{
-				if (CL_SameGeneralDirection(face_normals[i], support.point))
+				if (ClSameGeneralDirection(face_normals[i], Support.Point))
 				{
 					uint f = i * 3;
 
-					CL_AddIfOuterEdge(outer_edges, faces, f, f + 1);
-					CL_AddIfOuterEdge(outer_edges, faces, f + 1, f + 2);
-					CL_AddIfOuterEdge(outer_edges, faces, f + 2, f);
+					ClAddIfOuterEdge(OuterEdges, Faces, f, f + 1);
+					ClAddIfOuterEdge(OuterEdges, Faces, f + 1, f + 2);
+					ClAddIfOuterEdge(OuterEdges, Faces, f + 2, f);
 
-					faces[f + 2] = faces.back();
-					faces.pop_back();
-					faces[f + 1] = faces.back();
-					faces.pop_back();
-					faces[f] = faces.back();
-					faces.pop_back();
+					Faces[f + 2] = Faces.back();
+					Faces.pop_back();
+					Faces[f + 1] = Faces.back();
+					Faces.pop_back();
+					Faces[f] = Faces.back();
+					Faces.pop_back();
 
 					face_normals[i] = face_normals.back();
 					face_normals.pop_back();
@@ -127,34 +121,34 @@ EPA_Result CL_RunEPA(RSimplex simplex, RCollisionMesh* collider_a, RCollisionMes
 			}
 
 			// construct new faces from the outer_edges listed before
-			std::vector<uint> new_faces;
-			for (auto [edgeIndex1, edgeIndex2] : outer_edges)
+			vector<uint> NewFaces;
+			for (auto [edgeIndex1, edgeIndex2] : OuterEdges)
 			{
-				new_faces.push_back(edgeIndex1);
-				new_faces.push_back(edgeIndex2);
-				new_faces.push_back(polytope.size());
+				NewFaces.push_back(edgeIndex1);
+				NewFaces.push_back(edgeIndex2);
+				NewFaces.push_back(Polytope.size());
 			}
 
-			polytope.push_back(support.point);
+			Polytope.push_back(Support.Point);
 
 			// finds normals and closest face from the new faces
-			auto [new_normals, new_closest_face_index] = CL_GetEPAFaceNormalsAndClosestFace(polytope, new_faces);
+			auto [new_normals, new_closest_face_index] = ClGetEPAFaceNormalsAndClosestFace(Polytope, NewFaces);
 
-			float old_min_distance_to_face = MaxFloat;
+			float OldMinDistanceToFace = MaxFloat;
 			for (uint i = 0; i < face_normals.size(); i++)
 			{
 				float dist = face_normals[i].w;
-				if (dist < old_min_distance_to_face)
+				if (dist < OldMinDistanceToFace)
 				{
-					old_min_distance_to_face = dist;
+					OldMinDistanceToFace = dist;
 					closest_face_index = i;
 				}
 			}
 
-			if (new_normals[new_closest_face_index].w < old_min_distance_to_face)
+			if (new_normals[new_closest_face_index].w < OldMinDistanceToFace)
 				closest_face_index = new_closest_face_index + face_normals.size();
 
-			faces.insert(faces.end(), new_faces.begin(), new_faces.end());
+			Faces.insert(Faces.end(), NewFaces.begin(), NewFaces.end());
 			face_normals.insert(face_normals.end(), new_normals.begin(), new_normals.end());
 		}
 	}
@@ -191,16 +185,16 @@ EPA_Result CL_RunEPA(RSimplex simplex, RCollisionMesh* collider_a, RCollisionMes
 	//    ImDraw::add_line(IMHASH, vec3(0), penetration_normal * min_distance_to_face, 2.0, false, vec3(0.882, 0.254, 0.878));
 	// }
 
-	EPA_Result result;
+	EpaResult Result;
 
-	if (min_distance_to_face != MaxFloat)
-		result.collision = true;
+	if (MinDistanceToFace != MaxFloat)
+		Result.Collision = true;
 
 	// if (min_distance_to_face != MAX_FLOAT)
 	// assert(false);
 
-	result.direction = penetration_normal;
-	result.penetration = min_distance_to_face + 0.0001f;
+	Result.Direction = PenetrationNormal;
+	Result.Penetration = MinDistanceToFace + 0.0001f;
 
-	return result;
+	return Result;
 }

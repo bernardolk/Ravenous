@@ -12,80 +12,80 @@
 #include "engine/render/Shader.h"
 #include "engine/world/World.h"
 
-const std::string SrLoadEntity_TypeNotSetErrorMsg = "Need to load entity type before loading type-specific data.";
+const std::string SrLoadEntityTypeNotSetErrorMsg = "Need to load entity type before loading type-specific data.";
 
-void EntitySerializer::Parse(Parser& parser)
+void EntitySerializer::Parse(Parser& Parser)
 {
-	auto* world = RWorld::Get();
-	auto* new_entity_ptr = world->SpawnEntity<EStaticMesh>();
-	if (!new_entity_ptr)
+	auto* World = RWorld::Get();
+	auto* NewEntityPtr = World->SpawnEntity<EStaticMesh>();
+	if (!NewEntityPtr)
 		fatal_error("Couldnt create entity.")
 
-	auto& new_entity = *new_entity_ptr;
+	auto& NewEntity = *NewEntityPtr;
 
-	auto& p = parser;
-	p.ParseName();
+	auto& P = Parser;
+	P.ParseName();
 	new_entity.name = GetParsed<std::string>(parser);
 
-	while (parser.NextLine())
+	while (Parser.NextLine())
 	{
-		p.ParseToken();
-		const auto property = GetParsed<std::string>(parser);
+		P.ParseToken();
+		const auto Property = GetParsed<std::string>(parser);
 
 		if (property == "id")
 		{
-			p.ParseAllWhitespace();
-			p.ParseU64();
-			uint64 id = GetParsed<uint64>(parser);
-			new_entity.id = id;
+			P.ParseAllWhitespace();
+			P.ParseU64();
+			uint64 Id = GetParsed<uint64>(Parser);
+			NewEntity.ID = Id;
 		}
 
 		else if (property == "position")
 		{
-			p.ParseVec3();
+			P.ParseVec3();
 			new_entity.position = GetParsed<glm::vec3>(parser);
 		}
 
 		else if (property == "rotation")
 		{
-			p.ParseVec3();
+			P.ParseVec3();
 			new_entity.rotation = GetParsed<glm::vec3>(parser);
 		}
 
 		else if (property == "scale")
 		{
-			p.ParseVec3();
-			const auto s = GetParsed<glm::vec3>(parser);
+			P.ParseVec3();
+			const auto S = GetParsed<glm::vec3>(parser);
 
-			if (s.x < 0 || s.y < 0 || s.z < 0)
-				fatal_error("FATAL: ENTITY SCALE PROPERTY CANNOT BE NEGATIVE. AT '%s' LINE NUMBER %i", parser.filepath.c_str(), parser.line_count);
+			if (s.x<0 || s.y<0 || s.z < 0)
+			                 fatal_error("FATAL: ENTITY SCALE PROPERTY CANNOT BE NEGATIVE. AT '%s' LINE NUMBER %i", Parser.Filepath.c_str(), Parser.LineCount);
 
-			new_entity.scale = s;
+				NewEntity.Scale = s;
 		}
 
 		else if (property == "shader")
 		{
-			p.ParseAllWhitespace();
-			p.ParseToken();
-			const auto shader_name = GetParsed<std::string>(parser);
+			P.ParseAllWhitespace();
+			P.ParseToken();
+			const auto ShaderName = GetParsed<std::string>(parser);
 
-			auto find = ShaderCatalogue.find(shader_name);
+			auto Find = ShaderCatalogue.find(shader_name);
 			if (find != ShaderCatalogue.end())
 			{
 				if (shader_name == "tiledTextureModel")
 				{
-					new_entity.flags |= EntityFlags_RenderTiledTexture;
+					NewEntity.Flags |= EntityFlags_RenderTiledTexture;
 					For(6)
 					{
-						p.ParseAllWhitespace();
-						p.ParseInt();
-						if (!p.HasToken())
+						P.ParseAllWhitespace();
+						P.ParseInt();
+						if (!P.HasToken())
 							fatal_error("Scene description contain an entity with box tiled shader without full tile quantity description.");
 
-						new_entity.uv_tile_wrap[i] = GetParsed<int>(parser);
+						NewEntity.UvTileWrap[i] = GetParsed<int>(Parser);
 					}
 				}
-				new_entity.shader = find->second;
+				NewEntity.Shader = find->second;
 			}
 			else
 				fatal_error("SHADER '%s' NOT FOUND WHILE LOADING SCENE DESCRIPTION FILE.", shader_name.c_str());
@@ -93,67 +93,67 @@ void EntitySerializer::Parse(Parser& parser)
 
 		else if (property == "mesh")
 		{
-			p.ParseAllWhitespace();
-			p.ParseToken();
-			const auto model_name = GetParsed<std::string>(parser);
+			P.ParseAllWhitespace();
+			P.ParseToken();
+			const auto ModelName = GetParsed<std::string>(parser);
 
-			auto find_mesh = GeometryCatalogue.find(model_name);
+			auto FindMesh = GeometryCatalogue.find(model_name);
 			if (find_mesh != GeometryCatalogue.end())
-				new_entity.mesh = find_mesh->second;
+				NewEntity.Mesh = find_mesh->second;
 			else
 				new_entity.mesh = LoadWavefrontObjAsMesh(Paths::Models, model_name);
 
 			// @TODO: For now collision mesh is loaded from the same model as regular mesh.
-			auto find_c_mesh = CollisionGeometryCatalogue.find(model_name);
+			auto FindCMesh = CollisionGeometryCatalogue.find(model_name);
 			if (find_c_mesh != CollisionGeometryCatalogue.end())
-				new_entity.collision_mesh = find_c_mesh->second;
+				NewEntity.CollisionMesh = find_c_mesh->second;
 			else
 				new_entity.collision_mesh = LoadWavefrontObjAsCollisionMesh(Paths::Models, model_name);
 
-			new_entity.collider = *new_entity.collision_mesh;
+			NewEntity.Collider = *NewEntity.CollisionMesh;
 		}
 
 		else if (property == "texture")
 		{
-			p.ParseAllWhitespace();
-			p.ParseToken();
-			const auto texture_name = GetParsed<std::string>(parser);
+			P.ParseAllWhitespace();
+			P.ParseToken();
+			const auto TextureName = GetParsed<std::string>(parser);
 
 			// > texture definition error handling
 			// >> check for missing info
 			if (texture_name.empty())
-				fatal_error("Fatal: Texture for entity '%s' is missing name.", new_entity.name.c_str())
+				fatal_error("Fatal: Texture for entity '%s' is missing name.", NewEntity.Name.c_str())
 
 			// fetches texture in catalogue
-			auto texture = TextureCatalogue.find(texture_name);
+			auto Texture = TextureCatalogue.find(texture_name);
 			if (texture == TextureCatalogue.end())
 				fatal_error("Fatal: %s was not found (not pre-loaded) inside Texture Catalogue.", texture_name.c_str())
 
-			new_entity.textures.clear();
-			new_entity.textures.push_back(texture->second);
+			NewEntity.Textures.clear();
+			NewEntity.Textures.push_back(texture->second);
 
 			// fetches texture normal in catalogue, if any
-			auto normal = TextureCatalogue.find(texture_name + "_normal");
+			auto Normal = TextureCatalogue.find(texture_name + "_normal");
 			if (normal != TextureCatalogue.end())
 			{
-				new_entity.textures.push_back(normal->second);
+				NewEntity.Textures.push_back(normal->second);
 			}
 		}
 
 		else if (property == "hidden")
 		{
-			new_entity.flags |= EntityFlags_HiddenEntity;
+			NewEntity.Flags |= EntityFlags_HiddenEntity;
 		}
 
 		else if (property == "trigger")
 		{
-			p.ParseVec3();
+			P.ParseVec3();
 			new_entity.trigger_scale = GetParsed<glm::vec3>(parser);
 		}
 
 		else if (property == "slidable")
 		{
-			new_entity.slidable = true;
+			NewEntity.Slidable = true;
 		}
 
 		else
@@ -163,45 +163,45 @@ void EntitySerializer::Parse(Parser& parser)
 	}
 }
 
-void EntitySerializer::Save(std::ofstream& writer, const EEntity& entity)
+void EntitySerializer::Save(std::ofstream& Writer, const EEntity& Entity)
 {
-	writer << "\n#" << entity.name << "\n";
-	writer << "id " << entity.id << "\n";
+	writer << "\n#" << Entity.Name << "\n";
+	writer << "id " << Entity.ID << "\n";
 	writer << "position "
-	<< entity.position.x << " "
-	<< entity.position.y << " "
-	<< entity.position.z << "\n";
+	<< Entity.Position.x << " "
+	<< Entity.Position.y << " "
+	<< Entity.Position.z << "\n";
 	writer << "rotation "
-	<< entity.rotation.x << " "
-	<< entity.rotation.y << " "
-	<< entity.rotation.z << "\n";
+	<< Entity.Rotation.x << " "
+	<< Entity.Rotation.y << " "
+	<< Entity.Rotation.z << "\n";
 	writer << "scale "
-	<< entity.scale.x << " "
-	<< entity.scale.y << " "
-	<< entity.scale.z << "\n";
-	writer << "mesh " << entity.mesh->name << "\n";
-	writer << "shader " << entity.shader->name;
+	<< Entity.Scale.x << " "
+	<< Entity.Scale.y << " "
+	<< Entity.Scale.z << "\n";
+	writer << "mesh " << Entity.Mesh->Name << "\n";
+	writer << "shader " << Entity.Shader->Name;
 
 	// shader: If entity.s using tiled texture fragment shader, also writes number of tiles since we can change it through the editor
-	if (entity.flags & EntityFlags_RenderTiledTexture)
+	if (Entity.Flags & EntityFlags_RenderTiledTexture)
 	{
 		For(6)
 		{
-			writer << " " << entity.uv_tile_wrap[i];
+			writer << " " << Entity.UvTileWrap[i];
 		}
 	}
 
 	writer << "\n";
 
-	int textures = entity.textures.size();
-	For(textures)
+	int Textures = Entity.Textures.size();
+	For(Textures)
 	{
-		RTexture texture = entity.textures[i];
-		if (texture.type == "texture_diffuse")
-			writer << "texture " << texture.name << "\n";
+		RTexture Texture = Entity.Textures[i];
+		if (Texture.Type == "texture_diffuse")
+			writer << "texture " << Texture.Name << "\n";
 	}
 
-	if (entity.flags & EntityFlags_RenderWireframe)
+	if (Entity.Flags & EntityFlags_RenderWireframe)
 		writer << "hidden\n";
 
 	/*
@@ -277,7 +277,7 @@ void EntitySerializer::Save(std::ofstream& writer, const EEntity& entity)
 	}
 	*/
 
-	if (entity.slidable)
+	if (Entity.Slidable)
 	{
 		writer << "slidable \n";
 	}

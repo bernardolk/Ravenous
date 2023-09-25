@@ -14,188 +14,188 @@ COLOR_PURPLE_1,
 /* -----------------------
   GJK Support Functions
 ----------------------- */
-GJK_Point CL_FindFurthestVertex(RCollisionMesh* collision_mesh, vec3 direction)
+GjkPoint ClFindFurthestVertex(RCollisionMesh* CollisionMesh, vec3 Direction)
 {
 	// Linearly scan the CollisionMesh doing dot products with the vertices and storing the one with max value, then return it
 	// Note: sometimes, the dot product between two points equals the same, but there is always a right and a wrong pair 
-	// of support points that are ideal to go together. We are not storing these 'dispute points' and testing between them for
+	// of Support points that are ideal to go together. We are not storing these 'dispute points' and testing between them for
 	// the sake of simplicity. If anything, it should take a bit more iteration to find a solution but it should work either
 	// way.
 
-	float max_inner_p = MinFloat;
-	vec3 furthest_vertex{};
+	float MaxInnerP = MinFloat;
+	vec3 FurthestVertex{0.f};
 
-	for (int i = 0; i < collision_mesh->vertices.size(); i++)
+	for (int i = 0; i < CollisionMesh->Vertices.size(); i++)
 	{
-		vec3 vertex_pos = collision_mesh->vertices[i];
-		float inner_p = dot(vertex_pos, direction);
-		if (inner_p > max_inner_p)
+		vec3 VertexPos = CollisionMesh->Vertices[i];
+		float InnerP = dot(VertexPos, Direction);
+		if (InnerP > MaxInnerP)
 		{
-			max_inner_p = inner_p;
-			furthest_vertex = vertex_pos;
+			MaxInnerP = InnerP;
+			FurthestVertex = VertexPos;
 		}
 	}
 
-	return GJK_Point{furthest_vertex, max_inner_p == MinFloat};
+	return GjkPoint{FurthestVertex, MaxInnerP == MinFloat};
 }
 
 
-GJK_Point CL_GetSupportPoint(RCollisionMesh* collision_mesh_a, RCollisionMesh* collision_mesh_b, vec3 direction)
+GjkPoint ClGetSupportPoint(RCollisionMesh* CollisionMeshA, RCollisionMesh* CollisionMeshB, vec3 Direction)
 {
-	// Gets a support point in the minkowski difference of both meshes, in the direction supplied.
+	// Gets a Support point in the minkowski difference of both meshes, in the Direction supplied.
 
 	// PRIOR METHOD
-	GJK_Point gjk_point_a = CL_FindFurthestVertex(collision_mesh_a, direction);
-	GJK_Point gjk_point_b = CL_FindFurthestVertex(collision_mesh_b, -direction);
+	GjkPoint GjkPointA = ClFindFurthestVertex(CollisionMeshA, Direction);
+	GjkPoint GjkPointB = ClFindFurthestVertex(CollisionMeshB, -Direction);
 
-	if (gjk_point_a.empty || gjk_point_b.empty)
-		return gjk_point_a;
+	if (GjkPointA.Empty || GjkPointB.Empty)
+		return GjkPointA;
 
-	vec3 gjk_support_point = gjk_point_a.point - gjk_point_b.point;
+	vec3 GjkSupportPoint = GjkPointA.Point - GjkPointB.Point;
 
 	// NEW METHOD
-	/* GJK_Point gjk_point_a = CL_find_furthest_vertex(collision_mesh_A, direction);
-	 GJK_Point gjk_point_b = CL_find_furthest_vertex(collision_mesh_B, -direction);
+	/* GjkPoint GjkPointA = Clfind_furthest_vertex(collision_mesh_A, Direction);
+	 GjkPoint GjkPointB = Clfind_furthest_vertex(collision_mesh_B, -Direction);
   
-	 if (gjk_point_a.empty || gjk_point_b.empty)
-	    return gjk_point_a;
+	 if (GjkPointA.Empty || GjkPointB.Empty)
+	    return GjkPointA;
   
-	 vec3 gjk_support_point = gjk_point_a.point - gjk_point_b.point;*/
+	 vec3 gjk_Support_point = GjkPointA.Point - GjkPointB.Point;*/
 
-	return GJK_Point{gjk_support_point, false};
+	return GjkPoint{GjkSupportPoint, false};
 }
 
 /* -----------------------
   Update simplex calls
 ----------------------- */
-void CL_UpdateLineSimplex(GJK_Iteration* gjk)
+void ClUpdateLineSimplex(GjkIteration* Gjk)
 {
-	auto& a = gjk->simplex[0];
-	auto& b = gjk->simplex[1];
+	auto& A = Gjk->Simplex[0];
+	auto& B = Gjk->Simplex[1];
 
-	vec3 ab = b - a;
-	vec3 ao = - a;
+	vec3 Ab = B - A;
+	vec3 Ao = - A;
 
-	if (CL_SameGeneralDirection(ab, ao))
+	if (ClSameGeneralDirection(Ab, Ao))
 	{
-		gjk->direction = Cross(ab, ao, ab);
+		Gjk->Direction = Cross(Ab, Ao, Ab);
 	}
 	else
 	{
-		gjk->simplex = {a};
-		gjk->direction = ao;
+		Gjk->Simplex = {A};
+		Gjk->Direction = Ao;
 	}
 }
 
 
-void CL_UpdateTriangleSimplex(GJK_Iteration* gjk)
+void ClUpdateTriangleSimplex(GjkIteration* Gjk)
 {
-	auto& a = gjk->simplex[0];
-	auto& b = gjk->simplex[1];
-	auto& c = gjk->simplex[2];
+	auto& A = Gjk->Simplex[0];
+	auto& B = Gjk->Simplex[1];
+	auto& C = Gjk->Simplex[2];
 
-	vec3 ab = b - a;
-	vec3 ac = c - a;
-	vec3 ao = - a;
+	vec3 Ab = B - A;
+	vec3 Ac = C - A;
+	vec3 Ao = -A;
 
-	vec3 abc = glm::cross(ab, ac);
+	vec3 Abc = glm::cross(Ab, Ac);
 
-	if (CL_SameGeneralDirection(glm::cross(abc, ac), ao))
+	if (ClSameGeneralDirection(glm::cross(Abc, Ac), Ao))
 	{
-		if (CL_SameGeneralDirection(ac, ao))
+		if (ClSameGeneralDirection(Ac, Ao))
 		{
 			// search in purple region
-			gjk->simplex = {a, c};
-			gjk->direction = Cross(ac, ao, ac);
+			Gjk->Simplex = {A, C};
+			Gjk->Direction = Cross(Ac, Ao, Ac);
 		}
 		else
 		{
 			// search in navy/blue grey region
-			gjk->simplex = {a, b};
-			gjk->direction = -ac + (-ab);
+			Gjk->Simplex = {A, B};
+			Gjk->Direction = -Ac + (-Ab);
 		}
 	}
 	else
 	{
-		if (CL_SameGeneralDirection(glm::cross(ab, abc), ao))
+		if (ClSameGeneralDirection(glm::cross(Ab, Abc), Ao))
 		{
 			// search in cyan region
-			gjk->simplex = {a, b};
-			gjk->direction = glm::cross(ab, abc);
+			Gjk->Simplex = {A, B};
+			Gjk->Direction = glm::cross(Ab, Abc);
 		}
 		else
 		{
-			if (CL_SameGeneralDirection(abc, ao))
+			if (ClSameGeneralDirection(Abc, Ao))
 			{
 				// search up
-				gjk->direction = abc;
+				Gjk->Direction = Abc;
 			}
 			else
 			{
 				// search down
-				gjk->simplex = {a, c, b};
-				gjk->direction = -abc;
+				Gjk->Simplex = {A, C, B};
+				Gjk->Direction = -Abc;
 			}
 		}
 	}
 }
 
 
-void CL_UpdateTetrahedronSimplex(GJK_Iteration* gjk)
+void ClUpdateTetrahedronSimplex(GjkIteration* Gjk)
 {
-	auto& a = gjk->simplex[0];
-	auto& b = gjk->simplex[1];
-	auto& c = gjk->simplex[2];
-	auto& d = gjk->simplex[3];
+	auto& A = Gjk->Simplex[0];
+	auto& B = Gjk->Simplex[1];
+	auto& C = Gjk->Simplex[2];
+	auto& D = Gjk->Simplex[3];
 
-	vec3 ab = b - a;
-	vec3 ac = c - a;
-	vec3 ad = d - a;
-	vec3 ao = - a;
+	vec3 Ab = B - A;
+	vec3 Ac = C - A;
+	vec3 Ad = D - A;
+	vec3 Ao = - A;
 
-	vec3 abc = glm::cross(ab, ac);
-	vec3 acd = glm::cross(ac, ad);
-	vec3 adb = glm::cross(ad, ab);
+	vec3 Abc = glm::cross(Ab, Ac);
+	vec3 Acd = glm::cross(Ac, Ad);
+	vec3 Adb = glm::cross(Ad, Ab);
 
 	// check if mikowski's diff origin is pointing towards tetrahedron normal faces
 	// (it shouldn't, since the origin should be contained in the shape and point down not up like the inclined faces's normals)
 
-	if (CL_SameGeneralDirection(abc, ao))
+	if (ClSameGeneralDirection(Abc, Ao))
 	{
-		gjk->simplex = {a, b, c};
-		gjk->direction = abc;
-		return CL_UpdateTriangleSimplex(gjk);
+		Gjk->Simplex = {A, B, C};
+		Gjk->Direction = Abc;
+		return ClUpdateTriangleSimplex(Gjk);
 	}
 
-	if (CL_SameGeneralDirection(acd, ao))
+	if (ClSameGeneralDirection(Acd, Ao))
 	{
-		gjk->simplex = {a, c, d};
-		gjk->direction = acd;
-		return CL_UpdateTriangleSimplex(gjk);
+		Gjk->Simplex = {A, C, D};
+		Gjk->Direction = Acd;
+		return ClUpdateTriangleSimplex(Gjk);
 	}
 
-	if (CL_SameGeneralDirection(adb, ao))
+	if (ClSameGeneralDirection(Adb, Ao))
 	{
-		gjk->simplex = {a, d, b};
-		gjk->direction = adb;
-		return CL_UpdateTriangleSimplex(gjk);
+		Gjk->Simplex = {A, D, B};
+		Gjk->Direction = Adb;
+		return ClUpdateTriangleSimplex(Gjk);
 	}
 
 	// was not the case, found collision
-	gjk->finished = true;
+	Gjk->Finished = true;
 }
 
 
-void CL_UpdateSimplexAndDirection(GJK_Iteration* gjk)
+void ClUpdateSimplexAndDirection(GjkIteration* Gjk)
 {
-	switch (gjk->simplex.size())
+	switch (Gjk->Simplex.size())
 	{
 		case 2:
-			return CL_UpdateLineSimplex(gjk);
+			return ClUpdateLineSimplex(Gjk);
 		case 3:
-			return CL_UpdateTriangleSimplex(gjk);
+			return ClUpdateTriangleSimplex(Gjk);
 		case 4:
-			return CL_UpdateTetrahedronSimplex(gjk);
+			return ClUpdateTetrahedronSimplex(Gjk);
 	}
 
 	// something went wrong
@@ -207,47 +207,47 @@ void CL_UpdateSimplexAndDirection(GJK_Iteration* gjk)
    Run GJK
 ------------------ */
 
-void CL_DebugRenderSimplex(RSimplex simplex)
+void ClDebugRenderSimplex(RSimplex Simplex)
 {
-	for (int i = 0; i < simplex.size(); i++)
-		RImDraw::AddPoint(IM_ITERHASH(i), simplex[i], 2.0, true, DebugColors[i]);
+	for (int i = 0; i < Simplex.size(); i++)
+		RImDraw::AddPoint(IM_ITERHASH(i), Simplex[i], 2.0, true, DebugColors[i]);
 }
 
 
-GJK_Result CL_RunGjk(RCollisionMesh* collider_a, RCollisionMesh* collider_b)
+GjkResult ClRunGjk(RCollisionMesh* ColliderA, RCollisionMesh* ColliderB)
 {
-	GJK_Point support = CL_GetSupportPoint(collider_a, collider_b, UnitX);
+	GjkPoint Support = ClGetSupportPoint(ColliderA, ColliderB, UnitX);
 
-	if (support.empty)
+	if (Support.Empty)
 		return {};
 
-	GJK_Iteration gjk;
-	gjk.simplex.PushFront(support.point);
-	gjk.direction = -support.point;
+	GjkIteration Gjk;
+	Gjk.Simplex.PushFront(Support.Point);
+	Gjk.Direction = -Support.Point;
 
-	// ImDraw::add_point(IMHASH, support.point, 2.0, true, Debug_Colors[0]);
+	// ImDraw::add_point(IMHASH, Support.Point, 2.0, true, Debug_Colors[0]);
 
-	int it_count = 0;
+	int ItCount = 0;
 	while (true)
 	{
-		support = CL_GetSupportPoint(collider_a, collider_b, gjk.direction);
-		if (support.empty || !CL_SameGeneralDirection(support.point, gjk.direction))
+		Support = ClGetSupportPoint(ColliderA, ColliderB, Gjk.Direction);
+		if (Support.Empty || !ClSameGeneralDirection(Support.Point, Gjk.Direction))
 		{
-			// _CL_debug_render_simplex(gjk.simplex);
+			// _Cldebug_render_simplex(gjk.Simplex);
 			return {}; // no collision
 		}
 
-		gjk.simplex.PushFront(support.point);
+		Gjk.Simplex.PushFront(Support.Point);
 
-		// ImDraw::add_point(IM_ITERHASH(it_count), support.point, 2.0, true, Debug_Colors[it_count + 1]);
+		// ImDraw::add_point(IM_ITERHASH(it_count), Support.Point, 2.0, true, Debug_Colors[it_count + 1]);
 
-		CL_UpdateSimplexAndDirection(&gjk);
+		ClUpdateSimplexAndDirection(&Gjk);
 
-		it_count++;
-		if (gjk.finished)
+		ItCount++;
+		if (Gjk.Finished)
 		{
-			//_CL_debug_render_simplex(gjk.simplex);
-			return {.simplex = gjk.simplex, .collision = true};
+			//_Cldebug_render_simplex(gjk.Simplex);
+			return {.Simplex = Gjk.Simplex, .Collision = true};
 		}
 	}
 }

@@ -2,15 +2,8 @@
 #include <algorithm>
 #include "ctype.h"
 
-void Tolower(string* data)
+void Tolower(string* Data)
 {
 	// could be rewritten without algorithm.h	
-	std::transform(data->begin(), data->end(), data->begin(), [](unsigned char c) { return std::tolower(c); });
-}
-
-int Test()
-{
-	vec3 my_vec{2.f};
-	int a = my_vec.x;
-	return a;
+	std::transform(Data->begin(), Data->end(), Data->begin(), [](unsigned char Char) { return std::tolower(Char); });
 }

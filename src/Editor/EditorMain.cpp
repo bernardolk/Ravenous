@@ -29,7 +29,6 @@
 #include "engine/render/text/face.h"
 #include "engine/render/text/TextRenderer.h"
 #include "engine/world/World.h"
-#include "engine/collision/ClEdgeDetection.h"
 
 namespace Editor
 {
@@ -50,143 +49,143 @@ namespace Editor
 	// > UPDATE EDITOR
 	//------------------
 
-	void Update(EPlayer* player, RWorld* world, RCamera* camera)
+	void Update(EPlayer* Player, RWorld* World, RCamera* Camera)
 	{
-		auto& ed_context = *GetContext();
-		
-		string& scene_name = RWorld::Get()->scene_name;
+		auto& EdContext = *GetContext();
 
-		if (ed_context.last_frame_scene != scene_name)
+		string& SceneName = RWorld::Get()->SceneName;
+
+		if (EdContext.LastFrameScene != SceneName)
 		{
-			ed_context.entity_panel.active = false;
-			ed_context.world_panel.active = false;
+			EdContext.EntityPanel.Active = false;
+			EdContext.WorldPanel.Active = false;
 		}
 
-		ed_context.last_frame_scene = scene_name;
+		EdContext.LastFrameScene = SceneName;
 
 		// check for asset changes
 		// CheckForAssetChanges();
 		UpdateTriaxisGizmo();
 
 		// ENTITY PANEL
-		if (!ed_context.entity_panel.active)
+		if (!EdContext.EntityPanel.Active)
 		{
-			ed_context.entity_panel.rename_buffer[0] = 0;
-			ed_context.snap_mode = false;
-			ed_context.stretch_mode = false;
-			ed_context.snap_reference = nullptr;
+			EdContext.EntityPanel.RenameBuffer[0] = 0;
+			EdContext.SnapMode = false;
+			EdContext.StretchMode = false;
+			EdContext.SnapReference = nullptr;
 		}
 
 		// unselect lights when not panel is not active
-		if (!ed_context.lights_panel.active)
+		if (!EdContext.LightsPanel.Active)
 		{
-			ed_context.lights_panel.selected_light = -1;
-			ed_context.lights_panel.selected_light_type = "";
+			EdContext.LightsPanel.SelectedLight = -1;
+			EdContext.LightsPanel.SelectedLightType = "";
 		}
 		else if (
-			ed_context.lights_panel.selected_light != -1 &&
-			ed_context.lights_panel.selected_light_type != ""
+			EdContext.LightsPanel.SelectedLight != -1 &&
+			EdContext.LightsPanel.SelectedLightType != ""
 		)
 		{
-			ed_context.show_lightbulbs = true;
+			EdContext.ShowLightbulbs = true;
 		}
 
 
 		// set editor mode values to initial if not active
-		if (!ed_context.measure_mode)
+		if (!EdContext.MeasureMode)
 		{
-			ed_context.first_point_found = false;
-			ed_context.second_point_found = false;
+			EdContext.FirstPointFound = false;
+			EdContext.SecondPointFound = false;
 		}
-		if (!ed_context.snap_mode)
+		if (!EdContext.SnapMode)
 		{
-			ed_context.snap_cycle = 0;
-			ed_context.snap_axis = 1;
-			ed_context.snap_reference = nullptr;
+			EdContext.SnapCycle = 0;
+			EdContext.SnapAxis = 1;
+			EdContext.SnapReference = nullptr;
 		}
 
 		// respond to mouse if necessary
-		if (ed_context.move_mode)
+		if (EdContext.MoveMode)
 		{
-			if (ed_context.mouse_click)
+			if (EdContext.MouseClick)
 			{
-				if (ed_context.selected_light > -1)
+				if (EdContext.SelectedLight > -1)
 					PlaceLight();
 				else
-					PlaceEntity(world);
+					PlaceEntity(World);
 			}
 			else
 			{
-				if (ed_context.selected_light > -1)
-					MoveLightWithMouse(ed_context.selected_light_type, ed_context.selected_light, world);
+				if (EdContext.SelectedLight > -1)
+					MoveLightWithMouse(EdContext.SelectedLightType, EdContext.SelectedLight, World);
 				else
-					MoveEntityWithMouse(ed_context.selected_entity);
+					MoveEntityWithMouse(EdContext.SelectedEntity);
 			}
 		}
 
-		if (ed_context.select_entity_aux_mode)
+		if (EdContext.SelectEntityAuxMode)
 		{
-			if (ed_context.mouse_click)
+			if (EdContext.MouseClick)
 			{
-				CheckSelectionToSelectRelatedEntity(world, camera);
+				CheckSelectionToSelectRelatedEntity(World, Camera);
 			}
 		}
 
-		if (ed_context.move_entity_by_arrows)
+		if (EdContext.MoveEntityByArrows)
 		{
-			if (ed_context.mouse_dragging)
-				MoveEntityByArrows(ed_context.selected_entity);
+			if (EdContext.MouseDragging)
+				MoveEntityByArrows(EdContext.SelectedEntity);
 				// the below condition is to prevent from deactivating too early
-			else if (!ed_context.mouse_click)
-				PlaceEntity(world);
+			else if (!EdContext.MouseClick)
+				PlaceEntity(World);
 		}
 
-		if (ed_context.rotate_entity_with_mouse)
+		if (EdContext.RotateEntityWithMouse)
 		{
-			if (ed_context.mouse_dragging)
-				RotateEntityWithMouse(ed_context.selected_entity);
+			if (EdContext.MouseDragging)
+				RotateEntityWithMouse(EdContext.SelectedEntity);
 				// the below condition is to prevent from deactivating too early
-			else if (!ed_context.mouse_click)
-				PlaceEntity(world);
+			else if (!EdContext.MouseClick)
+				PlaceEntity(World);
 		}
 
 
-		if (ed_context.place_mode)
+		if (EdContext.PlaceMode)
 		{
-			if (ed_context.mouse_click)
-				PlaceEntity(world);
+			if (EdContext.MouseClick)
+				PlaceEntity(World);
 			else
-				SelectEntityPlacingWithMouseMove(ed_context.selected_entity, world);
+				SelectEntityPlacingWithMouseMove(EdContext.SelectedEntity, World);
 		}
 
-		if (ed_context.scale_entity_with_mouse)
+		if (EdContext.ScaleEntityWithMouse)
 		{
-			ScaleEntityWithMouse(ed_context.selected_entity);
+			ScaleEntityWithMouse(EdContext.SelectedEntity);
 		}
 
 		// resets mouse click event
-		ed_context.mouse_click = false;
+		EdContext.MouseClick = false;
 
 		// check for debug flags
-		if (ed_context.debug_ledge_detection)
+		if (EdContext.DebugLedgeDetection)
 		{
-			CL_PerformLedgeDetection(player, world);
+			ClPerformLedgeDetection(Player, World);
 		}
 	}
 
 	void UpdateTriaxisGizmo()
 	{
-		auto& ed_context = *GetContext();
+		auto& EdContext = *GetContext();
 
-		for (int i = 0; i < 3; i++)
+		for (int I = 0; I < 3; I++)
 		{
-			auto entity = ed_context.tri_axis[i];
-			glm::mat4 model = Mat4Identity;
-			model = rotate(model, glm::radians(entity->rotation.x), vec3(1.0f, 0.0f, 0.0f));
-			model = rotate(model, glm::radians(entity->rotation.y), vec3(0.0f, 1.0f, 0.0f));
-			model = rotate(model, glm::radians(entity->rotation.z), vec3(0.0f, 0.0f, 1.0f));
-			model = scale(model, entity->scale);
-			entity->mat_model = model;
+			auto Entity = EdContext.TriAxis[I];
+			glm::mat4 Model = Mat4Identity;
+			Model = rotate(Model, glm::radians(Entity->Rotation.x), vec3(1.0f, 0.0f, 0.0f));
+			Model = rotate(Model, glm::radians(Entity->Rotation.y), vec3(0.0f, 1.0f, 0.0f));
+			Model = rotate(Model, glm::radians(Entity->Rotation.z), vec3(0.0f, 0.0f, 1.0f));
+			Model = scale(Model, Entity->Scale);
+			Entity->MatModel = Model;
 		}
 	}
 
@@ -195,197 +194,189 @@ namespace Editor
 	// > RENDER EDITOR UI
 	//---------------------
 
-	void Render(EPlayer* player, RWorld* world, RCamera* camera)
+	void Render(EPlayer* Player, RWorld* World, RCamera* Camera)
 	{
-		auto& ed_context = *GetContext();
+		auto& EdContext = *GetContext();
 
 		// render world objs if toggled
-		if (ed_context.show_event_triggers)
+		if (EdContext.ShowEventTriggers)
 		{
-			RenderEventTriggers(camera, world);
+			RenderEventTriggers(Camera, World);
 		}
 
-		if (ed_context.show_world_cells)
+		if (EdContext.ShowWorldCells)
 		{
-			RenderWorldCells(camera, world);
+			RenderWorldCells(Camera, World);
 		}
 
-		if (ed_context.show_lightbulbs)
+		if (EdContext.ShowLightbulbs)
 		{
-			RenderLightbulbs(camera, world);
+			RenderLightbulbs(Camera, World);
 		}
 
 		// render triaxis
-		auto triaxis_view = lookAt(vec3(0.0f), camera->front, -1.0f * camera->up);
-		float displacement_x[3] = {0.3f, 0.0f, 0.0f};
-		float displacement_y[3] = {0.0f, 0.3f, 0.0f};
-		for (int i = 0; i < 3; i++)
+		auto TriaxisView = lookAt(vec3(0.0f), Camera->Front, -1.0f * Camera->Up);
+		float DisplacementX[3] = {0.3f, 0.0f, 0.0f};
+		float DisplacementY[3] = {0.0f, 0.3f, 0.0f};
+		for (int I = 0; I < 3; I++)
 		{
 			// ref. axis
-			auto axis = ed_context.tri_axis[i];
-			axis->shader->Use();
-			axis->shader->SetMatrix4("model", axis->mat_model);
-			axis->shader->SetMatrix4("view", triaxis_view);
-			axis->shader->SetFloat2("screenPos", TriaxisScreenposX, TriaxisScreenposY);
-			RenderEntity(axis);
+			auto Axis = EdContext.TriAxis[I];
+			Axis->Shader->Use();
+			Axis->Shader->SetMatrix4("model", Axis->MatModel);
+			Axis->Shader->SetMatrix4("view", TriaxisView);
+			Axis->Shader->SetFloat2("screenPos", TriaxisScreenposX, TriaxisScreenposY);
+			RenderEntity(Axis);
 		}
 
 		// Entity panel special render calls
-		if (ed_context.entity_panel.active)
+		if (EdContext.EntityPanel.Active)
 		{
 			// Render glowing pink wireframe on top of selected entity
 			{
 				// update
-				auto state = GetEntityState(ed_context.selected_entity);
-				auto model = MatModelFromEntityState(state);
+				auto State = GetEntityState(EdContext.SelectedEntity);
+				auto Model = MatModelFromEntityState(State);
 
 				// compute color intensity based on time
-				float time_value = glfwGetTime();
-				float intensity = sin(time_value) * 2;
-				if (intensity < 0)
-					intensity *= -1.0;
-				intensity += 1.0;
+				float TimeValue = glfwGetTime();
+				float Intensity = sin(TimeValue) * 2;
+				if (Intensity < 0)
+					Intensity *= -1.0;
+				Intensity += 1.0;
 
 				// render
-				auto glowing_line = ShaderCatalogue.find("color")->second;
-				glowing_line->Use();
-				glowing_line->SetMatrix4("model", model);
-				glowing_line->SetFloat3("color", intensity * 0.890, intensity * 0.168, intensity * 0.6);
-				glowing_line->SetFloat("opacity", 1);
-				RenderMesh(ed_context.selected_entity->mesh, RenderOptions{true, false, 3});
+				auto GlowingLine = ShaderCatalogue.find("color")->second;
+				GlowingLine->Use();
+				GlowingLine->SetMatrix4("model", Model);
+				GlowingLine->SetFloat3("color", Intensity * 0.890, Intensity * 0.168, Intensity * 0.6);
+				GlowingLine->SetFloat("opacity", 1);
+				RenderMesh(EdContext.SelectedEntity->Mesh, RenderOptions{true, false, 3});
 			}
 
 			// Render glowing yellow wireframe on top of an arbitrary related entity
-			if (ed_context.entity_panel.show_related_entity)
+			if (EdContext.EntityPanel.ShowRelatedEntity)
 			{
 				// update
-				auto state = GetEntityState(ed_context.entity_panel.related_entity);
-				auto model = MatModelFromEntityState(state);
+				auto State = GetEntityState(EdContext.EntityPanel.RelatedEntity);
+				auto Model = MatModelFromEntityState(State);
 
 				// compute color intensity based on time
-				float time_value = glfwGetTime();
-				float intensity = sin(time_value) * 2;
-				if (intensity < 0)
-					intensity *= -1.0;
-				intensity += 1.0;
+				float TimeValue = glfwGetTime();
+				float Intensity = sin(TimeValue) * 2;
+				if (Intensity < 0)
+					Intensity *= -1.0;
+				Intensity += 1.0;
 
 				// render
-				auto glowing_line = ShaderCatalogue.find("color")->second;
-				glowing_line->Use();
-				glowing_line->SetMatrix4("model", model);
-				glowing_line->SetFloat3("color", intensity * 0.941, intensity * 0.776, intensity * 0);
-				glowing_line->SetFloat("opacity", 1);
-				RenderMesh(ed_context.entity_panel.related_entity->mesh, RenderOptions{true, false, 3});
+				auto GlowingLine = ShaderCatalogue.find("color")->second;
+				GlowingLine->Use();
+				GlowingLine->SetMatrix4("model", Model);
+				GlowingLine->SetFloat3("color", Intensity * 0.941, Intensity * 0.776, Intensity * 0);
+				GlowingLine->SetFloat("opacity", 1);
+				RenderMesh(EdContext.EntityPanel.RelatedEntity->Mesh, RenderOptions{true, false, 3});
 			}
 		}
 
 		// render glowing wireframe on top of snap reference entity
-		if (ed_context.snap_mode && ed_context.snap_reference != nullptr)
+		if (EdContext.SnapMode && EdContext.SnapReference != nullptr)
 		{
 			// update
-			auto state = GetEntityState(ed_context.snap_reference);
-			auto model = MatModelFromEntityState(state);
+			auto State = GetEntityState(EdContext.SnapReference);
+			auto Model = MatModelFromEntityState(State);
 
 			// compute color intensity based on time
-			float time_value = glfwGetTime();
-			float intensity = sin(time_value) * 2;
-			if (intensity < 0)
-				intensity *= -1.0;
-			intensity += 1.0;
+			float TimeValue = glfwGetTime();
+			float Intensity = sin(TimeValue) * 2;
+			if (Intensity < 0)
+				Intensity *= -1.0;
+			Intensity += 1.0;
 
 			// render
-			auto glowing_line = ShaderCatalogue.find("color")->second;
-			glowing_line->Use();
-			glowing_line->SetMatrix4("model", model);
-			glowing_line->SetFloat3("color", intensity * 0.952, intensity * 0.843, intensity * 0.105);
-			glowing_line->SetFloat("opacity", 1);
-			RenderMesh(ed_context.snap_reference->mesh, RenderOptions{true, false, 3});
+			auto GlowingLine = ShaderCatalogue.find("color")->second;
+			GlowingLine->Use();
+			GlowingLine->SetMatrix4("model", Model);
+			GlowingLine->SetFloat3("color", Intensity * 0.952, Intensity * 0.843, Intensity * 0.105);
+			GlowingLine->SetFloat("opacity", 1);
+			RenderMesh(EdContext.SnapReference->Mesh, RenderOptions{true, false, 3});
 		}
 
 		// --------------
 		// render panels
 		// --------------
-		if (ed_context.scene_objects_panel.active)
-			RenderSceneObjectsPanel(world, &ed_context.scene_objects_panel);
+		if (EdContext.SceneObjectsPanel.Active)
+			RenderSceneObjectsPanel(World, &EdContext.SceneObjectsPanel);
 
-		if (ed_context.world_panel.active)
-			RenderWorldPanel(&ed_context.world_panel, world, player);
+		if (EdContext.WorldPanel.Active)
+			RenderWorldPanel(&EdContext.WorldPanel, World, Player);
 
-		if (ed_context.entity_panel.active)
+		if (EdContext.EntityPanel.Active)
 		{
-			auto& panel = ed_context.entity_panel;
+			auto& Panel = EdContext.EntityPanel;
 
-			RenderEntityPanel(&panel, world);
-			RenderEntityControlArrows(&panel, world, camera);
-			RenderEntityRotationGizmo(&panel, world, camera);
+			RenderEntityPanel(&Panel, World);
+			RenderEntityControlArrows(&Panel, World, Camera);
+			RenderEntityRotationGizmo(&Panel, World, Camera);
 
-			if (panel.show_normals)
-				RenderEntityMeshNormals(&panel);
+			if (Panel.ShowNormals)
+				RenderEntityMeshNormals(&Panel);
 			// @TODO: Some bug being caused in this call
 			//if(panel.show_collider)
 			//   ImDraw::add_mesh(IMHASH, &panel.entity->collider, COLOR_PURPLE_1, 0);
-			if (panel.show_bounding_box)
+			if (Panel.ShowBoundingBox)
 			{
-				auto aabb = GeometryCatalogue.find("aabb")->second;
-				auto [pos, scale] = panel.entity->bounding_box.GetPosAndScale();
-				RImDraw::AddMesh(IMHASH, aabb, pos, vec3(0), scale, COLOR_PINK_1, 0);
+				auto Aabb = GeometryCatalogue.find("aabb")->second;
+				auto [Position, Scale] = Panel.Entity->BoundingBox.GetPosAndScale();
+				RImDraw::AddMesh(IMHASH, Aabb, Position, vec3(0), Scale, COLOR_PINK_1, 0);
 			}
 		}
 
-		if (ed_context.player_panel.active)
+		if (EdContext.PlayerPanel.Active)
 		{
-			RenderPlayerPanel(&ed_context.player_panel);
+			RenderPlayerPanel(&EdContext.PlayerPanel);
 		}
 
-		if (ed_context.palette_panel.active)
-			RenderPalettePanel(&ed_context.palette_panel);
+		if (EdContext.PalettePanel.Active)
+			RenderPalettePanel(&EdContext.PalettePanel);
 
-		if (ed_context.lights_panel.active)
-			RenderLightsPanel(&ed_context.lights_panel, world);
+		if (EdContext.LightsPanel.Active)
+			RenderLightsPanel(&EdContext.LightsPanel, World);
 
-		if (ed_context.input_recorder_panel.active)
-			RenderInputRecorderPanel(&ed_context.input_recorder_panel);
+		if (EdContext.InputRecorderPanel.Active)
+			RenderInputRecorderPanel(&EdContext.InputRecorderPanel);
 
-		if (ed_context.collision_log_panel.active)
-			RenderCollisionLogPanel(&ed_context.collision_log_panel);
+		if (EdContext.CollisionLogPanel.Active)
+			RenderCollisionLogPanel(&EdContext.CollisionLogPanel);
 
 		// -----------------------
 		// render gizmos inscreen
 		// -----------------------
-		if (ed_context.measure_mode && ed_context.first_point_found && ed_context.second_point_found)
+		if (EdContext.MeasureMode && EdContext.FirstPointFound && EdContext.SecondPointFound)
 		{
-			auto render_opts = RenderOptions();
-			render_opts.always_on_top = true;
-			render_opts.line_width = 2.0;
-			render_opts.color = EdRed;
+			auto RenderOpts = RenderOptions();
+			RenderOpts.AlwaysOnTop = true;
+			RenderOpts.LineWidth = 2.0;
+			RenderOpts.Color = EdRed;
 
-			vec3 second_point;
-			if (ed_context.measure_axis == 0)
-				second_point = vec3(ed_context.measure_to, ed_context.measure_from.y, ed_context.measure_from.z);
-			if (ed_context.measure_axis == 1)
-				second_point = vec3(ed_context.measure_from.x, ed_context.measure_to, ed_context.measure_from.z);
-			if (ed_context.measure_axis == 2)
-				second_point = vec3(ed_context.measure_from.x, ed_context.measure_from.y, ed_context.measure_to);
+			vec3 SecondPoint;
+			if (EdContext.MeasureAxis == 0)
+				SecondPoint = vec3(EdContext.MeasureTo, EdContext.MeasureFrom.y, EdContext.MeasureFrom.z);
+			if (EdContext.MeasureAxis == 1)
+				SecondPoint = vec3(EdContext.MeasureFrom.x, EdContext.MeasureTo, EdContext.MeasureFrom.z);
+			if (EdContext.MeasureAxis == 2)
+				SecondPoint = vec3(EdContext.MeasureFrom.x, EdContext.MeasureFrom.y, EdContext.MeasureTo);
 
-			RImDraw::Add(
-				IMHASH,
-				std::vector<RVertex>{
-				RVertex{ed_context.measure_from},
-				RVertex{second_point}
-				},
-				GL_LINE_LOOP,
-				render_opts
-			);
+			RImDraw::Add(IMHASH, vector{RVertex{EdContext.MeasureFrom}, RVertex{SecondPoint}}, GL_LINE_LOOP, RenderOpts);
 		}
 
-		if (ed_context.locate_coords_mode && ed_context.locate_coords_found_point)
+		if (EdContext.LocateCoordsMode && EdContext.LocateCoordsFoundPoint)
 		{
-			RImDraw::AddPoint(IMHASH, ed_context.locate_coords_position, 2.0);
+			RImDraw::AddPoint(IMHASH, EdContext.LocateCoordsPosition, 2.0);
 		}
 
-		RenderToolbar(world);
+		RenderToolbar(World);
 
-		RenderTextOverlay(player, camera);
+		RenderTextOverlay(Player, Camera);
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -401,214 +392,202 @@ namespace Editor
 
 	void Initialize()
 	{
-		auto& ed_context = *GetContext();
+		auto& EdContext = *GetContext();
 
 		ImGui::CreateContext();
-		auto& io = ImGui::GetIO();
+		auto& Io = ImGui::GetIO();
 		ImGui_ImplGlfw_InitForOpenGL(GlobalDisplayState::Get()->GetWindow(), true);
 		ImGui_ImplOpenGL3_Init("#version 330");
 
 		ImGui::StyleColorsDark();
-		ed_context.im_style = &ImGui::GetStyle();
-		ed_context.im_style->WindowRounding = 1.0f;
+		EdContext.ImStyle = &ImGui::GetStyle();
+		EdContext.ImStyle->WindowRounding = 1.0f;
 
 		// load tri axis gizmo
-		const auto axis_mesh = LoadWavefrontObjAsMesh(Paths::Models, "axis");
+		const auto AxisMesh = LoadWavefrontObjAsMesh(Paths::Models, "axis");
 
-		auto x_axis = new EEntity();
-		auto y_axis = new EEntity();
-		auto z_axis = new EEntity();
+		auto XAxis = new EEntity();
+		auto YAxis = new EEntity();
+		auto ZAxis = new EEntity();
 
-		x_axis->mesh = axis_mesh;
-		y_axis->mesh = axis_mesh;
-		z_axis->mesh = axis_mesh;
+		XAxis->Mesh = AxisMesh;
+		YAxis->Mesh = AxisMesh;
+		ZAxis->Mesh = AxisMesh;
 
-		const auto blue_tex = LoadTextureFromFile("blue.jpg", Paths::Textures);
-		const auto green_tex = LoadTextureFromFile("green.jpg", Paths::Textures);
-		const auto red_tex = LoadTextureFromFile("red.jpg", Paths::Textures);
+		const auto BlueTex = LoadTextureFromFile("blue.jpg", Paths::Textures);
+		const auto GreenTex = LoadTextureFromFile("green.jpg", Paths::Textures);
+		const auto RedTex = LoadTextureFromFile("red.jpg", Paths::Textures);
 
-		x_axis->textures.push_back(RTexture{red_tex, "texture_diffuse", "red.jpg", "red axis"});
-		y_axis->textures.push_back(RTexture{green_tex, "texture_diffuse", "green.jpg", "green axis"});
-		z_axis->textures.push_back(RTexture{blue_tex, "texture_diffuse", "blue.jpg", "blue axis"});
+		XAxis->Textures.push_back(RTexture{RedTex, "texture_diffuse", "red.jpg", "red axis"});
+		YAxis->Textures.push_back(RTexture{GreenTex, "texture_diffuse", "green.jpg", "green axis"});
+		ZAxis->Textures.push_back(RTexture{BlueTex, "texture_diffuse", "blue.jpg", "blue axis"});
 
-		const auto shader = ShaderCatalogue.find("ortho_gui")->second;
-		x_axis->shader = shader;
-		x_axis->scale = vec3{0.1, 0.1, 0.1};
-		x_axis->rotation = vec3{90, 0, 90};
+		const auto Shader = ShaderCatalogue.find("ortho_gui")->second;
+		XAxis->Shader = Shader;
+		XAxis->Scale = vec3{0.1, 0.1, 0.1};
+		XAxis->Rotation = vec3{90, 0, 90};
 
-		y_axis->shader = shader;
-		y_axis->scale = vec3{0.1, 0.1, 0.1};
-		y_axis->rotation = vec3{180, 0, 0};
+		YAxis->Shader = Shader;
+		YAxis->Scale = vec3{0.1, 0.1, 0.1};
+		YAxis->Rotation = vec3{180, 0, 0};
 
-		z_axis->shader = shader;
-		z_axis->scale = vec3{0.1, 0.1, 0.1};
-		z_axis->rotation = vec3{90, 0, 180};
+		ZAxis->Shader = Shader;
+		ZAxis->Scale = vec3{0.1, 0.1, 0.1};
+		ZAxis->Rotation = vec3{90, 0, 180};
 
-		ed_context.tri_axis[0] = x_axis;
-		ed_context.tri_axis[1] = y_axis;
-		ed_context.tri_axis[2] = z_axis;
+		EdContext.TriAxis[0] = XAxis;
+		EdContext.TriAxis[1] = YAxis;
+		EdContext.TriAxis[2] = ZAxis;
 
 
 		// load entity panel axis arrows
 		// @todo: refactor this to use the entity_manager
-		auto x_arrow = new EEntity();
-		auto y_arrow = new EEntity();
-		auto z_arrow = new EEntity();
+		auto XArrow = new EEntity();
+		auto YArrow = new EEntity();
+		auto ZArrow = new EEntity();
 
-		x_arrow->mesh = axis_mesh;
-		y_arrow->mesh = axis_mesh;
-		z_arrow->mesh = axis_mesh;
+		XArrow->Mesh = AxisMesh;
+		YArrow->Mesh = AxisMesh;
+		ZArrow->Mesh = AxisMesh;
 
-		const auto arrow_shader = ShaderCatalogue.find("ed_entity_arrow_shader")->second;
-		x_arrow->shader = arrow_shader;
-		x_arrow->scale = vec3(0.5, 0.5, 0.5);
-		x_arrow->rotation = vec3(0);
+		const auto ArrowShader = ShaderCatalogue.find("ed_entity_arrow_shader")->second;
+		XArrow->Shader = ArrowShader;
+		XArrow->Scale = vec3(0.5, 0.5, 0.5);
+		XArrow->Rotation = vec3(0);
 
-		y_arrow->shader = arrow_shader;
-		y_arrow->scale = vec3(0.5, 0.5, 0.5);
-		y_arrow->rotation = vec3(0);
+		YArrow->Shader = ArrowShader;
+		YArrow->Scale = vec3(0.5, 0.5, 0.5);
+		YArrow->Rotation = vec3(0);
 
-		z_arrow->shader = arrow_shader;
-		z_arrow->scale = vec3(0.5, 0.5, 0.5);
-		z_arrow->rotation = vec3(0);
+		ZArrow->Shader = ArrowShader;
+		ZArrow->Scale = vec3(0.5, 0.5, 0.5);
+		ZArrow->Rotation = vec3(0);
 
-		x_arrow->textures.push_back(RTexture{red_tex, "texture_diffuse", "red.jpg", "red axis"});
-		y_arrow->textures.push_back(RTexture{green_tex, "texture_diffuse", "green.jpg", "green axis"});
-		z_arrow->textures.push_back(RTexture{blue_tex, "texture_diffuse", "blue.jpg", "blue axis"});
+		XArrow->Textures.push_back(RTexture{RedTex, "texture_diffuse", "red.jpg", "red axis"});
+		YArrow->Textures.push_back(RTexture{GreenTex, "texture_diffuse", "green.jpg", "green axis"});
+		ZArrow->Textures.push_back(RTexture{BlueTex, "texture_diffuse", "blue.jpg", "blue axis"});
 
 		// CollisionMesh
-		const auto arrow_collider = new RCollisionMesh();
+		const auto ArrowCollider = new RCollisionMesh();
 
-		For(axis_mesh->vertices.size())
-			arrow_collider->vertices.push_back(axis_mesh->vertices[i].position);
+		For(AxisMesh->Vertices.size())
+			ArrowCollider->Vertices.push_back(AxisMesh->Vertices[i].Position);
 
-		For(axis_mesh->indices.size())
-			arrow_collider->indices.push_back(axis_mesh->indices[i]);
+		For(AxisMesh->Indices.size())
+			ArrowCollider->Indices.push_back(AxisMesh->Indices[i]);
 
-		x_arrow->collision_mesh = arrow_collider;
-		x_arrow->collider = *arrow_collider;
+		XArrow->CollisionMesh = ArrowCollider;
+		XArrow->Collider = *ArrowCollider;
 
-		y_arrow->collision_mesh = arrow_collider;
-		y_arrow->collider = *arrow_collider;
+		YArrow->CollisionMesh = ArrowCollider;
+		YArrow->Collider = *ArrowCollider;
 
-		z_arrow->collision_mesh = arrow_collider;
-		z_arrow->collider = *arrow_collider;
+		ZArrow->CollisionMesh = ArrowCollider;
+		ZArrow->Collider = *ArrowCollider;
 
-		ed_context.entity_panel.x_arrow = x_arrow;
-		ed_context.entity_panel.y_arrow = y_arrow;
-		ed_context.entity_panel.z_arrow = z_arrow;
+		EdContext.EntityPanel.XArrow = XArrow;
+		EdContext.EntityPanel.YArrow = YArrow;
+		EdContext.EntityPanel.ZArrow = ZArrow;
 
 		// creates entity rotation gizmos
-		ed_context.entity_panel.rotation_gizmo_x = new EEntity();
-		SetEntityAssets(ed_context.entity_panel.rotation_gizmo_x, {
-		.name = "rotation_gizmo_x",
-		.mesh = "rotation_gizmo",
-		.shader = "ed_entity_arrow_shader",
-		.texture = "red",
-		.collision_mesh = "rotation_gizmo_collision"});
+		EdContext.EntityPanel.RotationGizmoX = new EEntity();
+		SetEntityAssets(EdContext.EntityPanel.RotationGizmoX, {
+		.Name = "rotation_gizmo_x",
+		.Mesh = "rotation_gizmo",
+		.Shader = "ed_entity_arrow_shader",
+		.Texture = "red",
+		.CollisionMesh = "rotation_gizmo_collision"});
 
-		ed_context.entity_panel.rotation_gizmo_y = new EEntity();
-		SetEntityAssets(ed_context.entity_panel.rotation_gizmo_y,{
-		.name = "rotation_gizmo_y",
-		.mesh = "rotation_gizmo",
-		.shader = "ed_entity_arrow_shader",
-		.texture = "green",
-		.collision_mesh = "rotation_gizmo_collision"});
+		EdContext.EntityPanel.RotationGizmoY = new EEntity();
+		SetEntityAssets(EdContext.EntityPanel.RotationGizmoY, {
+		.Name = "rotation_gizmo_y",
+		.Mesh = "rotation_gizmo",
+		.Shader = "ed_entity_arrow_shader",
+		.Texture = "green",
+		.CollisionMesh = "rotation_gizmo_collision"});
 
-		ed_context.entity_panel.rotation_gizmo_z = new EEntity();
-		SetEntityAssets(ed_context.entity_panel.rotation_gizmo_z, {
-		.name = "rotation_gizmo_z",
-		.mesh = "rotation_gizmo",
-		.shader = "ed_entity_arrow_shader",
-		.texture = "blue",
-		.collision_mesh = "rotation_gizmo_collision"});
+		EdContext.EntityPanel.RotationGizmoZ = new EEntity();
+		SetEntityAssets(EdContext.EntityPanel.RotationGizmoZ, {
+		.Name = "rotation_gizmo_z",
+		.Mesh = "rotation_gizmo",
+		.Shader = "ed_entity_arrow_shader",
+		.Texture = "blue",
+		.CollisionMesh = "rotation_gizmo_collision"});
 
 
 		// palette panel
-		InitializePalette(&ed_context.palette_panel);
+		InitializePalette(&EdContext.PalettePanel);
 
-		ed_context.last_frame_scene = RWorld::Get()->scene_name;
+		EdContext.LastFrameScene = RWorld::Get()->SceneName;
 	}
 
 
-	void RenderTextOverlay(EPlayer* player, RCamera* camera)
+	void RenderTextOverlay(EPlayer* Player, RCamera* Camera)
 	{
-		float GUI_y = GlobalDisplayState::viewport_height - 60;
-		float SCREEN_HEIGHT = GlobalDisplayState::viewport_height;
+		float GuiY = GlobalDisplayState::ViewportHeight - 60;
+		float ScreenHeight = GlobalDisplayState::ViewportHeight;
 
-		std::string font = "consola18";
-		std::string font_center = "swanseait38";
-		std::string font_center_small = "swanseait20";
-		float centered_text_height = SCREEN_HEIGHT - 120;
-		float centered_text_height_small = centered_text_height - 40;
-		auto tool_text_color_yellow = vec3(0.8, 0.8, 0.2);
-		auto tool_text_color_green = vec3(0.6, 1.0, 0.3);
+		string Font = "consola18";
+		string FontCenter = "swanseait38";
+		string FontCenterSmall = "swanseait20";
+		float CenteredTextHeight = ScreenHeight - 120;
+		float CenteredTextHeightSmall = CenteredTextHeight - 40;
+		auto ToolTextColorYellow = vec3(0.8, 0.8, 0.2);
+		auto ToolTextColorGreen = vec3(0.6, 1.0, 0.3);
 
 
 		// CAMERA POSITION
-		std::string cam_p[3]{
-		FormatFloatTostr(camera->position.x, 2),
-		FormatFloatTostr(camera->position.y, 2),
-		FormatFloatTostr(camera->position.z, 2),
+		string CamP[3]{
+		FormatFloatTostr(Camera->Position.x, 2),
+		FormatFloatTostr(Camera->Position.y, 2),
+		FormatFloatTostr(Camera->Position.z, 2),
 		};
-		std::string camera_position = "camera:   x: " + cam_p[0] + " y:" + cam_p[1] + " z:" + cam_p[2];
-		RenderText(font, 235, 45, camera_position);
+		string CameraPosition = "camera:   x: " + CamP[0] + " y:" + CamP[1] + " z:" + CamP[2];
+		RenderText(Font, 235, 45, CameraPosition);
 
 
 		// PLAYER POSITION
-		vec3 p_feet = player->GetFeetPosition();
-		std::string player_p[3]{
-		FormatFloatTostr(p_feet.x, 1),
-		FormatFloatTostr(p_feet.y, 1),
-		FormatFloatTostr(p_feet.z, 1),
-		};
-		std::string player_pos = "player:   x: " + player_p[0] + " y: " + player_p[1] + " z: " + player_p[2];
-		RenderText(font, 235, 70, player_pos);
-
+		vec3 PlayerFeet = Player->GetFeetPosition();
+		string PlayerP[3]{FormatFloatTostr(PlayerFeet.x, 1), FormatFloatTostr(PlayerFeet.y, 1), FormatFloatTostr(PlayerFeet.z, 1)};
+		string PlayerPos = "player:   x: " + PlayerP[0] + " y: " + PlayerP[1] + " z: " + PlayerP[2];
+		RenderText(Font, 235, 70, PlayerPos);
 
 		// PLAYER LIVES
-		std::string lives = std::to_string(player->lives);
-		RenderText(
-			font,
-			GlobalDisplayState::viewport_width - 400,
-			90,
-			player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1},
-			lives
-		);
-
+		string Lives = std::to_string(Player->lives);
+		RenderText(Font, GlobalDisplayState::ViewportWidth - 400, 90, Player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1}, Lives);
 
 		// PLAYER STATE
-		auto player_state_text_color = vec3(0, 0, 0);
-		std::string player_state_text;
-		switch (player->player_state)
+		auto PlayerStateTextColor = vec3(0, 0, 0);
+		string PlayerStateText;
+		switch (Player->player_state)
 		{
 			case NPlayerState::Standing:
-				player_state_text = "PLAYER PlayerState::Standing";
+				PlayerStateText = "PLAYER PlayerState::Standing";
 				break;
 			case NPlayerState::Falling:
-				player_state_text = "PLAYER FALLING";
+				PlayerStateText = "PLAYER FALLING";
 				break;
 			case NPlayerState::Jumping:
-				player_state_text = "PLAYER JUMPING";
+				PlayerStateText = "PLAYER JUMPING";
 				break;
 			case NPlayerState::Sliding:
-				player_state_text = "PLAYER SLIDING";
+				PlayerStateText = "PLAYER SLIDING";
 				break;
 			case NPlayerState::SlideFalling:
-				player_state_text = "PLAYER SLIDE FALLING";
+				PlayerStateText = "PLAYER SLIDE FALLING";
 				break;
 		}
-		RenderText("consola18", GlobalDisplayState::viewport_width - 400, 30, player_state_text_color, player_state_text);
+		RenderText("consola18", GlobalDisplayState::ViewportWidth - 400, 30, PlayerStateTextColor, PlayerStateText);
 
-		std::string p_grab = "grabbing: ";
-		if (player->grabbing_entity != nullptr)
-			p_grab += player->grabbing_entity->name;
-		RenderText(GlobalDisplayState::viewport_width - 400, 45, p_grab);
+		string PlayerGrabbingText = "grabbing: ";
+		if (Player->grabbing_entity != nullptr)
+			PlayerGrabbingText += Player->grabbing_entity->Name;
+		RenderText(GlobalDisplayState::ViewportWidth - 400, 45, PlayerGrabbingText);
 
 		// FPS
-		std::string fps = std::to_string(RavenousEngine::GetFrame().fps);
-		std::string fps_gui = "FPS: " + fps;
-		RenderText(font, GlobalDisplayState::viewport_width - 110, 40, fps_gui);
+		string Fps = std::to_string(RavenousEngine::GetFrame().Fps);
+		string FpsGui = "FPS: " + Fps;
+		RenderText(Font, GlobalDisplayState::ViewportWidth - 110, 40, FpsGui);
 
 
 		// EDITOR TOOLS INDICATORS
@@ -616,110 +595,84 @@ namespace Editor
 		// ----------
 		// SNAP MODE
 		// ----------
-		auto& ed_context = *GetContext();
+		auto& EdContext = *GetContext();
 
-		if (ed_context.snap_mode)
+		if (EdContext.SnapMode)
 		{
-			std::string snap_cycle;
-			switch (ed_context.snap_cycle)
+			string SnapCycle;
+			switch (EdContext.SnapCycle)
 			{
 				case 0:
-					snap_cycle = "top";
+					SnapCycle = "top";
 					break;
 				case 1:
-					snap_cycle = "mid";
+					SnapCycle = "mid";
 					break;
 				case 2:
-					snap_cycle = "bottom";
+					SnapCycle = "bottom";
 					break;
 			}
 
-			std::string snap_axis;
-			switch (ed_context.snap_axis)
+			string SnapAxis;
+			switch (EdContext.SnapAxis)
 			{
 				case 0:
-					snap_axis = "X";
+					SnapAxis = "X";
 					break;
 				case 1:
-					snap_axis = "Y";
+					SnapAxis = "Y";
 					break;
 				case 2:
-					snap_axis = "Z";
+					SnapAxis = "Z";
 					break;
 			}
 
 			// if position is changed and not commited, render text yellow
-			vec3 snap_mode_subtext_color;
-			if (ed_context.snap_reference == nullptr)
-				snap_mode_subtext_color = tool_text_color_yellow;
+			vec3 SnapModeSubtextColor;
+			if (EdContext.SnapReference == nullptr)
+				SnapModeSubtextColor = ToolTextColorYellow;
 			else
 			{
-				auto state = ed_context.undo_stack.Check();
-				if (state.entity != nullptr && state.position != ed_context.entity_panel.entity->position)
-					snap_mode_subtext_color = tool_text_color_yellow;
+				auto State = EdContext.UndoStack.Check();
+				if (State.Entity != nullptr && State.Position != EdContext.EntityPanel.Entity->Position)
+					SnapModeSubtextColor = ToolTextColorYellow;
 				else
-					snap_mode_subtext_color = tool_text_color_green;
+					SnapModeSubtextColor = ToolTextColorGreen;
 			}
 
 			// selects text based on situation of snap tool
-			std::string sub_text;
-			if (ed_context.snap_reference == nullptr)
-				sub_text = "select another entity to snap to.";
+			string SubText;
+			if (EdContext.SnapReference == nullptr)
+				SubText = "select another entity to snap to.";
 			else
-				sub_text = "press Enter to commit position. x/y/z to change axis.";
+				SubText = "press Enter to commit position. x/y/z to change axis.";
 
-			RenderText(
-				font_center,
-				GlobalDisplayState::viewport_width / 2,
-				centered_text_height,
-				tool_text_color_yellow,
-				true,
-				"SNAP MODE (" + snap_axis + "-" + snap_cycle + ")"
-			);
+			RenderText(FontCenter, GlobalDisplayState::ViewportWidth / 2, CenteredTextHeight, ToolTextColorYellow, true, "SNAP MODE (" + SnapAxis + "-" + SnapCycle + ")");
 
-			RenderText(
-				font_center_small,
-				GlobalDisplayState::viewport_width / 2,
-				centered_text_height_small,
-				snap_mode_subtext_color,
-				true,
-				sub_text
-			);
+			RenderText(FontCenterSmall, GlobalDisplayState::ViewportWidth / 2, CenteredTextHeightSmall, SnapModeSubtextColor, true, SubText);
 		}
 
 		// -------------
 		// MEASURE MODE
 		// -------------
-		if (ed_context.measure_mode)
+		if (EdContext.MeasureMode)
 		{
-			std::string axis =
-			ed_context.measure_axis == 0 ? "x" :
-			ed_context.measure_axis == 1 ? "y" :
-			"z";
+			string Axis =
+				EdContext.MeasureAxis == 0 ? "x" :
+				EdContext.MeasureAxis == 1 ? "y" :
+				"z";
 
-			RenderText(
-				font_center,
-				GlobalDisplayState::viewport_width / 2,
-				centered_text_height,
-				vec3(0.8, 0.8, 0.2),
-				true,
-				"MEASURE MODE (" + axis + ")"
+			RenderText(FontCenter, GlobalDisplayState::ViewportWidth / 2, CenteredTextHeight, vec3(0.8, 0.8, 0.2), true, "MEASURE MODE (" + Axis + ")"
 			);
 
-			if (ed_context.second_point_found)
+			if (EdContext.SecondPointFound)
 			{
-				float dist_ref =
-				ed_context.measure_axis == 0 ? ed_context.measure_from.x :
-				ed_context.measure_axis == 1 ? ed_context.measure_from.y :
-				ed_context.measure_from.z;
+				float DistRef = (
+				EdContext.MeasureAxis == 0 ? EdContext.MeasureFrom.x :
+				EdContext.MeasureAxis == 1 ? EdContext.MeasureFrom.y :
+				EdContext.MeasureFrom.z);
 
-				RenderText(
-					font_center,
-					GlobalDisplayState::viewport_width / 2,
-					centered_text_height_small,
-					vec3(0.8, 0.8, 0.2),
-					true,
-					"(" + FormatFloatTostr(abs(ed_context.measure_to - dist_ref), 2) + " m)"
+				RenderText(FontCenter, GlobalDisplayState::ViewportWidth / 2, CenteredTextHeightSmall, vec3(0.8, 0.8, 0.2), true, "(" + FormatFloatTostr(abs(EdContext.MeasureTo - DistRef), 2) + " m)"
 				);
 			}
 		}
@@ -727,497 +680,438 @@ namespace Editor
 		// ----------
 		// MOVE MODE
 		// ----------
-		if (ed_context.move_mode)
+		if (EdContext.MoveMode)
 		{
-			std::string move_axis;
-			switch (ed_context.move_axis)
+			string MoveAxis;
+			switch (EdContext.MoveAxis)
 			{
 				case 0:
-					move_axis = "XZ";
+					MoveAxis = "XZ";
 					break;
 				case 1:
-					move_axis = "X";
+					MoveAxis = "X";
 					break;
 				case 2:
-					move_axis = "Y";
+					MoveAxis = "Y";
 					break;
 				case 3:
-					move_axis = "Z";
+					MoveAxis = "Z";
 					break;
 			}
 
-			RenderText(
-				font_center,
-				GlobalDisplayState::viewport_width / 2,
-				centered_text_height,
-				vec3(0.8, 0.8, 0.2),
-				true,
-				"MOVE MODE (" + move_axis + ")"
-			);
+			RenderText(FontCenter, GlobalDisplayState::ViewportWidth / 2, CenteredTextHeight, vec3(0.8, 0.8, 0.2), true, "MOVE MODE (" + MoveAxis + ")");
 
-			RenderText(
-				font_center,
-				GlobalDisplayState::viewport_width / 2,
-				centered_text_height_small,
-				vec3(0.8, 0.8, 0.2),
-				true,
-				"press M to alternate between move and place modes"
-			);
+			RenderText(FontCenter, GlobalDisplayState::ViewportWidth / 2, CenteredTextHeightSmall, vec3(0.8, 0.8, 0.2), true, "press M to alternate between move and place modes");
 		}
 
 		// ----------
 		// PLACE MODE
 		// ----------
-		if (ed_context.place_mode)
+		if (EdContext.PlaceMode)
 		{
-			RenderText(
-				font_center,
-				GlobalDisplayState::viewport_width / 2,
-				centered_text_height,
-				vec3(0.8, 0.8, 0.2),
-				true,
-				"PLACE MODE"
-			);
+			RenderText(FontCenter, GlobalDisplayState::ViewportWidth / 2, CenteredTextHeight, vec3(0.8, 0.8, 0.2), true, "PLACE MODE");
 
-			RenderText(
-				font_center_small,
-				GlobalDisplayState::viewport_width / 2,
-				centered_text_height_small,
-				vec3(0.8, 0.8, 0.2),
-				true,
-				"press M to alternate between move and place modes"
-			);
+			RenderText(FontCenterSmall, GlobalDisplayState::ViewportWidth / 2, CenteredTextHeightSmall, vec3(0.8, 0.8, 0.2), true, "press M to alternate between move and place modes");
 		}
 
 		// -------------------
 		// LOCATE COORDS MODE
 		// -------------------
-		if (ed_context.locate_coords_mode)
+		if (EdContext.LocateCoordsMode)
 		{
-			RenderText(
-				font_center,
-				GlobalDisplayState::viewport_width / 2,
-				centered_text_height,
-				vec3(0.8, 0.8, 0.2),
-				true,
-				"LOCATE COORDS MODE"
-			);
+			RenderText(FontCenter, GlobalDisplayState::ViewportWidth / 2, CenteredTextHeight, vec3(0.8, 0.8, 0.2), true, "LOCATE COORDS MODE");
 
-			std::string locate_coords_subtext;
-			if (!ed_context.locate_coords_found_point)
+			string LocateCoordsSubtext;
+			if (!EdContext.LocateCoordsFoundPoint)
 			{
-				locate_coords_subtext = "Please select a world position to get coordinates.";
+				LocateCoordsSubtext = "Please select a world position to get coordinates.";
 			}
 			else
 			{
-				locate_coords_subtext =
-				"(x: " + FormatFloatTostr(ed_context.locate_coords_position[0], 2) +
-				", y: " + FormatFloatTostr(ed_context.locate_coords_position[1], 2) +
-				", z: " + FormatFloatTostr(ed_context.locate_coords_position[2], 2) + ")";
+				LocateCoordsSubtext =
+				"(x: " + FormatFloatTostr(EdContext.LocateCoordsPosition[0], 2) +
+				", y: " + FormatFloatTostr(EdContext.LocateCoordsPosition[1], 2) +
+				", z: " + FormatFloatTostr(EdContext.LocateCoordsPosition[2], 2) + ")";
 			}
 
-			RenderText(
-				font_center_small,
-				GlobalDisplayState::viewport_width / 2,
-				centered_text_height - 40,
-				tool_text_color_green,
-				true,
-				locate_coords_subtext
-			);
+			RenderText(FontCenterSmall, GlobalDisplayState::ViewportWidth / 2, CenteredTextHeight - 40, ToolTextColorGreen, true, LocateCoordsSubtext);
 		}
 
 		// -------------
 		// STRETCH MODE
 		// -------------
-		if (ed_context.stretch_mode)
+		if (EdContext.StretchMode)
 		{
-			RenderText(
-				font_center,
-				GlobalDisplayState::viewport_width / 2,
-				centered_text_height,
-				vec3(0.8, 0.8, 0.2),
-				true,
-				"STRETCH MODE"
-			);
+			RenderText(FontCenter, GlobalDisplayState::ViewportWidth / 2, CenteredTextHeight, vec3(0.8, 0.8, 0.2), true, "STRETCH MODE");
 		}
 
 		// --------------------------
 		// ENTITY SELECTION AUX MODE
 		// --------------------------
-		if (ed_context.select_entity_aux_mode)
+		if (EdContext.SelectEntityAuxMode)
 		{
-			RenderText(
-				font_center,
-				GlobalDisplayState::viewport_width / 2,
-				centered_text_height,
-				vec3(0.8, 0.8, 0.2),
-				true,
-				"SELECT RELATED ENTITY"
-			);
+			RenderText(FontCenter, GlobalDisplayState::ViewportWidth / 2, CenteredTextHeight, vec3(0.8, 0.8, 0.2), true, "SELECT RELATED ENTITY");
 		}
 	}
 
 	//TODO: Reimplement
-	void RenderEventTriggers(RCamera* camera, RWorld* world)
+	void RenderEventTriggers(RCamera* Camera, RWorld* World)
 	{
 		/*
-		 if (world->interactables.size() == 0)
+		 if (World->interactables.size() == 0)
 			 return;
 
 		auto find = ShaderCatalogue.find("color");
 		auto shader = find->second;
 
-		shader->Use();
-		shader->SetMatrix4("view", camera->mat_view);
-		shader->SetMatrix4("projection", camera->mat_projection);
+		Shader->Use();
+		Shader->SetMatrix4("view", camera->mat_view);
+		Shader->SetMatrix4("projection", camera->mat_projection);
 
-		for (int i = 0; i < world->interactables.size(); i++)
+		for (int i = 0; i < World->interactables.size(); i++)
 		{
-			auto checkpoint = world->interactables[i];
-			shader->SetMatrix4("model", checkpoint->trigger_mat_model);
-			shader->SetFloat3("color", 0.5, 0.5, 0.3);
-			shader->SetFloat("opacity", 0.6);
+			auto checkpoint = World->interactables[i];
+			Shader->SetMatrix4("model", checkpoint->trigger_mat_model);
+			Shader->SetFloat3("color", 0.5, 0.5, 0.3);
+			Shader->SetFloat("opacity", 0.6);
 			RenderMesh(checkpoint->trigger, RenderOptions{});
 		}
 		*/
 	}
 
 
-	void RenderWorldCells(RCamera* camera, RWorld* world)
+	void RenderWorldCells(RCamera* Camera, RWorld* World)
 	{
-		auto shader = ShaderCatalogue.find("color")->second;
-		auto cell_mesh = GeometryCatalogue.find("aabb")->second;
-		auto& ed_context = *GetContext();
+		auto Shader = ShaderCatalogue.find("color")->second;
+		auto CellMesh = GeometryCatalogue.find("aabb")->second;
+		auto& EdContext = *GetContext();
 
-		auto chunk_iterator = world->GetChunkIterator();
-		while (auto* chunk = chunk_iterator())
+		auto ChunkIterator = World->GetChunkIterator();
+		while (auto* Chunk = ChunkIterator())
 		{
-			RenderOptions opts;
-			opts.wireframe = true;
+			RenderOptions Opts;
+			Opts.Wireframe = true;
 
-			vec3 color;
-			if (ed_context.world_panel.chunk_position_vec.x == chunk->i &&
-				ed_context.world_panel.chunk_position_vec.y == chunk->j &&
-				ed_context.world_panel.chunk_position_vec.z == chunk->k)
+			vec3 Color;
+			if (EdContext.WorldPanel.ChunkPositionVec.x == Chunk->i &&
+				EdContext.WorldPanel.ChunkPositionVec.y == Chunk->j &&
+				EdContext.WorldPanel.ChunkPositionVec.z == Chunk->k)
 			{
-				opts.line_width = 1.5;
-				color = vec3(0.8, 0.4, 0.2);
+				Opts.LineWidth = 1.5;
+				Color = vec3(0.8, 0.4, 0.2);
 			}
-			else if ((chunk->i == WorldChunkNumX || chunk->i == 0) ||
-				(chunk->j == WorldChunkNumY || chunk->j == 0) ||
-				(chunk->k == WorldChunkNumZ || chunk->k == 0))
+			else if ((Chunk->i == WorldChunkNumX || Chunk->i == 0) ||
+				(Chunk->j == WorldChunkNumY || Chunk->j == 0) ||
+				(Chunk->k == WorldChunkNumZ || Chunk->k == 0))
 			{
-				color = vec3(0.0, 0.0, 0.0);
+				Color = vec3(0.0, 0.0, 0.0);
 			}
 			else
-				color = vec3(0.27, 0.55, 0.65);
+				Color = vec3(0.27, 0.55, 0.65);
 
 			// creates model matrix
-			vec3 position = GetWorldCoordinatesFromWorldCellCoordinates(
-				chunk->i, chunk->j, chunk->k
-			);
-			glm::mat4 model = translate(Mat4Identity, position);
-			model = scale(model, vec3{WorldChunkLengthMeters, WorldChunkLengthMeters, WorldChunkLengthMeters});
+			vec3 Position = GetWorldCoordinatesFromWorldCellCoordinates(Chunk->i, Chunk->j, Chunk->k);
+			glm::mat4 Model = translate(Mat4Identity, Position);
+			Model = scale(Model, vec3{WorldChunkLengthMeters, WorldChunkLengthMeters, WorldChunkLengthMeters});
 
 			//render
-			shader->Use();
-			shader->SetFloat3("color", color);
-			shader->SetFloat("opacity", 0.85);
-			shader->SetMatrix4("model", model);
-			shader->SetMatrix4("view", camera->mat_view);
-			shader->SetMatrix4("projection", camera->mat_projection);
+			Shader->Use();
+			Shader->SetFloat3("color", Color);
+			Shader->SetFloat("opacity", 0.85);
+			Shader->SetMatrix4("model", Model);
+			Shader->SetMatrix4("view", Camera->MatView);
+			Shader->SetMatrix4("projection", Camera->MatProjection);
 			glDisable(GL_CULL_FACE);
-			RenderMesh(cell_mesh, opts);
+			RenderMesh(CellMesh, Opts);
 			glEnable(GL_CULL_FACE);
 		}
 	}
 
 
-	inline void RenderLightbulbs(RCamera* camera, RWorld* world)
+	inline void RenderLightbulbs(RCamera* Camera, RWorld* World)
 	{
-		auto& ed_context = *GetContext();
+		auto& EdContext = *GetContext();
 
-		auto mesh = GeometryCatalogue.find("lightbulb")->second;
-		auto shader = ShaderCatalogue.find("color")->second;
+		auto Mesh = GeometryCatalogue.find("lightbulb")->second;
+		auto Shader = ShaderCatalogue.find("color")->second;
 
-		shader->SetMatrix4("view", camera->mat_view);
-		shader->SetMatrix4("projection", camera->mat_projection);
+		Shader->SetMatrix4("view", Camera->MatView);
+		Shader->SetMatrix4("projection", Camera->MatProjection);
 
-		auto selected_light = ed_context.lights_panel.selected_light;
-		auto selected_light_type = ed_context.lights_panel.selected_light_type;
+		auto SelectedLight = EdContext.LightsPanel.SelectedLight;
+		auto SelectedLightType = EdContext.LightsPanel.SelectedLightType;
 
 		// point lights
-		int point_c = 0;
-		for (const auto& light : world->point_lights)
+		int PointLightsCount = 0;
+		for (const auto& Light : World->PointLights)
 		{
-			auto model = translate(Mat4Identity, light->position + vec3{0, 0.5, 0});
-			model = scale(model, vec3{0.1f});
-			RenderOptions opts;
+			auto Model = translate(Mat4Identity, Light->position + vec3{0, 0.5, 0});
+			Model = scale(Model, vec3{0.1f});
+			RenderOptions Opts;
 			//opts.wireframe = true;
 			//render
-			shader->Use();
-			shader->SetMatrix4("model", model);
-			shader->SetFloat3("color", light->diffuse);
-			shader->SetFloat("opacity", 1.0);
+			Shader->Use();
+			Shader->SetMatrix4("model", Model);
+			Shader->SetFloat3("color", Light->diffuse);
+			Shader->SetFloat("opacity", 1.0);
 
-			RenderMesh(mesh, opts);
+			RenderMesh(Mesh, Opts);
 
-			point_c++;
+			PointLightsCount++;
 		}
 
 		// spot lights
-		int spot_c = 0;
-		for (const auto& light : world->spot_lights)
+		int SpotLightsCount = 0;
+		for (const auto& Light : World->SpotLights)
 		{
-			auto model = translate(Mat4Identity, light->position + vec3{0, 0.5, 0});
-			model = scale(model, vec3{0.1f});
-			RenderOptions opts;
+			auto Model = translate(Mat4Identity, Light->position + vec3{0, 0.5, 0});
+			Model = scale(Model, vec3{0.1f});
+			RenderOptions Opts;
 			//opts.wireframe = true;
 			//render
-			shader->Use();
-			shader->SetMatrix4("model", model);
-			shader->SetFloat3("color", light->diffuse);
-			shader->SetFloat("opacity", 1.0);
-			RenderMesh(mesh, opts);
-			spot_c++;
+			Shader->Use();
+			Shader->SetMatrix4("model", Model);
+			Shader->SetFloat3("color", Light->diffuse);
+			Shader->SetFloat("opacity", 1.0);
+			RenderMesh(Mesh, Opts);
+			SpotLightsCount++;
 		}
 
 		// render selection box and dir arrow for selected lightbulb
-		if (selected_light >= 0)
+		if (SelectedLight >= 0)
 		{
-			vec3 light_position;
-			vec3 light_direction;
-			if (selected_light_type == "point")
+			vec3 LightPosition;
+			vec3 LightDirection;
+			if (SelectedLightType == "point")
 			{
-				assert(selected_light <= point_c);
-				auto& light = *world->point_lights[selected_light];
-				light_position = light.position;
+				assert(SelectedLight <= PointLightsCount);
+				auto& Light = *World->PointLights[SelectedLight];
+				LightPosition = Light.Position;
 			}
-			else if (selected_light_type == "spot")
+			else if (SelectedLightType == "spot")
 			{
-				assert(selected_light <= spot_c);
-				auto& light = *world->spot_lights[selected_light];
-				light_position = light.position;
-				light_direction = light.direction;
+				assert(SelectedLight <= SpotLightsCount);
+				auto& Light = *World->SpotLights[SelectedLight];
+				LightPosition = Light.Position;
+				LightDirection = Light.Direction;
 			}
 
 			// selection box
-			auto aabb_mesh = GeometryCatalogue.find("aabb")->second;
+			auto AabbModel = translate(Mat4Identity, LightPosition - vec3{0.1575, 0, 0.1575});
+			AabbModel = scale(AabbModel, vec3{0.3f, 0.6f, 0.3f});
+			RenderOptions Opts;
+			Opts.Wireframe = true;
 
-			auto aabb_model = translate(Mat4Identity, light_position - vec3{0.1575, 0, 0.1575});
-			aabb_model = scale(aabb_model, vec3{0.3f, 0.6f, 0.3f});
-			RenderOptions opts;
-			opts.wireframe = true;
-
-			shader->Use();
-			shader->SetMatrix4("model", aabb_model);
-			shader->SetFloat3("color", vec3{0.9, 0.7, 0.9});
-			shader->SetFloat("opacity", 1.0);
-
-			RenderMesh(aabb_mesh, opts);
+			Shader->Use();
+			Shader->SetMatrix4("model", AabbModel);
+			Shader->SetFloat3("color", vec3{0.9, 0.7, 0.9});
+			Shader->SetFloat("opacity", 1.0);
+			
+			auto AabbMesh = GeometryCatalogue.find("aabb")->second;
+			RenderMesh(AabbMesh, Opts);
 
 			// direction arrow
-			if (selected_light_type == "spot")
+			if (SelectedLightType == "spot")
 			{
-				float pitch, yaw;
-				RCameraManager::ComputeAnglesFromDirection(pitch, yaw, light_direction);
-				vec3 arrow_direction = ComputeDirectionFromAngles(pitch, yaw);
+				float Pitch, Yaw;
+				RCameraManager::ComputeAnglesFromDirection(Pitch, Yaw, LightDirection);
+				vec3 ArrowDirection = ComputeDirectionFromAngles(Pitch, Yaw);
 
-				vec3 arrow_origin = light_position - vec3{0.0, 0.56, 0.0};
-				vec3 arrow_end = arrow_origin + arrow_direction * 1.5f;
-				RImDraw::AddLine(IMHASH, arrow_origin, arrow_end, 1.5);
+				vec3 ArrowOrigin = LightPosition - vec3{0.0, 0.56, 0.0};
+				vec3 ArrowEnd = ArrowOrigin + ArrowDirection * 1.5f;
+				RImDraw::AddLine(IMHASH, ArrowOrigin, ArrowEnd, 1.5);
 			}
 
 			// @todo: epic fail below (trying to rotate an arrow mesh according to a dir vector)
 			// auto arrow_mesh = Geometry_Catalogue.find("axis")->second;
-			// vec3 front = arrow_origin + light.direction;
-			// vec3 up = glm::cross(arrow_origin, );
+			// vec3 front = ArrowOrigin + Light.Direction;
+			// vec3 up = glm::cross(ArrowOrigin, );
 
 			// @todo: this is a workaround, since we are not using quaternions yet, we must
 			//       be careful with 0/180 degree angles between up and direction vectors
 			//       using glm::lookAt()
 			// @todo: Actually now we are using immediate draw and lines.
 
-			// //mat4 arrow_model = translate(Mat4Identity, arrow_origin);
+			// //mat4 arrow_model = translate(Mat4Identity, ArrowOrigin);
 			// mat4 arrow_model = 
-			//    glm::translate(Mat4Identity, arrow_origin) *
+			//    glm::translate(Mat4Identity, ArrowOrigin) *
 			//    glm::rotate(Mat4Identity, glm::radians(90.0f), vec3(1, 0, 0)) *
-			//    glm::lookAt(vec3{0.0}, arrow_direction, vec3{0,1,0})
+			//    glm::lookAt(vec3{0.0}, ArrowDirection, vec3{0,1,0})
 			// ;
 			// //arrow_model = glm::scale(arrow_model, vec3{0.2f, 0.3f, 0.2f});
 
 			//render arrow
-			// shader->use();
-			// shader->setFloat3("color", vec3{0.9, 0.7, 0.9});
-			// shader->setFloat("opacity", 1.0);
-			// shader->setMatrix4("model", arrow_model);
-			// shader->setMatrix4("view", camera->View4x4);
-			// shader->setMatrix4("projection", camera->Projection4x4);
+			// Shader->use();
+			// Shader->setFloat3("color", vec3{0.9, 0.7, 0.9});
+			// Shader->setFloat("opacity", 1.0);
+			// Shader->setMatrix4("model", arrow_model);
+			// Shader->setMatrix4("view", camera->View4x4);
+			// Shader->setMatrix4("projection", camera->Projection4x4);
 			// render_mesh(arrow_mesh, RenderOptions{});
 		}
 	}
 
 
-	void RenderEntityControlArrows(REntityPanelContext* panel, RWorld* world, RCamera* camera)
+	void RenderEntityControlArrows(REntityPanelContext* Panel, RWorld* World, RCamera* Camera)
 	{
 		//@todo: try placing editor objects in a separate z buffer? Maybe manually... so we don't have to use GL_ALWAYS
 		glDepthFunc(GL_ALWAYS);
-		RenderEditorEntity(panel->x_arrow, world, camera);
-		RenderEditorEntity(panel->y_arrow, world, camera);
-		RenderEditorEntity(panel->z_arrow, world, camera);
+		RenderEditorEntity(Panel->XArrow, World, Camera);
+		RenderEditorEntity(Panel->YArrow, World, Camera);
+		RenderEditorEntity(Panel->ZArrow, World, Camera);
 		glDepthFunc(GL_LESS);
 	}
 
 
-	void RenderEntityRotationGizmo(REntityPanelContext* panel, RWorld* world, RCamera* camera)
+	void RenderEntityRotationGizmo(REntityPanelContext* Panel, RWorld* World, RCamera* Camera)
 	{
 		//@todo: try placing editor objects in a separate z buffer? Maybe manually... so we don't have to use GL_ALWAYS
 		glDepthFunc(GL_ALWAYS);
-		RenderEditorEntity(panel->rotation_gizmo_x, world, camera);
-		RenderEditorEntity(panel->rotation_gizmo_y, world, camera);
-		RenderEditorEntity(panel->rotation_gizmo_z, world, camera);
+		RenderEditorEntity(Panel->RotationGizmoX, World, Camera);
+		RenderEditorEntity(Panel->RotationGizmoY, World, Camera);
+		RenderEditorEntity(Panel->RotationGizmoZ, World, Camera);
 		glDepthFunc(GL_LESS);
 	}
 
 
-	float GetGizmoScalingFactor(EEntity* entity, float min, float max)
+	float GetGizmoScalingFactor(EEntity* Entity, float Min, float Max)
 	{
 		/* Editor gizmos need to follow entities' dimensions so they don't look too big or too small in comparison with the entity 
 		   when displayed. */
 
-		float scaling_factor = min;
-		float min_dimension = MaxFloat;
-		if (entity->scale.x < min_dimension)
-			min_dimension = entity->scale.x;
-		if (entity->scale.y < min_dimension)
-			min_dimension = entity->scale.y;
-		if (entity->scale.z < min_dimension)
-			min_dimension = entity->scale.z;
+		float ScalingFactor = Min;
+		float MinDimension = MaxFloat;
+		if (Entity->Scale.x < MinDimension)
+			MinDimension = Entity->Scale.x;
+		if (Entity->Scale.y < MinDimension)
+			MinDimension = Entity->Scale.y;
+		if (Entity->Scale.z < MinDimension)
+			MinDimension = Entity->Scale.z;
 
-		if (min_dimension < min)
-			scaling_factor = min_dimension;
-		else if (min_dimension >= max)
-			scaling_factor = min_dimension / max;
+		if (MinDimension < Min)
+			ScalingFactor = MinDimension;
+		else if (MinDimension >= Max)
+			ScalingFactor = MinDimension / Max;
 
-		return scaling_factor;
+		return ScalingFactor;
 	}
 
 
-	void UpdateEntityControlArrows(REntityPanelContext* panel)
+	void UpdateEntityControlArrows(REntityPanelContext* Panel)
 	{
 		// arrow positioning settings
-		float angles[3] = {270, 0, 90};
-		EEntity* arrows[3] = {panel->x_arrow, panel->y_arrow, panel->z_arrow};
-		vec3 rot_axis[3] = {UnitZ, UnitX, UnitX};
+		float Angles[3] = {270, 0, 90};
+		EEntity* Arrows[3] = {Panel->XArrow, Panel->YArrow, Panel->ZArrow};
+		vec3 RotAxis[3] = {UnitZ, UnitX, UnitX};
 
-		auto entity = panel->entity;
+		auto Entity = Panel->Entity;
 
-		if (panel->reverse_scale)
+		if (Panel->ReverseScale)
 		{
-			for (int i = 0; i < 3; i++)
-				angles[i] += 180;
+			for (int I = 0; I < 3; I++)
+				Angles[I] += 180;
 		}
 
 		// update arrow mat models doing correct matrix multiplication order
-		auto starting_model = translate(Mat4Identity, entity->position);
-		starting_model = rotate(starting_model, glm::radians(entity->rotation.x), UnitX);
-		starting_model = rotate(starting_model, glm::radians(entity->rotation.y), UnitY);
-		starting_model = rotate(starting_model, glm::radians(entity->rotation.z), UnitZ);
+		auto StartingModel = translate(Mat4Identity, Entity->Position);
+		StartingModel = rotate(StartingModel, glm::radians(Entity->Rotation.x), UnitX);
+		StartingModel = rotate(StartingModel, glm::radians(Entity->Rotation.y), UnitY);
+		StartingModel = rotate(StartingModel, glm::radians(Entity->Rotation.z), UnitZ);
 
-		float scale_value = GetGizmoScalingFactor(entity, 0.8, 3.0);
+		float ScaleValue = GetGizmoScalingFactor(Entity, 0.8, 3.0);
 
 		for (int i = 0; i < 3; i++)
 		{
-			auto arrow = arrows[i];
-			auto model = rotate(starting_model, glm::radians(angles[i]), rot_axis[i]);
-			model = scale(model, vec3(scale_value));
-			arrow->mat_model = model;
-			arrow->UpdateCollider();
-			arrow->UpdateBoundingBox();
+			auto Arrow = Arrows[i];
+			auto Model = rotate(StartingModel, glm::radians(Angles[i]), RotAxis[i]);
+			Model = scale(Model, vec3(ScaleValue));
+			Arrow->MatModel = Model;
+			Arrow->UpdateCollider();
+			Arrow->UpdateBoundingBox();
 		}
 	}
 
 
-	void UpdateEntityRotationGizmo(REntityPanelContext* panel)
+	void UpdateEntityRotationGizmo(REntityPanelContext* Panel)
 	{
 		// arrow positioning settings
-		float angles[3] = {270, 0, 90};
-		vec3 rot_axis[3] = {UnitZ, UnitX, UnitX};
-		EEntity* gizmos[3] = {panel->rotation_gizmo_x, panel->rotation_gizmo_y, panel->rotation_gizmo_z};
+		float Angles[3] = {270, 0, 90};
+		vec3 RotAxis[3] = {UnitZ, UnitX, UnitX};
+		EEntity* Gizmos[3] = {Panel->RotationGizmoX, Panel->RotationGizmoY, Panel->RotationGizmoZ};
 
-		auto entity = panel->entity;
+		auto Entity = Panel->Entity;
 
 		// update arrow mat models doing correct matrix multiplication order
-		auto starting_model = translate(Mat4Identity, entity->bounding_box.GetCentroid());
+		auto StartingModel = translate(Mat4Identity, Entity->BoundingBox.GetCentroid());
 
-		float scale_value = GetGizmoScalingFactor(entity, 1.0, 3.0);
+		float ScaleValue = GetGizmoScalingFactor(Entity, 1.0, 3.0);
 
 		for (int i = 0; i < 3; i++)
 		{
-			auto model = rotate(starting_model, glm::radians(angles[i]), rot_axis[i]);
-			model = scale(model, vec3(scale_value));
-			gizmos[i]->mat_model = model;
-			gizmos[i]->UpdateCollider();
-			gizmos[i]->UpdateBoundingBox();
+			auto Model = rotate(StartingModel, glm::radians(Angles[i]), RotAxis[i]);
+			Model = scale(Model, vec3(ScaleValue));
+			Gizmos[i]->MatModel = Model;
+			Gizmos[i]->UpdateCollider();
+			Gizmos[i]->UpdateBoundingBox();
 		}
 	}
 
 
-	void RenderEntityMeshNormals(REntityPanelContext* panel)
+	void RenderEntityMeshNormals(REntityPanelContext* Panel)
 	{
 		// only for aabb
-		auto entity = panel->entity;
+		auto Entity = Panel->Entity;
 
-		int triangles = entity->mesh->indices.size() / 3;
-		for (int i = 0; i < triangles; i++)
+		int Triangles = Entity->Mesh->Indices.size() / 3;
+		for (int i = 0; i < Triangles; i++)
 		{
-			RTriangle _t = get_triangle_for_indexed_mesh(entity->mesh, entity->mat_model, i);
-			vec3 normal = triangleNormal(_t.a, _t.b, _t.c);
-			Face f = FaceFromAxisAlignedTriangle(_t);
+			RTriangle Triangle = get_triangle_for_indexed_mesh(Entity->Mesh, Entity->MatModel, i);
+			vec3 Normal = triangleNormal(Triangle.A, Triangle.B, Triangle.C);
+			RFace Face = FaceFromAxisAlignedTriangle(Triangle);
 
-			RImDraw::AddPoint(IMHASH, f.center, 2.0, true);
+			RImDraw::AddPoint(IMHASH, Face.Center, 2.0, true);
 
-			RImDraw::AddLine(IMHASH, f.center, f.center + normal * 2.0f, 2.5, true);
+			RImDraw::AddLine(IMHASH, Face.Center, Face.Center + Normal * 2.0f, 2.5, true);
 		}
 	}
 
-	void CheckSelectionToOpenPanel(EPlayer* player, RWorld* world, RCamera* camera)
+	void CheckSelectionToOpenPanel(EPlayer* Player, RWorld* World, RCamera* Camera)
 	{
 		auto* GII = GlobalInputInfo::Get();
-		auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
-		auto test = world->Raycast(pickray, RayCast_TestOnlyVisibleEntities);
-		auto test_light = world->RaycastLights(pickray);
+		auto Pickray = CastPickray(Camera, GII->MouseCoords.X, GII->MouseCoords.Y);
+		auto Test = World->Raycast(Pickray, RayCast_TestOnlyVisibleEntities);
+		auto TestLight = World->RaycastLights(Pickray);
 
-		if (test.hit && (!test_light.hit || test_light.distance > test.distance))
+		if (Test.Hit && (!TestLight.Hit || TestLight.Distance > Test.Distance))
 		{
-			OpenEntityPanel(test.entity);
+			OpenEntityPanel(Test.Entity);
 		}
-		else if (test_light.hit)
-			OpenLightsPanel(test_light.obj_hit_type, test_light.obj_hit_index, true);
+		else if (TestLight.Hit)
+			OpenLightsPanel(TestLight.ObjHitType, TestLight.ObjHitIndex, true);
 	}
 
 
-	void CheckSelectionToSelectRelatedEntity(RWorld* world, RCamera* camera)
+	void CheckSelectionToSelectRelatedEntity(RWorld* World, RCamera* Camera)
 	{
 		auto* GII = GlobalInputInfo::Get();
-		auto& ed_context = *GetContext();
+		auto& EdContext = *GetContext();
 
-		auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
-		auto test = world->Raycast(pickray, RayCast_TestOnlyVisibleEntities);
-		if (test.hit)
+		auto Pickray = CastPickray(Camera, GII->MouseCoords.X, GII->MouseCoords.Y);
+		auto Test = World->Raycast(Pickray, RayCast_TestOnlyVisibleEntities);
+		if (Test.Hit)
 		{
-			ed_context.select_entity_aux_mode = false;
-			*ed_context.select_entity_aux_mode_entity_slot = test.entity;
+			EdContext.SelectEntityAuxMode = false;
+			*EdContext.SelectEntityAuxModeEntitySlot = Test.Entity;
 
-			if (ed_context.select_entity_aux_mode_callback != EdToolCallback_NoCallback)
+			if (EdContext.SelectEntityAuxModeCallback != EdToolCallback_NoCallback)
 			{
-				switch (ed_context.select_entity_aux_mode_callback)
+				switch (EdContext.SelectEntityAuxModeCallback)
 				{
 					case EdToolCallback_EntityManagerSetType:
 					{
 						// EM->SetType(
-						// 	*ed_context.select_entity_aux_mode_entity_slot,
-						// 	ed_context.select_entity_aux_mode_callback_args.entity_type
+						// 	*EdContext.select_entity_aux_mode_entity_slot,
+						// 	EdContext.select_entity_aux_mode_callback_args.entity_type
 						// );
 						break;
 					}
@@ -1227,34 +1121,34 @@ namespace Editor
 	}
 
 
-	void CheckSelectionToMoveEntity(RWorld* world, RCamera* camera)
+	void CheckSelectionToMoveEntity(RWorld* World, RCamera* Camera)
 	{
 		auto* GII = GlobalInputInfo::Get();
 
-		auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
-		auto test = world->Raycast(pickray, RayCast_TestOnlyVisibleEntities);
-		auto test_light = world->RaycastLights(pickray);
-		if (test.hit && (!test_light.hit || test_light.distance > test.distance))
-			ActivateMoveMode(test.entity);
-		else if (test_light.hit)
-			ActivateMoveLightMode(test_light.obj_hit_type, test_light.obj_hit_index);
+		auto Pickray = CastPickray(Camera, GII->MouseCoords.X, GII->MouseCoords.Y);
+		auto Test = World->Raycast(Pickray, RayCast_TestOnlyVisibleEntities);
+		auto TestLight = World->RaycastLights(Pickray);
+		if (Test.Hit && (!TestLight.Hit || TestLight.Distance > Test.Distance))
+			ActivateMoveMode(Test.Entity);
+		else if (TestLight.Hit)
+			ActivateMoveLightMode(TestLight.ObjHitType, TestLight.ObjHitIndex);
 	}
 
 
-	bool CheckSelectionToGrabEntityArrows(RCamera* camera)
+	bool CheckSelectionToGrabEntityArrows(RCamera* Camera)
 	{
 		auto* GII = GlobalInputInfo::Get();
-		auto& ed_context = *GetContext();
+		auto& EdContext = *GetContext();
 
-		auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
-		RRaycastTest test;
+		auto Pickray = CastPickray(Camera, GII->MouseCoords.X, GII->MouseCoords.Y);
+		RRaycastTest Test;
 
-		EEntity* arrows[3] = {ed_context.entity_panel.x_arrow, ed_context.entity_panel.y_arrow, ed_context.entity_panel.z_arrow};
+		EEntity* Arrows[3] = {EdContext.EntityPanel.XArrow, EdContext.EntityPanel.YArrow, EdContext.EntityPanel.ZArrow};
 
 		For(3)
 		{
-			test = CL_TestAgainstRay(pickray, arrows[i]);
-			if (test.hit)
+			Test = ClTestAgainstRay(Pickray, Arrows[i]);
+			if (Test.Hit)
 			{
 				ActivateMoveEntityByArrow(i + 1);
 				return true;
@@ -1265,24 +1159,24 @@ namespace Editor
 	}
 
 
-	bool CheckSelectionToGrabEntityRotationGizmo(RCamera* camera)
+	bool CheckSelectionToGrabEntityRotationGizmo(RCamera* Camera)
 	{
 		auto* GII = GlobalInputInfo::Get();
-		auto& ed_context = *GetContext();
+		auto& EdContext = *GetContext();
 
-		auto pickray = CastPickray(camera, GII->mouse_coords.x, GII->mouse_coords.y);
-		RRaycastTest test;
+		auto Pickray = CastPickray(Camera, GII->MouseCoords.X, GII->MouseCoords.Y);
+		RRaycastTest Test;
 
-		EEntity* rot_gizmos[3] = {
-		ed_context.entity_panel.rotation_gizmo_x,
-		ed_context.entity_panel.rotation_gizmo_y,
-		ed_context.entity_panel.rotation_gizmo_z
+		EEntity* RotGizmos[3] = {
+		EdContext.EntityPanel.RotationGizmoX,
+		EdContext.EntityPanel.RotationGizmoY,
+		EdContext.EntityPanel.RotationGizmoZ
 		};
 
 		For(3)
 		{
-			test = CL_TestAgainstRay(pickray, rot_gizmos[i]);
-			if (test.hit)
+			Test = ClTestAgainstRay(Pickray, RotGizmos[i]);
+			if (Test.Hit)
 			{
 				ActivateRotateEntityWithMouse(i + 1);
 				return true;

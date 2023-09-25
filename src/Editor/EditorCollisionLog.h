@@ -11,22 +11,22 @@
 
 struct RCollisionLogEntry
 {
-	EEntity* entity;
-	float penetration;
-	vec3 normal;
+	EEntity* Entity;
+	float Penetration;
+	vec3 Normal;
 };
 
 
 struct RCollisionLog
 {
 	// buffers
-	RCollisionLogEntry* main;
-	RCollisionLogEntry* swap;
-	int write_count = 0;
+	RCollisionLogEntry* Main;
+	RCollisionLogEntry* Swap;
+	int WriteCount = 0;
 	// window
-	RCollisionLogEntry* read;
-	RCollisionLogEntry* write;
-	const u32 window_size = COLLISION_LOG_CAPACITY;
+	RCollisionLogEntry* Read;
+	RCollisionLogEntry* Write;
+	const u32 WindowSize = COLLISION_LOG_CAPACITY;
 };
 
 
@@ -39,74 +39,74 @@ struct RCollisionLog
 // };
 
 //@TODO
-extern RCollisionLog* COLLISION_LOG;
+extern RCollisionLog* CollisionLog;
 
-inline void CL_log_collision(CL_Results data, int iteration)
+inline void ClLogCollision(CL_Results Data, int Iteration)
 {
-	auto& log = COLLISION_LOG;
-	if(log->write_count == COLLISION_LOG_CAPACITY)
+	auto& Log = CollisionLog;
+	if (Log->WriteCount == COLLISION_LOG_CAPACITY)
 	{
 		// swap buffers
-		if(log->read == log->write)
+		if (Log->Read == Log->Write)
 		{
 			//log->move_window = true;
-			log->write = log->swap;
+			Log->Write = Log->Swap;
 		}
 		else
 		{
-			auto temp = log->read;
-			log->read = log->write;
-			log->write = temp;
+			auto Temp = Log->Read;
+			Log->Read = Log->Write;
+			Log->Write = Temp;
 		}
 
-		log->write_count = 0;
+		Log->WriteCount = 0;
 	}
 
-	RCollisionLogEntry entry;
-	entry.entity = data.entity;
-	entry.penetration = data.penetration;
-	entry.normal = data.normal;
-	log->write[log->write_count++] = entry;
+	RCollisionLogEntry Entry;
+	Entry.Entity = Data.entity;
+	Entry.Penetration = Data.penetration;
+	Entry.Normal = Data.normal;
+	Log->Write[Log->WriteCount++] = Entry;
 }
 
 
-inline RCollisionLogEntry* CL_read_collision_log_entry(int i)
+inline RCollisionLogEntry* ClReadCollisionLogEntry(int Index)
 {
-	auto& log = COLLISION_LOG;
+	auto& Log = CollisionLog;
 
 	// out of bounds check
-	if(i >= COLLISION_LOG_CAPACITY)
+	if (Index >= COLLISION_LOG_CAPACITY)
 		return nullptr;
 
 	// we are not using swap buffers yet
-	if(log->read == log->write)
-		return log->read + i;
+	if (Log->Read == Log->Write)
+		return Log->Read + Index;
 
-	int read_offset = log->write_count;
+	int ReadOffset = Log->WriteCount;
 	// we need to read from the read buffer
-	if(read_offset + i < COLLISION_LOG_CAPACITY)
-		return log->read + (read_offset + i);
+	if (ReadOffset + Index < COLLISION_LOG_CAPACITY)
+		return Log->Read + (ReadOffset + Index);
 
 	// we need to read from the write buffer
-	int write_offset = COLLISION_LOG_CAPACITY - read_offset;
-	return log->write + (i - write_offset);
+	int WriteOffset = COLLISION_LOG_CAPACITY - ReadOffset;
+	return Log->Write + (Index - WriteOffset);
 }
 
 
-inline RCollisionLog* CL_allocate_collision_log()
+inline RCollisionLog* ClAllocateCollisionLog()
 {
-	u32 size = COLLISION_LOG_CAPACITY;
-	auto collision_log = new RCollisionLog;
-	collision_log->main = static_cast<RCollisionLogEntry*>(malloc(sizeof(RCollisionLogEntry) * size * 2));
-	collision_log->swap = collision_log->main + size;
+	u32 Size = COLLISION_LOG_CAPACITY;
+	auto CollisionLog = new RCollisionLog;
+	CollisionLog->Main = static_cast<RCollisionLogEntry*>(malloc(sizeof(RCollisionLogEntry) * Size * 2));
+	CollisionLog->Swap = CollisionLog->Main + Size;
 
 	// initializes memory
-	for(int i = 0; i < size * 2; i++)
+	for (int i = 0; i < Size * 2; i++)
 		collision_log->main[i] = RCollisionLogEntry{NULL};
 
 	// set ptrs
-	collision_log->read = collision_log->main;
-	collision_log->write = collision_log->main;
+	CollisionLog->Read = CollisionLog->Main;
+	CollisionLog->Write = CollisionLog->Main;
 
-	return collision_log;
+	return CollisionLog;
 }

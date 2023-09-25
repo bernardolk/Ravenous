@@ -10,50 +10,50 @@
 
 namespace Editor
 {
-	void RenderToolbar(RWorld* world)
+	void RenderToolbar(RWorld* World)
 	{
-		auto& ed_context = *GetContext();
+		auto& EdContext = *GetContext();
 
-		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayState::viewport_width - 230, 180), ImGuiCond_Appearing);
-		ImGui::Begin("Tools", &ed_context.toolbar_active, ImGuiWindowFlags_AlwaysAutoResize);
+		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayState::ViewportWidth - 230, 180), ImGuiCond_Appearing);
+		ImGui::Begin("Tools", &EdContext.ToolbarActive, ImGuiWindowFlags_AlwaysAutoResize);
 
-		string scene_name = "Scene name: " + RWorld::Get()->scene_name;
-		ImGui::Text(scene_name.c_str());
+		string SceneName = "Scene name: " + RWorld::Get()->SceneName;
+		ImGui::Text(SceneName.c_str());
 		ImGui::NewLine();
 
-		ImGui::InputFloat("##timestep", &world->GetFrameData().time_step, 0.5, 1.0, "Timestep = %.1f x");
+		ImGui::InputFloat("##timestep", &World->GetFrameData().TimeStep, 0.5, 1.0, "Timestep = %.1f x");
 
 		ImGui::NewLine();
 
 		// GLOBAL CONFIGS
 		{
-			bool track = false;
+			bool Track = false;
 
 			ImGui::Text("Cam speed");
-			ImGui::DragFloat("##camspeed", &RCameraManager::Get()->GetCurrentCamera()->acceleration, 0.1, 0.2, MaxFloat);
-			track = track || ImGui::IsItemDeactivatedAfterEdit();
+			ImGui::DragFloat("##camspeed", &RCameraManager::Get()->GetCurrentCamera()->Acceleration, 0.1, 0.2, MaxFloat);
+			Track = Track || ImGui::IsItemDeactivatedAfterEdit();
 
 			// Ambient light control
 			ImGui::Text("Ambient light");
-			auto ambient = world->ambient_light;
-			float colors[3] = {ambient.x, ambient.y, ambient.z};
-			if (ImGui::ColorEdit3("##ambient-color", colors))
+			auto Ambient = World->AmbientLight;
+			float Colors[3] = {Ambient.x, Ambient.y, Ambient.z};
+			if (ImGui::ColorEdit3("##ambient-color", Colors))
 			{
-				world->ambient_light = vec3{colors[0], colors[1], colors[2]};
+				World->AmbientLight = vec3{Colors[0], Colors[1], Colors[2]};
 			}
-			track = track || ImGui::IsItemDeactivatedAfterEdit();
+			Track = Track || ImGui::IsItemDeactivatedAfterEdit();
 
-			ImGui::SliderFloat("##ambient-intensity", &world->ambient_intensity, 0, 1, "intensity = %.2f");
-			track = track || ImGui::IsItemDeactivatedAfterEdit();
+			ImGui::SliderFloat("##ambient-intensity", &World->AmbientIntensity, 0, 1, "intensity = %.2f");
+			Track = Track || ImGui::IsItemDeactivatedAfterEdit();
 
 			// save to file changes in config variables
-			if (track)
+			if (Track)
 			{
-				auto& program_config = *ProgramConfig::Get();
-				program_config.camspeed = RCameraManager::Get()->GetCurrentCamera()->acceleration;
-				program_config.ambient_intensity = world->ambient_intensity;
-				program_config.ambient_light = world->ambient_light;
-				ConfigSerializer::Save(program_config);
+				auto& ProgramConfig = *ProgramConfig::Get();
+				ProgramConfig.Camspeed = RCameraManager::Get()->GetCurrentCamera()->Acceleration;
+				ProgramConfig.AmbientIntensity = World->AmbientIntensity;
+				ProgramConfig.AmbientLight = World->AmbientLight;
+				ConfigSerializer::Save(ProgramConfig);
 			}
 
 			ImGui::NewLine();
@@ -62,29 +62,29 @@ namespace Editor
 		// PANELS
 		if (ImGui::Button("Scene objects", ImVec2(150, 18)))
 		{
-			ed_context.scene_objects_panel.active = true;
+			EdContext.SceneObjectsPanel.Active = true;
 		}
 
 		if (ImGui::Button("Entity Palette", ImVec2(150, 18)))
 		{
-			ed_context.palette_panel.active = true;
+			EdContext.PalettePanel.Active = true;
 		}
 
 		if (ImGui::Button("World Panel", ImVec2(150, 18)))
 		{
-			ed_context.world_panel.active = true;
-			ed_context.show_world_cells = true;
+			EdContext.WorldPanel.Active = true;
+			EdContext.ShowWorldCells = true;
 		}
 
 		if (ImGui::Button("Lights Panel", ImVec2(150, 18)))
 		{
-			ed_context.lights_panel.active = true;
-			ed_context.show_lightbulbs = true;
+			EdContext.LightsPanel.Active = true;
+			EdContext.ShowLightbulbs = true;
 		}
 
 		if (ImGui::Button("Input Recorder", ImVec2(150, 18)))
 		{
-			ed_context.input_recorder_panel.active = true;
+			EdContext.InputRecorderPanel.Active = true;
 		}
 
 		ImGui::NewLine();
@@ -116,24 +116,24 @@ namespace Editor
 
 
 		// SHOW STUFF
-		ImGui::Checkbox("Show Event Triggers", &ed_context.show_event_triggers);
-		ImGui::Checkbox("Show World Cells", &ed_context.show_world_cells);
-		ImGui::Checkbox("Show Point Lights", &ed_context.show_lightbulbs);
+		ImGui::Checkbox("Show Event Triggers", &EdContext.ShowEventTriggers);
+		ImGui::Checkbox("Show World Cells", &EdContext.ShowWorldCells);
+		ImGui::Checkbox("Show Point Lights", &EdContext.ShowLightbulbs);
 		ImGui::NewLine();
 		if (ImGui::Button("Unhide entities"))
 		{
-			UnhideEntities(world);
+			UnhideEntities(World);
 		}
 
 		// OPTIONS
 		if (ImGui::Button("Collision Logger", ImVec2(150, 18)))
 		{
-			ed_context.collision_log_panel.active = true;
+			EdContext.CollisionLogPanel.Active = true;
 		}
 
 		// DEBUG OPTIONS
 		ImGui::Text("Debug options");
-		ImGui::Checkbox("Ledge detection", &ed_context.debug_ledge_detection);
+		ImGui::Checkbox("Ledge detection", &EdContext.DebugLedgeDetection);
 
 		ImGui::End();
 	}

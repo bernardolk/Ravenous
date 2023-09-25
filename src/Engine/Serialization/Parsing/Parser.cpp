@@ -1,28 +1,25 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#include <vector>
-#include <iostream>
 #include <engine/core/types.h>
-#include "engine/core/logging.h"
 #include <engine/serialization/parsing/parser.h>
 
 bool Parser::NextLine()
 {
-	if (getline(reader, p.string))
+	if (getline(Reader, P.String))
 	{
-		p.size = p.string.size();
-		line_count++;
+		P.Size = P.String.size();
+		LineCount++;
 		return true;
 	}
 
-	reader.close();
+	Reader.close();
 	return false;
 }
 
 bool Parser::HasToken() const
 {
-	return p.has_token;
+	return P.HasToken;
 }
 
 
@@ -30,11 +27,11 @@ void Parser::ParseWhitespace()
 {
 	ClearParseBuffer();
 
-	if (p.string[0] == ' ')
+	if (P.String[0] == ' ')
 	{
-		p.i_token = 1;
-		p.AdvanceChar();
-		p.has_token = 1;
+		P.IToken = 1;
+		P.AdvanceChar();
+		P.HasToken = 1;
 	}
 }
 
@@ -45,18 +42,18 @@ void Parser::ParseAllWhitespace()
 	do
 	{
 		ParseWhitespace();
-	} while (p.has_token);
+	} while (P.HasToken);
 }
 
 void Parser::ParseLetter()
 {
 	ClearParseBuffer();
 
-	if (isalpha(p.string[0]))
+	if (isalpha(P.String[0]))
 	{
-		p.c_token = p.string[0];
-		p.AdvanceChar();
-		p.has_token = 1;
+		P.CToken = P.String[0];
+		P.AdvanceChar();
+		P.HasToken = 1;
 	}
 }
 
@@ -64,12 +61,12 @@ void Parser::ParseSymbol()
 {
 	ClearParseBuffer();
 
-	const auto c = p.string[0];
-	if (isgraph(c) && !isalnum(c) && c != ' ')
+	const auto Char = P.String[0];
+	if (isgraph(Char) && !isalnum(Char) && Char != ' ')
 	{
-		p.c_token = c;
-		p.AdvanceChar();
-		p.has_token = 1;
+		P.CToken = Char;
+		P.AdvanceChar();
+		P.HasToken = 1;
 	}
 }
 
@@ -78,12 +75,12 @@ void Parser::ParseNameChar()
 	// parses letters, digits, space or underline character
 	ClearParseBuffer();
 
-	const auto c = p.string[0];
-	if (isalnum(c) || c == ' ' || c == '_')
+	const auto Char = P.String[0];
+	if (isalnum(Char) || Char == ' ' || Char == '_')
 	{
-		p.c_token = c;
-		p.AdvanceChar();
-		p.has_token = 1;
+		P.CToken = Char;
+		P.AdvanceChar();
+		P.HasToken = 1;
 	}
 }
 
@@ -92,19 +89,19 @@ void Parser::ParseName()
 	// Names consists of alphanumeric or space chars
 	ClearParseBuffer();
 
-	char string_buffer[50];
-	uint sb_size = 0;
+	char StringBuffer[50];
+	uint BufferSize = 0;
 	do
 	{
 		ParseNameChar();
-		if (p.has_token)
-			string_buffer[sb_size++] = p.c_token;
-	} while (p.has_token);
+		if (P.HasToken)
+			StringBuffer[BufferSize++] = P.CToken;
+	} while (P.HasToken);
 
-	string_buffer[sb_size] = '\0';
-	if (sb_size > 0)
-		p.has_token = 1;
-	strcpy_s(p.string_buffer, &string_buffer[0]);
+	StringBuffer[BufferSize] = '\0';
+	if (BufferSize > 0)
+		P.HasToken = 1;
+	strcpy_s(P.StringBuffer, &StringBuffer[0]);
 }
 
 void Parser::ParseTokenChar()
@@ -112,12 +109,12 @@ void Parser::ParseTokenChar()
 	// parses chars for tokens (without spaces)
 	ClearParseBuffer();
 
-	const auto c = p.string[0];
-	if (isalnum(c) || c == '_' || c == '.')
+	const auto Char = P.String[0];
+	if (isalnum(Char) || Char == '_' || Char == '.')
 	{
-		p.c_token = p.string[0];
-		p.AdvanceChar();
-		p.has_token = 1;
+		P.CToken = P.String[0];
+		P.AdvanceChar();
+		P.HasToken = 1;
 	}
 }
 
@@ -126,47 +123,47 @@ void Parser::ParseToken()
 	// Tokens consists of alphanumeric or '_' or '.' chars
 	ClearParseBuffer();
 
-	char string_buffer[50];
-	uint sb_size = 0;
+	char StringBuffer[50];
+	uint BufferSize = 0;
 	do
 	{
 		ParseTokenChar();
-		if (p.has_token)
-			string_buffer[sb_size++] = p.c_token;
-	} while (p.has_token);
+		if (P.HasToken)
+			StringBuffer[BufferSize++] = P.CToken;
+	} while (P.HasToken);
 
-	string_buffer[sb_size] = '\0';
-	if (sb_size > 0)
-		p.has_token = 1;
-	strcpy_s(p.string_buffer, &string_buffer[0]);
+	StringBuffer[BufferSize] = '\0';
+	if (BufferSize > 0)
+		P.HasToken = 1;
+	strcpy_s(P.StringBuffer, &StringBuffer[0]);
 }
 
 void Parser::ParseInt()
 {
 	ClearParseBuffer();
 
-	uint16 sign = 1;
-	if (p.string[0] == '-')
+	uint16 Sign = 1;
+	if (P.String[0] == '-')
 	{
-		p.AdvanceChar();
-		sign = -1;
+		P.AdvanceChar();
+		Sign = -1;
 	}
-	if (isdigit(p.string[0]))
+	if (isdigit(P.String[0]))
 	{
-		uint16 count = 0;
-		char int_buf[10];
+		uint16 Count = 0;
+		char IntBuf[10];
 
 		do
 		{
-			int_buf[count++] = p.string[0];
-			p.AdvanceChar();
-		} while (isdigit(p.string[0]));
+			IntBuf[Count++] = P.String[0];
+			P.AdvanceChar();
+		} while (isdigit(P.String[0]));
 
-		for (int i = 0; i < count; i++)
-			p.i_token += (int_buf[count - (1 + i)] - '0') * ten_powers[i];
+		for (int i = 0; i < Count; i++)
+			P.IToken += (IntBuf[Count - (1 + i)] - '0') * TenPowers[i];
 
-		p.i_token *= sign;
-		p.has_token = 1;
+		P.IToken *= Sign;
+		P.HasToken = 1;
 	}
 }
 
@@ -174,20 +171,20 @@ void Parser::ParseUint()
 {
 	ClearParseBuffer();
 
-	if (isdigit(p.string[0]))
+	if (isdigit(P.String[0]))
 	{
-		uint16 count = 0;
-		char int_buf[10];
+		uint16 Count = 0;
+		char IntBuf[10];
 		do
 		{
-			int_buf[count++] = p.string[0];
-			p.AdvanceChar();
-		} while (isdigit(p.string[0]));
+			IntBuf[Count++] = P.String[0];
+			P.AdvanceChar();
+		} while (isdigit(P.String[0]));
 
-		for (int i = 0; i < count; i++)
-			p.ui_token += (int_buf[count - (1 + i)] - '0') * ten_powers[i];
+		for (int i = 0; i < Count; i++)
+			P.UiToken += (IntBuf[Count - (1 + i)] - '0') * TenPowers[i];
 
-		p.has_token = 1;
+		P.HasToken = 1;
 	}
 }
 
@@ -195,20 +192,20 @@ void Parser::ParseU64()
 {
 	ClearParseBuffer();
 
-	if (isdigit(p.string[0]))
+	if (isdigit(P.String[0]))
 	{
-		uint16 count = 0;
-		char int_buf[15];
+		uint16 Count = 0;
+		char IntBuf[15];
 		do
 		{
-			int_buf[count++] = p.string[0];
-			p.AdvanceChar();
-		} while (isdigit(p.string[0]) && count < 15);
+			IntBuf[Count++] = P.String[0];
+			P.AdvanceChar();
+		} while (isdigit(P.String[0]) && Count < 15);
 
-		for (int i = 0; i < count; i++)
-			p.u64_token += (int_buf[count - (1 + i)] - '0') * ten_powers[i];
+		for (int i = 0; i < Count; i++)
+			P.U64Token += (IntBuf[Count - (1 + i)] - '0') * TenPowers[i];
 
-		p.has_token = 1;
+		P.HasToken = 1;
 	}
 }
 
@@ -216,43 +213,43 @@ void Parser::ParseFloat()
 {
 	ClearParseBuffer();
 
-	char int_buf[10]{};
-	float sign = 1.f;
+	char IntBuf[10]{};
+	float Sign = 1.f;
 
-	if (p.string[0] == '-')
+	if (P.String[0] == '-')
 	{
-		p.AdvanceChar();
-		sign = -1.f;
+		P.AdvanceChar();
+		Sign = -1.f;
 	}
 
-	int count = 0;
-	int fcount = 0;
-	char float_buf[10];
-	while (isdigit(p.string[0]))
+	int Count = 0;
+	int FCount = 0;
+	char FloatBuf[10];
+	while (isdigit(P.String[0]))
 	{
-		int_buf[count++] = p.string[0];
-		p.AdvanceChar();
+		IntBuf[Count++] = P.String[0];
+		P.AdvanceChar();
 	}
 
-	if (p.string[0] == '.')
+	if (P.String[0] == '.')
 	{
-		p.AdvanceChar();
-		while (isdigit(p.string[0]))
+		P.AdvanceChar();
+		while (isdigit(P.String[0]))
 		{
-			float_buf[fcount++] = p.string[0];
-			p.AdvanceChar();
+			FloatBuf[FCount++] = P.String[0];
+			P.AdvanceChar();
 		}
 	}
 
 	//@TODO: We are losing precision here. Investigate at some point.
-	for (int i = 0; i < count; i ++)
-		p.f_token += (int_buf[count - (1 + i)] - '0') * ten_powers[i];
+	for (int i = 0; i < Count; i ++)
+		P.FToken += (IntBuf[Count - (1 + i)] - '0') * TenPowers[i];
 
-	for (int i = 0; i < fcount; i ++)
-		p.f_token += (float_buf[i] - '0') * ten_inverse_powers[i];
+	for (int i = 0; i < FCount; i ++)
+		P.FToken += (FloatBuf[i] - '0') * TenInversePowers[i];
 
-	p.f_token *= sign;
-	p.has_token = 1;
+	P.FToken *= Sign;
+	P.HasToken = 1;
 
 }
 
@@ -262,25 +259,25 @@ void Parser::ParseVec3()
 
 	ParseAllWhitespace();
 	ParseFloat();
-	if (!p.has_token)
+	if (!P.HasToken)
 		return;
-	const float x = p.f_token;
+	const float X = P.FToken;
 
 	ParseAllWhitespace();
 	ParseFloat();
-	if (!p.has_token)
+	if (!P.HasToken)
 		return;
-	const float y = p.f_token;
+	const float Y = P.FToken;
 
 	ParseAllWhitespace();
 	ParseFloat();
-	if (!p.has_token)
+	if (!P.HasToken)
 		return;
-	const float z = p.f_token;
+	const float Z = P.FToken;
 
-	p.vec3[0] = x;
-	p.vec3[1] = y;
-	p.vec3[2] = z;
+	P.Vec3[0] = X;
+	P.Vec3[1] = Y;
+	P.Vec3[2] = Z;
 }
 
 void Parser::ParseVec2()
@@ -289,21 +286,21 @@ void Parser::ParseVec2()
 
 	ParseAllWhitespace();
 	ParseFloat();
-	if (!p.has_token)
+	if (!P.HasToken)
 		return;
-	const float u = p.f_token;
+	const float U = P.FToken;
 
 	ParseAllWhitespace();
 	ParseFloat();
-	if (!p.has_token)
+	if (!P.HasToken)
 		return;
-	const float v = p.f_token;
+	const float V = P.FToken;
 
-	p.vec2[0] = u;
-	p.vec2[1] = v;
+	P.Vec2[0] = U;
+	P.Vec2[1] = V;
 }
 
 void Parser::ClearParseBuffer()
 {
-	p = ParseUnit{.string = p.string, .size = p.size};
+	P = ParseUnit{.String = P.String, .Size = P.Size};
 }

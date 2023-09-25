@@ -7,14 +7,15 @@
 struct EEntity;
 struct RRaycastTest
 {
-	bool hit = false;
-	float distance = 0;
-	EEntity* entity = nullptr;
-	int obj_hit_index = -1;
-	std::string obj_hit_type{};
-	RRay ray{};
-	RTriangle t{};
-	uint16 t_index = 0;
+	bool Hit = false;
+	float Distance = 0;
+	EEntity* Entity = nullptr;
+	int ObjHitIndex = -1;
+	
+	string ObjHitType;
+	RRay Ray;
+	RTriangle Triangle;
+	uint16 TriangleIndex = 0;
 };
 
 enum NRayCastType
@@ -24,11 +25,11 @@ enum NRayCastType
 	RayCast_TestOnlyVisibleEntities = 2
 };
 
-RRay CastPickray(RCamera* camera, double screen_x, double screen_y);
-RRaycastTest CL_TestAgainstRay(RRay ray, EEntity* entity, NRayCastType test_type, float max_distance);
-RRaycastTest CL_TestAgainstRay(RRay ray, EEntity* entity);
-RRaycastTest CL_TestAgainstRay(RRay ray, RMesh* mesh, glm::mat4 mat_model, NRayCastType test_type);
-RRaycastTest CL_TestAgainstRay(RRay ray, RTriangle triangle, bool test_both_sides = true);
-RRaycastTest CL_TestAgainstRay(RRay ray, RCollisionMesh* collider, NRayCastType test_type);
-vec3 CL_GetPointFromDetection(RRay ray, RRaycastTest result);
-bool CL_TestAgainstRay(RRay ray, RBoundingBox box);
+RRay CastPickray(RCamera* Camera, double ScreenX, double ScreenY);
+RRaycastTest ClTestAgainstRay(RRay Ray, EEntity* Entity, NRayCastType TestType, float MaxDistance);
+RRaycastTest ClTestAgainstRay(RRay Ray, EEntity* Entity);
+RRaycastTest ClTestAgainstRay(RRay Ray, RMesh* Mesh, glm::mat4 MatModel, NRayCastType TestType);
+RRaycastTest ClTestAgainstRay(RRay Ray, RTriangle Triangle, bool TestBothSides = true);
+RRaycastTest ClTestAgainstRay(RRay Ray, RCollisionMesh* Collider, NRayCastType TestType);
+vec3 ClGetPointFromDetection(RRay Ray, RRaycastTest Result);
+bool ClTestAgainstRay(RRay Ray, RBoundingBox Box);

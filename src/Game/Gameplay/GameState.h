@@ -6,12 +6,11 @@
 struct RGameState
 {
 	DeclSingleton(RGameState)
-	
 	// Timed events (timers)
-	constexpr static uint timers_array_size = 64;
+	constexpr static uint TimersArraySize = 64;
 
-	REntityAnimationKeyframe tmp_kf;
+	REntityAnimationKeyframe TmpKf;
 
-	void StartTimer(EEntity* trigger);
+	void StartTimer(EEntity* Trigger);
 	void UpdateTimers();
 };

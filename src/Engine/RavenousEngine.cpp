@@ -9,39 +9,38 @@ void RavenousEngine::Initialize()
 
 void RavenousEngine::StartFrame()
 {
-	float current_frame_time = Platform::GetCurrentTime();
-	auto& frame = REngineRuntimeState::Get()->frame;
-	
-	frame.real_duration = current_frame_time - frame.last_frame_time;
-	frame.duration = frame.real_duration * frame.time_step;
-	frame.last_frame_time = current_frame_time;
+	float CurrentFrameTime = Platform::GetCurrentTime();
+	auto& Frame = REngineRuntimeState::Get()->Frame;
+
+	Frame.RealDuration = CurrentFrameTime - Frame.LastFrameTime;
+	Frame.Duration = Frame.RealDuration * Frame.TimeStep;
+	Frame.LastFrameTime = CurrentFrameTime;
 
 	// @TODO: Can't remember why this is important...
 	// forces framerate for simulation to be small
-	if (frame.duration > 0.02f)
+	if (Frame.Duration > 0.02f)
 	{
-		frame.duration = 0.02f;
+		Frame.Duration = 0.02f;
 	}
 
-	frame.sub_second_counter += frame.real_duration;
-	frame.fps_counter += 1;
-	if (frame.sub_second_counter > 1)
+	Frame.SubSecondCounter += Frame.RealDuration;
+	Frame.FpsCounter += 1;
+	if (Frame.SubSecondCounter > 1)
 	{
-		frame.fps = frame.fps_counter;
-		frame.fps_counter = 0;
-		frame.sub_second_counter -= 1;
+		Frame.Fps = Frame.FpsCounter;
+		Frame.FpsCounter = 0;
+		Frame.SubSecondCounter -= 1;
 	}
 }
 
 float RavenousEngine::GetFrameDuration()
 {
-	return REngineRuntimeState::Get()->frame.duration;	
+	return REngineRuntimeState::Get()->Frame.Duration;
 }
 
 RavenousEngine::RFrameData& RavenousEngine::GetFrame()
 {
-	return REngineRuntimeState::Get()->frame;	
+	return REngineRuntimeState::Get()->Frame;
 }
 
 RavenousEngine::REngineRuntimeState::REngineRuntimeState() = default;
-

@@ -4,6 +4,6 @@
 
 namespace Editor
 {
-	void RenderPlayerPanel(struct RPlayerPanelContext* panel);
-	void OpenPlayerPanel(EPlayer* player);
+	void RenderPlayerPanel(struct RPlayerPanelContext* Panel);
+	void OpenPlayerPanel(EPlayer* Player);
 }

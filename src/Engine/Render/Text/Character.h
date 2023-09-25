@@ -1,9 +1,9 @@
 #pragma once
 
-struct Character
+struct RCharacter
 {
-	uint texture_id;     // ID handle of the glyph texture
-	uint advance;        // Offset to advance to next glyph
-	glm::ivec2 size;    // Size of glyph
-	glm::ivec2 bearing; // Offset from baseline to left/top of glyph
+	uint TextureID;    // ID handle of the glyph texture
+	uint Advance;       // Offset to advance to next glyph
+	glm::ivec2 Size;    // Size of glyph
+	glm::ivec2 Bearing; // Offset from baseline to left/top of glyph
 };

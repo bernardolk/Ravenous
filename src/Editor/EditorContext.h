@@ -15,106 +15,106 @@ namespace Editor
 
 	struct REditorToolCallbackArgs
 	{
-		EEntity* entity;
+		EEntity* Entity;
 	};
 
 	struct REditorContext
 	{
 		DeclSingleton(REditorContext)
 		
-		struct ImGuiStyle* im_style;
+		struct ImGuiStyle* ImStyle = nullptr;
 
 		// scene tracking
-		std::string last_frame_scene;
+		string LastFrameScene;
 
 		// undo stack
-		RUndoStack undo_stack;
+		RUndoStack UndoStack;
 
 		// deletion log
-		RDeletedEntityLog deletion_log;
+		RDeletedEntityLog DeletionLog;
 
 		// panels
-		RSceneObjectsPanelContext scene_objects_panel;
-		REntityPanelContext entity_panel;
-		RPlayerPanelContext player_panel;
-		RWorldPanelContext world_panel;
-		RPalettePanelContext palette_panel;
-		RLightsPanelContext lights_panel;
-		RCollisionLogPanelContext collision_log_panel;
-		RInputRecorderPanelContext input_recorder_panel;
+		RSceneObjectsPanelContext SceneObjectsPanel;
+		REntityPanelContext EntityPanel;
+		RPlayerPanelContext PlayerPanel;
+		RWorldPanelContext WorldPanel;
+		RPalettePanelContext PalettePanel;
+		RLightsPanelContext LightsPanel;
+		RCollisionLogPanelContext CollisionLogPanel;
+		RInputRecorderPanelContext InputRecorderPanel;
 
 		// toolbar
-		bool toolbar_active = true;
+		bool ToolbarActive = true;
 
 		// general mode controls
-		bool mouse_click = false;
-		bool mouse_dragging = false;
+		bool MouseClick = false;
+		bool MouseDragging = false;
 
-		EEntity* selected_entity = nullptr;
+		EEntity* SelectedEntity = nullptr;
 
 		// move mode
-		bool move_mode = false;
-		bool scale_on_drop = false;
-		uint8 move_axis = 0;
+		bool MoveMode = false;
+		bool ScaleOnDrop = false;
+		uint8 MoveAxis = 0;
 
 		// move entity by arrows
-		bool move_entity_by_arrows = false;
-		vec3 move_entity_by_arrows_ref_point = vec3(0);
+		bool MoveEntityByArrows = false;
+		vec3 MoveEntityByArrowsRefPoint = vec3(0);
 
 		// rotate entity with mouse
-		bool rotate_entity_with_mouse = false;
-		vec2 rotate_entity_with_mouse_mouse_coords_ref = vec2(0);
+		bool RotateEntityWithMouse = false;
+		vec2 RotateEntityWithMouseMouseCoordsRef = vec2(0);
 
 		// place mode
-		bool place_mode = false;
+		bool PlaceMode = false;
 
 		// move light @todo: will disappear!
-		std::string selected_light_type = "";
-		int selected_light = -1;
+		string SelectedLightType = "";
+		int SelectedLight = -1;
 
 		// scale mode
-		bool scale_entity_with_mouse = false;
+		bool ScaleEntityWithMouse = false;
 
 		// measure mode
-		bool measure_mode = false;
-		uint8 measure_axis = 0; // x,y,z == 0,1,2
-		vec3 measure_from;
-		bool first_point_found = false;
-		bool second_point_found = false;
-		float measure_to;
+		bool MeasureMode = false;
+		uint8 MeasureAxis = 0; // x,y,z == 0,1,2
+		vec3 MeasureFrom;
+		bool FirstPointFound = false;
+		bool SecondPointFound = false;
+		float MeasureTo;
 
 		// locate coordinates mode
-		bool locate_coords_mode = false;
-		bool locate_coords_found_point = false;
-		vec3 locate_coords_position;
+		bool LocateCoordsMode = false;
+		bool LocateCoordsFoundPoint = false;
+		vec3 LocateCoordsPosition;
 
 		// snap mode
-		bool snap_mode = false;
-		uint8 snap_cycle = 0;
-		uint8 snap_axis = 1;
-		bool snap_inside = false;
-		EEntity* snap_reference = nullptr;
-		REntityState snap_tracked_state;
+		bool SnapMode = false;
+		uint8 SnapCycle = 0;
+		uint8 SnapAxis = 1;
+		bool SnapInside = false;
+		EEntity* SnapReference = nullptr;
+		REntityState SnapTrackedState;
 
 		// stretch mode
-		bool stretch_mode = false;
+		bool StretchMode = false;
 
 		// select entity aux tool
-		bool select_entity_aux_mode = false;
-		EEntity** select_entity_aux_mode_entity_slot = nullptr;
-		NEdToolCallback select_entity_aux_mode_callback = EdToolCallback_NoCallback;
-		REditorToolCallbackArgs select_entity_aux_mode_callback_args = REditorToolCallbackArgs{};
+		bool SelectEntityAuxMode = false;
+		EEntity** SelectEntityAuxModeEntitySlot = nullptr;
+		NEdToolCallback SelectEntityAuxModeCallback = EdToolCallback_NoCallback;
+		REditorToolCallbackArgs SelectEntityAuxModeCallbackArgs = REditorToolCallbackArgs{};
 
 		// show things 
-		bool show_event_triggers = false;
-		bool show_world_cells = false;
-		bool show_lightbulbs = true;
+		bool ShowEventTriggers = false;
+		bool ShowWorldCells = false;
+		bool ShowLightbulbs = true;
 
 		// gizmos
-		EEntity* tri_axis[3];
-		EEntity* tri_axis_letters[3];
+		EEntity* TriAxis[3];
+		EEntity* TriAxisLetters[3];
 
 		// debug options
-		bool debug_ledge_detection = false;
+		bool DebugLedgeDetection = false;
 	};
 }

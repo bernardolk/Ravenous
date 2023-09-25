@@ -8,11 +8,11 @@ inline static uint64 MaxEntityId = 0;
 
 struct WorldSerializer
 {
-	static inline RWorld* world = nullptr;
+	static inline RWorld* World = nullptr;
 	// static inline EntityManager* manager = nullptr;
 
-	static bool LoadFromFile(const std::string& filename);
-	static bool CheckIfSceneExists(const std::string& scene_name);
-	static bool SaveToFile(const std::string& new_filename, bool do_copy);
+	static bool LoadFromFile(const string& Filename);
+	static bool CheckIfSceneExists(const string& SceneName);
+	static bool SaveToFile(const string& NewFilename, bool DoCopy);
 	static bool SaveToFile();
 };

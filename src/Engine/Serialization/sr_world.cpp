@@ -15,30 +15,30 @@
 #include "engine/world/World.h"
 #include "parsing/parser.h"
 
-bool WorldSerializer::LoadFromFile(const string& filename)
+bool WorldSerializer::LoadFromFile(const string& Filename)
 {
-	const auto path = Paths::Scenes + filename + ".txt";
+	const auto Path = Paths::Scenes + filename + ".txt";
 
 	world = RWorld::Get();
 
 	// Set player's assets
 	{
-		REntityAttributes attrs;
-		attrs.name = "Player";
-		attrs.mesh = "capsule";
-		attrs.shader = "model";
-		attrs.texture = "pink";
-		attrs.collision_mesh = "capsule";
-		attrs.scale = vec3(1);
-		
-		SetEntityAssets(EPlayer::Get(), attrs);
+		REntityAttributes Attrs;
+		Attrs.Name = "Player";
+		Attrs.Mesh = "capsule";
+		Attrs.Shader = "model";
+		Attrs.Texture = "pink";
+		Attrs.CollisionMesh = "capsule";
+		Attrs.Scale = vec3(1);
+
+		SetEntityAssets(EPlayer::Get(), Attrs);
 	}
 
 	// creates deferred load buffer for associating entities after loading them all
-	auto entity_relations = DeferredEntityRelationBuffer();
+	auto EntityRelations = DeferredEntityRelationBuffer();
 
 	// starts reading
-	auto p = Parser{path};
+	auto P = Parser{path};
 
 	// -----------------------------------
 	//           Parse entities
@@ -76,61 +76,61 @@ bool WorldSerializer::LoadFromFile(const string& filename)
 	// -----------------------------------
 	//          Post parse steps
 	// -----------------------------------
-	EPlayer* player = EPlayer::Get();
-	player->Update();
+	EPlayer* Player = EPlayer::Get();
+	Player->Update();
 
 	// TODO: Address
-	CL_UpdatePlayerWorldCells(player);
+	CL_UpdatePlayerWorldCells(Player);
 
 	// connects entities using deferred load buffer
-	For(entity_relations.count)
+	For(EntityRelations.count)
 	{
-		EEntity* deferred_entity = nullptr;
-		auto deferred_entity_id = entity_relations.deferred_entity_ids[i];
+		EEntity* DeferredEntity = nullptr;
+		auto DeferredEntityId = EntityRelations.deferred_entity_ids[i];
 
-		auto entity_iterator = world->GetEntityIterator();
-		while (auto* entity = entity_iterator())
+		auto EntityIterator = world->GetEntityIterator();
+		while (auto* Entity = EntityIterator())
 		{
-			if (entity->id == deferred_entity_id)
+			if (Entity->id == DeferredEntityId)
 			{
-				deferred_entity = entity;
+				DeferredEntity = Entity;
 				break;
 			}
 		}
 
-		if (deferred_entity == nullptr)
-			fatal_error("Entity with id '%llu' not found to stablish a defined entity relationship.", deferred_entity_id);
+		if (DeferredEntity == nullptr)
+			fatal_error("Entity with id '%llu' not found to stablish a defined entity relationship.", DeferredEntityId);
 	}
-	
+
 	// clear static relations buffer
 	EntitySerializer::ClearBuffer();
 
-	RWorld::Get()->scene_name = filename;
-	
+	RWorld::Get()->SceneName = filename;
+
 	return true;
 }
 
 bool WorldSerializer::SaveToFile()
 {
-	const std::string f;
+	const std::string F;
 	return SaveToFile(f, false);
 }
 
-bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_copy = false)
+bool WorldSerializer::SaveToFile(const std::string& NewFilename, const bool DoCopy = false)
 {
-	std::string filename = new_filename;
+	std::string Filename = new_filename;
 	if (new_filename.empty())
 	{
-		filename = RWorld::Get()->scene_name;
+		filename = RWorld::Get()->SceneName;
 
-		if (do_copy)
+		if (DoCopy)
 		{
 			print("please provide a name for the copy.");
 			return false;
 		}
 	}
 
-	const auto path = Paths::Scenes + filename + ".txt";
+	const auto Path = Paths::Scenes + filename + ".txt";
 	std::ofstream writer(path);
 
 	if (!writer.is_open())
@@ -144,10 +144,10 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 	DEPRECATED_LINE
 	//writer << "NEXT_ENTITY_ID = " << manager->next_entity_id << "\n";
 
-	
+
 	// @TODO: Refactor this at some point
 	// write camera settings to file
-	const auto* camera = RCameraManager::Get()->GetEditorCamera();
+	const auto* Camera = RCameraManager::Get()->GetEditorCamera();
 	writer << "*"
 	<< camera->position.x << " "
 	<< camera->position.y << " "
@@ -161,7 +161,7 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 
 	// @TODO: Refactor this at some point
 	// write player orientation
-	const auto* game_cam = RCameraManager::Get()->GetGameCamera();
+	const auto* GameCam = RCameraManager::Get()->GetGameCamera();
 	writer << "&player_orientation = "
 	<< game_cam->front.x << " "
 	<< game_cam->front.y << " "
@@ -177,22 +177,22 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 	for (const auto& light : world->directional_lights)
 		LightSerializer::Save(writer, light);
 
-	auto entity_iter = world->GetEntityIterator();
-	while (auto* entity = entity_iter())
+	auto EntityIter = world->GetEntityIterator();
+	while (auto* Entity = EntityIter())
 	{
 		EntitySerializer::Save(writer, *entity);
 	}
 
 	writer.close();
 
-	if (do_copy)
+	if (DoCopy)
 	{
 		Log(LOG_INFO, "Scene copy saved successfully as '" + filename + ".txt'");
 	}
 	else if (!new_filename.empty())
 	{
 		Log(LOG_INFO, "Scene saved successfully as '" + filename + ".txt' (now editing it)");
-		RWorld::Get()->scene_name = filename;
+		RWorld::Get()->SceneName = filename;
 	}
 	else
 		Log(LOG_INFO, "Scene saved successfully.");
@@ -200,8 +200,8 @@ bool WorldSerializer::SaveToFile(const std::string& new_filename, const bool do_
 	return true;
 }
 
-bool WorldSerializer::CheckIfSceneExists(const std::string& scene_name)
+bool WorldSerializer::CheckIfSceneExists(const std::string& SceneName)
 {
-	const std::ifstream reader(Paths::Scenes + scene_name + ".txt");
+	const std::ifstream Reader(Paths::Scenes + scene_name + ".txt");
 	return reader.is_open();
 }

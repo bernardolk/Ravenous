@@ -16,22 +16,24 @@ constexpr float WorldChunkOffsetZ = WorldChunkNumZ / 2.f;
 // how many meters the cell occupies in the world
 constexpr float WorldChunkLengthMeters = 5000.0f;
 
-constexpr vec3 WUpperBoundsMeters = {
+constexpr vec3 WUpperBoundsMeters =
+{
 	WorldChunkOffsetX * WorldChunkLengthMeters,
 	WorldChunkOffsetY * WorldChunkLengthMeters,
 	WorldChunkOffsetZ * WorldChunkLengthMeters
-	};
+};
 
-constexpr vec3 WLowerBoundsMeters = {
-	-1.0 * WorldChunkOffsetX * WorldChunkLengthMeters,
-	-1.0 * WorldChunkOffsetX * WorldChunkLengthMeters,
-	-1.0 * WorldChunkOffsetX * WorldChunkLengthMeters
-	};
+constexpr vec3 WLowerBoundsMeters =
+{
+-1.0 * WorldChunkOffsetX * WorldChunkLengthMeters,
+-1.0 * WorldChunkOffsetX * WorldChunkLengthMeters,
+-1.0 * WorldChunkOffsetX * WorldChunkLengthMeters
+};
 
 
 vec3 GetWorldCoordinatesFromWorldCellCoordinates(int i, int j, int k);
-struct RWorldChunkPosition WorldCoordsToCells(float x, float y, float z);
-struct RWorldChunkPosition WorldCoordsToCells(vec3 position);
+struct RWorldChunkPosition WorldCoordsToCells(float X, float Y, float Z);
+struct RWorldChunkPosition WorldCoordsToCells(vec3 Position);
 
 struct RWorldChunkPosition
 {
@@ -40,13 +42,14 @@ struct RWorldChunkPosition
 	int k = -1;
 
 	RWorldChunkPosition() = default;
-	RWorldChunkPosition(int i, int j, int k) : i(i), j(j), k(k){}
+	RWorldChunkPosition(int I, int J, int K) :
+		i(I), j(J), k(K) {}
 
-	vec3 GetVec() { return vec3(i,j,k); }
-	
-	bool operator == (const RWorldChunkPosition& other) { return other.i == i && other.j == j && other.k == k;}
-	bool operator == (const vec3& other) { return other.x == i && other.y == j && other.z == k; }
-	bool operator < (const RWorldChunkPosition& other)  const { return other.i < i && other.j < j && other.k < k; }
+	vec3 GetVec() { return vec3(i, j, k); }
+
+	bool operator ==(const RWorldChunkPosition& Other) { return Other.i == i && Other.j == j && Other.k == k; }
+	bool operator ==(const vec3& Other) { return Other.x == i && Other.y == j && Other.z == k; }
+	bool operator <(const RWorldChunkPosition& Other) const { return Other.i < i && Other.j < j && Other.k < k; }
 };
 
 struct RWorldChunk
@@ -54,11 +57,11 @@ struct RWorldChunk
 	using byte = char;
 
 	friend struct RWorldChunkEntityIterator;
-	
+
 	// TODO: World chunk ID needs to come from it's world position
-	static inline uint world_chunk_id_count = 0;
-	
-	uint id = ++world_chunk_id_count;
+	static inline uint WorldChunkIdCount = 0;
+
+	uint id = ++WorldChunkIdCount;
 
 	// indexes
 	int i = -1;
@@ -66,32 +69,32 @@ struct RWorldChunk
 	int k = -1;
 
 	// Low level byte array
-	RWorldChunkStorage chunk_storage;
+	RWorldChunkStorage ChunkStorage;
 
 	//TODO: I don't think we need this
-	vector<EEntity*> visitors{};
+	vector<EEntity*> Visitors;
 
-	RWorldChunk() : chunk_storage(id) {} 
-	RWorldChunk(uint i, uint j, uint k) : i(i), j(j), k(k), chunk_storage(id) {}
-	
+	RWorldChunk() : ChunkStorage(id) {}
+	RWorldChunk(uint I, uint J, uint K) : i(I), j(J), k(K), ChunkStorage(id) {}
+
 	RWorldChunkEntityIterator GetIterator();
 
 	RWorldChunkPosition GetPosition() { return RWorldChunkPosition(i, j, k); }
 
-	void RemoveEntity(EEntity* entity);
-	bool AddVisitor(EEntity* entity);
-	bool RemoveVisitor(EEntity* entity);
+	void RemoveEntity(EEntity* Entity);
+	bool AddVisitor(EEntity* Entity);
+	bool RemoveVisitor(EEntity* Entity);
 
-	template<typename T_Entity>
-	T_Entity* AddEntity()
+	template<typename TEntity>
+	TEntity* AddEntity()
 	{
-		return chunk_storage.RequestEntityStorage<T_Entity>();
+		return ChunkStorage.RequestEntityStorage<TEntity>();
 	}
-	
+
 	vec3 GetPositionMetric();
-	RWorldChunkPosition GetChunkPosition() { return RWorldChunkPosition(i,j,k); }
+	RWorldChunkPosition GetChunkPosition() { return RWorldChunkPosition(i, j, k); }
 	string GetChunkPositionString();
 	string GetChunkPositionMetricString();
-	
-	void InvokeTraitUpdateOnAllTypes(TraitID trait_id);
+
+	void InvokeTraitUpdateOnAllTypes(TraitID TraitId);
 };

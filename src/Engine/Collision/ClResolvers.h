@@ -6,20 +6,20 @@ struct RCollisionResults;
 
 struct ClVtraceResult
 {
-	bool hit = false;
-	float delta_y;
-	EEntity* entity;
+	bool Hit = false;
+	float DeltaY;
+	EEntity* Entity;
 };
 
-void CL_ResolveCollision(RCollisionResults results, EPlayer* player);
-void CL_WallSlidePlayer(EPlayer* player, vec3 wall_normal);
-bool GP_SimulatePlayerCollisionInFallingTrajectory(EPlayer* player, vec2 xz_velocity);
-bool CL_RunTestsForFallSimulation(EPlayer* player);
-void CL_MarkEntityChecked(const EEntity* entity);
+void ClResolveCollision(RCollisionResults Results, EPlayer* Player);
+void ClWallSlidePlayer(EPlayer* Player, vec3 WallNormal);
+bool GpSimulatePlayerCollisionInFallingTrajectory(EPlayer* Player, vec2 XzVelocity);
+bool ClRunTestsForFallSimulation(EPlayer* Player);
+void ClMarkEntityChecked(const EEntity* Entity);
 
 
 // fwd decl.
-void GP_UpdatePlayerState();
-RCollisionResults CLTestPlayerVsEntity(EEntity* entity, EPlayer* player);
+void GpUpdatePlayerState();
+RCollisionResults CLTestPlayerVsEntity(EEntity* Entity, EPlayer* Player);
 
 constexpr static float PlayerStepoverLimit = 0.21;

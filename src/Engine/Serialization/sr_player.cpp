@@ -8,90 +8,90 @@
 #include "engine/world/World.h"
 
 
-void PlayerSerializer::ParseAttribute(Parser& p)
+void PlayerSerializer::ParseAttribute(Parser& P)
 {
-	EPlayer* player = EPlayer::Get();
+	EPlayer* Player = EPlayer::Get();
 
-	p.ParseToken();
-	const auto attribute = GetParsed<std::string>(p);
+	P.ParseToken();
+	const auto Attribute = GetParsed<std::string>(P);
 
-	p.ParseAllWhitespace();
-	p.ParseSymbol();
+	P.ParseAllWhitespace();
+	P.ParseSymbol();
 
-	if (GetParsed<char>(p) != '=')
+	if (GetParsed<char>(P) != '=')
 	{
-		std::cout << "SYNTAX ERROR, MISSING '=' CHARACTER AT SCENE DESCRIPTION FILE ('" << p.filepath << "') LINE NUMBER " << p.line_count << "\n";
+		std::cout << "SYNTAX ERROR, MISSING '=' CHARACTER AT SCENE DESCRIPTION FILE ('" << P.Filepath << "') LINE NUMBER " << P.LineCount << "\n";
 		assert(false);
 	}
 
-	if (attribute == "player_position")
+	if (Attribute == "player_position")
 	{
-		p.ParseVec3();
-		const auto position = GetParsed<glm::vec3>(p);
-		player->position = position;
-		player->checkpoint_pos = position;
-		player->height_before_fall = position.y;
+		P.ParseVec3();
+		const auto Position = GetParsed<glm::vec3>(p);
+		Player->Position = position;
+		Player->checkpoint_pos = position;
+		Player->height_before_fall = position.y;
 	}
 
-	else if (attribute == "player_initial_velocity")
+	else if (Attribute == "player_initial_velocity")
 	{
-		p.ParseVec3();
+		P.ParseVec3();
 		player->initial_velocity = GetParsed<glm::vec3>(p);
-		player->velocity = player->initial_velocity;
+		Player->Velocity = Player->initial_velocity;
 	}
 
-	else if (attribute == "player_state")
+	else if (Attribute == "player_state")
 	{
-		p.ParseAllWhitespace();
-		p.ParseInt();
-		player->initial_player_state = static_cast<NPlayerState>(GetParsed<uint>(p));
-		player->player_state = player->initial_player_state;
+		P.ParseAllWhitespace();
+		P.ParseInt();
+		Player->initial_player_state = static_cast<NPlayerState>(GetParsed<uint>(P));
+		Player->player_state = Player->initial_player_state;
 	}
 
 	else
 	{
-		std::cout << "UNRECOGNIZED ATTRIBUTE AT SCENE DESCRIPTION FILE ('" << p.filepath << "') LINE NUMBER " << p.line_count << "\n";
+		std::cout << "UNRECOGNIZED ATTRIBUTE AT SCENE DESCRIPTION FILE ('" << P.Filepath << "') LINE NUMBER " << P.LineCount << "\n";
 	}
 }
 
-void PlayerSerializer::ParseOrientation(Parser& p)
+void PlayerSerializer::ParseOrientation(Parser& P)
 {
-	EPlayer* player = EPlayer::Get();
+	EPlayer* Player = EPlayer::Get();
 
-	p.ParseToken();
-	if (GetParsed<std::string>(p) == "player_orientation")
+	P.ParseToken();
+	if (GetParsed<std::string>(P) == "player_orientation")
 	{
-		p.ParseAllWhitespace();
-		p.ParseSymbol();
+		P.ParseAllWhitespace();
+		P.ParseSymbol();
 
-		if (GetParsed<char>(p) != '=')
+		if (GetParsed<char>(P) != '=')
 		{
-			std::cout << "SYNTAX ERROR, MISSING '=' CHARACTER AT SCENE DESCRIPTION FILE ('" << p.filepath << "') LINE NUMBER " << p.line_count << "\n";
+			std::cout << "SYNTAX ERROR, MISSING '=' CHARACTER AT SCENE DESCRIPTION FILE ('" << P.Filepath << "') LINE NUMBER " << P.LineCount << "\n";
 			assert(false);
 		}
 
-		p.ParseVec3();
+		P.ParseVec3();
 		player->orientation = GetParsed<glm::vec3>(p);
 	}
 	else
 		assert(false);
 }
 
-void PlayerSerializer::Save(std::ofstream& writer)
+void PlayerSerializer::Save(std::ofstream& Writer)
 {
-	EPlayer* player = EPlayer::Get();
-	
-	writer << "@player_position = "
-	<< player->position.x << " "
-	<< player->position.y << " "
-	<< player->position.z << "\n";
-	writer << "@player_initial_velocity = "
-	<< player->initial_velocity.x << " "
-	<< player->initial_velocity.y << " "
-	<< player->initial_velocity.z << "\n";
+	EPlayer* Player = EPlayer::Get();
 
-	if (player->player_state == NPlayerState::Standing)
+	writer << "@player_position = "
+	<< Player->Position.x << " "
+	<< Player->Position.y << " "
+	<< Player->Position.z << "\n";
+	writer << "@player_initial_velocity = "
+	<< Player->initial_velocity.x << " "
+	<< Player->initial_velocity.y << " "
+	<< Player->initial_velocity.z << "\n";
+
+	if (Player->player_state == NPlayerState::Standing)
 		writer << "@player_state = " << static_cast<int>(NPlayerState::Standing) << "\n";
 	else
-		writer << "@player_state = " << static_cast<int>(player->initial_player_state) << "\n";
+		writer << "@player_state = " << static_cast<int>(Player->initial_player_state) << "\n";
 }

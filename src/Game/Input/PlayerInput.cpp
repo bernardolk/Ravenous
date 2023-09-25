@@ -9,7 +9,7 @@
 #include "engine/io/input.h"
 #include "engine/io/InputPhase.h"
 
-void IN_AssignKeysToActions()
+void AssignKeysToActions()
 {
 	if (REditorState::IsInEditorMode())
 	{
@@ -34,126 +34,130 @@ void IN_AssignKeysToActions()
 }
 
 
-void IN_ProcessMoveKeys(RInputFlags flags, vec3& v_dir, bool short_circuit)
+void InProcessMoveKeys(RInputFlags Flags, vec3& VDir, bool ShortCircuit)
 {
-	auto* player_camera = RCameraManager::Get()->GetGameCamera();
+	auto* PlayerCamera = RCameraManager::Get()->GetGameCamera();
 
-	if (Pressed(flags, KEY_MOVE_UP))
+	if (Pressed(Flags, KEY_MOVE_UP))
 	{
 		v_dir += normalize(ToXz(player_camera->front));
-		if (short_circuit) return;
+		if (ShortCircuit)
+			return;
 	}
-	if (Pressed(flags, KEY_MOVE_LEFT))
+	if (Pressed(Flags, KEY_MOVE_LEFT))
 	{
-		vec3 onwards_vector = Cross(player_camera->front, player_camera->up);
+		vec3 OnwardsVector = Cross(player_camera->front, player_camera->up);
 		v_dir -= normalize(ToXz(onwards_vector));
-		if (short_circuit) return;
+		if (ShortCircuit)
+			return;
 	}
-	if (Pressed(flags, KEY_MOVE_DOWN))
+	if (Pressed(Flags, KEY_MOVE_DOWN))
 	{
 		v_dir -= normalize(ToXz(player_camera->front));
-		if (short_circuit) return;
+		if (ShortCircuit)
+			return;
 	}
-	if (Pressed(flags, KEY_MOVE_RIGHT))
+	if (Pressed(Flags, KEY_MOVE_RIGHT))
 	{
-		vec3 onwards_vector = Cross(player_camera->front, player_camera->up);
+		vec3 OnwardsVector = Cross(player_camera->front, player_camera->up);
 		v_dir += normalize(ToXz(onwards_vector));
-		if (short_circuit) return;
+		if (ShortCircuit)
+			return;
 	}
 }
 
 
-void IN_HandleMovementInput(RInputFlags flags, EPlayer* player, RWorld* world)
+void HandleMovementInput(RInputFlags Flags, EPlayer* Player, RWorld* World)
 {
 	// assign keys
-	IN_AssignKeysToActions();
+	AssignKeysToActions();
 
 	// reset player flags
-	player->dodge_btn = false;
-	player->interact_btn = false;
-	player->dashing = false;
-	player->walking = false;
-	player->action = false;
-	player->want_to_grab = false;
-	player->pressing_forward_while_in_air = false;
-	player->pressing_left_while_in_air = false;
-	player->pressing_right_while_in_air = false;
-	player->pressing_backward_while_in_air = false;
-	player->pressing_forward_while_standing = false;
-	player->pressing_left_while_standing = false;
-	player->pressing_right_while_standing = false;
-	player->pressing_backward_while_standing = false;
-	
+	Player->dodge_btn = false;
+	Player->interact_btn = false;
+	Player->dashing = false;
+	Player->walking = false;
+	Player->action = false;
+	Player->want_to_grab = false;
+	Player->pressing_forward_while_in_air = false;
+	Player->pressing_left_while_in_air = false;
+	Player->pressing_right_while_in_air = false;
+	Player->pressing_backward_while_in_air = false;
+	Player->pressing_forward_while_standing = false;
+	Player->pressing_left_while_standing = false;
+	Player->pressing_right_while_standing = false;
+	Player->pressing_backward_while_standing = false;
+
 	// reset player 
-	player->v_dir = vec3(0);
+	Player->v_dir = vec3(0);
 
 	// combines all key presses into one v direction
-	switch (player->player_state)
+	switch (Player->player_state)
 	{
 		case NPlayerState::Standing:
 		{
-			player->stopped_pressing_forward_while_in_air = false;
-			
-			// MOVE
-			IN_ProcessMoveKeys(flags, player->v_dir, false);
+			Player->stopped_pressing_forward_while_in_air = false;
 
-			if (flags.key_press & KEY_MOVE_UP)
+			// MOVE
+			IN_ProcessMoveKeys(Flags, Player->v_dir, false);
+
+			if (Flags.KeyPress & KEY_MOVE_UP)
 			{
-				player->pressing_forward_while_standing = true;
+				Player->pressing_forward_while_standing = true;
 			}
-			if (flags.key_press & KEY_MOVE_LEFT)
+			if (Flags.KeyPress & KEY_MOVE_LEFT)
 			{
-				player->pressing_left_while_standing = true;
+				Player->pressing_left_while_standing = true;
 			}
-			if (flags.key_press & KEY_MOVE_RIGHT)
+			if (Flags.KeyPress & KEY_MOVE_RIGHT)
 			{
-				player->pressing_right_while_standing = true;
+				Player->pressing_right_while_standing = true;
 			}
-			if (flags.key_press & KEY_MOVE_DOWN)
+			if (Flags.KeyPress & KEY_MOVE_DOWN)
 			{
-				player->pressing_backward_while_standing = true;
+				Player->pressing_backward_while_standing = true;
 			}
 
 			// SET PRIMARY MOVEMENT DIRECTION (through pressed key)
 			if (player->IsMovingThisFrame() && player->first_pressed_movement_key_while_standing == KEY_NONE)
 			{
-				if (flags.key_press & KEY_MOVE_UP)
-					player->first_pressed_movement_key_while_standing = KEY_MOVE_UP;
-				
-				else if (flags.key_press & KEY_MOVE_LEFT)
-					player->first_pressed_movement_key_while_standing = KEY_MOVE_LEFT;
+				if (Flags.KeyPress & KEY_MOVE_UP)
+					Player->first_pressed_movement_key_while_standing = KEY_MOVE_UP;
 
-				else if (flags.key_press & KEY_MOVE_RIGHT)
-						player->first_pressed_movement_key_while_standing = KEY_MOVE_RIGHT;
+				else if (Flags.KeyPress & KEY_MOVE_LEFT)
+					Player->first_pressed_movement_key_while_standing = KEY_MOVE_LEFT;
 
-				else if (flags.key_press & KEY_MOVE_DOWN)
-						player->first_pressed_movement_key_while_standing = KEY_MOVE_DOWN;
+				else if (Flags.KeyPress & KEY_MOVE_RIGHT)
+					Player->first_pressed_movement_key_while_standing = KEY_MOVE_RIGHT;
+
+				else if (Flags.KeyPress & KEY_MOVE_DOWN)
+					Player->first_pressed_movement_key_while_standing = KEY_MOVE_DOWN;
 			}
 			else if (!player->IsMovingThisFrame())
 				player->first_pressed_movement_key_while_standing = KEY_NONE;
 
 			// DASH
-			if (flags.key_press & KEY_DASH)
-				player->dashing = true;
+			if (Flags.KeyPress & KEY_DASH)
+				Player->dashing = true;
 
 			// WALK
-			if (flags.key_press & KEY_WALK)
-				player->walking = true;
+			if (Flags.KeyPress & KEY_WALK)
+				Player->walking = true;
 
 			// JUMP
 			if (flags.key_press & KEY_SPACE)
-				player->ChangeStateTo(NPlayerState::Jumping);
+				Player->ChangeStateTo(NPlayerState::Jumping);
 
 			// VAULT
-			if (Pressed(flags, KEY_LEFT_SHIFT) && MOUSE_LB_CLICK & GlobalInputInfo::Get()->mouse_state)
-				player->want_to_grab = true;
+			if (Pressed(flags, KEY_LEFT_SHIFT) && MOUSE_LB_CLICK & GlobalInputInfo::Get()->MouseState)
+				Player->want_to_grab = true;
 
 			// INTERACT
-			if (PressedOnce(flags, KEY_ACTION))
+			if (PressedOnce(Flags, KEY_ACTION))
 			{
 				// GP_CheckTriggerInteraction(player, world);
-				player->interact_btn = true;
-				player->dodge_btn = true;
+				Player->interact_btn = true;
+				Player->dodge_btn = true;
 			}
 
 			break;
@@ -163,82 +167,82 @@ void IN_HandleMovementInput(RInputFlags flags, EPlayer* player, RWorld* world)
 		{
 			// MID-AIR CONTROL IF JUMPING UP
 			// if (player->jumping_upwards)
-			IN_ProcessMoveKeys(flags, player->v_dir, false);
+			IN_ProcessMoveKeys(Flags, Player->v_dir, false);
 
-			if (flags.key_press & KEY_MOVE_UP)
-				player->pressing_forward_while_in_air = true;
+			if (Flags.KeyPress & KEY_MOVE_UP)
+				Player->pressing_forward_while_in_air = true;
 			else
-				player->stopped_pressing_forward_while_in_air = true;
+				Player->stopped_pressing_forward_while_in_air = true;
 
-			if (flags.key_press & KEY_MOVE_LEFT)
-				player->pressing_left_while_in_air = true;
-			
-			if (flags.key_press & KEY_MOVE_RIGHT)
-				player->pressing_right_while_in_air = true;
+			if (Flags.KeyPress & KEY_MOVE_LEFT)
+				Player->pressing_left_while_in_air = true;
 
-			if (flags.key_press & KEY_MOVE_DOWN)
-				player->pressing_backward_while_in_air = true;
-			
-			if (Pressed(flags, KEY_DASH))
-				player->action = true;
+			if (Flags.KeyPress & KEY_MOVE_RIGHT)
+				Player->pressing_right_while_in_air = true;
+
+			if (Flags.KeyPress & KEY_MOVE_DOWN)
+				Player->pressing_backward_while_in_air = true;
+
+			if (Pressed(Flags, KEY_DASH))
+				Player->action = true;
 
 			break;
 		}
 
 		case NPlayerState::Falling:
 		{
-			IN_ProcessMoveKeys(flags, player->v_dir, false);
+			IN_ProcessMoveKeys(Flags, Player->v_dir, false);
 
-			if (flags.key_press & KEY_MOVE_UP)
-				player->pressing_forward_while_in_air = true;
+			if (Flags.KeyPress & KEY_MOVE_UP)
+				Player->pressing_forward_while_in_air = true;
 			else
-				player->stopped_pressing_forward_while_in_air = true;
+				Player->stopped_pressing_forward_while_in_air = true;
 
-			if (flags.key_press & KEY_MOVE_LEFT)
-				player->pressing_left_while_in_air = true;
-			
-			if (flags.key_press & KEY_MOVE_RIGHT)
-				player->pressing_right_while_in_air = true;
+			if (Flags.KeyPress & KEY_MOVE_LEFT)
+				Player->pressing_left_while_in_air = true;
 
-			if (flags.key_press & KEY_MOVE_DOWN)
-				player->pressing_backward_while_in_air = true;
+			if (Flags.KeyPress & KEY_MOVE_RIGHT)
+				Player->pressing_right_while_in_air = true;
 
-			if (Pressed(flags, KEY_DASH))
-				player->action = true;
+			if (Flags.KeyPress & KEY_MOVE_DOWN)
+				Player->pressing_backward_while_in_air = true;
+
+			if (Pressed(Flags, KEY_DASH))
+				Player->action = true;
 
 			break;
 		}
 
 		case NPlayerState::Sliding:
 		{
-			player->v_dir = player->sliding_direction;
+			Player->v_dir = Player->sliding_direction;
 
-			if (flags.key_press & KEY_MOVE_LEFT)
+			if (Flags.KeyPress & KEY_MOVE_LEFT)
 			{
-				auto left_dir = Cross(player->sliding_normal, player->sliding_direction);
-				player->v_dir += left_dir;
-				player->v_dir = normalize(player->v_dir);
+				auto LeftDir = Cross(player->sliding_normal, player->sliding_direction);
+				Player->v_dir += left_dir;
+				Player->v_dir = normalize(Player->v_dir);
 
 			}
-			if (flags.key_press & KEY_MOVE_RIGHT)
+			if (Flags.KeyPress & KEY_MOVE_RIGHT)
 			{
-				auto right_dir = Cross(player->sliding_direction, player->sliding_normal);
-				player->v_dir += right_dir;
-				player->v_dir = normalize(player->v_dir);
+				auto RightDir = Cross(player->sliding_direction, player->sliding_normal);
+				Player->v_dir += right_dir;
+				Player->v_dir = normalize(Player->v_dir);
 			}
 			if (flags.key_press & KEY_SPACE)
-				player->ChangeStateTo(NPlayerState::Jumping);
+				Player->ChangeStateTo(NPlayerState::Jumping);
 
 			break;
 		}
 		case NPlayerState::Grabbing:
 		{
-			if (Pressed(flags, KEY_DASH))
+			if (Pressed(Flags, KEY_DASH))
 			{
-				player->action = true;
+				Player->action = true;
 
-				if (Pressed(flags, KEY_MOVE_UP))
-					player->ChangeStateTo(NPlayerState::Vaulting);
+				if (Pressed(Flags, KEY_MOVE_UP))
+					Player->ChangeStateTo(NPlayerState::Vaulting);
 			}
 
 			break;
@@ -246,5 +250,5 @@ void IN_HandleMovementInput(RInputFlags flags, EPlayer* player, RWorld* world)
 	}
 
 	// normalize v_dir
-	player->v_dir = player->v_dir != vec3(0.f, 0.f, 0.f) ? normalize(player->v_dir) : player->v_dir;
+	Player->v_dir = Player->v_dir != vec3(0.f, 0.f, 0.f) ? normalize(Player->v_dir) : Player->v_dir;
 }

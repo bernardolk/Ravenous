@@ -9,21 +9,21 @@ void LoadModels()
 {
 	//TEXT
 	{
-		RGLData text_gl_data;
-		glGenVertexArrays(1, &text_gl_data.VAO);
-		glGenBuffers(1, &text_gl_data.VBO);
-		glBindVertexArray(text_gl_data.VAO);
-		glBindBuffer(GL_ARRAY_BUFFER, text_gl_data.VBO);
+		RGLData TextGlData;
+		glGenVertexArrays(1, &TextGlData.VAO);
+		glGenBuffers(1, &TextGlData.VBO);
+		glBindVertexArray(TextGlData.VAO);
+		glBindBuffer(GL_ARRAY_BUFFER, TextGlData.VBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
 		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, static_cast<void*>(nullptr));
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 
-		auto* text_mesh = new RMesh();
-		text_mesh->name = "text";
-		text_mesh->gl_data = text_gl_data;
-		GeometryCatalogue.insert({text_mesh->name, text_mesh});
+		auto* TextMesh = new RMesh();
+		TextMesh->Name = "text";
+		TextMesh->GLData = TextGlData;
+		GeometryCatalogue.insert({TextMesh->Name, TextMesh});
 	}
 
 
@@ -67,13 +67,13 @@ void LoadModels()
 	4, 5, 6, 6, 7, 4        // right face (slope)
 	};
 
-	auto* slope_mesh = new RMesh();
-	slope_mesh->name = "slope";
-	slope_mesh->vertices = slope_vertex_vec;
-	slope_mesh->indices = slope_vertex_indices;
-	slope_mesh->render_method = GL_TRIANGLES;
-	slope_mesh->SetupGLData();
-	GeometryCatalogue.insert({slope_mesh->name, slope_mesh});
+	auto* SlopeMesh = new RMesh();
+	SlopeMesh->Name = "slope";
+	SlopeMesh->Vertices = slope_vertex_vec;
+	SlopeMesh->Indices = slope_vertex_indices;
+	SlopeMesh->RenderMethod = GL_TRIANGLES;
+	SlopeMesh->SetupGLData();
+	GeometryCatalogue.insert({SlopeMesh->Name, SlopeMesh});
 
 	// PLAYER CAPSULE
 	LoadWavefrontObjAsMesh(Paths::Models, "capsule");

@@ -11,7 +11,7 @@ namespace RavenousEngine
 	struct RFrameData;
 }
 struct EEntity;
-struct RWorldChunkPosition WorldCoordsToCells(float x, float y, float z);
+struct RWorldChunkPosition WorldCoordsToCells(float X, float Y, float Z);
 vec3 GetWorldCoordinatesFromWorldCellCoordinates(int i, int j, int k);
 
 enum CellUpdateStatus
@@ -25,58 +25,57 @@ enum CellUpdateStatus
 
 struct CellUpdate
 {
-	CellUpdateStatus status = CellUpdate_UNEXPECTED;
-	std::string message;
-	bool entity_changed_cell = false;
+	CellUpdateStatus Status = CellUpdate_UNEXPECTED;
+	string Message;
+	bool EntityChangedCell = false;
 };
 
 
 struct RWorld
 {
 	DeclSingleton(RWorld)
-	
 	// static constexpr u8 world_chunk_matrix_order = 10;
-	static constexpr uint world_size_in_chunks = WorldChunkNumX * WorldChunkNumY * WorldChunkNumZ;
+	static constexpr uint WorldSizeInChunks = WorldChunkNumX * WorldChunkNumY * WorldChunkNumZ;
 
-	string scene_name;
+	string SceneName;
 
 	// TODO: We can't use world chunk "matrix" position as its ijk position! This is insane! What if we want to unload part A of the world and load part B,
 	//		what are the index going to say? Nothing.
 	//		in the future such vector will be replaced with a memory arena
-	Array<RWorldChunk, world_size_in_chunks> chunks;
-	map<RWorldChunkPosition, RWorldChunk*> chunks_map;
-	vector<RWorldChunk*> active_chunks;
+	Array<RWorldChunk, WorldSizeInChunks> Chunks;
+	map<RWorldChunkPosition, RWorldChunk*> ChunksMap;
+	vector<RWorldChunk*> ActiveChunks;
 
-	float global_shininess = 17;
-	float ambient_intensity = 0;
-	vec3 ambient_light = vec3(1);
+	float GlobalShininess = 17;
+	float AmbientIntensity = 0;
+	vec3 AmbientLight = vec3(1);
 
 	// temp
-	vector<PointLight*> point_lights;
-	vector<SpotLight*> spot_lights;
-	vector<DirectionalLight*> directional_lights;
+	vector<PointLight*> PointLights;
+	vector<SpotLight*> SpotLights;
+	vector<DirectionalLight*> DirectionalLights;
 	// end temp
-		
+
 	void Update();
 
-	template<typename T_Entity>
-	T_Entity* SpawnEntity();
+	template<typename TEntity>
+	TEntity* SpawnEntity();
 
-	template<typename T_Entity>
-	T_Entity* RWorld::SpawnEntityAtPosition(vec3 position);
+	template<typename TEntity>
+	TEntity* RWorld::SpawnEntityAtPosition(vec3 Position);
 
-	Iterator<RWorldChunk> GetChunkIterator();
-	static WorldEntityIterator GetEntityIterator();	
-	
-	RRaycastTest Raycast(RRay ray, NRayCastType test_type, const EEntity* skip = nullptr, float max_distance = MaxFloat) const;
-	RRaycastTest Raycast(RRay ray, const EEntity* skip = nullptr, float max_distance = MaxFloat) const;
-	RRaycastTest LinearRaycastArray(RRay first_ray, int qty, float spacing) const;
-	RRaycastTest RaycastLights(RRay ray) const;
+	TIterator<RWorldChunk> GetChunkIterator();
+	static WorldEntityIterator GetEntityIterator();
 
-	CellUpdate UpdateEntityWorldChunk(EEntity* entity);
+	RRaycastTest Raycast(RRay Ray, NRayCastType TestType, const EEntity* Skip = nullptr, float MaxDistance = MaxFloat) const;
+	RRaycastTest Raycast(RRay Ray, const EEntity* Skip = nullptr, float MaxDistance = MaxFloat) const;
+	RRaycastTest LinearRaycastArray(RRay FirstRay, int Qty, float Spacing) const;
+	RRaycastTest RaycastLights(RRay Ray) const;
+
+	CellUpdate UpdateEntityWorldChunk(EEntity* Entity);
 
 	RavenousEngine::RFrameData& GetFrameData();
-	
+
 private:
 	void UpdateTraits();
 	void UpdateTransforms();
@@ -84,44 +83,46 @@ private:
 
 struct WorldEntityIterator
 {
-	uint8 total_active_chunks = 0;
-	uint8 current_chunk_index = 0;
+	uint8 TotalActiveChunks = 0;
+	uint8 CurrentChunkIndex = 0;
 
-	RWorld* world;
-	RWorldChunkEntityIterator chunk_iterator;
-	
+	RWorld* World;
+	RWorldChunkEntityIterator ChunkIterator;
+
 	WorldEntityIterator();
-	
+
 	EEntity* operator()();
 };
 
 
 //TODO: Move these somewhere else
-void SetEntityDefaultAssets(EEntity* entity);
-void SetEntityAssets(EEntity* entity, struct REntityAttributes attrs);
+void SetEntityDefaultAssets(EEntity* Entity);
+void SetEntityAssets(EEntity* Entity, struct REntityAttributes Attrs);
 
 
-template<typename T_Entity>
-T_Entity* RWorld::SpawnEntity()
+template<typename TEntity>
+TEntity* RWorld::SpawnEntity()
 {
-	auto* first_chunk_available = chunks_map.begin()->second;
-	if (!first_chunk_available) return nullptr;
+	auto* FirstChunkAvailable = ChunksMap.begin()->second;
+	if (!FirstChunkAvailable)
+		return nullptr;
 
-	return first_chunk_available->AddEntity<T_Entity>();
+	return FirstChunkAvailable->AddEntity<TEntity>();
 }
 
-template<typename T_Entity>
-T_Entity* RWorld::SpawnEntityAtPosition(vec3 position)
+template<typename TEntity>
+TEntity* RWorld::SpawnEntityAtPosition(vec3 Position)
 {
-	auto* first_chunk_available = chunks_map.begin()->second;
-	if (!first_chunk_available) return nullptr;
+	auto* FirstChunkAvailable = ChunksMap.begin()->second;
+	if (!FirstChunkAvailable)
+		return nullptr;
 
-	auto* entity = first_chunk_available->RequestEntityStorage<T_Entity>();
-	if (entity)
+	auto* Entity = FirstChunkAvailable->RequestEntityStorage<TEntity>();
+	if (Entity)
 	{
-		entity->position = position;
-		UpdateEntityWorldChunk(entity);
+		Entity->position = Position;
+		UpdateEntityWorldChunk(Entity);
 	}
-			
-	return entity;
+
+	return Entity;
 }

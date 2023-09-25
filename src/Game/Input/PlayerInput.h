@@ -2,8 +2,8 @@
 
 #include "engine/core/core.h"
 
-inline uint64 KEY_MOVE_UP, KEY_MOVE_DOWN, KEY_MOVE_LEFT, KEY_MOVE_RIGHT, KEY_DASH, KEY_WALK, KEY_ACTION;
+inline uint64 KeyMoveUp, KeyMoveDown, KeyMoveLeft, KeyMoveRight, KeyDash, KeyWalk, KeyAction;
 
-void IN_HandleMovementInput(struct RInputFlags flags, EPlayer* player, RWorld* world);
-void IN_AssignKeysToActions();
-void IN_ProcessMoveKeys(RInputFlags flags, vec3& v_dir, bool short_circuit = false);
+void InHandleMovementInput(struct RInputFlags Flags, EPlayer* Player, RWorld* World);
+void InAssignKeysToActions();
+void InProcessMoveKeys(RInputFlags Flags, vec3& VDir, bool ShortCircuit = false);

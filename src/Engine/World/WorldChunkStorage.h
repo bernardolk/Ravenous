@@ -20,17 +20,17 @@
 struct REntityStorageBlockMetadata
 {
 	using byte = char;
-	
+
 	// type data
-	TypeID type_id;
-	uint type_size;
+	TypeID TypeID;
+	uint TypeSize;
 	// TODO: We don't need to know about traits at this level, lets only deal with entity Types
-	Array<TraitID, EntityTraitsManager::max_traits> entity_traits{};
+	Array<TraitID, EntityTraitsManager::MaxTraits> EntityTraits;
 
 	// array bookkeeping
-	uint max_entity_instances;
-	int entity_count = 0;
-	byte* data_start = nullptr;
+	uint MaxEntityInstances;
+	int EntityCount = 0;
+	byte* DataStart = nullptr;
 };
 
 /** Memory Arena for storing all the world chunk's entities's data. */
@@ -39,96 +39,98 @@ struct RWorldChunkStorage
 	using byte = char;
 
 	// MAX BUDGET for ALL entities
-	inline static constexpr uint chunk_byte_budget = 666000;
-	static inline constexpr uint max_types_per_storage = 20;
+	inline static constexpr uint ChunkByteBudget = 666000;
+	static inline constexpr uint MaxTypesPerStorage = 20;
 
-	byte data[chunk_byte_budget];
-	byte* next_block_start;
-	uint bytes_consumed = 0;
-	int parent_chunk_id;
+	byte Data[ChunkByteBudget];
+	byte* NextBlockStart;
+	uint BytesConsumed = 0;
+	int ParentChunkID;
 
 	// Holds the useful metadata about each storage block in chunk storage. Iterate over it to go through all entity types.
-	Array<REntityStorageBlockMetadata, max_types_per_storage> storage_metadata_array;
+	Array<REntityStorageBlockMetadata, MaxTypesPerStorage> StorageMetadataArray;
 	// Convenience map to retrieve storage metadata for a specific entity type.
-	map<TypeID, REntityStorageBlockMetadata*> storage_metadata_map;
+	map<TypeID, REntityStorageBlockMetadata*> StorageMetadataMap;
 	// TODO: Implement a TraitID to array of typeIds
 
-	RWorldChunkStorage(int chunk_id) : parent_chunk_id(chunk_id)
+	RWorldChunkStorage(int ChunkId) :
+		ParentChunkID(ChunkId)
 	{
-		next_block_start = &data[0];
-		storage_metadata_array = Array<REntityStorageBlockMetadata, max_types_per_storage>();
+		NextBlockStart = &Data[0];
+		StorageMetadataArray = Array<REntityStorageBlockMetadata, MaxTypesPerStorage>();
 	}
-	
-	template<typename T_Entity>
-	T_Entity* RWorldChunkStorage::RequestEntityStorage();
+
+	template<typename TEntity>
+	TEntity* RWorldChunkStorage::RequestEntityStorage();
 
 private:
-	template<typename T_Entity>
+	template<typename TEntity>
 	void RWorldChunkStorage::MaybeAllocateForType();
 };
 
 
 struct RWorldChunkEntityIterator
 {
-	RWorldChunk* chunk;
-	uint block_idx = 0;
-	uint entity_idx = 0;
-	
-	explicit RWorldChunkEntityIterator(RWorldChunk* chunk) : chunk(chunk){}
+	RWorldChunk* Chunk = nullptr;
+	uint BlockIdx = 0;
+	uint EntityIdx = 0;
+
+	explicit RWorldChunkEntityIterator(RWorldChunk* Chunk) :
+		Chunk(Chunk) {}
 
 	EEntity* operator()();
 };
 
 
-template<typename T_Entity>
+template<typename TEntity>
 void RWorldChunkStorage::MaybeAllocateForType()
 {
-	auto type_id = T_Entity::GetTypeId();
+	auto TypeId = TEntity::GetTypeId();
 
-	if (storage_metadata_map.contains(type_id))
+	if (StorageMetadataMap.contains(TypeId))
 		return;
 
 	// if we have budget, get a block for the new entity type
-	uint total_entity_block_size = T_Entity::instance_budget * sizeof(T_Entity);
-	if(bytes_consumed + total_entity_block_size <= chunk_byte_budget)
+	uint TotalEntityBlockSize = TEntity::instance_budget * sizeof(TEntity);
+	if (BytesConsumed + TotalEntityBlockSize <= ChunkByteBudget)
 	{
-		auto* new_block = storage_metadata_array.AddNew();
-		if (!new_block)
-			fatal_error("FATAL: Memory budget for World Chunk with id = %i has ended. Could not allocate memory for entity with type_id = %i.", parent_chunk_id, type_id); 
-		
-		REntityStorageBlockMetadata& entity_storage_metadata = *new_block;
-		entity_storage_metadata.type_id = type_id;
-		entity_storage_metadata.type_size =  sizeof(T_Entity);
-		entity_storage_metadata.max_entity_instances = T_Entity::instance_budget;
-		entity_storage_metadata.entity_traits = T_Entity::traits.Copy();
-		
-		entity_storage_metadata.data_start = next_block_start;
-		next_block_start += total_entity_block_size;
-		bytes_consumed += total_entity_block_size;
-		storage_metadata_map[type_id] = &entity_storage_metadata;
+		auto* NewBlock = StorageMetadataArray.AddNew();
+		if (!NewBlock)
+			fatal_error("FATAL: Memory budget for World Chunk with id = %i has ended. Could not allocate memory for entity with TypeId = %i.", ParentChunkID, TypeId);
+
+		REntityStorageBlockMetadata& EntityStorageMetadata = *NewBlock;
+		EntityStorageMetadata.TypeID = TypeId;
+		EntityStorageMetadata.TypeSize = sizeof(TEntity);
+		EntityStorageMetadata.MaxEntityInstances = TEntity::instance_budget;
+		EntityStorageMetadata.EntityTraits = TEntity::traits.Copy();
+
+		EntityStorageMetadata.DataStart = NextBlockStart;
+		NextBlockStart += TotalEntityBlockSize;
+		BytesConsumed += TotalEntityBlockSize;
+		StorageMetadataMap[TypeId] = &EntityStorageMetadata;
 	}
 	else
-		fatal_error("FATAL: Memory budget for World Chunk with id = %i has ended. Could not allocate memory for entity with type_id = %i.", parent_chunk_id, type_id); 
+		fatal_error("FATAL: Memory budget for World Chunk with id = %i has ended. Could not allocate memory for entity with TypeId = %i.", ParentChunkID, TypeId);
 };
 
-template<typename T_Entity>
-T_Entity* RWorldChunkStorage::RequestEntityStorage()
+template<typename TEntity>
+TEntity* RWorldChunkStorage::RequestEntityStorage()
 {
-	MaybeAllocateForType<T_Entity>();
+	MaybeAllocateForType<TEntity>();
 
-	if (auto** it = Find(storage_metadata_map, T_Entity::GetTypeId()))
+	if (auto** it = Find(StorageMetadataMap, TEntity::GetTypeId()))
 	{
-		REntityStorageBlockMetadata* block_metadata = *it;
-		if (block_metadata->entity_count < block_metadata->max_entity_instances)
+		REntityStorageBlockMetadata* BlockMetadata = *it;
+		if (BlockMetadata->EntityCount < BlockMetadata->MaxEntityInstances)
 		{
-			byte* entity_storage_address = block_metadata->data_start + (block_metadata->entity_count * block_metadata->type_size);
-			++block_metadata->entity_count;
-			auto* new_entity = new (entity_storage_address) T_Entity;
+			byte* EntityStorageAddress = BlockMetadata->DataStart + (BlockMetadata->EntityCount * BlockMetadata->TypeSize);
+			++BlockMetadata->EntityCount;
+			auto* NewEntity = new (EntityStorageAddress) TEntity;
         
-			return new_entity;
+			return NewEntity;
 		}
 		else
-			print("ERROR: There is no memory budget left in RWorldChunk with id = %i for E_Type with id = %i. Could not allocate memory.", parent_chunk_id, T_Entity::GetTypeId());
+			print("ERROR: There is no memory budget left in RWorldChunk with id = %i for E_Type with id = %i. Could not allocate memory.", ParentChunkID, TEntity::GetTypeId());
 	}
 	else
 		fatal_error("FATAL : This shouldn't have happened.");

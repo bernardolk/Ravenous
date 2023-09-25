@@ -7,5 +7,4 @@ CheckOptions:
   - { key: readability-identifier-naming.VariableCase,           value: CamelCase }
   - { key: readability-identifier-naming.GlobalConstantCase,  	 value: CamelCase }
   - { key: readability-identifier-naming.ParameterCase,  	     value: CamelCase }
-  - { key: readability-identifier-naming.MemberCase,  	         value: CamelCase }
   - { key: readability-identifier-naming.TemplateParameterCase,  value: CamelCase }

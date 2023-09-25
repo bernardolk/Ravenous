@@ -12,5 +12,5 @@
 void SetupGLFW();
 void SetupGL();
 
-void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
-GLenum GLCheckError(const char* file, int line);
+void FramebufferSizeCallback(GLFWwindow* Window, int Width, int Height);
+GLenum GLCheckError(const char* File, int Line);

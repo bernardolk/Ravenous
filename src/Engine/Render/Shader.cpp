@@ -4,7 +4,7 @@
 #include <glad/glad.h>
 #endif
 #include <sstream>
-#include <engine/core/types.h>
+#include <engine/core/Types.h>
 #include <engine/rvn.h>
 #include <engine/serialization/parsing/parser.h>
 
@@ -12,84 +12,84 @@ map<string, RShader*> ShaderCatalogue;
 
 void RShader::Use()
 {
-	glUseProgram(this->gl_program_id);
+	glUseProgram(this->GLProgramID);
 }
 
-void RShader::SetBool(const string& name, bool value) const
+void RShader::SetBool(const string& Name, bool Value) const
 {
-	glUniform1i(glGetUniformLocation(this->gl_program_id, name.c_str()), static_cast<int>(value));
+	glUniform1i(glGetUniformLocation(this->GLProgramID, Name.c_str()), static_cast<int>(Value));
 }
 
-void RShader::SetInt(const string& name, int value) const
+void RShader::SetInt(const string& Name, int Value) const
 {
-	glUniform1i(glGetUniformLocation(this->gl_program_id, name.c_str()), value);
+	glUniform1i(glGetUniformLocation(this->GLProgramID, Name.c_str()), Value);
 }
 
-void RShader::SetFloat(const string& name, float value) const
+void RShader::SetFloat(const string& Name, float Value) const
 {
-	glUniform1f(glGetUniformLocation(this->gl_program_id, name.c_str()), value);
+	glUniform1f(glGetUniformLocation(this->GLProgramID, Name.c_str()), Value);
 }
 
-void RShader::SetFloat2(const string& name, float value0, float value1) const
+void RShader::SetFloat2(const string& Name, float Value0, float Value1) const
 {
-	glUniform2f(glGetUniformLocation(this->gl_program_id, name.c_str()), value0, value1);
+	glUniform2f(glGetUniformLocation(this->GLProgramID, Name.c_str()), Value0, Value1);
 }
 
-void RShader::SetFloat2(const string& name, vec2 vec) const
+void RShader::SetFloat2(const string& Name, vec2 Vec) const
 {
-	glUniform2f(glGetUniformLocation(this->gl_program_id, name.c_str()), vec.x, vec.y);
+	glUniform2f(glGetUniformLocation(this->GLProgramID, Name.c_str()), Vec.x, Vec.y);
 }
 
-void RShader::SetFloat3(const string& name, float value0, float value1, float value2) const
+void RShader::SetFloat3(const string& Name, float Value0, float Value1, float Value2) const
 {
-	glUniform3f(glGetUniformLocation(this->gl_program_id, name.c_str()), value0, value1, value2);
+	glUniform3f(glGetUniformLocation(this->GLProgramID, Name.c_str()), Value0, Value1, Value2);
 }
 
-void RShader::SetFloat3(const string& name, vec3 vec) const
+void RShader::SetFloat3(const string& Name, vec3 Vec) const
 {
-	glUniform3f(glGetUniformLocation(this->gl_program_id, name.c_str()), vec.x, vec.y, vec.z);
+	glUniform3f(glGetUniformLocation(this->GLProgramID, Name.c_str()), Vec.x, Vec.y, Vec.z);
 }
 
-void RShader::SetFloat4(const string& name, float value0, float value1, float value2, float value3) const
+void RShader::SetFloat4(const string& Name, float Value0, float Value1, float Value2, float Value3) const
 {
-	glUniform4f(glGetUniformLocation(this->gl_program_id, name.c_str()), value0, value1, value2, value3);
+	glUniform4f(glGetUniformLocation(this->GLProgramID, Name.c_str()), Value0, Value1, Value2, Value3);
 }
 
-void RShader::SetFloat4(const string& name, glm::vec4 vec) const
+void RShader::SetFloat4(const string& Name, glm::vec4 Vec) const
 {
-	glUniform4f(glGetUniformLocation(this->gl_program_id, name.c_str()), vec.x, vec.y, vec.z, vec.w);
+	glUniform4f(glGetUniformLocation(this->GLProgramID, Name.c_str()), Vec.x, Vec.y, Vec.z, Vec.w);
 }
 
-void RShader::SetMatrix4(const string& name, glm::mat4 mat) const
+void RShader::SetMatrix4(const string& Name, glm::mat4 Mat) const
 {
-	glUniformMatrix4fv(glGetUniformLocation(this->gl_program_id, name.c_str()), 1, GL_FALSE, value_ptr(mat));
+	glUniformMatrix4fv(glGetUniformLocation(this->GLProgramID, Name.c_str()), 1, GL_FALSE, glm::value_ptr(Mat));
 }
 
 
 
-bool CheckShaderCompileErrors(RShader* shader, string type, unsigned int id)
+bool CheckShaderCompileErrors(RShader* Shader, string Type, unsigned int Id)
 {
-	// returns true if we have a compilation problem in the shader program
-	int success;
-	char infoLog[1024];
+	// returns true if we have a compilation Problem in the Shader program
+	int Success;
+	char InfoLog[1024];
 
-	if (type != "PROGRAM")
+	if (Type != "PROGRAM")
 	{
-		glGetShaderiv(id, GL_COMPILE_STATUS, &success);
-		if (!success)
+		glGetShaderiv(Id, GL_COMPILE_STATUS, &Success);
+		if (!Success)
 		{
-			glGetShaderInfoLog(id, 1024, nullptr, infoLog);
-			print("ERROR::SHADER_COMPILATION_ERROR: '%s' SHADER AT PROGRAM '%s': vertex shader -> '%s' fragment shader -> %s\n DETAILS: \n %s  \n-- --------------------------------------------------- -- ", type.c_str(), shader->name.c_str(), shader->vertex_path.c_str(), shader->fragment_path.c_str(), infoLog)
+			glGetShaderInfoLog(Id, 1024, nullptr, InfoLog);
+			print("ERROR::SHADER_COMPILATION_ERROR: '%s' SHADER AT PROGRAM '%s': Vertex Shader -> '%s' Fragment Shader -> %s\n DETAILS: \n %s  \n-- --------------------------------------------------- -- ", Type.c_str(), Shader->Name.c_str(), Shader->VertexPath.c_str(), Shader->FragmentPath.c_str(), InfoLog)
 			return true;
 		}
 	}
 	else
 	{
-		glGetProgramiv(id, GL_LINK_STATUS, &success);
-		if (!success)
+		glGetProgramiv(Id, GL_LINK_STATUS, &Success);
+		if (!Success)
 		{
-			glGetProgramInfoLog(id, 1024, nullptr, infoLog);
-			print("ERROR::PROGRAM_LINKING_ERROR: AT PROGRAM '%s': vertex shader -> '%s' fragment shader -> %s\n DETAILS: \n %s  \n-- --------------------------------------------------- -- ", shader->name.c_str(), shader->vertex_path.c_str(), shader->fragment_path.c_str(), infoLog)
+			glGetProgramInfoLog(Id, 1024, nullptr, InfoLog);
+			print("ERROR::PROGRAM_LINKING_ERROR: AT PROGRAM '%s': Vertex Shader -> '%s' Fragment Shader -> %s\n DETAILS: \n %s  \n-- --------------------------------------------------- -- ", Shader->Name.c_str(), Shader->VertexPath.c_str(), Shader->FragmentPath.c_str(), InfoLog)
 			return true;
 		}
 	}
@@ -97,139 +97,142 @@ bool CheckShaderCompileErrors(RShader* shader, string type, unsigned int id)
 	return false;
 }
 
-RShader* CreateShaderProgram(string name, const string vertex_shader_filename, const string geometry_shader_filename, const string fragment_shader_filename)
+RShader* CreateShaderProgram(string Name, const string VertexShaderFilename, const string GeometryShaderFilename, const string FragmentShaderFilename)
 {
-	auto shader = new RShader();
-	shader->name = name;
+	auto Shader = new RShader();
+	Shader->Name = Name;
 
 	// OPTIONAL SHADERS
-	bool build_geometry_shader = geometry_shader_filename != "";
-	uint optional_shaders[5];
-	int optional_shaders_count = 0;
+	bool BuildGeometryShader = GeometryShaderFilename != "";
+	uint OptionalShaders[5];
+	int OptionalShadersCount = 0;
 
-	bool problem = false;
+	bool Problem = false;
 
 	// > LOAD SHADERS 
 	// >> VERTEX
-	string vertexCode;
+	string VertexCode;
 	{
-		shader->vertex_path = Paths::Shaders + vertex_shader_filename + Paths::ShaderFileExtension;
-		std::ifstream vShaderFile;
+		Shader->VertexPath = Paths::Shaders + VertexShaderFilename + Paths::ShaderFileExtension;
+		
+		std::ifstream VShaderFile;
+		VShaderFile.open(Shader->VertexPath);
+		
+		std::stringstream VShaderStream;
+		VShaderStream << VShaderFile.rdbuf();
+		VShaderFile.close();
+		VertexCode = VShaderStream.str();
 
-		vShaderFile.open(shader->vertex_path);
-		std::stringstream vShaderStream;
-		vShaderStream << vShaderFile.rdbuf();
-		vShaderFile.close();
-		vertexCode = vShaderStream.str();
-
-		if (vShaderFile.fail())
-			print("ERROR::VERTEX SHADER::FILE_NOT_SUCCESFULLY_READ : %s", vertex_shader_filename.c_str());
+		if (VShaderFile.fail())
+			print("ERROR::VERTEX SHADER::FILE_NOT_SUCCESFULLY_READ : %s", VertexShaderFilename.c_str());
 	}
 
 	// >> FRAGMENT
-	std::string fragmentCode;
+	string FragmentCode;
 	{
-		shader->fragment_path = Paths::Shaders + fragment_shader_filename + Paths::ShaderFileExtension;
-		std::ifstream fShaderFile;
-		fShaderFile.open(shader->fragment_path);
-		std::stringstream fShaderStream;
-		fShaderStream << fShaderFile.rdbuf();
-		fShaderFile.close();
-		fragmentCode = fShaderStream.str();
+		Shader->FragmentPath = Paths::Shaders + FragmentShaderFilename + Paths::ShaderFileExtension;
+		std::ifstream FShaderFile;
+		FShaderFile.open(Shader->FragmentPath);
+		
+		std::stringstream FShaderStream;
+		FShaderStream << FShaderFile.rdbuf();
+		FShaderFile.close();
+		FragmentCode = FShaderStream.str();
 
-		if (fShaderFile.fail())
-			print("ERROR::FRAGMENT SHADER::FILE_NOT_SUCCESFULLY_READ : %s", fragment_shader_filename.c_str());
+		if (FShaderFile.fail())
+			print("ERROR::FRAGMENT SHADER::FILE_NOT_SUCCESFULLY_READ : %s", FragmentShaderFilename.c_str());
 	}
 
 	// > COMPILE SHADERS
 	// >> VERTEX
-	unsigned int vertex;
+	unsigned int Vertex;
 	{
-		const char* vShaderCode = vertexCode.c_str();
+		const char* VShaderCode = VertexCode.c_str();
 
-		vertex = glCreateShader(GL_VERTEX_SHADER);
-		glShaderSource(vertex, 1, &vShaderCode, nullptr);
-		glCompileShader(vertex);
-		problem = problem || CheckShaderCompileErrors(shader, "VERTEX", vertex);
+		Vertex = glCreateShader(GL_VERTEX_SHADER);
+		glShaderSource(Vertex, 1, &VShaderCode, nullptr);
+		glCompileShader(Vertex);
+		Problem = Problem || CheckShaderCompileErrors(Shader, "VERTEX", Vertex);
 	}
 
 	// >> FRAGMENT
-	unsigned int fragment;
+	unsigned int Fragment;
 	{
-		const char* fShaderCode = fragmentCode.c_str();
+		const char* FShaderCode = FragmentCode.c_str();
 
-		fragment = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(fragment, 1, &fShaderCode, nullptr);
-		glCompileShader(fragment);
-		problem = problem || CheckShaderCompileErrors(shader, "FRAGMENT", fragment);
+		Fragment = glCreateShader(GL_FRAGMENT_SHADER);
+		glShaderSource(Fragment, 1, &FShaderCode, nullptr);
+		glCompileShader(Fragment);
+		Problem = Problem || CheckShaderCompileErrors(Shader, "FRAGMENT", Fragment);
 	}
 
 	// > ATTACH SHADERS TO PROGRAM
-	shader->gl_program_id = glCreateProgram();
-	glAttachShader(shader->gl_program_id, vertex);
-	glAttachShader(shader->gl_program_id, fragment);
+	Shader->GLProgramID = glCreateProgram();
+	glAttachShader(Shader->GLProgramID, Vertex);
+	glAttachShader(Shader->GLProgramID, Fragment);
 
 
 	// > LOAD, COMPILE AND ATTACH OPTIONAL SHADERS 
 	// >> GEOMETRY
-	if (build_geometry_shader)
+	if (BuildGeometryShader)
 	{
 		// >>> LOAD
-		std::string geometryCode;
+		string GeometryCode;
 		{
-			shader->geometry_path = Paths::Shaders + geometry_shader_filename + Paths::ShaderFileExtension;
-			std::ifstream gShaderFile;
+			Shader->GeometryPath = Paths::Shaders + GeometryShaderFilename + Paths::ShaderFileExtension;
+			std::ifstream GShaderFile;
 
-			gShaderFile.open(shader->geometry_path);
-			std::stringstream gShaderStream;
-			gShaderStream << gShaderFile.rdbuf();
-			gShaderFile.close();
-			geometryCode = gShaderStream.str();
+			GShaderFile.open(Shader->GeometryPath);
+			std::stringstream GShaderStream;
+			
+			GShaderStream << GShaderFile.rdbuf();
+			GShaderFile.close();
+			GeometryCode = GShaderStream.str();
 
-			if (gShaderFile.fail())
-				print("ERROR::GEOMETRY SHADER::FILE_NOT_SUCCESFULLY_READ : %s", geometry_shader_filename.c_str());
+			if (GShaderFile.fail())
+				print("ERROR::GEOMETRY SHADER::FILE_NOT_SUCCESFULLY_READ : %s", GeometryShaderFilename.c_str());
 		}
 
 		// >>> COMPILE
-		unsigned int geometry;
+		unsigned int Geometry;
 		{
-			const char* gShaderCode = geometryCode.c_str();
+			const char* GShaderCode = GeometryCode.c_str();
 
-			geometry = glCreateShader(GL_GEOMETRY_SHADER);
-			glShaderSource(geometry, 1, &gShaderCode, nullptr);
-			glCompileShader(geometry);
-			problem = problem || CheckShaderCompileErrors(shader, "GEOMETRY", geometry);
+			Geometry = glCreateShader(GL_GEOMETRY_SHADER);
+			glShaderSource(Geometry, 1, &GShaderCode, nullptr);
+			glCompileShader(Geometry);
+			Problem = Problem || CheckShaderCompileErrors(Shader, "GEOMETRY", Geometry);
 		}
 
 		// >>> ATTACH
-		glAttachShader(shader->gl_program_id, geometry);
-		optional_shaders[0] = geometry;
-		optional_shaders_count++;
+		glAttachShader(Shader->GLProgramID, Geometry);
+		OptionalShaders[0] = Geometry;
+		OptionalShadersCount++;
 	}
 
 
 	// > LINK PROGRAM
-	glLinkProgram(shader->gl_program_id);
-	problem = problem || CheckShaderCompileErrors(shader, "PROGRAM", shader->gl_program_id);
+	glLinkProgram(Shader->GLProgramID);
+	Problem = Problem || CheckShaderCompileErrors(Shader, "PROGRAM", Shader->GLProgramID);
 
 
 	// > DELETE SHADERS
 	// ... as they're linked into our program now and no longer necessary
-	glDeleteShader(vertex);
-	glDeleteShader(fragment);
+	glDeleteShader(Vertex);
+	glDeleteShader(Fragment);
 
-	for (int i = 0; i < optional_shaders_count; i++)
-		glDeleteShader(optional_shaders[i]);
+	for (int I = 0; I < OptionalShadersCount; I++)
+		glDeleteShader(OptionalShaders[I]);
 
 
 	// > ASSERT AND RETURN
-	//if(problem)
+	//if(Problem)
 	// assert(false);
 
-	return shader;
+	return Shader;
 }
 
-RShader* CreateShaderProgram(std::string name, const std::string vertex_shader_filename, const std::string fragment_shader_filename)
+RShader* CreateShaderProgram(string Name, const string VertexShaderFilename, const string FragmentShaderFilename)
 {
-	return CreateShaderProgram(name, vertex_shader_filename, "", fragment_shader_filename);
+	return CreateShaderProgram(Name, VertexShaderFilename, "", FragmentShaderFilename);
 }

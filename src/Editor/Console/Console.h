@@ -20,7 +20,6 @@ void ClearScratchBuffer();
 struct RGlobalConsoleState
 {
 	DeclSingleton(RGlobalConsoleState)
-	
 	uint16 buffer_capacity = 20;
 	constexpr static uint16 max_chars = 50;
 	char** buffers;

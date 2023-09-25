@@ -17,10 +17,10 @@ RGlobalConsoleState::RGlobalConsoleState() = default;
 void InitializeConsoleBuffers()
 {
 	auto& Console = *RGlobalConsoleState::Get();
-	auto buffers = static_cast<char**>(malloc(sizeof(char*) * Console.buffer_capacity));
-	for (uint16 i = 0; i < Console.buffer_capacity; i++)
+	auto Buffers = static_cast<char**>(malloc(sizeof(char*) * Console.buffer_capacity));
+	for (uint16 I = 0; I < Console.buffer_capacity; I++)
 	{
-		buffers[i] = static_cast<char*>(calloc(Console.max_chars, sizeof(char)));
+		buffers[I] = static_cast<char*>(calloc(Console.max_chars, sizeof(char)));
 	}
 
 	Console.buffers = buffers;
@@ -60,29 +60,29 @@ void CopyBufferToScratchBuffer()
 	ClearScratchBuffer();
 	auto& Console = *RGlobalConsoleState::Get();
 
-	int char_ind = 0;
-	char scene_name[50] = {'\0'};
-	while (Console.buffers[Console.b_ind][char_ind] != '\0')
+	int CharInd = 0;
+	char SceneName[50] = {'\0'};
+	while (Console.buffers[Console.b_ind][CharInd] != '\0')
 	{
-		Console.scratch_buffer[char_ind] = Console.buffers[Console.b_ind][char_ind];
-		char_ind++;
+		Console.scratch_buffer[CharInd] = Console.buffers[Console.b_ind][CharInd];
+		CharInd++;
 	}
 
-	Console.c_ind = char_ind;
+	Console.c_ind = CharInd;
 }
 
 void StartConsoleMode()
 {
 	auto* ES = REditorState::Get();
-	ES->last_mode = ES->current_mode;
-	ES->current_mode = REditorState::ProgramMode::Console;
+	ES->LastMode = ES->CurrentMode;
+	ES->CurrentMode = REditorState::ProgramMode::Console;
 }
 
 void QuitConsoleMode()
 {
 	auto* ES = REditorState::Get();
-	ES->current_mode = ES->last_mode;
-	ES->last_mode = REditorState::ProgramMode::Console;
+	ES->CurrentMode = ES->LastMode;
+	ES->LastMode = REditorState::ProgramMode::Console;
 }
 
 std::string CommitBuffer()
@@ -90,32 +90,32 @@ std::string CommitBuffer()
 	auto& Console = *RGlobalConsoleState::Get();
 
 	// copy from scratch buffer to variable
-	int char_ind = 0;
-	char input[50] = {'\0'};
-	while (Console.scratch_buffer[char_ind] != '\0')
+	int CharInd = 0;
+	char Input[50] = {'\0'};
+	while (Console.scratch_buffer[CharInd] != '\0')
 	{
-		input[char_ind] = Console.scratch_buffer[char_ind];
-		char_ind++;
+		Input[CharInd] = Console.scratch_buffer[CharInd];
+		CharInd++;
 	}
 
 	// realloc if necessary
 	if (Console.current_buffer_size == Console.buffer_capacity)
 	{
-		auto prior_capacity = Console.buffer_capacity;
+		auto PriorCapacity = Console.buffer_capacity;
 		Console.buffer_capacity *= 2;
 		Console.buffers = static_cast<char**>(realloc(Console.buffers, sizeof(char*) * Console.buffer_capacity));
-		for (uint64 i = prior_capacity; i < Console.buffer_capacity; i++)
+		for (uint64 I = PriorCapacity; I < Console.buffer_capacity; I++)
 		{
-			Console.buffers[i] = static_cast<char*>(calloc(Console.max_chars, sizeof(char)));
+			Console.buffers[I] = static_cast<char*>(calloc(Console.max_chars, sizeof(char)));
 		}
 	}
 
 	// commit to buffers (log)
-	char_ind = 0;
-	while (Console.scratch_buffer[char_ind] != '\0')
+	CharInd = 0;
+	while (Console.scratch_buffer[CharInd] != '\0')
 	{
-		Console.buffers[Console.current_buffer_size][char_ind] = Console.scratch_buffer[char_ind];
-		char_ind++;
+		Console.buffers[Console.current_buffer_size][CharInd] = Console.scratch_buffer[CharInd];
+		CharInd++;
 	}
 
 	// clear scratch buffer
@@ -126,37 +126,37 @@ std::string CommitBuffer()
 	// move buffers pointer up the stack
 	Console.b_ind = Console.current_buffer_size;
 
-	return input;
+	return Input;
 }
 
 void ClearScratchBuffer()
 {
 	auto& Console = *RGlobalConsoleState::Get();
 
-	int char_ind = 0;
-	while (Console.scratch_buffer[char_ind] != '\0')
+	int CharInd = 0;
+	while (Console.scratch_buffer[CharInd] != '\0')
 	{
-		Console.scratch_buffer[char_ind] = '\0';
-		char_ind++;
+		Console.scratch_buffer[CharInd] = '\0';
+		CharInd++;
 	}
 	Console.c_ind = 0;
 }
 
-void ExecuteCommand(const std::string& buffer_line, EPlayer* & player, RWorld* world, RCamera* camera)
+void ExecuteCommand(const std::string& BufferLine, EPlayer* & Player, RWorld* World, RCamera* Camera)
 {
-	Parser p{buffer_line, 50};
-	p.ParseToken();
-	const std::string command = GetParsed<std::string>(p);
-	auto& program_config = *ProgramConfig::Get();
+	Parser P{buffer_line, 50};
+	P.ParseToken();
+	const std::string Command = GetParsed<std::string>(p);
+	auto& ProgramConfig = *ProgramConfig::Get();
 
 	// ---------------
 	// 'SAVE' COMMAND
 	// ---------------
 	if (command == "save")
 	{
-		p.ParseWhitespace();
-		p.ParseToken();
-		const std::string argument = GetParsed<std::string>(p);
+		P.ParseWhitespace();
+		P.ParseToken();
+		const std::string Argument = GetParsed<std::string>(p);
 		WorldSerializer::SaveToFile(argument, false);
 	}
 
@@ -166,9 +166,9 @@ void ExecuteCommand(const std::string& buffer_line, EPlayer* & player, RWorld* w
 	else if (command == "copy")
 	{
 		// if you dont want to switch to the new file when saving scene with a new name
-		p.ParseWhitespace();
-		p.ParseToken();
-		const std::string scene_name = GetParsed<std::string>(p);
+		P.ParseWhitespace();
+		P.ParseToken();
+		const std::string SceneName = GetParsed<std::string>(p);
 		WorldSerializer::SaveToFile(scene_name, true);
 	}
 
@@ -177,19 +177,19 @@ void ExecuteCommand(const std::string& buffer_line, EPlayer* & player, RWorld* w
 	// ---------------
 	else if (command == "load")
 	{
-		p.ParseWhitespace();
-		p.ParseToken();
-		const std::string scene_name = GetParsed<std::string>(p);
+		P.ParseWhitespace();
+		P.ParseToken();
+		const std::string SceneName = GetParsed<std::string>(p);
 		// updates scene with new one
 		if (WorldSerializer::LoadFromFile(scene_name))
 		{
 			if (REditorState::IsInEditorMode())
 			{
-				player->MakeVisible();
+				Player->MakeVisible();
 			}
 			else
 			{
-				player->MakeInvisible();
+				Player->MakeInvisible();
 			}
 
 			ConfigSerializer::LoadGlobalConfigs();
@@ -201,21 +201,21 @@ void ExecuteCommand(const std::string& buffer_line, EPlayer* & player, RWorld* w
 	// --------------
 	else if (command == "new")
 	{
-		p.ParseWhitespace();
-		p.ParseToken();
-		const std::string scene_name = GetParsed<std::string>(p);
+		P.ParseWhitespace();
+		P.ParseToken();
+		const std::string SceneName = GetParsed<std::string>(p);
 		if (scene_name != "")
 		{
-			auto current_scene = RWorld::Get()->scene_name;
+			auto CurrentScene = RWorld::Get()->SceneName;
 			if (WorldSerializer::CheckIfSceneExists(scene_name))
 			{
-				Rvn::rm_buffer->Add("Scene name already exists.", 3000);
+				Rvn::RmBuffer->Add("Scene name already exists.", 3000);
 				return;
 			}
 
 			if (!WorldSerializer::LoadFromFile(Paths::SceneTemplate))
 			{
-				Rvn::rm_buffer->Add("Scene template not found.", 3000);
+				Rvn::RmBuffer->Add("Scene template not found.", 3000);
 				return;
 			}
 
@@ -227,17 +227,17 @@ void ExecuteCommand(const std::string& buffer_line, EPlayer* & player, RWorld* w
 					assert(false); // if this happens, weird!
 				}
 
-				Rvn::rm_buffer->Add("Couldnt save new scene.", 3000);
+				Rvn::RmBuffer->Add("Couldnt save new scene.", 3000);
 			}
 
 			if (REditorState::IsInEditorMode())
-				player->flags &= ~EntityFlags_InvisibleEntity;
+				Player->Flags &= ~EntityFlags_InvisibleEntity;
 			else
-				player->flags |= EntityFlags_InvisibleEntity;
+				Player->Flags |= EntityFlags_InvisibleEntity;
 		}
 		else
 		{
-			Rvn::rm_buffer->Add("Could not create new scene. Provide a name please.", 3000);
+			Rvn::RmBuffer->Add("Could not create new scene. Provide a name please.", 3000);
 		}
 	}
 
@@ -247,22 +247,22 @@ void ExecuteCommand(const std::string& buffer_line, EPlayer* & player, RWorld* w
 
 	else if (command == "set")
 	{
-		p.ParseWhitespace();
-		p.ParseToken();
-		const std::string argument = GetParsed<std::string>(p);
+		P.ParseWhitespace();
+		P.ParseToken();
+		const std::string Argument = GetParsed<std::string>(p);
 		if (argument == "scene")
 		{
-			program_config.initial_scene = RWorld::Get()->scene_name;
-			ConfigSerializer::Save(program_config);
+			ProgramConfig.InitialScene = RWorld::Get()->SceneName;
+			ConfigSerializer::Save(ProgramConfig);
 		}
 		else if (argument == "all")
 		{
 			// save scene
-			player->checkpoint_pos = player->position;
+			Player->checkpoint_pos = Player->Position;
 			WorldSerializer::SaveToFile();
 			// set scene
-			program_config.initial_scene = RWorld::Get()->scene_name;
-			ConfigSerializer::Save(program_config);
+			ProgramConfig.InitialScene = RWorld::Get()->SceneName;
+			ConfigSerializer::Save(ProgramConfig);
 		}
 		else
 			print("you can set 'scene' or 'all'. dude. %s  won't work.", command.c_str());
@@ -273,15 +273,15 @@ void ExecuteCommand(const std::string& buffer_line, EPlayer* & player, RWorld* w
 	// -----------------
 	else if (command == "reload")
 	{
-		if (WorldSerializer::LoadFromFile(RWorld::Get()->scene_name))
+		if (WorldSerializer::LoadFromFile(RWorld::Get()->SceneName))
 		{
 			if (REditorState::IsInEditorMode())
-				player->flags &= ~EntityFlags_InvisibleEntity;
+				Player->Flags &= ~EntityFlags_InvisibleEntity;
 			else
-				player->flags |= EntityFlags_InvisibleEntity;
+				Player->Flags |= EntityFlags_InvisibleEntity;
 
 			ConfigSerializer::LoadGlobalConfigs();
-			GlobalInputInfo::Get()->block_mouse_move = false;
+			GlobalInputInfo::Get()->BlockMouseMove = false;
 		}
 	}
 
@@ -290,7 +290,7 @@ void ExecuteCommand(const std::string& buffer_line, EPlayer* & player, RWorld* w
 	// ----------------
 	else if (command == "lives")
 	{
-		player->RestoreHealth();
+		Player->RestoreHealth();
 	}
 
 	// ---------------
@@ -298,7 +298,7 @@ void ExecuteCommand(const std::string& buffer_line, EPlayer* & player, RWorld* w
 	// ---------------
 	else if (command == "kill")
 	{
-		player->Die();
+		Player->Die();
 	}
 
 	// ---------------
@@ -306,12 +306,12 @@ void ExecuteCommand(const std::string& buffer_line, EPlayer* & player, RWorld* w
 	// ---------------
 	else if (command == "move")
 	{
-		p.ParseWhitespace();
-		p.ParseToken();
-		const std::string argument = GetParsed<std::string>(p);
+		P.ParseWhitespace();
+		P.ParseToken();
+		const std::string Argument = GetParsed<std::string>(p);
 		if (argument == "cam")
 		{
-			p.ParseVec3();
+			P.ParseVec3();
 			camera->position = GetParsed<vec3>(p);
 		}
 		else
@@ -321,7 +321,7 @@ void ExecuteCommand(const std::string& buffer_line, EPlayer* & player, RWorld* w
 		print("what do you mean with %s man?\n", command.c_str());
 }
 
-void HandleConsoleInput(RInputFlags flags, EPlayer* & player, RWorld* world, RCamera* camera)
+void HandleConsoleInput(RInputFlags Flags, EPlayer* & Player, RWorld* World, RCamera* Camera)
 {
 	auto& Console = *RGlobalConsoleState::Get();
 
@@ -333,8 +333,8 @@ void HandleConsoleInput(RInputFlags flags, EPlayer* & player, RWorld* world, RCa
 			QuitConsoleMode();
 			return;
 		}
-		const auto buffer_line = CommitBuffer();
-		ExecuteCommand(buffer_line, player, world, camera);
+		const auto BufferLine = CommitBuffer();
+		ExecuteCommand(buffer_line, Player, World, Camera);
 		QuitConsoleMode();
 	}
 
@@ -354,10 +354,10 @@ void HandleConsoleInput(RInputFlags flags, EPlayer* & player, RWorld* world, RCa
 	}
 
 	// run through all letters to see if they were hit
-	CheckLetterKeyPresses(flags);
+	CheckLetterKeyPresses(Flags);
 }
 
-void CheckLetterKeyPresses(RInputFlags flags)
+void CheckLetterKeyPresses(RInputFlags Flags)
 {
 	auto& Console = *RGlobalConsoleState::Get();
 

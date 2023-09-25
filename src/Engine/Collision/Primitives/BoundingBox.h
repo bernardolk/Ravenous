@@ -2,92 +2,92 @@
 
 struct RBoundingBox
 {
-	float minx;
-	float maxx;
-	float minz;
-	float maxz;
-	float miny;
-	float maxy;
+	float MinX;
+	float MaxX;
+	float MinZ;
+	float MaxZ;
+	float MinY;
+	float MaxY;
 
 	auto Bounds()
 	{
 		struct
 		{
-			vec3 min, max;
-		} bounds;
+			vec3 Min, Max;
+		} Bounds;
 
-		bounds.min = vec3(minx, miny, minz);
-		bounds.max = vec3(maxx, maxy, maxz);
-		return bounds;
+		Bounds.Min = vec3(MinX, MinY, MinZ);
+		Bounds.Max = vec3(MaxX, MaxY, MaxZ);
+		return Bounds;
 	}
 
-	void Set(vec3 min, vec3 max)
+	void Set(vec3 Min, vec3 Max)
 	{
-		minx = min.x;
-		maxx = max.x;
-		miny = min.y;
-		maxy = max.y;
-		minz = min.z;
-		maxz = max.z;
+		MinX = Min.x;
+		MaxX = Max.x;
+		MinY = Min.y;
+		MaxY = Max.y;
+		MinZ = Min.z;
+		MaxZ = Max.z;
 	}
 
 	auto GetPosAndScale()
 	{
 		struct
 		{
-			vec3 pos;
-			vec3 scale;
-		} result;
+			vec3 Pos;
+			vec3 Scale;
+		} Result;
 
-		result.pos = vec3(minx, miny, minz);
-		result.scale = vec3(maxx - minx, maxy - miny, maxz - minz);
+		Result.Pos = vec3(MinX, MinY, MinZ);
+		Result.Scale = vec3(MaxX - MinX, MaxY - MinY, MaxZ - MinZ);
 
-		return result;
+		return Result;
 	}
 
 	vec3 GetCentroid()
 	{
 		return {
-		(maxx + minx) / 2,
-		(maxy + miny) / 2,
-		(maxz + minz) / 2,
+		(MaxX + MinX) / 2,
+		(MaxY + MinY) / 2,
+		(MaxZ + MinZ) / 2,
 		};
 	}
 
 	/** Performs a collision test between this and another BoundingBox.*/
-	bool Test(RBoundingBox other)
+	bool Test(RBoundingBox Other)
 	{
 		// Exit with no intersection if separated along an axis
-		if (this->maxx < other.minx || this->minx > other.maxx)
+		if (this->MaxX < Other.MinX || this->MinX > Other.MaxX)
 			return false;
-		if (this->maxy < other.miny || this->miny > other.maxy)
+		if (this->MaxY < Other.MinY || this->MinY > Other.MaxY)
 			return false;
-		if (this->maxz < other.minz || this->minz > other.maxz)
+		if (this->MaxZ < Other.MinZ || this->MinZ > Other.MaxZ)
 			return false;
 		// Overlapping on all axes means AABBs are intersecting
 		return true;
 	}
 
-	void Translate(mat4 trans_mat)
+	void Translate(mat4 TransMat)
 	{
-		vec4 trans_min = vec4(minx, miny, minz, 1) * trans_mat;
-		vec4 trans_max = vec4(maxx, maxy, maxz, 1) * trans_mat;
+		vec4 TransMin = vec4(MinX, MinY, MinZ, 1) * TransMat;
+		vec4 TransMax = vec4(MaxX, MaxY, MaxZ, 1) * TransMat;
 
-		minx = trans_min.x;
-		miny = trans_min.y;
-		minz = trans_min.z;
-		maxx = trans_max.x;
-		maxy = trans_max.y;
-		maxz = trans_max.z;
+		MinX = TransMin.x;
+		MinY = TransMin.y;
+		MinZ = TransMin.z;
+		MaxX = TransMax.x;
+		MaxY = TransMax.y;
+		MaxZ = TransMax.z;
 	}
 
-	void Translate(vec3 offset)
+	void Translate(vec3 Offset)
 	{
-		minx += offset.x;
-		miny += offset.y;
-		minz += offset.z;
-		maxx += offset.x;
-		maxy += offset.y;
-		maxz += offset.z;
+		MinX += Offset.x;
+		MinY += Offset.y;
+		MinZ += Offset.z;
+		MaxX += Offset.x;
+		MaxY += Offset.y;
+		MaxZ += Offset.z;
 	}
 };

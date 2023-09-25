@@ -5,6 +5,6 @@
 struct EntityType(EStaticMesh)
 {
 	Reflected()
-	
-	EStaticMesh() { instance_budget = 200; }
+
+	EStaticMesh() { InstanceBudget = 200; }
 };

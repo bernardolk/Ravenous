@@ -4,35 +4,35 @@
 
 struct RShader
 {
-	unsigned int gl_program_id;
-	string name;
-	string vertex_path;
-	string geometry_path;
-	string fragment_path;
+	unsigned int GLProgramID;
+	string Name;
+	string VertexPath;
+	string GeometryPath;
+	string FragmentPath;
 
 	void Use();
 
-	void SetBool(const string& name, bool value) const;
-	void SetInt(const string& name, int value) const;
-	void SetFloat(const string& name, float value) const;
-	void SetFloat2(const string& name, float value0, float value1) const;
-	void SetFloat2(const string& name, vec2 vec) const;
-	void SetFloat3(const string& name, float value0, float value1, float value2) const;
-	void SetFloat3(const string& name, vec3 vec) const;
-	void SetFloat4(const string& name, float value0, float value1, float value2, float value3) const;
-	void SetFloat4(const string& name, vec4 vec) const;
-	void SetMatrix4(const string& name, mat4 mat) const;
+	void SetBool(const string& Name, bool Value) const;
+	void SetInt(const string& Name, int Value) const;
+	void SetFloat(const string& Name, float Value) const;
+	void SetFloat2(const string& Name, float Value0, float Value1) const;
+	void SetFloat2(const string& Name, vec2 Vec) const;
+	void SetFloat3(const string& Name, float Value0, float Value1, float Value2) const;
+	void SetFloat3(const string& Name, vec3 Vec) const;
+	void SetFloat4(const string& Name, float Value0, float Value1, float Value2, float Value3) const;
+	void SetFloat4(const string& Name, vec4 Vec) const;
+	void SetMatrix4(const string& Name, mat4 Mat) const;
 };
 
 extern map<string, RShader*> ShaderCatalogue;
 
-bool CheckShaderCompileErrors(RShader* shader, string type, unsigned int id);
+bool CheckShaderCompileErrors(RShader* Shader, string Type, unsigned int Id);
 
 RShader* CreateShaderProgram(
-	string name,
-	string vertex_shader_filename,
-	string geometry_shader_filename,
-	string fragment_shader_filename
+	string Name,
+	string VertexShaderFilename,
+	string GeometryShaderFilename,
+	string FragmentShaderFilename
 );
 
-RShader* CreateShaderProgram(string name, string vertex_shader_filename, string fragment_shader_filename);
+RShader* CreateShaderProgram(string Name, string VertexShaderFilename, string FragmentShaderFilename);

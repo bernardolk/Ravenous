@@ -3,7 +3,7 @@
 
 RGameState::RGameState() = default;
 
-void RGameState::StartTimer(EEntity* trigger)
+void RGameState::StartTimer(EEntity* Trigger)
 {
 	/**
 	For(timers_array_size)

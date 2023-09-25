@@ -7,5 +7,5 @@ namespace Editor
 	void PopStyleCompact();
 
 	struct RCollisionLogPanelContext;
-	void RenderCollisionLogPanel(RCollisionLogPanelContext* panel);
+	void RenderCollisionLogPanel(RCollisionLogPanelContext* Panel);
 }

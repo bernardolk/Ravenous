@@ -4,57 +4,57 @@
 
 struct RTriangle;
 
-struct Face
+struct RFace
 {
-	RTriangle a;
-	RTriangle b;
-	vec3 center;
+	RTriangle A;
+	RTriangle B;
+	vec3 Center;
 };
 
 
 // -----------------------------
 // > Triangle / Face operations
 // -----------------------------
-inline Face FaceFromAxisAlignedTriangle(RTriangle t)
+inline RFace FaceFromAxisAlignedTriangle(RTriangle Triangle)
 {
 	// computes center
-	float x0 = Min(t.a.x, t.b.x, t.c.x);
-	float x1 = Max(t.a.x, t.b.x, t.c.x);
-	float y0 = Min(t.a.y, t.b.y, t.c.y);
-	float y1 = Max(t.a.y, t.b.y, t.c.y);
-	float z0 = Min(t.a.z, t.b.z, t.c.z);
-	float z1 = Max(t.a.z, t.b.z, t.c.z);
+	float X0 = Min(Triangle.A.x, Triangle.B.x, Triangle.C.x);
+	float X1 = Max(Triangle.A.x, Triangle.B.x, Triangle.C.x);
+	float Y0 = Min(Triangle.A.y, Triangle.B.y, Triangle.C.y);
+	float Y1 = Max(Triangle.A.y, Triangle.B.y, Triangle.C.y);
+	float Z0 = Min(Triangle.A.z, Triangle.B.z, Triangle.C.z);
+	float Z1 = Max(Triangle.A.z, Triangle.B.z, Triangle.C.z);
 
-	float mx, my, mz;
-	mx = x0 == x1 ? x0 : ((x1 - x0) / 2.0f) + x0;
-	my = y0 == y1 ? y0 : ((y1 - y0) / 2.0f) + y0;
-	mz = z0 == z1 ? z0 : ((z1 - z0) / 2.0f) + z0;
-	auto center = vec3{mx, my, mz};
+	float Mx, My, Mz;
+	Mx = X0 == X1 ? X0 : ((X1 - X0) / 2.0f) + X0;
+	My = Y0 == Y1 ? Y0 : ((Y1 - Y0) / 2.0f) + Y0;
+	Mz = Z0 == Z1 ? Z0 : ((Z1 - Z0) / 2.0f) + Z0;
+	auto Center = vec3{Mx, My, Mz};
 
-	vec3 normal = triangleNormal(t.a, t.b, t.c);
+	vec3 Normal = triangleNormal(Triangle.A, Triangle.B, Triangle.C);
 
-	vec3 a2 = rotate(t.a, glm::radians(180.0f), normal);
-	vec3 b2 = rotate(t.b, glm::radians(180.0f), normal);
-	vec3 c2 = rotate(t.c, glm::radians(180.0f), normal);
+	vec3 A2 = rotate(Triangle.A, glm::radians(180.0f), Normal);
+	vec3 B2 = rotate(Triangle.B, glm::radians(180.0f), Normal);
+	vec3 C2 = rotate(Triangle.C, glm::radians(180.0f), Normal);
 
-	vec3 translation;
-	if (x0 == x1)
-		translation = vec3(0, center.y, center.z);
-	if (y0 == y1)
-		translation = vec3(center.x, 0, center.z);
-	if (z0 == z1)
-		translation = vec3(center.x, center.y, 0);
+	vec3 Translation;
+	if (X0 == X1)
+		Translation = vec3(0, Center.y, Center.z);
+	if (Y0 == Y1)
+		Translation = vec3(Center.x, 0, Center.z);
+	if (Z0 == Z1)
+		Translation = vec3(Center.x, Center.y, 0);
 
-	a2 += translation * 2.0f;
-	b2 += translation * 2.0f;
-	c2 += translation * 2.0f;
+	A2 += Translation * 2.0f;
+	B2 += Translation * 2.0f;
+	C2 += Translation * 2.0f;
 
-	auto t2 = RTriangle{a2, b2, c2};
+	auto T2 = RTriangle{A2, B2, C2};
 
-	Face f;
-	f.a = t;
-	f.b = t2;
-	f.center = center;
+	RFace Face;
+	Face.A = Triangle;
+	Face.B = T2;
+	Face.Center = Center;
 
-	return f;
+	return Face;
 }

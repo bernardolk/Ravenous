@@ -1,16 +1,16 @@
 #include <engine/core/types.h>
 #include <engine/collision/simplex.h>
 
-void RSimplex::PushFront(vec3 point)
+void RSimplex::PushFront(vec3 Point)
 {
-	this->points[3] = this->points[2];
-	this->points[2] = this->points[1];
-	this->points[1] = this->points[0];
-	this->points[0] = point;
+	this->Points[3] = this->Points[2];
+	this->Points[2] = this->Points[1];
+	this->Points[1] = this->Points[0];
+	this->Points[0] = Point;
 
-	this->p_size++;
-	assert(this->p_size <= 4);
+	this->PSize++;
+	assert(this->PSize <= 4);
 }
 
-vec3& RSimplex::operator[](uint i) { return this->points[i]; }
-uint RSimplex::size() const { return this->p_size; }
+vec3& RSimplex::operator[](uint i) { return this->Points[i]; }
+uint RSimplex::size() const { return this->PSize; }

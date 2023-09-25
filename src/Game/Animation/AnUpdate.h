@@ -17,40 +17,40 @@ enum NEntityAnimationKeyframeFlags
 
 struct REntityAnimationKeyframe
 {
-	uint duration; // expressed in milliseconds
-	vec3 final_position;
-	vec3 final_rotation;
-	vec3 final_scale;
-	vec3 starting_position;
-	vec3 starting_rotation;
-	vec3 starting_scale;
+	uint Duration; // expressed in milliseconds
+	vec3 FinalPosition;
+	vec3 FinalRotation;
+	vec3 FinalScale;
+	vec3 StartingPosition;
+	vec3 StartingRotation;
+	vec3 StartingScale;
 
-	uint flags;
+	uint Flags;
 };
 
 struct REntityAnimation
 {
-	std::string description = "";
-	bool active = false;
-	EEntity* entity = nullptr;
-	uint keyframes_count = 0;
-	REntityAnimationKeyframe keyframes[AnMaxEntityAnimationKeyframes];
+	string Description = "";
+	bool Active = false;
+	EEntity* Entity = nullptr;
+	uint KeyframesCount = 0;
+	REntityAnimationKeyframe Keyframes[AnMaxEntityAnimationKeyframes];
 
-	float runtime = 0; // expressed in milliseconds
-	uint current_keyframe = 0;
-	float keyframe_runtime = 0;
+	float Runtime = 0; // expressed in milliseconds
+	uint CurrentKeyframe = 0;
+	float KeyframeRuntime = 0;
 
 	void Update();
 };
 
 struct REntityAnimationBuffer
 {
-	constexpr static uint animation_buffer_array_size = 16;
-	REntityAnimation animations[animation_buffer_array_size];
+	constexpr static uint AnimationBufferArraySize = 16;
+	REntityAnimation Animations[AnimationBufferArraySize];
 
 	uint FindSlot();
 
-	void StartAnimation(EEntity* entity, REntityAnimation* animation);
+	void StartAnimation(EEntity* Entity, REntityAnimation* Animation);
 
 	static void UpdateAnimations();
 
@@ -58,4 +58,4 @@ struct REntityAnimationBuffer
 
 inline REntityAnimationBuffer EntityAnimations{};
 
-void AN_CreateHardcodedAnimations();
+void AnCreateHardcodedAnimations();

@@ -9,67 +9,67 @@
 
 void RImDraw::Init()
 {
-	list = new RImDrawElement[im_buffer_size];
-	for (int i = 0; i < im_buffer_size; i++)
+	List = new RImDrawElement[ImBufferSize];
+	for (int I = 0; I < ImBufferSize; I++)
 	{
-		EmptySlot(i);
-		list[i].mesh.SetupGLBuffers();
+		EmptySlot(I);
+		List[I].Mesh.SetupGLBuffers();
 	}
 }
 
-void RImDraw::Update(float frame_duration)
+void RImDraw::Update(float FrameDuration)
 {
-	for (int i = 0; i < im_buffer_size; i++)
+	for (int I = 0; I < ImBufferSize; I++)
 	{
-		auto& obj = list[i];
-		if (obj.empty)
+		auto& Obj = List[I];
+		if (Obj.Empty)
 			continue;
 
-		obj.duration -= frame_duration * 1000.0;
-		if (obj.duration <= 0)
-			EmptySlot(i);
+		Obj.Duration -= FrameDuration * 1000.0;
+		if (Obj.Duration <= 0)
+			EmptySlot(I);
 	}
 }
 
-void RImDraw::Render(RCamera* camera)
+void RImDraw::Render(RCamera* Camera)
 {
-	RShader* im_point_shader = ShaderCatalogue.find("immediate_point")->second;
-	RShader* im_mesh_shader = ShaderCatalogue.find("im_mesh")->second;
-	RShader* shader = im_point_shader;
-	for (int i = 0; i < im_buffer_size; i++)
+	RShader* ImPointShader = ShaderCatalogue.find("immediate_Point")->second;
+	RShader* ImMeshShader = ShaderCatalogue.find("im_mesh")->second;
+	RShader* Shader = ImPointShader;
+	for (int I = 0; I < ImBufferSize; I++)
 	{
-		auto& obj = list[i];
-		if (obj.empty)
+		auto& Obj = List[I];
+		if (Obj.Empty)
 			continue;
 
-		vec3 color = obj.render_options.color.x == -1 ? vec3(0.9, 0.2, 0.0) : obj.render_options.color;
+		vec3 Color = Obj.RenderOptions.Color.x == -1 ? vec3(0.9, 0.2, 0.0) : Obj.RenderOptions.Color;
 
-		if (obj.is_mesh)
+		if (Obj.IsMesh)
 		{
-			shader = im_mesh_shader;
-			shader->Use();
-			if (!obj.is_multpl_by_matmodel)
+			Shader = ImMeshShader;
+			Shader->Use();
+			if (!Obj.IsMultplByMatmodel)
 			{
-				auto mat_model = GetMatModel(obj.pos, obj.rot, obj.scale);
-				shader->SetMatrix4("model", mat_model);
+				auto MatModel = GetMatModel(Obj.Position, Obj.Rotation, Obj.Scale);
+				Shader->SetMatrix4("model", MatModel);
 			}
 			else
 			{
-				shader->SetMatrix4("model", Mat4Identity);
+				Shader->SetMatrix4("model", Mat4Identity);
 			}
 		}
 		else
 		{
-			shader = im_point_shader;
-			shader->Use();
+			Shader = ImPointShader;
+			Shader->Use();
 		}
 
-		shader->SetMatrix4("view", camera->mat_view);
-		shader->SetMatrix4("projection", camera->mat_projection);
-		shader->SetFloat("opacity", obj.render_options.opacity);
-		shader->SetFloat3("color", obj.render_options.color);
+		Shader->SetMatrix4("view", Camera->MatView);
+		Shader->SetMatrix4("projection", Camera->MatProjection);
+		Shader->SetFloat("opacity", Obj.RenderOptions.Opacity);
+		Shader->SetFloat3("Color", Obj.RenderOptions.Color);
 
-		RenderMesh(&(list[i].mesh), obj.render_options);
+		RenderMesh(&(List[I].Mesh), Obj.RenderOptions);
 	}
 }
 
@@ -77,280 +77,279 @@ void RImDraw::Render(RCamera* camera)
 /* --------------------------- */
 /*      > Add primitives       */
 /* --------------------------- */
-void RImDraw::Add(uint _hash, std::vector<RVertex> vertex_vec, GLenum draw_method, RenderOptions opts)
+void RImDraw::Add(uint _hash, std::vector<RVertex> VertexVec, GLenum DrawMethod, RenderOptions Opts)
 {
-	IM_R_FIND_SLOT();
+	RImDrawSlot Slot = IM_R_FIND_SLOT();
 
-	SetMesh(slot.index, vertex_vec, draw_method, opts);
+	SetMesh(Slot.Index, VertexVec, DrawMethod, Opts);
 }
 
 
-void RImDraw::Add(uint _hash, std::vector<RTriangle> triangles, GLenum draw_method = GL_LINE_LOOP, RenderOptions opts = RenderOptions{})
+void RImDraw::Add(uint _hash, std::vector<RTriangle> Triangles, GLenum DrawMethod = GL_LINE_LOOP, RenderOptions Opts = RenderOptions{})
 {
-	IM_R_FIND_SLOT();
+	RImDrawSlot Slot = IM_R_FIND_SLOT();
 
-	std::vector<RVertex> vertex_vec;
-	for (int i = 0; i < triangles.size(); i++)
+	std::vector<RVertex> VertexVec;
+	for (int i = 0; i < Triangles.size(); i++)
 	{
-		vertex_vec.push_back(RVertex{triangles[i].a});
-		vertex_vec.push_back(RVertex{triangles[i].b});
-		vertex_vec.push_back(RVertex{triangles[i].c});
+		VertexVec.push_back(RVertex{Triangles[i].A});
+		VertexVec.push_back(RVertex{Triangles[i].B});
+		VertexVec.push_back(RVertex{Triangles[i].C});
 	}
 
-	SetMesh(slot.index, vertex_vec, draw_method, opts);
+	SetMesh(Slot.Index, VertexVec, DrawMethod, Opts);
 }
 
-void RImDraw::AddLine(uint _hash, vec3 point_a, vec3 point_b, vec3 color)
+void RImDraw::AddLine(uint Hash, vec3 PointA, vec3 PointB, vec3 Color)
 {
-	AddLine(_hash, point_a, point_b, 1.0, false, color);
+	AddLine(Hash, PointA, PointB, 1.0, false, Color);
 }
 
 
-void RImDraw::AddLine(uint _hash, vec3 point_a, vec3 point_b, float line_width,
-                     bool always_on_top, vec3 color, float duration)
+void RImDraw::AddLine(uint _hash, vec3 PointA, vec3 PointB, float LineWidth, bool AlwaysOnTop, vec3 Color, float Duration)
 {
-	IM_R_FIND_SLOT();
+	RImDrawSlot Slot = IM_R_FIND_SLOT();
 
-	auto vertex_vec = std::vector<RVertex>{RVertex{point_a}, RVertex{point_b}};
+	auto VertexVec = std::vector<RVertex>{RVertex{PointA}, RVertex{PointB}};
 
-	RenderOptions opts;
-	opts.line_width = line_width;
-	opts.always_on_top = always_on_top;
-	opts.color = color;
-	opts.dont_cull_face = true;
+	RenderOptions Opts;
+	Opts.LineWidth = LineWidth;
+	Opts.AlwaysOnTop = AlwaysOnTop;
+	Opts.Color = Color;
+	Opts.DontCullFace = true;
 
-	if (duration != 0)
+	if (Duration != 0)
 	{
-		auto& obj = list[slot.index];
-		obj.hash = _hash;
-		obj.duration = duration;
+		auto& Obj = List[Slot.Index];
+		Obj.Hash = _hash;
+		Obj.Duration = Duration;
 	}
 
-	SetMesh(slot.index, vertex_vec, GL_LINES, opts);
+	SetMesh(Slot.Index, VertexVec, GL_LINES, Opts);
 }
 
 
-void RImDraw::AddLineLoop(uint _hash, std::vector<vec3> points, float line_width, bool always_on_top)
+void RImDraw::AddLineLoop(uint _hash, vector<vec3> Points, float LineWidth, bool AlwaysOnTop)
 {
-	IM_R_FIND_SLOT();
+	RImDrawSlot Slot = IM_R_FIND_SLOT();
 
-	auto vertex_vec = std::vector<RVertex>();
-	for (int i = 0; i < points.size(); i++)
-		vertex_vec.push_back(RVertex{points[i]});
+	auto VertexVec = std::vector<RVertex>();
+	for (int I = 0; I < Points.size(); I++)
+		VertexVec.push_back(RVertex{Points[I]});
 
-	RenderOptions opts;
-	opts.line_width = line_width;
-	opts.always_on_top = always_on_top;
-	opts.dont_cull_face = true;
+	RenderOptions Opts;
+	Opts.LineWidth = LineWidth;
+	Opts.AlwaysOnTop = AlwaysOnTop;
+	Opts.DontCullFace = true;
 
-	SetMesh(slot.index, vertex_vec, GL_LINE_LOOP, opts);
+	SetMesh(Slot.Index, VertexVec, GL_LINE_LOOP, Opts);
 }
 
 
-void RImDraw::AddPoint(uint _hash, vec3 point, float point_size, bool always_on_top, vec3 color, float duration)
+void RImDraw::AddPoint(uint _hash, vec3 Point, float PointSize, bool AlwaysOnTop, vec3 Color, float Duration)
 {
-	IM_R_FIND_SLOT();
+	RImDrawSlot Slot = IM_R_FIND_SLOT();
 
-	if (duration != 0)
+	if (Duration != 0)
 	{
-		auto& obj = list[slot.index];
-		obj.hash = _hash;
-		obj.duration = duration;
+		auto& Obj = List[Slot.Index];
+		Obj.Hash = _hash;
+		Obj.Duration = Duration;
 	}
 
-	auto vertex_vec = std::vector<RVertex>{RVertex{point}};
+	auto VertexVec = std::vector<RVertex>{RVertex{Point}};
 
-	RenderOptions opts;
-	opts.point_size = point_size;
-	opts.always_on_top = always_on_top;
-	opts.color = color;
+	RenderOptions Opts;
+	Opts.PointSize = PointSize;
+	Opts.AlwaysOnTop = AlwaysOnTop;
+	Opts.Color = Color;
 
-	SetMesh(slot.index, vertex_vec, GL_POINTS, opts);
+	SetMesh(Slot.Index, VertexVec, GL_POINTS, Opts);
 }
 
-void RImDraw::AddPoint(uint _hash, vec3 point, vec3 color)
+void RImDraw::AddPoint(uint Hash, vec3 Point, vec3 Color)
 {
-	AddPoint(_hash, point, 1.0, false, color);
+	AddPoint(Hash, Point, 1.0, false, Color);
 }
 
 
-void RImDraw::AddTriangle(uint _hash, RTriangle t, float line_width, bool always_on_top, vec3 color)
+void RImDraw::AddTriangle(uint _hash, RTriangle Triangle, float LineWidth, bool AlwaysOnTop, vec3 Color)
 {
-	IM_R_FIND_SLOT();
+	RImDrawSlot Slot = IM_R_FIND_SLOT();
 
-	auto vertex_vec = std::vector<RVertex>{RVertex{t.a}, RVertex{t.b}, RVertex{t.c}};
-	auto indices = std::vector<uint>{0, 1, 2};
+	auto VertexVec = std::vector<RVertex>{RVertex{Triangle.A}, RVertex{Triangle.B}, RVertex{Triangle.C}};
+	auto Indices = std::vector<uint>{0, 1, 2};
 
-	RenderOptions opts;
-	opts.line_width = line_width;
-	opts.always_on_top = always_on_top;
-	opts.color = color;
+	RenderOptions Opts;
+	Opts.LineWidth = LineWidth;
+	Opts.AlwaysOnTop = AlwaysOnTop;
+	Opts.Color = Color;
 
-	SetMesh(slot.index, vertex_vec, GL_TRIANGLES, opts);
-	SetIndices(slot.index, indices);
+	SetMesh(Slot.Index, VertexVec, GL_TRIANGLES, Opts);
+	SetIndices(Slot.Index, Indices);
 }
 
 
 /* --------------------------- */
 /*        > Add Mesh           */
 /* --------------------------- */
-void RImDraw::AddMesh(uint _hash, RMesh* mesh, vec3 pos, vec3 rot, vec3 scale, vec3 color, int duration)
+void RImDraw::AddMesh(uint _hash, RMesh* Mesh, vec3 Position, vec3 Rotation, vec3 Scale, vec3 Color, int Duration)
 {
-	IM_R_FIND_SLOT();
+	RImDrawSlot Slot = IM_R_FIND_SLOT();
 
-	if (!slot.empty)
+	if (!Slot.Empty)
 	{
-		UpdateMesh(slot.index, pos, rot, scale, color, duration);
+		UpdateMesh(Slot.Index, Position, Rotation, Scale, Color, Duration);
 		return;
 	}
 
-	RenderOptions opts;
-	opts.color = color;
-	opts.wireframe = true;
+	RenderOptions Opts;
+	Opts.Color = Color;
+	Opts.Wireframe = true;
 
-	auto& obj = list[slot.index];
-	obj.hash = _hash;
-	obj.duration = duration;
-	obj.pos = pos;
-	obj.rot = rot;
-	obj.scale = scale;
+	auto& Obj = List[Slot.Index];
+	Obj.Hash = _hash;
+	Obj.Duration = Duration;
+	Obj.Position = Position;
+	Obj.Rotation = Rotation;
+	Obj.Scale = Scale;
 
-	SetMesh(slot.index, mesh, opts);
+	SetMesh(Slot.Index, Mesh, Opts);
 }
 
 
-void RImDraw::AddMesh(uint _hash, RMesh* mesh, vec3 color, float duration)
+void RImDraw::AddMesh(uint _hash, RMesh* Mesh, vec3 Color, float Duration)
 {
-	IM_R_FIND_SLOT();
+	RImDrawSlot Slot = IM_R_FIND_SLOT();
 
-	if (!slot.empty)
+	if (!Slot.Empty)
 	{
-		UpdateMesh(slot.index, color, duration);
+		UpdateMesh(Slot.Index, Color, Duration);
 		return;
 	}
 
-	RenderOptions opts;
-	opts.color = color;
-	opts.wireframe = true;
+	RenderOptions Opts;
+	Opts.Color = Color;
+	Opts.Wireframe = true;
 
-	auto& obj = list[slot.index];
-	obj.hash = _hash;
-	obj.duration = duration;
-	obj.is_multpl_by_matmodel = true;
+	auto& Obj = List[Slot.Index];
+	Obj.Hash = _hash;
+	Obj.Duration = Duration;
+	Obj.IsMultplByMatmodel = true;
 
-	SetMesh(slot.index, mesh, opts);
+	SetMesh(Slot.Index, Mesh, Opts);
 }
 
 
-void RImDraw::AddMesh(uint _hash, EEntity* entity, int duration)
+void RImDraw::AddMesh(uint Hash, EEntity* Entity, int Duration)
 {
-	AddMesh(_hash, entity->mesh, entity->position, entity->rotation, entity->scale, vec3(1.0, 0, 0), duration);
+	AddMesh(Hash, Entity->Mesh, Entity->Position, Entity->Rotation, Entity->Scale, vec3(1.0, 0, 0), Duration);
 }
 
 
-void RImDraw::AddMesh(uint _hash, EEntity* entity)
+void RImDraw::AddMesh(uint Hash, EEntity* Entity)
 {
-	AddMesh(_hash, entity->mesh, entity->position, entity->rotation, entity->scale);
+	AddMesh(Hash, Entity->Mesh, Entity->Position, Entity->Rotation, Entity->Scale);
 }
 
 
-void RImDraw::AddMesh(uint _hash, EEntity* entity, vec3 pos)
+void RImDraw::AddMesh(uint Hash, EEntity* Entity, vec3 Position)
 {
-	AddMesh(_hash, entity->mesh, pos, entity->rotation, entity->scale);
+	AddMesh(Hash, Entity->Mesh, Position, Entity->Rotation, Entity->Scale);
 }
 
 /* --------------------------- */
 /*     > Private functions     */
 /* --------------------------- */
-void RImDraw::EmptySlot(int i)
+void RImDraw::EmptySlot(int Index)
 {
-	auto& obj = list[i];
-	obj.mesh.indices.clear();
-	obj.mesh.vertices.clear();
-	obj.empty = true;
-	obj.hash = 0;
-	obj.duration = 0;
-	obj.is_mesh = false;
-	obj.scale = vec3(0);
-	obj.pos = vec3(0);
-	obj.rot = vec3(0);
-	obj.is_multpl_by_matmodel = false;
+	auto& Obj = List[Index];
+	Obj.Mesh.Indices.clear();
+	Obj.Mesh.Vertices.clear();
+	Obj.Empty = true;
+	Obj.Hash = 0;
+	Obj.Duration = 0;
+	Obj.IsMesh = false;
+	Obj.Scale = vec3(0);
+	Obj.Position = vec3(0);
+	Obj.Rotation = vec3(0);
+	Obj.IsMultplByMatmodel = false;
 }
 
 
-RImDrawSlot RImDraw::FindElementOrEmptySlot(uint hash)
+RImDrawSlot RImDraw::FindElementOrEmptySlot(uint Hash)
 {
-	int slot = -1;
-	for (int i = 0; i < im_buffer_size; i++)
+	int Slot = -1;
+	for (int I = 0; I < ImBufferSize; I++)
 	{
-		if (slot == -1 && list[i].empty)
-			slot = i;
-		if (list[i].hash == hash)
-			return RImDrawSlot{false, i};
+		if (Slot == -1 && List[I].Empty)
+			Slot = I;
+		if (List[I].Hash == Hash)
+			return RImDrawSlot{false, I};
 	}
 
-	if (slot == -1)
+	if (Slot == -1)
 		print("IM RENDER BUFFER IS FULL");
 
-	return RImDrawSlot{true, slot};
+	return RImDrawSlot{true, Slot};
 }
 
 
-void RImDraw::SetMesh(int i, std::vector<RVertex> vertices, GLenum draw_method, RenderOptions opts)
+void RImDraw::SetMesh(int Index, vector<RVertex> Vertices, GLenum DrawMethod, RenderOptions Opts)
 {
-	auto& obj = list[i];
-	obj.mesh.vertices = vertices;
-	obj.mesh.render_method = draw_method;
-	obj.render_options = opts;
-	obj.empty = false;
+	auto& Obj = List[Index];
+	Obj.Mesh.Vertices = Vertices;
+	Obj.Mesh.RenderMethod = DrawMethod;
+	Obj.RenderOptions = Opts;
+	Obj.Empty = false;
 
-	obj.mesh.SendDataToGLBuffer();
+	Obj.Mesh.SendDataToGLBuffer();
 }
 
 
-void RImDraw::SetMesh(int i, RMesh* mesh, RenderOptions opts)
+void RImDraw::SetMesh(int Index, RMesh* Mesh, RenderOptions Opts)
 {
-	auto& obj = list[i];
-	obj.mesh = *mesh;
-	obj.render_options = opts;
-	obj.is_mesh = true;
-	obj.empty = false;
-	obj.mesh.SendDataToGLBuffer();
+	auto& Obj = List[Index];
+	Obj.Mesh = *Mesh;
+	Obj.RenderOptions = Opts;
+	Obj.IsMesh = true;
+	Obj.Empty = false;
+	Obj.Mesh.SendDataToGLBuffer();
 }
 
 
-void RImDraw::UpdateMesh(int i, vec3 pos, vec3 rot, vec3 scale, vec3 color, int duration)
+void RImDraw::UpdateMesh(int Index, vec3 Position, vec3 Rotation, vec3 Scale, vec3 Color, int Duration)
 {
-	auto& obj = list[i];
-	obj.render_options.color = color;
-	obj.duration = duration;
-	obj.pos = pos;
-	obj.rot = rot;
-	obj.scale = scale;
+	auto& Obj = List[Index];
+	Obj.RenderOptions.Color = Color;
+	Obj.Duration = Duration;
+	Obj.Position = Position;
+	Obj.Rotation = Rotation;
+	Obj.Scale = Scale;
 }
 
 
-void RImDraw::UpdateMesh(int i, vec3 color, int duration)
+void RImDraw::UpdateMesh(int Index, vec3 Color, int Duration)
 {
-	auto& obj = list[i];
-	obj.render_options.color = color;
-	obj.duration = duration;
+	auto& Obj = List[Index];
+	Obj.RenderOptions.Color = Color;
+	Obj.Duration = Duration;
 }
 
 
 //@TODO: Probably redundant code
-mat4 RImDraw::GetMatModel(vec3 pos, vec3 rot, vec3 scale)
+mat4 RImDraw::GetMatModel(vec3 Position, vec3 Rotation, vec3 Scale)
 {
-	glm::mat4 model = translate(Mat4Identity, pos);
-	model = rotate(model, glm::radians(rot.x), vec3(1.0f, 0.0f, 0.0f));
-	model = rotate(model, glm::radians(rot.y), vec3(0.0f, 1.0f, 0.0f));
-	model = rotate(model, glm::radians(rot.z), vec3(0.0f, 0.0f, 1.0f));
-	model = glm::scale(model, scale);
-	return model;
+	glm::mat4 Model = translate(Mat4Identity, Position);
+	Model = rotate(Model, glm::radians(Rotation.x), vec3(1.0f, 0.0f, 0.0f));
+	Model = rotate(Model, glm::radians(Rotation.y), vec3(0.0f, 1.0f, 0.0f));
+	Model = rotate(Model, glm::radians(Rotation.z), vec3(0.0f, 0.0f, 1.0f));
+	Model = glm::scale(Model, Scale);
+	return Model;
 }
 
 
-void RImDraw::SetIndices(int i, std::vector<uint> indices)
+void RImDraw::SetIndices(int Index, std::vector<uint> Indices)
 {
-	list[i].mesh.indices = indices;
+	List[Index].Mesh.Indices = Indices;
 }

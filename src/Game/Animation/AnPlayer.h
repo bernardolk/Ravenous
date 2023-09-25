@@ -2,9 +2,9 @@
 
 #include "engine/core/core.h"
 
-void AN_AnimatePlayer(EPlayer* player);
-void ForceInterruptPlayerAnimation(EPlayer* player);
-bool AN_UpdatePlayerJumpingAnimation(EPlayer* player);
-bool AN_UpdatePlayerLandingAnimation(EPlayer* player);
-bool AN_UpdatePlayerLandingFallAnimation(EPlayer* player);
-bool AN_PlayerVaulting(EPlayer* player);
+void AnAnimatePlayer(EPlayer* Player);
+void ForceInterruptPlayerAnimation(EPlayer* Player);
+bool AnUpdatePlayerJumpingAnimation(EPlayer* Player);
+bool AnUpdatePlayerLandingAnimation(EPlayer* Player);
+bool AnUpdatePlayerLandingFallAnimation(EPlayer* Player);
+bool AnPlayerVaulting(EPlayer* Player);

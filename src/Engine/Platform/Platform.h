@@ -10,22 +10,22 @@ namespace Platform
 {
 	inline void Initialize()
 	{
-	#if PLATFORM == OS_WINDOWS
+#if PLATFORM == OS_WINDOWS
 		WinPlatformInitialize();
-	#endif
+#endif
 	}
 
-	inline bool ListFilesInDir(string path, string filetype, vector<string>& out_files)
+	inline bool ListFilesInDir(string Path, string Filetype, vector<string>& OutFiles)
 	{
-	#if PLATFORM == OS_WINDOWS
-		return WinListFiles(path, filetype, out_files);
-	#endif
+#if PLATFORM == OS_WINDOWS
+		return WinListFiles(Path, Filetype, OutFiles);
+#endif
 	}
 
 	inline float GetCurrentTime()
 	{
-	#if PLATFORM == OS_WINDOWS
+#if PLATFORM == OS_WINDOWS
 		return WinGetCurrentTime();
-	#endif
+#endif
 	}
 }

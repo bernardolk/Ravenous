@@ -8,41 +8,41 @@ RWorldChunkEntityIterator RWorldChunk::GetIterator()
 	return RWorldChunkEntityIterator(this);
 }
 
-void RWorldChunk::RemoveEntity(EEntity* entity_to_delete)
+void RWorldChunk::RemoveEntity(EEntity* EntityToDelete)
 {
 	// TODO: We are not dealing with actually removing entities yet, we only mark them so they can be skipped/overwritten.
-	entity_to_delete->deleted = true;
+	EntityToDelete->Deleted = true;
 }
 
 
-bool RWorldChunk::AddVisitor(EEntity* entity)
+bool RWorldChunk::AddVisitor(EEntity* Entity)
 {
-	visitors.push_back(entity);
-	entity->visitor_state = VisitorState{true, vec3(i, j, k), this};
+	Visitors.push_back(Entity);
+	Entity->VisitorState = VisitorState{true, vec3(i, j, k), this};
 	return true;
 }
 
-bool RWorldChunk::RemoveVisitor(EEntity* entity)
+bool RWorldChunk::RemoveVisitor(EEntity* Entity)
 {
-	int i = 0;
-	for (auto* visitor: visitors)
+	int I = 0;
+	for (auto* visitor : Visitors)
 	{
 		// TODO: #PtrToEntity Change to handle futurely
-		if (visitor == entity)
+		if (visitor == Entity)
 		{
-			visitors.erase(visitors.begin() + i);
-			entity->visitor_state.Reset();
+			Visitors.erase(Visitors.begin() + i);
+			Entity->VisitorState.Reset();
 		}
-		
+
 		i++;
 	}
-	
+
 	return false;
 }
 
 vec3 RWorldChunk::GetPositionMetric()
 {
-	return GetWorldCoordinatesFromWorldCellCoordinates(i, j , k);
+	return GetWorldCoordinatesFromWorldCellCoordinates(i, j, k);
 }
 
 string RWorldChunk::GetChunkPositionString()
@@ -52,26 +52,26 @@ string RWorldChunk::GetChunkPositionString()
 
 string RWorldChunk::GetChunkPositionMetricString()
 {
-	vec3 mcoords = GetPositionMetric();
-	return "[x: " + FormatFloatTostr(mcoords[0], 1)
-	+ ", y: " + FormatFloatTostr(mcoords[1], 1) + ", z: " + FormatFloatTostr(mcoords[2], 1)
+	vec3 MetricCoords = GetPositionMetric();
+	return "[x: " + FormatFloatTostr(MetricCoords[0], 1)
+	+ ", y: " + FormatFloatTostr(MetricCoords[1], 1) + ", z: " + FormatFloatTostr(MetricCoords[2], 1)
 	+ "]";
 }
 
-void RWorldChunk::InvokeTraitUpdateOnAllTypes(TraitID trait_id)
+void RWorldChunk::InvokeTraitUpdateOnAllTypes(TraitID TraitId)
 {
-	auto* etm = EntityTraitsManager::Get();
-	//auto* types = etm->GetTypesWithTrait(trait_id);
-	
-	for (auto& block_metadata : chunk_storage.storage_metadata_array)
+	auto* TraitsManager = EntityTraitsManager::Get();
+	//auto* types = etm->GetTypesWithTrait(TraitId);
+
+	for (auto& BlockMetadata : ChunkStorage.StorageMetadataArray)
 	{
-		if (block_metadata.entity_traits.Contains(trait_id))
+		if (BlockMetadata.EntityTraits.Contains(TraitId))
 		{
-			auto* trait_update_func = etm->GetUpdateFunc(block_metadata.type_id, trait_id);
-			for (int i = 0; i < block_metadata.entity_count; i++)
+			auto* TraitUpdateFunc = TraitsManager->GetUpdateFunc(BlockMetadata.TypeID, TraitId);
+			for (int i = 0; i < BlockMetadata.EntityCount; i++)
 			{
-				auto* entity = reinterpret_cast<EEntity*>(block_metadata.data_start + block_metadata.type_size * i);
-				trait_update_func(entity);
+				auto* Entity = reinterpret_cast<EEntity*>(BlockMetadata.DataStart + BlockMetadata.TypeSize * i);
+				TraitUpdateFunc(Entity);
 			}
 		}
 	}
@@ -79,34 +79,34 @@ void RWorldChunk::InvokeTraitUpdateOnAllTypes(TraitID trait_id)
 
 vec3 GetWorldCoordinatesFromWorldCellCoordinates(int i, int j, int k)
 {
-	const float world_x = (static_cast<float>(i) - WorldChunkOffsetX) * WorldChunkLengthMeters;
-	const float world_y = (static_cast<float>(j) - WorldChunkOffsetY) * WorldChunkLengthMeters;
-	const float world_z = (static_cast<float>(k) - WorldChunkOffsetZ) * WorldChunkLengthMeters;
+	const float WorldX = (static_cast<float>(i) - WorldChunkOffsetX) * WorldChunkLengthMeters;
+	const float WorldY = (static_cast<float>(j) - WorldChunkOffsetY) * WorldChunkLengthMeters;
+	const float WorldZ = (static_cast<float>(k) - WorldChunkOffsetZ) * WorldChunkLengthMeters;
 
-	return vec3{world_x, world_y, world_z};
+	return vec3{WorldX, WorldY, WorldZ};
 }
 
-RWorldChunkPosition WorldCoordsToCells(float x, float y, float z)
+RWorldChunkPosition WorldCoordsToCells(float X, float Y, float Z)
 {
-	RWorldChunkPosition world_cell_coords;
+	RWorldChunkPosition WorldCellCoords;
 
 	// if out of bounds return -1
-	if (x < WLowerBoundsMeters.x || x > WUpperBoundsMeters.x ||
-		y < WLowerBoundsMeters.y || y > WUpperBoundsMeters.y ||
-		z < WLowerBoundsMeters.z || z > WUpperBoundsMeters.z)
+	if (X < WLowerBoundsMeters.x || X > WUpperBoundsMeters.x ||
+		Y < WLowerBoundsMeters.y || Y > WUpperBoundsMeters.y ||
+		Z < WLowerBoundsMeters.z || Z > WUpperBoundsMeters.z)
 	{
-		return world_cell_coords;
+		return WorldCellCoords;
 	}
 
 	// int division to truncate float result to correct cell position
-	world_cell_coords.i = (x + WorldChunkOffsetX * WorldChunkLengthMeters) / WorldChunkLengthMeters;
-	world_cell_coords.j = (y + WorldChunkOffsetY * WorldChunkLengthMeters) / WorldChunkLengthMeters;
-	world_cell_coords.k = (z + WorldChunkOffsetZ * WorldChunkLengthMeters) / WorldChunkLengthMeters;
+	WorldCellCoords.i = (X + WorldChunkOffsetX * WorldChunkLengthMeters) / WorldChunkLengthMeters;
+	WorldCellCoords.j = (Y + WorldChunkOffsetY * WorldChunkLengthMeters) / WorldChunkLengthMeters;
+	WorldCellCoords.k = (Z + WorldChunkOffsetZ * WorldChunkLengthMeters) / WorldChunkLengthMeters;
 
-	return world_cell_coords;
+	return WorldCellCoords;
 }
 
-RWorldChunkPosition WorldCoordsToCells(vec3 position)
+RWorldChunkPosition WorldCoordsToCells(vec3 Position)
 {
-	return WorldCoordsToCells(position.x, position.y, position.z);
+	return WorldCoordsToCells(Position.x, Position.y, Position.z);
 }

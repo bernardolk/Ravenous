@@ -20,11 +20,11 @@ enum EntityFlags
 
 struct VisitorState
 {
-	bool visiting = false;
-	vec3 chunk_position = vec3(0.f);
-	RWorldChunk* chunk_ptr = nullptr;
+	bool Visiting = false;
+	vec3 ChunkPosition = vec3(0.f);
+	RWorldChunk* ChunkPtr = nullptr;
 
-	void Reset() { new (this) VisitorState(); }
+	void Reset() { new(this) VisitorState(); }
 };
 
 /**  ---------------------------------------------------------------------
@@ -34,55 +34,55 @@ struct VisitorState
 struct EEntity
 {
 	// Basic data needed for lower level systems to recognize an Entity type.
-	TypeID type_id;
-	uint64 id = 0;
-	string name;
+	TypeID TypeID;
+	uint64 ID = 0;
+	string Name;
 
 protected:
 	friend RWorldChunk;
-	bool deleted = false;
+	bool Deleted = false;
 
 	// Renderable, Collidable Entity API Begin:
 public:
-	Flags flags = 0;
-	
-	VisitorState visitor_state;
-	
+	Flags Flags = 0;
+
+	VisitorState VisitorState;
+
 	/** Simulation data */
-	vec3 position = vec3(0.0f);
-	vec3 rotation = vec3(0.0f);
-	vec3 scale = vec3(1.0f);
-	vec3 velocity = vec3(0.0f);
+	vec3 Position = vec3(0.0f);
+	vec3 Rotation = vec3(0.0f);
+	vec3 Scale = vec3(1.0f);
+	vec3 Velocity = vec3(0.0f);
 	//glm::quat quaternion{};
-	
+
 	/** Render data */
-	RShader* shader = nullptr;
-	RMesh* mesh = nullptr;
-	vector<RTexture> textures;
-	mat4 mat_model = Mat4Identity;
-	
+	RShader* Shader = nullptr;
+	RMesh* Mesh = nullptr;
+	vector<RTexture> Textures;
+	mat4 MatModel = Mat4Identity;
+
 	// tmp? should probably be part of a texture data struct
-	int uv_tile_wrap[6] = {1, 1, 1, 1, 1, 1};
-	
+	int UvTileWrap[6] = {1, 1, 1, 1, 1, 1};
+
 	//@TODO: Get rid of collider (and include)
-	RCollisionMesh* collision_mesh = nullptr; // static collision mesh vertex data
-	RCollisionMesh collider{};                // dynamic collision mesh, obtained by multiplying static collision mesh with model matrix
-	RBoundingBox bounding_box{};              // computed using the collider mesh, used for fast first pass collision tests
+	RCollisionMesh* CollisionMesh = nullptr; // static collision mesh vertex data
+	RCollisionMesh Collider{};                // dynamic collision mesh, obtained by multiplying static collision mesh with model matrix
+	RBoundingBox BoundingBox{};              // computed using the collider mesh, used for fast first pass collision tests
 
 	// collider settings
-	bool slidable = false;
+	bool Slidable = false;
 
 	/** World data */
 	// Array<WorldCell*, MaxEntityWorldCells> world_cells{};
-	vector<RWorldChunk*> world_chunks;
-	int world_chunks_count = 0;
-	
+	vector<RWorldChunk*> WorldChunks;
+	int WorldChunksCount = 0;
+
 	/** Event trigger */
 	// TODO: Will only be necessary on I_Interactable
-	RMesh* trigger = nullptr;
-	vec3 trigger_scale = vec3(1.5f, 1.f, 0.f);
-	vec3 trigger_pos = vec3(0.0f);
-	mat4 trigger_mat_model{};
+	RMesh* Trigger = nullptr;
+	vec3 TriggerScale = vec3(1.5f, 1.f, 0.f);
+	vec3 TriggerPos = vec3(0.0f);
+	mat4 TriggerMatModel{};
 
 public:
 	void Update();
@@ -90,12 +90,12 @@ public:
 	void UpdateModelMatrix();
 	void UpdateBoundingBox();
 	void UpdateTrigger();
-	
-	void RotateY(float angle);
+
+	void RotateY(float Angle);
 	mat4 GetRotationMatrix();
-	
+
 	RCollisionMesh GetTriggerCollider();
-	
+
 	void MakeInvisible();
 	void MakeVisible();
 };

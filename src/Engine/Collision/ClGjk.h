@@ -19,37 +19,37 @@
 #include "engine/core/core.h"
 #include "simplex.h"
 
-struct GJK_Iteration
+struct GjkIteration
 {
-	RSimplex simplex;
-	vec3 direction;
-	bool finished = false;
+	RSimplex Simplex;
+	vec3 Direction;
+	bool Finished = false;
 };
 
-struct GJK_Result
+struct GjkResult
 {
-	RSimplex simplex;
-	bool collision = false;
+	RSimplex Simplex;
+	bool Collision = false;
 };
 
-struct GJK_Point
+struct GjkPoint
 {
-	vec3 point;
-	bool empty;
+	vec3 Point;
+	bool Empty = false;
 };
 
-GJK_Point CL_FindFurthestVertex(RCollisionMesh* collision_mesh, vec3 direction);
-GJK_Point CL_GetSupportPoint(RCollisionMesh* collision_mesh_a, RCollisionMesh* collision_mesh_b, vec3 direction);
-void CL_UpdateLineSimplex(GJK_Iteration* gjk);
-void CL_UpdateTriangleSimplex(GJK_Iteration* gjk);
-void CL_UpdateTetrahedronSimplex(GJK_Iteration* gjk);
-void CL_UpdateSimplexAndDirection(GJK_Iteration* gjk);
+GjkPoint ClFindFurthestVertex(RCollisionMesh* CollisionMesh, vec3 Direction);
+GjkPoint ClGetSupportPoint(RCollisionMesh* CollisionMeshA, RCollisionMesh* CollisionMeshB, vec3 Direction);
+void ClUpdateLineSimplex(GjkIteration* Gjk);
+void ClUpdateTriangleSimplex(GjkIteration* Gjk);
+void ClUpdateTetrahedronSimplex(GjkIteration* Gjk);
+void ClUpdateSimplexAndDirection(GjkIteration* Gjk);
 
-void CL_DebugRenderSimplex(RSimplex simplex);
-GJK_Result CL_RunGjk(RCollisionMesh* collider_a, RCollisionMesh* collider_b);
+void ClDebugRenderSimplex(RSimplex Simplex);
+GjkResult ClRunGjk(RCollisionMesh* ColliderA, RCollisionMesh* ColliderB);
 
 
-inline bool CL_SameGeneralDirection(vec3 a, vec3 b)
+inline bool ClSameGeneralDirection(vec3 A, vec3 B)
 {
-	return dot(a, b) > 0;
+	return glm::dot(A, B) > 0;
 }

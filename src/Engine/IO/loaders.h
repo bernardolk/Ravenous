@@ -4,23 +4,23 @@
 
 enum class RenderMethodEnum
 {
-	triangles = 0x0004,
+	Triangles = 0x0004,
 };
 
-using StrVec = std::vector<std::string>;
+using StrVec = std::vector<string>;
 
 RMesh* LoadWavefrontObjAsMesh(
-	const std::string& path,
-	const std::string& filename,
-	const std::string& name = "",
-	bool setup_gl_data = true,
-	RenderMethodEnum render_method = RenderMethodEnum::triangles);
+	const string& Path,
+	const string& Filename,
+	const string& Name = "",
+	bool SetupGlData = true,
+	RenderMethodEnum RenderMethod = RenderMethodEnum::Triangles);
 
-RCollisionMesh* LoadWavefrontObjAsCollisionMesh(std::string path, std::string filename, std::string name = "");
-unsigned int LoadTextureFromFile(const std::string& filename, const std::string& directory, bool gamma = false);
-void AttachExtraDataToMesh(std::string filename, std::string filepath, RMesh* mesh);
-void LoadMeshExtraData(std::string filename, RMesh* mesh);
-void WriteMeshExtraDataFile(std::string filename, RMesh* mesh);
+RCollisionMesh* LoadWavefrontObjAsCollisionMesh(string Path, string Filename, string Name = "");
+unsigned int LoadTextureFromFile(const string& Filename, const string& Directory, bool Gamma = false);
+void AttachExtraDataToMesh(string Filename, string Filepath, RMesh* Mesh);
+void LoadMeshExtraData(string Filename, RMesh* Mesh);
+void WriteMeshExtraDataFile(string Filename, RMesh* Mesh);
 void LoadTexturesFromAssetsFolder();
-StrVec GetFilesINFolder(std::string directory);
+StrVec GetFilesINFolder(string Directory);
 void LoadShaders();

@@ -26,27 +26,27 @@ map<std::string, RTexture> TextureCatalogue;
 void RMesh::SetupGLData()
 {
 	// to avoid a pretty bad rendering issue
-	assert(indices.size() > 0);
+	assert(Indices.size() > 0);
 
-	if (gl_data.VAO > 0)
+	if (GLData.VAO > 0)
 	{
 		Log(LOG_INFO, "Redundant setup_gl_data call occured.");
 		return;
 	}
 
-	RGLData new_gl_data;
+	RGLData NewGlData;
 
 	// create buffers/arrays
-	glGenVertexArrays(1, &new_gl_data.VAO);
-	glGenBuffers(1, &new_gl_data.VBO);
-	glGenBuffers(1, &new_gl_data.EBO);
+	glGenVertexArrays(1, &NewGlData.VAO);
+	glGenBuffers(1, &NewGlData.VBO);
+	glGenBuffers(1, &NewGlData.EBO);
 
 	// load data into vertex buffers
-	glBindVertexArray(new_gl_data.VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, new_gl_data.VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(RVertex), &(vertices[0]), GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, new_gl_data.EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint), &(indices[0]), GL_STATIC_DRAW);
+	glBindVertexArray(NewGlData.VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, NewGlData.VBO);
+	glBufferData(GL_ARRAY_BUFFER, Vertices.size() * sizeof(RVertex), &(Vertices[0]), GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, NewGlData.EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, Indices.size() * sizeof(uint), &(Indices[0]), GL_STATIC_DRAW);
 
 	// set the vertex attribute pointers
 	// vertex positions
@@ -54,41 +54,41 @@ void RMesh::SetupGLData()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(RVertex), static_cast<void*>(nullptr));
 	// vertex normals
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(RVertex), (void*)offsetof(RVertex, normal));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(RVertex), (void*)offsetof(RVertex, Normal));
 	// vertex texture coords
 	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(RVertex), (void*)offsetof(RVertex, tex_coords));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(RVertex), (void*)offsetof(RVertex, TexCoords));
 	// vertex tangent
 	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(RVertex), (void*)offsetof(RVertex, tangent));
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(RVertex), (void*)offsetof(RVertex, Tangent));
 	// vertex bitangent
 	glEnableVertexAttribArray(4);
-	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(RVertex), (void*)offsetof(RVertex, bitangent));
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(RVertex), (void*)offsetof(RVertex, Bitangent));
 
 	glBindVertexArray(0);
 
-	gl_data = new_gl_data;
+	GLData = NewGlData;
 }
 
 // This will only create the buffer and set the attribute pointers
 void RMesh::SetupGLBuffers()
 {
-	glGenVertexArrays(1, &this->gl_data.VAO);
-	glGenBuffers(1, &this->gl_data.VBO);
-	glGenBuffers(1, &this->gl_data.EBO);
+	glGenVertexArrays(1, &this->GLData.VAO);
+	glGenBuffers(1, &this->GLData.VBO);
+	glGenBuffers(1, &this->GLData.EBO);
 }
 
 void RMesh::SendDataToGLBuffer()
 {
 	// load data into vertex buffers
-	glBindVertexArray(this->gl_data.VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, this->gl_data.VBO);
-	glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(RVertex), &(this->vertices[0]), GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->gl_data.EBO);
+	glBindVertexArray(this->GLData.VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, this->GLData.VBO);
+	glBufferData(GL_ARRAY_BUFFER, this->Vertices.size() * sizeof(RVertex), &(this->Vertices[0]), GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->GLData.EBO);
 
-	if (this->indices.size() > 0)
+	if (this->Indices.size() > 0)
 	{
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices.size() * sizeof(unsigned int), &(this->indices[0]), GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->Indices.size() * sizeof(unsigned int), &(this->Indices[0]), GL_STATIC_DRAW);
 	}
 	// @TODO: Do we need to do this every time?
 	// set the vertex attribute pointers
@@ -97,16 +97,16 @@ void RMesh::SendDataToGLBuffer()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(RVertex), static_cast<void*>(nullptr));
 	// vertex normals
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(RVertex), (void*)offsetof(RVertex, normal));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(RVertex), (void*)offsetof(RVertex, Normal));
 	// vertex texture coords
 	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(RVertex), (void*)offsetof(RVertex, tex_coords));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(RVertex), (void*)offsetof(RVertex, TexCoords));
 	// vertex tangent
 	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(RVertex), (void*)offsetof(RVertex, tangent));
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(RVertex), (void*)offsetof(RVertex, Tangent));
 	// vertex bitangent
 	glEnableVertexAttribArray(4);
-	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(RVertex), (void*)offsetof(RVertex, bitangent));
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(RVertex), (void*)offsetof(RVertex, Bitangent));
 
 	glBindVertexArray(0);
 }
@@ -119,199 +119,199 @@ RBoundingBox RMesh::ComputeBoundingBox()
 	// So, this does NOT return the min/max vertices of the mesh in axial direction
 	// (support points)
 
-	auto max_d = vec3(MinFloat, MinFloat, MinFloat);
-	auto min_d = vec3(MaxFloat, MaxFloat, MaxFloat);
+	auto MaxD = vec3(MinFloat, MinFloat, MinFloat);
+	auto MinD = vec3(MaxFloat, MaxFloat, MaxFloat);
 
-	float maxx = 0.f, minx = 0.f, maxy = 0.f, miny = 0.f, maxz = 0.f, minz = 0.f;
+	float Maxx = 0.f, Minx = 0.f, Maxy = 0.f, Miny = 0.f, Maxz = 0.f, Minz = 0.f;
 
-	for (int i = 0; i < this->vertices.size(); i++)
+	for (int i = 0; i < this->Vertices.size(); i++)
 	{
-		vec3 vertex = this->vertices[i].position;
-		float dotx = dot(vertex, vec3(1, 0, 0));
-		float doty = dot(vertex, vec3(0, 1, 0));
-		float dotz = dot(vertex, vec3(0, 0, 1));
+		vec3 Vertex = this->Vertices[i].Position;
+		float Dotx = dot(Vertex, vec3(1, 0, 0));
+		float Doty = dot(Vertex, vec3(0, 1, 0));
+		float Dotz = dot(Vertex, vec3(0, 0, 1));
 
-		if (dotx < min_d.x)
+		if (Dotx < MinD.x)
 		{
-			minx = vertex.x;
-			min_d.x = dotx;
+			Minx = Vertex.x;
+			MinD.x = Dotx;
 		}
-		if (dotx > max_d.x)
+		if (Dotx > MaxD.x)
 		{
-			maxx = vertex.x;
-			max_d.x = dotx;
-		}
-
-		if (doty < min_d.y)
-		{
-			miny = vertex.y;
-			min_d.y = doty;
-		}
-		if (doty > max_d.y)
-		{
-			maxy = vertex.y;
-			max_d.y = doty;
+			Maxx = Vertex.x;
+			MaxD.x = Dotx;
 		}
 
-		if (dotz < min_d.z)
+		if (Doty < MinD.y)
 		{
-			minz = vertex.z;
-			min_d.z = dotz;
+			Miny = Vertex.y;
+			MinD.y = Doty;
 		}
-		if (dotz > max_d.z)
+		if (Doty > MaxD.y)
 		{
-			maxz = vertex.z;
-			max_d.z = dotz;
+			Maxy = Vertex.y;
+			MaxD.y = Doty;
+		}
+
+		if (Dotz < MinD.z)
+		{
+			Minz = Vertex.z;
+			MinD.z = Dotz;
+		}
+		if (Dotz > MaxD.z)
+		{
+			Maxz = Vertex.z;
+			MaxD.z = Dotz;
 		}
 	}
 
-	RBoundingBox bb{};
-	bb.Set(vec3(minx, miny, minz), vec3(maxx, maxy, maxz));
-	return bb;
+	RBoundingBox Bb{};
+	Bb.Set(vec3(Minx, Miny, Minz), vec3(Maxx, Maxy, Maxz));
+	return Bb;
 }
 
 void RMesh::ComputeTangentsAndBitangents()
 {
 	// @TODO: This may lead to bugs, we currentyl assume here that faces = 2 triangles each, and while that may hold true with the current loader, that may not remain the case forever.
-	For(this->faces_count)
+	For(FacesCount)
 	{
-		RVertex v1 = this->vertices[indices[i * 3 + 0]];
-		RVertex v2 = this->vertices[indices[i * 3 + 1]];
-		RVertex v3 = this->vertices[indices[i * 3 + 2]];
+		RVertex V1 = this->Vertices[Indices[i * 3 + 0]];
+		RVertex V2 = this->Vertices[Indices[i * 3 + 1]];
+		RVertex V3 = this->Vertices[Indices[i * 3 + 2]];
 
-		vec3 edge1 = v2.position - v1.position;
-		vec3 edge2 = v3.position - v1.position;
-		vec2 delta_uv1 = v2.tex_coords - v1.tex_coords;
-		vec2 delta_uv2 = v3.tex_coords - v1.tex_coords;
+		vec3 Edge1 = V2.Position - V1.Position;
+		vec3 Edge2 = V3.Position - V1.Position;
+		vec2 DeltaUv1 = V2.TexCoords - V1.TexCoords;
+		vec2 DeltaUv2 = V3.TexCoords - V1.TexCoords;
 
-		float f = 1.0f / (delta_uv1.x * delta_uv2.y - delta_uv2.x * delta_uv1.y);
+		float F = 1.0f / (DeltaUv1.x * DeltaUv2.y - DeltaUv2.x * DeltaUv1.y);
 
-		vec3 tangent, bitangent;
-		tangent.x = f * (delta_uv2.y * edge1.x - delta_uv1.y * edge2.x);
-		tangent.y = f * (delta_uv2.y * edge1.y - delta_uv1.y * edge2.y);
-		tangent.z = f * (delta_uv2.y * edge1.z - delta_uv1.y * edge2.z);
+		vec3 Tangent, Bitangent;
+		Tangent.x = F * (DeltaUv2.y * Edge1.x - DeltaUv1.y * Edge2.x);
+		Tangent.y = F * (DeltaUv2.y * Edge1.y - DeltaUv1.y * Edge2.y);
+		Tangent.z = F * (DeltaUv2.y * Edge1.z - DeltaUv1.y * Edge2.z);
 
-		bitangent.x = f * (-delta_uv2.x * edge1.x + delta_uv1.x * edge2.x);
-		bitangent.y = f * (-delta_uv2.x * edge1.y + delta_uv1.x * edge2.y);
-		bitangent.z = f * (-delta_uv2.x * edge1.z + delta_uv1.x * edge2.z);
+		Bitangent.x = F * (-DeltaUv2.x * Edge1.x + DeltaUv1.x * Edge2.x);
+		Bitangent.y = F * (-DeltaUv2.x * Edge1.y + DeltaUv1.x * Edge2.y);
+		Bitangent.z = F * (-DeltaUv2.x * Edge1.z + DeltaUv1.x * Edge2.z);
 
-		this->vertices[indices[i * 3 + 0]].tangent = tangent;
-		this->vertices[indices[i * 3 + 0]].bitangent = bitangent;
+		this->Vertices[Indices[i * 3 + 0]].Tangent = Tangent;
+		this->Vertices[Indices[i * 3 + 0]].Bitangent = Bitangent;
 
-		this->vertices[indices[i * 3 + 1]].tangent = tangent;
-		this->vertices[indices[i * 3 + 1]].bitangent = bitangent;
+		this->Vertices[Indices[i * 3 + 1]].Tangent = Tangent;
+		this->Vertices[Indices[i * 3 + 1]].Bitangent = Bitangent;
 
-		this->vertices[indices[i * 3 + 2]].tangent = tangent;
-		this->vertices[indices[i * 3 + 2]].bitangent = bitangent;
+		this->Vertices[Indices[i * 3 + 2]].Tangent = Tangent;
+		this->Vertices[Indices[i * 3 + 2]].Bitangent = Bitangent;
 	}
 }
 
-RGLData setup_gl_data_for_lines(const RVertex* vertices, uint size)
+RGLData setup_gl_data_for_lines(const RVertex* Vertices, uint Size)
 {
-	RGLData gl_data;
+	RGLData GlData;
 
 	// create buffers/arrays
-	glGenVertexArrays(1, &gl_data.VAO);
-	glGenBuffers(1, &gl_data.VBO);
+	glGenVertexArrays(1, &GlData.VAO);
+	glGenBuffers(1, &GlData.VBO);
 
 	// load data into vertex buffers
-	glBindVertexArray(gl_data.VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, gl_data.VBO);
-	glBufferData(GL_ARRAY_BUFFER, size * sizeof(RVertex), vertices, GL_STATIC_DRAW);
+	glBindVertexArray(GlData.VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, GlData.VBO);
+	glBufferData(GL_ARRAY_BUFFER, Size * sizeof(RVertex), Vertices, GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(RVertex), static_cast<void*>(nullptr));
 
-	return gl_data;
+	return GlData;
 }
 
-std::vector<RVertex> construct_cylinder(float radius, float half_lenght, int slices)
+vector<RVertex> ConstructCylinder(float Radius, float HalfLenght, int Slices)
 {
-	std::vector<RVertex> vertices;
-	for (int i = 0; i < slices; i++)
+	vector<RVertex> Vertices;
+	for (int i = 0; i < Slices; i++)
 	{
-		float theta = static_cast<float>(i) * 2.0 * PI * (1.0 / slices);
-		float next_theta = (static_cast<float>(i) + 1) * 2.0 * PI * (1.0 / slices);
+		float Theta = static_cast<float>(i) * 2.0 * PI * (1.0 / Slices);
+		float NextTheta = (static_cast<float>(i) + 1) * 2.0 * PI * (1.0 / Slices);
 		// vertex at middle of end  
-		auto v = RVertex{vec3(0.0), vec3(half_lenght), vec3(0.0)};
-		vertices.push_back(v);
+		auto Vertex = RVertex{vec3(0.0), vec3(HalfLenght), vec3(0.0)};
+		Vertices.push_back(Vertex);
 		//vertices at edges of circle 
-		v = RVertex{vec3(radius * cos(theta), half_lenght, radius * sin(theta))};
-		vertices.push_back(v);
-		v = RVertex{vec3(radius * cos(next_theta), half_lenght, radius * sin(next_theta))};
-		vertices.push_back(v);
+		Vertex = RVertex{vec3(Radius * cos(Theta), HalfLenght, Radius * sin(Theta))};
+		Vertices.push_back(Vertex);
+		Vertex = RVertex{vec3(Radius * cos(NextTheta), HalfLenght, Radius * sin(NextTheta))};
+		Vertices.push_back(Vertex);
 		// the same vertices at the bottom of the cylinder (half face)
-		v = RVertex{vec3(radius * cos(next_theta), -half_lenght, radius * sin(next_theta))};
-		vertices.push_back(v);
-		v = RVertex{vec3(radius * cos(theta), -half_lenght, radius * sin(theta))};
-		vertices.push_back(v);
+		Vertex = RVertex{vec3(Radius * cos(NextTheta), -HalfLenght, Radius * sin(NextTheta))};
+		Vertices.push_back(Vertex);
+		Vertex = RVertex{vec3(Radius * cos(Theta), -HalfLenght, Radius * sin(Theta))};
+		Vertices.push_back(Vertex);
 		// other half face
-		v = RVertex{vec3(radius * cos(theta), half_lenght, radius * sin(theta))};
-		vertices.push_back(v);
-		v = RVertex{vec3(radius * cos(next_theta), half_lenght, radius * sin(next_theta))};
-		vertices.push_back(v);
+		Vertex = RVertex{vec3(Radius * cos(Theta), HalfLenght, Radius * sin(Theta))};
+		Vertices.push_back(Vertex);
+		Vertex = RVertex{vec3(Radius * cos(NextTheta), HalfLenght, Radius * sin(NextTheta))};
+		Vertices.push_back(Vertex);
 		// back from the middle
-		v = RVertex{vec3(radius * cos(next_theta), -half_lenght, radius * sin(next_theta))};
-		vertices.push_back(v);
-		v = RVertex{vec3(0.0, -half_lenght, 0.0)};
-		vertices.push_back(v);
+		Vertex = RVertex{vec3(Radius * cos(NextTheta), -HalfLenght, Radius * sin(NextTheta))};
+		Vertices.push_back(Vertex);
+		Vertex = RVertex{vec3(0.0, -HalfLenght, 0.0)};
+		Vertices.push_back(Vertex);
 		// roundabout
-		v = RVertex{vec3(radius * cos(theta), -half_lenght, radius * sin(theta))};
-		vertices.push_back(v);
-		v = RVertex{vec3(radius * cos(next_theta), -half_lenght, radius * sin(next_theta))};
-		vertices.push_back(v);
-		v = RVertex{vec3(0.0, -half_lenght, 0.0)};
-		vertices.push_back(v);
+		Vertex = RVertex{vec3(Radius * cos(Theta), -HalfLenght, Radius * sin(Theta))};
+		Vertices.push_back(Vertex);
+		Vertex = RVertex{vec3(Radius * cos(NextTheta), -HalfLenght, Radius * sin(NextTheta))};
+		Vertices.push_back(Vertex);
+		Vertex = RVertex{vec3(0.0, -HalfLenght, 0.0)};
+		Vertices.push_back(Vertex);
 	}
 
-	return vertices;
+	return Vertices;
 }
 
 // -----------------------------------------
 // > GET TRIANGLE FOR COLLIDER INDEXED MESH
 // -----------------------------------------
-RTriangle get_triangle_for_collider_indexed_mesh(const RMesh* mesh, int triangle_index)
+RTriangle get_triangle_for_collider_indexed_mesh(const RMesh* Mesh, int TriangleIndex)
 {
-	auto a_ind = mesh->indices[3 * triangle_index + 0];
-	auto b_ind = mesh->indices[3 * triangle_index + 1];
-	auto c_ind = mesh->indices[3 * triangle_index + 2];
+	auto AIndex = Mesh->Indices[3 * TriangleIndex + 0];
+	auto BIndex = Mesh->Indices[3 * TriangleIndex + 1];
+	auto CIndex = Mesh->Indices[3 * TriangleIndex + 2];
 
-	auto a = mesh->vertices[a_ind].position;
-	auto b = mesh->vertices[b_ind].position;
-	auto c = mesh->vertices[c_ind].position;
+	auto A = Mesh->Vertices[AIndex].Position;
+	auto B = Mesh->Vertices[BIndex].Position;
+	auto C = Mesh->Vertices[CIndex].Position;
 
-	return RTriangle{a, b, c};
+	return RTriangle{A, B, C};
 }
 
-RTriangle get_triangle_for_collider_indexed_mesh(const RCollisionMesh* mesh, int triangle_index)
+RTriangle get_triangle_for_collider_indexed_mesh(const RCollisionMesh* Mesh, int TriangleIndex)
 {
-	auto a_ind = mesh->indices[3 * triangle_index + 0];
-	auto b_ind = mesh->indices[3 * triangle_index + 1];
-	auto c_ind = mesh->indices[3 * triangle_index + 2];
+	auto AIndex = Mesh->Indices[3 * TriangleIndex + 0];
+	auto BIndex = Mesh->Indices[3 * TriangleIndex + 1];
+	auto CIndex = Mesh->Indices[3 * TriangleIndex + 2];
 
-	auto a = mesh->vertices[a_ind];
-	auto b = mesh->vertices[b_ind];
-	auto c = mesh->vertices[c_ind];
+	auto A = Mesh->Vertices[AIndex];
+	auto B = Mesh->Vertices[BIndex];
+	auto C = Mesh->Vertices[CIndex];
 
-	return RTriangle{a, b, c};
+	return RTriangle{A, B, C};
 }
 
 // --------------------------------
 // > GET TRIANGLE FOR INDEXED MESH
 // --------------------------------
-RTriangle get_triangle_for_indexed_mesh(RMesh* mesh, glm::mat4 mat_model, int triangle_index)
+RTriangle GetTriangleForIndexedMesh(RMesh* Mesh, glm::mat4 MatModel, int TriangleIndex)
 {
-	auto a_ind = mesh->indices[3 * triangle_index + 0];
-	auto b_ind = mesh->indices[3 * triangle_index + 1];
-	auto c_ind = mesh->indices[3 * triangle_index + 2];
+	auto AIndex = Mesh->Indices[3 * TriangleIndex + 0];
+	auto BIndex = Mesh->Indices[3 * TriangleIndex + 1];
+	auto CIndex = Mesh->Indices[3 * TriangleIndex + 2];
 
-	auto a_vertice = mesh->vertices[a_ind].position;
-	auto b_vertice = mesh->vertices[b_ind].position;
-	auto c_vertice = mesh->vertices[c_ind].position;
+	auto AVertex = Mesh->Vertices[AIndex].Position;
+	auto BVertex = Mesh->Vertices[BIndex].Position;
+	auto CVertex = Mesh->Vertices[CIndex].Position;
 
-	auto a = mat_model * glm::vec4(a_vertice, 1.0);
-	auto b = mat_model * glm::vec4(b_vertice, 1.0);
-	auto c = mat_model * glm::vec4(c_vertice, 1.0);
+	auto A = MatModel * glm::vec4(AVertex, 1.0);
+	auto B = MatModel * glm::vec4(BVertex, 1.0);
+	auto C = MatModel * glm::vec4(CVertex, 1.0);
 
-	return RTriangle{a, b, c};
+	return RTriangle{A, B, C};
 }

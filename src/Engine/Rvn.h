@@ -21,18 +21,18 @@ struct ProgramConfig
 {
 	DeclSingleton(ProgramConfig);
 
-	string initial_scene;
-	float camspeed = 1;
-	vec3 ambient_light{};
-	float ambient_intensity = 0;
+	string InitialScene;
+	float Camspeed = 1;
+	vec3 AmbientLight;
+	float AmbientIntensity = 0;
 };
 
 
 // stores all relevant entity ptrs for collision detection with player during the frame
 struct EntityBufferElement
 {
-	EEntity* entity = nullptr;
-	bool collision_checked = false;
+	EEntity* Entity = nullptr;
+	bool CollisionChecked = false;
 };
 
 
@@ -48,43 +48,43 @@ struct EntityBufferElement
 
 struct Rvn
 {
-	static constexpr uint collision_log_buffer_capacity = 150;
-	static constexpr uint collision_log_capacity = 20;
-	static constexpr uint collision_buffer_capacity = 1000;
-	static constexpr uint message_buffer_capacity = 300;
-	static constexpr int max_messages_to_render = 8;
+	static constexpr uint CollisionLogBufferCapacity = 150;
+	static constexpr uint CollisionLogCapacity = 20;
+	static constexpr uint CollisionBufferCapacity = 1000;
+	static constexpr uint MessageBufferCapacity = 300;
+	static constexpr int MaxMessagesToRender = 8;
 
-	inline static string scene_name;
+	inline static string SceneName;
 
-	inline static vector<EntityBufferElement> entity_buffer{};
-	inline static RenderMessageBuffer* rm_buffer;
+	inline static vector<EntityBufferElement> EntityBuffer;
+	inline static RenderMessageBuffer* RmBuffer;
 
 	static void Init();
-	static void PrintDynamic(const string& msg, float duration = 0, vec3 color = vec3(-1));
-	static void Print(const string& msg, float duration = 0, vec3 color = vec3(-1));
+	static void PrintDynamic(const string& Msg, float Duration = 0, vec3 Color = vec3(-1));
+	static void Print(const string& Msg, float Duration = 0, vec3 Color = vec3(-1));
 };
 
 
 // stores messages to be displayed on screen during a certain duration
 struct RenderMessageBufferElement
 {
-	string message;
-	float elapsed = 0;
-	float duration = 0;
-	vec3 color;
+	string Message;
+	float Elapsed = 0;
+	float Duration = 0;
+	vec3 Color;
 };
 
 struct RenderMessageBuffer
 {
-	constexpr static uint capacity = Rvn::message_buffer_capacity;
-	uint16 count = 0;
+	constexpr static uint Capacity = Rvn::MessageBufferCapacity;
+	uint16 Count = 0;
 
 private:
-	RenderMessageBufferElement buffer[capacity]{};
+	RenderMessageBufferElement Buffer[Capacity]{};
 
 public:
-	bool Add(string msg, float duration, vec3 color = vec3(-1));
-	bool AddUnique(string msg, float duration, vec3 color = vec3(-1));
+	bool Add(string Msg, float Duration, vec3 Color = vec3(-1));
+	bool AddUnique(string Msg, float Duration, vec3 Color = vec3(-1));
 	void Cleanup();
 	void Render();
 };

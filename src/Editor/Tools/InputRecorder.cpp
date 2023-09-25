@@ -14,7 +14,7 @@ void RInputRecorder::StartRecording()
 	is_recording = true;
 }
 
-void RInputRecorder::Record(RInputFlags flags)
+void RInputRecorder::Record(RInputFlags Flags)
 {
 	recorded_inputs[recording_idx].history.push_back(flags);
 }
@@ -26,30 +26,30 @@ void RInputRecorder::StopRecording()
 	// trim recording (removes pauses at starting and ending)
 	// we might want to move this to the play logic, so we can choose if we want to play
 	// with or without empty input flags
-	auto& history = recorded_inputs[recording_idx].history;
+	auto& History = recorded_inputs[recording_idx].history;
 	// trim beginning
 	{
-		int i = 0;
-		int p = -1;
-		while (i < history.size() && history[i].key_press == 0)
+		int I = 0;
+		int P = -1;
+		while (I < history.size() && history[I].key_press == 0)
 		{
-			p = i;
-			i++;
+			P = I;
+			I++;
 		}
-		if (p >= 0)
-			history.erase(history.begin(), history.begin() + p);
+		if (P >= 0)
+			history.erase(history.begin(), history.begin() + P);
 	}
 	// trim ending
 	{
-		int i = history.size() - 1;
-		int p = -1;
-		while (i >= 0 && history[i].key_press == 0)
+		int I = history.size() - 1;
+		int P = -1;
+		while (I >= 0 && history[I].key_press == 0)
 		{
-			p = i;
-			i--;
+			P = I;
+			I--;
 		}
-		if (p >= 0)
-			history.erase(history.begin() + p, history.end());
+		if (P >= 0)
+			history.erase(history.begin() + P, history.end());
 	}
 
 	if (history.size() > 0)
@@ -59,18 +59,18 @@ void RInputRecorder::StopRecording()
 	}
 }
 
-void RInputRecorder::StartPlaying(int recording_id)
+void RInputRecorder::StartPlaying(int RecordingId)
 {
-	if (recording_id == -1)
+	if (RecordingId == -1)
 		playing_idx = recording_idx - 1;
 	else
-		playing_idx = recording_id;
+		playing_idx = RecordingId;
 	is_playing = true;
 }
 
 RInputFlags RInputRecorder::Play()
 {
-	auto& record = recorded_inputs[playing_idx];
+	auto& Record = recorded_inputs[playing_idx];
 	if (playing_flag_idx >= record.history.size() - 1 || record.history.size() == 0)
 		StopPlaying();
 
@@ -83,15 +83,15 @@ void RInputRecorder::StopPlaying()
 	playing_flag_idx = 0;
 }
 
-void RInputRecorder::Save(int recording_id)
+void RInputRecorder::Save(int RecordingId)
 {
-	auto t = std::time(nullptr);
-	auto tm = *std::localtime(&t);
+	auto T = std::time(nullptr);
+	auto Tm = *std::localtime(&t);
 
-	std::stringstream timestamp_stream;
+	std::stringstream TimestampStream;
 	timestamp_stream << std::put_time(&tm, "%d-%m-%Y-%H-%M");
 
-	std::string timestamp = timestamp_stream.str();
+	std::string Timestamp = timestamp_stream.str();
 	std::ofstream writer(
 		Paths::InputRecordings + RecordingsFilenamePrefix
 		+ timestamp + RecordingsFilenameExtension
@@ -100,9 +100,9 @@ void RInputRecorder::Save(int recording_id)
 	if (!writer.is_open())
 		fatal_error("Cant save recording to file");
 
-	auto& record = recorded_inputs[recording_id].history;
+	auto& Record = recorded_inputs[recording_id].history;
 
-	for (int i = 0; i < record.size(); i++)
+	for (int I = 0; I < record.size(); I++)
 	{
 		writer << std::to_string(record[i].key_press) << "\n";
 		writer << std::to_string(record[i].key_release) << "\n";
@@ -116,7 +116,7 @@ void RInputRecorder::Load()
 	// it will *wipe* all previous in-memory stored recordings.
 	// For that reason, should be used only at startup.
 
-	vector<string> out_files;
+	vector<string> OutFiles;
 	if (Platform::ListFilesInDir(Paths::InputRecordings, "*", out_files))
 	{
 		recording_idx = 0;

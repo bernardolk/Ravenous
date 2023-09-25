@@ -3,25 +3,25 @@
 #include <ctime>
 #include "engine/core/core.h"
 
-inline std::string FormatFloatTostr(float num, int precision = 3)
+inline string FormatFloatTostr(float Num, int Precision = 3)
 {
-	std::string temp = std::to_string(num);
-	return temp.substr(0, temp.find(".") + precision);
+	string Temp = std::to_string(Num);
+	return Temp.substr(0, Temp.find(".") + Precision);
 }
 
-inline std::string FmtTostr(float num, int precision)
+inline string FmtTostr(float Num, int Precision)
 {
-	return FormatFloatTostr(num, precision);
+	return FormatFloatTostr(Num, Precision);
 }
 
-inline std::string ToString(vec3 vec)
+inline string ToString(vec3 Vec)
 {
-	return "(" + std::to_string(vec.x) + ", " + std::to_string(vec.y) + ", " + std::to_string(vec.z) + ")";
+	return "(" + std::to_string(Vec.x) + ", " + std::to_string(Vec.y) + ", " + std::to_string(Vec.z) + ")";
 }
 
-inline std::string ToString(vec2 vec)
+inline string ToString(vec2 Vec)
 {
-	return "(" + std::to_string(vec.x) + ", " + std::to_string(vec.y) + ")";
+	return "(" + std::to_string(Vec.x) + ", " + std::to_string(Vec.y) + ")";
 }
 
 
@@ -33,11 +33,11 @@ enum FloatTolerance
 	FloatTolerance_6_000001 = 3,
 };
 
-inline bool AreEqualFloats(float x, float y, FloatTolerance tolerance = FloatTolerance_5_00001)
+inline bool AreEqualFloats(float x, float y, FloatTolerance Tolerance = FloatTolerance_5_00001)
 {
 	/* checks if two floats are equal within a certain tolerance level */
-	float tolerances[] = {0.001f, 0.0001f, 0.00001f, 0.000001f};
-	return abs(x - y) < tolerances[tolerance];
+	float Tolerances[] = {0.001f, 0.0001f, 0.00001f, 0.000001f};
+	return abs(x - y) < Tolerances[Tolerance];
 }
 
 // SIGN COMPARISON
@@ -85,20 +85,20 @@ inline float Abs(vec3 v)
 // VECTOR ANGLE
 inline float VectorAngle(vec2 a, vec2 b)
 {
-	float dot = glm::dot(a, b);
-	float len_a = length(a);
-	float len_b = length(b);
-	float theta = acos(dot / (len_a * len_b));
-	return theta;
+	float Dot = glm::dot(a, b);
+	float LenA = length(a);
+	float LenB = length(b);
+	float Theta = acos(Dot / (LenA * LenB));
+	return Theta;
 }
 
 inline float VectorAngle(vec3 a, vec3 b)
 {
-	float dot = glm::dot(a, b);
-	float len_a = length(a);
-	float len_b = length(b);
-	float theta = acos(dot / (len_a * len_b));
-	return theta;
+	float Dot = glm::dot(a, b);
+	float LenA = length(a);
+	float LenB = length(b);
+	float Theta = acos(Dot / (LenA * LenB));
+	return Theta;
 }
 
 inline float VectorAngleSigned(vec2 a, vec2 b)
@@ -108,17 +108,17 @@ inline float VectorAngleSigned(vec2 a, vec2 b)
 
 inline float VectorCos(vec2 a, vec2 b)
 {
-	float dot = glm::dot(a, b);
-	float len_a = length(a);
-	float len_b = length(b);
-	float cos = dot / (len_a * len_b);
-	return cos;
+	float Dot = glm::dot(a, b);
+	float LenA = length(a);
+	float LenB = length(b);
+	float Cos = Dot / (LenA * LenB);
+	return Cos;
 }
 
 // VECTOR DIMENSION CONVERSION
-inline vec3 ToXz(vec3 vector)
+inline vec3 ToXz(vec3 Vector)
 {
-	return vec3(vector.x, 0, vector.z);
+	return vec3(Vector.x, 0, Vector.z);
 }
 
 
@@ -127,17 +127,17 @@ inline vec3 Cross(vec3 a, vec3 b)
 	return glm::cross(a, b);
 }
 
-inline vec3 ProjectVecIntoRef(vec3 vec, vec3 ref)
+inline vec3 ProjectVecIntoRef(vec3 Vec, vec3 Ref)
 {
-	auto proj = dot(vec, ref) / (Abs(ref) * Abs(ref)) * ref;
-	return proj;
+	auto Proj = dot(Vec, Ref) / (Abs(Ref) * Abs(Ref)) * Ref;
+	return Proj;
 }
 
 inline vec3 ProjectVecOntoPlane(vec3 v, vec3 n)
 {
-	auto v_proj_n = ProjectVecIntoRef(v, n);
-	auto v_proj_plane = v - v_proj_n;
-	return v_proj_plane;
+	auto VProjN = ProjectVecIntoRef(v, n);
+	auto VProjPlane = v - VProjN;
+	return VProjPlane;
 }
 
 
@@ -150,10 +150,10 @@ inline vec3 RotMatToEulerAnglesXyz(mat4& m)
 
 	float sy = sqrt(m[0][0] * m[0][0] + m[1][0] * m[1][0]);
 
-	bool singular = sy < 1e-6; // If
+	bool Singular = sy < 1e-6; // If
 
 	float x, y, z;
-	if (!singular)
+	if (!Singular)
 	{
 		x = atan2(m[2][1], m[2][2]);
 		y = atan2(-m[2][0], sy);
@@ -171,20 +171,19 @@ inline vec3 RotMatToEulerAnglesXyz(mat4& m)
 
 // OTHER
 
-inline int GetRandomInt(int min, int max)
+inline int GetRandomInt(int Min, int Max)
 {
-	static bool first = true;
-	if (first)
+	if (static bool First = true)
 	{
 		std::srand(std::time(nullptr)); //seeding for the first time only!
-		first = false;
+		First = false;
 	}
-	return min + rand() % ((max + 1) - min);
+	return Min + rand() % ((Max + 1) - Min);
 }
 
-inline float GetRandomFloat(int min, int max)
+inline float GetRandomFloat(int Min, int Max)
 {
-	return GetRandomInt(min * 1000, max * 1000) / 1000.f;
+	return GetRandomInt(Min * 1000, Max * 1000) / 1000.f;
 }
 
 // colors
@@ -199,11 +198,11 @@ inline vec3 GetRandomColor()
 
 
 // text
-void Tolower(string* data);
+void Tolower(string* Data);
 
 inline float Min(float a, float b)
 {
-	return a <= b? a : b;
+	return a <= b ? a : b;
 }
 
 inline float Min(float a, float b, float c)
@@ -218,5 +217,5 @@ inline float Max(float a, float b)
 
 inline float Max(float a, float b, float c)
 {
-	return  Max(a, Max(b, c));
+	return Max(a, Max(b, c));
 }

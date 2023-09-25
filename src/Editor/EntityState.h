@@ -3,15 +3,15 @@
 
 struct REntityState
 {
-	EEntity* entity = nullptr;
-	uint64 id;
-	vec3 position;
-	vec3 scale;
-	vec3 rotation;
+	EEntity* Entity = nullptr;
+	uint64 ID;
+	vec3 Position;
+	vec3 Scale;
+	vec3 Rotation;
 };
 
 //todo Refactor into methods
-REntityState GetEntityState(EEntity* entity);
-void ApplyState(REntityState state);
-bool CompareEntityStates(REntityState state1, REntityState state2);
-mat4 MatModelFromEntityState(REntityState state);
+REntityState GetEntityState(EEntity* Entity);
+void ApplyState(REntityState State);
+bool CompareEntityStates(REntityState State1, REntityState State2);
+mat4 MatModelFromEntityState(REntityState State);

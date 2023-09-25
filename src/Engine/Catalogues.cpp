@@ -4,59 +4,59 @@
 #include "io/loaders.h"
 #include "render/Shader.h"
 
-RCatalogueSearchResult FindEntityAssetsInCatalogue(const string& mesh, const string& collision_mesh, const string& shader, const string& texture)
+RCatalogueSearchResult FindEntityAssetsInCatalogue(const string& MeshName, const string& CollisionMeshName, const string& ShaderName, const string& TextureName)
 {
-	RCatalogueSearchResult attrs;
+	RCatalogueSearchResult Attrs;
 
-	if (!mesh.empty())
+	if (!MeshName.empty())
 	{
-		const auto find_mesh = GeometryCatalogue.find(mesh);
-		if (find_mesh != GeometryCatalogue.end())
-			attrs.mesh = find_mesh->second;
+		const auto FindMesh = GeometryCatalogue.find(MeshName);
+		if (FindMesh != GeometryCatalogue.end())
+			Attrs.Mesh = FindMesh->second;
 		else
-			attrs.mesh = LoadWavefrontObjAsMesh(Paths::Models, mesh);
+			Attrs.Mesh = LoadWavefrontObjAsMesh(Paths::Models, MeshName);
 	}
 
-	if (!collision_mesh.empty())
+	if (!CollisionMeshName.empty())
 	{
-		const auto find_c_mesh = CollisionGeometryCatalogue.find(collision_mesh);
-		if (find_c_mesh != CollisionGeometryCatalogue.end())
-			attrs.collision_mesh = find_c_mesh->second;
+		const auto FindCollisionMesh = CollisionGeometryCatalogue.find(CollisionMeshName);
+		if (FindCollisionMesh != CollisionGeometryCatalogue.end())
+			Attrs.CollisionMesh = FindCollisionMesh->second;
 		else
-			attrs.collision_mesh = LoadWavefrontObjAsCollisionMesh(Paths::Models, collision_mesh);
+			Attrs.CollisionMesh = LoadWavefrontObjAsCollisionMesh(Paths::Models, CollisionMeshName);
 	}
 
-	if (!shader.empty())
+	if (!ShaderName.empty())
 	{
-		const auto _shader = ShaderCatalogue.find(shader);
-		if (_shader == ShaderCatalogue.end())
-			fatal_error("FATAL: shader '%s' not found in shader catalogue.", shader.c_str());
-		
-		attrs.shader = _shader->second;
+		const auto Shader = ShaderCatalogue.find(ShaderName);
+		if (Shader == ShaderCatalogue.end())
+			fatal_error("FATAL: shader '%s' not found in shader catalogue.", ShaderName.c_str());
+
+		Attrs.Shader = Shader->second;
 	}
 
-	if (!texture.empty())
+	if (!TextureName.empty())
 	{
 		// diffuse texture
 		{
-			const auto _texture = TextureCatalogue.find(texture);
-			if (_texture == TextureCatalogue.end())
-				fatal_error("FATAL: texture '%s' not found in texture catalogue.", shader.c_str());
-			
-			attrs.textures[0] = _texture->second;
-			attrs.textures_found++;
+			const auto Texture = TextureCatalogue.find(TextureName);
+			if (Texture == TextureCatalogue.end())
+				fatal_error("FATAL: texture '%s' not found in texture catalogue.", TextureName.c_str());
+
+			Attrs.Textures[0] = Texture->second;
+			Attrs.TexturesFound++;
 		}
 
 		// normal texture
 		{
-			const auto _texture = TextureCatalogue.find(texture + "_normal");
-			if (_texture != TextureCatalogue.end())
+			const auto Texture = TextureCatalogue.find(TextureName + "_normal");
+			if (Texture != TextureCatalogue.end())
 			{
-				attrs.textures[1] = _texture->second;
-				attrs.textures_found++;
+				Attrs.Textures[1] = Texture->second;
+				Attrs.TexturesFound++;
 			}
 		}
 	}
 
-	return attrs;
+	return Attrs;
 }

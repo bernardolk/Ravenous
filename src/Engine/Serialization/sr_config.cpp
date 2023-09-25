@@ -11,71 +11,71 @@
 
 void ConfigSerializer::LoadGlobalConfigs()
 {
-	auto p = Parser{Paths::Config};
-	auto& config = *ProgramConfig::Get();
+	auto P = Parser{Paths::Config};
+	auto& Config = *ProgramConfig::Get();
 
-	while (p.NextLine())
+	while (P.NextLine())
 	{
-		p.ParseToken();
-		const auto attribute = GetParsed<std::string>(p);
+		P.ParseToken();
+		const auto Attribute = GetParsed<std::string>(P);
 
-		p.ParseAllWhitespace();
-		p.ParseSymbol();
+		P.ParseAllWhitespace();
+		P.ParseSymbol();
 
-		if (GetParsed<char>(p) != '=')
+		if (GetParsed<char>(P) != '=')
 		{
 			std::cout <<
 			"SYNTAX ERROR, MISSING '=' CHARACTER AT SCENE DESCRIPTION FILE ('" <<
 			Paths::Config <<
 			"') LINE NUMBER " <<
-			p.line_count << "\n";
+			P.LineCount << "\n";
 
 			assert(false);
 		}
 
-		if (attribute == "scene")
+		if (Attribute == "scene")
 		{
-			p.ParseAllWhitespace();
-			p.ParseToken();
-			config.initial_scene = GetParsed<std::string>(p);
+			P.ParseAllWhitespace();
+			P.ParseToken();
+			Config.InitialScene = GetParsed<std::string>(P);
 		}
-		else if (attribute == "camspeed")
+		else if (Attribute == "camspeed")
 		{
-			p.ParseAllWhitespace();
-			p.ParseFloat();
-			config.camspeed = GetParsed<float>(p);
+			P.ParseAllWhitespace();
+			P.ParseFloat();
+			Config.Camspeed = GetParsed<float>(P);
 		}
-		else if (attribute == "ambient_light")
+		else if (Attribute == "ambient_light")
 		{
-			p.ParseAllWhitespace();
-			p.ParseVec3();
+			P.ParseAllWhitespace();
+			P.ParseVec3();
 			config.ambient_light = GetParsed<glm::vec3>(p);
 		}
-		else if (attribute == "ambient_intensity")
+		else if (Attribute == "ambient_intensity")
 		{
-			p.ParseAllWhitespace();
-			p.ParseFloat();
-			config.ambient_intensity = GetParsed<float>(p);
+			P.ParseAllWhitespace();
+			P.ParseFloat();
+			Config.AmbientIntensity = GetParsed<float>(P);
 		}
 	}
 }
 
-void ConfigSerializer::ParseCameraSettings(Parser& p)
+void ConfigSerializer::ParseCameraSettings(Parser& P)
 {
-	auto* cam_manager = RCameraManager::Get();
-	auto* camera = cam_manager->GetCurrentCamera();
+	auto* CamManager = RCameraManager::Get();
+	auto* Camera = CamManager->GetCurrentCamera();
 
-	p.ParseAllWhitespace();
-	p.ParseVec3();
+	P.ParseAllWhitespace();
+	P.ParseVec3();
 	camera->position = GetParsed<glm::vec3>(p);
 
-	p.ParseAllWhitespace();
-	p.ParseVec3();
+	P.ParseAllWhitespace();
+	P.ParseVec3();
 	cam_manager->CameraLookAt(camera, GetParsed<glm::vec3>(p), false);
 }
 
 
-bool ConfigSerializer::Save(const ProgramConfig& config)
+bool ConfigSerializer::Save(const ProgramConfig& Config)
 {
 	std::ofstream writer(Paths::Config);
 	if (!writer.is_open())

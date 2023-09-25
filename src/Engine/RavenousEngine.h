@@ -5,22 +5,21 @@ namespace RavenousEngine
 {
 	struct RFrameData
 	{
-		float duration = 0;
-		float real_duration = 0;
-		float last_frame_time = 0;
-		int fps = 0;
-		int fps_counter = 0;
-		float sub_second_counter = 0;
-		float time_step = 1;
+		float Duration = 0;
+		float RealDuration = 0;
+		float LastFrameTime = 0;
+		int Fps = 0;
+		int FpsCounter = 0;
+		float SubSecondCounter = 0;
+		float TimeStep = 1;
 	};
 
 	struct REngineRuntimeState
 	{
 		DeclSingleton(REngineRuntimeState)
-		
-		RFrameData frame;
+		RFrameData Frame;
 	};
-	
+
 	void Initialize();
 	void StartFrame();
 	float GetFrameDuration();
