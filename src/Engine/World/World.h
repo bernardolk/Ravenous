@@ -51,9 +51,9 @@ struct RWorld
 	vec3 AmbientLight = vec3(1);
 
 	// temp
-	vector<PointLight*> PointLights;
-	vector<SpotLight*> SpotLights;
-	vector<DirectionalLight*> DirectionalLights;
+	vector<EPointLight*> PointLights;
+	vector<ESpotLight*> SpotLights;
+	vector<EDirectionalLight*> DirectionalLights;
 	// end temp
 
 	void Update();

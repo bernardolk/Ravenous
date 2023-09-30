@@ -41,7 +41,7 @@ public:
 	{
 		if (!Entity.block_interaction)
 		{
-			if (Entity.passive_interaction || EPlayer::Get()->interact_btn)
+			if (Entity.passive_interaction || EPlayer::Get()->bInteractButton)
 			{
 				if (Entity.IsVolumeCollidingWithPlayer())
 				{

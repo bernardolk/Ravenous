@@ -36,7 +36,7 @@
 
 #define EntityType(...) GET_MACRO_ENTITY(__VA_ARGS__, ENTITY7, ENTITY6 ,ENTITY5, ENTITY4, ENTITY3, ENTITY2, ENTITY1)(__VA_ARGS__)
 
-#define Trait(Name) Name : T_EntityTraitBase<Name>
+#define Trait(Name) Name : TEntityTraitBase<Name>
 
 
 /** Global entity type system data */
@@ -60,7 +60,7 @@ public:
 	// sets the type_id at construction
 	TEntityTypeBase()
 	{
-		reinterpret_cast<EEntity*>(this)->type_id = TypeId;
+		reinterpret_cast<EEntity*>(this)->TypeID = TypeId;
 	};
 
 	static TypeID GetTypeId() { return TypeId; }
@@ -98,7 +98,7 @@ struct TTraitMixin : TTrait
 {
 	StaticHelperByte HelperByte = EntityTraitsManager::Get()->RegisterTypeAndTraitMatch<TEntity, TTrait>();
 	// force templated static member to be initialized
-	static_assert (&HelperByte);
+	static_assert(&HelperByte);
 
 	TTraitMixin() = default;
 };

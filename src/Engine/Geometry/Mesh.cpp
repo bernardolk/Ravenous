@@ -206,7 +206,7 @@ void RMesh::ComputeTangentsAndBitangents()
 	}
 }
 
-RGLData setup_gl_data_for_lines(const RVertex* Vertices, uint Size)
+RGLData SetupGlDataForLines(const RVertex* Vertices, uint Size)
 {
 	RGLData GlData;
 
@@ -270,7 +270,7 @@ vector<RVertex> ConstructCylinder(float Radius, float HalfLenght, int Slices)
 // -----------------------------------------
 // > GET TRIANGLE FOR COLLIDER INDEXED MESH
 // -----------------------------------------
-RTriangle get_triangle_for_collider_indexed_mesh(const RMesh* Mesh, int TriangleIndex)
+RTriangle GetTriangleForColliderIndexedMesh(const RMesh* Mesh, int TriangleIndex)
 {
 	auto AIndex = Mesh->Indices[3 * TriangleIndex + 0];
 	auto BIndex = Mesh->Indices[3 * TriangleIndex + 1];
@@ -283,7 +283,7 @@ RTriangle get_triangle_for_collider_indexed_mesh(const RMesh* Mesh, int Triangle
 	return RTriangle{A, B, C};
 }
 
-RTriangle get_triangle_for_collider_indexed_mesh(const RCollisionMesh* Mesh, int TriangleIndex)
+RTriangle GetTriangleForColliderIndexedMesh(const RCollisionMesh* Mesh, int TriangleIndex)
 {
 	auto AIndex = Mesh->Indices[3 * TriangleIndex + 0];
 	auto BIndex = Mesh->Indices[3 * TriangleIndex + 1];

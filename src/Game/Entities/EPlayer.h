@@ -63,12 +63,12 @@ struct EntityType(EPlayer)
 	Reflected()
 	DeclSingleton(EPlayer)
 	// geometry
-	float radius = 0.2f;
-	float height = 1.75f;
+	float Radius = 0.2f;
+	float Height = 1.75f;
 
 	// movement variables
-	vec3 v_dir = vec3(0.f);                            // intended movement direction
-	vec3 last_recorded_movement_direction = vec3(0.f); // last non zero movement direction
+	vec3 VDir = vec3(0.f);                            // intended movement direction
+	vec3 LastRecordedMovementDirection = vec3(0.f); // last non zero movement direction
 
 	// movement constants
 	static const float Acceleration;
@@ -94,100 +94,93 @@ struct EntityType(EPlayer)
 
 	// movement states
 	// TODO: Turn into flags
-	bool dashing = false;
-	bool walking = false;
-	bool jumping_upwards = false;
-	bool landing = false;
-	bool jumping_from_slope = false;
-	bool action = false;
-	bool want_to_grab = false;
-	bool dodge_btn = false;
-	bool interact_btn = false;
-	bool pressing_forward_while_in_air = false;
-	bool stopped_pressing_forward_while_in_air = false;
-	bool pressing_left_while_in_air = false;
-	bool pressing_right_while_in_air = false;
-	bool pressing_backward_while_in_air = false;
-	bool pressing_forward_while_standing = false;
+	bool bDashing = false;
+	bool bWalking = false;
+	bool bJumpingUpwards = false;
+	bool bLanding = false;
+	bool bJumpingFromSlope = false;
+	bool bAction = false;
+	bool bWantToGrab = false;
+	bool bDodgeButton = false;
+	bool bInteractButton = false;
+	bool bPressingForwardWhileInAir = false;
+	bool bStoppedPressingForwardWhileInAir = false;
+	bool bPressingLeftWhileInAir = false;
+	bool bPressingRightWhileInAir = false;
+	bool bPressingBackwardWhileInAir = false;
+	bool bPressingForwardWhileStanding = false;
 
-	bool pressing_left_while_standing = false;
-	bool pressing_right_while_standing = false;
-	bool pressing_backward_while_standing = false;
+	bool bPressingLeftWhileStanding = false;
+	bool bPressingRightWhileStanding = false;
+	bool bPressingBackwardWhileStanding = false;
 
-	uint64 first_pressed_movement_key_while_standing = KEY_NONE;
+	uint64 FirstPressedMovementKeyWhileStanding = 0;
 
-	NPlayerState player_state;
-	NPlayerState initial_player_state;
+	NPlayerState PlayerState;
+	NPlayerState InitialPlayerState;
 
-	vec3 prior_position = vec3(0);
-	vec3 initial_velocity = vec3(0);
+	vec3 PriorPosition = vec3(0);
+	vec3 InitialVelocity = vec3(0);
 
-	vec3 orientation;
+	vec3 Orientation;
 
 	// gameplay system variables
-	vec3 last_terrain_contact_normal = vec3(0, 1.f, 0);
-	EEntity* grabbing_entity = nullptr;
-	float grab_reach = 0.9; // radius + arms reach, 0.5 + 0.4  
+	vec3 LastTerrainContactNormal = vec3(0, 1.f, 0);
+	EEntity* GrabbingEntity = nullptr;
+	float GrabReach = 0.9; // radius + arms reach, 0.5 + 0.4  
 
 	// sliding
-	vec3 sliding_direction = vec3(0);
-	vec3 sliding_normal = vec3(0);
+	vec3 SlidingDirection = vec3(0);
+	vec3 SlidingNormal = vec3(0);
 
 	// health and hurting
-	int initial_lives = 2;
-	int lives = 2;
-	float hurt_height_1 = 5.0;
-	float hurt_height_2 = 8.0;
-	float height_before_fall;
-	float fall_height_log = 0; // set when checking for fall, read-only!
+	int InitialLives = 2;
+	int Lives = 2;
+	float HurtHeight1 = 5.0;
+	float HurtHeight2 = 8.0;
+	float HeightBeforeFall;
+	float FallHeightLog = 0; // set when checking for fall, read-only!
 
 	// checkpoints
-	EEntity* checkpoint = nullptr;
-	vec3 checkpoint_pos;
+	EEntity* Checkpoint = nullptr;
+	vec3 CheckpointPos;
 
 	// animation
-	float anim_t = 0;                                                      // animation timer
-	RPlayerAnimationState anim_state = RPlayerAnimationState::NoAnimation; // animation state
-	vec3 anim_final_pos = vec3(0);                                         // final position after translation animation
-	vec3 anim_orig_pos = vec3(0);                                          // original position
-	vec3 anim_final_dir = vec3(0);                                         // final player orientation
-	vec3 anim_orig_dir = vec3(0);                                          // original player orientation
-	bool anim_finished_turning = false;                                    // player has finished turning his camera
+	float AnimT = 0;                                                      // animation timer
+	RPlayerAnimationState AnimState = RPlayerAnimationState::NoAnimation; // animation state
+	vec3 AnimFinalPos = vec3(0);                                         // final position after translation animation
+	vec3 AnimOrigPos = vec3(0);                                          // original position
+	vec3 AnimFinalDir = vec3(0);                                         // final player orientation
+	vec3 AnimOrigDir = vec3(0);                                          // original player orientation
+	bool AnimFinishedTurning = false;                                    // player has finished turning his camera
 
+	// Methods
 	void Update();
-
 	void UpdateState();
-
 	vec3 GetFeetPosition() const { return Position; }
-
 	vec3 MoveForward();
-
-	vec3 GetUpperBoundPosition() const { return -Position + vec3(0.0f, height, 0.0f); }
-
-	vec3 GetEyePosition() const { return Position + vec3(0, height - 0.1f, 0); }
+	
+	vec3 GetUpperBoundPosition() const { return -Position + vec3(0.0f, Height, 0.0f); }
+	vec3 GetEyePosition() const { return Position + vec3(0, Height - 0.1f, 0); }
 
 	float GetSpeed() const { return length(Velocity); }
-
 	float GetSpeedLimit() const;
-
 	float GetHorizontalSpeed() const { return length(vec2(Velocity.xz)); }
 
 	vec3 GetHorizontalMovementForwardVector() const { return normalize(ToXz(Velocity)); }
 
-	void MultiplySpeed(float Multiplier) { Velocity = length(Velocity) * multiplier * v_dir; }
-
-	void SetSpeed(float NewSpeed) { Velocity = new_speed * v_dir; }
-
+	void MultiplySpeed(float Multiplier) { Velocity = length(Velocity) * Multiplier * VDir; }
+	void SetSpeed(float NewSpeed) { Velocity = NewSpeed * VDir; }
 	void SetHorizontalSpeed(float NewSpeed)
 	{
-		vec2 Hv = new_speed * normalize(vec2(v_dir.xz));
-		Velocity.x = hv.x;
-		Velocity.z = hv.y;
+		vec2 HorizontalVelocity = NewSpeed * normalize(vec2(VDir.xz));
+		Velocity.x = HorizontalVelocity.x;
+		Velocity.z = HorizontalVelocity.y;
 	}
 
 	vec3 GetLastTerrainContactPoint() const;
 
-	bool IsMovingThisFrame() const { return length(v_dir) > FloatEpsilon; }
+	bool IsMovingThisFrame() const { return length(VDir) > FloatEpsilon; }
 
 	bool MaybeHurtFromFall();
 	void RestoreHealth();

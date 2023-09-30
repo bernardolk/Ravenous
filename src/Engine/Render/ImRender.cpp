@@ -33,7 +33,7 @@ void RImDraw::Update(float FrameDuration)
 
 void RImDraw::Render(RCamera* Camera)
 {
-	RShader* ImPointShader = ShaderCatalogue.find("immediate_Point")->second;
+	RShader* ImPointShader = ShaderCatalogue.find("immediate_point")->second;
 	RShader* ImMeshShader = ShaderCatalogue.find("im_mesh")->second;
 	RShader* Shader = ImPointShader;
 	for (int I = 0; I < ImBufferSize; I++)

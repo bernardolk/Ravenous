@@ -6,10 +6,10 @@
 #include "engine/geometry/mesh.h"
 
 constexpr static uint MaxEntityWorldChunks = 20;
-const static std::string DefaultEntityShader = "model";
-const static std::string EntityShaderMarking = "color";
+const static string DefaultEntityShader = "model";
+const static string EntityShaderMarking = "color";
 
-enum EntityFlags
+enum NEntityFlags
 {
 	EntityFlags_EmptyEntity        = (1 << 0),
 	EntityFlags_InvisibleEntity    = (1 << 1),

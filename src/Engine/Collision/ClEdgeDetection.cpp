@@ -17,7 +17,7 @@ RLedge ClPerformLedgeDetection(EPlayer* Player, RWorld* World)
 	constexpr float FrontRaySpacing = 0.03f;
 	constexpr int FrontRayQty = 24;
 
-	auto OrientationXz = ToXz(Player->orientation);
+	auto OrientationXz = ToXz(Player->Orientation);
 	auto FirstRay = RRay{Player->GetEyePosition() - UnitY * FrontRayFirstRayDeltaY, OrientationXz};
 	Ledge.DetectionDirection = FirstRay.Direction;
 
@@ -40,7 +40,7 @@ RLedge ClPerformLedgeDetection(EPlayer* Player, RWorld* World)
 			vec3 TopHitpoint = ClGetPointFromDetection(TopTest.Ray, TopTest);
 			Ledge.SurfacePoint = TopHitpoint;
 
-			if (TopTest.Distance <= Player->height || TopHitpoint.y - FrontalHitpoint.y > FrontRaySpacing)
+			if (TopTest.Distance <= Player->Height || TopHitpoint.y - FrontalHitpoint.y > FrontRaySpacing)
 				return Ledge;
 
 			RImDraw::AddLine(IMHASH, TopRay.Origin, FrontalHitpoint, 1.2f, false, COLOR_PURPLE_1);
@@ -103,5 +103,5 @@ vec3 ClGetFinalPositionLedgeVaulting(EPlayer* Player, RLedge Ledge)
 {
 	/* Returns the player's position after finishing vaulting across the given ledge */
 	vec3 InwardNormal = normalize(Cross(Ledge.A - Ledge.B, UnitY));
-	return Ledge.SurfacePoint + InwardNormal * Player->radius * 2.f;
+	return Ledge.SurfacePoint + InwardNormal * Player->Radius * 2.f;
 }

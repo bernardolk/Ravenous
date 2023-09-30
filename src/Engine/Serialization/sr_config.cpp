@@ -5,95 +5,95 @@
 #include <glm/gtx/quaternion.hpp>
 #include "engine/camera/camera.h"
 #include "engine/serialization/parsing/parser.h"
-#include "engine/serialization/sr_config.h"
+#include "engine/serialization/sr_Config.h"
 #include <fstream>
 
 
 void ConfigSerializer::LoadGlobalConfigs()
 {
-	auto P = Parser{Paths::Config};
+	auto Parse = Parser{Paths::Config};
 	auto& Config = *ProgramConfig::Get();
 
-	while (P.NextLine())
+	while (Parse.NextLine())
 	{
-		P.ParseToken();
-		const auto Attribute = GetParsed<std::string>(P);
+		Parse.ParseToken();
+		const auto Attribute = GetParsed<std::string>(Parse);
 
-		P.ParseAllWhitespace();
-		P.ParseSymbol();
+		Parse.ParseAllWhitespace();
+		Parse.ParseSymbol();
 
-		if (GetParsed<char>(P) != '=')
+		if (GetParsed<char>(Parse) != '=')
 		{
 			std::cout <<
 			"SYNTAX ERROR, MISSING '=' CHARACTER AT SCENE DESCRIPTION FILE ('" <<
 			Paths::Config <<
 			"') LINE NUMBER " <<
-			P.LineCount << "\n";
+			Parse.LineCount << "\n";
 
 			assert(false);
 		}
 
 		if (Attribute == "scene")
 		{
-			P.ParseAllWhitespace();
-			P.ParseToken();
-			Config.InitialScene = GetParsed<std::string>(P);
+			Parse.ParseAllWhitespace();
+			Parse.ParseToken();
+			Config.InitialScene = GetParsed<std::string>(Parse);
 		}
 		else if (Attribute == "camspeed")
 		{
-			P.ParseAllWhitespace();
-			P.ParseFloat();
-			Config.Camspeed = GetParsed<float>(P);
+			Parse.ParseAllWhitespace();
+			Parse.ParseFloat();
+			Config.Camspeed = GetParsed<float>(Parse);
 		}
 		else if (Attribute == "ambient_light")
 		{
-			P.ParseAllWhitespace();
-			P.ParseVec3();
-			config.ambient_light = GetParsed<glm::vec3>(p);
+			Parse.ParseAllWhitespace();
+			Parse.ParseVec3();
+			Config.AmbientLight = GetParsed<glm::vec3>(Parse);
 		}
 		else if (Attribute == "ambient_intensity")
 		{
-			P.ParseAllWhitespace();
-			P.ParseFloat();
-			Config.AmbientIntensity = GetParsed<float>(P);
+			Parse.ParseAllWhitespace();
+			Parse.ParseFloat();
+			Config.AmbientIntensity = GetParsed<float>(Parse);
 		}
 	}
 }
 
-void ConfigSerializer::ParseCameraSettings(Parser& P)
+void ConfigSerializer::ParseCameraSettings(Parser& Parse)
 {
 	auto* CamManager = RCameraManager::Get();
 	auto* Camera = CamManager->GetCurrentCamera();
 
-	P.ParseAllWhitespace();
-	P.ParseVec3();
-	camera->position = GetParsed<glm::vec3>(p);
+	Parse.ParseAllWhitespace();
+	Parse.ParseVec3();
+	Camera->Position = GetParsed<glm::vec3>(Parse);
 
-	P.ParseAllWhitespace();
-	P.ParseVec3();
-	cam_manager->CameraLookAt(camera, GetParsed<glm::vec3>(p), false);
+	Parse.ParseAllWhitespace();
+	Parse.ParseVec3();
+	CamManager->CameraLookAt(Camera, GetParsed<glm::vec3>(Parse), false);
 }
 
 
 bool ConfigSerializer::Save(const ProgramConfig& Config)
 {
-	std::ofstream writer(Paths::Config);
-	if (!writer.is_open())
+	std::ofstream Writer(Paths::Config);
+	if (!Writer.is_open())
 	{
 		std::cout << "Saving config file failed.\n";
 		return false;
 	}
 
-	writer << "scene = " << config.initial_scene << "\n";
-	writer << "camspeed = " << config.camspeed << "\n";
-	writer << "ambient_light = "
-	<< config.ambient_light.x << " "
-	<< config.ambient_light.y << " "
-	<< config.ambient_light.z << "\n";
+	Writer << "scene = " << Config.InitialScene << "\n";
+	Writer << "camspeed = " << Config.Camspeed << "\n";
+	Writer << "ambient_light = "
+	<< Config.AmbientLight.x << " "
+	<< Config.AmbientLight.y << " "
+	<< Config.AmbientLight.z << "\n";
 
-	writer << "ambient_intensity = " << config.ambient_intensity << "\n";
+	Writer << "ambient_intensity = " << Config.AmbientIntensity << "\n";
 
-	writer.close();
+	Writer.close();
 	std::cout << "Config file saved succesfully.\n";
 
 	return true;

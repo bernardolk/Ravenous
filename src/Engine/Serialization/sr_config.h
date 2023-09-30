@@ -9,7 +9,7 @@ struct ProgramConfig;
 
 struct ConfigSerializer
 {
-	static void ParseCameraSettings(Parser& P);
+	static void ParseCameraSettings(Parser& Parse);
 	static void LoadGlobalConfigs();
 	static bool Save(const ProgramConfig& Config);
 };

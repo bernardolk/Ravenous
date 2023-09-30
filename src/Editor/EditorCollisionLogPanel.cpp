@@ -14,7 +14,7 @@ namespace Editor
 		constexpr uint16 TableHeight = 120;
 
 		ImGui::SetNextWindowPos(
-			ImVec2(GlobalDisplayState::viewport_width - w_width, GlobalDisplayState::viewport_height - w_height - w_bottom_margin),
+			ImVec2(GlobalDisplayState::ViewportWidth - WWidth, GlobalDisplayState::ViewportHeight - WHeight - WBottomMargin),
 			ImGuiCond_Appearing
 		);
 

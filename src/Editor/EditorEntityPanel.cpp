@@ -19,7 +19,7 @@ namespace Editor
 		uint ActionFlags = 0;
 		bool Track = false;
 
-		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayState::viewport_width - 550, 200), ImGuiCond_Appearing);
+		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayState::ViewportWidth - 550, 200), ImGuiCond_Appearing);
 		ImGui::Begin("Entity Panel", &Panel->Active, ImGuiWindowFlags_AlwaysAutoResize);
 		Panel->Focused = ImGui::IsWindowFocused();
 
@@ -31,7 +31,7 @@ namespace Editor
 		if (ImGui::BeginTabItem("Controls", nullptr, ImGuiTabItemFlags_None))
 		{
 			ImGui::Text(("Name: " + Entity->Name).c_str());
-			ImGui::Text(("Id: " + std::to_string(entity->id)).c_str());
+			ImGui::Text(("Id: " + std::to_string(Entity->ID)).c_str());
 			ImGui::Text(("Shader: " + Entity->Shader->Name).c_str());
 
 			// RENAME
@@ -80,7 +80,7 @@ namespace Editor
 				if (ImGui::DragFloat3("Position", Positions, 0.1))
 				{
 					ActionFlags |= EntityPanelTA_Position;
-					entity->position = vec3{positions[0], positions[1], positions[2]};
+					Entity->Position = vec3{Positions[0], Positions[1], Positions[2]};
 				}
 				Track = Track || ImGui::IsItemDeactivatedAfterEdit();
 			}
@@ -91,7 +91,7 @@ namespace Editor
 				if (ImGui::DragFloat3("Rotation", Rotations, 1, -360, 360))
 				{
 					ActionFlags |= EntityPanelTA_Rotation;
-					entity->rotation = vec3{rotations[0], rotations[1], rotations[2]};
+					Entity->Rotation = vec3{Rotations[0], Rotations[1], Rotations[2]};
 				}
 				Track = Track || ImGui::IsItemDeactivatedAfterEdit();
 			}
@@ -113,15 +113,15 @@ namespace Editor
 					{
 						auto RotMatrix = Entity->GetRotationMatrix();
 
-						if (scaling[0] != entity->scale.x)
-							entity->position -= ToVec3(rot_matrix * vec4(scaling[0] - entity->scale.x, 0.f, 0.f, 1.f));
-						if (scaling[1] != entity->scale.y)
-							entity->position -= ToVec3(rot_matrix * vec4(0.f, scaling[1] - entity->scale.y, 0.f, 1.f));
-						if (scaling[2] != entity->scale.z)
-							entity->position -= ToVec3(rot_matrix * vec4(0.f, 0.f, scaling[2] - entity->scale.z, 1.f));
+						if (Scaling[0] != Entity->Scale.x)
+							Entity->Position -= ToVec3(RotMatrix * vec4(Scaling[0] - Entity->Scale.x, 0.f, 0.f, 1.f));
+						if (Scaling[1] != Entity->Scale.y)
+							Entity->Position -= ToVec3(RotMatrix * vec4(0.f, Scaling[1] - Entity->Scale.y, 0.f, 1.f));
+						if (Scaling[2] != Entity->Scale.z)
+							Entity->Position -= ToVec3(RotMatrix * vec4(0.f, 0.f, Scaling[2] - Entity->Scale.z, 1.f));
 					}
 
-					entity->scale = vec3{scaling[0], scaling[1], scaling[2]};
+					Entity->Scale = vec3{Scaling[0], Scaling[1], Scaling[2]};
 				}
 			}
 
@@ -137,10 +137,10 @@ namespace Editor
 
 
 			// SLIDE INDICATOR
-			// if(entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
+			// if(Entity->collision_geometry_type == COLLISION_ALIGNED_SLOPE)
 			// {
 			//   std::string slide_type;
-			//    auto inclination = entity->collision_geometry.slope.inclination;
+			//    auto inclination = Entity->collision_geometry.slope.inclination;
 			//    if(inclination > SLIDE_MAX_ANGLE)
 			//       slide_type = "Player will: slide fall";
 			//    else if(inclination > SLIDE_MIN_ANGLE)
@@ -174,9 +174,9 @@ namespace Editor
 
 			if (ImGui::CollapsingHeader("World cells"))
 			{
-				for (auto* chunk : entity->world_chunks)
+				for (auto* Chunk : Entity->WorldChunks)
 				{
-					ImGui::Text(chunk->GetChunkPositionString().c_str());
+					ImGui::Text(Chunk->GetChunkPositionString().c_str());
 				}
 			}
 
@@ -226,35 +226,35 @@ namespace Editor
 			ImGui::Text("Entity Type");
 			
 			// EntityType_Static
-			bool is_static = entity->type == EntityType_Static;
+			bool is_static = Entity->type == EntityType_Static;
 			if (ImGui::RadioButton("Static", is_static))
 			{
 				EM->SetType(entity, EntityType_Static);
 			}
 
 			// EntityType_Checkpoint
-			bool is_checkpoint = entity->type == EntityType_Checkpoint;
+			bool is_checkpoint = Entity->type == EntityType_Checkpoint;
 			if (ImGui::RadioButton("Checkpoint", is_checkpoint))
 			{
 				EM->SetType(entity, EntityType_Checkpoint);
 			}
 
 			// EntityType_TimerTrigger
-			bool is_timer_trigger = entity->type == EntityType_TimerTrigger;
+			bool is_timer_trigger = Entity->type == EntityType_TimerTrigger;
 			if (ImGui::RadioButton("Timer Trigger", is_timer_trigger))
 			{
 				EM->SetType(entity, EntityType_TimerTrigger);
 			}
 
 			// EntityType_TimerTarget
-			bool is_timer_target = entity->type == EntityType_TimerTarget;
+			bool is_timer_target = Entity->type == EntityType_TimerTarget;
 			if (ImGui::RadioButton("Timer Target", is_timer_target))
 			{
 				EM->SetType(entity, EntityType_TimerTarget);
 			}
 
 			// EntityType_TimerMarking
-			bool is_timer_marking = entity->type == EntityType_TimerMarking;
+			bool is_timer_marking = Entity->type == EntityType_TimerMarking;
 			if (ImGui::RadioButton("Timer Marking", is_timer_marking))
 			{
 				EM->SetType(entity, EntityType_TimerMarking);
@@ -265,7 +265,7 @@ namespace Editor
 			ImGui::Text("Collider properties");
 			ImGui::NewLine();
 
-			ImGui::Checkbox("Slidable", &entity->slidable);
+			ImGui::Checkbox("Slidable", &Entity->slidable);
 
 			ImGui::NewLine();
 			ImGui::NewLine();
@@ -280,33 +280,33 @@ namespace Editor
 			{
 				ImGui::Text("Event trigger");
 
-				bool a = ImGui::SliderFloat("radius", &entity->trigger_scale.x, 0, 10);
-				bool b = ImGui::SliderFloat("height", &entity->trigger_scale.y, 0, 10);
+				bool a = ImGui::SliderFloat("radius", &Entity->trigger_scale.x, 0, 10);
+				bool b = ImGui::SliderFloat("height", &Entity->trigger_scale.y, 0, 10);
 
 				if (a || b)
-					entity->Update();
+					Entity->Update();
 			}
 
 			else if (is_timer_trigger)
 			{
 				ImGui::Text("Event trigger");
 
-				bool a = ImGui::SliderFloat("radius", &entity->trigger_scale.x, 0, 10);
-				bool b = ImGui::SliderFloat("height", &entity->trigger_scale.y, 0, 10);
+				bool a = ImGui::SliderFloat("radius", &Entity->trigger_scale.x, 0, 10);
+				bool b = ImGui::SliderFloat("height", &Entity->trigger_scale.y, 0, 10);
 
 				if (a || b)
-					entity->Update();
+					Entity->Update();
 
 				ImGui::NewLine();
 
-				ImGui::SliderInt("Duration", &entity->timer_trigger_data.timer_duration, 0, 100);
+				ImGui::SliderInt("Duration", &Entity->timer_trigger_data.timer_duration, 0, 100);
 
-				if (entity->timer_trigger_data.timer_target != nullptr)
+				if (Entity->timer_trigger_data.timer_target != nullptr)
 				{
 					//@todo should be any kind of time_attack_door, but ok
-					if (entity->timer_trigger_data.timer_target->timer_target_data.timer_target_type == EntityTimerTargetType_VerticalSlidingDoor)
+					if (Entity->timer_trigger_data.timer_target->timer_target_data.timer_target_type == EntityTimerTargetType_VerticalSlidingDoor)
 					{
-						auto data = &entity->timer_trigger_data;
+						auto data = &Entity->timer_trigger_data;
 						int empty_slot = -1;
 						bool there_is_at_least_one_marking = false;
 						For(data->size)
@@ -367,27 +367,27 @@ namespace Editor
 
 				ImGui::Text("Timer target");
 				std::string target_entity_name;
-				if (entity->timer_trigger_data.timer_target == nullptr)
+				if (Entity->timer_trigger_data.timer_target == nullptr)
 					target_entity_name = "No target selected.";
 				else
-					target_entity_name = entity->timer_trigger_data.timer_target->name;
+					target_entity_name = Entity->timer_trigger_data.timer_target->name;
 				ImGui::Text(target_entity_name.c_str());
 
 
 				ImGui::SameLine();
 				if (ImGui::Button("Show", ImVec2(68, 18)))
 				{
-					if (entity->timer_trigger_data.timer_target != nullptr)
+					if (Entity->timer_trigger_data.timer_target != nullptr)
 					{
 						panel->show_related_entity = true;
-						panel->related_entity = entity->timer_trigger_data.timer_target;
+						panel->related_entity = Entity->timer_trigger_data.timer_target;
 					}
 				}
 				ImGui::SameLine();
 				if (ImGui::Button("Change", ImVec2(92, 18)))
 				{
 					panel->show_related_entity = false;
-					ActivateSelectEntityAuxTool(&entity->timer_trigger_data.timer_target);
+					ActivateSelectEntityAuxTool(&Entity->timer_trigger_data.timer_target);
 				}
 			}
 
@@ -397,15 +397,15 @@ namespace Editor
 		// -------------------
 		// > TIMER TARGET TAB
 		// -------------------
-		if (entity->type == EntityType_TimerTarget)
+		if (Entity->type == EntityType_TimerTarget)
 		{
 			if (ImGui::BeginTabItem("Timer Target Settings", nullptr, ImGuiTabItemFlags_None))
 			{
 				// EntityTimerTargetType_VerticalSlidingDoor
-				bool is_vsd = entity->timer_target_data.timer_target_type == EntityTimerTargetType_VerticalSlidingDoor;
+				bool is_vsd = Entity->timer_target_data.timer_target_type == EntityTimerTargetType_VerticalSlidingDoor;
 				if (ImGui::RadioButton("Vertical Sliding Door", is_vsd))
 				{
-					entity->timer_target_data.timer_target_type = EntityTimerTargetType_VerticalSlidingDoor;
+					Entity->timer_target_data.timer_target_type = EntityTimerTargetType_VerticalSlidingDoor;
 				}
 
 				ImGui::EndTabItem();
@@ -418,12 +418,12 @@ namespace Editor
 		// ----------------
 		if (ImGui::BeginTabItem("Textures", nullptr, ImGuiTabItemFlags_None))
 		{
-			for (const auto& texture : TextureCatalogue)
+			for (const auto& Texture : TextureCatalogue)
 			{
-				bool in_use = entity->textures[0].name == texture.second.name;
-				if (ImGui::RadioButton(texture.second.name.c_str(), in_use))
+				bool bInUse = Entity->Textures[0].Name == Texture.second.Name;
+				if (ImGui::RadioButton(Texture.second.Name.c_str(), bInUse))
 				{
-					entity->textures[0] = texture.second;
+					Entity->Textures[0] = Texture.second;
 				}
 			}
 
@@ -456,12 +456,12 @@ namespace Editor
 		// ---------------
 		if (ImGui::BeginTabItem("Shaders", nullptr, ImGuiTabItemFlags_None))
 		{
-			for (const auto& shader : ShaderCatalogue)
+			for (const auto& Shader : ShaderCatalogue)
 			{
-				bool in_use = entity->shader->name == shader.second->name;
-				if (ImGui::RadioButton(shader.second->name.c_str(), in_use))
+				bool bInUse = Entity->Shader->Name == Shader.second->Name;
+				if (ImGui::RadioButton(Shader.second->Name.c_str(), bInUse))
 				{
-					entity->shader = shader.second;
+					Entity->Shader = Shader.second;
 				}
 			}
 
@@ -524,23 +524,23 @@ namespace Editor
 		EdContext.SelectedEntity = Entity;
 
 		auto& Panel = EdContext.EntityPanel;
-		panel.active = true;
-		panel.entity = Entity;
-		panel.reverse_scale_x = false;
-		panel.reverse_scale_y = false;
-		panel.reverse_scale_z = false;
-		panel.show_normals = false;
-		panel.show_collider = false;
-		panel.show_bounding_box = false;
-		panel.rename_option_active = false;
-		panel.tracked_once = false;
-		panel.show_related_entity = false;
-		panel.related_entity = nullptr;
-		panel.entity_starting_state = GetEntityState(Entity);
-		panel.EmptyRenameBuffer();
+		Panel.Active= true;
+		Panel.Entity= Entity;
+		Panel.ReverseScaleX= false;
+		Panel.ReverseScaleY= false;
+		Panel.ReverseScaleZ= false;
+		Panel.ShowNormals= false;
+		Panel.ShowCollider= false;
+		Panel.ShowBoundingBox= false;
+		Panel.RenameOptionActive= false;
+		Panel.TrackedOnce= false;
+		Panel.ShowRelatedEntity= false;
+		Panel.RelatedEntity= nullptr;
+		Panel.EntityStartingState = GetEntityState(Entity);
+		Panel.EmptyRenameBuffer();
 
 		// TODO: We should _know_ when entities move and be able to act programatically upon that knowledge instead of randomly checking everywhere.
-		UpdateEntityControlArrows(&panel);
-		UpdateEntityRotationGizmo(&panel);
+		UpdateEntityControlArrows(&Panel);
+		UpdateEntityRotationGizmo(&Panel);
 	}
 }

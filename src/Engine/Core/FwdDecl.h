@@ -8,7 +8,7 @@ struct RCamera;
 struct RCollisionMesh;
 
 // D
-struct DirectionalLight;
+struct EDirectionalLight;
 
 // E
 struct EEntity;
@@ -29,7 +29,7 @@ struct RMesh;
 
 // P
 struct EPlayer;
-struct PointLight;
+struct EPointLight;
 
 // R
 struct RRay;
@@ -37,7 +37,7 @@ struct RRay;
 // S
 struct Scene;
 struct RShader;
-struct SpotLight;
+struct ESpotLight;
 
 // T
 struct RTriangle;

@@ -39,9 +39,9 @@ void RavenousMainLoop()
 
 		auto* InputRecorder = RInputRecorder::Get();
 		// Input recorder
-		if (InputRecorder->is_recording)
+		if (InputRecorder->bIsRecording)
 			InputRecorder->Record(InputFlags);
-		else if (InputRecorder->is_playing)
+		else if (InputRecorder->bIsPlaying)
 			InputFlags = InputRecorder->Play();
 
 		// -------------

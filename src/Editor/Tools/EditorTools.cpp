@@ -50,11 +50,11 @@ namespace Editor
 	{
 		auto& EdContext = *GetContext();
 
-		if (type == "point")
+		if (Type == "point")
 		{
 			World->PointLights.erase(World->PointLights.begin() + Index);
 		}
-		else if (type == "spot")
+		else if (Type == "spot")
 		{
 			World->SpotLights.erase(World->SpotLights.begin() + Index);
 		}
@@ -84,71 +84,71 @@ namespace Editor
 	void ActivateSnapMode(EEntity* Entity)
 	{
 		// deactivate_editor_modes();
-		// ed_context.snap_mode = true;
-		// ed_context.snap_tracked_state = get_entity_state(entity);
-		// ed_context.undo_stack.track(entity);
+		// EdContext.SnapMode = true;
+		// EdContext.SnapTrackedState = get_entity_state(entity);
+		// EdContext.UndoStack.track(entity);
 	}
 
 	void SnapCommit()
 	{
-		// auto entity = ed_context.entity_panel.entity;
-		// ed_context.snap_tracked_state = get_entity_state(entity);
-		// ed_context.undo_stack.track(entity);
+		// auto entity = EdContext.EntityPanel.entity;
+		// EdContext.SnapTrackedState = get_entity_state(entity);
+		// EdContext.UndoStack.track(entity);
 	}
 
 	void SnapEntityToReference(EEntity* Entity)
 	{
-		// auto reference = ed_context.snap_reference;
+		// auto reference = EdContext.SnapReference;
 		// float diff = 0;
 		// auto diff_vec = vec3(0.0f);
 		// auto [x0, x1, z0, z1]         = reference->get_rect_bounds();
-		// auto [e_x0, e_x1, e_z0, e_z1] = entity->get_rect_bounds();
+		// auto [e_x0, e_x1, e_z0, e_z1] = Entity->get_rect_bounds();
 
-		// switch(ed_context.snap_axis)
+		// switch(EdContext.SnapAxis)
 		// {
 		//    case 0:  // x
-		//       if     (ed_context.snap_cycle == 0 && !ed_context.snap_inside) diff_vec.x = x1 - e_x0;
-		//       else if(ed_context.snap_cycle == 0 &&  ed_context.snap_inside) diff_vec.x = x1 - e_x0 - (e_x1 - e_x0);
-		//       else if(ed_context.snap_cycle == 2 && !ed_context.snap_inside) diff_vec.x = x0 - e_x1;
-		//       else if(ed_context.snap_cycle == 2 &&  ed_context.snap_inside) diff_vec.x = x0 - e_x1 + (e_x1 - e_x0);
-		//       else if(ed_context.snap_cycle == 1 ) diff_vec.x = x1 - e_x1 - (x1 - x0) / 2.0 + (e_x1 - e_x0) / 2.0;
+		//       if     (EdContext.SnapCycle == 0 && !EdContext.SnapInside) diff_vec.x = x1 - e_x0;
+		//       else if(EdContext.SnapCycle == 0 &&  EdContext.SnapInside) diff_vec.x = x1 - e_x0 - (e_x1 - e_x0);
+		//       else if(EdContext.SnapCycle == 2 && !EdContext.SnapInside) diff_vec.x = x0 - e_x1;
+		//       else if(EdContext.SnapCycle == 2 &&  EdContext.SnapInside) diff_vec.x = x0 - e_x1 + (e_x1 - e_x0);
+		//       else if(EdContext.SnapCycle == 1 ) diff_vec.x = x1 - e_x1 - (x1 - x0) / 2.0 + (e_x1 - e_x0) / 2.0;
 		//       break;
 		//    case 1:  // y
 		//    {
-		//       float bottom = reference->position.y;
+		//       float bottom = reference->Position.y;
 		//       float height = reference->get_height();
 		//       float top = bottom + height;
-		//       float current_bottom = entity->position.y;
-		//       float current_top = current_bottom + entity->get_height();
+		//       float current_bottom = Entity->Position.y;
+		//       float current_top = current_bottom + Entity->get_height();
 
-		//       if     (ed_context.snap_cycle == 0 && !ed_context.snap_inside) diff_vec.y = top - current_bottom;
-		//       else if(ed_context.snap_cycle == 0 &&  ed_context.snap_inside) diff_vec.y = top - current_top;
-		//       else if(ed_context.snap_cycle == 2 && !ed_context.snap_inside) diff_vec.y = bottom - current_top;
-		//       else if(ed_context.snap_cycle == 2 &&  ed_context.snap_inside) diff_vec.y = bottom - current_bottom;
-		//       else if(ed_context.snap_cycle == 1 && !ed_context.snap_inside) diff_vec.y = top - height / 2.0 - current_top;
+		//       if     (EdContext.SnapCycle == 0 && !EdContext.SnapInside) diff_vec.y = top - current_bottom;
+		//       else if(EdContext.SnapCycle == 0 &&  EdContext.SnapInside) diff_vec.y = top - current_top;
+		//       else if(EdContext.SnapCycle == 2 && !EdContext.SnapInside) diff_vec.y = bottom - current_top;
+		//       else if(EdContext.SnapCycle == 2 &&  EdContext.SnapInside) diff_vec.y = bottom - current_bottom;
+		//       else if(EdContext.SnapCycle == 1 && !EdContext.SnapInside) diff_vec.y = top - height / 2.0 - current_top;
 		//       break;
 		//    }
 		//    case 2: // z
-		//       if     (ed_context.snap_cycle == 0 && !ed_context.snap_inside) diff_vec.z = z1 - e_z0;
-		//       else if(ed_context.snap_cycle == 0 &&  ed_context.snap_inside) diff_vec.z = z1 - e_z0 - (e_z1 - e_z0);
-		//       else if(ed_context.snap_cycle == 2 && !ed_context.snap_inside) diff_vec.z = z0 - e_z1;
-		//       else if(ed_context.snap_cycle == 2 &&  ed_context.snap_inside) diff_vec.z = z0 - e_z1 + (e_z1 - e_z0);
-		//       else if(ed_context.snap_cycle == 1 ) diff_vec.z = z1 - e_z1 - (z1 - z0) / 2.0 + (e_z1 - e_z0) / 2.0;
+		//       if     (EdContext.SnapCycle == 0 && !EdContext.SnapInside) diff_vec.z = z1 - e_z0;
+		//       else if(EdContext.SnapCycle == 0 &&  EdContext.SnapInside) diff_vec.z = z1 - e_z0 - (e_z1 - e_z0);
+		//       else if(EdContext.SnapCycle == 2 && !EdContext.SnapInside) diff_vec.z = z0 - e_z1;
+		//       else if(EdContext.SnapCycle == 2 &&  EdContext.SnapInside) diff_vec.z = z0 - e_z1 + (e_z1 - e_z0);
+		//       else if(EdContext.SnapCycle == 1 ) diff_vec.z = z1 - e_z1 - (z1 - z0) / 2.0 + (e_z1 - e_z0) / 2.0;
 		//       break;
 		// }
 
-		// entity->position += diff_vec;
+		// Entity->Position += diff_vec;
 	}
 
 
 	void CheckSelectionToSnap()
 	{
-		// auto pickray = cast_pickray(G_SCENE_INFO.camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
+		// auto pickray = cast_pickray(G_SCENE_INFO.camera, G_INPUT_INFO.MouseCoords.x, G_INPUT_INFO.MouseCoords.y);
 		// auto test = test_ray_against_scene(pickray);
 		// if(test.hit)
 		// {
-		//    ed_context.snap_reference = test.entity;
-		//    snap_entity_to_reference(ed_context.entity_panel.entity);
+		//    EdContext.SnapReference = test.entity;
+		//    snap_entity_to_reference(EdContext.EntityPanel.entity);
 		// }
 	}
 
@@ -164,14 +164,14 @@ namespace Editor
 	void ActivateStretchMode(EEntity* Entity)
 	{
 		// deactivate_editor_modes();
-		// ed_context.stretch_mode = true;
-		// ed_context.undo_stack.track(entity);
+		// EdContext.StretchMode = true;
+		// EdContext.UndoStack.track(entity);
 	}
 
 	void StretchCommit()
 	{
-		// auto entity = ed_context.entity_panel.entity;
-		// ed_context.undo_stack.track(entity);
+		// auto entity = EdContext.EntityPanel.entity;
+		// EdContext.UndoStack.track(entity);
 	}
 
 	auto GetScaleAndPositionChange(float EScale, float EAligned, float EOpposite, float T, float N)
@@ -206,7 +206,7 @@ namespace Editor
 		else
 			Transform.scale_f = abs(Dif);
 
-		// if normal points to negative dir, move position
+		// if normal points to negative dir, move Position
 		if (N < 0)
 			Transform.pos_f -= Dif;
 
@@ -235,10 +235,10 @@ namespace Editor
 		// Triangle e_aligned, e_opposite;
 		// bool aligned = false;
 		// bool opposite = false;
-		// int triangles = entity->mesh->indices.size() / 3;
+		// int triangles = Entity->mesh->indices.size() / 3;
 		// for(int i = 0; i < triangles; i++)
 		// {
-		//    Triangle _t = get_triangle_for_indexed_mesh(entity->mesh, entity->matModel, i);
+		//    Triangle _t = get_triangle_for_indexed_mesh(Entity->mesh, Entity->matModel, i);
 		//    vec3 _normal = glm::triangleNormal(_t.a, _t.b, _t.c);
 
 		//    if(is_equal(normal, _normal) && !aligned)
@@ -265,23 +265,23 @@ namespace Editor
 		// int axis_count = 0;
 		// if(!is_zero(normal.x))
 		// {
-		//    auto [s, p] = get_scale_and_position_change(entity->scale.x, e_aligned.a.x, e_opposite.a.x, t.a.x, normal.x);
-		//    entity->scale.x += s;
-		//    entity->position.x += p;
+		//    auto [s, p] = get_scale_and_Position_change(Entity->scale.x, e_aligned.a.x, e_opposite.a.x, t.a.x, normal.x);
+		//    Entity->scale.x += s;
+		//    Entity->Position.x += p;
 		//    axis_count++;
 		// }
 		// if(!is_zero(normal.y))
 		// {
-		//    auto [s, p] = get_scale_and_position_change(entity->scale.y, e_aligned.a.y, e_opposite.a.y, t.a.y, normal.y);
-		//    entity->scale.y += s;
-		//    entity->position.y += p;
+		//    auto [s, p] = get_scale_and_Position_change(Entity->scale.y, e_aligned.a.y, e_opposite.a.y, t.a.y, normal.y);
+		//    Entity->scale.y += s;
+		//    Entity->Position.y += p;
 		//    axis_count++;
 		// }
 		// if(!is_zero(normal.z))
 		// {
-		//    auto [s, p] = get_scale_and_position_change(entity->scale.z, e_aligned.a.z, e_opposite.a.z, t.a.z, normal.z);
-		//    entity->scale.z += s;
-		//    entity->position.z += p;
+		//    auto [s, p] = get_scale_and_Position_change(Entity->scale.z, e_aligned.a.z, e_opposite.a.z, t.a.z, normal.z);
+		//    Entity->scale.z += s;
+		//    Entity->Position.z += p;
 		//    axis_count++;
 		// }
 
@@ -293,11 +293,11 @@ namespace Editor
 
 	void CheckSelectionToStretch()
 	{
-		// auto pickray = cast_pickray(G_SCENE_INFO.camera, G_INPUT_INFO.mouse_coords.x, G_INPUT_INFO.mouse_coords.y);
+		// auto pickray = cast_pickray(G_SCENE_INFO.camera, G_INPUT_INFO.MouseCoords.x, G_INPUT_INFO.MouseCoords.y);
 		// auto test = test_ray_against_scene(pickray);
 		// if(test.hit)
 		// {
-		//    stretch_entity_to_reference(ed_context.entity_panel.entity, test.t);
+		//    stretch_entity_to_reference(EdContext.EntityPanel.entity, test.t);
 		//    stretch_commit();
 		// }
 	}
@@ -333,18 +333,18 @@ namespace Editor
 				if (EdContext.SecondPointFound)
 					EdContext.SecondPointFound = false;
 				EdContext.FirstPointFound = true;
-				ed_context.measure_from = CL_GetPointFromDetection(pickray, test);
+				EdContext.MeasureFrom = ClGetPointFromDetection(Pickray, Test);
 			}
 			else if (!EdContext.SecondPointFound)
 			{
 				EdContext.SecondPointFound = true;
-				vec3 Point = CL_GetPointFromDetection(pickray, test);
+				vec3 Point = ClGetPointFromDetection(Pickray, Test);
 				if (EdContext.MeasureAxis == 0)
-					EdContext.MeasureTo = point.x;
+					EdContext.MeasureTo = Point.x;
 				else if (EdContext.MeasureAxis == 1)
-					EdContext.MeasureTo = point.y;
+					EdContext.MeasureTo = Point.y;
 				else if (EdContext.MeasureAxis == 2)
-					EdContext.MeasureTo = point.z;
+					EdContext.MeasureTo = Point.z;
 			}
 		}
 	}
@@ -374,7 +374,7 @@ namespace Editor
 		if (Test.Hit)
 		{
 			EdContext.LocateCoordsFoundPoint = true;
-			ed_context.locate_coords_position = CL_GetPointFromDetection(pickray, test);
+			EdContext.LocateCoordsPosition = ClGetPointFromDetection(Pickray, Test);
 		}
 	}
 
@@ -396,14 +396,14 @@ namespace Editor
 
 		EdContext.SelectedEntity->Update();
 		World->UpdateEntityWorldChunk(EdContext.SelectedEntity);
-		CL_RecomputeCollisionBufferEntities();
+		ClRecomputeCollisionBufferEntities();
 		EdContext.UndoStack.Track(EdContext.SelectedEntity);
 	}
 
 	RRaycastTest TestRayAgainstEntitySupportPlane(uint16 MoveAxis, EEntity* Entity)
 	{
 		// create a big plane for placing entity in the world with the mouse using raycast from camera to mouse
-		// position. In the case of Y placement, we need to compute the plane considering the camera orientation.
+		// Position. In the case of Y placement, we need to compute the plane considering the camera orientation.
 		RTriangle T1, T2;
 		float PlaneSize = 500.0f;
 		auto& EdContext = *GetContext();
@@ -414,35 +414,35 @@ namespace Editor
 			case 0: // XZ 
 			case 1: // X
 			case 3: // Z
-				t1.a = vec3{entity->position.x - plane_size, entity->position.y, entity->position.z - plane_size};
-				t1.b = vec3{entity->position.x + plane_size, entity->position.y, entity->position.z - plane_size};
-				t1.c = vec3{entity->position.x + plane_size, entity->position.y, entity->position.z + plane_size};
-				t2.a = vec3{entity->position.x - plane_size, entity->position.y, entity->position.z - plane_size};
-				t2.b = vec3{entity->position.x - plane_size, entity->position.y, entity->position.z + plane_size};
-				t2.c = vec3{entity->position.x + plane_size, entity->position.y, entity->position.z + plane_size};
+				T1.A = vec3{Entity->Position.x - PlaneSize, Entity->Position.y, Entity->Position.z - PlaneSize};
+				T1.B = vec3{Entity->Position.x + PlaneSize, Entity->Position.y, Entity->Position.z - PlaneSize};
+				T1.C = vec3{Entity->Position.x + PlaneSize, Entity->Position.y, Entity->Position.z + PlaneSize};
+				T2.A = vec3{Entity->Position.x - PlaneSize, Entity->Position.y, Entity->Position.z - PlaneSize};
+				T2.B = vec3{Entity->Position.x - PlaneSize, Entity->Position.y, Entity->Position.z + PlaneSize};
+				T2.C = vec3{Entity->Position.x + PlaneSize, Entity->Position.y, Entity->Position.z + PlaneSize};
 				break;
 			case 2: // Y
 			{
 				// creates vector from cam to entity in XZ
-				vec3 CamToEntity = camera->position - entity->position;
-				cam_to_entity.y = Camera->Position.y;
-				cam_to_entity = normalize(cam_to_entity);
+				vec3 CamToEntity = Camera->Position - Entity->Position;
+				CamToEntity.y = Camera->Position.y;
+				CamToEntity = normalize(CamToEntity);
 				// finds vector that lie in plane considering cam to entity vector as normal to it
-				vec3 UpVec = normalize(vec3{camera->position.x, 1.0f, camera->position.z});
-				vec3 VecInPlane = glm::cross(up_vec, cam_to_entity);
+				vec3 UpVec = normalize(vec3{Camera->Position.x, 1.0f, Camera->Position.z});
+				vec3 VecInPlane = glm::cross(UpVec, CamToEntity);
 
 				// creates plane
-				T1.A = Entity->Position + (vec_in_plane * -1.0f * PlaneSize);
+				T1.A = Entity->Position + (VecInPlane * -1.0f * PlaneSize);
 				T1.A.y = Camera->Position.y + -1.0f * PlaneSize;
 
-				T1.B = Entity->Position + (vec_in_plane * PlaneSize);
+				T1.B = Entity->Position + (VecInPlane * PlaneSize);
 				T1.B.y = Camera->Position.y + -1.0f * PlaneSize;
 
-				T1.C = Entity->Position + (vec_in_plane * PlaneSize);
+				T1.C = Entity->Position + (VecInPlane * PlaneSize);
 				T1.C.y = Camera->Position.y + PlaneSize;
 
 				T2.A = T1.A;
-				T2.B = Entity->Position + (vec_in_plane * -1.0f * PlaneSize);
+				T2.B = Entity->Position + (VecInPlane * -1.0f * PlaneSize);
 				T2.B.y = Camera->Position.y + PlaneSize;
 				T2.C = T1.C;
 
@@ -456,10 +456,10 @@ namespace Editor
 		auto Ray = CastPickray(Camera, GII->MouseCoords.X, GII->MouseCoords.Y);
 		RRaycastTest Test;
 
-		Test = CL_TestAgainstRay(Ray, T1);
+		Test = ClTestAgainstRay(Ray, T1);
 		if (!Test.Hit)
 		{
-			Test = CL_TestAgainstRay(Ray, T2);
+			Test = ClTestAgainstRay(Ray, T2);
 			if (!Test.Hit)
 				print("warning: can't find plane to place entity!");
 		}
@@ -488,7 +488,7 @@ namespace Editor
 		auto Test = World->Raycast(Pickray, Entity);
 		if (Test.Hit)
 		{
-			entity->position = CL_GetPointFromDetection(pickray, test);
+			Entity->Position = ClGetPointFromDetection(Pickray, Test);
 			Entity->Update();
 		}
 	}
@@ -517,23 +517,23 @@ namespace Editor
 			return;
 
 		RRay Ray = Test.Ray;
-		vec3 Pos = ray.origin + ray.direction * test.distance;
+		vec3 Pos = Ray.Origin + Ray.Direction * Test.Distance;
 
 		// places entity accordingly
 		switch (EdContext.MoveAxis)
 		{
 			case 0: // XZ 
-				Entity->Position.x = pos.x;
-				Entity->Position.z = pos.z;
+				Entity->Position.x = Pos.x;
+				Entity->Position.z = Pos.z;
 				break;
 			case 1: // X
-				Entity->Position.x = pos.x;
+				Entity->Position.x = Pos.x;
 				break;
 			case 2: // Y
-				Entity->Position.y = pos.y;
+				Entity->Position.y = Pos.y;
 				break;
 			case 3: // Z
-				Entity->Position.z = pos.z;
+				Entity->Position.z = Pos.z;
 				break;
 		}
 
@@ -555,7 +555,7 @@ namespace Editor
 		EdContext.MoveAxis = MoveAxis;
 		EdContext.MoveEntityByArrows = true;
 		auto Test = TestRayAgainstEntitySupportPlane(MoveAxis, EdContext.SelectedEntity);
-		ed_context.move_entity_by_arrows_ref_point = CL_GetPointFromDetection(test.ray, test);
+		EdContext.MoveEntityByArrowsRefPoint = ClGetPointFromDetection(Test.Ray, Test);
 		EdContext.UndoStack.Track(EdContext.SelectedEntity);
 	}
 
@@ -569,30 +569,30 @@ namespace Editor
 			return;
 
 		RRay Ray = Test.Ray;
-		vec3 Pos = ray.origin + ray.direction * test.distance;
+		vec3 Pos = Ray.Origin + Ray.Direction * Test.Distance;
 
-		// gets the offset from the mouse drag starting point, and not absolute position
-		vec3 Diff = pos - ed_context.move_entity_by_arrows_ref_point;
+		// gets the offset from the mouse drag starting point, and not absolute Position
+		vec3 Diff = Pos - EdContext.MoveEntityByArrowsRefPoint;
 
-		// modifies entity position
+		// modifies entity Position
 		switch (EdContext.MoveAxis)
 		{
 			case 0: // XZ 
-				Entity->Position.x += diff.x;
-				Entity->Position.z += diff.z;
+				Entity->Position.x += Diff.x;
+				Entity->Position.z += Diff.z;
 				break;
 			case 1: // X
-				Entity->Position.x += diff.x;
+				Entity->Position.x += Diff.x;
 				break;
 			case 2: // Y
-				Entity->Position.y += diff.y;
+				Entity->Position.y += Diff.y;
 				break;
 			case 3: // Z
-				Entity->Position.z += diff.z;
+				Entity->Position.z += Diff.z;
 				break;
 		}
 
-		EdContext.MoveEntityByArrowsRefPoint = pos;
+		EdContext.MoveEntityByArrowsRefPoint = Pos;
 
 		Entity->Update();
 
@@ -600,8 +600,6 @@ namespace Editor
 		UpdateEntityControlArrows(&EdContext.EntityPanel);
 		UpdateEntityRotationGizmo(&EdContext.EntityPanel);
 	}
-
-
 
 	// ----------------
 	// MOVE LIGHT TOOL
@@ -621,19 +619,19 @@ namespace Editor
 
 		DeactivateEditorModes();
 		EdContext.EntityPanel.Active = false;
-		OpenLightsPanel(type, Index, true);
+		OpenLightsPanel(Type, Index, true);
 		EdContext.MoveMode = true;
 		EdContext.SelectedLight = Index;
-		EdContext.SelectedLightType = type;
+		EdContext.SelectedLightType = Type;
 	}
 
 	void MoveLightWithMouse(std::string Type, int Index, RWorld* World)
 	{
 		vec3 Position;
-		if (type == "point" && Index > -1)
-			position = World->PointLights[Index]->Position;
-		else if (type == "spot" && Index > -1)
-			position = World->SpotLights[Index]->Position;
+		if (Type == "point" && Index > -1)
+			Position = World->PointLights[Index]->Position;
+		else if (Type == "spot" && Index > -1)
+			Position = World->SpotLights[Index]->Position;
 		else
 			assert(false);
 
@@ -642,7 +640,7 @@ namespace Editor
 		auto Ray = CastPickray(Camera, GII->MouseCoords.X, GII->MouseCoords.Y);
 
 		// create a big plane for placing entity in the world with the mouse using raycast from camera to mouse
-		// position. In the case of Y placement, we need to compute the plane considering the camera orientation.
+		// Position. In the case of Y placement, we need to compute the plane considering the camera orientation.
 		RTriangle T1, T2;
 		float PlaneSize = 500.0f;
 
@@ -653,35 +651,35 @@ namespace Editor
 			case 0: // XZ 
 			case 1: // X
 			case 3: // Z
-				t1.a = vec3{position.x - plane_size, position.y, position.z - plane_size};
-				t1.b = vec3{position.x + plane_size, position.y, position.z - plane_size};
-				t1.c = vec3{position.x + plane_size, position.y, position.z + plane_size};
-				t2.a = vec3{position.x - plane_size, position.y, position.z - plane_size};
-				t2.b = vec3{position.x - plane_size, position.y, position.z + plane_size};
-				t2.c = vec3{position.x + plane_size, position.y, position.z + plane_size};
+				T1.A = vec3{Position.x - PlaneSize, Position.y, Position.z - PlaneSize};
+				T1.B = vec3{Position.x + PlaneSize, Position.y, Position.z - PlaneSize};
+				T1.C = vec3{Position.x + PlaneSize, Position.y, Position.z + PlaneSize};
+				T2.A = vec3{Position.x - PlaneSize, Position.y, Position.z - PlaneSize};
+				T2.B = vec3{Position.x - PlaneSize, Position.y, Position.z + PlaneSize};
+				T2.C = vec3{Position.x + PlaneSize, Position.y, Position.z + PlaneSize};
 				break;
 			case 2: // Y
 			{
 				// creates vector from cam to entity in XZ
-				vec3 CamToEntity = camera->position - position;
-				cam_to_entity.y = Camera->Position.y;
-				cam_to_entity = normalize(cam_to_entity);
+				vec3 CamToEntity = Camera->Position - Position;
+				CamToEntity.y = Camera->Position.y;
+				CamToEntity = normalize(CamToEntity);
 				// finds vector that lie in plane considering cam to entity vector as normal to it
-				vec3 UpVec = normalize(vec3{camera->position.x, 1.0f, camera->position.z});
-				vec3 VecInPlane = glm::cross(up_vec, cam_to_entity);
+				vec3 UpVec = normalize(vec3{Camera->Position.x, 1.0f, Camera->Position.z});
+				vec3 VecInPlane = glm::cross(UpVec, CamToEntity);
 
 				// creates plane
-				T1.A = position + (vec_in_plane * -1.0f * PlaneSize);
+				T1.A = Position + (VecInPlane * -1.0f * PlaneSize);
 				T1.A.y = Camera->Position.y + -1.0f * PlaneSize;
 
-				T1.B = position + (vec_in_plane * PlaneSize);
+				T1.B = Position + (VecInPlane * PlaneSize);
 				T1.B.y = Camera->Position.y + -1.0f * PlaneSize;
 
-				T1.C = position + (vec_in_plane * PlaneSize);
+				T1.C = Position + (VecInPlane * PlaneSize);
 				T1.C.y = Camera->Position.y + PlaneSize;
 
 				T2.A = T1.A;
-				T2.B = position + (vec_in_plane * -1.0f * PlaneSize);
+				T2.B = Position + (VecInPlane * -1.0f * PlaneSize);
 				T2.B.y = Camera->Position.y + PlaneSize;
 				T2.C = T1.C;
 
@@ -692,10 +690,10 @@ namespace Editor
 		// ray casts against created plane
 		RRaycastTest Test;
 
-		Test = CL_TestAgainstRay(Ray, T1);
+		Test = ClTestAgainstRay(Ray, T1);
 		if (!Test.Hit)
 		{
-			Test = CL_TestAgainstRay(Ray, T2);
+			Test = ClTestAgainstRay(Ray, T2);
 			if (!Test.Hit)
 			{
 				print("warning: can't find plane to place light!");
@@ -707,24 +705,24 @@ namespace Editor
 		switch (EdContext.MoveAxis)
 		{
 			case 0:
-				position.x = Ray.Origin.x + Ray.Direction.x * Test.Distance;
-				position.z = Ray.Origin.z + Ray.Direction.z * Test.Distance;
+				Position.x = Ray.Origin.x + Ray.Direction.x * Test.Distance;
+				Position.z = Ray.Origin.z + Ray.Direction.z * Test.Distance;
 				break;
 			case 1: // X
-				position.x = Ray.Origin.x + Ray.Direction.x * Test.Distance;
+				Position.x = Ray.Origin.x + Ray.Direction.x * Test.Distance;
 				break;
 			case 2: // Y
-				position.y = Ray.Origin.y + Ray.Direction.y * Test.Distance;
+				Position.y = Ray.Origin.y + Ray.Direction.y * Test.Distance;
 				break;
 			case 3: // Z
-				position.z = Ray.Origin.z + Ray.Direction.z * Test.Distance;
+				Position.z = Ray.Origin.z + Ray.Direction.z * Test.Distance;
 				break;
 		}
 
-		if (type == "point" && Index > -1)
-			World->PointLights[Index]->Position = position;
-		else if (type == "spot" && Index > -1)
-			World->SpotLights[Index]->Position = position;
+		if (Type == "point" && Index > -1)
+			World->PointLights[Index]->Position = Position;
+		else if (Type == "spot" && Index > -1)
+			World->SpotLights[Index]->Position = Position;
 		else
 			assert(false);
 	}
@@ -775,28 +773,28 @@ namespace Editor
 		{
 			case 1: // X
 			{
-				float Diff = mouse_coords.y - EdContext.RotateEntityWithMouseMouseCoordsRef.y;
+				float Diff = MouseCoords.y - EdContext.RotateEntityWithMouseMouseCoordsRef.y;
 				float AngularDiff = MouseOffsetToAngularOffset(Diff);
 				Entity->Rotation.x += AngularDiff;
 				break;
 			}
 			case 2: // Y
 			{
-				float Diff = mouse_coords.x - EdContext.RotateEntityWithMouseMouseCoordsRef.x;
+				float Diff = MouseCoords.x - EdContext.RotateEntityWithMouseMouseCoordsRef.x;
 				float AngularDiff = MouseOffsetToAngularOffset(Diff);
 				Entity->Rotation.y += AngularDiff;
 				break;
 			}
 			case 3: // Z
 			{
-				float Diff = mouse_coords.y - EdContext.RotateEntityWithMouseMouseCoordsRef.y;
+				float Diff = MouseCoords.y - EdContext.RotateEntityWithMouseMouseCoordsRef.y;
 				float AngularDiff = MouseOffsetToAngularOffset(Diff);
 				Entity->Rotation.z += AngularDiff;
 				break;
 			}
 		}
 
-		EdContext.RotateEntityWithMouseMouseCoordsRef = mouse_coords;
+		EdContext.RotateEntityWithMouseMouseCoordsRef = MouseCoords;
 		Entity->Update();
 
 		// TODO: We should _know_ when entities move and be able to act programatically upon that knowledge instead of randomly checking everywhere.
@@ -868,21 +866,21 @@ namespace Editor
 
 	void RenderAabbBoundaries(EEntity* Entity)
 	{
-		// auto bounds = entity->collision_geometry.aabb;
+		// auto bounds = Entity->collision_geometry.aabb;
 		// ImDraw::add(
 		//    IMHASH,
 		//    std::vector<Vertex>{
-		//       Vertex{vec3(bounds.x0,entity->position.y, bounds.z0)},
-		//       Vertex{vec3(bounds.x0,entity->position.y + bounds.height, bounds.z0)},
+		//       Vertex{vec3(bounds.x0,Entity->Position.y, bounds.z0)},
+		//       Vertex{vec3(bounds.x0,Entity->Position.y + bounds.height, bounds.z0)},
 
-		//       Vertex{vec3(bounds.x0,entity->position.y, bounds.z1)},
-		//       Vertex{vec3(bounds.x0,entity->position.y + bounds.height, bounds.z1)},
+		//       Vertex{vec3(bounds.x0,Entity->Position.y, bounds.z1)},
+		//       Vertex{vec3(bounds.x0,Entity->Position.y + bounds.height, bounds.z1)},
 
-		//       Vertex{vec3(bounds.x1,entity->position.y, bounds.z1)},
-		//       Vertex{vec3(bounds.x1,entity->position.y + bounds.height, bounds.z1)},
+		//       Vertex{vec3(bounds.x1,Entity->Position.y, bounds.z1)},
+		//       Vertex{vec3(bounds.x1,Entity->Position.y + bounds.height, bounds.z1)},
 
-		//       Vertex{vec3(bounds.x1,entity->position.y, bounds.z0)},
-		//       Vertex{vec3(bounds.x1,entity->position.y + bounds.height, bounds.z0)},
+		//       Vertex{vec3(bounds.x1,Entity->Position.y, bounds.z0)},
+		//       Vertex{vec3(bounds.x1,Entity->Position.y + bounds.height, bounds.z0)},
 		//    },
 		//    GL_POINTS
 		// );

@@ -70,7 +70,7 @@ void RenderText(string Font, float X, float Y, vec3 Color, float Scale, bool Cen
 	// Finds text drawing geometry in geometry catalogue
 	auto TextGeometry = GeometryCatalogue.find("text")->second;
 	glActiveTexture(GL_TEXTURE0);
-	glBindVertexArray(TextGeometry->gl_data.VAO);
+	glBindVertexArray(TextGeometry->GLData.VAO);
 
 	// Try finding font in catalogue, if doesn't find, tries loading it
 	gl_charmap Charmap;
@@ -111,7 +111,7 @@ void RenderText(string Font, float X, float Y, vec3 Color, float Scale, bool Cen
 		for (It = Text.begin(); It != Text.end(); ++It)
 		{
 			auto Ch = Charmap[*It];
-			XSum += Ch.bearing.x * Scale + Ch.size.x * Scale;
+			XSum += Ch.Bearing.x * Scale + Ch.Size.x * Scale;
 		}
 		X -= XSum / 2.0;
 	}
@@ -140,7 +140,7 @@ void RenderText(string Font, float X, float Y, vec3 Color, float Scale, bool Cen
 		// Render glyph texture over quad
 		glBindTexture(GL_TEXTURE_2D, Ch.TextureID);
 		// Update content of VBO memory
-		glBindBuffer(GL_ARRAY_BUFFER, TextGeometry->gl_data.VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, TextGeometry->GLData.VBO);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertices), Vertices);
 		// Render quad
 		glDrawArrays(GL_TRIANGLES, 0, 6);

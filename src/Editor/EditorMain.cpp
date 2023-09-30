@@ -366,7 +366,7 @@ namespace Editor
 			if (EdContext.MeasureAxis == 2)
 				SecondPoint = vec3(EdContext.MeasureFrom.x, EdContext.MeasureFrom.y, EdContext.MeasureTo);
 
-			RImDraw::Add(IMHASH, vector{RVertex{EdContext.MeasureFrom}, RVertex{SecondPoint}}, GL_LINE_LOOP, RenderOpts);
+			RImDraw::Add(IMHASH, vector<RVertex>{RVertex{EdContext.MeasureFrom}, RVertex{SecondPoint}}, GL_LINE_LOOP, RenderOpts);
 		}
 
 		if (EdContext.LocateCoordsMode && EdContext.LocateCoordsFoundPoint)
@@ -553,13 +553,13 @@ namespace Editor
 		RenderText(Font, 235, 70, PlayerPos);
 
 		// PLAYER LIVES
-		string Lives = std::to_string(Player->lives);
-		RenderText(Font, GlobalDisplayState::ViewportWidth - 400, 90, Player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1}, Lives);
+		string Lives = std::to_string(Player->Lives);
+		RenderText(Font, GlobalDisplayState::ViewportWidth - 400, 90, Player->Lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1}, Lives);
 
 		// PLAYER STATE
 		auto PlayerStateTextColor = vec3(0, 0, 0);
 		string PlayerStateText;
-		switch (Player->player_state)
+		switch (Player->PlayerState)
 		{
 			case NPlayerState::Standing:
 				PlayerStateText = "PLAYER PlayerState::Standing";
@@ -580,8 +580,8 @@ namespace Editor
 		RenderText("consola18", GlobalDisplayState::ViewportWidth - 400, 30, PlayerStateTextColor, PlayerStateText);
 
 		string PlayerGrabbingText = "grabbing: ";
-		if (Player->grabbing_entity != nullptr)
-			PlayerGrabbingText += Player->grabbing_entity->Name;
+		if (Player->GrabbingEntity != nullptr)
+			PlayerGrabbingText += Player->GrabbingEntity->Name;
 		RenderText(GlobalDisplayState::ViewportWidth - 400, 45, PlayerGrabbingText);
 
 		// FPS
@@ -845,14 +845,14 @@ namespace Editor
 		int PointLightsCount = 0;
 		for (const auto& Light : World->PointLights)
 		{
-			auto Model = translate(Mat4Identity, Light->position + vec3{0, 0.5, 0});
+			auto Model = translate(Mat4Identity, Light->Position + vec3{0, 0.5, 0});
 			Model = scale(Model, vec3{0.1f});
 			RenderOptions Opts;
 			//opts.wireframe = true;
 			//render
 			Shader->Use();
 			Shader->SetMatrix4("model", Model);
-			Shader->SetFloat3("color", Light->diffuse);
+			Shader->SetFloat3("color", Light->Diffuse);
 			Shader->SetFloat("opacity", 1.0);
 
 			RenderMesh(Mesh, Opts);
@@ -864,14 +864,14 @@ namespace Editor
 		int SpotLightsCount = 0;
 		for (const auto& Light : World->SpotLights)
 		{
-			auto Model = translate(Mat4Identity, Light->position + vec3{0, 0.5, 0});
+			auto Model = translate(Mat4Identity, Light->Position + vec3{0, 0.5, 0});
 			Model = scale(Model, vec3{0.1f});
 			RenderOptions Opts;
 			//opts.wireframe = true;
 			//render
 			Shader->Use();
 			Shader->SetMatrix4("model", Model);
-			Shader->SetFloat3("color", Light->diffuse);
+			Shader->SetFloat3("color", Light->Diffuse);
 			Shader->SetFloat("opacity", 1.0);
 			RenderMesh(Mesh, Opts);
 			SpotLightsCount++;
@@ -1008,8 +1008,8 @@ namespace Editor
 
 		if (Panel->ReverseScale)
 		{
-			for (int I = 0; I < 3; I++)
-				Angles[I] += 180;
+			for (int i = 0; i < 3; i++)
+				Angles[i] += 180;
 		}
 
 		// update arrow mat models doing correct matrix multiplication order
@@ -1065,7 +1065,7 @@ namespace Editor
 		int Triangles = Entity->Mesh->Indices.size() / 3;
 		for (int i = 0; i < Triangles; i++)
 		{
-			RTriangle Triangle = get_triangle_for_indexed_mesh(Entity->Mesh, Entity->MatModel, i);
+			RTriangle Triangle = GetTriangleForIndexedMesh(Entity->Mesh, Entity->MatModel, i);
 			vec3 Normal = triangleNormal(Triangle.A, Triangle.B, Triangle.C);
 			RFace Face = FaceFromAxisAlignedTriangle(Triangle);
 

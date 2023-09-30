@@ -17,7 +17,7 @@ namespace Editor
 	void EntityPanelTrackEntityChanges(REntityPanelContext* Panel);
 
 
-	enum EntityPanelTrackableAction
+	enum NEntityPanelTrackableAction
 	{
 		EntityPanelTA_Position  = 1 << 0,
 		EntityPanelTA_Rotation  = 1 << 1,

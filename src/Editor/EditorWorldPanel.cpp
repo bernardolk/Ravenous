@@ -13,7 +13,7 @@ namespace Editor
 		ImGui::SetWindowSize("World Panel", ImVec2(500, 700), ImGuiCond_Appearing);
 
 		ImGui::Text("World Cells");
-		int i = 0;
+		int Count = 0;
 		for (auto* ActiveChunk : World->ActiveChunks)
 		{
 			auto ChunkPosition = ActiveChunk->GetChunkPosition();
@@ -31,7 +31,7 @@ namespace Editor
 			if (ImGui::CollapsingHeader(Header.c_str()))
 			{
 				bool IsActive = Panel->ChunkPositionVec == ActiveChunk->GetChunkPosition();
-				if (ImGui::Checkbox(string("show##" + to_string(i)).c_str(), &IsActive))
+				if (ImGui::Checkbox(string("show##" + to_string(Count)).c_str(), &IsActive))
 				{
 					Panel->ChunkPositionVec = IsActive ? ChunkPosition.GetVec() : vec3{-1.0f};
 				}
@@ -45,11 +45,11 @@ namespace Editor
 				int EntityCount = 1;
 				while (auto* Entity = EntityIter())
 				{
-					string Line = to_string(EntityCount++) + ". " + Entity->name;
+					string Line = to_string(EntityCount++) + ". " + Entity->Name;
 					ImGui::Text(Line.c_str());
 				}
 			}
-			i++;
+			Count++;
 		}
 
 		ImGui::End();

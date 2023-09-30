@@ -3,7 +3,7 @@
 #include "editor.h"
 #include "tools/EditorTools.h"
 #include "engine/camera/camera.h"
-#include "engine/entities/lights.h"
+#include "engine/entities/Lights.h"
 #include "engine/world/World.h"
 
 namespace Editor
@@ -13,10 +13,10 @@ namespace Editor
 		auto& EdContext = *GetContext();
 
 		EdContext.LightsPanel.Active = true;
-		if (type != "" && Index > -1)
+		if (Type != "" && Index > -1)
 		{
 			EdContext.LightsPanel.SelectedLight = Index;
-			EdContext.LightsPanel.SelectedLightType = type;
+			EdContext.LightsPanel.SelectedLightType = Type;
 		}
 		if (FocusTab)
 			EdContext.LightsPanel.FocusTab = true;
@@ -26,11 +26,11 @@ namespace Editor
 	vec3 ComputeDirectionFromAngles(float Pitch, float Yaw)
 	{
 		vec3 ArrowDirection;
-		arrow_direction.x = cos(glm::radians(Pitch)) * cos(glm::radians(Yaw));
-		arrow_direction.y = sin(glm::radians(Pitch));
-		arrow_direction.z = cos(glm::radians(Pitch)) * sin(glm::radians(Yaw));
-		arrow_direction = normalize(arrow_direction);
-		return arrow_direction;
+		ArrowDirection.x = cos(glm::radians(Pitch)) * cos(glm::radians(Yaw));
+		ArrowDirection.y = sin(glm::radians(Pitch));
+		ArrowDirection.z = cos(glm::radians(Pitch)) * sin(glm::radians(Yaw));
+		ArrowDirection = normalize(ArrowDirection);
+		return ArrowDirection;
 	}
 
 
@@ -48,13 +48,13 @@ namespace Editor
 		// -------------
 		auto PointFlags = (Panel->FocusTab && Panel->SelectedLightType == "point") ?
 		ImGuiTabItemFlags_SetSelected : ImGuiTabItemFlags_None;
-		if (ImGui::BeginTabItem("Point Lights", nullptr, point_flags))
+		if (ImGui::BeginTabItem("Point Lights", nullptr, PointFlags))
 		{
 			int DeletedLightIndex = -1;
-			auto& Pointlights = World->PointLights;
+			auto& PointLights = World->PointLights;
 
 			// UNFOCUS TAB
-			if (point_flags == ImGuiTabItemFlags_SetSelected)
+			if (PointFlags == ImGuiTabItemFlags_SetSelected)
 				Panel->FocusTab = false;
 
 			// ADD BUTTON
@@ -63,25 +63,25 @@ namespace Editor
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor::HSV(0.42f, 0.8f, 0.8f)));
 			if (ImGui::Button("Add new##point"))
 			{
-				// create new spotlight
-				auto NewPointlight = new PointLight();
-				pointlights.push_back(NewPointlight);
-				ActivateMoveLightMode("point", pointlights.size() - 1);
+				// create new spotLight
+				auto NewPointLight = new EPointLight();
+				PointLights.push_back(NewPointLight);
+				ActivateMoveLightMode("point", PointLights.size() - 1);
 			}
 			ImGui::PopStyleColor(3);
 
-			for (int I = 0; I < pointlights.size(); I++)
+			for (int i = 0; i < PointLights.size(); i++)
 			{
-				string Header = "point light source (" + std::to_string(i) + ")";
-				bool IsActive = Panel->SelectedLight == I && Panel->SelectedLightType == "point";
-				if (ImGui::CollapsingHeader(header.c_str(), ImGuiTreeNodeFlags_NoAutoOpenOnLog) || IsActive)
+				string Header = "point Light source (" + std::to_string(i) + ")";
+				bool IsActive = Panel->SelectedLight == i && Panel->SelectedLightType == "point";
+				if (ImGui::CollapsingHeader(Header.c_str(), ImGuiTreeNodeFlags_NoAutoOpenOnLog) || IsActive)
 				{
 					// SHOW BUTTON
-					PointLight& Light = *pointlights[I];
+					EPointLight& Light = *PointLights[i];
 					auto ShowName = "show##point" + std::to_string(i);
-					if (ImGui::Checkbox(show_name.c_str(), &IsActive))
+					if (ImGui::Checkbox(ShowName.c_str(), &IsActive))
 					{
-						Panel->SelectedLight = IsActive ? I : -1;
+						Panel->SelectedLight = IsActive ? i : -1;
 						Panel->SelectedLightType = "point";
 					}
 
@@ -91,9 +91,9 @@ namespace Editor
 					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, static_cast<ImVec4>(ImColor::HSV(0.03f, 0.7f, 0.7f)));
 					ImGui::PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor::HSV(0.03f, 0.8f, 0.8f)));
 					auto DeleteBtnLabel = "Delete##point" + std::to_string(i);
-					if (ImGui::Button(delete_btn_label.c_str()))
+					if (ImGui::Button(DeleteBtnLabel.c_str()))
 					{
-						DeletedLightIndex = I;
+						DeletedLightIndex = i;
 					}
 					ImGui::PopStyleColor(3);
 
@@ -101,37 +101,37 @@ namespace Editor
 					ImGui::NewLine();
 					float Positions[]{Light.Position[0], Light.Position[1], Light.Position[2]};
 					auto LabelPos = "position##point" + std::to_string(i);
-					if (ImGui::DragFloat3(label_pos.c_str(), Positions, 0.3, -10.0, 10.0))
+					if (ImGui::DragFloat3(LabelPos.c_str(), Positions, 0.3, -10.0, 10.0))
 					{
-						light.position = vec3{positions[0], positions[1], positions[2]};
+						Light.Position = vec3{Positions[0], Positions[1], Positions[2]};
 					}
 
 					// diffuse color 
 					float Diffuse[]{Light.Diffuse[0], Light.Diffuse[1], Light.Diffuse[2]};
 					auto LabelDiffuse = "diffuse##point" + std::to_string(i);
-					if (ImGui::ColorPicker3(label_diffuse.c_str(), Diffuse, ImGuiColorEditFlags_NoAlpha))
+					if (ImGui::ColorPicker3(LabelDiffuse.c_str(), Diffuse, ImGuiColorEditFlags_NoAlpha))
 					{
-						light.diffuse = vec3{diffuse[0], diffuse[1], diffuse[2]};
+						Light.Diffuse = vec3{Diffuse[0], Diffuse[1], Diffuse[2]};
 					}
 
 					// specular color 
 					float Specular[]{Light.Specular[0], Light.Specular[1], Light.Specular[2]};
 					auto LabelSpecular = "specular##point" + std::to_string(i);
-					if (ImGui::ColorPicker3(label_specular.c_str(), Specular, ImGuiColorEditFlags_NoAlpha))
+					if (ImGui::ColorPicker3(LabelSpecular.c_str(), Specular, ImGuiColorEditFlags_NoAlpha))
 					{
-						light.specular = vec3{specular[0], specular[1], specular[2]};
+						Light.Specular = vec3{Specular[0], Specular[1], Specular[2]};
 					}
 
 					// intensity (decay)
 					ImGui::Text("Intensity decay");
 					auto LabelIntensityConst = "const##point" + std::to_string(i);
-					ImGui::DragFloat(label_intensity_const.c_str(), &Light.IntensityConstant, 0.05, 0.0, 5.0);
+					ImGui::DragFloat(LabelIntensityConst.c_str(), &Light.IntensityConstant, 0.05, 0.0, 5.0);
 
 					auto LabelIntensityLinear = "linear##point" + std::to_string(i);
-					ImGui::DragFloat(label_intensity_linear.c_str(), &Light.IntensityLinear, 0.005, 0.0, 5.0);
+					ImGui::DragFloat(LabelIntensityLinear.c_str(), &Light.IntensityLinear, 0.005, 0.0, 5.0);
 
 					auto LabelIntensityQuad = "quadratic##point" + std::to_string(i);
-					ImGui::DragFloat(label_intensity_quad.c_str(), &Light.IntensityQuadratic, 0.0005, 0.0, 5.0);
+					ImGui::DragFloat(LabelIntensityQuad.c_str(), &Light.IntensityQuadratic, 0.0005, 0.0, 5.0);
 
 					ImGui::NewLine();
 				}
@@ -149,13 +149,13 @@ namespace Editor
 		// ------------
 		auto SpotFlags = (Panel->FocusTab && Panel->SelectedLightType == "spot") ?
 		ImGuiTabItemFlags_SetSelected : ImGuiTabItemFlags_None;
-		if (ImGui::BeginTabItem("Spot Lights", nullptr, spot_flags))
+		if (ImGui::BeginTabItem("Spot Lights", nullptr, SpotFlags))
 		{
 			int DeletedLightIndex = -1;
-			auto& Spotlights = World->SpotLights;
+			auto& SpotLights = World->SpotLights;
 
 			// UNFOCUS TAB
-			if (spot_flags == ImGuiTabItemFlags_SetSelected)
+			if (SpotFlags == ImGuiTabItemFlags_SetSelected)
 				Panel->FocusTab = false;
 
 			// ADD BUTTON
@@ -164,26 +164,26 @@ namespace Editor
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor::HSV(0.42f, 0.8f, 0.8f)));
 			if (ImGui::Button("Add new##spot"))
 			{
-				// create new spotlight
-				auto NewSpotlight = new SpotLight();
-				spotlights.push_back(NewSpotlight);
-				ActivateMoveLightMode("spot", spotlights.size() - 1);
+				// create new spotLight
+				auto NewSpotLight = new ESpotLight();
+				SpotLights.push_back(NewSpotLight);
+				ActivateMoveLightMode("spot", SpotLights.size() - 1);
 			}
 			ImGui::PopStyleColor(3);
 
-			for (int I = 0; I < spotlights.size(); I++)
+			for (int i = 0; i < SpotLights.size(); i++)
 			{
-				string Header = "spot light source (" + std::to_string(i) + ")";
-				bool IsActive = Panel->SelectedLight == I && Panel->SelectedLightType == "spot";
-				if (ImGui::CollapsingHeader(header.c_str()) || IsActive)
+				string Header = "spot Light source (" + std::to_string(i) + ")";
+				bool IsActive = Panel->SelectedLight == i && Panel->SelectedLightType == "spot";
+				if (ImGui::CollapsingHeader(Header.c_str()) || IsActive)
 				{
-					SpotLight& Light = *spotlights[I];
+					ESpotLight& Light = *SpotLights[i];
 
 					// SHOW BUTTON
 					auto ShowName = "show##spot" + std::to_string(i);
-					if (ImGui::Checkbox(show_name.c_str(), &IsActive))
+					if (ImGui::Checkbox(ShowName.c_str(), &IsActive))
 					{
-						Panel->SelectedLight = IsActive ? I : -1;
+						Panel->SelectedLight = IsActive ? i : -1;
 						Panel->SelectedLightType = "spot";
 					}
 
@@ -193,9 +193,9 @@ namespace Editor
 					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, static_cast<ImVec4>(ImColor::HSV(0.03f, 0.7f, 0.7f)));
 					ImGui::PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor::HSV(0.03f, 0.8f, 0.8f)));
 					auto DeleteBtnSpotLabel = "Delete##spot" + std::to_string(i);
-					if (ImGui::Button(delete_btn_spot_label.c_str()))
+					if (ImGui::Button(DeleteBtnSpotLabel.c_str()))
 					{
-						DeletedLightIndex = I;
+						DeletedLightIndex = i;
 					}
 					ImGui::PopStyleColor(3);
 
@@ -204,17 +204,17 @@ namespace Editor
 					// position 
 					float Positions[]{Light.Position[0], Light.Position[1], Light.Position[2]};
 					auto LabelPos = "position##spot" + std::to_string(i);
-					if (ImGui::DragFloat3(label_pos.c_str(), Positions, 0.3, -10.0, 10.0))
+					if (ImGui::DragFloat3(LabelPos.c_str(), Positions, 0.3, -10.0, 10.0))
 					{
-						light.position = vec3{positions[0], positions[1], positions[2]};
+						Light.Position = vec3{Positions[0], Positions[1], Positions[2]};
 					}
 
 					// cones 
 					auto LabelInnercone = "innercone##spot" + std::to_string(i);
-					ImGui::DragFloat(label_innercone.c_str(), &Light.Innercone, 0.001, 1, MaxFloat);
+					ImGui::DragFloat(LabelInnercone.c_str(), &Light.Innercone, 0.001, 1, MaxFloat);
 
 					auto LabelOutercone = "outercone##spot" + std::to_string(i);
-					ImGui::DragFloat(label_outercone.c_str(), &Light.Outercone, 0.001, 0, 1);
+					ImGui::DragFloat(LabelOutercone.c_str(), &Light.Outercone, 0.001, 0, 1);
 
 					// direction
 					{
@@ -223,46 +223,46 @@ namespace Editor
 
 						// pitch
 						auto LabelPitch = "pitch##spot" + std::to_string(i);
-						if (ImGui::SliderFloat(label_pitch.c_str(), &Pitch, -89.0, 89.0))
+						if (ImGui::SliderFloat(LabelPitch.c_str(), &Pitch, -89.0, 89.0))
 						{
-							light.direction = ComputeDirectionFromAngles(pitch, yaw);
+							Light.Direction = ComputeDirectionFromAngles(Pitch, Yaw);
 						}
 
 						//yaw
 						auto LabelYaw = "yaw##spot" + std::to_string(i);
-						if (ImGui::SliderFloat(label_yaw.c_str(), &Yaw, -360.0, 360.0))
+						if (ImGui::SliderFloat(LabelYaw.c_str(), &Yaw, -360.0, 360.0))
 						{
-							light.direction = ComputeDirectionFromAngles(pitch, yaw);
+							Light.Direction = ComputeDirectionFromAngles(Pitch, Yaw);
 						}
 					}
 
 					// diffuse color 
 					float Diffuse[]{Light.Diffuse[0], Light.Diffuse[1], Light.Diffuse[2]};
 					auto LabelDiffuse = "diffuse##spot" + std::to_string(i);
-					if (ImGui::ColorPicker3(label_diffuse.c_str(), Diffuse, ImGuiColorEditFlags_NoAlpha))
+					if (ImGui::ColorPicker3(LabelDiffuse.c_str(), Diffuse, ImGuiColorEditFlags_NoAlpha))
 					{
-						light.diffuse = vec3{diffuse[0], diffuse[1], diffuse[2]};
+						Light.Diffuse = vec3{Diffuse[0], Diffuse[1], Diffuse[2]};
 					}
 
 					// specular color 
 					float Specular[]{Light.Specular[0], Light.Specular[1], Light.Specular[2]};
 					auto LabelSpecular = "specular##spot" + std::to_string(i);
-					if (ImGui::ColorPicker3(label_specular.c_str(), Specular, ImGuiColorEditFlags_NoAlpha))
+					if (ImGui::ColorPicker3(LabelSpecular.c_str(), Specular, ImGuiColorEditFlags_NoAlpha))
 					{
-						light.specular = vec3{specular[0], specular[1], specular[2]};
+						Light.Specular = vec3{Specular[0], Specular[1], Specular[2]};
 					}
 
 					// intensity
 					// intensity (decay)
 					ImGui::Text("Intensity decay");
 					auto LabelIntensityConst = "const##spot" + std::to_string(i);
-					ImGui::DragFloat(label_intensity_const.c_str(), &Light.IntensityConstant, 0.05, 0.0, 5.0);
+					ImGui::DragFloat(LabelIntensityConst.c_str(), &Light.IntensityConstant, 0.05, 0.0, 5.0);
 
 					auto LabelIntensityLinear = "linear##spot" + std::to_string(i);
-					ImGui::DragFloat(label_intensity_linear.c_str(), &Light.IntensityLinear, 0.005, 0.0, 5.0);
+					ImGui::DragFloat(LabelIntensityConst.c_str(), &Light.IntensityLinear, 0.005, 0.0, 5.0);
 
 					auto LabelIntensityQuad = "quadratic##spot" + std::to_string(i);
-					ImGui::DragFloat(label_intensity_quad.c_str(), &Light.IntensityQuadratic, 0.0005, 0.0, 5.0);
+					ImGui::DragFloat(LabelIntensityConst.c_str(), &Light.IntensityQuadratic, 0.0005, 0.0, 5.0);
 
 
 					ImGui::NewLine();

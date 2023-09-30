@@ -24,7 +24,7 @@
 
 #define Reflected() \
     using Self = Reflection::TypeNameWrapper<__COUNTER__ - 1>::T; \
-    using DumpFuncType = void(*)(Self& instance, string& serialized); \
+    using DumpFuncType = void(*)(Self& instance, string& Serialized); \
 	using LoadFuncType = void(*)(Self& instance, string& field, string& value); \
 	using GetterFuncPtrType = string(*)(Self&); \
 	using SetterFuncPtrType = void (*)(Self*, string&); \
@@ -76,33 +76,33 @@ namespace Reflection
 	{
 		for (auto* FieldGetter : Class::Reflection_GetterFuncPtrs)
 		{
-			serialized.append(" ");
-			serialized.append(FieldGetter(Instance));
-			serialized.append(" ");
+			Serialized.append(" ");
+			Serialized.append(FieldGetter(Instance));
+			Serialized.append(" ");
 		}
 
 		if constexpr (sizeof...(Parents) > 0)
 		{
-			DumpIterative<T, Parents...>(Instance, serialized);
+			DumpIterative<T, Parents...>(Instance, Serialized);
 		}
 	}
 
 	template<typename T, typename Class, typename... Parents>
-	void LoadIterative(T& Instance, string& field, string& Value)
+	void LoadIterative(T& Instance, string& Field, string& Value)
 	{
-		if (auto It = Class::Reflection_SetterFuncPtrs.find(field); it != Class::Reflection_SetterFuncPtrs.end())
+		if (auto It = Class::Reflection_SetterFuncPtrs.find(Field); It != Class::Reflection_SetterFuncPtrs.end())
 		{
-			auto* SetterMethod = it->second;
-			setter_method(&Instance, value);
+			auto* SetterMethod = It->second;
+			SetterMethod(&Instance, Value);
 		}
 		else
 		{
 			if constexpr (sizeof...(Parents) > 0)
 			{
-				LoadIterative<T, Parents...>(Instance, field, value);
+				LoadIterative<T, Parents...>(Instance, Field, Value);
 			}
 			else
-				fatal_error("PROBLEM: We couldn't find the appropriate setter for the field '%s' with value '%s' anywhere.", field.c_str(), value.c_str());
+				fatal_error("PROBLEM: We couldn't find the appropriate setter for the field '%s' with value '%s' anywhere.", Field.c_str(), Value.c_str());
 		}
 	}
 
@@ -119,31 +119,31 @@ namespace Reflection
 	constexpr static uint SerializationSize = 1600;
 
 	template<typename T>
-	string Dump(T& instance, bool include_header = true)
+	string Dump(T& Instance, bool bIncludeHeader = true)
 	{
 		string Serialized;
-		serialized.reserve(SerializationSize);
+		Serialized.reserve(SerializationSize);
 
 		string Header = "";
 		string Body = "";
-		if (include_header)
+		if (bIncludeHeader)
 		{
-			string name;
-			name.reserve(100);
-			name = instance.Reflection_InstanceName != nullptr ? "NONAME" : *instance.Reflection_InstanceName;
-			sprintf(&header[0], "{ \"%s\" : %s = {", name.c_str(), T::Reflection_TypeName.c_str());
+			string Name;
+			Name.reserve(100);
+			Name = Instance.Reflection_InstanceName != nullptr ? "NONAME" : *Instance.Reflection_InstanceName;
+			sprintf(&Header[0], "{ \"%s\" : %s = {", Name.c_str(), T::Reflection_TypeName.c_str());
 		}
 		else
 		{
 			// hack to make deserialization of nested objects work with current parsing code
-			body = "{,";
+			Body = "{,";
 		}
 
-		serialized = header.append(body);
-		T::Reflection_DumpFunc(instance, serialized);
+		Serialized = Header.append(Body);
+		T::Reflection_DumpFunc(Instance, Serialized);
 
-		serialized.append(" } }\n");
-		return serialized;
+		Serialized.append(" } }\n");
+		return Serialized;
 	}
 
 	// ---------------------------------------
@@ -154,12 +154,12 @@ namespace Reflection
 	T Load(string& Data, bool IncludeHeader = true)
 	{
 		map<string, string> Fields;
-		ParseObject(data, fields, IncludeHeader);
+		ParseObject(Data, Fields, IncludeHeader);
 
 		T Instance;
-		for (auto& [field, value] : fields)
+		for (auto& [field, value] : Fields)
 		{
-			T::Reflection_LoadFunc(instance, static_cast<string&>(field), static_cast<string&>(value));
+			T::Reflection_LoadFunc(Instance, static_cast<string&>(field), static_cast<string&>(value));
 		}
 
 		return Instance;
@@ -169,40 +169,40 @@ namespace Reflection
 
 	// default template for serialization of fields
 	template<typename TField>
-	auto ToString(TField& field) -> decltype(std::to_string(field), string())
+	auto ToString(TField& Field) -> decltype(std::to_string(Field), string())
 	{
-		return std::to_string(field);
+		return std::to_string(Field);
 	};
 
 	// specialization for UserTypes (ReflectionTypes)
 	template<typename TField, std::enable_if_t<std::is_class_v<TField>, bool>  = true>
-	auto ToString(TField& field) -> decltype(Dump<TField>(field), string())
+	auto ToString(TField& Field) -> decltype(Dump<TField>(Field), string())
 	{
-		return Dump<TField>(field, false);
+		return Dump<TField>(Field, false);
 	};
-	string ToString(string& field);
-	string ToString(char& field);
-	string ToString(bool& field);
+	string ToString(string& Field);
+	string ToString(char& Field);
+	string ToString(bool& Field);
 
 	// ---------------------------------------
 
 	template<typename T>
 	T FromString(string& Value)
 	{
-		return Load<T>(value, false);
+		return Load<T>(Value, false);
 	}
 
 	// ---------------------------------------
 }
 
-inline string GetLine(string& text, char delimiter)
+inline string GetLine(string& Text, char DelimiterChar)
 {
-	uint Pos = text.find(delimiter);
-	if (pos == std::string::npos)
+	uint Pos = Text.find(DelimiterChar);
+	if (Pos == std::string::npos)
 		return "";
-	string Line = text.substr(0, pos);
-	text.erase(0, Pos + 1);
-	return line;
+	string Line = Text.substr(0, Pos);
+	Text.erase(0, Pos + 1);
+	return Line;
 }
 
 
@@ -215,16 +215,16 @@ inline string GetLine(string& text, char delimiter)
 
 struct AssetCatalogue
 {
-	uint asset_instance_size = 0;
-	void* instance_array;
-	uint* version_list;
-	uint instance_count = 0;
+	uint AssetInstanceSize = 0;
+	void* InstanceArray;
+	uint* VersionList;
+	uint InstanceCount = 0;
 
 	AssetCatalogue(uint AssetInstanceSize, void* InstanceArray, uint ArraySize, uint* VersionList) :
-		asset_instance_size(AssetInstanceSize),
-		instance_array(InstanceArray),
-		version_list(VersionList),
-		instance_count(ArraySize)
+		AssetInstanceSize(AssetInstanceSize),
+		InstanceArray(InstanceArray),
+		VersionList(VersionList),
+		InstanceCount(ArraySize)
 	{ }
 
 	template<typename T>

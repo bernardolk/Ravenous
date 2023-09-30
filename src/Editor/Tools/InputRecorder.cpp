@@ -11,101 +11,96 @@ RInputRecorder::RInputRecorder() = default;
 
 void RInputRecorder::StartRecording()
 {
-	is_recording = true;
+	bIsRecording = true;
 }
 
 void RInputRecorder::Record(RInputFlags Flags)
 {
-	recorded_inputs[recording_idx].history.push_back(flags);
+	RecordedInputs[RecordingIdx].History.push_back(Flags);
 }
 
 void RInputRecorder::StopRecording()
 {
-	is_recording = false;
+	bIsRecording = false;
 
 	// trim recording (removes pauses at starting and ending)
 	// we might want to move this to the play logic, so we can choose if we want to play
 	// with or without empty input flags
-	auto& History = recorded_inputs[recording_idx].history;
+	auto& History = RecordedInputs[RecordingIdx].History;
 	// trim beginning
 	{
 		int I = 0;
 		int P = -1;
-		while (I < history.size() && history[I].key_press == 0)
+		while (I < History.size() && History[I].KeyPress == 0)
 		{
 			P = I;
 			I++;
 		}
 		if (P >= 0)
-			history.erase(history.begin(), history.begin() + P);
+			History.erase(History.begin(), History.begin() + P);
 	}
 	// trim ending
 	{
-		int I = history.size() - 1;
+		int I = History.size() - 1;
 		int P = -1;
-		while (I >= 0 && history[I].key_press == 0)
+		while (I >= 0 && History[I].KeyPress == 0)
 		{
 			P = I;
 			I--;
 		}
 		if (P >= 0)
-			history.erase(history.begin() + P, history.end());
+			History.erase(History.begin() + P, History.end());
 	}
 
-	if (history.size() > 0)
+	if (History.size() > 0)
 	{
-		Save(recording_idx);
-		recording_idx ++;
+		Save(RecordingIdx);
+		RecordingIdx ++;
 	}
 }
 
 void RInputRecorder::StartPlaying(int RecordingId)
 {
-	if (RecordingId == -1)
-		playing_idx = recording_idx - 1;
-	else
-		playing_idx = RecordingId;
-	is_playing = true;
+	PlayingIdx = RecordingId == -1 ? RecordingIdx - 1: RecordingId;
+	bIsPlaying = true;
 }
 
 RInputFlags RInputRecorder::Play()
 {
-	auto& Record = recorded_inputs[playing_idx];
-	if (playing_flag_idx >= record.history.size() - 1 || record.history.size() == 0)
+	auto& Record = RecordedInputs[PlayingIdx];
+	if (PlayingFlagIdx >= Record.History.size() - 1 || Record.History.size() == 0)
 		StopPlaying();
 
-	return record.history[playing_flag_idx++];
+	return Record.History[PlayingFlagIdx++];
 }
 
 void RInputRecorder::StopPlaying()
 {
-	is_playing = false;
-	playing_flag_idx = 0;
+	bIsPlaying = false;
+	PlayingFlagIdx = 0;
 }
 
 void RInputRecorder::Save(int RecordingId)
 {
-	auto T = std::time(nullptr);
-	auto Tm = *std::localtime(&t);
+	// @std
+	auto Time = std::time(nullptr);
+	auto Localtime = *std::localtime(&Time);
 
 	std::stringstream TimestampStream;
-	timestamp_stream << std::put_time(&tm, "%d-%m-%Y-%H-%M");
+	TimestampStream << std::put_time(&Localtime, "%d-%m-%Y-%H-%M");
 
-	std::string Timestamp = timestamp_stream.str();
-	std::ofstream writer(
-		Paths::InputRecordings + RecordingsFilenamePrefix
-		+ timestamp + RecordingsFilenameExtension
-	);
+	std::string Timestamp = TimestampStream.str();
+	std::ofstream Writer(Paths::InputRecordings + RecordingsFilenamePrefix + Timestamp + RecordingsFilenameExtension);
 
-	if (!writer.is_open())
+	if (!Writer.is_open())
 		fatal_error("Cant save recording to file");
 
-	auto& Record = recorded_inputs[recording_id].history;
+	auto& Record = RecordedInputs[RecordingId].History;
 
-	for (int I = 0; I < record.size(); I++)
+	for (int i = 0; i < Record.size(); i++)
 	{
-		writer << std::to_string(record[i].key_press) << "\n";
-		writer << std::to_string(record[i].key_release) << "\n";
+		Writer << std::to_string(Record[i].KeyPress) << "\n";
+		Writer << std::to_string(Record[i].KeyRelease) << "\n";
 	}
 
 }
@@ -117,30 +112,30 @@ void RInputRecorder::Load()
 	// For that reason, should be used only at startup.
 
 	vector<string> OutFiles;
-	if (Platform::ListFilesInDir(Paths::InputRecordings, "*", out_files))
+	if (Platform::ListFilesInDir(Paths::InputRecordings, "*", OutFiles))
 	{
-		recording_idx = 0;
+		RecordingIdx = 0;
 
-		for (auto& file : out_files)
+		for (auto& File : OutFiles)
 		{
-			Parser p{file};
+			Parser Parse{File};
 
-			auto& recording = recorded_inputs[recording_idx].history;
-			recording.clear();
+			auto& Recording = RecordedInputs[RecordingIdx].History;
+			Recording.clear();
 
-			while (p.NextLine())
+			while (Parse.NextLine())
 			{
-				p.ParseU64();
-				const uint64 key_press = GetParsed<uint64>(p);
+				Parse.ParseU64();
+				const uint64 KeyPress = GetParsed<uint64>(Parse);
 
-				p.NextLine();
-				p.ParseU64();
-				const uint64 key_release = GetParsed<uint64>(p);
+				Parse.NextLine();
+				Parse.ParseU64();
+				const uint64 KeyRelease = GetParsed<uint64>(Parse);
 
-				recording.push_back(RInputFlags{key_press, key_release});
+				Recording.push_back(RInputFlags{KeyPress, KeyRelease});
 			}
 
-			recording_idx++;
+			RecordingIdx++;
 		}
 	}
 }

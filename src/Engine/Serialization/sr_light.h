@@ -11,7 +11,7 @@ struct LightSerializer
 	static void ParseSpotLight(Parser& P);
 	static void ParseDirectionalLight(Parser& P);
 
-	static void Save(std::ofstream& Writer, const PointLight* Light);
-	static void Save(std::ofstream& Writer, const SpotLight* Light);
-	static void Save(std::ofstream& Writer, const DirectionalLight* Light);
+	static void Save(std::ofstream& Writer, const EPointLight* Light);
+	static void Save(std::ofstream& Writer, const ESpotLight* Light);
+	static void Save(std::ofstream& Writer, const EDirectionalLight* Light);
 };

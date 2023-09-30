@@ -40,8 +40,8 @@ extern map<string, RMesh*> GeometryCatalogue;
 extern map<string, RCollisionMesh*> CollisionGeometryCatalogue;
 
 
-RGLData setup_gl_data_for_lines(const RVertex* Vertices, uint Size);
-vector<RVertex> construct_cylinder(float Radius, float HalfLenght, int Slices);
-RTriangle get_triangle_for_collider_indexed_mesh(const RMesh* Mesh, int TriangleIndex);
-RTriangle get_triangle_for_collider_indexed_mesh(const RCollisionMesh* Mesh, int TriangleIndex);
-RTriangle get_triangle_for_indexed_mesh(RMesh* Mesh, glm::mat4 MatModel, int TriangleIndex);
+RGLData SetupGlDataForLines(const RVertex* Vertices, uint Size);
+vector<RVertex> ConstructCylinder(float Radius, float HalfLenght, int Slices);
+RTriangle GetTriangleForColliderIndexedMesh(const RMesh* Mesh, int TriangleIndex);
+RTriangle GetTriangleForColliderIndexedMesh(const RCollisionMesh* Mesh, int TriangleIndex);
+RTriangle GetTriangleForIndexedMesh(RMesh* Mesh, glm::mat4 MatModel, int TriangleIndex);

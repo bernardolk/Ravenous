@@ -73,7 +73,7 @@ RRaycastTest ClTestAgainstRay(RRay Ray, EEntity* Entity)
 // ---------------------------
 // > TEST RAY AGAINT COLLIDER
 // ---------------------------
-// This doesn't take a matModel
+// This doesn't take a MatModel
 RRaycastTest ClTestAgainstRay(RRay Ray, RCollisionMesh* Collider, NRayCastType TestType)
 {
 
@@ -82,7 +82,7 @@ RRaycastTest ClTestAgainstRay(RRay Ray, RCollisionMesh* Collider, NRayCastType T
 	RRaycastTest MinHitTest{false, -1};
 	for (int I = 0; I < Triangles; I++)
 	{
-		RTriangle T = get_triangle_for_collider_indexed_mesh(Collider, I);
+		RTriangle T = GetTriangleForColliderIndexedMesh(Collider, I);
 		bool TestBothSides = TestType == RayCast_TestBothSidesOfTriangle;
 		auto Test = ClTestAgainstRay(Ray, T, TestBothSides);
 		if (Test.Hit && Test.Distance < MinDistance)
@@ -107,7 +107,7 @@ RRaycastTest ClTestAgainstRay(RRay Ray, RMesh* Mesh, glm::mat4 MatModel, NRayCas
 	RRaycastTest MinHitTest{false, -1};
 	for (int i = 0; i < Triangles; i++)
 	{
-		RTriangle T = get_triangle_for_indexed_mesh(Mesh, MatModel, i);
+		RTriangle T = GetTriangleForIndexedMesh(Mesh, MatModel, i);
 		bool TestBothSides = TestType == RayCast_TestBothSidesOfTriangle;
 		auto Test = ClTestAgainstRay(Ray, T, TestBothSides);
 		if (Test.Hit && Test.Distance < MinDistance)

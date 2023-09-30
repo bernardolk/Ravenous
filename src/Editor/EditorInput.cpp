@@ -9,7 +9,7 @@
 #include "editor/EditorState.h"
 #include "tools/EditorTools.h"
 #include "game/entities/EPlayer.h"
-#include "engine/camera/camera.h"
+#include "engine/Camera/Camera.h"
 #include "engine/rvn.h"
 #include "engine/collision/raycast.h"
 #include "engine/io/display.h"
@@ -35,7 +35,7 @@ namespace Editor
 		auto* Manager = RCameraManager::Get();
 		auto* Camera = Manager->GetCurrentCamera();
 
-		if (Pressed(flags, KEY_LEFT_CTRL) && PressedOnce(flags, KEY_Z))
+		if (Pressed(Flags, NKeyInput::KeyLeftCtrl) && PressedOnce(Flags, NKeyInput::KeyZ))
 		{
 			// snap mode controls the undo stack while it is active.
 			if (!Context.SnapMode)
@@ -43,10 +43,10 @@ namespace Editor
 			return;
 		}
 
-		if (Pressed(flags, KEY_LEFT_CTRL) && PressedOnce(flags, KEY_S))
+		if (Pressed(Flags, NKeyInput::KeyLeftCtrl) && PressedOnce(Flags, NKeyInput::KeyS))
 		{
 			// save scene
-			Player->checkpoint_pos = Player->Position;
+			Player->CheckpointPos = Player->Position;
 			WorldSerializer::SaveToFile();
 			// set scene
 			ProgramConfig.InitialScene = RWorld::Get()->SceneName;
@@ -55,7 +55,7 @@ namespace Editor
 			return;
 		}
 
-		if (Pressed(flags, KEY_LEFT_CTRL) && PressedOnce(flags, KEY_Y))
+		if (Pressed(Flags, NKeyInput::KeyLeftCtrl) && PressedOnce(Flags, NKeyInput::KeyY))
 		{
 			// snap mode controls the undo stack while it is active.
 			if (!Context.SnapMode)
@@ -63,7 +63,7 @@ namespace Editor
 			return;
 		}
 
-		if (PressedOnce(flags, KEY_ESC))
+		if (PressedOnce(Flags, NKeyInput::KeyEsc))
 		{
 			if (Editor::CheckModesAreActive())
 				DeactivateEditorModes();
@@ -82,7 +82,7 @@ namespace Editor
 
 		//Disabled
 		/*
-		if (PressedOnce(flags, KEY_DELETE))
+		if (PressedOnce(Flags, NKeyInput::KeyDelete))
 		{
 			if (context.entity_panel.active && context.entity_panel.focused)
 			{
@@ -111,11 +111,11 @@ namespace Editor
 		// --------------------
 		if (Context.SnapMode == true)
 		{
-			if (PressedOnce(flags, KEY_ENTER))
+			if (PressedOnce(Flags, NKeyInput::KeyEnter))
 			{
 				SnapCommit();
 			}
-			if (PressedOnly(flags, KEY_X))
+			if (PressedOnly(Flags, NKeyInput::KeyX))
 			{
 				if (Context.SnapAxis == 0)
 					Context.SnapCycle = (Context.SnapCycle + 1) % 3;
@@ -128,7 +128,7 @@ namespace Editor
 				if (Context.SnapReference != nullptr)
 					SnapEntityToReference(Context.EntityPanel.Entity);
 			}
-			if (PressedOnly(flags, KEY_Y))
+			if (PressedOnly(Flags, NKeyInput::KeyY))
 			{
 				if (Context.SnapAxis == 1)
 					Context.SnapCycle = (Context.SnapCycle + 1) % 3;
@@ -141,7 +141,7 @@ namespace Editor
 				if (Context.SnapReference != nullptr)
 					SnapEntityToReference(Context.EntityPanel.Entity);
 			}
-			if (PressedOnly(flags, KEY_Z))
+			if (PressedOnly(Flags, NKeyInput::KeyZ))
 			{
 				if (Context.SnapAxis == 2)
 					Context.SnapCycle = (Context.SnapCycle + 1) % 3;
@@ -154,7 +154,7 @@ namespace Editor
 				if (Context.SnapReference != nullptr)
 					SnapEntityToReference(Context.EntityPanel.Entity);
 			}
-			if (PressedOnly(flags, KEY_I))
+			if (PressedOnly(Flags, NKeyInput::KeyI))
 			{
 				Context.SnapInside = !Context.SnapInside;
 				if (Context.SnapReference != nullptr)
@@ -167,23 +167,23 @@ namespace Editor
 		// --------------------
 		if (Context.MoveMode == true)
 		{
-			if (Pressed(flags, KEY_X) && Pressed(flags, KEY_Z))
+			if (Pressed(Flags, NKeyInput::KeyX) && Pressed(Flags, NKeyInput::KeyZ))
 			{
 				Context.MoveAxis = 0;
 			}
-			if (PressedOnly(flags, KEY_X))
+			if (PressedOnly(Flags, NKeyInput::KeyX))
 			{
 				Context.MoveAxis = 1;
 			}
-			if (PressedOnly(flags, KEY_Y))
+			if (PressedOnly(Flags, NKeyInput::KeyY))
 			{
 				Context.MoveAxis = 2;
 			}
-			if (PressedOnly(flags, KEY_Z))
+			if (PressedOnly(Flags, NKeyInput::KeyZ))
 			{
 				Context.MoveAxis = 3;
 			}
-			if (PressedOnly(flags, KEY_M))
+			if (PressedOnly(Flags, NKeyInput::KeyM))
 			{
 				Context.MoveMode = false;
 				Context.PlaceMode = true;
@@ -196,7 +196,7 @@ namespace Editor
 		// ---------------------
 		if (Context.PlaceMode == true)
 		{
-			if (PressedOnly(flags, KEY_M))
+			if (PressedOnly(Flags, NKeyInput::KeyM))
 			{
 				Context.PlaceMode = false;
 				Context.MoveMode = true;
@@ -207,9 +207,9 @@ namespace Editor
 		// -------------------
 		// CAMERA TYPE TOGGLE
 		// -------------------
-		if (PressedOnce(flags, KEY_T))
+		if (PressedOnce(Flags, NKeyInput::KeyT))
 		{
-			// toggle camera type
+			// toggle Camera type
 			if (Camera->Type == FreeRoam)
 				Manager->SetCameraToThirdPerson();
 			else if (Camera->Type == ThirdPerson)
@@ -222,7 +222,7 @@ namespace Editor
 
 		// TODO: Refactor this whole thing: This checks for a CLICK then for modes to decide what todo.
 		// I think this is not the best way to handle this, we should first check for MODE then for ACTION.
-		// We can set things in context based on input flags, OR use flags directly.
+		// We can set things in context based on input Flags, OR use Flags directly.
 		// Either way, there is code for handling clicks and etc both here and at editor_main which is confusing
 		// and is, currently, causing some bugs in the editor.
 
@@ -231,7 +231,7 @@ namespace Editor
 
 		auto* GII = GlobalInputInfo::Get();
 
-		if (GII->MouseState & MOUSE_LB_CLICK)
+		if (GII->MouseState & (uint16)NMouseInput::LeftButtonClick)
 		{
 			if (Context.SnapMode)
 			{
@@ -249,7 +249,7 @@ namespace Editor
 			{
 				CheckSelectionToStretch();
 			}
-			else if (flags.key_press & KEY_G)
+			else if (Flags.KeyPress & (uint64)NKeyInput::KeyG)
 			{
 				CheckSelectionToMoveEntity(World, Camera);
 			}
@@ -274,11 +274,11 @@ namespace Editor
 			}
 		}
 
-		else if (GII->MouseState & MOUSE_LB_DRAGGING)
+		else if (GII->MouseState & (uint16)NMouseInput::LeftButtonDragging)
 		{
 			Context.MouseDragging = true;
 		}
-		else if (GII->MouseState & MOUSE_LB_HOLD)
+		else if (GII->MouseState & (uint16)NMouseInput::LeftButtonHold)
 		{
 			Context.MouseDragging = true;
 		}
@@ -287,15 +287,15 @@ namespace Editor
 		// -------------------------------
 		// SPAWN PLAYER ON MOUSE POSITION
 		// -------------------------------
-		if (PressedOnce(flags, KEY_C))
+		if (PressedOnce(Flags, NKeyInput::KeyC))
 		{
 			auto Pickray = CastPickray(Camera, GII->MouseCoords.X, GII->MouseCoords.Y);
 			auto Test = World->Raycast(Pickray);
 			if (Test.Hit)
 			{
-				auto SurfacePoint = CL_GetPointFromDetection(pickray, test);
-				Player->Position = surface_point;
-				Player->player_state = NPlayerState::Standing;
+				auto SurfacePoint = ClGetPointFromDetection(Pickray, Test);
+				Player->Position = SurfacePoint;
+				Player->PlayerState = NPlayerState::Standing;
 				Player->Velocity = vec3(0, 0, 0);
 				Player->Update();
 			}
@@ -304,7 +304,7 @@ namespace Editor
 		// --------------------------------------------
 		// CONTROL KEY USAGE BLOCKED FROM HERE ONWARDS
 		// --------------------------------------------
-		if (Pressed(flags, KEY_LEFT_CTRL)) // this doesn't solve the full problem.
+		if (Pressed(Flags, NKeyInput::KeyLeftCtrl)) // this doesn't solve the full problem.
 			return;
 
 		// -------------------------
@@ -315,43 +315,43 @@ namespace Editor
 		auto* EditorCamera = Manager->GetEditorCamera();
 		float CameraSpeed = Camera->Type == ThirdPerson ? length(Player->Velocity) * Frame.Duration : Frame.RealDuration * EditorCamera->Acceleration;
 
-		if (flags.key_press & KEY_LEFT_SHIFT)
+		if (Flags.KeyPress & (uint64)NKeyInput::KeyLeftShift)
 		{
 			CameraSpeed = CameraSpeed * 2;
 		}
 
-		if (flags.key_press & KEY_W)
+		if (Flags.KeyPress & (uint64)NKeyInput::KeyW)
 		{
 			Camera->Position += CameraSpeed * Camera->Front;
 		}
-		if (flags.key_press & KEY_A)
+		if (Flags.KeyPress & (uint64)NKeyInput::KeyA)
 		{
 			// @TODO: this sucks too
 			if (Camera->Type == FreeRoam)
-				camera->position -= camera_speed * normalize(glm::cross(camera->front, camera->up));
+				Camera->Position -= CameraSpeed * normalize(glm::cross(Camera->Front, Camera->Up));
 			else if (Camera->Type == ThirdPerson)
 				Camera->OrbitalAngle -= 0.025;
 		}
-		if (Pressed(flags, KEY_S))
+		if (Pressed(Flags, NKeyInput::KeyS))
 		{
 			Camera->Position -= CameraSpeed * Camera->Front;
 		}
-		if (flags.key_press & KEY_D)
+		if (Flags.KeyPress & (uint64)NKeyInput::KeyD)
 		{
 			if (Camera->Type == FreeRoam)
-				camera->position += camera_speed * normalize(glm::cross(camera->front, camera->up));
+				Camera->Position += CameraSpeed * normalize(glm::cross(Camera->Front, Camera->Up));
 			else if (Camera->Type == ThirdPerson)
 				Camera->OrbitalAngle += 0.025;
 		}
-		if (flags.key_press & KEY_Q)
+		if (Flags.KeyPress & (uint64)NKeyInput::KeyQ)
 		{
 			Camera->Position -= CameraSpeed * Camera->Up;
 		}
-		if (flags.key_press & KEY_E)
+		if (Flags.KeyPress & (uint64)NKeyInput::KeyE)
 		{
 			Camera->Position += CameraSpeed * Camera->Up;
 		}
-		if (flags.key_press & KEY_O)
+		if (Flags.KeyPress & (uint64)NKeyInput::KeyO)
 		{
 			Manager->CameraLookAt(Camera, vec3(0.0f, 0.0f, 0.0f), true);
 		}
@@ -361,58 +361,58 @@ namespace Editor
 	{
 		auto& Frame = RavenousEngine::GetFrame();
 
-		if (PressedOnce(flags, KEY_COMMA))
+		if (PressedOnce(Flags, NKeyInput::KeyComma))
 		{
 			if (Frame.TimeStep > 0)
 			{
 				Frame.TimeStep -= 0.025;
 			}
 		}
-		if (PressedOnce(flags, KEY_PERIOD))
+		if (PressedOnce(Flags, NKeyInput::KeyPeriod))
 		{
 			if (Frame.TimeStep < 3)
 			{
 				Frame.TimeStep += 0.025;
 			}
 		}
-		if (PressedOnce(flags, KEY_1))
+		if (PressedOnce(Flags, NKeyInput::Key1))
 		{
 			Rvn::RmBuffer->Add("TIME STEP x0.05", 1000);
 			Frame.TimeStep = 0.05;
 		}
-		if (PressedOnce(flags, KEY_2))
+		if (PressedOnce(Flags, NKeyInput::Key2))
 		{
 			Rvn::RmBuffer->Add("TIME STEP x0.1", 1000);
 			Frame.TimeStep = 0.1;
 		}
-		if (PressedOnce(flags, KEY_3))
+		if (PressedOnce(Flags, NKeyInput::Key3))
 		{
 			Rvn::RmBuffer->Add("TIME STEP x0.3", 1000);
 			Frame.TimeStep = 0.3;
 		}
-		if (PressedOnce(flags, KEY_4))
+		if (PressedOnce(Flags, NKeyInput::Key4))
 		{
 			Rvn::RmBuffer->Add("TIME STEP x1.0", 1000);
 			Frame.TimeStep = 1.0;
 		}
-		if (PressedOnce(flags, KEY_5))
+		if (PressedOnce(Flags, NKeyInput::Key5))
 		{
 			Rvn::RmBuffer->Add("TIME STEP x2.0", 1000);
 			Frame.TimeStep = 2.0;
 		}
-		if (flags.key_press & KEY_K)
+		if (Flags.KeyPress & (uint64)NKeyInput::KeyK)
 		{
 			Player->Die();
 		}
-		if (PressedOnce(flags, KEY_F))
+		if (PressedOnce(Flags, NKeyInput::KeyF))
 		{
 			REditorState::ToggleProgramMode();
 		}
-		if (PressedOnce(flags, KEY_GRAVE_TICK))
+		if (PressedOnce(Flags, NKeyInput::KeyGraveTick))
 		{
 			StartConsoleMode();
 		}
-		if (flags.key_press & KEY_DELETE)
+		if (Flags.KeyPress & (uint64)NKeyInput::KeyDelete)
 		{
 			auto* GDC = GlobalDisplayState::Get();
 			glfwSetWindowShouldClose(GDC->GetWindow(), true);

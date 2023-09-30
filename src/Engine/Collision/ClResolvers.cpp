@@ -52,7 +52,7 @@ ClVtraceResult ClDoStepoverVtrace(EPlayer* Player, RWorld* World)
 
 
 	// draw arrow
-	auto Hitpoint = CL_GetPointFromDetection(DownwardRay, Raytest);
+	auto Hitpoint = ClGetPointFromDetection(DownwardRay, Raytest);
 	RImDraw::AddLine(IMHASH, Hitpoint, RayOrigin, 1.0, true, COLOR_GREEN_1);
 	RImDraw::AddPoint(IMHASH, Hitpoint, 1.0, true, COLOR_GREEN_3);
 
@@ -122,7 +122,7 @@ void ClWallSlidePlayer(EPlayer* Player, vec3 WallNormal)
 	//       speed when hitting walls
 	float WallSlideSpeedLimit = 1;
 	if (Player->Velocity.length() > WallSlideSpeedLimit)
-		Player->Velocity = Player->v_dir * WallSlideSpeedLimit;
+		Player->Velocity = Player->VDir * WallSlideSpeedLimit;
 
 	auto UpVec = vec3(0, 1, 0);
 	vec3 HorizVec = Cross(UpVec, WallNormal);
@@ -141,7 +141,7 @@ bool ClRunTestsForFallSimulation(EPlayer* Player)
 	for (auto& Entry : Rvn::EntityBuffer)
 	{
 		// TODO: here should test for bounding box collision (or any geometric first pass test) FIRST, then do the call below
-		auto Result = ClTestPlayerVsEntity(Entry.entity, Player);
+		auto Result = ClTestPlayerVsEntity(Entry.Entity, Player);
 
 		if (Result.Collision)
 			return true;

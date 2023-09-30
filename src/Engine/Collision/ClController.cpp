@@ -12,7 +12,7 @@
 // > UPDATE PLAYER WORLD CELLS   
 // ----------------------------
 
-bool UpdatePlayerWorldCells(EPlayer* Player)
+bool ClUpdatePlayerWorldCells(EPlayer* Player)
 {
 	/* Updates the player's world cells
 	   Returns whether there were changes or not to the cell list
@@ -33,7 +33,7 @@ bool UpdatePlayerWorldCells(EPlayer* Player)
 // > COLLISION BUFFER FUNCTIONS
 // ------------------------------
 
-void RecomputeCollisionBufferEntities()
+void ClRecomputeCollisionBufferEntities()
 {
 	// copies collision-check-relevant entity ptrs to a buffer
 	// with metadata about the collision check for the entity
@@ -51,7 +51,7 @@ void RecomputeCollisionBufferEntities()
 void ResetCollisionBufferChecks()
 {
 	for (auto& Entry : Rvn::EntityBuffer)
-		Entry.collision_checked = false;
+		Entry.CollisionChecked = false;
 }
 
 
@@ -61,9 +61,9 @@ void MarkEntityChecked(const EEntity* Entity)
 	// marks entity in entity buffer as checked so we dont check collisions for this entity twice (nor infinite loop)
 	for (auto& Entry : Rvn::EntityBuffer)
 	{
-		if (Entry.entity == Entity)
+		if (Entry.Entity == Entity)
 		{
-			Entry.collision_checked = true;
+			Entry.CollisionChecked = true;
 			break;
 		}
 	}
@@ -82,7 +82,7 @@ void MarkEntityChecked(const EEntity* Entity)
    - Once we don't have more collisions, we stop checking.
 */
 
-Array<RCollisionResults, 15> TestAndResolveCollisions(EPlayer* Player)
+Array<RCollisionResults, 15> ClTestAndResolveCollisions(EPlayer* Player)
 {
 	// iterative collision detection
 	Array<RCollisionResults, 15> ResultsArray;
@@ -134,13 +134,13 @@ bool ClTestCollisions(EPlayer* Player)
 // > RUN COLLISION DETECTION
 // ---------------------------
 
-RCollisionResults TestCollisionBufferEntitites(EPlayer* Player, bool Iterative = true)
+RCollisionResults ClTestCollisionBufferEntitites(EPlayer* Player, bool Iterative = true)
 {
 	for (auto& Entry : Rvn::EntityBuffer)
 	{
-		EEntity* Entity = Entry.entity;
+		EEntity* Entity = Entry.Entity;
 
-		if (Iterative && Entry.collision_checked)
+		if (Iterative && Entry.CollisionChecked)
 			continue;
 
 		if (!Entity->BoundingBox.Test(Player->BoundingBox))

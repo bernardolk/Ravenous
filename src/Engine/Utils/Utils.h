@@ -173,10 +173,12 @@ inline vec3 RotMatToEulerAnglesXyz(mat4& m)
 
 inline int GetRandomInt(int Min, int Max)
 {
-	if (static bool First = true)
+	//@std
+	static bool bInitialized = false;
+	if (!bInitialized)
 	{
 		std::srand(std::time(nullptr)); //seeding for the first time only!
-		First = false;
+		bInitialized = true;
 	}
 	return Min + rand() % ((Max + 1) - Min);
 }

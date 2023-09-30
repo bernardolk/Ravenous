@@ -15,31 +15,31 @@ const map<RPlayerAnimationState, float> PlayerAnimationDurations =
 
 void AnAnimatePlayer(EPlayer* Player)
 {
-	if (Player->anim_state == RPlayerAnimationState::NoAnimation)
+	if (Player->AnimState == RPlayerAnimationState::NoAnimation)
 		return;
 
 	auto& Frame = RavenousEngine::GetFrame();
 
 	// updates animation run time
-	Player->anim_t += Frame.Duration * 1000;
+	Player->AnimT += Frame.Duration * 1000;
 
 	// check if animation is completed
 	bool EndAnim = false;
 
-	auto* FindDuration = Find(PlayerAnimationDurations, Player->anim_state);
+	auto* FindDuration = Find(PlayerAnimationDurations, Player->AnimState);
 	if (!FindDuration)
 		return;
 
 	float AnimDuration = *FindDuration;
-	if (AnimDuration > 0 && Player->anim_t >= AnimDuration)
+	if (AnimDuration > 0 && Player->AnimT >= AnimDuration)
 	{
-		Player->anim_t = AnimDuration;
+		Player->AnimT = AnimDuration;
 		EndAnim = true;
 	}
 
 	// dispatch call to correct update function depending on Player animation state
 	bool Interrupt = false;
-	switch (Player->anim_state)
+	switch (Player->AnimState)
 	{
 		case RPlayerAnimationState::Jumping:
 		{
@@ -78,8 +78,8 @@ void AnAnimatePlayer(EPlayer* Player)
 	// stop animation if completed or interrupted
 	if (EndAnim || Interrupt)
 	{
-		Player->anim_state = RPlayerAnimationState::NoAnimation;
-		Player->anim_t = 0;
+		Player->AnimState = RPlayerAnimationState::NoAnimation;
+		Player->AnimT = 0;
 	}
 }
 
@@ -181,9 +181,9 @@ bool AnPlayerVaulting(EPlayer* Player)
 	const float VY = 2.f / 1.f;
 	const float VXz = 2.f / 2.f;
 
-	vec3 AnimTrajectory = Player->anim_final_pos - Player->anim_orig_pos;
+	vec3 AnimTrajectory = Player->AnimFinalPos - Player->AnimOrigPos;
 
-	vec3 Dist = Player->anim_final_pos - PlayerPosition;
+	vec3 Dist = Player->AnimFinalPos - PlayerPosition;
 	auto DistSign = vec3(Sign(Dist.x), Sign(Dist.y), Sign(Dist.z));
 	auto DeltaPosition = vec3(VXz * Frame.Duration, VY * Frame.Duration, VXz * Frame.Duration);
 
@@ -194,28 +194,28 @@ bool AnPlayerVaulting(EPlayer* Player)
 		if (abs(Dist[i]) >= DeltaPosition[i] && Sign(AnimTrajectory[i]) == DistSign[i])
 			PlayerPosition[i] += DistSign[i] * DeltaPosition[i];
 		else
-			PlayerPosition[i] = Player->anim_final_pos[i];
+			PlayerPosition[i] = Player->AnimFinalPos[i];
 	}
 
 
 	// camera direction animation
-	if (!Player->anim_finished_turning)
+	if (!Player->AnimFinishedTurning)
 	{
 		auto* PlayerCamera = RCameraManager::Get()->GetGameCamera();
 
-		float OrigSva = VectorAngleSigned(normalize(static_cast<vec2>(Player->anim_orig_dir.xz)), Player->anim_final_dir.xz);
+		float OrigSva = VectorAngleSigned(normalize(static_cast<vec2>(Player->AnimOrigDir.xz)), Player->AnimFinalDir.xz);
 		float OrigAngle = glm::degrees(OrigSva);
 		float OrigSign = Sign(OrigAngle);
 		float TurnAngle = 0.5 * OrigSign;
 		RCameraManager::ChangeCameraDirection(PlayerCamera, TurnAngle, 0.f);
 
-		float UpdatedSva = VectorAngleSigned(normalize(static_cast<vec2>(PlayerCamera->Front.xz)), Player->anim_final_dir.xz);
+		float UpdatedSva = VectorAngleSigned(normalize(static_cast<vec2>(PlayerCamera->Front.xz)), Player->AnimFinalDir.xz);
 		float UpdatedAngle = glm::degrees(UpdatedSva);
 		float UpdatedSign = Sign(UpdatedAngle);
 		if (UpdatedSign != OrigSign)
 		{
 			RCameraManager::ChangeCameraDirection(PlayerCamera, -1.0 * UpdatedAngle, 0.f);
-			Player->anim_finished_turning = true;
+			Player->AnimFinishedTurning = true;
 		}
 	}
 
@@ -230,7 +230,7 @@ bool AnPlayerVaulting(EPlayer* Player)
 	RVN::print_dynamic("updated sign: " +  to_string(updated_sign), 0, vec3(0.8,0.0,0.1));
 	*/
 
-	if (IsEqual(PlayerPosition, Player->anim_final_pos) && Player->anim_finished_turning)
+	if (IsEqual(PlayerPosition, Player->AnimFinalPos) && Player->AnimFinishedTurning)
 	{
 		return true;
 	}

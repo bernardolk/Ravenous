@@ -6,7 +6,7 @@ struct Parser;
 
 struct PlayerSerializer
 {
-	static void ParseAttribute(Parser& P);
-	static void ParseOrientation(Parser& P);
+	static void ParseAttribute(Parser& Parse);
+	static void ParseOrientation(Parser& Parse);
 	static void Save(std::ofstream& Writer);
 };

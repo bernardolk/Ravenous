@@ -3,117 +3,114 @@
 template<>
 int Reflection::FromString<int>(string& Value)
 {
-	return std::stoi(value);
+	return std::stoi(Value);
 }
 
 template<>
-float Reflection::FromString<float>(string& value)
+float Reflection::FromString<float>(string& Value)
 {
-	return std::stof(value);
+	return std::stof(Value);
 }
 
 template<>
-double Reflection::FromString<double>(string& value)
+double Reflection::FromString<double>(string& Value)
 {
-	return std::stod(value);
+	return std::stod(Value);
 }
 
 template<>
-long double Reflection::FromString<long double>(string& value)
+long double Reflection::FromString<long double>(string& Value)
 {
-	return std::stold(value);
+	return std::stold(Value);
 }
 
 template<>
-bool Reflection::FromString<bool>(string& value)
+bool Reflection::FromString<bool>(string& Value)
 {
-	if (value == "true")
-		return true;
-	else
-		return false;
+	return Value == "true" || Value == "True" || Value == "TRUE";
 }
 
 template<>
-char Reflection::FromString<char>(string& value)
+char Reflection::FromString<char>(string& Value)
 {
-	return value[0];
+	return Value[0];
 }
 
 template<>
-string Reflection::FromString<string>(string& value)
+string Reflection::FromString<string>(string& Value)
 {
-	if (value[0] == '"')
+	if (Value[0] == '"')
 	{
-		value.erase(0, 1);
-		value.erase(value.size() - 1);
+		Value.erase(0, 1);
+		Value.erase(Value.size() - 1);
 	}
-	return value;
+	return Value;
 }
 
-string Reflection::ToString(string& field)
+string Reflection::ToString(string& Field)
 {
-	if (field.empty())
+	if (Field.empty())
 		return "\"\"";
 
-	return "\"" + field + "\"";
+	return "\"" + Field + "\"";
 };
 
-string Reflection::ToString(char& field)
+string Reflection::ToString(char& Field)
 {
-	return string(1, field);
+	return string(1, Field);
 };
 
-string Reflection::ToString(bool& field)
+string Reflection::ToString(bool& Field)
 {
-	if (field)
+	if (Field)
 		return "true";
 	return "false";
 };
 
 void Reflection::ParseObject(string& Data, map<string, string>& FieldValueMap, bool IncludeHeader)
 {
-	string ToParse = data;
+	string ToParse = Data;
 	string _;
 
 	// discard header if parsing nested object
-	GetLine(to_parse, '{');
+	GetLine(ToParse, '{');
 
 	if (IncludeHeader)
 	{
-		GetLine(to_parse, '{');
+		GetLine(ToParse, '{');
 	}
 
 	while (true)
 	{
-		string FieldData = GetLine(to_parse, ',');
-		if (field_data == "")
+		string FieldData = GetLine(ToParse, ',');
+		if (FieldData == "")
 			break;
 
-		GetLine(field_data, ' ');
-		string FieldNameToken = GetLine(field_data, ' ');
+		GetLine(FieldData, ' ');
+		string FieldNameToken = GetLine(FieldData, ' ');
 
 		// stop processing fields
-		if (field_name_token[0] == '}')
+		if (FieldNameToken[0] == '}')
 			continue;
 
-		GetLine(field_data, ' ');
-		string FieldTypeToken = GetLine(field_data, ' ');
-		GetLine(field_data, ' ');
-		string FieldValue = GetLine(field_data, ' ');
+		GetLine(FieldData, ' ');
+		string FieldTypeToken = GetLine(FieldData, ' ');
+		GetLine(FieldData, ' ');
+		string FieldValue = GetLine(FieldData, ' ');
 
 		// trim
-		if (field_name_token.size() > 2)
+		if (FieldNameToken.size() > 2)
 		{
-			field_name_token.erase(0, 1);
-			field_name_token.erase(field_name_token.size() - 1);
+			FieldNameToken.erase(0, 1);
+			FieldNameToken.erase(FieldNameToken.size() - 1);
 		}
 
 		// process nested object if field is a nested object
-		if (field_value[0] == '{')
+		if (FieldValue[0] == '{')
 		{
-			sprintf(&field_value[0], "{%s}", GetLine(to_parse, '}').c_str());
+			sprintf(&FieldValue[0], "{%s}", GetLine(ToParse, '}').c_str());
 		}
 
-		field_value_map[field_name_token] = field_value;
+		FieldValueMap[FieldNameToken] = FieldValue;
 	}
 }

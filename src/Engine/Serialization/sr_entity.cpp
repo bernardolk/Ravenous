@@ -14,7 +14,7 @@
 
 const std::string SrLoadEntityTypeNotSetErrorMsg = "Need to load entity type before loading type-specific data.";
 
-void EntitySerializer::Parse(Parser& Parser)
+void EntitySerializer::Parse(Parser& Parse)
 {
 	auto* World = RWorld::Get();
 	auto* NewEntityPtr = World->SpawnEntity<EStaticMesh>();
@@ -23,135 +23,134 @@ void EntitySerializer::Parse(Parser& Parser)
 
 	auto& NewEntity = *NewEntityPtr;
 
-	auto& P = Parser;
-	P.ParseName();
-	new_entity.name = GetParsed<std::string>(parser);
+	Parse.ParseName();
+	NewEntity.Name = GetParsed<std::string>(Parse);
 
-	while (Parser.NextLine())
+	while (Parse.NextLine())
 	{
-		P.ParseToken();
-		const auto Property = GetParsed<std::string>(parser);
+		Parse.ParseToken();
+		const auto Property = GetParsed<std::string>(Parse);
 
-		if (property == "id")
+		if (Property == "id")
 		{
-			P.ParseAllWhitespace();
-			P.ParseU64();
-			uint64 Id = GetParsed<uint64>(Parser);
+			Parse.ParseAllWhitespace();
+			Parse.ParseU64();
+			uint64 Id = GetParsed<uint64>(Parse);
 			NewEntity.ID = Id;
 		}
 
-		else if (property == "position")
+		else if (Property == "position")
 		{
-			P.ParseVec3();
-			new_entity.position = GetParsed<glm::vec3>(parser);
+			Parse.ParseVec3();
+			NewEntity.Position = GetParsed<glm::vec3>(Parse);
 		}
 
-		else if (property == "rotation")
+		else if (Property == "rotation")
 		{
-			P.ParseVec3();
-			new_entity.rotation = GetParsed<glm::vec3>(parser);
+			Parse.ParseVec3();
+			NewEntity.Rotation = GetParsed<glm::vec3>(Parse);
 		}
 
-		else if (property == "scale")
+		else if (Property == "scale")
 		{
-			P.ParseVec3();
-			const auto S = GetParsed<glm::vec3>(parser);
+			Parse.ParseVec3();
+			const auto Scale = GetParsed<glm::vec3>(Parse);
 
-			if (s.x<0 || s.y<0 || s.z < 0)
-			                 fatal_error("FATAL: ENTITY SCALE PROPERTY CANNOT BE NEGATIVE. AT '%s' LINE NUMBER %i", Parser.Filepath.c_str(), Parser.LineCount);
+			if (Scale.x < 0 || Scale.y < 0 || Scale.z < 0)
+			                 fatal_error("FATAL: ENTITY SCALE PROPERTY CANNOT BE NEGATIVE. AT '%s' LINE NUMBER %i", Parse.Filepath.c_str(), Parse.LineCount);
 
-				NewEntity.Scale = s;
+				NewEntity.Scale = Scale;
 		}
 
-		else if (property == "shader")
+		else if (Property == "shader")
 		{
-			P.ParseAllWhitespace();
-			P.ParseToken();
-			const auto ShaderName = GetParsed<std::string>(parser);
+			Parse.ParseAllWhitespace();
+			Parse.ParseToken();
+			const auto ShaderName = GetParsed<std::string>(Parse);
 
-			auto Find = ShaderCatalogue.find(shader_name);
-			if (find != ShaderCatalogue.end())
+			auto Find = ShaderCatalogue.find(ShaderName);
+			if (Find != ShaderCatalogue.end())
 			{
-				if (shader_name == "tiledTextureModel")
+				if (ShaderName == "tiledTextureModel")
 				{
 					NewEntity.Flags |= EntityFlags_RenderTiledTexture;
 					For(6)
 					{
-						P.ParseAllWhitespace();
-						P.ParseInt();
-						if (!P.HasToken())
+						Parse.ParseAllWhitespace();
+						Parse.ParseInt();
+						if (!Parse.HasToken())
 							fatal_error("Scene description contain an entity with box tiled shader without full tile quantity description.");
 
-						NewEntity.UvTileWrap[i] = GetParsed<int>(Parser);
+						NewEntity.UvTileWrap[i] = GetParsed<int>(Parse);
 					}
 				}
-				NewEntity.Shader = find->second;
+				NewEntity.Shader = Find->second;
 			}
 			else
-				fatal_error("SHADER '%s' NOT FOUND WHILE LOADING SCENE DESCRIPTION FILE.", shader_name.c_str());
+				fatal_error("SHADER '%s' NOT FOUND WHILE LOADING SCENE DESCRIPTION FILE.", ShaderName.c_str());
 		}
 
-		else if (property == "mesh")
+		else if (Property == "mesh")
 		{
-			P.ParseAllWhitespace();
-			P.ParseToken();
-			const auto ModelName = GetParsed<std::string>(parser);
+			Parse.ParseAllWhitespace();
+			Parse.ParseToken();
+			const auto ModelName = GetParsed<std::string>(Parse);
 
-			auto FindMesh = GeometryCatalogue.find(model_name);
-			if (find_mesh != GeometryCatalogue.end())
-				NewEntity.Mesh = find_mesh->second;
+			auto FindMesh = GeometryCatalogue.find(ModelName);
+			if (FindMesh != GeometryCatalogue.end())
+				NewEntity.Mesh = FindMesh->second;
 			else
-				new_entity.mesh = LoadWavefrontObjAsMesh(Paths::Models, model_name);
+				NewEntity.Mesh = LoadWavefrontObjAsMesh(Paths::Models, ModelName);
 
 			// @TODO: For now collision mesh is loaded from the same model as regular mesh.
-			auto FindCMesh = CollisionGeometryCatalogue.find(model_name);
-			if (find_c_mesh != CollisionGeometryCatalogue.end())
-				NewEntity.CollisionMesh = find_c_mesh->second;
+			auto FindCMesh = CollisionGeometryCatalogue.find(ModelName);
+			if (FindCMesh != CollisionGeometryCatalogue.end())
+				NewEntity.CollisionMesh = FindCMesh->second;
 			else
-				new_entity.collision_mesh = LoadWavefrontObjAsCollisionMesh(Paths::Models, model_name);
+				NewEntity.CollisionMesh = LoadWavefrontObjAsCollisionMesh(Paths::Models, ModelName);
 
 			NewEntity.Collider = *NewEntity.CollisionMesh;
 		}
 
-		else if (property == "texture")
+		else if (Property == "texture")
 		{
-			P.ParseAllWhitespace();
-			P.ParseToken();
-			const auto TextureName = GetParsed<std::string>(parser);
+			Parse.ParseAllWhitespace();
+			Parse.ParseToken();
+			const auto TextureName = GetParsed<std::string>(Parse);
 
 			// > texture definition error handling
 			// >> check for missing info
-			if (texture_name.empty())
+			if (TextureName.empty())
 				fatal_error("Fatal: Texture for entity '%s' is missing name.", NewEntity.Name.c_str())
 
 			// fetches texture in catalogue
-			auto Texture = TextureCatalogue.find(texture_name);
-			if (texture == TextureCatalogue.end())
-				fatal_error("Fatal: %s was not found (not pre-loaded) inside Texture Catalogue.", texture_name.c_str())
+			auto Texture = TextureCatalogue.find(TextureName);
+			if (Texture == TextureCatalogue.end())
+				fatal_error("Fatal: %s was not found (not pre-loaded) inside Texture Catalogue.", TextureName.c_str())
 
 			NewEntity.Textures.clear();
-			NewEntity.Textures.push_back(texture->second);
+			NewEntity.Textures.push_back(Texture->second);
 
 			// fetches texture normal in catalogue, if any
-			auto Normal = TextureCatalogue.find(texture_name + "_normal");
-			if (normal != TextureCatalogue.end())
+			auto Normal = TextureCatalogue.find(TextureName + "_normal");
+			if (Normal != TextureCatalogue.end())
 			{
-				NewEntity.Textures.push_back(normal->second);
+				NewEntity.Textures.push_back(Normal->second);
 			}
 		}
 
-		else if (property == "hidden")
+		else if (Property == "hidden")
 		{
 			NewEntity.Flags |= EntityFlags_HiddenEntity;
 		}
 
-		else if (property == "trigger")
+		else if (Property == "trigger")
 		{
-			P.ParseVec3();
-			new_entity.trigger_scale = GetParsed<glm::vec3>(parser);
+			Parse.ParseVec3();
+			NewEntity.TriggerScale = GetParsed<glm::vec3>(Parse);
 		}
 
-		else if (property == "slidable")
+		else if (Property == "slidable")
 		{
 			NewEntity.Slidable = true;
 		}
@@ -165,81 +164,81 @@ void EntitySerializer::Parse(Parser& Parser)
 
 void EntitySerializer::Save(std::ofstream& Writer, const EEntity& Entity)
 {
-	writer << "\n#" << Entity.Name << "\n";
-	writer << "id " << Entity.ID << "\n";
-	writer << "position "
+	Writer << "\n#" << Entity.Name << "\n";
+	Writer << "id " << Entity.ID << "\n";
+	Writer << "position "
 	<< Entity.Position.x << " "
 	<< Entity.Position.y << " "
 	<< Entity.Position.z << "\n";
-	writer << "rotation "
+	Writer << "rotation "
 	<< Entity.Rotation.x << " "
 	<< Entity.Rotation.y << " "
 	<< Entity.Rotation.z << "\n";
-	writer << "scale "
+	Writer << "scale "
 	<< Entity.Scale.x << " "
 	<< Entity.Scale.y << " "
 	<< Entity.Scale.z << "\n";
-	writer << "mesh " << Entity.Mesh->Name << "\n";
-	writer << "shader " << Entity.Shader->Name;
+	Writer << "mesh " << Entity.Mesh->Name << "\n";
+	Writer << "shader " << Entity.Shader->Name;
 
 	// shader: If entity.s using tiled texture fragment shader, also writes number of tiles since we can change it through the editor
 	if (Entity.Flags & EntityFlags_RenderTiledTexture)
 	{
 		For(6)
 		{
-			writer << " " << Entity.UvTileWrap[i];
+			Writer << " " << Entity.UvTileWrap[i];
 		}
 	}
 
-	writer << "\n";
+	Writer << "\n";
 
 	int Textures = Entity.Textures.size();
 	For(Textures)
 	{
 		RTexture Texture = Entity.Textures[i];
 		if (Texture.Type == "texture_diffuse")
-			writer << "texture " << Texture.Name << "\n";
+			Writer << "texture " << Texture.Name << "\n";
 	}
 
 	if (Entity.Flags & EntityFlags_RenderWireframe)
-		writer << "hidden\n";
+		Writer << "hidden\n";
 
 	/*
 	switch (entity.type)
 	{
 		case EntityType_Static:
 		{
-			writer << "type static\n";
+			Writer << "type static\n";
 			break;
 		}
 
 		case EntityType_Checkpoint:
 		{
-			writer << "type checkpoint\n";
-			writer << "trigger "
-			<< entity.trigger_scale.x << " "
-			<< entity.trigger_scale.y << " "
-			<< entity.trigger_scale.z << "\n";
+			Writer << "type checkpoint\n";
+			Writer << "trigger "
+			<< entity.TriggerScale.x << " "
+			<< entity.TriggerScale.y << " "
+			<< entity.TriggerScale.z << "\n";
 			break;
 		}
 
 		case EntityType_TimerTrigger:
 		{
-			writer << "type timer_trigger\n";
-			writer << "trigger "
-			<< entity.trigger_scale.x << " "
-			<< entity.trigger_scale.y << " "
-			<< entity.trigger_scale.z << "\n";
+			Writer << "type timer_trigger\n";
+			Writer << "trigger "
+			<< entity.TriggerScale.x << " "
+			<< entity.TriggerScale.y << " "
+			<< entity.TriggerScale.z << "\n";
 			if (entity.timer_trigger_data.timer_target != nullptr)
-				writer << "timer_target " << entity.timer_trigger_data.timer_target->id << "\n";
-			writer << "timer_duration " << entity.timer_trigger_data.timer_duration << "\n";
+				Writer << "timer_target " << entity.timer_trigger_data.timer_target->id << "\n";
+			Writer << "timer_duration " << entity.timer_trigger_data.timer_duration << "\n";
 
 			For(entity.timer_trigger_data.size)
 			{
 				const auto marking = entity.timer_trigger_data.markings[i];
 				const u32 time_checkpoint = entity.timer_trigger_data.time_checkpoints[i];
 				if (marking != nullptr)
-					writer << "timer_marking " << marking->id << " " << time_checkpoint << "\n";
+					Writer << "timer_marking " << marking->id << " " << time_checkpoint << "\n";
 			}
 
 			break;
@@ -247,27 +246,27 @@ void EntitySerializer::Save(std::ofstream& Writer, const EEntity& Entity)
 
 		case EntityType_TimerTarget:
 		{
-			writer << "type timer_target\n";
-			writer << "timer_target_type " << entity.timer_target_data.timer_target_type << "\n";
+			Writer << "type timer_target\n";
+			Writer << "timer_target_type " << entity.timer_target_data.timer_target_type << "\n";
 
 			if (entity.timer_target_data.timer_start_animation != 0)
-				writer << "timer_start_animation " << entity.timer_target_data.timer_start_animation << "\n";
+				Writer << "timer_start_animation " << entity.timer_target_data.timer_start_animation << "\n";
 
 			if (entity.timer_target_data.timer_stop_animation != 0)
-				writer << "timer_stop_animation " << entity.timer_target_data.timer_stop_animation << "\n";
+				Writer << "timer_stop_animation " << entity.timer_target_data.timer_stop_animation << "\n";
 
 			break;
 		}
 
 		case EntityType_TimerMarking:
 		{
-			writer << "type timer_marking\n";
-			writer << "timer_marking_color_on "
+			Writer << "type timer_marking\n";
+			Writer << "timer_marking_color_on "
 			<< entity.timer_marking_data.color_on.x << " "
 			<< entity.timer_marking_data.color_on.y << " "
 			<< entity.timer_marking_data.color_on.z << "\n";
 
-			writer << "timer_marking_color_off "
+			Writer << "timer_marking_color_off "
 			<< entity.timer_marking_data.color_off.x << " "
 			<< entity.timer_marking_data.color_off.y << " "
 			<< entity.timer_marking_data.color_off.z << "\n";
@@ -279,11 +278,11 @@ void EntitySerializer::Save(std::ofstream& Writer, const EEntity& Entity)
 
 	if (Entity.Slidable)
 	{
-		writer << "slidable \n";
+		Writer << "slidable \n";
 	}
 }
 
 void EntitySerializer::ClearBuffer()
 {
-	relations = DeferredEntityRelationBuffer{};
+	Relations = DeferredEntityRelationBuffer{};
 }

@@ -198,12 +198,12 @@ void SetShaderLightVariables(RWorld* World, RShader* Shader, RCamera* Camera)
 		for (auto& Light : World->PointLights)
 		{
 			auto UniformName = "pointLights[" + std::to_string(LightCount) + "]";
-			Shader->SetFloat3(UniformName + ".position", Light->position);
-			Shader->SetFloat3(UniformName + ".diffuse", Light->diffuse);
-			Shader->SetFloat3(UniformName + ".specular", Light->specular);
-			Shader->SetFloat(UniformName + ".constant", Light->intensity_constant);
-			Shader->SetFloat(UniformName + ".linear", Light->intensity_linear);
-			Shader->SetFloat(UniformName + ".quadratic", Light->intensity_quadratic);
+			Shader->SetFloat3(UniformName + ".position", Light->Position);
+			Shader->SetFloat3(UniformName + ".diffuse", Light->Diffuse);
+			Shader->SetFloat3(UniformName + ".specular", Light->Specular);
+			Shader->SetFloat(UniformName + ".constant", Light->IntensityConstant);
+			Shader->SetFloat(UniformName + ".linear", Light->IntensityLinear);
+			Shader->SetFloat(UniformName + ".quadratic", Light->IntensityQuadratic);
 			LightCount++;
 		}
 		Shader->SetInt("num_point_lights", LightCount);
@@ -215,15 +215,15 @@ void SetShaderLightVariables(RWorld* World, RShader* Shader, RCamera* Camera)
 		for (auto& Light : World->SpotLights)
 		{
 			auto UniformName = "spotLights[" + std::to_string(LightCount) + "]";
-			Shader->SetFloat3(UniformName + ".position", Light->position);
-			Shader->SetFloat3(UniformName + ".direction", Light->direction);
-			Shader->SetFloat3(UniformName + ".diffuse", Light->diffuse);
-			Shader->SetFloat3(UniformName + ".specular", Light->specular);
-			Shader->SetFloat(UniformName + ".constant", Light->intensity_constant);
-			Shader->SetFloat(UniformName + ".linear", Light->intensity_linear);
-			Shader->SetFloat(UniformName + ".quadratic", Light->intensity_quadratic);
-			Shader->SetFloat(UniformName + ".innercone", Light->innercone);
-			Shader->SetFloat(UniformName + ".outercone", Light->outercone);
+			Shader->SetFloat3(UniformName + ".position", Light->Position);
+			Shader->SetFloat3(UniformName + ".direction", Light->Direction);
+			Shader->SetFloat3(UniformName + ".diffuse", Light->Diffuse);
+			Shader->SetFloat3(UniformName + ".specular", Light->Specular);
+			Shader->SetFloat(UniformName + ".constant", Light->IntensityConstant);
+			Shader->SetFloat(UniformName + ".linear", Light->IntensityLinear);
+			Shader->SetFloat(UniformName + ".quadratic", Light->IntensityQuadratic);
+			Shader->SetFloat(UniformName + ".innercone", Light->Innercone);
+			Shader->SetFloat(UniformName + ".outercone", Light->Outercone);
 			LightCount++;
 		}
 
@@ -236,9 +236,9 @@ void SetShaderLightVariables(RWorld* World, RShader* Shader, RCamera* Camera)
 		for (auto& Light : World->DirectionalLights)
 		{
 			auto UniformName = "dirLights[" + std::to_string(LightCount) + "]";
-			Shader->SetFloat3(UniformName + ".direction", Light->direction);
-			Shader->SetFloat3(UniformName + ".diffuse", Light->diffuse);
-			Shader->SetFloat3(UniformName + ".specular", Light->specular);
+			Shader->SetFloat3(UniformName + ".direction", Light->Direction);
+			Shader->SetFloat3(UniformName + ".diffuse", Light->Diffuse);
+			Shader->SetFloat3(UniformName + ".specular", Light->Specular);
 			LightCount++;
 		}
 		Shader->SetInt("num_directional_lights", LightCount);
@@ -259,13 +259,13 @@ void SetShaderLightVariables(RWorld* World, RShader* Shader, RCamera* Camera)
 // -------------------------
 void RenderGameGui(EPlayer* Player)
 {
-	auto Color = Player->lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1};
-	RenderText("consola42", 25, 75, Color, std::to_string(Player->lives));
+	auto Color = Player->Lives == 2 ? vec3{0.1, 0.7, 0} : vec3{0.8, 0.1, 0.1};
+	RenderText("consola42", 25, 75, Color, std::to_string(Player->Lives));
 
-	if (Player->grabbing_entity != nullptr)
+	if (Player->GrabbingEntity != nullptr)
 	{
 		PGrab = "Grabbed: ";
-		string LastGrabbed = Player->grabbing_entity->Name;
+		string LastGrabbed = Player->GrabbingEntity->Name;
 		PGrab += "'" + LastGrabbed + "'";
 	}
 	RenderText(GlobalDisplayState::ViewportWidth - 400, 45, PGrab);

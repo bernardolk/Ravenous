@@ -18,27 +18,27 @@ namespace Editor
 
 
 	void Initialize();
-	void Update(EPlayer* player, RWorld* world, RCamera* camera);
-	void Render(EPlayer* player, RWorld* world, RCamera* camera);
+	void Update(EPlayer* Player, RWorld* World, RCamera* Camera);
+	void Render(EPlayer* Player, RWorld* World, RCamera* Camera);
 	void Terminate();
 
 	void UpdateTriaxisGizmo();
-	void CheckSelectionToOpenPanel(EPlayer* player, RWorld* world, RCamera* camera);
-	bool CheckSelectionToGrabEntityArrows(RCamera* camera);
-	bool CheckSelectionToGrabEntityRotationGizmo(RCamera* camera);
-	void CheckSelectionToMoveEntity(RWorld* world, RCamera* camera);
-	void CheckSelectionToSelectRelatedEntity(RWorld* world, RCamera* camera);
+	void CheckSelectionToOpenPanel(EPlayer* Player, RWorld* World, RCamera* Camera);
+	bool CheckSelectionToGrabEntityArrows(RCamera* Camera);
+	bool CheckSelectionToGrabEntityRotationGizmo(RCamera* Camera);
+	void CheckSelectionToMoveEntity(RWorld* World, RCamera* Camera);
+	void CheckSelectionToSelectRelatedEntity(RWorld* World, RCamera* Camera);
 
-	void RenderTextOverlay(EPlayer* player, RCamera* camera);
-	void RenderEventTriggers(RCamera* camera, RWorld* world);
-	void UpdateEntityControlArrows(REntityPanelContext* panel);
-	void RenderEntityControlArrows(REntityPanelContext* panel, RWorld* world, RCamera* camera);
-	void RenderEntityRotationGizmo(REntityPanelContext* panel, RWorld* world, RCamera* camera);
-	void UpdateEntityRotationGizmo(REntityPanelContext* panel);
-	void RenderEntityMeshNormals(REntityPanelContext* panel);
-	float GetGizmoScalingFactor(EEntity* entity, float min, float max);
-	void RenderWorldCells(RCamera* camera, RWorld* world);
-	void RenderLightbulbs(RCamera* camera, RWorld* world);
+	void RenderTextOverlay(EPlayer* Player, RCamera* Camera);
+	void RenderEventTriggers(RCamera* Camera, RWorld* World);
+	void UpdateEntityControlArrows(REntityPanelContext* Panel);
+	void RenderEntityControlArrows(REntityPanelContext* Panel, RWorld* World, RCamera* Camera);
+	void RenderEntityRotationGizmo(REntityPanelContext* Panel, RWorld* World, RCamera* Camera);
+	void UpdateEntityRotationGizmo(REntityPanelContext* Panel);
+	void RenderEntityMeshNormals(REntityPanelContext* Panel);
+	float GetGizmoScalingFactor(EEntity* Entity, float Min, float Max);
+	void RenderWorldCells(RCamera* Camera, RWorld* World);
+	void RenderLightbulbs(RCamera* Camera, RWorld* World);
 	void StartDearImguiFrame();
 	void EndDearImguiFrame();
 

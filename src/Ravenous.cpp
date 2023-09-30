@@ -45,7 +45,7 @@ int main()
 	//@TODO: This here is not working because EntityManager copy constructor was deleted. This is an issue
 	//    with using references it seems? A pointer would never complain about this. I should dig into this.
 	//    If I have to start writing extra code to use references then I can't justify using them.
-	WorldSerializer::world = world;
+	WorldSerializer::World = World;
 
 	// load shaders, textures and geometry
 	stbi_set_flip_vertically_on_load(true);
@@ -68,7 +68,7 @@ int main()
 	WorldSerializer::LoadFromFile(ProgramConfig.InitialScene);
 
 	EPlayer* Player = EPlayer::Get();
-	Player->checkpoint_pos = Player->Position; // set player initial checkpoint position
+	Player->CheckpointPos = Player->Position; // set player initial checkpoint position
 
 	// set scene attrs from global config
 	RCameraManager::Get()->GetCurrentCamera()->Acceleration = ProgramConfig.Camspeed;
@@ -76,7 +76,7 @@ int main()
 	World->AmbientIntensity = ProgramConfig.AmbientIntensity;
 
 	World->UpdateEntityWorldChunk(Player); // sets player to the world
-	CL_RecomputeCollisionBufferEntities(); // populates collision buffer and others
+	ClRecomputeCollisionBufferEntities(); // populates collision buffer and others
 
 	Editor::Initialize();
 
@@ -93,7 +93,7 @@ int main()
 	RInputRecorder::Get()->Load();
 
 	// create hardcoded animations
-	AN_CreateHardcodedAnimations();
+	AnCreateHardcodedAnimations();
 
 	//@TODO: better for debugging
 	Player->Flags |= EntityFlags_RenderWireframe;
@@ -134,7 +134,7 @@ void CheckAllGeometryHasGlData()
 	ForIt(GeometryCatalogue)
 	{
 		auto Item = it->second;
-		if (Item->gl_data.VAO == 0 || Item->gl_data.VBO == 0)
+		if (Item->GLData.VAO == 0 || Item->GLData.VBO == 0)
 		{
 			assert(false);
 		}

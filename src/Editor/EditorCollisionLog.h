@@ -11,7 +11,7 @@
 
 struct RCollisionLogEntry
 {
-	EEntity* Entity;
+	class EEntity* Entity;
 	float Penetration;
 	vec3 Normal;
 };

@@ -24,7 +24,7 @@ struct REntityStorageBlockMetadata
 	// type data
 	TypeID TypeID;
 	uint TypeSize;
-	// TODO: We don't need to know about traits at this level, lets only deal with entity Types
+	// TODO: We don't need to know about Traits at this level, lets only deal with entity Types
 	Array<TraitID, EntityTraitsManager::MaxTraits> EntityTraits;
 
 	// array bookkeeping
@@ -91,7 +91,7 @@ void RWorldChunkStorage::MaybeAllocateForType()
 		return;
 
 	// if we have budget, get a block for the new entity type
-	uint TotalEntityBlockSize = TEntity::instance_budget * sizeof(TEntity);
+	uint TotalEntityBlockSize = TEntity::InstanceBudget * sizeof(TEntity);
 	if (BytesConsumed + TotalEntityBlockSize <= ChunkByteBudget)
 	{
 		auto* NewBlock = StorageMetadataArray.AddNew();
@@ -101,8 +101,8 @@ void RWorldChunkStorage::MaybeAllocateForType()
 		REntityStorageBlockMetadata& EntityStorageMetadata = *NewBlock;
 		EntityStorageMetadata.TypeID = TypeId;
 		EntityStorageMetadata.TypeSize = sizeof(TEntity);
-		EntityStorageMetadata.MaxEntityInstances = TEntity::instance_budget;
-		EntityStorageMetadata.EntityTraits = TEntity::traits.Copy();
+		EntityStorageMetadata.MaxEntityInstances = TEntity::InstanceBudget;
+		EntityStorageMetadata.EntityTraits = TEntity::Traits.Copy();
 
 		EntityStorageMetadata.DataStart = NextBlockStart;
 		NextBlockStart += TotalEntityBlockSize;

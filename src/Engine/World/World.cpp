@@ -108,7 +108,7 @@ RRaycastTest RWorld::Raycast(const RRay Ray, const NRayCastType TestType, const 
 		if (Skip != nullptr && Entity->ID == Skip->ID)
 			continue;
 
-		const auto Test = CL_TestAgainstRay(Ray, Entity, TestType, MaxDistance);
+		const auto Test = ClTestAgainstRay(Ray, Entity, TestType, MaxDistance);
 		if (Test.Hit && Test.Distance < MinDistance && Test.Distance < MaxDistance)
 		{
 			ClosestHit = Test;
@@ -141,7 +141,7 @@ RRaycastTest RWorld::LinearRaycastArray(const RRay FirstRay, int Qty, float Spac
 
 	ForLess(Qty)
 	{
-		auto Test = this->Raycast(Ray, RayCast_TestOnlyFromOutsideIn, nullptr, Player->grab_reach);
+		auto Test = this->Raycast(Ray, RayCast_TestOnlyFromOutsideIn, nullptr, Player->GrabReach);
 		if (Test.Hit)
 		{
 			if (Test.Distance < ShorTestZ || (AreEqualFloats(Test.Distance, ShorTestZ) && HighestY < Ray.Origin.y))
@@ -152,14 +152,14 @@ RRaycastTest RWorld::LinearRaycastArray(const RRay FirstRay, int Qty, float Spac
 			}
 		}
 
-		RImDraw::AddLine(IM_ITERHASH(i), Ray.Origin, Ray.Origin + Ray.Direction * Player->grab_reach, 1.2f, false, COLOR_GREEN_1);
+		RImDraw::AddLine(IM_ITERHASH(i), Ray.Origin, Ray.Origin + Ray.Direction * Player->GrabReach, 1.2f, false, COLOR_GREEN_1);
 
 		Ray = RRay{Ray.Origin + UnitY * Spacing, Ray.Direction};
 	}
 
 	if (BestHitResults.Hit)
 	{
-		vec3 Hitpoint = CL_GetPointFromDetection(BestHitResults.Ray, BestHitResults);
+		vec3 Hitpoint = ClGetPointFromDetection(BestHitResults.Ray, BestHitResults);
 		RImDraw::AddPoint(IMHASH, Hitpoint, 2.0, true, COLOR_RED_1);
 	}
 
@@ -181,7 +181,7 @@ RRaycastTest RWorld::RaycastLights(const RRay Ray) const
 		auto AabbModel = translate(Mat4Identity, Position);
 		AabbModel = scale(AabbModel, vec3{0.3f, 0.6f, 0.3f});
 
-		auto Test = CL_TestAgainstRay(Ray, AabbMesh, AabbModel, RayCast_TestBothSidesOfTriangle);
+		auto Test = ClTestAgainstRay(Ray, AabbMesh, AabbModel, RayCast_TestBothSidesOfTriangle);
 		if (Test.Hit && Test.Distance < MinDistance)
 		{
 			ClosestHit = {true, Test.Distance, nullptr, PointC, "point"};
@@ -198,7 +198,7 @@ RRaycastTest RWorld::RaycastLights(const RRay Ray) const
 		auto AabbModel = translate(Mat4Identity, Position);
 		AabbModel = scale(AabbModel, vec3{0.3f, 0.6f, 0.3f});
 
-		const auto Test = CL_TestAgainstRay(Ray, AabbMesh, AabbModel, RayCast_TestBothSidesOfTriangle);
+		const auto Test = ClTestAgainstRay(Ray, AabbMesh, AabbModel, RayCast_TestBothSidesOfTriangle);
 		if (Test.Hit && Test.Distance < MinDistance)
 		{
 			ClosestHit = {.Hit = true, .Distance = Test.Distance, .Entity = nullptr, .ObjHitIndex = SpotC, .ObjHitType = "spot"};

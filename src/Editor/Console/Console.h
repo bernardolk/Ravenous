@@ -4,7 +4,7 @@
 struct RInputFlags;
 
 void HandleConsoleInput(RInputFlags flags, EPlayer* & player, RWorld* world, RCamera* camera);
-void ExecuteCommand(const string& buffer_line, EPlayer* & player, RWorld* world, RCamera* camera);
+void ExecuteCommand(const string& BufferLine, EPlayer* & player, RWorld* world, RCamera* camera);
 void CheckLetterKeyPresses(RInputFlags flags);
 void ClearConsoleStringBuffer();
 void RenderConsole();
