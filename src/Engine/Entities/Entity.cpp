@@ -1,7 +1,10 @@
 #include "engine/entities/Entity.h"
 #include "engine/geometry/mesh.h"
 
-/** Main update function, shouldn't run every frame. */
+/* ==================================================================
+ * Update:
+ *  Main update function, shouldn't need to run every frame.
+/* ================================================================== */
 void EEntity::Update()
 {
 	/* Order here is very important */

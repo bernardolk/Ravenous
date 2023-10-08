@@ -381,21 +381,21 @@ void WriteMeshExtraDataFile(string Filename, RMesh* Mesh)
 	Writer << std::fixed << std::setprecision(4);
 
 	// write tangents
-	For(Mesh->Vertices.size())
+	for(auto& Vertex : Mesh->Vertices)
 	{
 		Writer << "vtan"
-		<< " " << Mesh->Vertices[i].Tangent.x
-		<< " " << Mesh->Vertices[i].Tangent.y
-		<< " " << Mesh->Vertices[i].Tangent.z << "\n";
+		<< " " << Vertex.Tangent.x
+		<< " " << Vertex.Tangent.y
+		<< " " << Vertex.Tangent.z << "\n";
 	}
 
 	// write bitangents
-	For(Mesh->Vertices.size())
+	for(auto& Vertex : Mesh->Vertices)
 	{
 		Writer << "vbitan"
-		<< " " << Mesh->Vertices[i].Bitangent.x
-		<< " " << Mesh->Vertices[i].Bitangent.y
-		<< " " << Mesh->Vertices[i].Bitangent.z << "\n";
+		<< " " << Vertex.Bitangent.x
+		<< " " << Vertex.Bitangent.y
+		<< " " << Vertex.Bitangent.z << "\n";
 	}
 
 	Writer.close();

@@ -84,7 +84,7 @@ bool WorldSerializer::LoadFromFile(const string& Filename)
 	ClUpdatePlayerWorldCells(Player);
 
 	// connects entities using deferred load buffer
-	For(EntityRelations.count)
+	for (int i = 0; i < EntityRelations.count; i++)
 	{
 		EEntity* DeferredEntity = nullptr;
 		auto DeferredEntityId = EntityRelations.deferred_entity_ids[i];

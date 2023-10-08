@@ -173,7 +173,7 @@ RBoundingBox RMesh::ComputeBoundingBox()
 void RMesh::ComputeTangentsAndBitangents()
 {
 	// @TODO: This may lead to bugs, we currentyl assume here that faces = 2 triangles each, and while that may hold true with the current loader, that may not remain the case forever.
-	For(FacesCount)
+	for (int i = 0; i < FacesCount; i++)
 	{
 		RVertex V1 = this->Vertices[Indices[i * 3 + 0]];
 		RVertex V2 = this->Vertices[Indices[i * 3 + 1]];

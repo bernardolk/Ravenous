@@ -138,7 +138,7 @@ RRaycastTest RWorld::LinearRaycastArray(const RRay FirstRay, int Qty, float Spac
 
 	EPlayer* Player = EPlayer::Get();
 
-	ForLess(Qty)
+	for (int i = 0; i < Qty; i++)
 	{
 		auto Test = this->Raycast(Ray, RayCast_TestOnlyFromOutsideIn, nullptr, Player->GrabReach);
 		if (Test.Hit)
@@ -316,8 +316,9 @@ void SetEntityDefaultAssets(EEntity* Entity)
 	Entity->CollisionMesh =  CollisionMesh;
 	Entity->Collider = * CollisionMesh;
 
-	For( TextureCount)
-		Entity->Textures.push_back( Textures[i]);
+	for (int i = 0; i < TextureCount; i++) {
+		Entity->Textures.push_back(Textures[i]);
+	}
 }
 
 void SetEntityAssets(EEntity* Entity, REntityAttributes Attrs)
@@ -336,6 +337,7 @@ void SetEntityAssets(EEntity* Entity, REntityAttributes Attrs)
 	Entity->CollisionMesh =  CollisionMesh;
 	Entity->Collider = * CollisionMesh;
 
-	For( TextureCount)
+	for (int i = 0; i < TextureCount; i++) {
 		Entity->Textures.push_back( Textures[i]);
+	}
 }

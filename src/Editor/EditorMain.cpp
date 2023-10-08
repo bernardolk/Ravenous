@@ -473,11 +473,12 @@ namespace Editor
 		// CollisionMesh
 		const auto ArrowCollider = new RCollisionMesh;
 
-		For(AxisMesh->Vertices.size())
-			ArrowCollider->Vertices.push_back(AxisMesh->Vertices[i].Position);
-
-		For(AxisMesh->Indices.size())
-			ArrowCollider->Indices.push_back(AxisMesh->Indices[i]);
+		for(auto& Vertex : AxisMesh->Vertices) {
+			ArrowCollider->Vertices.push_back(Vertex.Position);
+		}
+		for(auto& Index : AxisMesh->Indices) {
+			ArrowCollider->Indices.push_back(Index);
+		}
 
 		XArrow->CollisionMesh = ArrowCollider;
 		XArrow->Collider = *ArrowCollider;
@@ -1148,7 +1149,7 @@ namespace Editor
 
 		EEntity* Arrows[3] = {EdContext.EntityPanel.XArrow, EdContext.EntityPanel.YArrow, EdContext.EntityPanel.ZArrow};
 
-		For(3)
+		for (int i = 0; i < 3; i++)
 		{
 			Test = ClTestAgainstRay(Pickray, Arrows[i]);
 			if (Test.Hit)
@@ -1176,7 +1177,7 @@ namespace Editor
 		EdContext.EntityPanel.RotationGizmoZ
 		};
 
-		For(3)
+		for (int i = 0; i < 3; i++)
 		{
 			Test = ClTestAgainstRay(Pickray, RotGizmos[i]);
 			if (Test.Hit)

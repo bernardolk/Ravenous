@@ -130,11 +130,9 @@ void CheckAllEntitiesHaveIds()
 
 void CheckAllGeometryHasGlData()
 {
-	ForIt(GeometryCatalogue)
+	for (auto& [k, Item] : GeometryCatalogue)
 	{
-		auto Item = it->second;
-		if (Item->GLData.VAO == 0 || Item->GLData.VBO == 0)
-		{
+		if (Item->GLData.VAO == 0 || Item->GLData.VBO == 0) {
 			assert(false);
 		}
 	}

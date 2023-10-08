@@ -74,7 +74,7 @@ void EntitySerializer::Parse(Parser& Parse)
 				if (ShaderName == "tiledTextureModel")
 				{
 					NewEntity.Flags |= EntityFlags_RenderTiledTexture;
-					For(6)
+					for (int i = 0; i < 6; i++)
 					{
 						Parse.ParseAllWhitespace();
 						Parse.ParseInt();
@@ -184,24 +184,23 @@ void EntitySerializer::Save(std::ofstream& Writer, const EEntity& Entity)
 	// shader: If entity.s using tiled texture fragment shader, also writes number of tiles since we can change it through the editor
 	if (Entity.Flags & EntityFlags_RenderTiledTexture)
 	{
-		For(6)
-		{
+		for (int i = 0; i < 6; i++) {
 			Writer << " " << Entity.UvTileWrap[i];
 		}
 	}
 
 	Writer << "\n";
 
-	int Textures = Entity.Textures.size();
-	For(Textures)
+	for (auto& Texture : Entity.Textures)
 	{
-		RTexture Texture = Entity.Textures[i];
-		if (Texture.Type == "texture_diffuse")
+		if (Texture.Type == "texture_diffuse") {
 			Writer << "texture " << Texture.Name << "\n";
+		}
 	}
 
-	if (Entity.Flags & EntityFlags_RenderWireframe)
+	if (Entity.Flags & EntityFlags_RenderWireframe) {
 		Writer << "hidden\n";
+	}
 
 	/*
 	switch (entity.type)
@@ -276,8 +275,7 @@ void EntitySerializer::Save(std::ofstream& Writer, const EEntity& Entity)
 	}
 	*/
 
-	if (Entity.Slidable)
-	{
+	if (Entity.Slidable) {
 		Writer << "slidable \n";
 	}
 }

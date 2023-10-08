@@ -79,7 +79,7 @@ void REntityAnimation::Update()
 
 uint REntityAnimationBuffer::FindSlot()
 {
-	For(AnimationBufferArraySize)
+	for (int i = 0; i < AnimationBufferArraySize; i++)
 	{
 		if (!Animations[i].Active)
 		{
@@ -107,7 +107,7 @@ void REntityAnimationBuffer::StartAnimation(EEntity* Entity, REntityAnimation* I
 
 void REntityAnimationBuffer::UpdateAnimations()
 {
-	For(EntityAnimations.AnimationBufferArraySize)
+	for (int i = 0; i < EntityAnimations.AnimationBufferArraySize; i++)
 	{
 		auto Anim = &EntityAnimations.Animations[i];
 
