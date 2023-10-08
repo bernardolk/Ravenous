@@ -19,7 +19,11 @@ namespace Paths
 
 struct ProgramConfig
 {
-	DeclSingleton(ProgramConfig);
+	static ProgramConfig* Get()
+	{
+		static ProgramConfig Instance{};
+		return &Instance;
+	}
 
 	string InitialScene;
 	float Camspeed = 1;

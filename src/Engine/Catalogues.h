@@ -11,7 +11,6 @@ struct REntityAttributes
 	string Shader = "model";
 	string Texture = "grey";
 	string CollisionMesh = "aabb";
-	//EntityType type = EntityType_Static;
 	vec3 Scale = vec3{1.0f};
 };
 

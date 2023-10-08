@@ -31,7 +31,8 @@ bool WorldSerializer::LoadFromFile(const string& Filename)
 		Attrs.CollisionMesh = "capsule";
 		Attrs.Scale = vec3(1);
 
-		SetEntityAssets(EPlayer::Get(), Attrs);
+		auto* Player = EPlayer::Get();
+		SetEntityAssets(Player, Attrs);
 	}
 
 	// creates deferred load buffer for associating entities after loading them all

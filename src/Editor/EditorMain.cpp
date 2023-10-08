@@ -1,8 +1,10 @@
 #include <glfw3.h>
 #include <imgui.h>
-#include "editor.h"
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+
+#include "EditorMain.h"
+
 #include "tools/EditorTools.h"
 #include "editor/EditorToolbar.h"
 #include "editor/EditorEntityPanel.h"
@@ -20,6 +22,7 @@
 #include "engine/utils/utils.h"
 #include "engine/camera/camera.h"
 #include "engine/entities/lights.h"
+#include "Engine/Entities/StaticMesh.h"
 #include "engine/io/loaders.h"
 #include "engine/geometry/vertex.h"
 #include "engine/io/display.h"
@@ -406,9 +409,9 @@ namespace Editor
 		// load tri axis gizmo
 		const auto AxisMesh = LoadWavefrontObjAsMesh(Paths::Models, "axis");
 
-		auto XAxis = new EEntity();
-		auto YAxis = new EEntity();
-		auto ZAxis = new EEntity();
+		auto XAxis = new EStaticMesh;
+		auto YAxis = new EStaticMesh;
+		auto ZAxis = new EStaticMesh;
 
 		XAxis->Mesh = AxisMesh;
 		YAxis->Mesh = AxisMesh;
@@ -442,9 +445,9 @@ namespace Editor
 
 		// load entity panel axis arrows
 		// @todo: refactor this to use the entity_manager
-		auto XArrow = new EEntity();
-		auto YArrow = new EEntity();
-		auto ZArrow = new EEntity();
+		auto XArrow = new EStaticMesh;
+		auto YArrow = new EStaticMesh;
+		auto ZArrow = new EStaticMesh;
 
 		XArrow->Mesh = AxisMesh;
 		YArrow->Mesh = AxisMesh;
@@ -468,7 +471,7 @@ namespace Editor
 		ZArrow->Textures.push_back(RTexture{BlueTex, "texture_diffuse", "blue.jpg", "blue axis"});
 
 		// CollisionMesh
-		const auto ArrowCollider = new RCollisionMesh();
+		const auto ArrowCollider = new RCollisionMesh;
 
 		For(AxisMesh->Vertices.size())
 			ArrowCollider->Vertices.push_back(AxisMesh->Vertices[i].Position);
@@ -490,7 +493,7 @@ namespace Editor
 		EdContext.EntityPanel.ZArrow = ZArrow;
 
 		// creates entity rotation gizmos
-		EdContext.EntityPanel.RotationGizmoX = new EEntity();
+		EdContext.EntityPanel.RotationGizmoX = new EStaticMesh;
 		SetEntityAssets(EdContext.EntityPanel.RotationGizmoX, {
 		.Name = "rotation_gizmo_x",
 		.Mesh = "rotation_gizmo",
@@ -498,7 +501,7 @@ namespace Editor
 		.Texture = "red",
 		.CollisionMesh = "rotation_gizmo_collision"});
 
-		EdContext.EntityPanel.RotationGizmoY = new EEntity();
+		EdContext.EntityPanel.RotationGizmoY = new EStaticMesh;
 		SetEntityAssets(EdContext.EntityPanel.RotationGizmoY, {
 		.Name = "rotation_gizmo_y",
 		.Mesh = "rotation_gizmo",
@@ -506,7 +509,7 @@ namespace Editor
 		.Texture = "green",
 		.CollisionMesh = "rotation_gizmo_collision"});
 
-		EdContext.EntityPanel.RotationGizmoZ = new EEntity();
+		EdContext.EntityPanel.RotationGizmoZ = new EStaticMesh;
 		SetEntityAssets(EdContext.EntityPanel.RotationGizmoZ, {
 		.Name = "rotation_gizmo_z",
 		.Mesh = "rotation_gizmo",

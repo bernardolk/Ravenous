@@ -1,6 +1,6 @@
 #include "EditorLightsPanel.h"
 #include <imgui.h>
-#include "editor.h"
+#include "EditorMain.h"
 #include "tools/EditorTools.h"
 #include "engine/camera/camera.h"
 #include "engine/entities/Lights.h"

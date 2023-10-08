@@ -7,17 +7,6 @@
 #define ForLessEqual(x) for (int i = 0; i <+ x; i ++)
 #define ForIt(x) for (auto it = x.begin(); it != x.end(); it++)
 
-/**
- *  Static Helpers are methods that execute at static initialization time
- *  and are used by low level systems for automating certain code processes.
- *  It can also be used in properties when we such systems need data that is specific
- *  per type and that gets initialized when the type is first initialized (such as for
- *  reflection, using macros in conjunction)
- */
-#define StaticHelper static
-
-#define StaticHelperByte static inline char
-
 // #define PRINT(x) std::cout << x << "\n";
 
 #define DEPRECATED_BEGIN ;
@@ -44,17 +33,3 @@
 
 #define GET_MACRO_6(_1,_2,_3,_4, _5, _6, NAME, ...) NAME
 #define GET_MACRO_4(_1,_2,_3,_4, NAME, ...) NAME
-
-
-
-#define DeclSingleton(Type) \
-	public:	\
-		static Type* Get() \
-		{ \
-			static auto instance = Type{}; \
-			return &instance; \
-		} \
-	private: \
-		Type(); \
-		Type(const Type& other) = delete; \
-	public:

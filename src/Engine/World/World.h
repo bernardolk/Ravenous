@@ -33,7 +33,12 @@ struct CellUpdate
 
 struct RWorld
 {
-	DeclSingleton(RWorld)
+	static RWorld* Get()
+	{
+		static RWorld Instance{};
+		return &Instance;
+	}
+	
 	// static constexpr u8 world_chunk_matrix_order = 10;
 	static constexpr uint WorldSizeInChunks = WorldChunkNumX * WorldChunkNumY * WorldChunkNumZ;
 
@@ -62,7 +67,7 @@ struct RWorld
 	TEntity* SpawnEntity();
 
 	template<typename TEntity>
-	TEntity* RWorld::SpawnEntityAtPosition(vec3 Position);
+	TEntity* SpawnEntityAtPosition(vec3 Position);
 
 	TIterator<RWorldChunk> GetChunkIterator();
 	static WorldEntityIterator GetEntityIterator();
@@ -77,6 +82,7 @@ struct RWorld
 	RavenousEngine::RFrameData& GetFrameData();
 
 private:
+	RWorld();
 	void UpdateTraits();
 	void UpdateTransforms();
 };
@@ -117,7 +123,7 @@ TEntity* RWorld::SpawnEntityAtPosition(vec3 Position)
 	if (!FirstChunkAvailable)
 		return nullptr;
 
-	auto* Entity = FirstChunkAvailable->RequestEntityStorage<TEntity>();
+	auto* Entity = FirstChunkAvailable->AddEntity<TEntity>();
 	if (Entity)
 	{
 		Entity->position = Position;

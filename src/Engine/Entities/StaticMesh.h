@@ -1,10 +1,24 @@
 #pragma once
 
-#include "engine/entities/traits/EntityTraits.h"
+#include "engine/catalogues.h"
+#include "engine/entities/Entity.h"
 
 struct EntityType(EStaticMesh)
 {
 	Reflected()
 
-	EStaticMesh() { InstanceBudget = 200; }
+	static inline constexpr uint InstanceBudget = 200;
 };
+
+struct Parent
+{
+	string Name;
+	RTypeID TypeID;
+};
+
+struct EDummy : Parent, TEntityTypeBase<EDummy>
+{
+	
+};
+
+void AreYouKiddingMe(EEntity* Entity);

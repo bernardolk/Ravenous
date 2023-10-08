@@ -7,7 +7,7 @@
 #include "game/animation/AnPlayer.h"
 #include "game/animation/AnUpdate.h"
 #include "game/entities/EPlayer.h"
-#include "editor/editor.h"
+#include "editor/EditorMain.h"
 #include "editor/tools/InputRecorder.h"
 #include "editor/EditorState.h"
 #include "engine/io/display.h"

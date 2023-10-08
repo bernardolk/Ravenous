@@ -2,31 +2,31 @@
 
 void TInteractable::BlockInteractions()
 {
-	BlockInteraction = true;
+	bBlockInteraction = true;
 }
 
 void TInteractable::UnblockInteractions()
 {
-	BlockInteraction = false;
+	bBlockInteraction = false;
 }
 
-bool TInteractable::AreInteractionsBlocked()
+bool TInteractable::IsInteractionBlocked()
 {
-	return BlockInteraction;
+	return bBlockInteraction;
 }
 
 void TInteractable::SetPassiveInteraction(bool Value)
 {
-	PassiveInteraction = Value;
+	bPassiveInteraction = Value;
 }
 
 bool TInteractable::IsInteractionPassive()
 {
-	return PassiveInteraction;
+	return bPassiveInteraction;
 }
 
 bool TInteractable::IsVolumeCollidingWithPlayer()
 {
-	// TODO: Obviously
+	// TODO: Obviously, place code to check if is colliding with player
 	return true;
 }

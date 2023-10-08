@@ -1,8 +1,6 @@
 #include "GameState.h"
 #include "engine/utils/utils.h"
 
-RGameState::RGameState() = default;
-
 void RGameState::StartTimer(EEntity* Trigger)
 {
 	/**

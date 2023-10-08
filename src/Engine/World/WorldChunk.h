@@ -96,5 +96,5 @@ struct RWorldChunk
 	string GetChunkPositionString();
 	string GetChunkPositionMetricString();
 
-	void InvokeTraitUpdateOnAllTypes(TraitID TraitId);
+	void InvokeTraitUpdateOnAllTypes(RTraitID TraitId);
 };

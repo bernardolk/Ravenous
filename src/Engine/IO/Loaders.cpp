@@ -219,7 +219,7 @@ RCollisionMesh* LoadWavefrontObjAsCollisionMesh(string Path, string Filename, st
 	Parser P{FullPath};
 
 	// @TODO: Use a memory pool
-	auto CMesh = new RCollisionMesh();
+	auto* CMesh = new RCollisionMesh;
 
 	// Parses file
 	while (P.NextLine())

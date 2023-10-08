@@ -1,31 +1,37 @@
 #pragma once
 
 #include "engine/core/core.h"
-#include "engine/entities/Entity.h"
+
+struct EEntity;
 
 struct EntityTraitsManager
 {
-	DeclSingleton(EntityTraitsManager)
+	static EntityTraitsManager* Get()
+	{
+		static EntityTraitsManager Instance{};
+		return &Instance;
+	}
+	
 	using UpdateFuncPtr = void(*)(EEntity*);
 
 	static inline constexpr uint MaxTraits = 5;
 
-	map<TraitID, map<TypeID, UpdateFuncPtr> > TraitRegistry;
-	map<TypeID, vector<TypeID> > TraitInverseRegistry;
-	vector<TraitID> EntityTraits;
+	map<RTraitID, map<RTypeID, UpdateFuncPtr> > TraitRegistry;
+	map<RTypeID, vector<RTypeID> > TraitInverseRegistry;
+	vector<RTraitID> EntityTraits;
 
-	void Register(TypeID TypeId, TraitID TraitId, UpdateFuncPtr Func);
-	void InvokeUpdate(EEntity* Entity, TraitID TraitId);
-	vector<TypeID>* GetTypesWithTrait(TraitID TraitID);
-	UpdateFuncPtr GetUpdateFunc(TypeID TypeId, TraitID TraitId);
+	void Register(RTypeID TypeId, RTraitID TraitId, UpdateFuncPtr Func);
+	void InvokeUpdate(EEntity* Entity, RTraitID TraitId);
+	vector<RTypeID>* GetTypesWithTrait(RTraitID TraitID);
+	UpdateFuncPtr GetUpdateFunc(RTypeID TypeId, RTraitID TraitId);
 
 	template<typename TEntity, typename TTrait>
-	byte RegisterTypeAndTraitMatch();
+	void RegisterTypeAndTraitMatch();
 
 };
 
 template<typename TEntity, typename TTrait>
-byte EntityTraitsManager::RegisterTypeAndTraitMatch()
+void EntityTraitsManager::RegisterTypeAndTraitMatch()
 {
 	printf("Registering entity of id '%i' and trait of id '%i'.\n", TEntity::GetTypeId(), TTrait::trait_id);
 
@@ -37,6 +43,4 @@ byte EntityTraitsManager::RegisterTypeAndTraitMatch()
 	);
 
 	TEntity::traits.Add(TTrait::trait_id);
-
-	return 0;
 }

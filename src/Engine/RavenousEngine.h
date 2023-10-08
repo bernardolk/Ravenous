@@ -1,5 +1,4 @@
 #pragma once
-#include "Core/Macros.h"
 
 namespace RavenousEngine
 {
@@ -16,7 +15,12 @@ namespace RavenousEngine
 
 	struct REngineRuntimeState
 	{
-		DeclSingleton(REngineRuntimeState)
+		static REngineRuntimeState* Get()
+		{
+			static REngineRuntimeState Instance{};
+			return &Instance;
+		}
+		
 		RFrameData Frame;
 	};
 

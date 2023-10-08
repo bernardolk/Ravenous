@@ -1,6 +1,4 @@
 #pragma once
-// ReSharper disable CppFunctionIsNotImplemented
-
 #include "engine/core/core.h"
 #include "engine/entities/traits/EntityTraits.h"
 #include "game/entities/EPlayer.h"
@@ -13,35 +11,21 @@ struct Trait(TInteractable)
 {
 	void BlockInteractions();
 	void UnblockInteractions();
-	bool AreInteractionsBlocked();
+	bool IsInteractionBlocked();
 	void SetPassiveInteraction(bool Value);
 	bool IsInteractionPassive();
 
-private:
-	bool BlockInteraction = false;
-	bool PassiveInteraction = false;
-
-protected:
-	void Interact();
-
-	struct Cylinder
+   /* ========================================
+	* Update
+	* ======================================== */	
+	REQUIRES_METHOD(Interact)
+	
+	template<typename T>
+	static void Update(T& Entity)
 	{
-		float Radius;
-		struct
+		if (!Entity.bBlockInteraction)
 		{
-			float X, Y, Z;
-		} Position;
-	} CollisionVolume{};
-
-	bool IsVolumeCollidingWithPlayer();
-
-public:
-	template<typename T_Entity>
-	static void Update(T_Entity& Entity)
-	{
-		if (!Entity.block_interaction)
-		{
-			if (Entity.passive_interaction || EPlayer::Get()->bInteractButton)
+			if (Entity.bPassiveInteraction || EPlayer::Get()->bInteractButton)
 			{
 				if (Entity.IsVolumeCollidingWithPlayer())
 				{
@@ -50,4 +34,22 @@ public:
 			}
 		}
 	}
+
+protected:
+	struct Cylinder
+	{
+		float Radius = 0.f;
+		struct
+		{
+			float X = 0.f;
+			float Y = 0.f;
+			float Z = 0.f;
+		} Position;
+	} CollisionVolume;
+
+	bool IsVolumeCollidingWithPlayer();
+
+private:
+	bool bBlockInteraction = false;
+	bool bPassiveInteraction = false;
 };

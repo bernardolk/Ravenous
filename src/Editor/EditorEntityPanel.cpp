@@ -2,7 +2,7 @@
 
 #include <imgui.h>
 
-#include "editor.h"
+#include "EditorMain.h"
 #include "EditorPanelContexts.h"
 #include "tools/EditorTools.h"
 #include "engine/io/display.h"

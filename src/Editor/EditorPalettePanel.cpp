@@ -1,7 +1,7 @@
 #include "EditorPalettePanel.h"
 #include <imgui.h>
 #include <stb_image/stb_image.h>
-#include "editor.h"
+#include "EditorMain.h"
 #include "EditorPanelContexts.h"
 #include "tools/EditorTools.h"
 #include "engine/camera/camera.h"

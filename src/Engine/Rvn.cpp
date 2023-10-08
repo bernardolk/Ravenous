@@ -5,8 +5,6 @@
 #include <engine/rvn.h>
 #include "engine/io/display.h"
 
-ProgramConfig::ProgramConfig() = default;
-
 void Rvn::Init()
 {
 	RmBuffer = new RenderMessageBuffer();

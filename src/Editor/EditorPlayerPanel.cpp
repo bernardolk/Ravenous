@@ -1,7 +1,6 @@
 #include "editor/EditorPlayerPanel.h"
 #include <imgui.h>
-
-#include "editor.h"
+#include "EditorMain.h"
 #include "EditorPanelContexts.h"
 #include "game/entities/EPlayer.h"
 #include "engine/utils/utils.h"

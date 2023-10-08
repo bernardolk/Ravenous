@@ -5,7 +5,12 @@
 
 struct REditorState
 {
-	DeclSingleton(REditorState)
+	static REditorState* Get() 
+	{ 
+		static REditorState Instance{};
+		return &Instance;
+	}
+	
 	enum class ProgramMode : uint8
 	{
 		Game,

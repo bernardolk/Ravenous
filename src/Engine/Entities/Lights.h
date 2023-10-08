@@ -1,6 +1,5 @@
 #pragma once
 #include "engine/entities/Entity.h"
-#include "engine/entities/traits/EntityTraits.h"
 
 struct EntityType(ESpotLight)
 {

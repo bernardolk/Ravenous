@@ -5,7 +5,12 @@
 // @TODO: This code leaks platform-dependent types to the rest of the codebase, fixit. 
 struct GlobalDisplayState
 {
-	DeclSingleton(GlobalDisplayState)
+	static GlobalDisplayState* Get()
+	{
+		static GlobalDisplayState Instance{};
+		return &Instance;
+	}
+	
 	constexpr inline static float ViewportWidth = 1980;
 	constexpr inline static float ViewportHeight = 1080;
 

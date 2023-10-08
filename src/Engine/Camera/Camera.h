@@ -35,7 +35,11 @@ constexpr uint8 GameCam = 1;
 
 struct RCameraManager
 {
-	DeclSingleton(RCameraManager);
+	static RCameraManager* Get() 
+	{ 
+		static RCameraManager Instance{};
+		return &Instance;
+	}
 
 	RCamera* GetCurrentCamera() { return CurrentCamera; }
 	RCamera* GetGameCamera() { return &GameCamera; }
@@ -55,7 +59,7 @@ struct RCameraManager
 	static void ChangeCameraDirection(RCamera* Camera, float YawOffset, float PitchOffset);
 
 private:
-	RCamera GameCamera;
-	RCamera EditorCamera;
+	RCamera GameCamera{};
+	RCamera EditorCamera{};
 	RCamera* CurrentCamera = &EditorCamera;
 };

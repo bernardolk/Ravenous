@@ -1,7 +1,7 @@
-#include "WorldChunk.h"
 
 #include "engine/utils/utils.h"
-
+#include "Engine/Entities/Entity.h"
+#include "WorldChunk.h"
 
 RWorldChunkEntityIterator RWorldChunk::GetIterator()
 {
@@ -24,17 +24,17 @@ bool RWorldChunk::AddVisitor(EEntity* Entity)
 
 bool RWorldChunk::RemoveVisitor(EEntity* Entity)
 {
-	int I = 0;
-	for (auto* visitor : Visitors)
+	int Count = 0;
+	for (auto* Visitor : Visitors)
 	{
 		// TODO: #PtrToEntity Change to handle futurely
-		if (visitor == Entity)
+		if (Visitor == Entity)
 		{
-			Visitors.erase(Visitors.begin() + i);
+			Visitors.erase(Visitors.begin() + Count);
 			Entity->VisitorState.Reset();
 		}
 
-		i++;
+		Count++;
 	}
 
 	return false;
@@ -58,7 +58,7 @@ string RWorldChunk::GetChunkPositionMetricString()
 	+ "]";
 }
 
-void RWorldChunk::InvokeTraitUpdateOnAllTypes(TraitID TraitId)
+void RWorldChunk::InvokeTraitUpdateOnAllTypes(RTraitID TraitId)
 {
 	auto* TraitsManager = EntityTraitsManager::Get();
 	//auto* types = etm->GetTypesWithTrait(TraitId);

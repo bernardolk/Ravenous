@@ -8,26 +8,25 @@
 #define DEBUG_BUILD
 
 #include "Engine/Platform/Platform.h"
-#include "engine/core/ui.h"
-#include "engine/rvn.h"
-#include "editor/tools/InputRecorder.h"
+#include "Engine/core/ui.h"
+#include "Engine/rvn.h"
+#include "Editor/tools/InputRecorder.h"
 
-#include "editor/EditorMain.h"
+#include "Editor/EditorMain.h"
 
-#include "game/animation/AnUpdate.h"
-#include "editor/console/console.h"
-#include "game/GeometryData.h"
-#include "game/entities/EPlayer.h"
-#include "editor/editor.h"
-#include "engine/camera/camera.h"
-#include "engine/io/loaders.h"
-#include "engine/MainLoop.h"
+#include "Game/Animation/AnUpdate.h"
+#include "Editor/Console/Console.h"
+#include "Game/GeometryData.h"
+#include "Game/Entities/EPlayer.h"
+#include "Engine/Camera/camera.h"
+#include "Engine/Io/loaders.h"
+#include "Engine/MainLoop.h"
 #include "Engine/RavenousEngine.h"
-#include "engine/collision/ClController.h"
-#include "engine/render/ImRender.h"
-#include "engine/serialization/sr_config.h"
-#include "engine/serialization/sr_world.h"
-#include "engine/world/World.h"
+#include "Engine/Collision/ClController.h"
+#include "Engine/Render/ImRender.h"
+#include "Engine/Serialization/sr_config.h"
+#include "Engine/Serialization/sr_world.h"
+#include "Engine/World/World.h"
 
 // FUNCTION PROTOTYPES
 void LoadShaders();

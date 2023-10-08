@@ -20,7 +20,11 @@ namespace Editor
 
 	struct REditorContext
 	{
-		DeclSingleton(REditorContext)
+		static REditorContext* Get() 
+		{ 
+			static REditorContext Instance{};
+			return &Instance;
+		}
 		
 		struct ImGuiStyle* ImStyle = nullptr;
 

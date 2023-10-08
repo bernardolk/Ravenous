@@ -5,7 +5,12 @@
 
 struct RGameState
 {
-	DeclSingleton(RGameState)
+	static RGameState* Get() 
+	{ 
+		static RGameState Instance{};
+		return &Instance;
+	}
+	
 	// Timed events (timers)
 	constexpr static uint TimersArraySize = 64;
 

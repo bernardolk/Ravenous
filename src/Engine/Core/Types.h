@@ -34,8 +34,8 @@ using string = std::string;
 
 using Flags = uint;
 
-using TypeID = uint;
-using TraitID = uint;
+using RTypeID = uint;
+using RTraitID = uint;
 
 inline const vec3 UnitX = vec3(1, 0, 0);
 inline const vec3 UnitY = vec3(0, 1, 0);

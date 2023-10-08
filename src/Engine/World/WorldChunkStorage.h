@@ -22,10 +22,10 @@ struct REntityStorageBlockMetadata
 	using byte = char;
 
 	// type data
-	TypeID TypeID;
+	RTypeID TypeID;
 	uint TypeSize;
 	// TODO: We don't need to know about Traits at this level, lets only deal with entity Types
-	Array<TraitID, EntityTraitsManager::MaxTraits> EntityTraits;
+	Array<RTraitID, EntityTraitsManager::MaxTraits> EntityTraits;
 
 	// array bookkeeping
 	uint MaxEntityInstances;
@@ -50,7 +50,7 @@ struct RWorldChunkStorage
 	// Holds the useful metadata about each storage block in chunk storage. Iterate over it to go through all entity types.
 	Array<REntityStorageBlockMetadata, MaxTypesPerStorage> StorageMetadataArray;
 	// Convenience map to retrieve storage metadata for a specific entity type.
-	map<TypeID, REntityStorageBlockMetadata*> StorageMetadataMap;
+	map<RTypeID, REntityStorageBlockMetadata*> StorageMetadataMap;
 	// TODO: Implement a TraitID to array of typeIds
 
 	RWorldChunkStorage(int ChunkId) :
@@ -61,11 +61,11 @@ struct RWorldChunkStorage
 	}
 
 	template<typename TEntity>
-	TEntity* RWorldChunkStorage::RequestEntityStorage();
+	TEntity* RequestEntityStorage();
 
 private:
 	template<typename TEntity>
-	void RWorldChunkStorage::MaybeAllocateForType();
+	void MaybeAllocateForType();
 };
 
 

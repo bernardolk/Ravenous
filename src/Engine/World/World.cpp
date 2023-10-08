@@ -1,13 +1,12 @@
 #include "engine/world/World.h"
-
-#include "WorldChunk.h"
 #include "engine/catalogues.h"
 #include "Engine/RavenousEngine.h"
 #include "engine/entities/Entity.h"
+#include "engine/entities/lights.h"
+#include "Engine/Entities/StaticMesh.h"
 #include "engine/render/ImRender.h"
 #include "engine/utils/utils.h"
 #include "game/entities/EPlayer.h"
-#include "engine/entities/Lights.h"
 
 RWorld::RWorld()
 {
@@ -39,7 +38,7 @@ void RWorld::UpdateTransforms()
 void RWorld::UpdateTraits()
 {
 	auto* TraitsManager = EntityTraitsManager::Get();
-	for (TraitID TraitId : TraitsManager->EntityTraits)
+	for (RTraitID TraitId : TraitsManager->EntityTraits)
 	{
 		for (auto* Chunk : ActiveChunks)
 		{
@@ -174,7 +173,7 @@ RRaycastTest RWorld::RaycastLights(const RRay Ray) const
 	const auto AabbMesh = GeometryCatalogue.find("aabb")->second;
 
 	int PointC = 0;
-	for (auto& Light : this->PointLights)
+	for (EPointLight* Light : this->PointLights)
 	{
 		// subtract Lightbulb model size from Position
 		auto Position = Light->Position - vec3{0.1575, 0, 0.1575};
@@ -191,7 +190,7 @@ RRaycastTest RWorld::RaycastLights(const RRay Ray) const
 	}
 
 	int SpotC = 0;
-	for (auto& Light : this->SpotLights)
+	for (ESpotLight* Light : this->SpotLights)
 	{
 		// subtract Lightbulb model size from Position
 		auto Position = Light->Position - vec3{0.1575, 0, 0.1575};

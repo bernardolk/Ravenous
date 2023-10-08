@@ -1,9 +1,7 @@
+#include "Engine/Entities/Entity.h"
 #include "EntityTraitsManager.h"
 
-EntityTraitsManager::EntityTraitsManager() = default;
-
-
-vector<TypeID>* EntityTraitsManager::GetTypesWithTrait(TraitID TraitID)
+vector<RTypeID>* EntityTraitsManager::GetTypesWithTrait(RTraitID TraitID)
 {
 	if (Find(TraitInverseRegistry, TraitID))
 	{
@@ -13,13 +11,13 @@ vector<TypeID>* EntityTraitsManager::GetTypesWithTrait(TraitID TraitID)
 	return nullptr;
 }
 
-void EntityTraitsManager::Register(TypeID TypeId, TraitID TraitId, UpdateFuncPtr Func)
+void EntityTraitsManager::Register(RTypeID TypeId, RTraitID TraitId, UpdateFuncPtr Func)
 {
 	// registers trait if new
 	if (auto It = TraitRegistry.find(TraitId); It == TraitRegistry.end())
 	{
-		TraitRegistry[TraitId] = map<TypeID, UpdateFuncPtr>();
-		TraitInverseRegistry[TypeId] = vector<TypeID>();
+		TraitRegistry[TraitId] = map<RTypeID, UpdateFuncPtr>();
+		TraitInverseRegistry[TypeId] = vector<RTypeID>();
 	}
 
 	auto& TraitsMap = TraitRegistry[TraitId];
@@ -37,7 +35,7 @@ void EntityTraitsManager::Register(TypeID TypeId, TraitID TraitId, UpdateFuncPtr
 	}
 }
 
-auto EntityTraitsManager::GetUpdateFunc(TypeID TypeId, TraitID TraitId) -> UpdateFuncPtr
+auto EntityTraitsManager::GetUpdateFunc(RTypeID TypeId, RTraitID TraitId) -> UpdateFuncPtr
 {
 	// perform lookup based on trait and type id and execute lambda / wrapped update call.
 	if (auto It = TraitRegistry.find(TraitId); It != TraitRegistry.end())
@@ -53,7 +51,7 @@ auto EntityTraitsManager::GetUpdateFunc(TypeID TypeId, TraitID TraitId) -> Updat
 	return nullptr;
 }
 
-void EntityTraitsManager::InvokeUpdate(EEntity* Entity, TraitID TraitId)
+void EntityTraitsManager::InvokeUpdate(EEntity* Entity, RTraitID TraitId)
 {
 	if (auto* Func = GetUpdateFunc(Entity->TypeID, TraitId))
 	{

@@ -12,8 +12,6 @@
 #include "engine/world/World.h"
 #include "game/entities/EPlayer.h"
 
-RGlobalConsoleState::RGlobalConsoleState() = default;
-
 void InitializeConsoleBuffers()
 {
 	auto& Console = *RGlobalConsoleState::Get();

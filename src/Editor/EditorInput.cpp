@@ -2,7 +2,7 @@
 
 #include <glfw3.h>
 
-#include "editor.h"
+#include "EditorMain.h"
 #include <imgui.h>
 
 #include "console/console.h"

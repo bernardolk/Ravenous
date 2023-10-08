@@ -1,35 +1,38 @@
 #pragma once
 
 #include "engine/core/core.h"
-#include "engine/entities/Entity.h"
 #include "Engine/Entities/Traits/EntityTraitsManager.h"
 
-// Define empty macros for editor-only features in shipping build.
-#ifndef WITH_EDITOR
-#define Reflected()
-#define Field(Type, Name, ...) __VA_ARGS__ Type Name
-#define Name(Type, Name, ...) __VA_ARGS__ Type Name
-#endif
+#define WITH_EDITOR 1
 
 // We forward declare the type, then store the typename in a helper. Only after we actually define the type.
 // Reflection is only necessary in editor builds. We shouldn't ship the game with reflection on unless really necessary.
 #ifdef WITH_EDITOR
 	#include "editor/reflection/Reflection.h"
-	#define ENTITY1(TypeName)                               						TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : EEntity, TEntityTypeBase<TypeName>, Reflection::ReflectionGetterSetter<TypeName>
-	#define ENTITY2(TypeName, Trait1)                       						TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>, Reflection::ReflectionGetterSetter<TypeName, Trait1>
-	#define ENTITY3(TypeName, Trait1, Trait2)               						TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>, TTraitMixin<TypeName, Trait2>, Reflection::ReflectionGetterSetter<TypeName, Trait1, Trait2>
-	#define ENTITY4(TypeName, Trait1, Trait2, Trait3)								TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>, TTraitMixin<TypeName, Trait2>, TTraitMixin<TypeName, Trait3>, Reflection::ReflectionGetterSetter<TypeName, Trait1, Trait2, Trait3>
-	#define ENTITY5(TypeName, Trait1, Trait2, Trait3, Trait4)						TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>, TTraitMixin<TypeName, Trait2>, TTraitMixin<TypeName, Trait3>, TTraitMixin<TypeName, Trait4>, Reflection::ReflectionGetterSetter<TypeName, Trait1, Trait2, Trait3, Trait4>
-	#define ENTITY6(TypeName, Trait1, Trait2, Trait3, Trait4, Trait5)				TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>, TTraitMixin<TypeName, Trait2>, TTraitMixin<TypeName, Trait3>, TTraitMixin<TypeName, Trait4>, TTraitMixin<TypeName, Trait5>, Reflection::ReflectionGetterSetter<TypeName, Trait1, Trait2, Trait3, Trait4, Trait5>
-	#define ENTITY7(TypeName, Trait1, Trait2, Trait3, Trait4, Trait5, Trait6)       TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>, TTraitMixin<TypeName, Trait2>, TTraitMixin<TypeName, Trait3>, TTraitMixin<TypeName, Trait4>, TTraitMixin<TypeName, Trait5>, TTraitMixin<TypeName, Trait6>, Reflection::ReflectionGetterSetter<TypeName, Trait1, Trait2, Trait3, Trait4, Trait5, Trait6>
+	#define BaseEntityType(TypeName)												TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : Reflection::ReflectionGetterSetter<TypeName>, Reflection::Tracer
+	#define ENTITY1(TypeName)                               						TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : EEntity, TEntityTypeBase<TypeName>, Reflection::ReflectionGetterSetter<TypeName>, Reflection::Tracer
+	#define ENTITY2(TypeName, Trait1)                       						TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>, Reflection::ReflectionGetterSetter<TypeName, Trait1>, Reflection::Tracer
+	#define ENTITY3(TypeName, Trait1, Trait2)               						TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>, TTraitMixin<TypeName, Trait2>, Reflection::ReflectionGetterSetter<TypeName, Trait1, Trait2>, Reflection::Tracer
+	#define ENTITY4(TypeName, Trait1, Trait2, Trait3)								TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>, TTraitMixin<TypeName, Trait2>, TTraitMixin<TypeName, Trait3>, Reflection::ReflectionGetterSetter<TypeName, Trait1, Trait2, Trait3>, Reflection::Tracer
+	#define ENTITY5(TypeName, Trait1, Trait2, Trait3, Trait4)						TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>, TTraitMixin<TypeName, Trait2>, TTraitMixin<TypeName, Trait3>, TTraitMixin<TypeName, Trait4>, Reflection::ReflectionGetterSetter<TypeName, Trait1, Trait2, Trait3, Trait4>, Reflection::Tracer
+	#define ENTITY6(TypeName, Trait1, Trait2, Trait3, Trait4, Trait5)				TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>, TTraitMixin<TypeName, Trait2>, TTraitMixin<TypeName, Trait3>, TTraitMixin<TypeName, Trait4>, TTraitMixin<TypeName, Trait5>, Reflection::ReflectionGetterSetter<TypeName, Trait1, Trait2, Trait3, Trait4, Trait5>, Reflection::Tracer
+	#define ENTITY7(TypeName, Trait1, Trait2, Trait3, Trait4, Trait5, Trait6)       TypeName; STORE_TYPE_IN_HELPER(TypeName); struct TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>, TTraitMixin<TypeName, Trait2>, TTraitMixin<TypeName, Trait3>, TTraitMixin<TypeName, Trait4>, TTraitMixin<TypeName, Trait5>, TTraitMixin<TypeName, Trait6>, Reflection::ReflectionGetterSetter<TypeName, Trait1, Trait2, Trait3, Trait4, Trait5, Trait6>, Reflection::Tracer
 #else
-#define ENTITY1(TypeName)                               						TypeName : EEntity, TEntityTypeBase<TypeName>
-#define ENTITY2(TypeName, Trait1)                       						TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>
-#define ENTITY3(TypeName, Trait1, Trait2)               						TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>, TTraitMixin<TypeName, Trait2>
-#define ENTITY4(TypeName, Trait1, Trait2, Trait3)       						TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>, TTraitMixin<TypeName, Trait2>, TTraitMixin<TypeName, Trait3>
-#define ENTITY5(TypeName, Trait1, Trait2, Trait3, Trait4)						TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>, TTraitMixin<TypeName, Trait2>, TTraitMixin<TypeName, Trait3>, TTraitMixin<TypeName, Trait4>
-#define ENTITY6(TypeName, Trait1, Trait2, Trait3, Trait4, Trait5)				TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>, TTraitMixin<TypeName, Trait2>, TTraitMixin<TypeName, Trait3>, TTraitMixin<TypeName, Trait4>, TTraitMixin<TypeName, Trait5>
-#define ENTITY7(TypeName, Trait1, Trait2, Trait3, Trait4, Trait5, Trait6)       TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>, TTraitMixin<TypeName, Trait2>, TTraitMixin<TypeName, Trait3>, TTraitMixin<TypeName, Trait4>, TTraitMixin<TypeName, Trait5>, TTraitMixin<TypeName, Trait6>
+	#define BaseEntityType(TypeName)												TypeName
+	#define ENTITY1(TypeName)                               						TypeName : EEntity, TEntityTypeBase<TypeName>
+	#define ENTITY2(TypeName, Trait1)                       						TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>
+	#define ENTITY3(TypeName, Trait1, Trait2)               						TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>, TTraitMixin<TypeName, Trait2>
+	#define ENTITY4(TypeName, Trait1, Trait2, Trait3)       						TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>, TTraitMixin<TypeName, Trait2>, TTraitMixin<TypeName, Trait3>
+	#define ENTITY5(TypeName, Trait1, Trait2, Trait3, Trait4)						TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>, TTraitMixin<TypeName, Trait2>, TTraitMixin<TypeName, Trait3>, TTraitMixin<TypeName, Trait4>
+	#define ENTITY6(TypeName, Trait1, Trait2, Trait3, Trait4, Trait5)				TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>, TTraitMixin<TypeName, Trait2>, TTraitMixin<TypeName, Trait3>, TTraitMixin<TypeName, Trait4>, TTraitMixin<TypeName, Trait5>
+	#define ENTITY7(TypeName, Trait1, Trait2, Trait3, Trait4, Trait5, Trait6)       TypeName : EEntity, TEntityTypeBase<TypeName>, TTraitMixin<TypeName, Trait1>, TTraitMixin<TypeName, Trait2>, TTraitMixin<TypeName, Trait3>, TTraitMixin<TypeName, Trait4>, TTraitMixin<TypeName, Trait5>, TTraitMixin<TypeName, Trait6>
+#endif
+
+// Define empty macros for editor-only features in shipping build.
+#ifndef WITH_EDITOR
+	#define Reflected()
+	#define Field(Type, Name, ...) __VA_ARGS__ Type Name
+	#define Name(Type, Name, ...) __VA_ARGS__ Type Name
 #endif
 
 #define GET_MACRO_ENTITY(_1,_2,_3,_4,_5,_6,_7, NAME, ...) NAME
@@ -38,67 +41,84 @@
 
 #define Trait(Name) Name : TEntityTraitBase<Name>
 
+template<typename T> constexpr bool DependentFalse = false;
 
-/** Global entity type system data */
+#define REQUIRES_METHOD(x)
+
+/* ===================================================================
+ * EntityTypeSystem
+ *	Global entity type system data
+ * =================================================================== */
 namespace EntityTypeSystem
 {
-	static inline uint TypeIDCounter = 0;
+	inline uint GetNextTypeID()
+	{
+		static uint TypeIDCounter = 0;
+		return ++TypeIDCounter;
+	}
 }
 
-/** Used to auto register a new entity type */
+/* ===================================================================
+ * TEntityTypeBase (Template Base Class):
+ *	Used to provide basic Entity type-specific data 
+ * =================================================================== */
 template<typename TEntity>
 struct TEntityTypeBase
 {
-	static inline Array<TraitID, EntityTraitsManager::MaxTraits> Traits;
-	// max instances per world chunk
-	static inline uint InstanceBudget = 10;
-
-private:
-	static inline TypeID TypeId = ++EntityTypeSystem::TypeIDCounter;
+	static inline Array<RTraitID, EntityTraitsManager::MaxTraits> Traits;
+	static inline uint InstanceBudget = 10;										// max instances per world chunk
 
 public:
-	// sets the type_id at construction
+	static RTypeID GetTypeId() { return EntityTypeID; }
+
+protected:
 	TEntityTypeBase()
 	{
-		reinterpret_cast<EEntity*>(this)->TypeID = TypeId;
+		// Sets TypeID in the instance being constructed
+		static_cast<TEntity*>(this)->TypeID = EntityTypeID;
 	};
-
-	static TypeID GetTypeId() { return TypeId; }
+	
+private:
+	static inline RTypeID EntityTypeID = EntityTypeSystem::GetNextTypeID();
 };
 
-/** Used to auto register a new trait type */
+/* ===================================================================
+ * TEntityTraitBase (Template Base Class):
+ *	Used to provide basic Trait type-specific data 
+ * =================================================================== */
 template<typename TTrait>
 struct TEntityTraitBase
 {
-	static inline TraitID TraitId;
+	static inline RTraitID TraitID;
 
-	// ReSharper disable once CppFunctionIsNotImplemented
 	template<typename TEntity>
-	static void Update(TEntity& Entity);
+	static void Update(TEntity& Entity)
+	{
+		static_assert(DependentFalse<TEntity>, "You forgot to implement Update function for a Trait");
+	};
 
 	TEntityTraitBase()
 	{
-		// TODO: Same question here, is it necessary to have a static helper? I am almost sure yes but don't understand why right now.
-		StaticHelper TraitID GetId = [] {
+		static RTraitID TTraitID = [] {
 			auto* Etm = EntityTraitsManager::Get();
-			// TODO: Doing it like that, TraitIDs are not persistent. Do we need them to be?
-			TraitID TraitId = Etm->EntityTraits.size();
+			// TODO: Make TraitIDs persistent, not based on initialization order of instances
+			RTraitID TraitId = Etm->EntityTraits.size();
 			Etm->EntityTraits.push_back(TraitId);
 			return TraitId;
 		}();
 
-		TraitId = GetId;
-	};
+		TraitID = TTraitID;
+	}
 
 };
 
-/** Used to auto match an entity type and a trait type */
+/* ===================================================================
+ * TTraitMixin (Template Base Class):
+ *	Used to auto match an entity type and a trait type 
+ * =================================================================== */
 template<typename TEntity, typename TTrait>
 struct TTraitMixin : TTrait
 {
-	StaticHelperByte HelperByte = EntityTraitsManager::Get()->RegisterTypeAndTraitMatch<TEntity, TTrait>();
-	// force templated static member to be initialized
+	static inline char HelperByte = (EntityTraitsManager::Get()->RegisterTypeAndTraitMatch<TEntity, TTrait>(), 0);
 	static_assert(&HelperByte);
-
-	TTraitMixin() = default;
 };

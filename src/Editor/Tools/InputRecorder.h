@@ -14,7 +14,12 @@ struct RRecordedInput
 
 struct RInputRecorder
 {
-	DeclSingleton(RInputRecorder)
+	static RInputRecorder* Get()
+	{
+		static RInputRecorder Instance{};
+		return &Instance;
+	}
+	
 	bool bIsRecording = false;
 	bool bIsPlaying = false;
 

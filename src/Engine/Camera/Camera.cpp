@@ -1,11 +1,5 @@
 #include "engine/Camera/Camera.h"
 
-RCameraManager::RCameraManager()
-{
-	GameCamera = RCamera{};
-	EditorCamera = RCamera{};
-}
-
 void RCameraManager::SetCameraToFreeRoam()
 {
 	CurrentCamera->Type = FreeRoam;

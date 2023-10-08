@@ -98,7 +98,12 @@ struct MouseCoordinates
 
 struct GlobalInputInfo
 {
-	DeclSingleton(GlobalInputInfo)
+	static GlobalInputInfo* Get() 
+	{ 
+		static GlobalInputInfo Instance{};
+		return &Instance;
+	}
+	
 	bool ForgetLastMouseCoords = true;
 	MouseCoordinates MouseCoords;
 	uint64 KeyState = 0;

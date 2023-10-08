@@ -1,5 +1,48 @@
 #include "Reflection.h"
 
+#include "engine/serialization/parsing/parser.h"
+
+// @TODO: FromString should be a general Parsing library feature and not reflection-specific.
+// @TODO: ToString also sounds like a feature we would want to add to our String library in the future (we don't have one yet).
+
+#define ToStringConstVersion(Type) \
+	string Reflection::ToString(const Type& Field) \
+	{ \
+		return ToStringRemoveConst<Type>(Field); \
+	}
+
+string Reflection::ToString(string& Field)
+{
+	if (Field.empty())
+		return "\"\"";
+
+	return "\"" + Field + "\"";
+}
+//ToStringConstVersion(string);
+
+string Reflection::ToString(char& Field)
+{
+	return string(1, Field);
+}
+//ToStringConstVersion(char);
+
+
+string Reflection::ToString(bool& Field)
+{
+	if (Field)
+		return "true";
+	return "false";
+}
+//ToStringConstVersion(bool);
+
+string Reflection::ToString(vec3& Field)
+{
+	return "{" + std::to_string(Field.x) + " " + std::to_string(Field.y) + " " + std::to_string(Field.z) + "}";
+}
+//ToStringConstVersion(vec3);
+
+// ------------------------------------------------------------------
+
 template<>
 int Reflection::FromString<int>(string& Value)
 {
@@ -47,25 +90,17 @@ string Reflection::FromString<string>(string& Value)
 	return Value;
 }
 
-string Reflection::ToString(string& Field)
-{
-	if (Field.empty())
-		return "\"\"";
+// template<>
+// vec3 Reflection::FromString<vec3>(string& Value)
+// {
+// 	Parser Parse{Value, Value.size()};
+// 	// discard '{' token
+// 	Parse.ParseTokenChar();
+// 	Parse.ParseVec3();
+// 	return GetParsed<vec3>(Parse);
+// }
 
-	return "\"" + Field + "\"";
-};
-
-string Reflection::ToString(char& Field)
-{
-	return string(1, Field);
-};
-
-string Reflection::ToString(bool& Field)
-{
-	if (Field)
-		return "true";
-	return "false";
-};
+// ------------------------------------------------------------------
 
 void Reflection::ParseObject(string& Data, map<string, string>& FieldValueMap, bool IncludeHeader)
 {
@@ -95,8 +130,11 @@ void Reflection::ParseObject(string& Data, map<string, string>& FieldValueMap, b
 
 		GetLine(FieldData, ' ');
 		string FieldTypeToken = GetLine(FieldData, ' ');
+		// @TODO: Revise why we don't put the code below in an else after the last if
 		GetLine(FieldData, ' ');
-		string FieldValue = GetLine(FieldData, ' ');
+		string FieldValue;
+		FieldValue.reserve(100);
+		FieldValue = GetLine(FieldData, ' ');
 
 		// trim
 		if (FieldNameToken.size() > 2)
@@ -108,7 +146,11 @@ void Reflection::ParseObject(string& Data, map<string, string>& FieldValueMap, b
 		// process nested object if field is a nested object
 		if (FieldValue[0] == '{')
 		{
-			sprintf(&FieldValue[0], "{%s}", GetLine(ToParse, '}').c_str());
+			string NestedObject = GetLine(ToParse, '}');
+			int BytesWritten = sprintf_s(&FieldValue[0], 100, "{%s}", NestedObject.c_str());
+			if (BytesWritten == -1) {
+				fatal_error("Nested object procesing failed.");
+			}
 		}
 
 		FieldValueMap[FieldNameToken] = FieldValue;

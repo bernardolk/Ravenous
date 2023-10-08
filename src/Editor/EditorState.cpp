@@ -4,10 +4,8 @@
 #include "engine/io/input.h"
 #include "engine/io/display.h"
 #include "game/entities/EPlayer.h"
-#include "editor/editor.h"
+#include "Editor/EditorMain.h"
 #include "engine/rvn.h"
-
-REditorState::REditorState() = default;
 
 
 bool REditorState::IsInGameMode()

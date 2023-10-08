@@ -7,8 +7,6 @@
 #include "Engine/Rvn.h"
 #include "Engine/Serialization/Parsing/Parser.h"
 
-RInputRecorder::RInputRecorder() = default;
-
 void RInputRecorder::StartRecording()
 {
 	bIsRecording = true;

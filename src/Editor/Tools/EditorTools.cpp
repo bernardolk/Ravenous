@@ -1,7 +1,7 @@
 #pragma once
 
+#include "Editor/EditorMain.h"
 #include "EditorTools.h"
-#include "editor/editor.h"
 #include "engine/camera/camera.h"
 #include "engine/entities/lights.h"
 #include "engine/collision/ClController.h"

@@ -2,11 +2,14 @@
 
 #include "engine/core/core.h"
 #include "engine/entities/Entity.h"
-#include "engine/entities/traits/EntityTraits.h"
-#include "engine/io/InputPhase.h"
 #include "engine/utils/utils.h"
 #include "engine/collision/ClEdgeDetection.h"
 
+void ForceInterruptPlayerAnimation(EPlayer* Player);
+
+/* ==========================================
+ *	PlayerState (Enum)
+ * ========================================== */
 enum class NPlayerState: uint32_t
 {
 	// Floor based states
@@ -25,6 +28,9 @@ enum class NPlayerState: uint32_t
 	Vaulting = 401,
 };
 
+/* ==========================================
+ *	PlayerStateChangeArgs
+ * ========================================== */
 struct RPlayerStateChangeArgs
 {
 	// collision
@@ -46,6 +52,9 @@ struct RPlayerStateChangeArgs
 		VaultingData() {}
 };
 
+/* ==========================================
+ *	PlayerAnimationState
+ * ========================================== */
 enum class RPlayerAnimationState
 {
 	NoAnimation,
@@ -55,22 +64,30 @@ enum class RPlayerAnimationState
 	Vaulting
 };
 
-void ForceInterruptPlayerAnimation(EPlayer* Player);
-
-
+/* ==========================================
+ *	Player
+ * ========================================== */
 struct EntityType(EPlayer)
 {
 	Reflected()
-	DeclSingleton(EPlayer)
-	// geometry
+
+	friend struct GlobalSceneInfo;
+	
+/* ==========================================
+ *	Capsule Geometry
+ * ========================================== */
 	float Radius = 0.2f;
 	float Height = 1.75f;
 
-	// movement variables
+/* ==========================================
+ *	Movement
+ * ========================================== */
 	vec3 VDir = vec3(0.f);                            // intended movement direction
 	vec3 LastRecordedMovementDirection = vec3(0.f); // last non zero movement direction
 
-	// movement constants
+/* ==========================================
+ *	Constants
+ * ========================================== */
 	static const float Acceleration;
 	static const float RunSpeed;
 	static const float DashSpeed;
@@ -92,7 +109,9 @@ struct EntityType(EPlayer)
 	// other constants
 	static constexpr float SlopeMinAngle = 0.4;
 
-	// movement states
+/* ==========================================
+ *	Movement states
+ * ========================================== */
 	// TODO: Turn into flags
 	bool bDashing = false;
 	bool bWalking = false;
@@ -124,16 +143,22 @@ struct EntityType(EPlayer)
 
 	vec3 Orientation;
 
-	// gameplay system variables
+/* ==========================================
+ *	Random Gameplay Systems Data
+ * ========================================== */
 	vec3 LastTerrainContactNormal = vec3(0, 1.f, 0);
 	EEntity* GrabbingEntity = nullptr;
 	float GrabReach = 0.9; // radius + arms reach, 0.5 + 0.4  
 
-	// sliding
+/* ==========================================
+ *	Sliding
+ * ========================================== */
 	vec3 SlidingDirection = vec3(0);
 	vec3 SlidingNormal = vec3(0);
 
-	// health and hurting
+/* ==========================================
+ *	Health
+ * ========================================== */
 	int InitialLives = 2;
 	int Lives = 2;
 	float HurtHeight1 = 5.0;
@@ -141,11 +166,15 @@ struct EntityType(EPlayer)
 	float HeightBeforeFall;
 	float FallHeightLog = 0; // set when checking for fall, read-only!
 
-	// checkpoints
+/* ==========================================
+ *	Checkpoints
+ * ========================================== */
 	EEntity* Checkpoint = nullptr;
 	vec3 CheckpointPos;
 
-	// animation
+/* ==========================================
+ *	Animation
+ * ========================================== */
 	float AnimT = 0;                                                      // animation timer
 	RPlayerAnimationState AnimState = RPlayerAnimationState::NoAnimation; // animation state
 	vec3 AnimFinalPos = vec3(0);                                         // final position after translation animation
@@ -154,7 +183,15 @@ struct EntityType(EPlayer)
 	vec3 AnimOrigDir = vec3(0);                                          // original player orientation
 	bool AnimFinishedTurning = false;                                    // player has finished turning his camera
 
-	// Methods
+/* ==========================================
+ *	Methods
+ * ========================================== */
+	static EPlayer* Get()
+	{
+		static auto* Instance = new EPlayer;
+		return Instance;
+	}
+	
 	void Update();
 	void UpdateState();
 	vec3 GetFeetPosition() const { return Position; }
@@ -192,9 +229,7 @@ struct EntityType(EPlayer)
 	void ChangeStateTo(NPlayerState NewState, RPlayerStateChangeArgs Args = {});
 
 private:
-	friend struct GlobalSceneInfo;
+	static EPlayer* ResetPlayer();
 
 	void UpdateAirMovement(float Dt);
-
-	static EPlayer* ResetPlayer();
 };

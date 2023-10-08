@@ -3,6 +3,7 @@
 #include "engine/core/core.h"
 #include "engine/collision/CollisionMesh.h"
 #include "engine/collision/primitives/BoundingBox.h"
+#include "Engine/Entities/Traits/EntityTraits.h"
 #include "engine/geometry/mesh.h"
 
 constexpr static uint MaxEntityWorldChunks = 20;
@@ -24,67 +25,80 @@ struct VisitorState
 	vec3 ChunkPosition = vec3(0.f);
 	RWorldChunk* ChunkPtr = nullptr;
 
-	void Reset() { new(this) VisitorState(); }
+	void Reset() { new(this) VisitorState; }
 };
 
-/**  ---------------------------------------------------------------------
-/*		EEntity: Basic Entity type which all entities inherit from.
-/*			Represents a rendereable and collidable basic entity.
-/**  --------------------------------------------------------------------- */
-struct EEntity
+/*  =====================================================================
+ *		EEntity: Basic Entity type which all entities inherit from.
+ *			Represents a rendereable and collidable basic entity.
+ *  ===================================================================== */
+struct BaseEntityType(EEntity)
 {
-	// Basic data needed for lower level systems to recognize an Entity type.
-	TypeID TypeID;
-	uint64 ID = 0;
-	string Name;
+	Reflected()
 
-protected:
 	friend RWorldChunk;
-	bool Deleted = false;
 
-	// Renderable, Collidable Entity API Begin:
 public:
+/* ======================================================================
+ * Basic data needed for lower level systems to recognize an Entity type.
+ * ====================================================================== */
+	RTypeID TypeID = 0;
+	uint64 ID = 0;
+	string Name = "NoName";
+
+/* =================
+ *	Entity flags
+ * ================= */	
 	Flags Flags = 0;
 
-	VisitorState VisitorState;
-
-	/** Simulation data */
-	vec3 Position = vec3(0.0f);
-	vec3 Rotation = vec3(0.0f);
-	vec3 Scale = vec3(1.0f);
-	vec3 Velocity = vec3(0.0f);
+/* =================
+ *	Simulation Data
+ * ================= */
+	Field(vec3, Position) = vec3(0.0f);
+	Field(vec3, Rotation) = vec3(0.0f);
+	Field(vec3, Scale) = vec3(1.0f);
+	Field(vec3, Velocity) = vec3(0.0f);
 	//glm::quat quaternion{};
 
-	/** Render data */
+/* =================
+ *	Render Data
+ * ================= */
 	RShader* Shader = nullptr;
 	RMesh* Mesh = nullptr;
-	vector<RTexture> Textures;
+	vector<RTexture> Textures{};
 	mat4 MatModel = Mat4Identity;
-
-	// tmp? should probably be part of a texture data struct
-	int UvTileWrap[6] = {1, 1, 1, 1, 1, 1};
-
+	
 	//@TODO: Get rid of collider (and include)
-	RCollisionMesh* CollisionMesh = nullptr; // static collision mesh vertex data
-	RCollisionMesh Collider{};                // dynamic collision mesh, obtained by multiplying static collision mesh with model matrix
-	RBoundingBox BoundingBox{};              // computed using the collider mesh, used for fast first pass collision tests
+	RCollisionMesh* CollisionMesh = nullptr;	// static collision mesh vertex data
+	RCollisionMesh Collider{};					// dynamic collision mesh, obtained by multiplying static collision mesh with model matrix
+	RBoundingBox BoundingBox{};					// computed using the collider mesh, used for fast first pass collision tests
 
-	// collider settings
-	bool Slidable = false;
+/* =================
+ *	TODO: Temp, Move
+ * ================= */
+	int UvTileWrap[6] = {1, 1, 1, 1, 1, 1};		// should probably be part of a texture data struct
+	bool Slidable = false;						// collider settings
 
-	/** World data */
+/* =================
+ *	World Data
+ * ================= */
 	// Array<WorldCell*, MaxEntityWorldCells> world_cells{};
-	vector<RWorldChunk*> WorldChunks;
+	vector<RWorldChunk*> WorldChunks{};
 	int WorldChunksCount = 0;
+	VisitorState VisitorState;
 
-	/** Event trigger */
+/* ===================
+ *	Event Trigger Data
+ * =================== */
 	// TODO: Will only be necessary on I_Interactable
 	RMesh* Trigger = nullptr;
 	vec3 TriggerScale = vec3(1.5f, 1.f, 0.f);
 	vec3 TriggerPos = vec3(0.0f);
 	mat4 TriggerMatModel{};
-
-public:
+	
+/* =================
+ *	Methods
+ * ================= */
 	void Update();
 	void UpdateCollider();
 	void UpdateModelMatrix();
@@ -98,4 +112,12 @@ public:
 
 	void MakeInvisible();
 	void MakeVisible();
+
+protected:
+	bool Deleted = false;
+
+	// You shouldn't instantiate an EEntity directly. For a basic entity type, use EStaticMesh.
+	EEntity() = default;
+
+	void SetTypeID(RTypeID ID) { TypeID = ID; }
 };

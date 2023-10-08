@@ -42,5 +42,3 @@ RavenousEngine::RFrameData& RavenousEngine::GetFrame()
 {
 	return REngineRuntimeState::Get()->Frame;
 }
-
-RavenousEngine::REngineRuntimeState::REngineRuntimeState() = default;

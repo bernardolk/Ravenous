@@ -33,8 +33,6 @@ const float EPlayer::SlideSpeed = 2.0f;
 const float EPlayer::FallFromEdgePushSpeed = 1.5f;
 const vec3 EPlayer::Gravity = vec3(0, -18.0, 0);
 
-EPlayer::EPlayer() = default;
-
 void EPlayer::Update()
 {
 	static_cast<EEntity*>(this)->Update();
@@ -603,7 +601,7 @@ void EPlayer::BruteStop()
 EPlayer* EPlayer::ResetPlayer()
 {
 	auto* Player = Get();
-	*Player = EPlayer{};
+	new (Player) EPlayer;
 	return Player;
 }
 

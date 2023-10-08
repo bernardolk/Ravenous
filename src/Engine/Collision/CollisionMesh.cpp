@@ -3,7 +3,6 @@
 #include "Engine/Collision/Primitives/BoundingBox.h"
 #include "Engine/Collision/CollisionMesh.h"
 
-
 RBoundingBox RCollisionMesh::ComputeBoundingBox()
 {
 	// This returns a bounding box that contains the mesh
