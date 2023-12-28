@@ -1,0 +1,8 @@
+Four : EStaticMesh
+ID: RUUID = "00000-00000-00000-00004"
+Position: vec3 = -1.035000 -15.100000 11.704000
+Rotation: vec3 = 0.000000 0.000000 0.000000
+Scale: vec3 = 1.000000 2.550000 1.000000
+Mesh: RMesh* = "aabb"
+CollisionMesh : RCollisionMesh* = "aabb"
+Shader: RShader* = "model"

@@ -289,7 +289,7 @@ RImDrawSlot RImDraw::FindElementOrEmptySlot(uint Hash)
 	}
 
 	if (Slot == -1)
-		print("IM RENDER BUFFER IS FULL");
+		Log("IM RENDER BUFFER IS FULL");
 
 	return RImDrawSlot{true, Slot};
 }

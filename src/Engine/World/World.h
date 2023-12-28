@@ -3,14 +3,13 @@
 #include "WorldChunk.h"
 #include "engine/collision/raycast.h"
 #include "engine/core/core.h"
-#include "engine/entities/Entity.h"
-#include "engine/utils/utils.h"
+#include "Engine/Core/UUIDGenerator.h"
 
 namespace RavenousEngine
 {
 	struct RFrameData;
 }
-struct EEntity;
+
 struct RWorldChunkPosition WorldCoordsToCells(float X, float Y, float Z);
 vec3 GetWorldCoordinatesFromWorldCellCoordinates(int i, int j, int k);
 
@@ -33,6 +32,8 @@ struct CellUpdate
 
 struct RWorld
 {
+	friend WorldEntityIterator;
+	
 	static RWorld* Get()
 	{
 		static RWorld Instance{};
@@ -83,6 +84,11 @@ struct RWorld
 
 private:
 	RWorld();
+
+	// This was introduced so that we can go back to the saner vector list of entities approach.
+	// Cranking out space partitioning and generic entity storage solutions was premature optimization and it severely hurts debugging since entities are reduced to bytes in a memory arena.
+	vector<EEntity*> EntityList{};
+	
 	void UpdateTraits();
 	void UpdateTransforms();
 };
@@ -91,6 +97,10 @@ struct WorldEntityIterator
 {
 	uint8 TotalActiveChunks = 0;
 	uint8 CurrentChunkIndex = 0;
+
+	// This was introduced so that we can go back to the saner vector list of entities approach.
+	// Cranking out space partitioning and generic entity storage solutions was premature optimization and it severely hurts debugging since entities are reduced to bytes in a memory arena.
+	uint EntityVectorIndex = 0;
 
 	RWorld* World;
 	RWorldChunkEntityIterator ChunkIterator;
@@ -109,12 +119,40 @@ void SetEntityAssets(EEntity* Entity, struct REntityAttributes Attrs);
 template<typename TEntity>
 TEntity* RWorld::SpawnEntity()
 {
+	// This was introduced so that we can go back to the saner vector list of entities approach.
+	// Cranking out space partitioning and generic entity storage solutions was premature optimization and it severely hurts debugging since entities are reduced to bytes in a memory arena.
+	if (auto* NewEntity = new TEntity)
+	{
+		NewEntity->ID = RUUIDGenerator::GetNewRUUID();
+		EntityList.push_back(NewEntity);
+		return NewEntity;
+	}
+	
+	return nullptr;
+	
+#if 0
 	auto* FirstChunkAvailable = ChunksMap.begin()->second;
 	if (!FirstChunkAvailable)
 		return nullptr;
 
-	return FirstChunkAvailable->AddEntity<TEntity>();
+	TEntity* NewEntity = FirstChunkAvailable->AddEntity<TEntity>();
+	NewEntity->ID = RUUIDGenerator::GetNewRUUID();
+	
+	return NewEntity;
+#endif
 }
+
+/* =======================================
+/* EEntity Specialization
+/* ======================================= */
+// EEntity is an abstract type, it does not contain budget or traits info and shouldn't
+// be directly spanwed. EStaticMesh is the correct basic entity type.
+template<>
+inline EEntity* RWorld::SpawnEntity<EEntity>()
+{
+	return nullptr;
+}
+
 
 template<typename TEntity>
 TEntity* RWorld::SpawnEntityAtPosition(vec3 Position)

@@ -2,6 +2,11 @@
 #include "Engine/Core/Core.h"
 #include <fstream>
 
+static constexpr uint StrBufferSize = 3000;
+static constexpr uint NameStringBufferSize = 300;
+static constexpr uint TokenStringBufferSize = 300;
+static constexpr uint LineStringBufferSize = 3000;
+
 struct ParseUnit
 {
 	string String;
@@ -9,7 +14,7 @@ struct ParseUnit
 	uint8 HasToken = 0;
 	union
 	{
-		char StringBuffer[50]{};
+		char StringBuffer[StrBufferSize]{};
 		int IToken;
 		float FToken;
 		char CToken;
@@ -33,18 +38,26 @@ struct Parser
 	string Filepath;
 	ParseUnit P{};
 
+	bool bReaderSet = false;
+
 	explicit Parser(const string& Filepath)
 	{
 		this->Filepath = Filepath;
 		this->Reader = std::ifstream(Filepath);
 		if (!this->Reader.is_open())
-			fatal_error("Couldn't open file '%s', path NOT FOUND", Filepath.c_str());
+			FatalError("Couldn't open file '%s', path NOT FOUND", Filepath.c_str());
+
+		bReaderSet = true;
 	}
 
 	Parser(const string& TextBuffer, const int BufferSize)
 	{
 		this->P.String = TextBuffer.c_str();
 		this->P.Size = BufferSize;
+
+		if (StrBufferSize < BufferSize) {
+			FatalError("Incoming string is greater than reserved buffer for Parsers.")
+		}
 	}
 
 	bool NextLine();
@@ -56,26 +69,30 @@ struct Parser
 	void ParseName();
 	void ParseTokenChar();
 	void ParseToken();
+	void ParseChar();
 	void ParseInt();
 	void ParseUint();
 	void ParseU64();
 	void ParseFloat();
 	void ParseVec3();
 	void ParseVec2();
+	void ParseNewLine();
+	void ParseLine();
+	void ParseQuote();
+	void ParseFieldValueToken();
+	void ParseFieldTypeToken();
 
 	void ClearParseBuffer();
 	bool HasToken() const;
 
 	constexpr static uint TenPowers[10]
 	{
-		1, 10, 100, 1000, 10000,
-		100000, 1000000, 10000000, 100000000, 1000000000
+		1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000
 	};
 
 	constexpr static float TenInversePowers[10]
 	{
-		0.1f, 0.01f, 0.001f, 0.0001f, 0.00001f,
-		0.000001f, 0.0000001f, 0.00000001f, 0.000000001f, 0.0000000001f
+		0.1f, 0.01f, 0.001f, 0.0001f, 0.00001f, 0.000001f, 0.0000001f, 0.00000001f, 0.000000001f, 0.0000000001f
 	};
 };
 
@@ -95,7 +112,7 @@ template<>
 inline glm::vec3 GetParsed(Parser& Parser)
 {
 	if (Parser.P.HasToken == 0)
-		fatal_error("FATAL: Parse has no vec3 value to be retrieved. Check line being parsed.");
+		FatalError("FATAL: Parse has no vec3 value to be retrieved. Check line being parsed.");
 
 	return glm::vec3{Parser.P.Vec3[0], Parser.P.Vec3[1], Parser.P.Vec3[2]};
 }
@@ -104,7 +121,7 @@ template<>
 inline glm::vec2 GetParsed(Parser& Parser)
 {
 	if (Parser.P.HasToken == 0)
-		fatal_error("FATAL: Parse has no vec3 value to be retrieved. Check line being parsed.");
+		FatalError("FATAL: Parse has no vec3 value to be retrieved. Check line being parsed.");
 
 	return glm::vec2{Parser.P.Vec2[0], Parser.P.Vec2[1]};
 }

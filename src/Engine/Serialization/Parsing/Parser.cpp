@@ -6,6 +6,9 @@
 
 bool Parser::NextLine()
 {
+	if (!bReaderSet)
+		FatalError("Cant use NextLine on a Parser that is not associated with an input filestream");
+	
 	if (getline(Reader, P.String))
 	{
 		P.Size = P.String.size();
@@ -62,7 +65,7 @@ void Parser::ParseSymbol()
 	ClearParseBuffer();
 
 	const auto Char = P.String[0];
-	if (isgraph(Char) && !isalnum(Char) && Char != ' ')
+	if (isgraph(Char) && !isalnum(Char) && Char != ' ' && Char != '\0')
 	{
 		P.CToken = Char;
 		P.AdvanceChar();
@@ -89,7 +92,7 @@ void Parser::ParseName()
 	// Names consists of alphanumeric or space chars
 	ClearParseBuffer();
 
-	char StringBuffer[50];
+	char StringBuffer[NameStringBufferSize];
 	uint BufferSize = 0;
 	do
 	{
@@ -99,8 +102,9 @@ void Parser::ParseName()
 	} while (P.HasToken);
 
 	StringBuffer[BufferSize] = '\0';
-	if (BufferSize > 0)
+	if (BufferSize > 0) {
 		P.HasToken = 1;
+	}
 	strcpy_s(P.StringBuffer, &StringBuffer[0]);
 }
 
@@ -118,12 +122,26 @@ void Parser::ParseTokenChar()
 	}
 }
 
+void Parser::ParseQuote()
+{
+	// parses chars for tokens (without spaces)
+	ClearParseBuffer();
+
+	const auto Char = P.String[0];
+	if (Char == '\"')
+	{
+		P.CToken = P.String[0];
+		P.AdvanceChar();
+		P.HasToken = 1;
+	}
+}
+
 void Parser::ParseToken()
 {
 	// Tokens consists of alphanumeric or '_' or '.' chars
 	ClearParseBuffer();
 
-	char StringBuffer[50];
+	char StringBuffer[TokenStringBufferSize];
 	uint BufferSize = 0;
 	do
 	{
@@ -132,10 +150,98 @@ void Parser::ParseToken()
 			StringBuffer[BufferSize++] = P.CToken;
 	} while (P.HasToken);
 
+	// Set terminating character at last position
 	StringBuffer[BufferSize] = '\0';
-	if (BufferSize > 0)
+
+	if (BufferSize > 0) {
 		P.HasToken = 1;
+	}
+
+	//@TODO @safety: Can this overflow ?
 	strcpy_s(P.StringBuffer, &StringBuffer[0]);
+}
+
+void Parser::ParseFieldValueToken()
+{
+	ClearParseBuffer();
+
+	char StringBuffer[TokenStringBufferSize];
+	uint BufferSize = 0;
+	do
+	{
+		ClearParseBuffer();
+
+		const auto Char = P.String[0];
+		if (isalnum(Char) || Char == '_' || Char == '.' || Char == '-' || Char == ' ')
+		{
+			P.CToken = P.String[0];
+			P.AdvanceChar();
+			P.HasToken = 1;
+		}
+		
+		if (P.HasToken) {
+			StringBuffer[BufferSize++] = P.CToken;
+		}
+	
+	} while (P.HasToken);
+
+	// Set terminating character at last position
+	StringBuffer[BufferSize] = '\0';
+
+	if (BufferSize > 0) {
+		P.HasToken = 1;
+	}
+
+	//@TODO @safety: Can this overflow ?
+	strcpy_s(P.StringBuffer, &StringBuffer[0]);
+}
+
+void Parser::ParseFieldTypeToken()
+{
+	ClearParseBuffer();
+
+	char StringBuffer[TokenStringBufferSize];
+	uint BufferSize = 0;
+	do
+	{
+		ClearParseBuffer();
+
+		const auto Char = P.String[0];
+		if (isalnum(Char) || Char == '_' || Char == '*')
+		{
+			P.CToken = P.String[0];
+			P.AdvanceChar();
+			P.HasToken = 1;
+		}
+		
+		if (P.HasToken) {
+			StringBuffer[BufferSize++] = P.CToken;
+		}
+	
+	} while (P.HasToken);
+
+	// Set terminating character at last position
+	StringBuffer[BufferSize] = '\0';
+
+	if (BufferSize > 0) {
+		P.HasToken = 1;
+	}
+
+	//@TODO @safety: Can this overflow ?
+	strcpy_s(P.StringBuffer, &StringBuffer[0]);
+}
+
+void Parser::ParseChar()
+{
+	ClearParseBuffer();
+
+	const auto Char = P.String[0];
+	if (Char != '\0')
+	{
+		P.CToken = P.String[0];
+		P.AdvanceChar();
+		P.HasToken = 1;
+	}
 }
 
 void Parser::ParseInt()
@@ -181,8 +287,9 @@ void Parser::ParseUint()
 			P.AdvanceChar();
 		} while (isdigit(P.String[0]));
 
-		for (int i = 0; i < Count; i++)
+		for (int i = 0; i < Count; i++) {
 			P.UiToken += (IntBuf[Count - (1 + i)] - '0') * TenPowers[i];
+		}
 
 		P.HasToken = 1;
 	}
@@ -202,8 +309,9 @@ void Parser::ParseU64()
 			P.AdvanceChar();
 		} while (isdigit(P.String[0]) && Count < 15);
 
-		for (int i = 0; i < Count; i++)
+		for (int i = 0; i < Count; i++) {
 			P.U64Token += (IntBuf[Count - (1 + i)] - '0') * TenPowers[i];
+		}
 
 		P.HasToken = 1;
 	}
@@ -298,6 +406,45 @@ void Parser::ParseVec2()
 
 	P.Vec2[0] = U;
 	P.Vec2[1] = V;
+}
+
+void Parser::ParseNewLine()
+{
+	ClearParseBuffer();
+
+	if (P.String[0] == '\n')
+	{
+		P.CToken = '\n';
+		P.AdvanceChar();
+		P.HasToken = 1;
+	}
+}
+
+void Parser::ParseLine()
+{
+	ClearParseBuffer();
+
+	char StringBuffer[LineStringBufferSize];
+	uint BufferSize = 0;
+	
+	while (true)
+	{
+		ParseChar();
+		if (!P.HasToken || P.CToken == '\n') 
+			break;
+		
+		StringBuffer[BufferSize++] = P.CToken;
+	}
+
+	// Set terminating character at last position
+	StringBuffer[BufferSize] = '\0';
+
+	if (BufferSize > 0) {
+		P.HasToken = 1;
+	}
+
+	//@TODO @safety: Can this overflow ?
+	strcpy_s(P.StringBuffer, &StringBuffer[0]);
 }
 
 void Parser::ClearParseBuffer()

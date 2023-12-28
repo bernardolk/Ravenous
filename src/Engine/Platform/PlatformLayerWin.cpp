@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <stack>
 #include "GlWindow.h"
+#include <chrono>
 
 bool WinListFiles(string Path, string Mask, vector<string>& Files)
 {
@@ -63,4 +64,14 @@ void WinPlatformInitialize()
 float WinGetCurrentTime()
 {
 	return glfwGetTime();
+}
+
+int WinGetCurrentSeconds()
+{
+	return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+}
+
+int WinGetCurrentMicroseconds()
+{
+	return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 }

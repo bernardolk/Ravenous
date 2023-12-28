@@ -36,6 +36,7 @@ using Flags = uint;
 
 using RTypeID = uint;
 using RTraitID = uint;
+using RUUID = uint64;
 
 inline const vec3 UnitX = vec3(1, 0, 0);
 inline const vec3 UnitY = vec3(0, 1, 0);
@@ -135,8 +136,8 @@ struct TIterator
 	};
 };
 
-template<typename T_Key, typename T_Val>
-T_Val* Find(map<T_Key, T_Val>& Map, T_Key Key)
+template<typename TKey, typename TVal>
+TVal* Find(map<TKey, TVal>& Map, TKey& Key)
 {
 	auto Find = Map.find(Key);
 	if (Find == Map.end())
@@ -145,8 +146,38 @@ T_Val* Find(map<T_Key, T_Val>& Map, T_Key Key)
 	return &Find->second;
 }
 
-template<typename T_Key, typename T_Val>
-const T_Val* Find(const map<T_Key, T_Val>& Map, T_Key Key)
+template<typename TKey, typename TVal>
+TVal* Find(map<TKey, TVal>& Map, const TKey&& Key)
+{
+	auto Find = Map.find(Key);
+	if (Find == Map.end())
+		return nullptr;
+
+	return &Find->second;
+}
+
+template<typename TVal>
+TVal* Find(map<string, TVal>& Map, const char* Key)
+{
+	auto Find = Map.find(Key);
+	if (Find == Map.end())
+		return nullptr;
+
+	return &Find->second;
+}
+
+template<typename TVal>
+TVal* Find(map<string, TVal>& Map, const string& Key)
+{
+	auto Find = Map.find(Key);
+	if (Find == Map.end())
+		return nullptr;
+
+	return &Find->second;
+}
+
+template<typename TKey, typename TVal>
+const TVal* Find(const map<TKey, TVal>& Map, TKey& Key)
 {
 	auto Find = Map.find(Key);
 	if (Find == Map.end())

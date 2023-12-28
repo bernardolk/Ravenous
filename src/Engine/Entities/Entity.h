@@ -34,7 +34,7 @@ struct VisitorState
  *  ===================================================================== */
 struct BaseEntityType(EEntity)
 {
-	Reflected()
+	Reflected_BaseEEntity(EEntity)
 
 	friend RWorldChunk;
 
@@ -43,9 +43,9 @@ public:
  * Basic data needed for lower level systems to recognize an Entity type.
  * ====================================================================== */
 	RTypeID TypeID = 0;
-	uint64 ID = 0;
+	Field(RUUID, ID) = 0;
 	string Name = "NoName";
-
+	
 /* =================
  *	Entity flags
  * ================= */	
@@ -57,21 +57,21 @@ public:
 	Field(vec3, Position) = vec3(0.0f);
 	Field(vec3, Rotation) = vec3(0.0f);
 	Field(vec3, Scale) = vec3(1.0f);
-	Field(vec3, Velocity) = vec3(0.0f);
+	vec3 Velocity = vec3(0.0f);
 	//glm::quat quaternion{};
 
 /* =================
  *	Render Data
  * ================= */
-	RShader* Shader = nullptr;
-	RMesh* Mesh = nullptr;
+	Field(RMesh*, Mesh) = nullptr;
+	Field(RShader*, Shader) = nullptr;
 	vector<RTexture> Textures{};
 	mat4 MatModel = Mat4Identity;
 	
 	//@TODO: Get rid of collider (and include)
-	RCollisionMesh* CollisionMesh = nullptr;	// static collision mesh vertex data
-	RCollisionMesh Collider{};					// dynamic collision mesh, obtained by multiplying static collision mesh with model matrix
-	RBoundingBox BoundingBox{};					// computed using the collider mesh, used for fast first pass collision tests
+	Field(RCollisionMesh*, CollisionMesh) = nullptr;	// static collision mesh vertex data
+	RCollisionMesh Collider{};							// dynamic collision mesh, obtained by multiplying static collision mesh with model matrix
+	RBoundingBox BoundingBox{};							// computed using the collider mesh, used for fast first pass collision tests
 
 /* =================
  *	TODO: Temp, Move

@@ -19,7 +19,7 @@ void EntitySerializer::Parse(Parser& Parse)
 	auto* World = RWorld::Get();
 	auto* NewEntityPtr = World->SpawnEntity<EStaticMesh>();
 	if (!NewEntityPtr)
-		fatal_error("Couldnt create entity.")
+		FatalError("Couldnt create entity.")
 
 	auto& NewEntity = *NewEntityPtr;
 
@@ -57,7 +57,7 @@ void EntitySerializer::Parse(Parser& Parse)
 			const auto Scale = GetParsed<glm::vec3>(Parse);
 
 			if (Scale.x < 0 || Scale.y < 0 || Scale.z < 0)
-			                 fatal_error("FATAL: ENTITY SCALE PROPERTY CANNOT BE NEGATIVE. AT '%s' LINE NUMBER %i", Parse.Filepath.c_str(), Parse.LineCount);
+			                 FatalError("FATAL: ENTITY SCALE PROPERTY CANNOT BE NEGATIVE. AT '%s' LINE NUMBER %i", Parse.Filepath.c_str(), Parse.LineCount);
 
 				NewEntity.Scale = Scale;
 		}
@@ -79,7 +79,7 @@ void EntitySerializer::Parse(Parser& Parse)
 						Parse.ParseAllWhitespace();
 						Parse.ParseInt();
 						if (!Parse.HasToken())
-							fatal_error("Scene description contain an entity with box tiled shader without full tile quantity description.");
+							FatalError("Scene description contain an entity with box tiled shader without full tile quantity description.");
 
 						NewEntity.UvTileWrap[i] = GetParsed<int>(Parse);
 					}
@@ -87,7 +87,7 @@ void EntitySerializer::Parse(Parser& Parse)
 				NewEntity.Shader = Find->second;
 			}
 			else
-				fatal_error("SHADER '%s' NOT FOUND WHILE LOADING SCENE DESCRIPTION FILE.", ShaderName.c_str());
+				FatalError("SHADER '%s' NOT FOUND WHILE LOADING SCENE DESCRIPTION FILE.", ShaderName.c_str());
 		}
 
 		else if (Property == "mesh")
@@ -106,8 +106,9 @@ void EntitySerializer::Parse(Parser& Parse)
 			auto FindCMesh = CollisionGeometryCatalogue.find(ModelName);
 			if (FindCMesh != CollisionGeometryCatalogue.end())
 				NewEntity.CollisionMesh = FindCMesh->second;
-			else
+			else {
 				NewEntity.CollisionMesh = LoadWavefrontObjAsCollisionMesh(Paths::Models, ModelName);
+			}
 
 			NewEntity.Collider = *NewEntity.CollisionMesh;
 		}
@@ -121,12 +122,12 @@ void EntitySerializer::Parse(Parser& Parse)
 			// > texture definition error handling
 			// >> check for missing info
 			if (TextureName.empty())
-				fatal_error("Fatal: Texture for entity '%s' is missing name.", NewEntity.Name.c_str())
+				FatalError("Fatal: Texture for entity '%s' is missing name.", NewEntity.Name.c_str())
 
 			// fetches texture in catalogue
 			auto Texture = TextureCatalogue.find(TextureName);
 			if (Texture == TextureCatalogue.end())
-				fatal_error("Fatal: %s was not found (not pre-loaded) inside Texture Catalogue.", TextureName.c_str())
+				FatalError("Fatal: %s was not found (not pre-loaded) inside Texture Catalogue.", TextureName.c_str())
 
 			NewEntity.Textures.clear();
 			NewEntity.Textures.push_back(Texture->second);

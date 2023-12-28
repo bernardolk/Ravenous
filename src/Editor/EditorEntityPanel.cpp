@@ -8,6 +8,7 @@
 #include "engine/io/display.h"
 #include "engine/render/Shader.h"
 #include "engine/world/World.h"
+#include "Engine/Entities/Entity.h"
 
 namespace Editor
 {

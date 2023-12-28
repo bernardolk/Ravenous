@@ -9,3 +9,7 @@ bool WinListFiles(string Path, string Mask, vector<string>& Files);
 void WinPlatformInitialize();
 
 float WinGetCurrentTime();
+
+int WinGetCurrentSeconds();
+
+int WinGetCurrentMicroseconds();

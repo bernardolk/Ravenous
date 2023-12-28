@@ -1,5 +1,6 @@
 #include "game/entities/EPlayer.h"
 
+#include "engine/catalogues.h"
 #include "engine/rvn.h"
 #include "engine/camera/camera.h"
 #include "engine/collision/ClController.h"
@@ -490,7 +491,7 @@ void EPlayer::ChangeStateTo(NPlayerState NewState, RPlayerStateChangeArgs Args)
 														}
 
 														else
-															fatal_error("There is no link to change Player State from %i to %i.", PlayerState, NewState);
+															FatalError("There is no link to change Player State from %i to %i.", PlayerState, NewState);
 }
 
 vec3 EPlayer::MoveForward()
@@ -602,7 +603,22 @@ EPlayer* EPlayer::ResetPlayer()
 {
 	auto* Player = Get();
 	new (Player) EPlayer;
+	Initialize(Player);
 	return Player;
+}
+
+void EPlayer::Initialize(EPlayer* Player)
+{
+	// Set player's assets
+	REntityAttributes Attrs;
+	Attrs.Name = "Player";
+	Attrs.Mesh = "capsule";
+	Attrs.Shader = "model";
+	Attrs.Texture = "pink";
+	Attrs.CollisionMesh = "capsule";
+	Attrs.Scale = vec3(1);
+
+	SetEntityAssets(Player, Attrs);
 }
 
 float EPlayer::GetSpeedLimit() const

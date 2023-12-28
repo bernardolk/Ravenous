@@ -21,6 +21,11 @@ void EEntity::UpdateCollider()
 	// // empty collider
 	// collider.vertices.clear();
 
+	if (Collider.Vertices.size() == 0)
+	{
+		Collider = *CollisionMesh;
+	}
+
 	// multiplies model matrix to collision mesh
 	for (int i = 0; i < CollisionMesh->Vertices.size(); i++)
 	{

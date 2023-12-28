@@ -1,6 +1,7 @@
 #include "editor/console/console.h"
 #include "engine/camera/camera.h"
 #include "editor/EditorState.h"
+#include "Editor/Reflection/Serialization.h"
 #include "engine/rvn.h"
 #include "engine/io/display.h"
 #include "engine/io/input.h"
@@ -262,8 +263,6 @@ void ExecuteCommand(const string& BufferLine, EPlayer* & Player, RWorld* World, 
 			ProgramConfig.InitialScene = RWorld::Get()->SceneName;
 			ConfigSerializer::Save(ProgramConfig);
 		}
-		else
-			print("you can set 'scene' or 'all'. dude. %s  won't work.", Command.c_str());
 	}
 
 	// -----------------
@@ -312,11 +311,16 @@ void ExecuteCommand(const string& BufferLine, EPlayer* & Player, RWorld* World, 
 			P.ParseVec3();
 			Camera->Position = GetParsed<vec3>(P);
 		}
-		else
-			print("you can move cam only at the moment dude. I don't know what %s %s means man.", Command.c_str(), Argument.c_str());
 	}
-	else
-		print("what do you mean with %s man?\n", Command.c_str());
+
+	else if (Command == "testsave")
+	{
+		Serialization::SaveWorldToDisk();
+	}
+	
+	else {
+		Log("Console command not understood: \"%s\"\n", Command.c_str());
+	}
 }
 
 void HandleConsoleInput(RInputFlags Flags, EPlayer* & Player, RWorld* World, RCamera* Camera)

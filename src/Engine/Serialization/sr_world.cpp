@@ -9,7 +9,6 @@
 #include "sr_player.h"
 #include "engine/catalogues.h"
 #include "engine/camera/camera.h"
-#include "engine/core/logging.h"
 #include "engine/rvn.h"
 #include "engine/collision/ClController.h"
 #include "engine/world/World.h"
@@ -100,7 +99,7 @@ bool WorldSerializer::LoadFromFile(const string& Filename)
 		}
 
 		if (DeferredEntity == nullptr)
-			fatal_error("Entity with id '%llu' not found to stablish a defined entity relationship.", DeferredEntityId);
+			FatalError("Entity with id '%llu' not found to stablish a defined entity relationship.", DeferredEntityId);
 	}
 
 	// clear static relations buffer
@@ -126,7 +125,7 @@ bool WorldSerializer::SaveToFile(const string& NewFilename, const bool DoCopy = 
 
 		if (DoCopy)
 		{
-			print("please provide a name for the copy.");
+			Log("please provide a name for the copy.");
 			return false;
 		}
 	}
@@ -136,7 +135,7 @@ bool WorldSerializer::SaveToFile(const string& NewFilename, const bool DoCopy = 
 
 	if (!Writer.is_open())
 	{
-		print("Saving scene failed.");
+		Log("Saving scene failed.");
 		return false;
 	}
 
@@ -188,15 +187,18 @@ bool WorldSerializer::SaveToFile(const string& NewFilename, const bool DoCopy = 
 
 	if (DoCopy)
 	{
-		Log(LOG_INFO, "Scene copy saved successfully as '" + Filename + ".txt'");
+		string Message = "Scene copy saved as '" + Filename + ".txt'";
+		Rvn::Print(Message);
 	}
 	else if (!NewFilename.empty())
 	{
-		Log(LOG_INFO, "Scene saved successfully as '" + Filename + ".txt' (now editing it)");
+		string Message = "Scene saved as '" + Filename + ".txt' (now editing it!)";
+		Rvn::Print(Message);
 		RWorld::Get()->SceneName = Filename;
 	}
-	else
-		Log(LOG_INFO, "Scene saved successfully.");
+	else {
+		Rvn::Print("Scene saved successfully.");
+	}
 
 	return true;
 }

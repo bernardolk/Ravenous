@@ -79,7 +79,7 @@ bool CheckShaderCompileErrors(RShader* Shader, string Type, unsigned int Id)
 		if (!Success)
 		{
 			glGetShaderInfoLog(Id, 1024, nullptr, InfoLog);
-			print("ERROR::SHADER_COMPILATION_ERROR: '%s' SHADER AT PROGRAM '%s': Vertex Shader -> '%s' Fragment Shader -> %s\n DETAILS: \n %s  \n-- --------------------------------------------------- -- ", Type.c_str(), Shader->Name.c_str(), Shader->VertexPath.c_str(), Shader->FragmentPath.c_str(), InfoLog)
+			Log("ERROR ShaderProgramCompilation: '%s' Shader @ Program '%s': Vertex Shader -> '%s' Fragment Shader -> %s\n StartDetails: \n %s  \n EndDetails", Type.c_str(), Shader->Name.c_str(), Shader->VertexPath.c_str(), Shader->FragmentPath.c_str(), InfoLog)
 			return true;
 		}
 	}
@@ -89,7 +89,7 @@ bool CheckShaderCompileErrors(RShader* Shader, string Type, unsigned int Id)
 		if (!Success)
 		{
 			glGetProgramInfoLog(Id, 1024, nullptr, InfoLog);
-			print("ERROR::PROGRAM_LINKING_ERROR: AT PROGRAM '%s': Vertex Shader -> '%s' Fragment Shader -> %s\n DETAILS: \n %s  \n-- --------------------------------------------------- -- ", Shader->Name.c_str(), Shader->VertexPath.c_str(), Shader->FragmentPath.c_str(), InfoLog)
+			Log("ERROR ShaderProgramLinking: @ Program '%s': Vertex Shader -> '%s' Fragment Shader -> %s\n StartDetails: \n %s  \n EndDetails", Shader->Name.c_str(), Shader->VertexPath.c_str(), Shader->FragmentPath.c_str(), InfoLog)
 			return true;
 		}
 	}
@@ -124,7 +124,7 @@ RShader* CreateShaderProgram(string Name, const string VertexShaderFilename, con
 		VertexCode = VShaderStream.str();
 
 		if (VShaderFile.fail())
-			print("ERROR::VERTEX SHADER::FILE_NOT_SUCCESFULLY_READ : %s", VertexShaderFilename.c_str());
+			Log("ERROR Failed to read Vertex Shader File : %s", VertexShaderFilename.c_str());
 	}
 
 	// >> FRAGMENT
@@ -140,7 +140,7 @@ RShader* CreateShaderProgram(string Name, const string VertexShaderFilename, con
 		FragmentCode = FShaderStream.str();
 
 		if (FShaderFile.fail())
-			print("ERROR::FRAGMENT SHADER::FILE_NOT_SUCCESFULLY_READ : %s", FragmentShaderFilename.c_str());
+			Log("ERROR Failed to read Fragment Shader File : %s", FragmentShaderFilename.c_str());
 	}
 
 	// > COMPILE SHADERS
@@ -190,7 +190,7 @@ RShader* CreateShaderProgram(string Name, const string VertexShaderFilename, con
 			GeometryCode = GShaderStream.str();
 
 			if (GShaderFile.fail())
-				print("ERROR::GEOMETRY SHADER::FILE_NOT_SUCCESFULLY_READ : %s", GeometryShaderFilename.c_str());
+				Log("ERROR Failed to read Geometry Shader File: %s", GeometryShaderFilename.c_str());
 		}
 
 		// >>> COMPILE

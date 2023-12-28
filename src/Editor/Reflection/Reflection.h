@@ -1,13 +1,14 @@
 #pragma once
 
-#include "engine/core/core.h"
+#include "Engine/Core/Core.h"
+#include "Engine/Serialization/Parsing/Parser.h"
+#include "Engine/World/World.h"
 
 /* =============================================================================================
 * Reflection.h:
 *	A (not so) simple native C++, header only reflection library. Not standalone, is tightly
 *	knit with the Entity types to achieve reflection metadata to be used by the Ravenous Editor.
 * ============================================================================================== */
-
 
 /* =============================================================================================
  * Reflected (Macro):
@@ -16,17 +17,40 @@
  *	Defines a discarded static member that will run special code in its constructor at static
  *	initialization time to fill metadata about the field.
  * ============================================================================================== */
-#define Reflected() \
-    using Self = Reflection::TypeNameWrapper<__COUNTER__ - 1>::T; \
-    using DumpFuncType = void(*)(Self& instance, string& Serialized); \
-	using LoadFuncType = void(*)(Self& instance, string& field, string& value); \
+
+#define Reflected_Common(Type) \
+	using Self = Type; \
+	using DumpFuncType = void(*)(Self& instance, string& OutSerialized); \
+	using LoadFuncType = void(*)(Self& instance, const string& field, const string& value); \
 	using GetterFuncPtrType = string(*)(Self&); \
-	using SetterFuncPtrType = void (*)(Self*, string&); \
-	inline static string Reflection_TypeName = Reflection::TypeNameWrapper<__COUNTER__ - 2>::type_name; \
-    inline static DumpFuncType Reflection_DumpFunc = nullptr; \
-    inline static LoadFuncType Reflection_LoadFunc = nullptr; \
-    inline static vector<GetterFuncPtrType> Reflection_GetterFuncPtrs; \
-    inline static map<string, SetterFuncPtrType> Reflection_SetterFuncPtrs; \
+	using SetterFuncPtrType = void (*)(Self*, const string&); \
+	struct SetterData { string Field; SetterFuncPtrType SetterFunc; }; \
+	inline static string Reflection_TypeName = #Type; \
+	inline static DumpFuncType Reflection_DumpFunc = nullptr; \
+	inline static LoadFuncType Reflection_LoadFunc = nullptr; \
+	inline static vector<GetterFuncPtrType> Reflection_GetterFuncPtrs; \
+	inline static vector<SetterData> Reflection_SetterFuncPtrs;
+
+#define Reflected(Type) \
+	Reflected_Common(Type) \
+	struct Reflection_TypeInitialization \
+	{ \
+		Reflection_TypeInitialization() \
+		{ \
+			auto InitFunc = [](const string& SerializedEntity) -> EEntity* { auto* NewEntity = RWorld::Get()->SpawnEntity<Self>(); Reflection::Load(SerializedEntity, *NewEntity); return static_cast<EEntity*>(NewEntity); }; \
+			auto CastAndDumpFunc = [](EEntity& Instance) -> string { return Reflection::Dump<Self>(*reinterpret_cast<Self*>(&Instance)); }; \
+			Reflection::TypeMetadata Meta; \
+			Meta.TypeName = Reflection_TypeName; \
+			Meta.TypeID = Self::GetTypeID(); \
+			Meta.TypeInitFunction = InitFunc; \
+			Meta.CastAndDumpFunction = CastAndDumpFunc; \
+			Reflection::TypeMetadataManager::Get()->TypeMetadataCollection.push_back(Meta); \
+		} \
+	} inline static __Reflection_TypeInitializer{};
+
+#define Reflected_BaseEEntity(Type) \
+	Reflected_Common(Type)
+
 
 /* =============================================================================================
  * Field (Macro):
@@ -35,54 +59,33 @@
  *	Defines a discarded static member that will run special code in its constructor at static
  *	initialization time to fill metadata about the field.
  * ============================================================================================== */
+//@TODO @speed string copy in getters
 #define Field(Type, Name, ...) ;  \
-    inline static string Reflection_Getter_ ##Type ##_ ##Name(Self& instance) \
+    static string Reflection_Getter_ ##Name(Self& instance) \
     { \
-		static constexpr uint ReflectionGetterSerializationBufferSize = 100; \
 		string SerializedField; \
-		SerializedField.reserve(ReflectionGetterSerializationBufferSize); \
-		int BytesWritten = sprintf_s(&SerializedField[0], ReflectionGetterSerializationBufferSize, "'%s' : %s = %s", #Name, #Type, Reflection::ToString(instance.Name).c_str()); \
+		SerializedField.reserve(Reflection::ReflectionGetterSerializationBufferSize); \
+		int BytesWritten = sprintf_s(&SerializedField[0], Reflection::ReflectionGetterSerializationBufferSize, "%s: %s = %s", #Name, #Type, Reflection::ToString(instance.Name).c_str()); \
 		if (BytesWritten == -1) { \
-			fatal_error("ReflectionGetter failed"); \
+			FatalError("ReflectionGetter failed"); \
 		} \
 		return SerializedField; \
     } \
     \
-    inline static void Reflection_Setter_ ##Type ##_ ##Name(Self* instance, string& Value) \
+    static void Reflection_Setter_ ##Name(Self* instance, const string& Value) \
     { \
         instance->Name = Reflection::FromString<Type>(Value); \
     } \
     \
-    struct Reflection_HelperType_ ##Type ##_ ##Name \
+    struct Reflection_HelperType_ ##Name \
     { \
-        Reflection_HelperType_ ##Type ##_ ##Name() \
+        Reflection_HelperType_ ##Name() \
         { \
-            Reflection_GetterFuncPtrs.push_back(&Self::Reflection_Getter_ ##Type ##_ ##Name); \
-            Reflection_SetterFuncPtrs[#Name] = &Self::Reflection_Setter_ ##Type ##_ ##Name; \
+            Reflection_GetterFuncPtrs.push_back(&Self::Reflection_Getter_ ##Name); \
+			Reflection_SetterFuncPtrs.push_back({#Name, &Self::Reflection_Setter_ ##Name}); \
         } \
-    } inline static reflection_discard_ ##Type ##_ ##Name{}; \
+    } inline static Reflection__discard_ ##Name{}; \
     __VA_ARGS__ Type Name
-
-
-/* =============================================================================================
- * STORE_TYPE_IN_HELPER (Macro):
- *	Stores the name of the type in a helper struct that specialized a template using COUNTER so
- *	that every reflected type has access to its own name through a 'Self' type alias without
- *	requiring users to type the name of the type they are defining twice.
- *	This works well and safely because COUNTER is used A) after fwd declaring the new type,
- *	inside the EntityType() macro, B) right inside the type declaration in the Reflected() macro.
- *	That way, we can expect COUNTER - 1 to give back the original int used in the specialization
- *	from within the type definition (thus Self is always available to use).
- *	NOTE however, that reflection is enabled only in WITH_EDITOR builds, which means that gameplay
- *	code shouldn't rely on Self:: for anything.
- * ============================================================================================== */
-#define STORE_TYPE_IN_HELPER(TypeName)	\
-template<> \
-struct Reflection::TypeNameWrapper<__COUNTER__> \
-{ \
-using T = TypeName; \
-static inline string type_name = #TypeName; \
-}
 
 /* ===================================
  * Reflection namespace
@@ -91,28 +94,85 @@ namespace Reflection
 {
 	template<unsigned long long int N> struct TypeNameWrapper { };
 
-/* ====================================
+	constexpr uint ReflectionGetterSerializationBufferSize = 100;
+
+	void ParseFieldsFromSerializedObject(const string& Data, map<string, string>& OutFieldValueMap);
+
+	struct TypeMetadata
+	{
+		using TypeInitFPtr = EEntity*(*)(const string& SerializedEntity);
+		using CastAndDumpFPtr = string(*)(EEntity& Instance);
+		
+		string TypeName = "";
+		RTypeID TypeID = 0;
+		TypeInitFPtr TypeInitFunction = nullptr;
+		CastAndDumpFPtr CastAndDumpFunction = nullptr;
+	};
+	
+	struct TypeMetadataManager
+	{
+		vector<TypeMetadata> TypeMetadataCollection;
+
+		static TypeMetadataManager* Get()
+		{
+			static TypeMetadataManager Instance{};
+			return &Instance;
+		}
+
+		TypeMetadata* FindTypeMetadata(RTypeID TypeID)
+		{
+			for (auto& Data : TypeMetadataCollection)
+			{
+				if (Data.TypeID == TypeID) {
+					return &Data;
+				}	
+			}
+
+			return nullptr;
+		}
+
+		TypeMetadata* FindTypeMetadataByName(const string& TypeName)
+		{
+			for (auto& Data : TypeMetadataCollection)
+			{
+				if (Data.TypeName == TypeName) {
+					return &Data;
+				}	
+			}
+
+			return nullptr;
+		}
+	};
+	
+/* =====================================================================================================================
  * Reflection::Tracer
- *	Dummy parent that is used in template type-trait checks to decide if Type is reflected
- * ==================================== */
+ *	Dummy type used as a parent in reflected types, used by template type-trait checks to decide if Type is reflected
+ * ===================================================================================================================== */
 	struct Tracer{};
+
+/* ============================================================================================
+ * Reflection::FromString
+ *	Templated function to convert string values into actual valid instances of that type
+ * ============================================================================================ */
+	template<typename TField>
+	TField FromString(const string& StringValue);
 
 /* ====================================
  * Dump Iterative
  * ==================================== */
 	template<typename T, typename Class, typename... Parents>
-	void DumpIterative(T& Instance, string& Serialized)
+	void DumpIterative(T& Instance, string& OutSerialized)
 	{
 		for (auto* FieldGetter : Class::Reflection_GetterFuncPtrs)
 		{
-			Serialized.append(" ");
-			Serialized.append(FieldGetter(Instance));
-			Serialized.append(" ");
+			string Value = FieldGetter(Instance);
+			OutSerialized.append(Value.c_str());
+			OutSerialized.push_back('\n');
 		}
 
 		if constexpr (sizeof...(Parents) > 0)
 		{
-			DumpIterative<T, Parents...>(Instance, Serialized);
+			DumpIterative<T, Parents...>(Instance, OutSerialized);
 		}
 	}
 
@@ -120,21 +180,22 @@ namespace Reflection
  * Load Iterative
  * ==================================== */
 	template<typename T, typename Class, typename... Parents>
-	void LoadIterative(T& Instance, string& Field, string& Value)
+	void LoadIterative(T& Instance, const string& Field, const string& Value)
 	{
-		if (auto It = Class::Reflection_SetterFuncPtrs.find(Field); It != Class::Reflection_SetterFuncPtrs.end())
-		{
-			auto* SetterMethod = It->second;
-			SetterMethod(&Instance, Value);
-		}
-		else
-		{
-			if constexpr (sizeof...(Parents) > 0)
-			{
-				LoadIterative<T, Parents...>(Instance, Field, Value);
+		for (auto& SetterData : Class::Reflection_SetterFuncPtrs)
+		{		
+			if (SetterData.Field == Field) {
+				SetterData.SetterFunc(&Instance, Value);
+				return;
 			}
-			else
-				fatal_error("PROBLEM: We couldn't find the appropriate setter for the field '%s' with value '%s' anywhere.", Field.c_str(), Value.c_str());
+		}
+
+		// If SetterData is not found, try in parents
+		if constexpr (sizeof...(Parents) > 0) {
+			LoadIterative<T, Parents...>(Instance, Field, Value);
+		}
+		else {
+			FatalError("PROBLEM: We couldn't find the appropriate setter for the field '%s' with value '%s' anywhere.", Field.c_str(), Value.c_str());
 		}
 	}
 
@@ -163,71 +224,88 @@ namespace Reflection
 /* ====================================
  * Dump
  * ==================================== */
-	constexpr static uint SerializationSize = 1600;
+	constexpr static uint SerializationBufferSize = 1600;
 
 	template<typename T>
-	string Dump(T& Instance, bool bIncludeHeader = true)
+	string Dump(T& Instance)
 	{
 		string Serialized;
-		Serialized.reserve(SerializationSize);
+		Serialized.reserve(SerializationBufferSize);
 
-		string Header = "";
-		if (bIncludeHeader)
-		{
-			Header.reserve(100);
-			uint BytesWritten = sprintf_s(&Header[0], 100, "{ \"%s\" : %s = {", Instance.Name.c_str(), T::Reflection_TypeName.c_str());
-			if (BytesWritten == -1) { 
-				fatal_error("Writing Header on Dump<T> failed."); 
-			}
-		}
-		else
-		{
-			// hack to make deserialization of nested objects work with current parsing code
-			Serialized = Header.append("{,");
-		}
-
+		// Append Header (Name : Type)
+		Serialized.append(Instance.Name);
+		Serialized.append(" : ");
+		Serialized.append(T::Reflection_TypeName);
+		Serialized.push_back('\n');
+		
+		// Where actual work happens
 		T::Reflection_DumpFunc(Instance, Serialized);
 
-		Serialized.append(" } }\n");
 		return Serialized;
 	}
 
 /* ====================================
- * Parse
+ * Load
  * ==================================== */
-	void ParseObject(string& Data, map<string, string>& FieldValueMap, bool IncludeHeader);
-
+	EEntity* LoadFromString(const string& SeralizedEntity);
+	
 	template<typename T>
-	T Load(string& Data, bool IncludeHeader = true)
+	void Load(const string& Data, T& OutInstance)
 	{
-		map<string, string> Fields;
-		ParseObject(Data, Fields, IncludeHeader);
+		Parser p(Data, Data.size());
 
-		T Instance;
-		for (auto& [field, value] : Fields)
-		{
-			T::Reflection_LoadFunc(Instance, field, value);
+		// Set name and discard Type string
+		p.ParseNewLine();
+		p.ParseToken();
+		if (p.HasToken()) {
+			OutInstance.Name = GetParsed<string>(p);
 		}
+		p.ParseLine();
 
-		return Instance;
+		// Parse other fields
+		string FieldsData = p.P.String;		
+		std::map<string, string> Fields;
+		ParseFieldsFromSerializedObject(FieldsData, Fields);
+
+		for (auto& [Field, Value] : Fields)
+		{
+			T::Reflection_LoadFunc(OutInstance, Field, Value);
+		}
+	}
+
+	/* =======================================
+	/* EEntity Specialization
+	/* ======================================= */
+	// EEntity is an abstract type, it does not contain budget or traits info and shouldn't
+	// be directly spanwed. EStaticMesh is the correct basic entity type.
+	template<>
+	inline void Load(const string& Data, EEntity& OutInstance)
+	{
+		// Do nothing.	
+	}
+
+/* ==============================================
+ * FromString specialization for reflected types
+ * ============================================== */
+	template<typename TField, std::enable_if_t<std::is_base_of_v<Reflection::Tracer, TField>, bool> = false>
+	TField FromString(const string& StringValue)
+	{
+		return Load<TField>(StringValue, false);
 	}
 
 /* ====================================
  * ToString specializations
  * ==================================== */
 	
-	//string ToString(const string& Field);
 	string ToString(string& Field);
-	
-	//string ToString(const char& Field);
 	string ToString(char& Field);
-	
-	//string ToString(const bool& Field);
 	string ToString(bool& Field);
-	
-	//string ToString(const vec3& Field);
 	string ToString(vec3& Field);
-	
+	string ToString(RUUID& Field);
+	string ToString(RShader* Field);
+	string ToString(RMesh* Field);
+	string ToString(RCollisionMesh* Field);
+
 	// default template for serialization of fields (check note on decltype usage below)
 	template<typename TField>
 	auto ToString(TField& Field) -> decltype(std::to_string(Field), string())
@@ -255,26 +333,12 @@ namespace Reflection
 	 *  qualifies that type to be used with our templated function.
 	 */
 	
-/* ====================================
- * FromString specializations
- * ==================================== */
-	template<typename TField>
-	TField FromString(string& Value)
-	{
-		//static_assert(false, "Not Implemented for Type");
-		return TField();
-	}
-
-	template<typename TField, std::enable_if_t<std::is_base_of_v<Reflection::Tracer, TField>, bool> = false>
-	TField FromString(string& Value)
-	{
-		return Load<TField>(Value, false);
-	}
-	
 } // END Reflection namespace
 
 
-
+/* ===================================================================================================
+ * GetLine
+ * ===================================================================================================*/
 inline string GetLine(string& Text, char DelimiterChar)
 {
 	uint Pos = Text.find(DelimiterChar);
@@ -284,33 +348,3 @@ inline string GetLine(string& Text, char DelimiterChar)
 	Text.erase(0, Pos + 1);
 	return Line;
 }
-
-
-/*
- * Handle<T> - Stores type and UUID for the resource it points to.
- * Stores the actual pointer to the asset instance and a generative version number.
- * The pointer is private, we can access it by using Get(), which will compare the version number in the handle
- * with the version number the asset manager / world has for that "slot".
- */
-
-struct AssetCatalogue
-{
-	uint AssetInstanceSize = 0;
-	void* InstanceArray;
-	uint* VersionList;
-	uint InstanceCount = 0;
-
-	AssetCatalogue(uint AssetInstanceSize, void* InstanceArray, uint ArraySize, uint* VersionList) :
-		AssetInstanceSize(AssetInstanceSize),
-		InstanceArray(InstanceArray),
-		VersionList(VersionList),
-		InstanceCount(ArraySize)
-	{ }
-
-	template<typename T>
-	T* CheckVersion(T* Ptr, uint Version)
-	{
-		// do ptr arithmetic to get version list index and compare versions
-		return nullptr;
-	}
-};

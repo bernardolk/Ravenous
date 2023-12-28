@@ -16,6 +16,7 @@
 
 #include "Game/Animation/AnUpdate.h"
 #include "Editor/Console/Console.h"
+#include "Editor/Reflection/Serialization.h"
 #include "Game/GeometryData.h"
 #include "Game/Entities/EPlayer.h"
 #include "Engine/Camera/camera.h"
@@ -24,6 +25,7 @@
 #include "Engine/RavenousEngine.h"
 #include "Engine/Collision/ClController.h"
 #include "Engine/Render/ImRender.h"
+#include "engine/render/Shader.h"
 #include "Engine/Serialization/sr_config.h"
 #include "Engine/Serialization/sr_world.h"
 #include "Engine/World/World.h"
@@ -35,15 +37,14 @@ void CheckAllEntitiesHaveShaders();
 void CheckAllEntitiesHaveIds();
 void CheckAllGeometryHasGlData();
 
+#include "Test/TestSerialization.h"
+
 int main()
 {
 	RavenousEngine::Initialize();
-
+	
 	auto* World = RWorld::Get();
 
-	//@TODO: This here is not working because EntityManager copy constructor was deleted. This is an issue
-	//    with using references it seems? A pointer would never complain about this. I should dig into this.
-	//    If I have to start writing extra code to use references then I can't justify using them.
 	WorldSerializer::World = World;
 
 	// load shaders, textures and geometry
@@ -54,7 +55,6 @@ int main()
 
 	// Allocate buffers and logs
 	Rvn::Init();
-	// COLLISION_LOG           = CL_allocate_collision_log();
 	InitializeConsoleBuffers();
 
 	// Initialises immediate draw
@@ -64,7 +64,8 @@ int main()
 	ConfigSerializer::LoadGlobalConfigs();
 	auto& ProgramConfig = *ProgramConfig::Get();
 
-	WorldSerializer::LoadFromFile(ProgramConfig.InitialScene);
+	//WorldSerializer::LoadFromFile(ProgramConfig.InitialScene);
+	Serialization::LoadWorldFromDisk();
 
 	EPlayer* Player = EPlayer::Get();
 	Player->CheckpointPos = Player->Position; // set player initial checkpoint position
@@ -100,21 +101,29 @@ int main()
 	World->Update();
 
 	RavenousMainLoop();
-
 }
 
 //    ----------------------------------------------------------------
 
 void CheckAllEntitiesHaveShaders()
 {
+	auto** DefaultShaderPtrPtr = Find(ShaderCatalogue, DefaultEntityShader);
+	if (!DefaultShaderPtrPtr || !*DefaultShaderPtrPtr) {
+		FatalError("Initialization: Default shader \"%s\" not found.", DefaultEntityShader.c_str());
+	}
+	
 	auto EntityIterator = RWorld::Get()->GetEntityIterator();
 	while (auto* Entity = EntityIterator())
 	{
 		if (Entity->Shader == nullptr)
-			fatal_error("shader not set for entity '%s'.", Entity->Name.c_str());
+		{
+			Log("Initialization: shader is not set for entity '%s'.", Entity->Name.c_str());
+			Entity->Shader = *DefaultShaderPtrPtr;
+		}
 
-		if (Entity->Mesh->GLData.VAO == 0)
-			fatal_error("GL DATA not set for entity '%s'.", Entity->Name.c_str());
+		if (Entity->Mesh->GLData.VAO == 0) {
+			FatalError("Initialization: GL DATA not set for entity '%s'.", Entity->Name.c_str());
+		}
 	}
 }
 
@@ -123,8 +132,9 @@ void CheckAllEntitiesHaveIds()
 	auto EntityIterator = RWorld::Get()->GetEntityIterator();
 	while (auto* Entity = EntityIterator())
 	{
-		if (Entity->ID == -1)
-			fatal_error("There are entities without IDs. Check scene loading code for a flaw.");
+		if (Entity->ID == -1) {
+			FatalError("There are entities without IDs. Check scene loading code for a flaw.");
+		}
 	}
 }
 
@@ -133,7 +143,7 @@ void CheckAllGeometryHasGlData()
 	for (auto& [k, Item] : GeometryCatalogue)
 	{
 		if (Item->GLData.VAO == 0 || Item->GLData.VBO == 0) {
-			assert(false);
+			FatalError("GLData not set for entity");
 		}
 	}
 }

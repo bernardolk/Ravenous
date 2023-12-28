@@ -5,20 +5,7 @@
 
 struct EntityType(EStaticMesh)
 {
-	Reflected()
+	Reflected(EStaticMesh)
 
 	static inline constexpr uint InstanceBudget = 200;
 };
-
-struct Parent
-{
-	string Name;
-	RTypeID TypeID;
-};
-
-struct EDummy : Parent, TEntityTypeBase<EDummy>
-{
-	
-};
-
-void AreYouKiddingMe(EEntity* Entity);

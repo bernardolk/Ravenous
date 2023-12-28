@@ -69,7 +69,7 @@ enum class RPlayerAnimationState
  * ========================================== */
 struct EntityType(EPlayer)
 {
-	Reflected()
+	Reflected(EPlayer)
 
 	friend struct GlobalSceneInfo;
 	
@@ -82,8 +82,8 @@ struct EntityType(EPlayer)
 /* ==========================================
  *	Movement
  * ========================================== */
-	vec3 VDir = vec3(0.f);                            // intended movement direction
-	vec3 LastRecordedMovementDirection = vec3(0.f); // last non zero movement direction
+	vec3 VDir = vec3(0.f);								// intended movement direction
+	vec3 LastRecordedMovementDirection = vec3(0.f);		// last non zero movement direction
 
 /* ==========================================
  *	Constants
@@ -189,6 +189,9 @@ struct EntityType(EPlayer)
 	static EPlayer* Get()
 	{
 		static auto* Instance = new EPlayer;
+		if (!Instance->bIsInitialized) {
+			Initialize(Instance);
+		}
 		return Instance;
 	}
 	
@@ -230,6 +233,9 @@ struct EntityType(EPlayer)
 
 private:
 	static EPlayer* ResetPlayer();
+
+	static void Initialize(EPlayer* Player);
+	bool bIsInitialized = false; 
 
 	void UpdateAirMovement(float Dt);
 };

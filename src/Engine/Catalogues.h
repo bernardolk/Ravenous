@@ -25,3 +25,7 @@ struct RCatalogueSearchResult
 
 
 RCatalogueSearchResult FindEntityAssetsInCatalogue(const string& MeshName, const string& CollisionMeshName, const string& ShaderName, const string& TextureName);
+
+RMesh* GetOrLoadMesh(const string& MeshName);
+RCollisionMesh* GetOrLoadCollisionMesh(const string& CollisionMeshName);
+RShader* GetShader(const string& ShaderName);

@@ -461,7 +461,7 @@ namespace Editor
 		{
 			Test = ClTestAgainstRay(Ray, T2);
 			if (!Test.Hit)
-				print("warning: can't find plane to place entity!");
+				Log("warning: can't find plane to place entity!");
 		}
 
 		return Test;
@@ -696,7 +696,7 @@ namespace Editor
 			Test = ClTestAgainstRay(Ray, T2);
 			if (!Test.Hit)
 			{
-				print("warning: can't find plane to place light!");
+				Log("warning: can't find plane to place light!");
 				return;
 			}
 		}

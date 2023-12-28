@@ -91,7 +91,7 @@ void RInputRecorder::Save(int RecordingId)
 	std::ofstream Writer(Paths::InputRecordings + RecordingsFilenamePrefix + Timestamp + RecordingsFilenameExtension);
 
 	if (!Writer.is_open())
-		fatal_error("Cant save recording to file");
+		FatalError("Cant save recording to file");
 
 	auto& Record = RecordedInputs[RecordingId].History;
 

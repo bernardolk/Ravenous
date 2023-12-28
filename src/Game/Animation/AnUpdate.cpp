@@ -1,8 +1,7 @@
 #include "game/animation/AnUpdate.h"
 
-#include "engine/core/logging.h"
 #include "engine/rvn.h"
-#include "engine/entities/Entity.h"
+#include "engine/entities/Entity.h"6
 
 void REntityAnimation::Update()
 {
@@ -89,7 +88,7 @@ uint REntityAnimationBuffer::FindSlot()
 		}
 	}
 
-	fatal_error("EntityAnimationBuffer overflow. Too many animations.");
+	FatalError("EntityAnimationBuffer overflow. Too many animations.");
 	return 0;
 }
 

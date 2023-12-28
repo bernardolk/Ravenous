@@ -22,7 +22,7 @@ bool ClUpdatePlayerWorldCells(EPlayer* Player)
 	auto UpdateCells = RWorld::Get()->UpdateEntityWorldChunk(Player);
 	if (!UpdateCells.Status == CellUpdate_OK)
 	{
-		print(UpdateCells.Message.c_str());
+		Log(UpdateCells.Message.c_str());
 		return false;
 	}
 

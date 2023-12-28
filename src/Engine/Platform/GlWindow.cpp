@@ -16,7 +16,7 @@ void SetupGLFW()
 	auto* NewWindow = glfwCreateWindow(GlobalDisplayState::ViewportWidth, GlobalDisplayState::ViewportHeight, "Ravenous", nullptr, nullptr);
 	if (NewWindow == nullptr)
 	{
-		print("Failed to create GLFW window");
+		Log("Failed to create GLFW window");
 		glfwTerminate();
 	}
 
@@ -25,7 +25,7 @@ void SetupGLFW()
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		print("Failed to initialize GLAD");
+		Log("Failed to initialize GLAD");
 	}
 
 	// Setups openGL viewport
@@ -74,7 +74,7 @@ GLenum GLCheckError(const char* File, int Line)
 				break;
 		}
 		printf(ErrorString.c_str());
-		print(" at file '%s' line: %i", File, Line);
+		Log(" at file '%s' line: %i", File, Line);
 	}
 	return ErrorCode;
 }

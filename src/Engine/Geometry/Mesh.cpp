@@ -8,7 +8,6 @@
 #include "engine/geometry/triangle.h"
 #include "engine/geometry/vertex.h"
 #include <iostream>
-#include "engine/core/logging.h"
 #include "engine/geometry/mesh.h"
 #include <engine/collision/CollisionMesh.h>
 
@@ -30,7 +29,7 @@ void RMesh::SetupGLData()
 
 	if (GLData.VAO > 0)
 	{
-		Log(LOG_INFO, "Redundant setup_gl_data call occured.");
+		Log("Redundant setup_gl_data call occured.");
 		return;
 	}
 

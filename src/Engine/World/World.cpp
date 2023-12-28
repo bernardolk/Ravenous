@@ -3,7 +3,6 @@
 #include "Engine/RavenousEngine.h"
 #include "engine/entities/Entity.h"
 #include "engine/entities/lights.h"
-#include "Engine/Entities/StaticMesh.h"
 #include "engine/render/ImRender.h"
 #include "engine/utils/utils.h"
 #include "game/entities/EPlayer.h"
@@ -65,6 +64,15 @@ WorldEntityIterator::WorldEntityIterator() :
 
 EEntity* WorldEntityIterator::operator()()
 {
+	if (EntityVectorIndex < World->EntityList.size()) {
+		return World->EntityList[EntityVectorIndex++];
+	}
+	else {
+		return nullptr;
+	}
+	
+// TODO: Reactivate again when we need more headaches and world partitioning to be online.
+#if 0
 	EEntity* Entity = ChunkIterator();
 	if (!Entity && CurrentChunkIndex < TotalActiveChunks - 1)
 	{
@@ -73,6 +81,7 @@ EEntity* WorldEntityIterator::operator()()
 		Entity = ChunkIterator();
 	}
 	return Entity;
+#endif
 }
 
 EEntity* RWorldChunkEntityIterator::operator()()
@@ -234,13 +243,13 @@ CellUpdate RWorld::UpdateEntityWorldChunk(EEntity* Entity)
 
 
 	bool BChangedWc =
-	Entity->WorldChunksCount == 0 ||
-	Entity->WorldChunks[0]->i != i0 ||
-	Entity->WorldChunks[0]->j != j0 ||
-	Entity->WorldChunks[0]->k != k0 ||
-	Entity->WorldChunks[Entity->WorldChunksCount - 1]->i != i1 ||
-	Entity->WorldChunks[Entity->WorldChunksCount - 1]->j != j1 ||
-	Entity->WorldChunks[Entity->WorldChunksCount - 1]->k != k1;
+		Entity->WorldChunksCount == 0 ||
+		Entity->WorldChunks[0]->i != i0 ||
+		Entity->WorldChunks[0]->j != j0 ||
+		Entity->WorldChunks[0]->k != k0 ||
+		Entity->WorldChunks[Entity->WorldChunksCount - 1]->i != i1 ||
+		Entity->WorldChunks[Entity->WorldChunksCount - 1]->j != j1 ||
+		Entity->WorldChunks[Entity->WorldChunksCount - 1]->k != k1;
 
 	if (!BChangedWc)
 	{
@@ -302,15 +311,9 @@ void SetEntityDefaultAssets(EEntity* Entity)
 	// Trusting type defaults
 	REntityAttributes Attrs;
 
-	auto [
-		 Textures,
-		 TextureCount,
-		 Mesh,
-		 CollisionMesh,
-		_Shader] = FindEntityAssetsInCatalogue(Attrs.Mesh, Attrs.CollisionMesh, Attrs.Shader, Attrs.Texture);
-
+	auto [Textures, TextureCount, Mesh, CollisionMesh, Shader] = FindEntityAssetsInCatalogue(Attrs.Mesh, Attrs.CollisionMesh, Attrs.Shader, Attrs.Texture);
 	Entity->Name = Attrs.Name;
-	Entity->Shader = _Shader;
+	Entity->Shader = Shader;
 	Entity->Mesh =  Mesh;
 	Entity->Scale = Attrs.Scale;
 	Entity->CollisionMesh =  CollisionMesh;
@@ -323,15 +326,9 @@ void SetEntityDefaultAssets(EEntity* Entity)
 
 void SetEntityAssets(EEntity* Entity, REntityAttributes Attrs)
 {
-	auto [
-		 Textures,
-		 TextureCount,
-		 Mesh,
-		 CollisionMesh,
-		_Shader] = FindEntityAssetsInCatalogue(Attrs.Mesh, Attrs.CollisionMesh, Attrs.Shader, Attrs.Texture);
-
+	auto [Textures, TextureCount, Mesh, CollisionMesh, Shader] = FindEntityAssetsInCatalogue(Attrs.Mesh, Attrs.CollisionMesh, Attrs.Shader, Attrs.Texture);
 	Entity->Name = Attrs.Name;
-	Entity->Shader = _Shader;
+	Entity->Shader = Shader;
 	Entity->Mesh =  Mesh;
 	Entity->Scale = Attrs.Scale;
 	Entity->CollisionMesh =  CollisionMesh;

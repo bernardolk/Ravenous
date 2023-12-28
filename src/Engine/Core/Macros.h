@@ -11,11 +11,11 @@
 #define TO_DEPRECATE_BEGIN
 #define TO_DEPRECATE_END
 
-#define check(x, msg) assert(x)
-
-#define fatal_error(...) { printf(__VA_ARGS__); printf("\n"); assert(false); }
-
-#define print(...) { printf(__VA_ARGS__); printf("\n"); }
+#define DEBUG_BREAK __asm__ volatile("int $0x03");
+#define FatalError(...) { printf(__VA_ARGS__); printf("\n"); assert(false); }
+#define Assert(Expression, Message) { if (Expression){ printf(Message); printf("\n"); assert(false); } }
+#define Break(...) { printf(__VA_ARGS__); printf("\n"); DEBUG_BREAK }
+#define Log(...) { printf(__VA_ARGS__); printf("\n"); }
 
 // #define TEXT1(x)								x
 // #define TEXT2(x, x2)							x << x2

@@ -1,6 +1,7 @@
 #include "engine/catalogues.h"
 
 #include "rvn.h"
+#include "entities/Entity.h"
 #include "io/loaders.h"
 #include "render/Shader.h"
 
@@ -8,31 +9,21 @@ RCatalogueSearchResult FindEntityAssetsInCatalogue(const string& MeshName, const
 {
 	RCatalogueSearchResult Attrs;
 
+	// TODO: Refactor Catalogues into objects that can themselves execute the finding/lazy loading code, so that these code blocks below are encapsulated and
+	//	written just once for all asset catalogues. Later on, each catalogue can have its own allocation / loading strategy etc.
 	if (!MeshName.empty())
 	{
-		const auto FindMesh = GeometryCatalogue.find(MeshName);
-		if (FindMesh != GeometryCatalogue.end())
-			Attrs.Mesh = FindMesh->second;
-		else
-			Attrs.Mesh = LoadWavefrontObjAsMesh(Paths::Models, MeshName);
+		Attrs.Mesh = GetOrLoadMesh(MeshName);
 	}
 
 	if (!CollisionMeshName.empty())
 	{
-		const auto FindCollisionMesh = CollisionGeometryCatalogue.find(CollisionMeshName);
-		if (FindCollisionMesh != CollisionGeometryCatalogue.end())
-			Attrs.CollisionMesh = FindCollisionMesh->second;
-		else
-			Attrs.CollisionMesh = LoadWavefrontObjAsCollisionMesh(Paths::Models, CollisionMeshName);
+		Attrs.CollisionMesh = GetOrLoadCollisionMesh(MeshName);
 	}
 
 	if (!ShaderName.empty())
 	{
-		const auto Shader = ShaderCatalogue.find(ShaderName);
-		if (Shader == ShaderCatalogue.end())
-			fatal_error("FATAL: shader '%s' not found in shader catalogue.", ShaderName.c_str());
-
-		Attrs.Shader = Shader->second;
+		Attrs.Shader = GetShader(ShaderName);
 	}
 
 	if (!TextureName.empty())
@@ -41,7 +32,7 @@ RCatalogueSearchResult FindEntityAssetsInCatalogue(const string& MeshName, const
 		{
 			const auto Texture = TextureCatalogue.find(TextureName);
 			if (Texture == TextureCatalogue.end())
-				fatal_error("FATAL: texture '%s' not found in texture catalogue.", TextureName.c_str());
+				FatalError("FATAL: texture '%s' not found in texture catalogue.", TextureName.c_str());
 
 			Attrs.Textures[0] = Texture->second;
 			Attrs.TexturesFound++;
@@ -59,4 +50,41 @@ RCatalogueSearchResult FindEntityAssetsInCatalogue(const string& MeshName, const
 	}
 
 	return Attrs;
+}
+
+RMesh* GetOrLoadMesh(const string& MeshName)
+{
+	auto** FindMesh = Find(GeometryCatalogue, MeshName);
+	if (!FindMesh)
+		return LoadWavefrontObjAsMesh(Paths::Models, MeshName);
+
+	return *FindMesh;
+}
+
+RCollisionMesh* GetOrLoadCollisionMesh(const string& CollisionMeshName)
+{
+	auto** FindMesh = Find(CollisionGeometryCatalogue, CollisionMeshName);
+	if (!FindMesh)
+		return LoadWavefrontObjAsCollisionMesh(Paths::Models, CollisionMeshName);
+
+	return *FindMesh;
+}
+
+RShader* GetShader(const string& ShaderName)
+{
+	auto** FindShader = Find(ShaderCatalogue, ShaderName);
+	if (!FindShader)
+	{
+		Log("Shader '%s' not found.", ShaderName.c_str());
+		auto** FindDefaultShader = Find(ShaderCatalogue, DefaultEntityShader);
+		if (!FindDefaultShader)
+		{
+			Log("Default Entity Shader '%s' not found.", DefaultEntityShader.c_str());
+			return nullptr;
+		}
+
+		return *FindDefaultShader;
+	}
+
+	return *FindShader;
 }

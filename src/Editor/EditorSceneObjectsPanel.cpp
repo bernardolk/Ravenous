@@ -2,9 +2,10 @@
 #include <imgui.h>
 #include "EditorEntityPanel.h"
 #include "EditorPanelContexts.h"
-#include "engine/io/display.h"
-#include "engine/utils/utils.h"
-#include "engine/world/World.h"
+#include "Engine/Io/Display.h"
+#include "Engine/Utils/Utils.h"
+#include "Engine/World/World.h"
+#include "Engine/Entities/Entity.h"
 
 namespace Editor
 {

@@ -19,7 +19,7 @@ void LightSerializer::Parse(Parser& Parse)
 		ParseDirectionalLight(Parse);
 
 	else
-		fatal_error("FATAL: Unrecognized Light source in scene file '%s', line %i.", Parse.Filepath.c_str(), Parse.LineCount);
+		FatalError("FATAL: Unrecognized Light source in scene file '%s', line %i.", Parse.Filepath.c_str(), Parse.LineCount);
 }
 
 void LightSerializer::ParsePointLight(Parser& Parse)

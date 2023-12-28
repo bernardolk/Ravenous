@@ -11,12 +11,14 @@ namespace Paths
 	const static string Shaders = Project + "/shaders/";
 	const static string Camera = Project + "/camera.txt";
 	const static string Scenes = Project + "/scenes/";
+	const static string World = Project + "/world/";
 	const static string ShaderFileExtension = ".shd";
 	const static string Config = Project + "/config.txt";
 	const static string SceneTemplate = "template_scene";
 	const static string InputRecordings = Project + "/recordings/";
 }
 
+// TODO: Get Rid of this
 struct ProgramConfig
 {
 	static ProgramConfig* Get()

@@ -10,7 +10,6 @@
 #include "engine/geometry/mesh.h"
 #include <iostream>
 #include <glm/gtx/normal.hpp>
-#include "engine/core/logging.h"
 #include <engine/rvn.h>
 #include <engine/render/text/TextRenderer.h>
 
@@ -85,7 +84,7 @@ void RenderText(string Font, float X, float Y, vec3 Color, float Scale, bool Cen
 				break;
 			if (Index + 1 == Font.size())
 			{
-				print("Font '%s' could not be loaded because no size was appended to its name in render_text function call.", Font.c_str());
+				Log("Font '%s' could not be loaded because no size was appended to its name in render_text function call.", Font.c_str());
 				return;
 			}
 
@@ -154,12 +153,12 @@ gl_charmap LoadTextTextures(string Font, int Size)
 	// Load font
 	FT_Library Ft;
 	if (FT_Init_FreeType(&Ft))
-		fatal_error("Freetype: Could not init FreeType Library");
+		FatalError("Freetype: Could not init FreeType Library");
 
 	FT_Face Face;
 	string Filepath = Paths::Fonts + Font;
 	if (FT_New_Face(Ft, Filepath.c_str(), 0, &Face))
-		Log(LOG_ERROR, "Freetype: Failed to load font");
+		Log("Freetype: Failed to load font");
 
 	FT_Set_Pixel_Sizes(Face, 0, Size);
 
@@ -170,7 +169,7 @@ gl_charmap LoadTextTextures(string Font, int Size)
 		//Load character glyph
 		if (FT_Load_Char(Face, C, FT_LOAD_RENDER))
 		{
-			Log(LOG_ERROR, "Freetype: Failed to load Glyph");
+			Log("Freetype: Failed to load Glyph");
 			continue;
 		}
 

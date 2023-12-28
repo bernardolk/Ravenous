@@ -85,7 +85,7 @@ struct RWorldChunkEntityIterator
 template<typename TEntity>
 void RWorldChunkStorage::MaybeAllocateForType()
 {
-	auto TypeId = TEntity::GetTypeId();
+	RTypeID TypeId = TEntity::GetTypeID();
 
 	if (StorageMetadataMap.contains(TypeId))
 		return;
@@ -96,7 +96,7 @@ void RWorldChunkStorage::MaybeAllocateForType()
 	{
 		auto* NewBlock = StorageMetadataArray.AddNew();
 		if (!NewBlock)
-			fatal_error("FATAL: Memory budget for World Chunk with id = %i has ended. Could not allocate memory for entity with TypeId = %i.", ParentChunkID, TypeId);
+			FatalError("FATAL: Memory budget for World Chunk with id = %i has ended. Could not allocate memory for entity with TypeId = %i.", ParentChunkID, TypeId);
 
 		REntityStorageBlockMetadata& EntityStorageMetadata = *NewBlock;
 		EntityStorageMetadata.TypeID = TypeId;
@@ -110,7 +110,7 @@ void RWorldChunkStorage::MaybeAllocateForType()
 		StorageMetadataMap[TypeId] = &EntityStorageMetadata;
 	}
 	else
-		fatal_error("FATAL: Memory budget for World Chunk with id = %i has ended. Could not allocate memory for entity with TypeId = %i.", ParentChunkID, TypeId);
+		FatalError("FATAL: Memory budget for World Chunk with id = %i has ended. Could not allocate memory for entity with TypeId = %i.", ParentChunkID, TypeId);
 };
 
 template<typename TEntity>
@@ -118,7 +118,7 @@ TEntity* RWorldChunkStorage::RequestEntityStorage()
 {
 	MaybeAllocateForType<TEntity>();
 
-	if (auto** it = Find(StorageMetadataMap, TEntity::GetTypeId()))
+	if (auto** it = Find(StorageMetadataMap, TEntity::GetTypeID()))
 	{
 		REntityStorageBlockMetadata* BlockMetadata = *it;
 		if (BlockMetadata->EntityCount < BlockMetadata->MaxEntityInstances)
@@ -129,11 +129,13 @@ TEntity* RWorldChunkStorage::RequestEntityStorage()
         
 			return NewEntity;
 		}
-		else
-			print("ERROR: There is no memory budget left in RWorldChunk with id = %i for E_Type with id = %i. Could not allocate memory.", ParentChunkID, TEntity::GetTypeId());
+		else {
+			Log("ERROR: There is no memory budget left in RWorldChunk with id = %i for E_Type with id = %i. Could not allocate memory.", ParentChunkID, TEntity::GetTypeID());
+		}
 	}
-	else
-		fatal_error("FATAL : This shouldn't have happened.");
+	else {
+		FatalError("FATAL : This shouldn't have happened.");
+	}
 
 	return nullptr;
 }

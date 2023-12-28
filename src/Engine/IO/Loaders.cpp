@@ -5,7 +5,6 @@
 #include <stb_image/stb_image.h>
 
 #include "engine/geometry/vertex.h"
-#include "engine/core/logging.h"
 #include <glm/gtx/quaternion.hpp>
 #include "engine/geometry/mesh.h"
 #include <engine/collision/CollisionMesh.h>
@@ -30,7 +29,7 @@ void LoadTexturesFromAssetsFolder()
 
 			if (TextureID == 0)
 			{
-				print("Texture '%s' could not be loaded.", TextureFilename.c_str());
+				Log("Texture '%s' could not be loaded.", TextureFilename.c_str());
 				assert(false);
 			}
 
@@ -179,10 +178,10 @@ RMesh* LoadWavefrontObjAsMesh(const string& Path, const string& Filename, const 
 			}
 
 			else if (NumberOfVertexesInFace > 4)
-				fatal_error("mesh file %s.obj contain at least one face with unsupported ammount of vertices. Please triangulate or quadfy faces.", Filename.c_str())
+				FatalError("mesh file %s.obj contain at least one face with unsupported ammount of vertices. Please triangulate or quadfy faces.", Filename.c_str())
 
 			else if (NumberOfVertexesInFace < 3)
-				fatal_error("mesh file %s.obj contain at least one face with 2 or less vertices. Please review the geometry.", Filename.c_str())
+				FatalError("mesh file %s.obj contain at least one face with 2 or less vertices. Please review the geometry.", Filename.c_str())
 
 			else
 				FacesCount++;
@@ -211,7 +210,7 @@ RMesh* LoadWavefrontObjAsMesh(const string& Path, const string& Filename, const 
 	return Mesh;
 }
 
-RCollisionMesh* LoadWavefrontObjAsCollisionMesh(string Path, string Filename, string Name)
+RCollisionMesh* LoadWavefrontObjAsCollisionMesh(const string& Path, const string& Filename)
 {
 	/* Loads a model from the provided path and filename and add it to the Collision_Geometry_Catalogue with provided name */
 
@@ -220,7 +219,8 @@ RCollisionMesh* LoadWavefrontObjAsCollisionMesh(string Path, string Filename, st
 
 	// @TODO: Use a memory pool
 	auto* CMesh = new RCollisionMesh;
-
+	CMesh->Name = Filename;
+	
 	// Parses file
 	while (P.NextLine())
 	{
@@ -286,8 +286,7 @@ RCollisionMesh* LoadWavefrontObjAsCollisionMesh(string Path, string Filename, st
 	}
 
 	// adds to catalogue
-	const string CatalogueName = !Name.empty() ? Name : Filename;
-	CollisionGeometryCatalogue.insert({CatalogueName, CMesh});
+	CollisionGeometryCatalogue.insert({Filename, CMesh});
 
 	return CMesh;
 }
@@ -306,7 +305,7 @@ unsigned int LoadTextureFromFile(const string& Filename, const string& Directory
 	unsigned char* Data = stbi_load(Path.c_str(), &Width, &Height, &NrComponents, 0);
 	if (!Data)
 	{
-		print("Texture failed to load at path '%s'", Path.c_str())
+		Log("Texture failed to load at path '%s'", Path.c_str())
 		stbi_image_free(Data);
 		return 0;
 	}
@@ -352,7 +351,7 @@ StrVec GetFilesINFolder(string Directory)
 
 	if (FindFilesHandle == INVALID_HANDLE_VALUE)
 	{
-		print("Error: Invalid directory '%s' for finding files.", Directory.c_str());
+		Log("Error: Invalid directory '%s' for finding files.", Directory.c_str());
 		return Filenames;
 	}
 
@@ -376,7 +375,7 @@ void WriteMeshExtraDataFile(string Filename, RMesh* Mesh)
 	std::ofstream Writer{ExtraDataPath};
 
 	if (!Writer.is_open())
-		fatal_error("couldn't write mesh extra data.");
+		FatalError("couldn't write mesh extra data.");
 
 	Writer << std::fixed << std::setprecision(4);
 
@@ -400,7 +399,7 @@ void WriteMeshExtraDataFile(string Filename, RMesh* Mesh)
 
 	Writer.close();
 
-	Log(LOG_INFO, "Wrote mesh extra data for " + Filename + " mesh.");
+	Log("Wrote mesh extra data for '%s' mesh.", Filename.c_str());
 }
 
 
@@ -455,7 +454,7 @@ void AttachExtraDataToMesh(string Filename, string Filepath, RMesh* Mesh)
 		WIN32_FIND_DATA FindDataMesh;
 		HANDLE FindHandleMesh = FindFirstFileA(MeshPath.c_str(), &FindDataMesh);
 		if (FindHandleMesh == INVALID_HANDLE_VALUE)
-			fatal_error("Unexpected: couldn't find file handle for mesh obj while checking for extra mesh data.")
+			FatalError("Unexpected: couldn't find file handle for mesh obj while checking for extra mesh data.")
 
 		if (CompareFileTime(&FindDataMesh.ftLastWriteTime, &FindDataExtraData.ftLastWriteTime) == 1)
 			ComputeExtraData = true;
@@ -540,10 +539,10 @@ void LoadShaders()
 		ShaderCatalogue.insert({Shader->Name, Shader});
 
 		if (Error)
-			fatal_error("Error in shader programs file definition. Couldn't parse line %i.", P.LineCount);
+			FatalError("Error in shader programs file definition. Couldn't parse line %i.", P.LineCount);
 
 		if (MissingComma)
-			fatal_error("Error in shader programs file definition. There is a missing comma in line %i.", P.LineCount);
+			FatalError("Error in shader programs file definition. There is a missing comma in line %i.", P.LineCount);
 	}
 
 	// setup for text shader

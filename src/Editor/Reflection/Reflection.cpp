@@ -1,16 +1,22 @@
 #include "Reflection.h"
 
+#include <iomanip>
+#include <sstream>
+
+#include "engine/catalogues.h"
+#include "Engine/Collision/CollisionMesh.h"
+#include "Engine/Render/Shader.h"
+#include "Engine/Geometry/Mesh.h"
 #include "engine/serialization/parsing/parser.h"
 
 // @TODO: FromString should be a general Parsing library feature and not reflection-specific.
 // @TODO: ToString also sounds like a feature we would want to add to our String library in the future (we don't have one yet).
+// @TODO: Currently, this library does not support nested reflected object serialization. This means that any data that needs to be reflected / serialized needs to be flat out inline in the struct definition.
+//		Inheriting reflected fields works though.
 
-#define ToStringConstVersion(Type) \
-	string Reflection::ToString(const Type& Field) \
-	{ \
-		return ToStringRemoveConst<Type>(Field); \
-	}
-
+/* ====================================
+ * ToString specializations
+ * ==================================== */
 string Reflection::ToString(string& Field)
 {
 	if (Field.empty())
@@ -18,141 +24,264 @@ string Reflection::ToString(string& Field)
 
 	return "\"" + Field + "\"";
 }
-//ToStringConstVersion(string);
 
 string Reflection::ToString(char& Field)
 {
 	return string(1, Field);
 }
-//ToStringConstVersion(char);
-
 
 string Reflection::ToString(bool& Field)
 {
-	if (Field)
+	if (Field) {
 		return "true";
+	}
 	return "false";
 }
-//ToStringConstVersion(bool);
 
 string Reflection::ToString(vec3& Field)
 {
-	return "{" + std::to_string(Field.x) + " " + std::to_string(Field.y) + " " + std::to_string(Field.z) + "}";
-}
-//ToStringConstVersion(vec3);
-
-// ------------------------------------------------------------------
-
-template<>
-int Reflection::FromString<int>(string& Value)
-{
-	return std::stoi(Value);
+	return std::to_string(Field.x) + " " + std::to_string(Field.y) + " " + std::to_string(Field.z);
 }
 
-template<>
-float Reflection::FromString<float>(string& Value)
+string Reflection::ToString(RUUID& Field)
 {
-	return std::stof(Value);
-}
+	/* Examples:
+	 *  11111888887777766666ULL ->  "11111-88888-77777-66666"
+	 *  888887777766666ULL ->		"00000-88888-77777-66666"
+	 */
+	
+	string Result = "\"";
+	// Convert the uint64_t value to a string with leading zeros and a total width of 20.
+	std::ostringstream StringStream;
+	StringStream << std::setw(20) << std::setfill('0') << Field;
+	string PaddedString = StringStream.str();
 
-template<>
-double Reflection::FromString<double>(string& Value)
-{
-	return std::stod(Value);
-}
-
-template<>
-long double Reflection::FromString<long double>(string& Value)
-{
-	return std::stold(Value);
-}
-
-template<>
-bool Reflection::FromString<bool>(string& Value)
-{
-	return Value == "true" || Value == "True" || Value == "TRUE";
-}
-
-template<>
-char Reflection::FromString<char>(string& Value)
-{
-	return Value[0];
-}
-
-template<>
-string Reflection::FromString<string>(string& Value)
-{
-	if (Value[0] == '"')
-	{
-		Value.erase(0, 1);
-		Value.erase(Value.size() - 1);
+	// Create a formatted string with hyphens.
+	string FormattedString;
+	for (int i = 0; i < 20; ++i) {
+		FormattedString += PaddedString[i];
+		if ((i + 1) % 5 == 0 && i < 19) {
+			FormattedString += '-';
+		}
 	}
-	return Value;
+
+	Result.append(FormattedString);
+	Result.push_back('\"');
+
+	return Result;
+}
+
+string Reflection::ToString(RShader* Field)
+{
+	if (!Field) {
+		Break("Field was nullptr")
+		return "nullptr";
+	}
+
+	return Field->Name;
+}
+
+string Reflection::ToString(RMesh* Field)
+{
+	if (!Field) {
+		Break("Field was nullptr")
+		return "nullptr";
+	}
+
+	return Field->Name;
+}
+
+string Reflection::ToString(RCollisionMesh* Field)
+{
+	if (!Field) {
+		Break("Field was nullptr")
+		return "nullptr";
+	}
+
+	return Field->Name;
+}
+
+/* ====================================
+ * FromString specializations
+ * ==================================== */
+
+template<>
+int Reflection::FromString<int>(const string& StringValue)
+{
+	return std::stoi(StringValue);
+}
+
+template<>
+int64 Reflection::FromString<int64>(const string& StringValue)
+{
+	return std::stol(StringValue);
+}
+
+template<>
+float Reflection::FromString<float>(const string& StringValue)
+{
+	return std::stof(StringValue);
+}
+
+template<>
+double Reflection::FromString<double>(const string& StringValue)
+{
+	return std::stod(StringValue);
+}
+
+template<>
+long double Reflection::FromString<long double>(const string& StringValue)
+{
+	return std::stold(StringValue);
+}
+
+template<>
+bool Reflection::FromString<bool>(const string& StringValue)
+{
+	return StringValue == "true" || StringValue == "True" || StringValue == "TRUE";
+}
+
+template<>
+char Reflection::FromString<char>(const string& StringValue)
+{
+	if (StringValue.size() > 0) {
+		return StringValue[0];
+	}
+
+	return {};
+}
+
+template<>
+string Reflection::FromString<string>(const string& StringValue)
+{
+	// remove leading quotes
+	string ReturnString = StringValue;
+	if (ReturnString[0] == '"')
+	{
+		ReturnString.erase(0, 1);
+		ReturnString.erase(ReturnString.size() - 1);
+	}
+	return ReturnString;
+}
+
+template<>
+vec3 Reflection::FromString<vec3>(const string& Value)
+{
+	Parser p{Value, (int)Value.size()};
+	p.ParseVec3();
+	return GetParsed<vec3>(p);
+}
+
+template<>
+RUUID Reflection::FromString<RUUID>(const string& Value)
+{
+	// Remove hyphens from the formatted string
+	string stringValue;
+	for (char c : Value) {
+		if (c != '-') {
+			stringValue += c;
+		}
+	}
+
+	// Convert the string to uint64_t
+	std::istringstream StringStream(stringValue);
+	RUUID Result = 0;
+	StringStream >> Result;
+	return Result;
+}
+
+template<>
+RShader* Reflection::FromString<RShader*>(const string& Value)
+{
+	return GetShader(Value);
+}
+
+template<>
+RMesh* Reflection::FromString<RMesh*>(const string& Value)
+{
+	return GetOrLoadMesh(Value);
+}
+
+template<>
+RCollisionMesh* Reflection::FromString<RCollisionMesh*>(const string& Value)
+{
+	return GetOrLoadCollisionMesh(Value);
 }
 
 // template<>
-// vec3 Reflection::FromString<vec3>(string& Value)
+// RTexture Reflection::FromString<RTexture>(const string& Value)
 // {
-// 	Parser Parse{Value, Value.size()};
-// 	// discard '{' token
-// 	Parse.ParseTokenChar();
-// 	Parse.ParseVec3();
-// 	return GetParsed<vec3>(Parse);
+// 	return GetOrLoadCollisionMesh(Value);
 // }
 
-// ------------------------------------------------------------------
-
-void Reflection::ParseObject(string& Data, map<string, string>& FieldValueMap, bool IncludeHeader)
+/* ====================================
+ * LoadFromString
+ * ==================================== */
+EEntity* Reflection::LoadFromString(const string& SeralizedEntity)
 {
-	string ToParse = Data;
-	string _;
+	// Parse entity type from string contents
+	Parser p(SeralizedEntity, SeralizedEntity.size());
+	p.ParseNewLine();
+	p.ParseToken();
+	p.ParseAllWhitespace();
+	p.ParseChar();
+	p.ParseAllWhitespace();
+	p.ParseToken();
+	if (!p.HasToken()) {
+		Break("Couldn't parse entity type from string");
+	}
+	const auto Type = GetParsed<string>(p);
 
-	// discard header if parsing nested object
-	GetLine(ToParse, '{');
-
-	if (IncludeHeader)
-	{
-		GetLine(ToParse, '{');
+	auto* Metadata = TypeMetadataManager::Get()->FindTypeMetadataByName(Type);
+	if (!Metadata) {
+		Break("Couldn't find metadata for Type \"%s\"", Type.c_str());
 	}
 
+	return Metadata->TypeInitFunction(SeralizedEntity);
+}
+
+/* ====================================
+ * ParseFieldsFromSerializedObject
+ * ==================================== */
+void Reflection::ParseFieldsFromSerializedObject(const string& Data, map<string, string>& OutFieldValueMap)
+{
+	// ===============================
+	// Grammar reference:
+	// "%field : %type = %value\n"
+	// ===============================
+		
+	string ToParse = Data;
+	Parser p(ToParse, ToParse.size());
+	
 	while (true)
 	{
-		string FieldData = GetLine(ToParse, ',');
-		if (FieldData == "")
+		string Field;
+		string Value;
+		
+		p.ParseAllWhitespace();
+		p.ParseToken();
+		if (!p.HasToken()) {
 			break;
-
-		GetLine(FieldData, ' ');
-		string FieldNameToken = GetLine(FieldData, ' ');
-
-		// stop processing fields
-		if (FieldNameToken[0] == '}')
-			continue;
-
-		GetLine(FieldData, ' ');
-		string FieldTypeToken = GetLine(FieldData, ' ');
-		// @TODO: Revise why we don't put the code below in an else after the last if
-		GetLine(FieldData, ' ');
-		string FieldValue;
-		FieldValue.reserve(100);
-		FieldValue = GetLine(FieldData, ' ');
-
-		// trim
-		if (FieldNameToken.size() > 2)
-		{
-			FieldNameToken.erase(0, 1);
-			FieldNameToken.erase(FieldNameToken.size() - 1);
 		}
-
-		// process nested object if field is a nested object
-		if (FieldValue[0] == '{')
-		{
-			string NestedObject = GetLine(ToParse, '}');
-			int BytesWritten = sprintf_s(&FieldValue[0], 100, "{%s}", NestedObject.c_str());
-			if (BytesWritten == -1) {
-				fatal_error("Nested object procesing failed.");
-			}
+		Field = GetParsed<string>(p);
+		p.ParseAllWhitespace();
+		p.ParseSymbol();
+		p.ParseAllWhitespace();
+		p.ParseFieldTypeToken();
+		// PS: the field Type isnt used here for anything because the Setter function for that field is retrieved by the field name and it knows what type to use inside it. Neat.
+		p.ParseAllWhitespace();
+		p.ParseSymbol();
+		p.ParseAllWhitespace();
+		p.ParseQuote();
+		p.ParseFieldValueToken();
+		if (!p.HasToken()) {
+			break;
 		}
-
-		FieldValueMap[FieldNameToken] = FieldValue;
-	}
+		Value = GetParsed<string>(p);
+		p.ParseQuote();
+		p.ParseAllWhitespace();
+		p.ParseNewLine();
+		
+		OutFieldValueMap[Field] = Value;
+	}	
 }

@@ -45,7 +45,7 @@ void RenderMesh(const RMesh* Mesh, RenderOptions Opts)
 		//glDrawArrays(GL_TRIANGLES, 0, mesh->vertices.size());
 			break;
 		default:
-			print("WARNING: no drawing method set for mesh '%s', it won't be rendered!", Mesh->Name.c_str());
+			Log("WARNING: no drawing method set for mesh '%s', it won't be rendered!", Mesh->Name.c_str());
 	}
 
 	// set to defaults
@@ -78,13 +78,15 @@ void RenderEntity(EEntity* Entity)
 	uint NormalN = 1;
 	uint HeightN = 1;
 
+	//TODO:
+	// 1. Texture type should be an enum
+	// 2. We don't need to check how many textures of each type each entity has each frame, we can precompute this and store in the entity inside an RMaterial struct.
 	uint i = 0;
 	for (; i < Entity->Textures.size(); i++)
 	{
 		// active proper texture unit before binding
 		glActiveTexture(GL_TEXTURE0 + i);
 		string Number;
-		// @todo: can turn this into enum for faster int comparison
 		string Type = Entity->Textures[i].Type;
 		if (Type == "texture_diffuse")
 			Number = std::to_string(DiffuseN++);
