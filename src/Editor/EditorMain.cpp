@@ -583,11 +583,6 @@ namespace Editor
 		}
 		RenderText("consola18", GlobalDisplayState::ViewportWidth - 400, 30, PlayerStateTextColor, PlayerStateText);
 
-		string PlayerGrabbingText = "grabbing: ";
-		if (Player->GrabbingEntity != nullptr)
-			PlayerGrabbingText += Player->GrabbingEntity->Name;
-		RenderText(GlobalDisplayState::ViewportWidth - 400, 45, PlayerGrabbingText);
-
 		// FPS
 		string Fps = std::to_string(RavenousEngine::GetFrame().Fps);
 		string FpsGui = "FPS: " + Fps;

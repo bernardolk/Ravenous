@@ -186,14 +186,7 @@ struct EntityType(EPlayer)
 /* ==========================================
  *	Methods
  * ========================================== */
-	static EPlayer* Get()
-	{
-		static auto* Instance = new EPlayer;
-		if (!Instance->bIsInitialized) {
-			Initialize(Instance);
-		}
-		return Instance;
-	}
+	static EPlayer* Get() { return Instance; }
 	
 	void Update();
 	void UpdateState();
@@ -231,11 +224,11 @@ struct EntityType(EPlayer)
 
 	void ChangeStateTo(NPlayerState NewState, RPlayerStateChangeArgs Args = {});
 
+	// TO BE USED ONLY BY SERIALIZATION CODE
+	static void SetPlayerSingletonInstance(EEntity* PlayerEntity) { Instance = reinterpret_cast<EPlayer*>(PlayerEntity); }
+
 private:
-	static EPlayer* ResetPlayer();
-
-	static void Initialize(EPlayer* Player);
-	bool bIsInitialized = false; 
-
+	inline static EPlayer* Instance = nullptr;
+	
 	void UpdateAirMovement(float Dt);
 };

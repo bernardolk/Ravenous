@@ -63,6 +63,7 @@ struct RWorld
 	// end temp
 
 	void Update();
+	void Erase();
 
 	template<typename TEntity>
 	TEntity* SpawnEntity();
@@ -81,6 +82,7 @@ struct RWorld
 	CellUpdate UpdateEntityWorldChunk(EEntity* Entity);
 
 	RavenousEngine::RFrameData& GetFrameData();
+
 
 private:
 	RWorld();

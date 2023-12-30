@@ -11,9 +11,6 @@ void EEntity::Update()
 	UpdateModelMatrix();
 	UpdateCollider();
 	UpdateBoundingBox();
-
-	// if (IsInteractable())
-	// 	UpdateTrigger();
 }
 
 void EEntity::UpdateCollider()

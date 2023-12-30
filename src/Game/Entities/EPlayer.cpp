@@ -38,10 +38,13 @@ void EPlayer::Update()
 {
 	static_cast<EEntity*>(this)->Update();
 
+// World cells dont matter for now
+#if 0
 	if (ClUpdatePlayerWorldCells(this))
 	{
 		ClRecomputeCollisionBufferEntities();
 	}
+#endif
 }
 
 void EPlayer::UpdateState()
@@ -597,28 +600,6 @@ void EPlayer::BruteStop()
 {
 	// bypass deaceleration steps. Stops player right on his tracks.
 	Velocity = vec3(0);
-}
-
-EPlayer* EPlayer::ResetPlayer()
-{
-	auto* Player = Get();
-	new (Player) EPlayer;
-	Initialize(Player);
-	return Player;
-}
-
-void EPlayer::Initialize(EPlayer* Player)
-{
-	// Set player's assets
-	REntityAttributes Attrs;
-	Attrs.Name = "Player";
-	Attrs.Mesh = "capsule";
-	Attrs.Shader = "model";
-	Attrs.Texture = "pink";
-	Attrs.CollisionMesh = "capsule";
-	Attrs.Scale = vec3(1);
-
-	SetEntityAssets(Player, Attrs);
 }
 
 float EPlayer::GetSpeedLimit() const

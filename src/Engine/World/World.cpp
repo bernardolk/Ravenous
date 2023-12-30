@@ -25,6 +25,16 @@ void RWorld::Update()
 	UpdateTraits();
 }
 
+void RWorld::Erase()
+{
+	for (auto* Entity : EntityList)
+	{
+		delete Entity;
+	}
+
+	EntityList.clear();
+}
+
 void RWorld::UpdateTransforms()
 {
 	auto EntityIter = GetEntityIterator();

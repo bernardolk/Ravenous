@@ -146,29 +146,13 @@ void ExecuteCommand(const string& BufferLine, EPlayer* & Player, RWorld* World, 
 	Parser P{BufferLine, 50};
 	P.ParseToken();
 	const string Command = GetParsed<string>(P);
-	auto& ProgramConfig = *ProgramConfig::Get();
 
 	// ---------------
 	// 'SAVE' COMMAND
 	// ---------------
 	if (Command == "save")
 	{
-		P.ParseWhitespace();
-		P.ParseToken();
-		const string Argument = GetParsed<string>(P);
-		WorldSerializer::SaveToFile(Argument, false);
-	}
-
-	// ---------------
-	// 'COPY' COMMAND
-	// ---------------
-	else if (Command == "copy")
-	{
-		// if you dont want to switch to the new file when saving scene with a new name
-		P.ParseWhitespace();
-		P.ParseToken();
-		const string SceneName = GetParsed<string>(P);
-		WorldSerializer::SaveToFile(SceneName, true);
+		Serialization::SaveWorldToDisk();
 	}
 
 	// ---------------
@@ -176,110 +160,7 @@ void ExecuteCommand(const string& BufferLine, EPlayer* & Player, RWorld* World, 
 	// ---------------
 	else if (Command == "load")
 	{
-		P.ParseWhitespace();
-		P.ParseToken();
-		const string SceneName = GetParsed<string>(P);
-		// updates scene with new one
-		if (WorldSerializer::LoadFromFile(SceneName))
-		{
-			if (REditorState::IsInEditorMode())
-			{
-				Player->MakeVisible();
-			}
-			else
-			{
-				Player->MakeInvisible();
-			}
-
-			ConfigSerializer::LoadGlobalConfigs();
-		}
-	}
-
-	// --------------
-	// 'NEW' COMMAND
-	// --------------
-	else if (Command == "new")
-	{
-		P.ParseWhitespace();
-		P.ParseToken();
-		const string SceneName = GetParsed<string>(P);
-		if (SceneName != "")
-		{
-			auto CurrentScene = RWorld::Get()->SceneName;
-			if (WorldSerializer::CheckIfSceneExists(SceneName))
-			{
-				Rvn::RmBuffer->Add("Scene name already exists.", 3000);
-				return;
-			}
-
-			if (!WorldSerializer::LoadFromFile(Paths::SceneTemplate))
-			{
-				Rvn::RmBuffer->Add("Scene template not found.", 3000);
-				return;
-			}
-
-			if (!WorldSerializer::SaveToFile(SceneName, false))
-			{
-				// if couldnt save copy of template, falls back, so we dont edit the template by mistake
-				if (WorldSerializer::LoadFromFile(CurrentScene))
-				{
-					assert(false); // if this happens, weird!
-				}
-
-				Rvn::RmBuffer->Add("Couldnt save new scene.", 3000);
-			}
-
-			if (REditorState::IsInEditorMode())
-				Player->Flags &= ~EntityFlags_InvisibleEntity;
-			else
-				Player->Flags |= EntityFlags_InvisibleEntity;
-		}
-		else
-		{
-			Rvn::RmBuffer->Add("Could not create new scene. Provide a name please.", 3000);
-		}
-	}
-
-	// --------------
-	// 'SET' COMMAND
-	// --------------
-
-	else if (Command == "set")
-	{
-		P.ParseWhitespace();
-		P.ParseToken();
-		const string Argument = GetParsed<string>(P);
-		if (Argument == "scene")
-		{
-			ProgramConfig.InitialScene = RWorld::Get()->SceneName;
-			ConfigSerializer::Save(ProgramConfig);
-		}
-		else if (Argument == "all")
-		{
-			// save scene
-			Player->CheckpointPos = Player->Position;
-			WorldSerializer::SaveToFile();
-			// set scene
-			ProgramConfig.InitialScene = RWorld::Get()->SceneName;
-			ConfigSerializer::Save(ProgramConfig);
-		}
-	}
-
-	// -----------------
-	// 'RELOAD' COMMAND
-	// -----------------
-	else if (Command == "reload")
-	{
-		if (WorldSerializer::LoadFromFile(RWorld::Get()->SceneName))
-		{
-			if (REditorState::IsInEditorMode())
-				Player->Flags &= ~EntityFlags_InvisibleEntity;
-			else
-				Player->Flags |= EntityFlags_InvisibleEntity;
-
-			ConfigSerializer::LoadGlobalConfigs();
-			GlobalInputInfo::Get()->BlockMouseMove = false;
-		}
+		Serialization::LoadWorldFromDisk();
 	}
 
 	// ----------------
@@ -311,11 +192,6 @@ void ExecuteCommand(const string& BufferLine, EPlayer* & Player, RWorld* World, 
 			P.ParseVec3();
 			Camera->Position = GetParsed<vec3>(P);
 		}
-	}
-
-	else if (Command == "testsave")
-	{
-		Serialization::SaveWorldToDisk();
 	}
 	
 	else {

@@ -419,12 +419,13 @@ namespace Editor
 		// ----------------
 		if (ImGui::BeginTabItem("Textures", nullptr, ImGuiTabItemFlags_None))
 		{
-			for (const auto& Texture : TextureCatalogue)
+			for (const auto& [TextureName, Texture] : TextureCatalogue)
 			{
-				bool bInUse = Entity->Textures[0].Name == Texture.second.Name;
-				if (ImGui::RadioButton(Texture.second.Name.c_str(), bInUse))
+				bool bInUse = Entity->Textures.size() > 0 && Entity->Textures[0].Name == TextureName;
+				if (ImGui::RadioButton(TextureName.c_str(), bInUse))
 				{
-					Entity->Textures[0] = Texture.second;
+					if (Entity->Textures.size() > 0) Entity->Textures[0] = Texture;
+					else Entity->Textures.push_back(Texture);
 				}
 			}
 
