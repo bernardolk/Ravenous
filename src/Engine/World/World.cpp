@@ -328,10 +328,7 @@ void SetEntityDefaultAssets(EEntity* Entity)
 	Entity->Scale = Attrs.Scale;
 	Entity->CollisionMesh =  CollisionMesh;
 	Entity->Collider = * CollisionMesh;
-
-	for (int i = 0; i < TextureCount; i++) {
-		Entity->Textures.push_back(Textures[i]);
-	}
+	Entity->TextureDiffuse = Textures[0];
 }
 
 void SetEntityAssets(EEntity* Entity, REntityAttributes Attrs)
@@ -343,8 +340,5 @@ void SetEntityAssets(EEntity* Entity, REntityAttributes Attrs)
 	Entity->Scale = Attrs.Scale;
 	Entity->CollisionMesh =  CollisionMesh;
 	Entity->Collider = * CollisionMesh;
-
-	for (int i = 0; i < TextureCount; i++) {
-		Entity->Textures.push_back( Textures[i]);
-	}
+	Entity->TextureDiffuse = Textures[0];
 }

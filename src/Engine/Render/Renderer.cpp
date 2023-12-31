@@ -72,67 +72,29 @@ void RenderEntity(EEntity* Entity)
 	Entity->Shader->Use();
 	Entity->Shader->SetMatrix4("model", Entity->MatModel);
 
-	// bind appropriate textures
-	uint DiffuseN = 1;
-	uint SpecularN = 1;
-	uint NormalN = 1;
-	uint HeightN = 1;
-
-	//TODO:
-	// 1. Texture type should be an enum
-	// 2. We don't need to check how many textures of each type each entity has each frame, we can precompute this and store in the entity inside an RMaterial struct.
-	uint i = 0;
-	for (; i < Entity->Textures.size(); i++)
+	// BIND ENTITY TEXTURES
 	{
-		// active proper texture unit before binding
-		glActiveTexture(GL_TEXTURE0 + i);
-		string Number;
-		string Type = Entity->Textures[i].Type;
-		if (Type == "texture_diffuse")
-			Number = std::to_string(DiffuseN++);
-		else if (Type == "texture_specular")
-			Number = std::to_string(SpecularN++);
-		else if (Type == "texture_normal")
-			Number = std::to_string(NormalN++);
-		else if (Type == "texture_height")
-			Number = std::to_string(HeightN++);
+		glActiveTexture(GL_TEXTURE0 + 0);
+		glUniform1i(glGetUniformLocation(Entity->Shader->GLProgramID, "texture_diffuse1"), 0);
+		glBindTexture(GL_TEXTURE_2D, Entity->TextureDiffuse.ID);
 
-		// now set the sampler to the correct texture unit
-		glUniform1i(glGetUniformLocation(Entity->Shader->GLProgramID, (Type + Number).c_str()), i);
-		// and finally bind the texture
-		glBindTexture(GL_TEXTURE_2D, Entity->Textures[i].ID);
+		glActiveTexture(GL_TEXTURE0 + 1);
+		glUniform1i(glGetUniformLocation(Entity->Shader->GLProgramID, "texture_specular1"), 1);
+		glBindTexture(GL_TEXTURE_2D, Entity->TextureSpecular.ID);
 	}
-
-	// SHADOW MAPS
+	
+	// BIND SHADOW MAP TEXTURES
 	{
 		// shadow map texture
-		glActiveTexture(GL_TEXTURE0 + i);
-		glUniform1i(glGetUniformLocation(Entity->Shader->GLProgramID, "shadowMap"), i);
+		glActiveTexture(GL_TEXTURE0 + 2);
+		glUniform1i(glGetUniformLocation(Entity->Shader->GLProgramID, "shadowMap"), 2);
 		glBindTexture(GL_TEXTURE_2D, RDepthMap);
-		i++;
 
 		// shadow cubemap texture
-		glActiveTexture(GL_TEXTURE0 + i);
-		glUniform1i(glGetUniformLocation(Entity->Shader->GLProgramID, "shadowCubemap"), i);
+		glActiveTexture(GL_TEXTURE0 + 3);
+		glUniform1i(glGetUniformLocation(Entity->Shader->GLProgramID, "shadowCubemap"), 3);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, RDepthCubemapTexture);
-		i++;
 	}
-
-	// check for tiled texture
-	if (Entity->Flags & EntityFlags_RenderTiledTexture)
-	{
-		Entity->Shader->SetInt("texture_wrap_top", Entity->UvTileWrap[0]);
-		Entity->Shader->SetInt("texture_wrap_bottom", Entity->UvTileWrap[1]);
-		Entity->Shader->SetInt("texture_wrap_front", Entity->UvTileWrap[2]);
-		Entity->Shader->SetInt("texture_wrap_left", Entity->UvTileWrap[3]);
-		Entity->Shader->SetInt("texture_wrap_right", Entity->UvTileWrap[4]);
-		Entity->Shader->SetInt("texture_wrap_back", Entity->UvTileWrap[5]);
-	}
-
-	// if (entity->type == EntityType_TimerMarking)
-	// {
-	// 	entity->shader->SetFloat3("color", entity->timer_marking_data.color);
-	// }
 
 	// draw mesh
 	RenderOptions RenderOpts;

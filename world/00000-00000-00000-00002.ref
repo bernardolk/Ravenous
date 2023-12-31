@@ -5,4 +5,7 @@ Rotation: vec3 = 0.000000 0.000000 0.000000
 Scale: vec3 = 1.000000 1.000000 1.000000
 Mesh: RMesh* = aabb
 Shader: RShader* = model
+TextureDiffuse: RTexture = blue
+TextureSpecular: RTexture = null
+TextureNormal: RTexture = null
 CollisionMesh: RCollisionMesh* = aabb

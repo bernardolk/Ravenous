@@ -186,6 +186,8 @@ struct EntityType(EPlayer)
 /* ==========================================
  *	Methods
  * ========================================== */
+
+	// WARNING: Player pointers can't live between frames as the instance address CAN CHANGE!
 	static EPlayer* Get() { return Instance; }
 	
 	void Update();

@@ -29,3 +29,4 @@ RCatalogueSearchResult FindEntityAssetsInCatalogue(const string& MeshName, const
 RMesh* GetOrLoadMesh(const string& MeshName);
 RCollisionMesh* GetOrLoadCollisionMesh(const string& CollisionMeshName);
 RShader* GetShader(const string& ShaderName);
+RTexture GetOrLoadTexture(const string& TextureName);

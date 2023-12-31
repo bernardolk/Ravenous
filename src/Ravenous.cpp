@@ -64,7 +64,6 @@ int main()
 	ConfigSerializer::LoadGlobalConfigs();
 	auto& ProgramConfig = *ProgramConfig::Get();
 
-	//WorldSerializer::LoadFromFile(ProgramConfig.InitialScene);
 	Serialization::LoadWorldFromDisk();
 
 	EPlayer* Player = EPlayer::Get();

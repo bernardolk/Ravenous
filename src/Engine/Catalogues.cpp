@@ -79,12 +79,23 @@ RShader* GetShader(const string& ShaderName)
 		auto** FindDefaultShader = Find(ShaderCatalogue, DefaultEntityShader);
 		if (!FindDefaultShader)
 		{
-			Log("Default Entity Shader '%s' not found.", DefaultEntityShader.c_str());
-			return nullptr;
+			FatalError("Default Entity Shader '%s' not found.", DefaultEntityShader.c_str());
 		}
 
 		return *FindDefaultShader;
 	}
 
 	return *FindShader;
+}
+
+RTexture GetOrLoadTexture(const string& TextureName)
+{
+	auto* FindTexture = Find(TextureCatalogue, TextureName);
+	if (!FindTexture)
+	{
+		Log("Texture '%s' not found.", TextureName.c_str());
+		return RTexture{};
+	}
+
+	return *FindTexture;
 }

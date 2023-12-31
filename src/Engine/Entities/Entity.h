@@ -9,14 +9,14 @@
 constexpr static uint MaxEntityWorldChunks = 20;
 const static string DefaultEntityShader = "model";
 const static string EntityShaderMarking = "color";
+const static string DefaultEntityTexture = "pink";
 
 enum NEntityFlags
 {
 	EntityFlags_EmptyEntity        = (1 << 0),
 	EntityFlags_InvisibleEntity    = (1 << 1),
 	EntityFlags_HiddenEntity       = (1 << 2),
-	EntityFlags_RenderTiledTexture = (1 << 3),
-	EntityFlags_RenderWireframe    = (1 << 4),
+	EntityFlags_RenderWireframe    = (1 << 3),
 };
 
 struct VisitorState
@@ -65,7 +65,9 @@ public:
  * ================= */
 	Field(RMesh*, Mesh) = nullptr;
 	Field(RShader*, Shader) = nullptr;
-	vector<RTexture> Textures{};
+	Field(RTexture, TextureDiffuse){};
+	Field(RTexture, TextureSpecular){};
+	Field(RTexture, TextureNormal){};
 	mat4 MatModel = Mat4Identity;
 	
 	//@TODO: Get rid of collider (and include)

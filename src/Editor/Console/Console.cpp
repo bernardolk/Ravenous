@@ -161,6 +161,7 @@ void ExecuteCommand(const string& BufferLine, EPlayer* & Player, RWorld* World, 
 	else if (Command == "load")
 	{
 		Serialization::LoadWorldFromDisk();
+		World->Update();
 	}
 
 	// ----------------

@@ -30,7 +30,8 @@ void Parser::ParseWhitespace()
 {
 	ClearParseBuffer();
 
-	if (P.String[0] == ' ')
+	auto& Char = P.String[0];
+	if (Char == ' ' || Char == '\t')
 	{
 		P.IToken = 1;
 		P.AdvanceChar();

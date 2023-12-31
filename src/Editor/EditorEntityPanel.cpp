@@ -421,33 +421,11 @@ namespace Editor
 		{
 			for (const auto& [TextureName, Texture] : TextureCatalogue)
 			{
-				bool bInUse = Entity->Textures.size() > 0 && Entity->Textures[0].Name == TextureName;
+				bool bInUse = Entity->TextureDiffuse.Name == TextureName;
 				if (ImGui::RadioButton(TextureName.c_str(), bInUse))
 				{
-					if (Entity->Textures.size() > 0) Entity->Textures[0] = Texture;
-					else Entity->Textures.push_back(Texture);
+					Entity->TextureDiffuse = Texture;
 				}
-			}
-
-			bool TiledTexture = Entity->Flags & EntityFlags_RenderTiledTexture;
-			if (ImGui::Checkbox("Tiled texture", &TiledTexture))
-			{
-				Entity->Flags ^= EntityFlags_RenderTiledTexture;
-				if (TiledTexture)
-					Entity->Shader = ShaderCatalogue.find("tiledTextureModel")->second;
-				else
-					Entity->Shader = ShaderCatalogue.find("model")->second;
-			}
-
-			if (Entity->Flags & EntityFlags_RenderTiledTexture)
-			{
-				ImGui::Text("Number of tiles for each face:");
-				ImGui::SliderInt("Top face", &Entity->UvTileWrap[0], 0, 15);
-				ImGui::SliderInt("Bottom face", &Entity->UvTileWrap[1], 0, 15);
-				ImGui::SliderInt("Front face", &Entity->UvTileWrap[2], 0, 15);
-				ImGui::SliderInt("Left face", &Entity->UvTileWrap[3], 0, 15);
-				ImGui::SliderInt("Right face", &Entity->UvTileWrap[4], 0, 15);
-				ImGui::SliderInt("Back face", &Entity->UvTileWrap[5], 0, 15);
 			}
 
 			ImGui::EndTabItem();

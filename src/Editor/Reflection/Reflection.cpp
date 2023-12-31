@@ -101,6 +101,15 @@ string Reflection::ToString(RCollisionMesh* Field)
 	return Field->Name;
 }
 
+string Reflection::ToString(RTexture Field)
+{
+	if (Field.Name.empty())
+	{
+		return "null";
+	}
+	
+	return Field.Name;
+}
 /* ====================================
  * FromString specializations
  * ==================================== */
@@ -208,11 +217,11 @@ RCollisionMesh* Reflection::FromString<RCollisionMesh*>(const string& Value)
 	return GetOrLoadCollisionMesh(Value);
 }
 
-// template<>
-// RTexture Reflection::FromString<RTexture>(const string& Value)
-// {
-// 	return GetOrLoadCollisionMesh(Value);
-// }
+template<>
+RTexture Reflection::FromString<RTexture>(const string& Value)
+{
+	return GetOrLoadTexture(Value);
+}
 
 /* ====================================
  * LoadFromString

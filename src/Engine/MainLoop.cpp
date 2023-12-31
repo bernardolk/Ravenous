@@ -25,12 +25,13 @@ void StartFrame();
 void RavenousMainLoop()
 {
 	auto* ES = REditorState::Get();
-	auto* Player = EPlayer::Get();
 	auto* World = RWorld::Get();
 	auto* CamManager = RCameraManager::Get();
 
 	while (!glfwWindowShouldClose(GlobalDisplayState::Get()->GetWindow()))
 	{
+		auto* Player = EPlayer::Get();
+
 		// -------------
 		//	INPUT PHASE
 		// -------------

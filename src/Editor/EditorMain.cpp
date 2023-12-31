@@ -421,9 +421,9 @@ namespace Editor
 		const auto GreenTex = LoadTextureFromFile("green.jpg", Paths::Textures);
 		const auto RedTex = LoadTextureFromFile("red.jpg", Paths::Textures);
 
-		XAxis->Textures.push_back(RTexture{RedTex, "texture_diffuse", "red.jpg", "red axis"});
-		YAxis->Textures.push_back(RTexture{GreenTex, "texture_diffuse", "green.jpg", "green axis"});
-		ZAxis->Textures.push_back(RTexture{BlueTex, "texture_diffuse", "blue.jpg", "blue axis"});
+		YAxis->TextureDiffuse = RTexture{GreenTex, "texture_diffuse", "green.jpg", "green axis"};
+		XAxis->TextureDiffuse = RTexture{BlueTex, "texture_diffuse", "blue.jpg", "blue axis"};
+		ZAxis->TextureDiffuse = RTexture{RedTex, "texture_diffuse", "red.jpg", "red axis"};
 
 		const auto Shader = ShaderCatalogue.find("ortho_gui")->second;
 		XAxis->Shader = Shader;
@@ -466,9 +466,9 @@ namespace Editor
 		ZArrow->Scale = vec3(0.5, 0.5, 0.5);
 		ZArrow->Rotation = vec3(0);
 
-		XArrow->Textures.push_back(RTexture{RedTex, "texture_diffuse", "red.jpg", "red axis"});
-		YArrow->Textures.push_back(RTexture{GreenTex, "texture_diffuse", "green.jpg", "green axis"});
-		ZArrow->Textures.push_back(RTexture{BlueTex, "texture_diffuse", "blue.jpg", "blue axis"});
+		YArrow->TextureDiffuse = RTexture{GreenTex, "texture_diffuse", "green.jpg", "green arrow"};
+		XArrow->TextureDiffuse = RTexture{BlueTex, "texture_diffuse", "blue.jpg", "blue arrow"};
+		ZArrow->TextureDiffuse = RTexture{RedTex, "texture_diffuse", "red.jpg", "red arrow"};
 
 		// CollisionMesh
 		const auto ArrowCollider = new RCollisionMesh;
@@ -548,7 +548,6 @@ namespace Editor
 		};
 		string CameraPosition = "camera:   x: " + CamP[0] + " y:" + CamP[1] + " z:" + CamP[2];
 		RenderText(Font, 235, 45, CameraPosition);
-
 
 		// PLAYER POSITION
 		vec3 PlayerFeet = Player->GetFeetPosition();

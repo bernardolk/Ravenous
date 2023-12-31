@@ -305,6 +305,7 @@ namespace Reflection
 	string ToString(RShader* Field);
 	string ToString(RMesh* Field);
 	string ToString(RCollisionMesh* Field);
+	string ToString(RTexture Field);
 
 	// default template for serialization of fields (check note on decltype usage below)
 	template<typename TField>

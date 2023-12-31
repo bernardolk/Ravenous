@@ -71,19 +71,6 @@ void EntitySerializer::Parse(Parser& Parse)
 			auto Find = ShaderCatalogue.find(ShaderName);
 			if (Find != ShaderCatalogue.end())
 			{
-				if (ShaderName == "tiledTextureModel")
-				{
-					NewEntity.Flags |= EntityFlags_RenderTiledTexture;
-					for (int i = 0; i < 6; i++)
-					{
-						Parse.ParseAllWhitespace();
-						Parse.ParseInt();
-						if (!Parse.HasToken())
-							FatalError("Scene description contain an entity with box tiled shader without full tile quantity description.");
-
-						NewEntity.UvTileWrap[i] = GetParsed<int>(Parse);
-					}
-				}
 				NewEntity.Shader = Find->second;
 			}
 			else
@@ -129,14 +116,14 @@ void EntitySerializer::Parse(Parser& Parse)
 			if (Texture == TextureCatalogue.end())
 				FatalError("Fatal: %s was not found (not pre-loaded) inside Texture Catalogue.", TextureName.c_str())
 
-			NewEntity.Textures.clear();
-			NewEntity.Textures.push_back(Texture->second);
+			// NewEntity.Textures.clear();
+			// NewEntity.Textures.push_back(Texture->second);
 
 			// fetches texture normal in catalogue, if any
 			auto Normal = TextureCatalogue.find(TextureName + "_normal");
 			if (Normal != TextureCatalogue.end())
 			{
-				NewEntity.Textures.push_back(Normal->second);
+				// NewEntity.Textures.push_back(Normal->second);
 			}
 		}
 
@@ -182,22 +169,14 @@ void EntitySerializer::Save(std::ofstream& Writer, const EEntity& Entity)
 	Writer << "mesh " << Entity.Mesh->Name << "\n";
 	Writer << "shader " << Entity.Shader->Name;
 
-	// shader: If entity.s using tiled texture fragment shader, also writes number of tiles since we can change it through the editor
-	if (Entity.Flags & EntityFlags_RenderTiledTexture)
-	{
-		for (int i = 0; i < 6; i++) {
-			Writer << " " << Entity.UvTileWrap[i];
-		}
-	}
-
 	Writer << "\n";
 
-	for (auto& Texture : Entity.Textures)
-	{
-		if (Texture.Type == "texture_diffuse") {
-			Writer << "texture " << Texture.Name << "\n";
-		}
-	}
+	// for (auto& Texture : Entity.Textures)
+	// {
+	// 	if (Texture.Type == "texture_diffuse") {
+	// 		Writer << "texture " << Texture.Name << "\n";
+	// 	}
+	// }
 
 	if (Entity.Flags & EntityFlags_RenderWireframe) {
 		Writer << "hidden\n";
