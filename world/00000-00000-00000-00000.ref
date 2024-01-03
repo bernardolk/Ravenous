@@ -1,0 +1,11 @@
+Player : EPlayer
+ID: RUUID = "00000-00000-00000-00000"
+Position: vec3 = -4.255295 -15.050001 14.535131
+Rotation: vec3 = 0.000000 0.000000 0.000000
+Scale: vec3 = 1.000000 1.000000 1.000000
+Mesh: RMesh* = capsule
+Shader: RShader* = model
+TextureDiffuse: RTexture = pink
+TextureSpecular: RTexture = null
+TextureNormal: RTexture = null
+CollisionMesh: RCollisionMesh* = capsule

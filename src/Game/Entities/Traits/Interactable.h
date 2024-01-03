@@ -9,6 +9,8 @@
 
 struct Trait(TInteractable)
 {
+	REQUIRES_METHOD(void Interact())
+
 	void BlockInteractions();
 	void UnblockInteractions();
 	bool IsInteractionBlocked();
@@ -18,7 +20,6 @@ struct Trait(TInteractable)
    /* ========================================
 	* Update
 	* ======================================== */	
-	REQUIRES_METHOD(Interact)
 	
 	template<typename T>
 	static void Update(T& Entity)

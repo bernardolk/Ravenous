@@ -27,7 +27,6 @@
 #include "Engine/Render/ImRender.h"
 #include "engine/render/Shader.h"
 #include "Engine/Serialization/sr_config.h"
-#include "Engine/Serialization/sr_world.h"
 #include "Engine/World/World.h"
 
 // FUNCTION PROTOTYPES
@@ -44,8 +43,6 @@ int main()
 	RavenousEngine::Initialize();
 	
 	auto* World = RWorld::Get();
-
-	WorldSerializer::World = World;
 
 	// load shaders, textures and geometry
 	stbi_set_flip_vertically_on_load(true);

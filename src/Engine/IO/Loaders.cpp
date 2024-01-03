@@ -4,6 +4,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image/stb_image.h>
 
+#include <fstream>
 #include "engine/geometry/vertex.h"
 #include <glm/gtx/quaternion.hpp>
 #include "engine/geometry/mesh.h"
@@ -158,7 +159,6 @@ RMesh* LoadWavefrontObjAsMesh(const string& Path, const string& Filename, const 
 				NumberOfVertexesInFace++;
 			}
 
-
 			// Creates the faces respecting winding order: Assumes that each face has unique vertices.
 			// Index vector reads like: T0_v0, T0_v1, T0_v2, T1_v0, T1_v1, T1_v2, T2_v0 ... where T is triangle and v is vertex.
 			// face's triangle #1
@@ -200,7 +200,6 @@ RMesh* LoadWavefrontObjAsMesh(const string& Path, const string& Filename, const 
 
 	// sets render method for mesh
 	Mesh->RenderMethod = static_cast<uint>(RenderMethod);
-
 
 	// sets texture name and adds to catalogue
 	string CatalogueName = !Name.empty() ? Name : Filename;

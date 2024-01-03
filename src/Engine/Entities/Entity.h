@@ -45,7 +45,12 @@ public:
 	RTypeID TypeID = 0;
 	Field(RUUID, ID) = 0;
 	string Name = "NoName";
-	
+
+/* =================
+ *	Entity Traits
+ * ================= */	
+	static inline Array<RTraitID, EntityTraitsManager::MaxTraits> Traits;
+
 /* =================
  *	Entity flags
  * ================= */	

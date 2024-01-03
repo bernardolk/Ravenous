@@ -46,6 +46,24 @@ void RWorld::UpdateTransforms()
 
 void RWorld::UpdateTraits()
 {
+	// TODO: We are taking the simplest approach now with a vector of entities instead of a type-unsafe memory arena allocator strategy.
+	// One improvement futurely could be to sort the entity vectors by entity type on load if things get slow in this piece of code.
+	// We could maintain a ViewList into the memory arena by having a vector<EEntity*> be updated as entities get added, and then use that list specifically for debugging only.
+	// The reason why I moved away from the world chunk tech for now is that it is overkill for what the game currently is, and it makes debugging entities very hard.
+	// After PoC for the game is complete, I probably will return to it to have easy loading / unloading of world chunks for streaming the world.
+
+	auto* TraitsManager = EntityTraitsManager::Get();
+	for (auto* Entity : EntityList)
+	{
+		for (RTraitID TraitID : Entity->Traits)
+		{
+			auto* TraitUpdateFunc = TraitsManager->GetUpdateFunc(Entity->TypeID, TraitID);
+			TraitUpdateFunc(Entity);
+		}
+	}
+	
+// Disabled while we don't care for world chunks
+#if 0
 	auto* TraitsManager = EntityTraitsManager::Get();
 	for (RTraitID TraitId : TraitsManager->EntityTraits)
 	{
@@ -54,6 +72,7 @@ void RWorld::UpdateTraits()
 			Chunk->InvokeTraitUpdateOnAllTypes(TraitId);
 		}
 	}
+#endif
 }
 
 TIterator<RWorldChunk> RWorld::GetChunkIterator()

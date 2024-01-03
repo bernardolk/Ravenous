@@ -58,17 +58,12 @@ namespace EntityTypeSystem
  * TEntityTypeBase (Template Base Class):
  *	Used to provide basic Entity type-specific data 
  * =================================================================== */
-// We store TypeID in each instance on construction so that we can decide
-// where to store in memory each entity based on its TypeID. Basically, if
-// we have an EEntity* we can look the TypeID and perform a "cast" to the
-// correct underlying entity type. We can't use the static RTypeID because
-// that requires type information to be resolved whereas instance based TypeID
-// is always available for any EEntity.
+// We store TypeID in each instance on construction so that we can decide where to store in memory each entity based on its TypeID. Basically, if
+// we have an EEntity* we can look the TypeID and perform a "cast" to the correct underlying entity type. We can't use the static RTypeID because
+// that requires type information to be resolved whereas instance based TypeID is always available for any EEntity.
 template<typename TEntity>
 struct TEntityTypeBase
 {
-	static inline Array<RTraitID, EntityTraitsManager::MaxTraits> Traits;
-
 	static RTypeID GetTypeID()
 	{
 		static RTypeID EntityTypeID = EntityTypeSystem::GetNextTypeID();

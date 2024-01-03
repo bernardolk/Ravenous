@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 #endif
 #include <sstream>
+#include <fstream>
 #include <engine/core/Types.h>
 #include <engine/rvn.h>
 #include <engine/serialization/parsing/parser.h>

@@ -414,6 +414,23 @@ namespace Editor
 		}
 		*/
 
+		// ---------------
+		// > MODEL TAB
+		// ---------------
+		if (ImGui::BeginTabItem("Model", nullptr, ImGuiTabItemFlags_None))
+		{
+			for (const auto& [Key, Model] : GeometryCatalogue)
+			{
+				bool bInUse = Entity->Mesh->Name == Model->Name;
+				if (ImGui::RadioButton(Model->Name.c_str(), bInUse))
+				{
+					Entity->Mesh = Model;
+				}
+			}
+
+			ImGui::EndTabItem();
+		}
+
 		// ----------------
 		// > TEXTURES TAB
 		// ----------------

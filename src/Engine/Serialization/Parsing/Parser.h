@@ -1,6 +1,6 @@
 #pragma once
 #include "Engine/Core/Core.h"
-#include <fstream>
+#include <sstream>
 
 static constexpr uint StrBufferSize = 3000;
 static constexpr uint NameStringBufferSize = 300;
@@ -12,9 +12,9 @@ struct ParseUnit
 	string String;
 	uint Size = 0;
 	uint8 HasToken = 0;
+
 	union
 	{
-		char StringBuffer[StrBufferSize]{};
 		int IToken;
 		float FToken;
 		char CToken;
@@ -31,24 +31,27 @@ struct ParseUnit
 	}
 };
 
+// ====================================================================
+//	Parser
+//		Text file parsing utility. Used for .ref, .obj and .txt files.
+// ====================================================================
 struct Parser
 {
 	int LineCount = 0;
-	std::ifstream Reader;
-	string Filepath;
+	//std::ifstream Reader;
+	std::istringstream Stream;
+	FILE* InputFile = nullptr;
 	ParseUnit P{};
 
+	char* ContentBuffer = nullptr;
+	uint ContentSize = 0;
+	uint Offset = 0;
+
+	static inline char ParsingStringBuffer[StrBufferSize]{};
+	
 	bool bReaderSet = false;
 
-	explicit Parser(const string& Filepath)
-	{
-		this->Filepath = Filepath;
-		this->Reader = std::ifstream(Filepath);
-		if (!this->Reader.is_open())
-			FatalError("Couldn't open file '%s', path NOT FOUND", Filepath.c_str());
-
-		bReaderSet = true;
-	}
+	explicit Parser(const string& Filepath);
 
 	Parser(const string& TextBuffer, const int BufferSize)
 	{
@@ -57,6 +60,14 @@ struct Parser
 
 		if (StrBufferSize < BufferSize) {
 			FatalError("Incoming string is greater than reserved buffer for Parsers.")
+		}
+	}
+
+	~Parser()
+	{
+		if (bReaderSet && ContentBuffer)
+		{
+			free(ContentBuffer);
 		}
 	}
 
@@ -105,7 +116,7 @@ T GetParsed(Parser& Parser)
 template<>
 inline string GetParsed(Parser& Parser)
 {
-	return Parser.P.StringBuffer;
+	return Parser.ParsingStringBuffer;
 }
 
 template<>

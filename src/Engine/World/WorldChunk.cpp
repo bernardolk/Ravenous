@@ -61,8 +61,6 @@ string RWorldChunk::GetChunkPositionMetricString()
 void RWorldChunk::InvokeTraitUpdateOnAllTypes(RTraitID TraitId)
 {
 	auto* TraitsManager = EntityTraitsManager::Get();
-	//auto* types = etm->GetTypesWithTrait(TraitId);
-
 	for (auto& BlockMetadata : ChunkStorage.StorageMetadataArray)
 	{
 		if (BlockMetadata.EntityTraits.Contains(TraitId))

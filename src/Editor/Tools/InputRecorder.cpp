@@ -2,7 +2,7 @@
 
 #include <sstream>
 #include <iomanip>
-
+#include <fstream>
 #include "Engine/Platform/Platform.h"
 #include "Engine/Rvn.h"
 #include "Engine/Serialization/Parsing/Parser.h"

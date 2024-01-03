@@ -15,9 +15,9 @@
 #include "engine/io/display.h"
 #include "engine/io/InputPhase.h"
 #include "engine/serialization/sr_config.h"
-#include "engine/serialization/sr_world.h"
 #include "engine/io/input.h"
 #include "engine/world/World.h"
+#include "Reflection/Serialization.h"
 
 namespace Editor
 {
@@ -45,13 +45,10 @@ namespace Editor
 
 		if (Pressed(Flags, NKeyInput::KeyLeftCtrl) && PressedOnce(Flags, NKeyInput::KeyS))
 		{
-			// save scene
-			Player->CheckpointPos = Player->Position;
-			WorldSerializer::SaveToFile();
-			// set scene
+			Serialization::SaveWorldToDisk();
 			ProgramConfig.InitialScene = RWorld::Get()->SceneName;
 			ConfigSerializer::Save(ProgramConfig);
-			Rvn::RmBuffer->Add("world state saved", 1200);
+			Rvn::RmBuffer->Add("World Saved", 1200);
 			return;
 		}
 

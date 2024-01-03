@@ -1,22 +1,42 @@
-#include <string>
 #include <fstream>
-#include <sstream>
+#include <string>
+#include <stdio.h>
 #include <engine/core/types.h>
 #include <engine/serialization/parsing/parser.h>
 
+Parser::Parser(const string& Filepath)
+{
+	InputFile = fopen(Filepath.c_str(), "rb");
+	if (InputFile == nullptr) {
+		FatalError("Couldn't open file '%s', path NOT FOUND", Filepath.c_str());
+	}
+
+	fseek(InputFile, 0, SEEK_END);
+	ContentSize = ftell(InputFile);
+	fseek(InputFile, 0, SEEK_SET);
+
+	ContentBuffer = (char*) malloc(ContentSize + 1);
+	
+	fread(ContentBuffer, 1, ContentSize, InputFile);
+	fclose(InputFile);
+
+	ContentBuffer[ContentSize] = '\0';
+
+	Stream = std::istringstream(ContentBuffer);
+	bReaderSet = true;
+}
+
 bool Parser::NextLine()
 {
-	if (!bReaderSet)
-		FatalError("Cant use NextLine on a Parser that is not associated with an input filestream");
+	if (!bReaderSet) FatalError("Parser was not initialized correctly.");
 	
-	if (getline(Reader, P.String))
+	if (getline(Stream, P.String))
 	{
 		P.Size = P.String.size();
 		LineCount++;
 		return true;
 	}
-
-	Reader.close();
+	
 	return false;
 }
 
@@ -106,7 +126,7 @@ void Parser::ParseName()
 	if (BufferSize > 0) {
 		P.HasToken = 1;
 	}
-	strcpy_s(P.StringBuffer, &StringBuffer[0]);
+	strcpy_s(ParsingStringBuffer, &StringBuffer[0]);
 }
 
 void Parser::ParseTokenChar()
@@ -159,7 +179,7 @@ void Parser::ParseToken()
 	}
 
 	//@TODO @safety: Can this overflow ?
-	strcpy_s(P.StringBuffer, &StringBuffer[0]);
+	strcpy_s(ParsingStringBuffer, &StringBuffer[0]);
 }
 
 void Parser::ParseFieldValueToken()
@@ -194,7 +214,7 @@ void Parser::ParseFieldValueToken()
 	}
 
 	//@TODO @safety: Can this overflow ?
-	strcpy_s(P.StringBuffer, &StringBuffer[0]);
+	strcpy_s(ParsingStringBuffer, &StringBuffer[0]);
 }
 
 void Parser::ParseFieldTypeToken()
@@ -229,7 +249,7 @@ void Parser::ParseFieldTypeToken()
 	}
 
 	//@TODO @safety: Can this overflow ?
-	strcpy_s(P.StringBuffer, &StringBuffer[0]);
+	strcpy_s(ParsingStringBuffer, &StringBuffer[0]);
 }
 
 void Parser::ParseChar()
@@ -445,10 +465,11 @@ void Parser::ParseLine()
 	}
 
 	//@TODO @safety: Can this overflow ?
-	strcpy_s(P.StringBuffer, &StringBuffer[0]);
+	strcpy_s(ParsingStringBuffer, &StringBuffer[0]);
 }
 
 void Parser::ClearParseBuffer()
 {
-	P = ParseUnit{.String = P.String, .Size = P.Size};
+	P.HasToken = 0;
+	P.IToken = 0;
 }
