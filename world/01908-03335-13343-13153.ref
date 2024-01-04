@@ -1,9 +1,9 @@
-One : EStaticMesh
-ID: RUUID = "00000-00000-00000-00001"
-Position: vec3 = -12.950000 -16.450001 -1.250000
+Rock1 : EStaticMesh
+ID: RUUID = "01908-03335-13343-13153"
+Position: vec3 = -6.490000 -15.050000 6.100542
 Rotation: vec3 = 0.000000 0.000000 0.000000
-Scale: vec3 = 27.700006 1.400000 20.750000
-Mesh: RMesh* = aabb
+Scale: vec3 = 1.000000 1.000000 1.000000
+Mesh: RMesh* = mediumRock003
 Shader: RShader* = model
 TextureDiffuse: RTexture = mediumRock3-sandstone_BaseColor
 TextureSpecular: RTexture = null

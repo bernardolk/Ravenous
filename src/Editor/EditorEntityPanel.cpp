@@ -9,6 +9,7 @@
 #include "engine/render/Shader.h"
 #include "engine/world/World.h"
 #include "Engine/Entities/Entity.h"
+#include "engine/io/loaders.h"
 
 namespace Editor
 {
@@ -133,6 +134,39 @@ namespace Editor
 				ActivatePlaceMode(Entity);
 			}
 
+			ImGui::SameLine();
+
+			if (ImGui::Button("Build AABB Collision Mesh", ImVec2(82, 18)))
+			{
+				// Clear collider geometry
+				Entity->Collider.Vertices.clear();
+				Entity->Collider.Indices.clear();
+
+				// Create new collision mesh and copy entity mesh vertices into it
+				auto* NewCollisionMesh = new RCollisionMesh;
+				NewCollisionMesh->Name = Entity->Name + "_GeneratedCMesh";
+				Entity->CollisionMesh = NewCollisionMesh;
+				for (RVertex& Vertex : Entity->Mesh->Vertices) {
+					NewCollisionMesh->Vertices.push_back(Vertex.Position);
+				}
+
+				// Build a bounding box for the mesh and then set the aabb vertices as collision mesh vertices. Indices should be the same as the aabb collision mesh .obj model so we just copy over.
+				// NOTE: The collision mesh version of aabb.obj has significantly less vertices / indices due to the fact that it doesn't need to hold normal / texel information, therefore there's no need to split a corner vertice
+				// into multiple RVertex instances. So we can't use the vertex data from a regular, non RCollisionMesh, RMesh aabb for collision mesh purposes.
+				auto BoundingBox = NewCollisionMesh->ComputeBoundingBox();
+				NewCollisionMesh->Vertices.clear();
+				for (auto& Position : BoundingBox.GetVertexPositions()) {
+					NewCollisionMesh->Vertices.push_back(Position);
+				}
+				if (auto** AABB = Find(CollisionGeometryCatalogue, "aabb")) {
+					NewCollisionMesh->Indices = (*AABB)->Indices;
+				}
+
+				// Updates collider based on new collision mesh.
+				Entity->UpdateCollider();
+
+				ExportWavefrontCollisionMesh(Entity->CollisionMesh);
+			}
 
 			ImGui::NewLine();
 
@@ -184,8 +218,6 @@ namespace Editor
 			// SHOW GEOMETRIC PROPERTIES
 			ImGui::Text("Show:");
 			ImGui::Checkbox("Normals", &Panel->ShowNormals);
-			ImGui::SameLine();
-			ImGui::Checkbox("Collider", &Panel->ShowCollider);
 			ImGui::SameLine();
 			ImGui::Checkbox("Bounding box", &Panel->ShowBoundingBox);
 
@@ -527,7 +559,6 @@ namespace Editor
 		Panel.ReverseScaleY= false;
 		Panel.ReverseScaleZ= false;
 		Panel.ShowNormals= false;
-		Panel.ShowCollider= false;
 		Panel.ShowBoundingBox= false;
 		Panel.RenameOptionActive= false;
 		Panel.TrackedOnce= false;

@@ -24,3 +24,5 @@ void WriteMeshExtraDataFile(string Filename, RMesh* Mesh);
 void LoadTexturesFromAssetsFolder();
 StrVec GetFilesINFolder(string Directory);
 void LoadShaders();
+
+void ExportWavefrontCollisionMesh(RCollisionMesh* CollisionMesh);

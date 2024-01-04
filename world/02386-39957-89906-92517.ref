@@ -1,6 +1,6 @@
 Tree : EStaticMesh
 ID: RUUID = "02386-39957-89906-92517"
-Position: vec3 = -8.865947 -15.049998 14.754254
+Position: vec3 = -8.865952 -15.049994 14.754251
 Rotation: vec3 = 0.000000 0.000000 0.000000
 Scale: vec3 = 1.000000 1.000000 1.000000
 Mesh: RMesh* = tree03scaled

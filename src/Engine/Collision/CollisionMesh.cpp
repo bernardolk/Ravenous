@@ -10,50 +10,16 @@ RBoundingBox RCollisionMesh::ComputeBoundingBox()
 	// So, this does NOT return the min/max vertices of the mesh in axial direction
 	// (support points)
 
-	auto MaxD = vec3(MinFloat, MinFloat, MinFloat);
-	auto MinD = vec3(MaxFloat, MaxFloat, MaxFloat);
-
 	float Maxx = 0.f, Minx = 0.f, Maxy = 0.f, Miny = 0.f, Maxz = 0.f, Minz = 0.f;
 
-	for (int i = 0; i < this->Vertices.size(); i++)
+	for (auto& Vertex : Vertices)
 	{
-		vec3 Vertex = this->Vertices[i];
-		float Dotx = dot(Vertex, vec3(1, 0, 0));
-		float Doty = dot(Vertex, vec3(0, 1, 0));
-		float Dotz = dot(Vertex, vec3(0, 0, 1));
-
-		if (Dotx < MinD.x)
-		{
-			Minx = Vertex.x;
-			MinD.x = Dotx;
-		}
-		if (Dotx > MaxD.x)
-		{
-			Maxx = Vertex.x;
-			MaxD.x = Dotx;
-		}
-
-		if (Doty < MinD.y)
-		{
-			Miny = Vertex.y;
-			MinD.y = Doty;
-		}
-		if (Doty > MaxD.y)
-		{
-			Maxy = Vertex.y;
-			MaxD.y = Doty;
-		}
-
-		if (Dotz < MinD.z)
-		{
-			Minz = Vertex.z;
-			MinD.z = Dotz;
-		}
-		if (Dotz > MaxD.z)
-		{
-			Maxz = Vertex.z;
-			MaxD.z = Dotz;
-		}
+		if (Vertex.x < Minx) Minx = Vertex.x;
+		if (Vertex.x > Maxx) Maxx = Vertex.x;
+		if (Vertex.y < Miny) Miny = Vertex.y;
+		if (Vertex.y > Maxy) Maxy = Vertex.y;
+		if (Vertex.z < Minz) Minz = Vertex.z;
+		if (Vertex.z > Maxz) Maxz = Vertex.z;
 	}
 
 	RBoundingBox Bb;

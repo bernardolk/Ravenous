@@ -4,9 +4,23 @@
 #include "Engine/Geometry/Mesh.h"
 #include "engine/io/loaders.h"
 
-//@TODO: Make this load all mo
 void LoadModels()
 {
+	auto Filenames = GetFilesINFolder(Paths::Models);
+	if (Filenames.size() > 0)
+	{
+		for (const auto& ModelFilename : Filenames)
+		{
+			// check if filename is not a folder (we want only .obj files here)
+			auto ExtensionTest = ModelFilename.substr(ModelFilename.length() - 3);
+			if (ExtensionTest != "obj")
+				continue;
+			
+			auto ModelName = ModelFilename.substr(0, ModelFilename.length() - 4);
+			LoadWavefrontObjAsMesh(Paths::Models, ModelName);
+		}
+	}
+	
 	//TEXT
 	{
 		RGLData TextGlData;
@@ -25,10 +39,6 @@ void LoadModels()
 		TextMesh->GLData = TextGlData;
 		GeometryCatalogue.insert({TextMesh->Name, TextMesh});
 	}
-
-
-	// AABB
-	LoadWavefrontObjAsMesh(Paths::Models, "aabb");
 
 	// SLOPE
 	// with Z coming at the screen, X to the right, slope starts at x=0 high and goes low on x=1
@@ -74,13 +84,4 @@ void LoadModels()
 	SlopeMesh->RenderMethod = GL_TRIANGLES;
 	SlopeMesh->SetupGLData();
 	GeometryCatalogue.insert({SlopeMesh->Name, SlopeMesh});
-
-	// PLAYER CAPSULE
-	LoadWavefrontObjAsMesh(Paths::Models, "capsule");
-
-	// LIGHTBULB
-	LoadWavefrontObjAsMesh(Paths::Models, "lightbulb");
-
-	// TRIGGER (CYLINDER)
-	LoadWavefrontObjAsMesh(Paths::Models, "trigger");
 }

@@ -15,7 +15,7 @@ struct RMesh
 	vector<RVertex> Vertices;
 	vector<uint> Indices;
 	uint FacesCount;
-	uint RenderMethod;
+	uint RenderMethod = 0x0004;
 	RGLData GLData;
 	string Name;
 	//  FILETIME               last_written;

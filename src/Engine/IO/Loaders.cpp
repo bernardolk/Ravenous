@@ -26,6 +26,11 @@ void LoadTexturesFromAssetsFolder()
 	{
 		for (const auto& TextureFilename : Filenames)
 		{
+			// check if filename is not a folder
+			auto ExtensionTest = TextureFilename.substr(TextureFilename.length() - 4);
+			if (ExtensionTest != ".jpg" && ExtensionTest != ".png" && ExtensionTest != ".bmp" && ExtensionTest != "jpeg")
+				continue;
+			
 			unsigned int TextureID = LoadTextureFromFile(TextureFilename, Paths::Textures);
 
 			if (TextureID == 0)
@@ -548,4 +553,33 @@ void LoadShaders()
 	auto TextShader = ShaderCatalogue.find("text")->second;
 	TextShader->Use();
 	TextShader->SetMatrix4("projection", glm::ortho(0.0f, GlobalDisplayState::ViewportWidth, 0.0f, GlobalDisplayState::ViewportHeight));
+}
+
+
+void ExportWavefrontCollisionMesh(RCollisionMesh* CollisionMesh)
+{
+	std::ofstream Writer(Paths::Models + CollisionMesh->Name + ".obj");
+	if (!Writer.is_open()) {
+		Log("Saving config file failed.\n");
+	}
+
+	Writer << "# Generated Collision Mesh: " << CollisionMesh->Name << "\n";
+	Writer << std::fixed << std::setprecision(6);
+
+	for (vec3 Vertex : CollisionMesh->Vertices) {
+		Writer << "v " << Vertex.x << " " << Vertex.y << " " << Vertex.z << "\n";
+	}
+
+	for (int i = 0; i < CollisionMesh->Indices.size() / 3; i++)
+	{
+		// .obj indices are 1-indexed, so we add 1 to export
+		uint I1 = CollisionMesh->Indices[i * 3 + 0] + 1;
+		uint I2 = CollisionMesh->Indices[i * 3 + 1] + 1;
+		uint I3 = CollisionMesh->Indices[i * 3 + 2] + 1;
+
+		// export zeros in texel and normal index positions to signal pretty sure that this is _not_ a regular .obj file
+		Writer << "f " << I1 << "/0/0 " << I2 << "/0/0 " << I3 << "/0/0\n"; 
+	}
+	
+	Writer.close();
 }

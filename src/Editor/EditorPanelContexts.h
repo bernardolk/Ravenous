@@ -58,7 +58,6 @@ namespace Editor
 		bool TrackedOnce = false;
 
 		bool ShowNormals = false;
-		bool ShowCollider = false;
 		bool ShowBoundingBox = false;
 
 		bool ShowRelatedEntity = false;

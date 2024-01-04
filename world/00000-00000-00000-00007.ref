@@ -1,11 +1,11 @@
 Seven : EStaticMesh
 ID: RUUID = "00000-00000-00000-00007"
-Position: vec3 = 5.892100 -12.800600 10.479083
+Position: vec3 = 5.892100 -15.401000 10.479071
 Rotation: vec3 = 0.000000 0.000000 0.000000
 Scale: vec3 = 1.000000 1.000000 1.000000
-Mesh: RMesh* = aabb
+Mesh: RMesh* = longRock005
 Shader: RShader* = model
-TextureDiffuse: RTexture = green
+TextureDiffuse: RTexture = longRock5-redrock_BaseColor
 TextureSpecular: RTexture = null
-TextureNormal: RTexture = null
-CollisionMesh: RCollisionMesh* = aabb
+TextureNormal: RTexture = longRock5-redrock_Normal
+CollisionMesh: RCollisionMesh* = Seven_GeneratedCMesh

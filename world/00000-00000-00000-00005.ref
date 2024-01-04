@@ -1,11 +1,11 @@
 Five : EStaticMesh
 ID: RUUID = "00000-00000-00000-00005"
-Position: vec3 = 1.355000 -15.100000 13.841208
-Rotation: vec3 = 0.000000 0.000000 0.000000
-Scale: vec3 = 1.000000 3.000000 1.000000
-Mesh: RMesh* = aabb
+Position: vec3 = 1.348741 -15.100000 13.841208
+Rotation: vec3 = 0.000000 184.000000 0.000000
+Scale: vec3 = 0.550000 0.600000 0.500000
+Mesh: RMesh* = longRock005
 Shader: RShader* = model
-TextureDiffuse: RTexture = red
+TextureDiffuse: RTexture = longRock5-redrock_BaseColor
 TextureSpecular: RTexture = null
 TextureNormal: RTexture = null
-CollisionMesh: RCollisionMesh* = aabb
+CollisionMesh: RCollisionMesh* = Five_GeneratedCMesh

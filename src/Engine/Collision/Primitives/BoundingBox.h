@@ -90,4 +90,20 @@ struct RBoundingBox
 		MaxY += Offset.y;
 		MaxZ += Offset.z;
 	}
+
+	vector<vec3> GetVertexPositions()
+	{
+		// This vector respects the winding order / indices of the aabb .obj asset
+		return
+		{
+			{MaxX, MaxY, MaxZ},
+			{MaxX, MinY, MaxZ},
+			{MinX, MaxY, MaxZ},
+			{MinX, MinY, MaxZ},
+			{MaxX, MaxY, MinZ},
+			{MaxX, MinY, MinZ},
+			{MinX, MaxY, MinZ},
+			{MinX, MinY, MinZ},
+		};
+	}
 };

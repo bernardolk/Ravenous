@@ -59,16 +59,17 @@ struct RImDraw
 	static auto Add(uint Hash, vector<RVertex> VertexVec, GLenum DrawMethod, RenderOptions Opts = RenderOptions{}) -> void;
 	static void Add(uint Hash, vector<RTriangle> Triangles, GLenum DrawMethod, RenderOptions);
 	static void AddLine(uint Hash, vec3 PointA, vec3 PointB, vec3 Color);
-	static void AddLine(uint Hash, vec3 PointA, vec3 PointB, float LineWidth = 1.0, bool AlwaysOnTop = false, vec3 Color = vec3(0), float Duration = 0);
+	static void AddLine(uint Hash, vec3 PointA, vec3 PointB, float LineWidth = 1.0, bool AlwaysOnTop = false, vec3 Color = vec3(0), float Duration = 0.f);
 	static void AddLineLoop(uint Hash, vector<vec3> Points, float LineWidth = 1.0, bool AlwaysOnTop = false);
-	static void AddPoint(uint Hash, vec3 Point, float PointSize = 1.0, bool AlwaysOnTop = false, vec3 Color = vec3(0), float Duration = 0);
-	static void AddPoint(uint Hash, vec3 Point, vec3 Color = vec3(0));
-	static void AddTriangle(uint Hash, RTriangle Triangle, float LineWidth = 1.0, bool AlwaysOnTop = false, vec3 Color = vec3{0.8, 0.2, 0.2});
+	static void AddPoint(uint Hash, vec3 Point, float PointSize = 1.0, bool AlwaysOnTop = false, vec3 Color = vec3(0.f), float Duration = 0.f);
+	static void AddPoint(uint Hash, vec3 Point, vec3 Color = vec3(0.f));
+	static void AddTriangle(uint Hash, RTriangle Triangle, float LineWidth = 1.0, bool AlwaysOnTop = false, vec3 Color = vec3{0.8f, 0.2f, 0.2f});
 	static void AddMesh(uint Hash, RMesh* Mesh, vec3 Position, vec3 Rotation, vec3 Scale, vec3 Color = COLOR_BLUE_1, int Duration = 2000);
-	static void AddMesh(uint Hash, RMesh* Mesh, vec3 Color = COLOR_BLUE_1, float Duration = 2000);
+	static void AddMesh(uint Hash, RMesh* Mesh, vec3 Color = COLOR_BLUE_1, float Duration = 2000.f);
 	static void AddMesh(uint Hash, EEntity* Entity, int Duration);
 	static void AddMesh(uint Hash, EEntity* Entity);
 	static void AddMesh(uint Hash, EEntity* Entity, vec3 Position);
+	static void AddCollisionMesh(uint _hash, RCollisionMesh* CollisionMesh, vec3 Color, float Duration = 0.f);
 
 private:
 	static void SetMesh(int Index, vector<RVertex> Vertices, GLenum DrawMethod, RenderOptions Opts);

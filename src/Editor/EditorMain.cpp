@@ -321,16 +321,12 @@ namespace Editor
 			RenderEntityControlArrows(&Panel, World, Camera);
 			RenderEntityRotationGizmo(&Panel, World, Camera);
 
-			if (Panel.ShowNormals)
+			if (Panel.ShowNormals) {
 				RenderEntityMeshNormals(&Panel);
-			// @TODO: Some bug being caused in this call
-			//if(panel.show_collider)
-			//   ImDraw::add_mesh(IMHASH, &panel.entity->collider, COLOR_PURPLE_1, 0);
-			if (Panel.ShowBoundingBox)
-			{
-				auto Aabb = GeometryCatalogue.find("aabb")->second;
-				auto [Position, Scale] = Panel.Entity->BoundingBox.GetPosAndScale();
-				RImDraw::AddMesh(IMHASH, Aabb, Position, vec3(0), Scale, COLOR_PINK_1, 0);
+			}
+			
+			if (Panel.ShowBoundingBox) {
+				RImDraw::AddCollisionMesh(IMHASH, &Panel.Entity->Collider, vec3{}); 
 			}
 		}
 

@@ -258,6 +258,43 @@ void RImDraw::AddMesh(uint Hash, EEntity* Entity, vec3 Position)
 	AddMesh(Hash, Entity->Mesh, Position, Entity->Rotation, Entity->Scale);
 }
 
+
+void RImDraw::AddCollisionMesh(uint _hash, RCollisionMesh* CollisionMesh, vec3 Color, float Duration)
+{
+	RImDrawSlot Slot = IM_R_FIND_SLOT();
+
+	if (!Slot.Empty)
+	{
+		UpdateMesh(Slot.Index, Color, Duration);
+		return;
+	}
+
+	RenderOptions Opts;
+	Opts.Color = Color;
+	Opts.Wireframe = true;
+	Opts.DontCullFace = true;
+	
+	auto& Obj = List[Slot.Index];
+	Obj.Hash = _hash;
+	Obj.Duration = Duration;
+	Obj.IsMultplByMatmodel = true;
+	Obj.RenderOptions = Opts;
+	Obj.IsMesh = true;
+	Obj.Empty = false;
+
+	// Copy data from collision mesh into imdraw mesh inside slot
+	Obj.Mesh = RMesh{};
+	for (auto& Vec : CollisionMesh->Vertices) {
+		RVertex Vertex;
+		Vertex.Position = Vec;
+		Obj.Mesh.Vertices.push_back(Vertex);
+	}
+	Obj.Mesh.Indices = CollisionMesh->Indices;
+
+	Obj.Mesh.SetupGLData();
+	Obj.Mesh.SendDataToGLBuffer();
+}
+
 /* --------------------------- */
 /*     > Private functions     */
 /* --------------------------- */

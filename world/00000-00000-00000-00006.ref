@@ -1,11 +1,11 @@
 Six : EStaticMesh
 ID: RUUID = "00000-00000-00000-00006"
-Position: vec3 = 4.545000 -12.549900 12.771000
-Rotation: vec3 = 0.000000 0.000000 0.000000
-Scale: vec3 = 1.000000 1.000000 1.000000
-Mesh: RMesh* = aabb
+Position: vec3 = 4.545000 -15.250000 12.771000
+Rotation: vec3 = 0.000000 -87.000000 0.000000
+Scale: vec3 = 1.000000 0.750000 0.700000
+Mesh: RMesh* = longRock006
 Shader: RShader* = model
-TextureDiffuse: RTexture = blue
+TextureDiffuse: RTexture = longRock6-redrock_BaseColor
 TextureSpecular: RTexture = null
 TextureNormal: RTexture = null
-CollisionMesh: RCollisionMesh* = aabb
+CollisionMesh: RCollisionMesh* = Six_GeneratedCMesh
