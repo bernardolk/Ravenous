@@ -466,12 +466,17 @@ bool PressedOnce(RInputFlags Flags, NKeyInput Key)
 }
 
 
-bool PressedOnly(RInputFlags Flags, NKeyInput Key)
+bool PressedOnceExclusively(RInputFlags Flags, NKeyInput Key)
 {
 	auto* GII = GlobalInputInfo::Get();
 	return Flags.KeyPress == (uint64)Key && !(GII->KeyState & (uint64)Key);
 }
 
+bool PressedExclusively(RInputFlags Flags, NKeyInput Key)
+{
+	auto* GII = GlobalInputInfo::Get();
+	return Flags.KeyPress == (uint64)Key;
+}
 
 bool Pressed(RInputFlags Flags, NKeyInput Key)
 {

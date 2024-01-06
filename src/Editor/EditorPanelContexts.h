@@ -56,8 +56,7 @@ namespace Editor
 
 		REntityState EntityStartingState;
 		bool TrackedOnce = false;
-
-		bool ShowNormals = false;
+		
 		bool ShowBoundingBox = false;
 
 		bool ShowRelatedEntity = false;

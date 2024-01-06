@@ -19,6 +19,7 @@ void OnMouseScroll(GLFWwindow* Window, double Xoffset, double Yoffset);
 struct RInputFlags StartInputPhase();
 bool Pressed(RInputFlags Flags, NKeyInput Key);
 bool PressedOnce(RInputFlags Flags, NKeyInput Key);
-bool PressedOnly(RInputFlags Flags, NKeyInput Key);
+bool PressedOnceExclusively(RInputFlags Flags, NKeyInput Key);
+bool PressedExclusively(RInputFlags Flags, NKeyInput Key);
 void CheckMouseClickHold();
 void ResetInputFlags(RInputFlags Flags);

@@ -1,11 +1,11 @@
 Rock2 : EStaticMesh
 ID: RUUID = "08537-30147-61598-22234"
-Position: vec3 = -8.278996 -15.250000 1.219827
-Rotation: vec3 = 0.000000 63.040005 -2.160000
-Scale: vec3 = 1.000000 1.000000 1.000000
+Position: vec3 = -7.979000 -15.250000 3.520000
+Rotation: vec3 = 0.000000 -33.959999 -2.160000
+Scale: vec3 = 1.250000 1.850000 1.200000
 Mesh: RMesh* = mediumRock003
 Shader: RShader* = model
 TextureDiffuse: RTexture = mediumRock3-sandstone_BaseColor
 TextureSpecular: RTexture = null
 TextureNormal: RTexture = null
-CollisionMesh: RCollisionMesh* = aabb
+CollisionMesh: RCollisionMesh* = Rock2_GeneratedCMesh

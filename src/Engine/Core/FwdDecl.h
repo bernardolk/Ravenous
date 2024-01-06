@@ -16,7 +16,7 @@ struct EStaticMesh;
 struct EntityManager;
 struct EntityPool;
 struct EntityBuffer;
-struct RenderMessageBuffer;
+struct REditorMsgManager;
 
 // G
 struct GlobalSceneInfo;

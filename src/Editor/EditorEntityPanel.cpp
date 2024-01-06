@@ -217,8 +217,6 @@ namespace Editor
 
 			// SHOW GEOMETRIC PROPERTIES
 			ImGui::Text("Show:");
-			ImGui::Checkbox("Normals", &Panel->ShowNormals);
-			ImGui::SameLine();
 			ImGui::Checkbox("Bounding box", &Panel->ShowBoundingBox);
 
 			// ENTITY INSTANCE CONTROLS
@@ -536,8 +534,9 @@ namespace Editor
 
 		Panel->Entity->Update();
 		auto UpdateCells = World->UpdateEntityWorldChunk(Panel->Entity);
-		if (UpdateCells.Status != CellUpdate_OK)
-			Rvn::RmBuffer->Add(UpdateCells.Message, 3500);
+		if (UpdateCells.Status != CellUpdate_OK) {
+			PrintEditorMsg(UpdateCells.Message);
+		}
 
 		// world->UpdateCellsInUseList();
 
@@ -558,7 +557,6 @@ namespace Editor
 		Panel.ReverseScaleX= false;
 		Panel.ReverseScaleY= false;
 		Panel.ReverseScaleZ= false;
-		Panel.ShowNormals= false;
 		Panel.ShowBoundingBox= false;
 		Panel.RenameOptionActive= false;
 		Panel.TrackedOnce= false;

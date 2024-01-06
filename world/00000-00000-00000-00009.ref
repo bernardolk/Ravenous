@@ -1,11 +1,11 @@
 Nine : EStaticMesh
 ID: RUUID = "00000-00000-00000-00009"
-Position: vec3 = 5.209199 -12.800600 3.095600
+Position: vec3 = 8.239468 -15.049996 3.042458
 Rotation: vec3 = 0.000000 0.000000 0.000000
 Scale: vec3 = 1.000000 1.000000 1.000000
-Mesh: RMesh* = aabb
+Mesh: RMesh* = largeRock004
 Shader: RShader* = model
-TextureDiffuse: RTexture = red
+TextureDiffuse: RTexture = largeRock4-sandstone_BaseColor
 TextureSpecular: RTexture = null
 TextureNormal: RTexture = null
-CollisionMesh: RCollisionMesh* = aabb
+CollisionMesh: RCollisionMesh* = Nine_GeneratedCMesh

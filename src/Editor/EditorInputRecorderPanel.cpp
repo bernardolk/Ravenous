@@ -41,7 +41,7 @@ namespace Editor
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor::HSV(0.03f, 0.8f, 0.8f)));
 			if (ImGui::Button("Record", ImVec2(60, 18)))
 			{
-				Rvn::PrintDynamic("Input Recording Started", 2000);
+				//Rvn::PrintDynamic("Input Recording Started", 2000);
 				InputRecorder->StartRecording();
 			}
 			ImGui::PopStyleColor(3);
@@ -51,7 +51,7 @@ namespace Editor
 		{
 			if (ImGui::Button("Stop Recording", ImVec2(100, 18)))
 			{
-				Rvn::PrintDynamic("Input Recording Stoped", 2000);
+				//Rvn::PrintDynamic("Input Recording Stoped", 2000);
 				InputRecorder->StopRecording();
 			}
 		}

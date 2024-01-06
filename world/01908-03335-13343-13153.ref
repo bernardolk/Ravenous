@@ -8,4 +8,4 @@ Shader: RShader* = model
 TextureDiffuse: RTexture = mediumRock3-sandstone_BaseColor
 TextureSpecular: RTexture = null
 TextureNormal: RTexture = null
-CollisionMesh: RCollisionMesh* = aabb
+CollisionMesh: RCollisionMesh* = Rock1_GeneratedCMesh

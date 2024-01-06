@@ -131,8 +131,6 @@ EEntity* RWorldChunkEntityIterator::operator()()
 
 RRaycastTest RWorld::Raycast(const RRay Ray, const NRayCastType TestType, const EEntity* Skip, const float MaxDistance) const
 {
-	//@TODO: This should first Test Ray against world cells, then get the list of entities from these world cells to Test against 
-
 	float MinDistance = MaxFloat;
 	RRaycastTest ClosestHit{false, -1};
 

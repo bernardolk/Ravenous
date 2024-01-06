@@ -58,39 +58,49 @@ struct Rvn
 	static constexpr uint CollisionLogCapacity = 20;
 	static constexpr uint CollisionBufferCapacity = 1000;
 	static constexpr uint MessageBufferCapacity = 300;
-	static constexpr int MaxMessagesToRender = 8;
 
 	inline static string SceneName;
 
 	inline static vector<EntityBufferElement> EntityBuffer;
-	inline static RenderMessageBuffer* RmBuffer;
+	inline static REditorMsgManager* EditorMsgManager;
 
 	static void Init();
-	static void PrintDynamic(const string& Msg, float Duration = 0, vec3 Color = vec3(-1));
-	static void Print(const string& Msg, float Duration = 0, vec3 Color = vec3(-1));
 };
 
+// ======================
+//	Editor Messages
+// ======================
+
+
+#define PrintEditorMsg(msg) \
+{ \
+	static uint MsgId = 0; \
+	Rvn::EditorMsgManager->AddMessage(MsgId, msg); \
+}
 
 // stores messages to be displayed on screen during a certain duration
-struct RenderMessageBufferElement
+struct REditorMsg
 {
-	string Message;
-	float Elapsed = 0;
-	float Duration = 0;
+	inline static uint constexpr RenderMessageMaxSize = 80;
+
+	uint Id = 0;
+	string Message = "";
+	float Elapsed = 0.f;
+	float Duration = 0.f;
 	vec3 Color;
 };
 
-struct RenderMessageBuffer
+struct REditorMsgManager
 {
-	constexpr static uint Capacity = Rvn::MessageBufferCapacity;
-	uint16 Count = 0;
-
-private:
-	RenderMessageBufferElement Buffer[Capacity]{};
-
+	
 public:
-	bool Add(string Msg, float Duration, vec3 Color = vec3(-1));
-	bool AddUnique(string Msg, float Duration, vec3 Color = vec3(-1));
-	void Cleanup();
+	static constexpr inline uint MaxMessagesToRender = 4;
+
+	void AddMessage(uint& MsgId, const string MsgString, float Duration = 2.f, vec3 Color = vec3{-1.f});
+	void Update();
 	void Render();
+	
+private:
+	vector<REditorMsg> Messages;
+	static inline constexpr std::hash<std::string> Hasher;
 };

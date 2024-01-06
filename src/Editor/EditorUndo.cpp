@@ -9,7 +9,7 @@ namespace Editor
 	{
 		if (Size + 1 == Capacity)
 		{
-			Rvn::RmBuffer->Add("DeletedEntityLog is FULL!", 3000);
+			PrintEditorMsg("DeletedEntityLog is FULL!");
 			return;
 		}
 
@@ -27,7 +27,7 @@ namespace Editor
 
 		if (Full)
 		{
-			Rvn::RmBuffer->Add("UNDO/REDO STACK FULL.", 800);
+			PrintEditorMsg("UNDO/REDO STACK FULL");
 			return;
 		}
 

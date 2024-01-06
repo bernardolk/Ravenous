@@ -129,7 +129,7 @@ void EPlayer::UpdateState()
 		if (bWantToGrab)
 		{
 			//GP_CheckPlayerGrabbedLedge(this, world);
-			Rvn::Print("Ran check player grabbed ledge", 1000);
+			//Rvn::Print("Ran check player grabbed ledge", 1000);
 		}
 	}
 

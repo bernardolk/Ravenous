@@ -74,7 +74,7 @@ bool Pressed(RInputFlags Flags, uint64 Key)
 
 bool PressedOnly(RInputFlags Flags, uint64 Key)
 {
-	return PressedOnly(Flags, (NKeyInput)Key);	
+	return PressedOnceExclusively(Flags, (NKeyInput)Key);	
 }
 
 bool PressedOnce(RInputFlags Flags, uint64 Key)

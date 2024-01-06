@@ -7,124 +7,64 @@
 
 void Rvn::Init()
 {
-	RmBuffer = new RenderMessageBuffer();
+	EditorMsgManager = new REditorMsgManager();
 }
 
-
-void Rvn::PrintDynamic(const std::string& Msg, float Duration, vec3 Color)
+void REditorMsgManager::AddMessage(uint& MsgId, const string MsgString, float Duration, vec3 Color)
 {
-	RmBuffer->Add(Msg, Duration, Color);
-}
-
-
-void Rvn::Print(const std::string& Msg, float Duration, vec3 Color)
-{
-	/*
-	   Will add a persistent Message, that can't be updated later on, to the buffer.
-	*/
-	RmBuffer->AddUnique(Msg, Duration, Color);
-}
-
-
-bool RenderMessageBuffer::Add(const std::string Msg, float Duration, vec3 Color)
-{
-	if (Count >= Capacity)
-	{
-		std::cout << "WARNING: Message has not been addded to Message buffer" << "because it is FULL. Message was: " << Msg << "\n";
-		return false;
-	}
-
-	// @TODO: This is dumb :D
-	for (int i = 0; i < Capacity; i++)
-	{
-		auto Item = &Buffer[i];
-		// refresh Message instead of adding if already exists
-		if (Item->Message == Msg)
-		{
-			Item->Elapsed = 0;
-			break;
-		}
-		if (Item->Message == "")
-		{
-			new(Item) RenderMessageBufferElement{
-			.Message = Msg,
-			.Elapsed = 0,
-			.Duration = Duration,
-			.Color = Color
-			};
-			Count++;
-			break;
+	// refresh Message instead of adding if already exists
+	for (auto& Msg : Messages) {
+		if (Msg.Id == MsgId) {
+			Msg.Elapsed = 0;
+			return;
 		}
 	}
 
-	return true;
+	// Adds new message
+	MsgId = Hasher(MsgString);
+
+	REditorMsg Msg;
+	Msg.Color = Color;
+	Msg.Duration = Duration * 1000;
+	Msg.Id = MsgId;
+	Msg.Message = MsgString;
+	Messages.push_back(Msg);
 }
 
-
-bool RenderMessageBuffer::AddUnique(const std::string Msg, float Duration, vec3 Color)
+void REditorMsgManager::Update()
 {
-	if (Count >= Capacity)
-	{
-		std::cout << "WARNING: Message has not been addded to Message buffer" << "because it is FULL. Message was: " << Msg << "\n";
-		return false;
-	}
-
-	// @TODO: This is dumb :D
-	for (int i = 0; i < Capacity; i++)
-	{
-		auto Item = &Buffer[i];
-		if (Item->Message == "")
-		{
-			new(Item) RenderMessageBufferElement{
-			.Message = Msg,
-			.Elapsed = 0,
-			.Duration = Duration,
-			.Color = Color
-			};
-			Count++;
-			break;
-		}
-	}
-
-	return true;
-}
-
-void RenderMessageBuffer::Cleanup()
-{
+	// Just update elapsed time of messages that are going to be render so we don't loose any msgs.
 	auto& Frame = RavenousEngine::GetFrame();
 
-	for (int i = 0; i < Capacity; i++)
+	int ItemsToUpdate = MaxMessagesToRender;
+	for (auto MsgIter = Messages.begin(); ItemsToUpdate == 0 || MsgIter != Messages.end();)
 	{
-		auto Item = &Buffer[i];
-		Item->Elapsed += Frame.Duration * 1000.0;
-		if (Item->Elapsed >= Item->Duration)
-		{
-			new(Item) RenderMessageBufferElement();
-			Count -= 1;
+		MsgIter->Elapsed += Frame.Duration * 1000.0;		
+	
+		if (MsgIter->Elapsed >= MsgIter->Duration) {
+			MsgIter = Messages.erase(MsgIter);
 		}
+
+		--ItemsToUpdate;
 	}
 }
 
-void RenderMessageBuffer::Render()
+void REditorMsgManager::Render()
 {
 	int ItemsRendered = 0;
-	for (int i = 0; i < Capacity; i++)
+	for (auto& Msg : Messages)
 	{
-		auto& Item = Buffer[i];
-		if (ItemsRendered == Rvn::MaxMessagesToRender)
-			break;
+		if (ItemsRendered == MaxMessagesToRender) break;
 
-		if (Item.Message != "")
-		{
-			ItemsRendered++;
-			RenderText(
-				"consola20",
-				GlobalDisplayState::ViewportWidth / 2,
-				GlobalDisplayState::ViewportHeight - 120 - ItemsRendered * 25,
-				Item.Color == vec3(-1) ? vec3(0.8, 0.8, 0.2) : Item.Color,
-				true,
-				Item.Message
-			);
-		}
+		RenderText(
+			"consola20",
+			GlobalDisplayState::ViewportWidth / 2,
+			GlobalDisplayState::ViewportHeight - 120 - ItemsRendered * 25,
+			Msg.Color == vec3(-1) ? vec3(0.8, 0.8, 0.2) : Msg.Color,
+			true,
+			Msg.Message
+		);
+
+		ItemsRendered++;
 	}
 }

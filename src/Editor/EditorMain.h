@@ -33,7 +33,6 @@ namespace Editor
 	void RenderEntityControlArrows(REntityPanelContext* Panel, RWorld* World, RCamera* Camera);
 	void RenderEntityRotationGizmo(REntityPanelContext* Panel, RWorld* World, RCamera* Camera);
 	void UpdateEntityRotationGizmo(REntityPanelContext* Panel);
-	void RenderEntityMeshNormals(REntityPanelContext* Panel);
 	float GetGizmoScalingFactor(EEntity* Entity, float Min, float Max);
 	void RenderWorldCells(RCamera* Camera, RWorld* World);
 	void RenderLightbulbs(RCamera* Camera, RWorld* World);

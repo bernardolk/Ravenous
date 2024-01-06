@@ -113,12 +113,7 @@ void RenderEditorEntity(EEntity* Entity, RWorld* World, RCamera* Camera)
 	Entity->Shader->SetMatrix4("model", Entity->MatModel);
 	Entity->Shader->SetMatrix4("view", Camera->MatView);
 	Entity->Shader->SetMatrix4("projection", Camera->MatProjection);
-	Entity->Shader->SetMatrix4("model", Entity->MatModel);
-	Entity->Shader->SetFloat3("viewPos", Camera->Position);
-	Entity->Shader->SetFloat3("entity_position", Entity->Position);
-	Entity->Shader->SetFloat("shininess", World->GlobalShininess);
-
-	// RenderEntity(entity);
+	RenderEntity(Entity);
 }
 
 

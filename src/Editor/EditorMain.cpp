@@ -192,7 +192,6 @@ namespace Editor
 		}
 	}
 
-
 	//---------------------
 	// > RENDER EDITOR UI
 	//---------------------
@@ -318,11 +317,12 @@ namespace Editor
 			auto& Panel = EdContext.EntityPanel;
 
 			RenderEntityPanel(&Panel, World);
-			RenderEntityControlArrows(&Panel, World, Camera);
-			RenderEntityRotationGizmo(&Panel, World, Camera);
 
-			if (Panel.ShowNormals) {
-				RenderEntityMeshNormals(&Panel);
+			if (EdContext.ShowTranslationGizmo) {
+				RenderEntityControlArrows(&Panel, World, Camera);
+			}
+			if (EdContext.ShowRotationGizmo) {
+				RenderEntityRotationGizmo(&Panel, World, Camera);
 			}
 			
 			if (Panel.ShowBoundingBox) {
@@ -387,7 +387,6 @@ namespace Editor
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 	}
-
 
 	void Initialize()
 	{
@@ -520,7 +519,6 @@ namespace Editor
 
 		EdContext.LastFrameScene = RWorld::Get()->SceneName;
 	}
-
 
 	void RenderTextOverlay(EPlayer* Player, RCamera* Camera)
 	{
@@ -694,7 +692,6 @@ namespace Editor
 			}
 
 			RenderText(FontCenter, GlobalDisplayState::ViewportWidth / 2, CenteredTextHeight, vec3(0.8, 0.8, 0.2), true, "MOVE MODE (" + MoveAxis + ")");
-
 			RenderText(FontCenter, GlobalDisplayState::ViewportWidth / 2, CenteredTextHeightSmall, vec3(0.8, 0.8, 0.2), true, "press M to alternate between move and place modes");
 		}
 
@@ -704,7 +701,6 @@ namespace Editor
 		if (EdContext.PlaceMode)
 		{
 			RenderText(FontCenter, GlobalDisplayState::ViewportWidth / 2, CenteredTextHeight, vec3(0.8, 0.8, 0.2), true, "PLACE MODE");
-
 			RenderText(FontCenterSmall, GlobalDisplayState::ViewportWidth / 2, CenteredTextHeightSmall, vec3(0.8, 0.8, 0.2), true, "press M to alternate between move and place modes");
 		}
 
@@ -773,7 +769,6 @@ namespace Editor
 		*/
 	}
 
-
 	void RenderWorldCells(RCamera* Camera, RWorld* World)
 	{
 		auto Shader = ShaderCatalogue.find("color")->second;
@@ -821,8 +816,7 @@ namespace Editor
 		}
 	}
 
-
-	inline void RenderLightbulbs(RCamera* Camera, RWorld* World)
+	void RenderLightbulbs(RCamera* Camera, RWorld* World)
 	{
 		auto& EdContext = *GetContext();
 
@@ -945,28 +939,35 @@ namespace Editor
 		}
 	}
 
-
 	void RenderEntityControlArrows(REntityPanelContext* Panel, RWorld* World, RCamera* Camera)
 	{
-		//@todo: try placing editor objects in a separate z buffer? Maybe manually... so we don't have to use GL_ALWAYS
-		glDepthFunc(GL_ALWAYS);
+		auto* ArrowShader = Panel->XArrow->Shader;
+		ArrowShader->Use();
+		ArrowShader->SetFloat3("color", 0.f, 0.f, 1.f);
 		RenderEditorEntity(Panel->XArrow, World, Camera);
+		
+		ArrowShader->SetFloat3("color", 0.f, 1.f, 0.f);
 		RenderEditorEntity(Panel->YArrow, World, Camera);
+		
+		ArrowShader->SetFloat3("color", 1.f, 0.f, 0.f);
 		RenderEditorEntity(Panel->ZArrow, World, Camera);
-		glDepthFunc(GL_LESS);
 	}
-
 
 	void RenderEntityRotationGizmo(REntityPanelContext* Panel, RWorld* World, RCamera* Camera)
 	{
-		//@todo: try placing editor objects in a separate z buffer? Maybe manually... so we don't have to use GL_ALWAYS
-		glDepthFunc(GL_ALWAYS);
+		RImDraw::AddPoint(IMHASH, {Panel->Entity->BoundingBox.MinX, Panel->Entity->BoundingBox.MinY, Panel->Entity->BoundingBox.MinZ}, 4.f, true, vec3{1.f});
+		
+		auto RotGizmoShader = Panel->RotationGizmoX->Shader;
+		RotGizmoShader->Use();
+		RotGizmoShader->SetFloat3("color", 0.f, 0.f, 1.f);
 		RenderEditorEntity(Panel->RotationGizmoX, World, Camera);
-		RenderEditorEntity(Panel->RotationGizmoY, World, Camera);
-		RenderEditorEntity(Panel->RotationGizmoZ, World, Camera);
-		glDepthFunc(GL_LESS);
-	}
 
+		RotGizmoShader->SetFloat3("color", 0.f, 1.f, 0.f);
+		RenderEditorEntity(Panel->RotationGizmoY, World, Camera);
+
+		RotGizmoShader->SetFloat3("color", 1.f, 0.f, 0.f);
+		RenderEditorEntity(Panel->RotationGizmoZ, World, Camera);
+	}
 
 	float GetGizmoScalingFactor(EEntity* Entity, float Min, float Max)
 	{
@@ -990,7 +991,6 @@ namespace Editor
 		return ScalingFactor;
 	}
 
-
 	void UpdateEntityControlArrows(REntityPanelContext* Panel)
 	{
 		// arrow positioning settings
@@ -1007,11 +1007,14 @@ namespace Editor
 		}
 
 		// update arrow mat models doing correct matrix multiplication order
-		auto StartingModel = translate(Mat4Identity, Entity->Position);
-		StartingModel = rotate(StartingModel, glm::radians(Entity->Rotation.x), UnitX);
-		StartingModel = rotate(StartingModel, glm::radians(Entity->Rotation.y), UnitY);
-		StartingModel = rotate(StartingModel, glm::radians(Entity->Rotation.z), UnitZ);
+		auto StartingModel = translate(Mat4Identity, Entity->BoundingBox.GetCentroid());
+		// auto StartingModel = translate(Mat4Identity, vec3{0.f});
+		
+		// StartingModel = rotate(StartingModel, glm::radians(Entity->Rotation.x), UnitX);
+		// StartingModel = rotate(StartingModel, glm::radians(Entity->Rotation.y), UnitY);
+		// StartingModel = rotate(StartingModel, glm::radians(Entity->Rotation.z), UnitZ);
 
+		// TODO: Gizmos should always occupy the same size on screen independently of camera distance
 		float ScaleValue = GetGizmoScalingFactor(Entity, 0.8, 3.0);
 
 		for (int i = 0; i < 3; i++)
@@ -1025,47 +1028,28 @@ namespace Editor
 		}
 	}
 
-
 	void UpdateEntityRotationGizmo(REntityPanelContext* Panel)
 	{
 		// arrow positioning settings
 		float Angles[3] = {270, 0, 90};
 		vec3 RotAxis[3] = {UnitZ, UnitX, UnitX};
-		EEntity* Gizmos[3] = {Panel->RotationGizmoX, Panel->RotationGizmoY, Panel->RotationGizmoZ};
-
+		int i = 0;
+		
 		auto Entity = Panel->Entity;
 
-		// update arrow mat models doing correct matrix multiplication order
 		auto StartingModel = translate(Mat4Identity, Entity->BoundingBox.GetCentroid());
 
+		// TODO: Gizmos should always occupy the same size on screen independently of camera distance
 		float ScaleValue = GetGizmoScalingFactor(Entity, 1.0, 3.0);
 
-		for (int i = 0; i < 3; i++)
+		for (auto* Gizmo : {Panel->RotationGizmoX, Panel->RotationGizmoY, Panel->RotationGizmoZ})
 		{
 			auto Model = rotate(StartingModel, glm::radians(Angles[i]), RotAxis[i]);
 			Model = scale(Model, vec3(ScaleValue));
-			Gizmos[i]->MatModel = Model;
-			Gizmos[i]->UpdateCollider();
-			Gizmos[i]->UpdateBoundingBox();
-		}
-	}
-
-
-	void RenderEntityMeshNormals(REntityPanelContext* Panel)
-	{
-		// only for aabb
-		auto Entity = Panel->Entity;
-
-		int Triangles = Entity->Mesh->Indices.size() / 3;
-		for (int i = 0; i < Triangles; i++)
-		{
-			RTriangle Triangle = GetTriangleForIndexedMesh(Entity->Mesh, Entity->MatModel, i);
-			vec3 Normal = triangleNormal(Triangle.A, Triangle.B, Triangle.C);
-			RFace Face = FaceFromAxisAlignedTriangle(Triangle);
-
-			RImDraw::AddPoint(IMHASH, Face.Center, 2.0, true);
-
-			RImDraw::AddLine(IMHASH, Face.Center, Face.Center + Normal * 2.0f, 2.5, true);
+			Gizmo->MatModel = Model;
+			Gizmo->UpdateCollider();
+			Gizmo->UpdateBoundingBox();
+			i++;
 		}
 	}
 
@@ -1083,7 +1067,6 @@ namespace Editor
 		else if (TestLight.Hit)
 			OpenLightsPanel(TestLight.ObjHitType, TestLight.ObjHitIndex, true);
 	}
-
 
 	void CheckSelectionToSelectRelatedEntity(RWorld* World, RCamera* Camera)
 	{

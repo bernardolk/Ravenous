@@ -118,6 +118,9 @@ namespace Editor
 		EEntity* TriAxis[3];
 		EEntity* TriAxisLetters[3];
 
+		bool ShowTranslationGizmo = true;
+		bool ShowRotationGizmo;
+		
 		// debug options
 		bool DebugLedgeDetection = false;
 	};

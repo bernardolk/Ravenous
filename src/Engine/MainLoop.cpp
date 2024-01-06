@@ -120,6 +120,7 @@ void RavenousMainLoop()
 				case REditorState::ProgramMode::Editor:
 				{
 					Editor::Update(Player, World, Camera);
+					glClear(GL_DEPTH_BUFFER_BIT);
 					Editor::Render(Player, World, Camera);
 					break;
 				}
@@ -131,16 +132,17 @@ void RavenousMainLoop()
 			}
 			RImDraw::Render(Camera);
 			RImDraw::Update(Frame.Duration);
-			Rvn::RmBuffer->Render();
+			Rvn::EditorMsgManager->Render();
 		}
 
 		// -------------
 		// FINISH FRAME
 		// -------------
-		Rvn::RmBuffer->Cleanup();
+		Rvn::EditorMsgManager->Update();
 		glfwSwapBuffers(GlobalDisplayState::Get()->GetWindow());
-		if (ES->CurrentMode == REditorState::ProgramMode::Editor)
+		if (ES->CurrentMode == REditorState::ProgramMode::Editor) {
 			Editor::EndDearImguiFrame();
+		}
 	}
 
 	glfwTerminate();

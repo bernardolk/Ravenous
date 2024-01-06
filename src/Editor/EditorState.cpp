@@ -44,7 +44,7 @@ void REditorState::ToggleProgramMode()
 		glfwSetInputMode(GDC->GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		Editor::EndDearImguiFrame();
 
-		Rvn::RmBuffer->Add("Game Mode", 2000);
+		PrintEditorMsg("Game Mode");
 
 	}
 
@@ -59,6 +59,6 @@ void REditorState::ToggleProgramMode()
 		glfwSetInputMode(GDC->GetWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		Editor::StartDearImguiFrame();
 
-		Rvn::RmBuffer->Add("Editor Mode", 2000);
+		PrintEditorMsg("Editor Mode");
 	}
 }

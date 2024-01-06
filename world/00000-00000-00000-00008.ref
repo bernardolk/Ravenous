@@ -1,11 +1,11 @@
 Eight : EStaticMesh
 ID: RUUID = "00000-00000-00000-00008"
-Position: vec3 = 7.520200 -12.800600 6.846200
+Position: vec3 = 10.226888 -15.050000 4.646078
 Rotation: vec3 = 0.000000 0.000000 0.000000
 Scale: vec3 = 1.000000 1.000000 1.000000
-Mesh: RMesh* = aabb
+Mesh: RMesh* = largeRock003
 Shader: RShader* = model
-TextureDiffuse: RTexture = grey
+TextureDiffuse: RTexture = largeRock3-sandstone_BaseColor
 TextureSpecular: RTexture = null
 TextureNormal: RTexture = null
-CollisionMesh: RCollisionMesh* = aabb
+CollisionMesh: RCollisionMesh* = Eight_GeneratedCMesh

@@ -47,10 +47,11 @@ struct RBoundingBox
 
 	vec3 GetCentroid()
 	{
-		return {
-		(MaxX + MinX) / 2,
-		(MaxY + MinY) / 2,
-		(MaxZ + MinZ) / 2,
+		return
+		{
+			(MaxX + MinX) / 2.f,
+			(MaxY + MinY) / 2.f,
+			(MaxZ + MinZ) / 2.f,
 		};
 	}
 

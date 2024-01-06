@@ -48,7 +48,7 @@ namespace Editor
 			Serialization::SaveWorldToDisk();
 			ProgramConfig.InitialScene = RWorld::Get()->SceneName;
 			ConfigSerializer::Save(ProgramConfig);
-			Rvn::RmBuffer->Add("World Saved", 1200);
+			PrintEditorMsg("World Saved");
 			return;
 		}
 
@@ -112,7 +112,7 @@ namespace Editor
 			{
 				SnapCommit();
 			}
-			if (PressedOnly(Flags, NKeyInput::KeyX))
+			if (PressedOnceExclusively(Flags, NKeyInput::KeyX))
 			{
 				if (Context.SnapAxis == 0)
 					Context.SnapCycle = (Context.SnapCycle + 1) % 3;
@@ -125,7 +125,7 @@ namespace Editor
 				if (Context.SnapReference != nullptr)
 					SnapEntityToReference(Context.EntityPanel.Entity);
 			}
-			if (PressedOnly(Flags, NKeyInput::KeyY))
+			if (PressedOnceExclusively(Flags, NKeyInput::KeyY))
 			{
 				if (Context.SnapAxis == 1)
 					Context.SnapCycle = (Context.SnapCycle + 1) % 3;
@@ -138,7 +138,7 @@ namespace Editor
 				if (Context.SnapReference != nullptr)
 					SnapEntityToReference(Context.EntityPanel.Entity);
 			}
-			if (PressedOnly(Flags, NKeyInput::KeyZ))
+			if (PressedOnceExclusively(Flags, NKeyInput::KeyZ))
 			{
 				if (Context.SnapAxis == 2)
 					Context.SnapCycle = (Context.SnapCycle + 1) % 3;
@@ -151,7 +151,7 @@ namespace Editor
 				if (Context.SnapReference != nullptr)
 					SnapEntityToReference(Context.EntityPanel.Entity);
 			}
-			if (PressedOnly(Flags, NKeyInput::KeyI))
+			if (PressedOnceExclusively(Flags, NKeyInput::KeyI))
 			{
 				Context.SnapInside = !Context.SnapInside;
 				if (Context.SnapReference != nullptr)
@@ -168,19 +168,19 @@ namespace Editor
 			{
 				Context.MoveAxis = 0;
 			}
-			if (PressedOnly(Flags, NKeyInput::KeyX))
+			if (PressedOnceExclusively(Flags, NKeyInput::KeyX))
 			{
 				Context.MoveAxis = 1;
 			}
-			if (PressedOnly(Flags, NKeyInput::KeyY))
+			if (PressedOnceExclusively(Flags, NKeyInput::KeyY))
 			{
 				Context.MoveAxis = 2;
 			}
-			if (PressedOnly(Flags, NKeyInput::KeyZ))
+			if (PressedOnceExclusively(Flags, NKeyInput::KeyZ))
 			{
 				Context.MoveAxis = 3;
 			}
-			if (PressedOnly(Flags, NKeyInput::KeyM))
+			if (PressedOnceExclusively(Flags, NKeyInput::KeyM))
 			{
 				Context.MoveMode = false;
 				Context.PlaceMode = true;
@@ -193,7 +193,7 @@ namespace Editor
 		// ---------------------
 		if (Context.PlaceMode == true)
 		{
-			if (PressedOnly(Flags, NKeyInput::KeyM))
+			if (PressedOnceExclusively(Flags, NKeyInput::KeyM))
 			{
 				Context.PlaceMode = false;
 				Context.MoveMode = true;
@@ -202,15 +202,21 @@ namespace Editor
 		}
 
 		// -------------------
-		// CAMERA TYPE TOGGLE
+		// TRANSLATION TOOL
 		// -------------------
 		if (PressedOnce(Flags, NKeyInput::KeyT))
 		{
-			// toggle Camera type
-			if (Camera->Type == FreeRoam)
-				Manager->SetCameraToThirdPerson();
-			else if (Camera->Type == ThirdPerson)
-				Manager->SetCameraToFreeRoam();
+			Context.ShowTranslationGizmo = true;
+			Context.ShowRotationGizmo = false;
+		}
+
+		// -------------------
+		// TRANSLATION TOOL
+		// -------------------
+		if (PressedOnce(Flags, NKeyInput::KeyR))
+		{
+			Context.ShowTranslationGizmo = false;
+			Context.ShowRotationGizmo = true;
 		}
 
 		// ---------------
@@ -230,43 +236,36 @@ namespace Editor
 
 		if (GII->MouseState & (uint16)NMouseInput::LeftButtonClick)
 		{
-			if (Context.SnapMode)
-			{
+			if (Context.SnapMode) {
 				CheckSelectionToSnap();
 			}
-			else if (Context.MeasureMode)
-			{
+			
+			else if (Context.MeasureMode) {
 				CheckSelectionToMeasure(World);
 			}
-			else if (Context.LocateCoordsMode)
-			{
+			
+			else if (Context.LocateCoordsMode) {
 				CheckSelectionToLocateCoords(World);
 			}
-			else if (Context.StretchMode)
-			{
+			
+			else if (Context.StretchMode) {
 				CheckSelectionToStretch();
 			}
-			else if (Flags.KeyPress & (uint64)NKeyInput::KeyG)
-			{
+			
+			else if (Pressed(Flags, NKeyInput::KeyG)) {
 				CheckSelectionToMoveEntity(World, Camera);
 			}
+			
 			else
 			{
 				Context.MouseClick = true;
-
+				if (Context.MoveMode || Context.PlaceMode) return;
 				if (Context.EntityPanel.Active)
 				{
-					if (Context.SelectEntityAuxMode)
-						return;
-					if (CheckSelectionToGrabEntityArrows(Camera))
-						return;
-					if (CheckSelectionToGrabEntityRotationGizmo(Camera))
-						return;
+					if (Context.SelectEntityAuxMode) return;
+					if (CheckSelectionToGrabEntityArrows(Camera)) return;
+					if (CheckSelectionToGrabEntityRotationGizmo(Camera)) return;
 				}
-
-				if (Context.MoveMode || Context.PlaceMode)
-					return;
-
 				CheckSelectionToOpenPanel(Player, World, Camera);
 			}
 		}
@@ -312,43 +311,42 @@ namespace Editor
 		auto* EditorCamera = Manager->GetEditorCamera();
 		float CameraSpeed = Camera->Type == ThirdPerson ? length(Player->Velocity) * Frame.Duration : Frame.RealDuration * EditorCamera->Acceleration;
 
-		if (Flags.KeyPress & (uint64)NKeyInput::KeyLeftShift)
+		if (Pressed(Flags, NKeyInput::KeyLeftShift))
 		{
 			CameraSpeed = CameraSpeed * 2;
 		}
 
-		if (Flags.KeyPress & (uint64)NKeyInput::KeyW)
+		if (Pressed(Flags, NKeyInput::KeyW))
 		{
 			Camera->Position += CameraSpeed * Camera->Front;
 		}
-		if (Flags.KeyPress & (uint64)NKeyInput::KeyA)
+		
+		if (Pressed(Flags, NKeyInput::KeyA))
 		{
-			// @TODO: this sucks too
-			if (Camera->Type == FreeRoam)
-				Camera->Position -= CameraSpeed * normalize(glm::cross(Camera->Front, Camera->Up));
-			else if (Camera->Type == ThirdPerson)
-				Camera->OrbitalAngle -= 0.025;
+			Camera->Position -= CameraSpeed * normalize(glm::cross(Camera->Front, Camera->Up));
 		}
-		if (Pressed(Flags, NKeyInput::KeyS))
+		
+		if (Pressed(Flags, NKeyInput::KeyS) && !Pressed(Flags, NKeyInput::KeyLeftCtrl))
 		{
 			Camera->Position -= CameraSpeed * Camera->Front;
 		}
-		if (Flags.KeyPress & (uint64)NKeyInput::KeyD)
+		
+		if (Pressed(Flags, NKeyInput::KeyD))
 		{
-			if (Camera->Type == FreeRoam)
-				Camera->Position += CameraSpeed * normalize(glm::cross(Camera->Front, Camera->Up));
-			else if (Camera->Type == ThirdPerson)
-				Camera->OrbitalAngle += 0.025;
+			Camera->Position += CameraSpeed * normalize(glm::cross(Camera->Front, Camera->Up));
 		}
-		if (Flags.KeyPress & (uint64)NKeyInput::KeyQ)
+		
+		if (Pressed(Flags, NKeyInput::KeyQ))
 		{
 			Camera->Position -= CameraSpeed * Camera->Up;
 		}
-		if (Flags.KeyPress & (uint64)NKeyInput::KeyE)
+		
+		if (Pressed(Flags, NKeyInput::KeyE))
 		{
 			Camera->Position += CameraSpeed * Camera->Up;
 		}
-		if (Flags.KeyPress & (uint64)NKeyInput::KeyO)
+		
+		if (Pressed(Flags, NKeyInput::KeyO))
 		{
 			Manager->CameraLookAt(Camera, vec3(0.0f, 0.0f, 0.0f), true);
 		}
@@ -374,30 +372,30 @@ namespace Editor
 		}
 		if (PressedOnce(Flags, NKeyInput::Key1))
 		{
-			Rvn::RmBuffer->Add("TIME STEP x0.05", 1000);
+			PrintEditorMsg("TIME STEP x0.05");
 			Frame.TimeStep = 0.05;
 		}
 		if (PressedOnce(Flags, NKeyInput::Key2))
 		{
-			Rvn::RmBuffer->Add("TIME STEP x0.1", 1000);
+			PrintEditorMsg("TIME STEP x0.1");
 			Frame.TimeStep = 0.1;
 		}
 		if (PressedOnce(Flags, NKeyInput::Key3))
 		{
-			Rvn::RmBuffer->Add("TIME STEP x0.3", 1000);
+			PrintEditorMsg("TIME STEP x0.3");
 			Frame.TimeStep = 0.3;
 		}
 		if (PressedOnce(Flags, NKeyInput::Key4))
 		{
-			Rvn::RmBuffer->Add("TIME STEP x1.0", 1000);
+			PrintEditorMsg("TIME STEP x1.0");
 			Frame.TimeStep = 1.0;
 		}
 		if (PressedOnce(Flags, NKeyInput::Key5))
 		{
-			Rvn::RmBuffer->Add("TIME STEP x2.0", 1000);
+			PrintEditorMsg("TIME STEP x2.0");
 			Frame.TimeStep = 2.0;
 		}
-		if (Flags.KeyPress & (uint64)NKeyInput::KeyK)
+		if (Pressed(Flags, NKeyInput::KeyK))
 		{
 			Player->Die();
 		}
@@ -409,7 +407,7 @@ namespace Editor
 		{
 			StartConsoleMode();
 		}
-		if (Flags.KeyPress & (uint64)NKeyInput::KeyDelete)
+		if (Pressed(Flags, NKeyInput::KeyDelete))
 		{
 			auto* GDC = GlobalDisplayState::Get();
 			glfwSetWindowShouldClose(GDC->GetWindow(), true);
