@@ -10,21 +10,18 @@ RBoundingBox RCollisionMesh::ComputeBoundingBox()
 	// So, this does NOT return the min/max vertices of the mesh in axial direction
 	// (support points)
 
-	float Maxx = 0.f, Minx = 0.f, Maxy = 0.f, Miny = 0.f, Maxz = 0.f, Minz = 0.f;
-
+	RBoundingBox Box;
 	for (auto& Vertex : Vertices)
 	{
-		if (Vertex.x < Minx) Minx = Vertex.x;
-		if (Vertex.x > Maxx) Maxx = Vertex.x;
-		if (Vertex.y < Miny) Miny = Vertex.y;
-		if (Vertex.y > Maxy) Maxy = Vertex.y;
-		if (Vertex.z < Minz) Minz = Vertex.z;
-		if (Vertex.z > Maxz) Maxz = Vertex.z;
+		if (Vertex.x < Box.MinX) Box.MinX = Vertex.x;
+		if (Vertex.x > Box.MaxX) Box.MaxX = Vertex.x;
+		if (Vertex.y < Box.MinY) Box.MinY = Vertex.y;
+		if (Vertex.y > Box.MaxY) Box.MaxY = Vertex.y;
+		if (Vertex.z < Box.MinZ) Box.MinZ = Vertex.z;
+		if (Vertex.z > Box.MaxZ) Box.MaxZ = Vertex.z;
 	}
-
-	RBoundingBox Bb;
-	Bb.Set(vec3(Minx, Miny, Minz), vec3(Maxx, Maxy, Maxz));
-	return Bb;
+	
+	return Box;
 }
 
 

@@ -118,55 +118,19 @@ RBoundingBox RMesh::ComputeBoundingBox()
 	// So, this does NOT return the min/max vertices of the mesh in axial direction
 	// (support points)
 
-	auto MaxD = vec3(MinFloat, MinFloat, MinFloat);
-	auto MinD = vec3(MaxFloat, MaxFloat, MaxFloat);
-
-	float Maxx = 0.f, Minx = 0.f, Maxy = 0.f, Miny = 0.f, Maxz = 0.f, Minz = 0.f;
-
-	for (int i = 0; i < this->Vertices.size(); i++)
+	
+	RBoundingBox Box;
+	for (auto& Vertex : Vertices)
 	{
-		vec3 Vertex = this->Vertices[i].Position;
-		float Dotx = dot(Vertex, vec3(1, 0, 0));
-		float Doty = dot(Vertex, vec3(0, 1, 0));
-		float Dotz = dot(Vertex, vec3(0, 0, 1));
-
-		if (Dotx < MinD.x)
-		{
-			Minx = Vertex.x;
-			MinD.x = Dotx;
-		}
-		if (Dotx > MaxD.x)
-		{
-			Maxx = Vertex.x;
-			MaxD.x = Dotx;
-		}
-
-		if (Doty < MinD.y)
-		{
-			Miny = Vertex.y;
-			MinD.y = Doty;
-		}
-		if (Doty > MaxD.y)
-		{
-			Maxy = Vertex.y;
-			MaxD.y = Doty;
-		}
-
-		if (Dotz < MinD.z)
-		{
-			Minz = Vertex.z;
-			MinD.z = Dotz;
-		}
-		if (Dotz > MaxD.z)
-		{
-			Maxz = Vertex.z;
-			MaxD.z = Dotz;
-		}
+		if (Vertex.Position.x < Box.MinX) Box.MinX = Vertex.Position.x;
+		if (Vertex.Position.x > Box.MaxX) Box.MaxX = Vertex.Position.x;
+		if (Vertex.Position.y < Box.MinY) Box.MinY = Vertex.Position.y;
+		if (Vertex.Position.y > Box.MaxY) Box.MaxY = Vertex.Position.y;
+		if (Vertex.Position.z < Box.MinZ) Box.MinZ = Vertex.Position.z;
+		if (Vertex.Position.z > Box.MaxZ) Box.MaxZ = Vertex.Position.z;
 	}
-
-	RBoundingBox Bb{};
-	Bb.Set(vec3(Minx, Miny, Minz), vec3(Maxx, Maxy, Maxz));
-	return Bb;
+	
+	return Box;
 }
 
 void RMesh::ComputeTangentsAndBitangents()

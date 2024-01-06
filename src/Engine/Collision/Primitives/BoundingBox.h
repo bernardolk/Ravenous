@@ -2,12 +2,12 @@
 
 struct RBoundingBox
 {
-	float MinX;
-	float MaxX;
-	float MinZ;
-	float MaxZ;
-	float MinY;
-	float MaxY;
+	float MinX = MaxFloat;
+	float MaxX = MinFloat;
+	float MinZ = MaxFloat;
+	float MaxZ = MinFloat;
+	float MinY = MaxFloat;
+	float MaxY = MinFloat;
 
 	auto Bounds()
 	{
@@ -19,16 +19,6 @@ struct RBoundingBox
 		Bounds.Min = vec3(MinX, MinY, MinZ);
 		Bounds.Max = vec3(MaxX, MaxY, MaxZ);
 		return Bounds;
-	}
-
-	void Set(vec3 Min, vec3 Max)
-	{
-		MinX = Min.x;
-		MaxX = Max.x;
-		MinY = Min.y;
-		MaxY = Max.y;
-		MinZ = Min.z;
-		MaxZ = Max.z;
 	}
 
 	auto GetPosAndScale()
