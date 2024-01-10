@@ -23,6 +23,7 @@
 #include "engine/camera/camera.h"
 #include "engine/entities/lights.h"
 #include "Engine/Entities/StaticMesh.h"
+#include "Reflection/Serialization.h"
 #include "engine/io/loaders.h"
 #include "engine/geometry/vertex.h"
 #include "engine/io/display.h"
@@ -31,6 +32,7 @@
 #include "engine/render/Shader.h"
 #include "engine/render/text/face.h"
 #include "engine/render/text/TextRenderer.h"
+#include "engine/serialization/sr_config.h"
 #include "engine/world/World.h"
 
 namespace Editor
@@ -42,7 +44,6 @@ namespace Editor
 		ImGui::NewFrame();
 	}
 
-
 	void EndDearImguiFrame()
 	{
 		ImGui::EndFrame();
@@ -51,7 +52,6 @@ namespace Editor
 	//------------------
 	// > UPDATE EDITOR
 	//------------------
-
 	void Update(EPlayer* Player, RWorld* World, RCamera* Camera)
 	{
 		auto& EdContext = *GetContext();
@@ -244,14 +244,14 @@ namespace Editor
 				float TimeValue = glfwGetTime();
 				float Intensity = sin(TimeValue) * 2;
 				if (Intensity < 0)
-					Intensity *= -1.0;
-				Intensity += 1.0;
+					Intensity *= -1.0f;
+				Intensity += 1.0f;
 
 				// render
 				auto GlowingLine = ShaderCatalogue.find("color")->second;
 				GlowingLine->Use();
 				GlowingLine->SetMatrix4("model", Model);
-				GlowingLine->SetFloat3("color", Intensity * 0.890, Intensity * 0.168, Intensity * 0.6);
+				GlowingLine->SetFloat3("color", Intensity * 0.890f, Intensity * 0.168f, Intensity * 0.6f);
 				GlowingLine->SetFloat("opacity", 1);
 				RenderMesh(EdContext.SelectedEntity->Mesh, RenderOptions{true, false, 3});
 			}
@@ -317,13 +317,6 @@ namespace Editor
 			auto& Panel = EdContext.EntityPanel;
 
 			RenderEntityPanel(&Panel, World);
-
-			if (EdContext.ShowTranslationGizmo) {
-				RenderEntityControlArrows(&Panel, World, Camera);
-			}
-			if (EdContext.ShowRotationGizmo) {
-				RenderEntityRotationGizmo(&Panel, World, Camera);
-			}
 			
 			if (Panel.ShowBoundingBox) {
 				RImDraw::AddCollisionMesh(IMHASH, &Panel.Entity->Collider, vec3{}); 
@@ -350,6 +343,7 @@ namespace Editor
 		// -----------------------
 		// render gizmos inscreen
 		// -----------------------
+		glClear(GL_DEPTH_BUFFER_BIT);
 		if (EdContext.MeasureMode && EdContext.FirstPointFound && EdContext.SecondPointFound)
 		{
 			auto RenderOpts = RenderOptions();
@@ -372,11 +366,22 @@ namespace Editor
 		{
 			RImDraw::AddPoint(IMHASH, EdContext.LocateCoordsPosition, 2.0);
 		}
+		
+		if (EdContext.EntityPanel.Active)
+		{
+			auto& Panel = EdContext.EntityPanel;
+			if (EdContext.ShowTranslationGizmo) {
+				RenderEntityControlArrows(&Panel, World, Camera);
+			}
+			if (EdContext.ShowRotationGizmo) {
+				RenderEntityRotationGizmo(&Panel, World, Camera);
+			}
+		}
 
 		RenderToolbar(World);
 
 		RenderTextOverlay(Player, Camera);
-
+		
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	}
@@ -402,7 +407,7 @@ namespace Editor
 		EdContext.ImStyle->WindowRounding = 1.0f;
 
 		// load tri axis gizmo
-		const auto AxisMesh = LoadWavefrontObjAsMesh(Paths::Models, "axis");
+		const auto AxisMesh = LoadWavefrontObjAsMesh("axis");
 
 		auto XAxis = new EStaticMesh;
 		auto YAxis = new EStaticMesh;
@@ -520,6 +525,54 @@ namespace Editor
 		EdContext.LastFrameScene = RWorld::Get()->SceneName;
 	}
 
+	EEntity* CopyEntity(EEntity* Entity)
+	{
+		auto TypeMetadata = Reflection::TypeMetadataManager::Get()->FindTypeMetadata(Entity->TypeID);
+		auto* NewEntity = TypeMetadata->NewFunction();
+		NewEntity->Mesh = Entity->Mesh;
+		NewEntity->TextureDiffuse = Entity->TextureDiffuse;
+		NewEntity->TextureNormal = Entity->TextureNormal;
+		NewEntity->TextureSpecular = Entity->TextureSpecular;
+		NewEntity->Shader = Entity->Shader;
+		NewEntity->Position = Entity->Position;
+		NewEntity->Rotation = Entity->Rotation;
+		NewEntity->Scale = Entity->Scale;
+		NewEntity->Collider = Entity->Collider;
+		NewEntity->CollisionMesh = Entity->CollisionMesh;
+		NewEntity->Collider = Entity->Collider;
+		NewEntity->Flags = Entity->Flags;
+		NewEntity->BoundingBox = Entity->BoundingBox;
+		FindNameForNewEntity(NewEntity);
+		return NewEntity;
+	}
+
+	void FindNameForNewEntity(EEntity* NewEntity)
+	{
+		//todo: This is not really great because iterating over all entities is expensive, plus string operations for each, but I am really not sure what's a good solve. We can't cache names because they could change, unless we invalidate the cache on every possible name change. Would need to encapsulate get/set name to ensure that. In editor builds could add the invalidation logic in the GetName call and then for game builds we dont do anything, we can forceinline each call.
+		string MeshName = NewEntity->Mesh->Name;
+		int N = 1;
+		auto Iter = RWorld::GetEntityIterator();
+		while (auto* Entity = Iter())
+		{
+			if (Entity->Name.starts_with(MeshName))
+			{
+				auto i = Entity->Name.find_last_of('_');
+				if (i != string::npos && i < Entity->Name.size() - 1)
+				{
+					string NumberString = Entity->Name.substr(i + 1);
+					Parser p{NumberString, (int)NumberString.size()};
+					p.ParseInt();
+					if (p.HasToken()) {
+						int EntityN = GetParsed<int>(p);
+						N = EntityN >= N ? EntityN + 1 : N;  	
+					}
+				}	
+			}
+		}
+
+		NewEntity->Name = MeshName + "_" + to_string(N);
+	}
+
 	void RenderTextOverlay(EPlayer* Player, RCamera* Camera)
 	{
 		float GuiY = GlobalDisplayState::ViewportHeight - 60;
@@ -532,8 +585,7 @@ namespace Editor
 		float CenteredTextHeightSmall = CenteredTextHeight - 40;
 		auto ToolTextColorYellow = vec3(0.8, 0.8, 0.2);
 		auto ToolTextColorGreen = vec3(0.6, 1.0, 0.3);
-
-
+		
 		// CAMERA POSITION
 		string CamP[3]{
 		FormatFloatTostr(Camera->Position.x, 2),
@@ -1161,5 +1213,30 @@ namespace Editor
 		}
 
 		return false;
+	}
+
+	void EditorSave()
+	{
+		auto* ProgramConfig = ProgramConfig::Get();
+		ProgramConfig->InitialScene = RWorld::Get()->SceneName;
+		ConfigSerializer::Save(*ProgramConfig);
+
+		Serialization::SaveWorldToDisk();
+		CleanupDeletedEntityFiles();
+		PrintEditorMsg("World Saved");
+	}
+
+	void CleanupDeletedEntityFiles()
+	{
+		auto* EdContext = GetContext();
+		for (RUUID ID : EdContext->DeletionLog)
+		{
+			string QuotedUUID = Reflection::ToString(ID);
+			string UnquotedUUID = QuotedUUID.substr(1, QuotedUUID.length() - 2);
+			string Path = Paths::World + UnquotedUUID  + ".ref";
+			if (std::remove(Path.c_str()) != 0) {
+				Log("Error deletig file '%s' while cleaning up deleted entitie's files.", Path.c_str())
+			}
+		}
 	}
 }

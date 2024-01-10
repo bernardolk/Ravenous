@@ -9,11 +9,8 @@
 
 RInputFlags StartInputPhase()
 {
-	// first, check if last frame we had a click, if so, 
-	// se it as btn hold (so we dont register clicks more than one time)
-	// @TODO: maybe the best approach here is to pool it like we do with the keys
-	// instead of using a callback. If so, need to check whether we would need
-	// sticky mouse click input config set to true or not
+	// first, check if last frame we had a click, if so, se it as btn hold (so we dont register clicks more than one time)
+	// @TODO: maybe the best approach here is to pool it like we do with the keys instead of using a callback. If so, need to check whether we would need sticky mouse click input config set to true or not
 	CheckMouseClickHold();
 	// then respond to all glfw callbacks
 	glfwPollEvents();
@@ -179,6 +176,9 @@ uint64 ProcessKeyboardInputKeyPress(GLFWwindow* Window)
 	if (glfwGetKey(Window, GLFW_KEY_DELETE) == GLFW_PRESS)
 		Flags = Flags | (uint64)NKeyInput::KeyDelete;
 
+	if (glfwGetKey(Window, GLFW_KEY_PAUSE) == GLFW_PRESS)
+		Flags = Flags | (uint64)NKeyInput::KeyPause;
+
 	return Flags;
 }
 
@@ -330,6 +330,9 @@ uint64 ProcessKeyboardInputKeyRelease(GLFWwindow* Window)
 
 	if (glfwGetKey(Window, GLFW_KEY_DELETE) == GLFW_RELEASE)
 		Flags = Flags | (uint64)NKeyInput::KeyDelete;
+
+	if (glfwGetKey(Window, GLFW_KEY_PAUSE) == GLFW_RELEASE)
+		Flags = Flags | (uint64)NKeyInput::KeyPause;
 
 	return Flags;
 }

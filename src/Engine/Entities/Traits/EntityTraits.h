@@ -73,6 +73,11 @@ struct TEntityTypeBase
 	// Default instance budget for any EEntity subtype. Can be overriden by each type.
 	static inline uint InstanceBudget = 10;
 
+	/* =================
+	 *	Entity Traits
+	 * ================= */	
+	static inline Array<RTraitID, EntityTraitsManager::MaxTraits> Traits;
+
 protected:
 	TEntityTypeBase()
 	{
@@ -101,8 +106,8 @@ struct TEntityTraitBase
 		static RTraitID TTraitID = [] {
 			auto* Etm = EntityTraitsManager::Get();
 			// TODO: Make TraitIDs persistent, not based on initialization order of instances (maybe)
-			RTraitID TraitId = Etm->EntityTraits.size();
-			Etm->EntityTraits.push_back(TraitId);
+			RTraitID TraitId = Etm->TraitsRegistry.size();
+			Etm->TraitsRegistry.push_back(TraitId);
 			return TraitId;
 		}();
 

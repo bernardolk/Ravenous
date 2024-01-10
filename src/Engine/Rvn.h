@@ -7,6 +7,7 @@ namespace Paths
 	const static string Project = "c:/dev/ravenous";
 	const static string Textures = Project + "/assets/textures/";
 	const static string Models = Project + "/assets/models/";
+	const static string CollisionMeshes = Project + "/assets/collision_meshes/";
 	const static string Fonts = Project + "/assets/fonts/";
 	const static string Shaders = Project + "/shaders/";
 	const static string Camera = Project + "/camera.txt";
@@ -16,6 +17,7 @@ namespace Paths
 	const static string Config = Project + "/config.txt";
 	const static string SceneTemplate = "template_scene";
 	const static string InputRecordings = Project + "/recordings/";
+	const static string MeshExports = Project + "/bin/models/";
 }
 
 // TODO: Get Rid of this

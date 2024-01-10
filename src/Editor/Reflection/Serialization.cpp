@@ -56,7 +56,6 @@ void Serialization::SaveWorldToDisk()
 	// saves each entity to its own file
 	// saves camera and player data
 	auto* TypeManager = Reflection::TypeMetadataManager::Get();
-
 	auto SaveEntity = [TypeManager](EEntity* Entity)
 	{
 		auto* TypeMetadata = TypeManager->FindTypeMetadata(Entity->TypeID);
@@ -109,6 +108,8 @@ void Serialization::SaveWorldToDisk()
 
 		Writer.close();
 	}
+
+	Log("Saved world succesfully");
 }
 
 void Serialization::LoadWorldFromDisk()

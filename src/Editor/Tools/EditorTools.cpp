@@ -40,10 +40,10 @@ namespace Editor
 
 	void EditorEraseEntity(EEntity* Entity)
 	{
-		//TODO: To be implemented
+		auto* World = RWorld::Get();
 		auto& EdContext = *GetContext();
-
-		EdContext.UndoStack.DeletionLog.Add(Entity);
+		EdContext.DeletionLog.push_back(Entity->ID);
+		World->DeleteEntity(Entity);
 	}
 
 	void EditorEraseLight(int Index, string Type, RWorld* World)

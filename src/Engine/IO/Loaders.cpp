@@ -1,27 +1,116 @@
+#include "engine/io/loaders.h"
+
 // @TODO: abstract platform layer away
 #include <windows.h>
+#include <iomanip>
+#include <glad/glad.h>
+#include <fstream>
+#include <glm/gtx/quaternion.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image/stb_image.h>
 
-#include <fstream>
-#include "engine/geometry/vertex.h"
-#include <glm/gtx/quaternion.hpp>
-#include "engine/geometry/mesh.h"
-#include <engine/collision/CollisionMesh.h>
-#include <glad/glad.h>
-#include <engine/serialization/parsing/parser.h>
-#include "engine/io/loaders.h"
+#include "Engine/Geometry/Vertex.h"
+#include "Engine/Geometry/Mesh.h"
+#include "Engine/Collision/CollisionMesh.h"
+#include "Engine/Serialization/Parsing/Parser.h"
+#include "Engine/Rvn.h"
+#include "Engine/IO/Display.h"
+#include "Engine/Render/Shader.h"
 
-#include <iomanip>
+void LoadModels()
+{
+	auto Filenames = GetFilesInFolder(Paths::Models);
+	if (!Filenames.empty())
+	{
+		for (const auto& ModelFilename : Filenames)
+		{
+			// check if filename is not a folder (we want only .obj files here)
+			auto ExtensionTest = ModelFilename.substr(ModelFilename.length() - 3);
+			if (ExtensionTest != "obj")
+				continue;
+			
+			auto ModelName = ModelFilename.substr(0, ModelFilename.length() - 4);
 
-#include "engine/rvn.h"
-#include "engine/io/display.h"
-#include "engine/render/Shader.h"
+			if (DoesFileExist(Paths::MeshExports + ModelName + ".rmesh")) {
+				ImportMeshBinary(ModelName);
+			}
+			else {
+				auto* Mesh = LoadWavefrontObjAsMesh(ModelName);
+				ExportMeshBinary(Mesh);
+			}
+		}
+	}
+	
+	//TEXT
+	{
+		RGLData TextGlData;
+		glGenVertexArrays(1, &TextGlData.VAO);
+		glGenBuffers(1, &TextGlData.VBO);
+		glBindVertexArray(TextGlData.VAO);
+		glBindBuffer(GL_ARRAY_BUFFER, TextGlData.VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, static_cast<void*>(nullptr));
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+
+		auto* TextMesh = new RMesh();
+		TextMesh->Name = "text";
+		TextMesh->GLData = TextGlData;
+		GeometryCatalogue.insert({TextMesh->Name, TextMesh});
+	}
+
+	// SLOPE
+	// with Z coming at the screen, X to the right, slope starts at x=0 high and goes low on x=1
+	std::vector<RVertex> slope_vertex_vec = {
+	// bottom
+	RVertex{vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f), vec2(0.5f, 0.5f)}, //0
+	RVertex{vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f), vec2(1.0f, 0.5f)}, //1
+	RVertex{vec3(1.0f, 0.0f, 1.0f), vec3(0.0f, -1.0f, 0.0f), vec2(1.0f, 1.0f)}, //2
+	RVertex{vec3(0.0f, 0.0f, 1.0f), vec3(0.0f, -1.0f, 0.0f), vec2(0.5f, 1.0f)}, //3
+	// right   
+	RVertex{vec3(1.0f, 0.0f, 1.0f), vec3(0.5f, 0.5f, 0.0f), vec2(1.0f, 0.5f)}, //4
+	RVertex{vec3(1.0f, 0.0f, 0.0f), vec3(0.5f, 0.5f, 0.0f), vec2(0.5f, 0.5f)}, //5
+	RVertex{vec3(0.0f, 1.0f, 0.0f), vec3(0.5f, 0.5f, 0.0f), vec2(1.0f, 1.0f)}, //6
+	RVertex{vec3(0.0f, 1.0f, 1.0f), vec3(0.5f, 0.5f, 0.0f), vec2(0.5f, 1.0f)}, //7
+	// front       
+	RVertex{vec3(0.0f, 0.0f, 1.0f), vec3(0.0f, 0.0f, 1.0f), vec2(0.0f, 0.0f)}, //8
+	RVertex{vec3(1.0f, 0.0f, 1.0f), vec3(0.0f, 0.0f, 1.0f), vec2(0.5f, 0.0f)}, //9
+	RVertex{vec3(0.0f, 1.0f, 1.0f), vec3(0.0f, 0.0f, 1.0f), vec2(0.0f, 0.5f)}, //10
+	// back
+	RVertex{vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f), vec2(0.0f, 0.0f)}, //11
+	RVertex{vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f), vec2(0.0f, 0.5f)}, //12
+	RVertex{vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f), vec2(0.5f, 0.0f)}, //13
+	// left
+	RVertex{vec3(0.0f, 0.0f, 0.0f), vec3(-1.0f, 0.0f, 0.0f), vec2(0.0f, 0.0f)}, //14
+	RVertex{vec3(0.0f, 0.0f, 1.0f), vec3(-1.0f, 0.0f, 0.0f), vec2(0.5f, 0.0f)}, //15
+	RVertex{vec3(0.0f, 1.0f, 0.0f), vec3(-1.0f, 0.0f, 0.0f), vec2(0.0f, 0.5f)}, //16
+	RVertex{vec3(0.0f, 1.0f, 1.0f), vec3(-1.0f, 0.0f, 0.0f), vec2(0.5f, 0.5f)}, //17
+	};
+
+	std::vector<uint> slope_vertex_indices =
+	{
+	0, 1, 2, 2, 3, 0,       // bottom face
+	8, 9, 10,               // front
+	11, 12, 13,             // back
+	14, 15, 16, 17, 16, 15, // left face
+	4, 5, 6, 6, 7, 4        // right face (slope)
+	};
+
+	auto* SlopeMesh = new RMesh();
+	SlopeMesh->Name = "slope";
+	SlopeMesh->Vertices = slope_vertex_vec;
+	SlopeMesh->Indices = slope_vertex_indices;
+	SlopeMesh->RenderMethod = GL_TRIANGLES;
+	SlopeMesh->SetupGLData();
+	GeometryCatalogue.insert({SlopeMesh->Name, SlopeMesh});
+}
+
 
 void LoadTexturesFromAssetsFolder()
 {
-	auto Filenames = GetFilesINFolder(Paths::Textures);
+	auto Filenames = GetFilesInFolder(Paths::Textures);
 	if (Filenames.size() > 0)
 	{
 		for (const auto& TextureFilename : Filenames)
@@ -35,7 +124,7 @@ void LoadTexturesFromAssetsFolder()
 
 			if (TextureID == 0)
 			{
-				Log("Texture '%s' could not be loaded.", TextureFilename.c_str());
+				Log("Texture '%s' could not be loaded.", TextureFilename.c_str())
 				assert(false);
 			}
 
@@ -53,17 +142,13 @@ void LoadTexturesFromAssetsFolder()
 	}
 }
 
-RMesh* LoadWavefrontObjAsMesh(const string& Path, const string& Filename, const string& Name, bool SetupGlData, RenderMethodEnum RenderMethod)
+RMesh* LoadWavefrontObjAsMesh(const string& Filename)
 {
-	/* Loads a model from the provided path and filename and add it to the Geometry_Catalogue with provided name */
-
-	// @todo: Currently, we are loading each vertex using the .obj "f line", but that creates 3 vertex per faces.
-	//    For faces that share an exact vertex (like in the case of a box where each face is a quad, sharing one
-	//    triangle). This means we must use glDrawArrays instead of glDrawElements. One option is to code a custom
-	//    exporter in blender to get just unique vertex data + indices, but maybe for now this is enough.
-
-	const auto FullPath = Path + Filename + ".obj";
+	// Loads a model from the provided path and filename and add it to the Geometry_Catalogue with provided name
+	const auto FullPath = Paths::Models + Filename + ".obj";
 	auto P = Parser{FullPath};
+
+	Log("Loading and parsing Wavefront OBJ ('%s')", Filename.c_str())
 
 	// @TODO: use a memory pool
 	auto Mesh = new RMesh();
@@ -79,34 +164,22 @@ RMesh* LoadWavefrontObjAsMesh(const string& Path, const string& Filename, const 
 		P.ParseToken();
 		const auto Attr = GetParsed<string>(P);
 
-		if (!P.HasToken())
-			continue;
-
-		if (Attr == "m")
-		{
-			// ?
-		}
+		if (!P.HasToken()) continue;
 
 		// vertex coordinates
-		else if (Attr == "v")
-		{
+		if (Attr == "v") {
 			P.ParseVec3();
 			VPos.push_back(GetParsed<glm::vec3>(P));
 		}
-
 		// texture coordinates
-		else if (Attr == "vt")
-		{
+		else if (Attr == "vt") {
 			P.ParseVec2();
 			VTexels.push_back(GetParsed<glm::vec2>(P));
 		}
-
-		else if (Attr == "vn")
-		{
+		else if (Attr == "vn") {
 			P.ParseVec3();
 			VNormals.push_back(GetParsed<glm::vec3>(P));
 		}
-
 		// construct faces
 		else if (Attr == "f")
 		{
@@ -117,7 +190,6 @@ RMesh* LoadWavefrontObjAsMesh(const string& Path, const string& Filename, const 
 			*/
 
 			int NumberOfVertexesInFace = 0;
-
 			// iterate over face's vertices. We expect either faces with 3 or 4 vertices only.
 			while (true)
 			{
@@ -182,43 +254,35 @@ RMesh* LoadWavefrontObjAsMesh(const string& Path, const string& Filename, const 
 				FacesCount += 2;
 			}
 
-			else if (NumberOfVertexesInFace > 4)
+			else if (NumberOfVertexesInFace > 4) {
 				FatalError("mesh file %s.obj contain at least one face with unsupported ammount of vertices. Please triangulate or quadfy faces.", Filename.c_str())
-
-			else if (NumberOfVertexesInFace < 3)
+			}
+			else if (NumberOfVertexesInFace < 3) {
 				FatalError("mesh file %s.obj contain at least one face with 2 or less vertices. Please review the geometry.", Filename.c_str())
-
-			else
+			}
+			else {
 				FacesCount++;
+			}
 		}
 	}
 
 	Mesh->FacesCount = FacesCount;
 
 	// load/computes tangents and bitangents
-	if (!VTexels.empty())
-		AttachExtraDataToMesh(Filename, Path, Mesh);
+	if (!VTexels.empty()) {
+		AttachExtraDataToMesh(Filename, Mesh);
+	}
 
-	// setup gl data
-	if (SetupGlData)
-		Mesh->SetupGLData();
-
-	// sets render method for mesh
-	Mesh->RenderMethod = static_cast<uint>(RenderMethod);
-
-	// sets texture name and adds to catalogue
-	string CatalogueName = !Name.empty() ? Name : Filename;
-	Mesh->Name = CatalogueName;
-	GeometryCatalogue.insert({CatalogueName, Mesh});
-
+	Mesh->SetupGLData();
+	Mesh->Name = Filename;
+	GeometryCatalogue.insert({Filename, Mesh});
 	return Mesh;
 }
 
-RCollisionMesh* LoadWavefrontObjAsCollisionMesh(const string& Path, const string& Filename)
+RCollisionMesh* LoadWavefrontObjAsCollisionMesh(const string& Filename)
 {
-	/* Loads a model from the provided path and filename and add it to the Collision_Geometry_Catalogue with provided name */
-
-	const auto FullPath = Path + Filename + ".obj";
+	// Loads a model from the provided path and filename and add it to the Collision_Geometry_Catalogue with provided name 
+	const auto FullPath = Paths::CollisionMeshes + Filename + ".obj";
 	Parser P{FullPath};
 
 	// @TODO: Use a memory pool
@@ -235,8 +299,7 @@ RCollisionMesh* LoadWavefrontObjAsCollisionMesh(const string& Path, const string
 			continue;
 
 		// vertex coordinates
-		if (Attr == "v")
-		{
+		if (Attr == "v") {
 			P.ParseVec3();
 			CMesh->Vertices.push_back(GetParsed<glm::vec3>(P));
 		}
@@ -279,8 +342,7 @@ RCollisionMesh* LoadWavefrontObjAsCollisionMesh(const string& Path, const string
 			CMesh->Indices.push_back(IndexBuffer[1]);
 			CMesh->Indices.push_back(IndexBuffer[2]);
 
-			if (NumberOfVertexesInFace == 4)
-			{
+			if (NumberOfVertexesInFace == 4) {
 				// face's triangle #2
 				CMesh->Indices.push_back(IndexBuffer[2]);
 				CMesh->Indices.push_back(IndexBuffer[3]);
@@ -295,20 +357,13 @@ RCollisionMesh* LoadWavefrontObjAsCollisionMesh(const string& Path, const string
 	return CMesh;
 }
 
-unsigned int LoadTextureFromFile(const string& Filename, const string& Directory, bool Gamma)
+unsigned int LoadTextureFromFile(const string& Filename, const string& Directory)
 {
-	// returns the gl_texture ID
-
-	string Path;
-	if (Path.substr(0, Path.length() - 2) == "/")
-		Path = Directory + Filename;
-	else
-		Path = Directory + "/" + Filename;
+	string Path =  Directory + Filename;
 
 	int Width, Height, NrComponents;
 	unsigned char* Data = stbi_load(Path.c_str(), &Width, &Height, &NrComponents, 0);
-	if (!Data)
-	{
+	if (!Data) {
 		Log("Texture failed to load at path '%s'", Path.c_str())
 		stbi_image_free(Data);
 		return 0;
@@ -327,7 +382,9 @@ unsigned int LoadTextureFromFile(const string& Filename, const string& Directory
 		case 4:
 			Format = GL_RGBA;
 			break;
-		default: ;
+		default:
+			Format = GL_RGB;
+			Log("Texture '%s' has invalid Color Channel Format.", Filename.c_str())
 	}
 
 	unsigned int TextureId;
@@ -345,26 +402,24 @@ unsigned int LoadTextureFromFile(const string& Filename, const string& Directory
 	return TextureId;
 }
 
-
-StrVec GetFilesINFolder(string Directory)
+vector<string> GetFilesInFolder(const string& Directory)
 {
-	StrVec Filenames;
+	vector<string> Filenames;
 	string PathToFiles = Directory + "\\*";
 	WIN32_FIND_DATA Files;
 	HANDLE FindFilesHandle = FindFirstFile(PathToFiles.c_str(), &Files);
 
-	if (FindFilesHandle == INVALID_HANDLE_VALUE)
-	{
+	if (FindFilesHandle == INVALID_HANDLE_VALUE) {
 		Log("Error: Invalid directory '%s' for finding files.", Directory.c_str());
 		return Filenames;
 	}
 
-	do
-	{
+	do {
 		int A = strcmp(Files.cFileName, ".");
 		int B = strcmp(Files.cFileName, "..");
-		if (!(A == 0 || B == 0))
+		if (!(A == 0 || B == 0)) {
 			Filenames.push_back(Files.cFileName);
+		}
 	} while (FindNextFile(FindFilesHandle, &Files));
 
 	FindClose(FindFilesHandle);
@@ -372,14 +427,21 @@ StrVec GetFilesINFolder(string Directory)
 	return Filenames;
 }
 
+bool DoesFileExist(const string& Filepath)
+{
+	WIN32_FIND_DATA Files;
+	HANDLE FindFilesHandle = FindFirstFile(Filepath.c_str(), &Files);
+	return FindFilesHandle != INVALID_HANDLE_VALUE;
+}
 
 void WriteMeshExtraDataFile(string Filename, RMesh* Mesh)
 {
 	const auto ExtraDataPath = Paths::Models + "extra_data/" + Filename + ".objplus";
 	std::ofstream Writer{ExtraDataPath};
 
-	if (!Writer.is_open())
-		FatalError("couldn't write mesh extra data.");
+	if (!Writer.is_open()) {
+		FatalError("couldn't write mesh extra data.")
+	}
 
 	Writer << std::fixed << std::setprecision(4);
 
@@ -406,7 +468,6 @@ void WriteMeshExtraDataFile(string Filename, RMesh* Mesh)
 	Log("Wrote mesh extra data for '%s' mesh.", Filename.c_str());
 }
 
-
 void LoadMeshExtraData(string Filename, RMesh* Mesh)
 {
 	const auto ExtraDataPath = Paths::Models + "extra_data/" + Filename + ".objplus";
@@ -423,22 +484,19 @@ void LoadMeshExtraData(string Filename, RMesh* Mesh)
 
 		auto Attr = GetParsed<string>(P);
 
-		if (Attr == "vtan")
-		{
+		if (Attr == "vtan") {
 			P.ParseVec3();
 			Mesh->Vertices[VTanIndex++].Tangent = GetParsed<glm::vec3>(P);
 		}
 
-		else if (Attr == "vbitan")
-		{
+		else if (Attr == "vbitan") {
 			P.ParseVec3();
 			Mesh->Vertices[VBitanIndex++].Bitangent = GetParsed<glm::vec3>(P);
 		}
 	}
 }
 
-
-void AttachExtraDataToMesh(string Filename, string Filepath, RMesh* Mesh)
+void AttachExtraDataToMesh(string Filename, RMesh* Mesh)
 {
 	/* Attach tangents and bitangents data to the mesh from a precomputation based on mesh vertices.
 	   If the extra mesh data file is outdated from mesh file or inexistent, compute data and write to it.
@@ -446,7 +504,7 @@ void AttachExtraDataToMesh(string Filename, string Filepath, RMesh* Mesh)
 	*/
 
 	string ExtraDataPath = Paths::Models + "extra_data/" + Filename + ".objplus";
-	string MeshPath = Filepath + Filename + ".obj";
+	string MeshPath = Paths::Models + Filename + ".obj";
 
 	bool ComputeExtraData = false;
 
@@ -457,31 +515,30 @@ void AttachExtraDataToMesh(string Filename, string Filepath, RMesh* Mesh)
 	{
 		WIN32_FIND_DATA FindDataMesh;
 		HANDLE FindHandleMesh = FindFirstFileA(MeshPath.c_str(), &FindDataMesh);
-		if (FindHandleMesh == INVALID_HANDLE_VALUE)
+		if (FindHandleMesh == INVALID_HANDLE_VALUE) {
 			FatalError("Unexpected: couldn't find file handle for mesh obj while checking for extra mesh data.")
-
-		if (CompareFileTime(&FindDataMesh.ftLastWriteTime, &FindDataExtraData.ftLastWriteTime) == 1)
+		}
+		if (CompareFileTime(&FindDataMesh.ftLastWriteTime, &FindDataExtraData.ftLastWriteTime) == 1) {
 			ComputeExtraData = true;
+		}
 
 		FindClose(FindHandleMesh);
 	}
-	else
+	else {
 		ComputeExtraData = true;
+	}
 
 
-	if (ComputeExtraData)
-	{
+	if (ComputeExtraData) {
 		Mesh->ComputeTangentsAndBitangents();
 		WriteMeshExtraDataFile(Filename, Mesh);
 	}
-	else
-	{
+	else {
 		LoadMeshExtraData(Filename, Mesh);
 	}
 
 	FindClose(FindHandle);
 }
-
 
 void LoadShaders()
 {
@@ -498,41 +555,30 @@ void LoadShaders()
 		bool Error = false, MissingComma = false, HasGeometryShader = false;
 
 		P.ParseToken();
-		if (!P.HasToken())
-			Error = true;
+		if (!P.HasToken()) Error = true;
 		const auto ShaderName = GetParsed<string>(P);
 
-		P.ParseAllWhitespace();
-		P.ParseSymbol();
-		if (!P.HasToken())
-			MissingComma = true;
+		P.ParseAllWhitespace(); P.ParseSymbol();
+		if (!P.HasToken()) MissingComma = true;
 
-		P.ParseAllWhitespace();
-		P.ParseToken();
-		if (!P.HasToken())
-			Error = true;
+		P.ParseAllWhitespace(); P.ParseToken();
+		if (!P.HasToken()) Error = true;
 		const auto VertexShaderName = GetParsed<string>(P);
 
-		P.ParseAllWhitespace();
-		P.ParseSymbol();
+		P.ParseAllWhitespace(); P.ParseSymbol();
 		if (!P.HasToken())
 			MissingComma = true;
 
-		P.ParseAllWhitespace();
-		P.ParseToken();
+		P.ParseAllWhitespace(); P.ParseToken();
 		if (P.HasToken())
 			HasGeometryShader = true;
 		const auto GeometryShaderName = GetParsed<string>(P);
 
-		P.ParseAllWhitespace();
-		P.ParseSymbol();
-		if (!P.HasToken())
-			MissingComma = true;
+		P.ParseAllWhitespace(); P.ParseSymbol();
+		if (!P.HasToken()) MissingComma = true;
 
-		P.ParseAllWhitespace();
-		P.ParseToken();
-		if (!P.HasToken())
-			Error = true;
+		P.ParseAllWhitespace(); P.ParseToken();
+		if (!P.HasToken()) Error = true;
 		const auto FragmentShaderName = GetParsed<string>(P);
 
 		// load shaders code and mounts program from parsed shader attributes
@@ -542,11 +588,8 @@ void LoadShaders()
 
 		ShaderCatalogue.insert({Shader->Name, Shader});
 
-		if (Error)
-			FatalError("Error in shader programs file definition. Couldn't parse line %i.", P.LineCount);
-
-		if (MissingComma)
-			FatalError("Error in shader programs file definition. There is a missing comma in line %i.", P.LineCount);
+		if (Error) FatalError("Error in shader programs file definition. Couldn't parse line %i.", P.LineCount)
+		if (MissingComma) FatalError("Error in shader programs file definition. There is a missing comma in line %i.", P.LineCount)
 	}
 
 	// setup for text shader
@@ -555,12 +598,11 @@ void LoadShaders()
 	TextShader->SetMatrix4("projection", glm::ortho(0.0f, GlobalDisplayState::ViewportWidth, 0.0f, GlobalDisplayState::ViewportHeight));
 }
 
-
 void ExportWavefrontCollisionMesh(RCollisionMesh* CollisionMesh)
 {
-	std::ofstream Writer(Paths::Models + CollisionMesh->Name + ".obj");
+	std::ofstream Writer(Paths::CollisionMeshes + CollisionMesh->Name + ".obj");
 	if (!Writer.is_open()) {
-		Log("Saving config file failed.\n");
+		Log("Saving config file failed.\n")
 	}
 
 	Writer << "# Generated Collision Mesh: " << CollisionMesh->Name << "\n";
@@ -582,4 +624,113 @@ void ExportWavefrontCollisionMesh(RCollisionMesh* CollisionMesh)
 	}
 	
 	Writer.close();
+}
+
+void ExportMeshBinary(RMesh* Mesh)
+{
+	const string ExportFilepath = Paths::MeshExports + Mesh->Name + ".rmesh";
+
+	const uint VerticesCount = Mesh->Vertices.size();
+	const uint IndicesCount = Mesh->Indices.size();
+	const uint FacesCount = Mesh->FacesCount;
+
+	FILE* File;
+	int ErrnoOpen = fopen_s(&File, ExportFilepath.c_str(), "wb");
+	if (!File  || ErrnoOpen != 0) {
+		Log("Couldn't open binary mesh data for '%s'. Error code: %i", Mesh->Name.c_str(), ErrnoOpen)
+	}
+
+	Log("Exporting binary mesh data (%s)", Mesh->Name.c_str())
+	
+	// Write file format header
+	{
+		constexpr uint HeaderSize = 12;
+		char HeaderBuffer[HeaderSize];
+		auto* p = (uint*) &HeaderBuffer;
+		*p = VerticesCount; p++;
+		*p = IndicesCount; p++;
+		*p = FacesCount; p++;
+
+		uint64 BytesWritten = fwrite(&HeaderBuffer, 1, HeaderSize, File);
+		if (BytesWritten != HeaderSize) {
+			Log("Wrote different number of bytes to disk while exporting mesh binary data (Header).") DEBUG_BREAK
+		}
+	}
+
+	// Write Vertices
+	{
+		uint ItemsWritten = fwrite(Mesh->Vertices.data(), sizeof(RVertex), VerticesCount, File);
+		if (ItemsWritten != VerticesCount) {
+			Log("Wrote different number of items to disk while exporting mesh binary data (Vertices).") DEBUG_BREAK
+		}
+	}
+
+	// Write Indices
+	{
+		uint64 ItemsWritten = fwrite(Mesh->Indices.data(), sizeof(uint), IndicesCount, File);
+		if (ItemsWritten != IndicesCount) {
+			Log("Wrote different number of items to disk while exporting mesh binary data (Indices).") DEBUG_BREAK
+		}
+	}
+
+	int ErrnoClose = fclose(File);
+	if (ErrnoOpen != 0) {
+		Log("Error closing filestream while exporting binary mesh data for mesh '%s'. Error code: %i", Mesh->Name.c_str(), ErrnoClose) DEBUG_BREAK
+	}
+}
+
+void ImportMeshBinary(const string& ModelName)
+{
+	const string Filename = ModelName + ".rmesh";
+	const string ImportFilepath = Paths::MeshExports + Filename;
+	
+	FILE* File;
+	int ErrnoOpen = fopen_s(&File, ImportFilepath.c_str(), "rb");
+	if (!File  || ErrnoOpen != 0) {
+		Log("Couldn't open binary mesh data for '%s'. Error code: %i", Filename.c_str(), ErrnoOpen)
+	}
+
+	auto* Mesh = new RMesh;
+	uint VertexCount = 0;
+	uint IndicesCount = 0;
+	// Reserve space for vertexes
+	{
+		if (uint ItemsRead = fread(&VertexCount, sizeof(uint), 1, File); ItemsRead != 1) {
+			Log("Error: Read different number of items to disk while importing mesh binary data (Vertices).") DEBUG_BREAK
+		}
+		if (VertexCount <= 0) { Log("ImportMeshBinary: Invalid VertexCount Reading mesh '%s' binary data.", Filename.c_str()); delete Mesh; return; }
+		Mesh->Vertices.resize(VertexCount);
+	}
+	// Reserve space for indices
+	{
+		if (uint ItemsRead = fread(&IndicesCount, sizeof(uint), 1, File); ItemsRead != 1) {
+			Log("Error: Read different number of items to disk while importing mesh binary data (Indices).") DEBUG_BREAK
+		}
+		if (VertexCount <= 0) { Log("ImportMeshBinary: Invalid VertexCount Reading mesh '%s' binary data.", Filename.c_str()); delete Mesh; return; }
+		Mesh->Indices.resize(IndicesCount);
+	}
+	// Read faces count
+	{
+		uint FacesCount = 0;
+		if (uint ItemsRead = fread(&FacesCount, sizeof(uint), 1, File); ItemsRead != 1) {
+			Log("Error: Read different number of items to disk while importing mesh binary data (Indices).") DEBUG_BREAK
+		}
+		Mesh->FacesCount = FacesCount;
+	}
+	// Read vertices data
+	{
+		if (uint ItemsRead = fread(Mesh->Vertices.data(), sizeof(RVertex), VertexCount, File); ItemsRead != VertexCount) {
+			Log("Error: Read different number of items to disk while importing mesh binary data (Vertices).") DEBUG_BREAK
+		}
+	}
+	// Read indices data
+	{
+		if (uint ItemsRead = fread(Mesh->Indices.data(), sizeof(uint), IndicesCount, File); ItemsRead != IndicesCount) {
+			Log("Error: Read different number of items to disk while importing mesh binary data (Vertices).") DEBUG_BREAK
+		}
+	}
+
+	Mesh->Name = ModelName;
+	Mesh->SetupGLData();
+	GeometryCatalogue.insert({ModelName, Mesh});
 }

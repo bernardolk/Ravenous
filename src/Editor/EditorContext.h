@@ -34,8 +34,8 @@ namespace Editor
 		// undo stack
 		RUndoStack UndoStack;
 
-		// deletion log
-		RDeletedEntityLog DeletionLog;
+		// Deletion Log
+		vector<RUUID> DeletionLog;
 
 		// panels
 		RSceneObjectsPanelContext SceneObjectsPanel;

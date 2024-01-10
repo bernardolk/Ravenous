@@ -23,13 +23,15 @@ namespace Editor
 		{
 			if (ImGui::ImageButton((void*)Panel->Textures[I], ImVec2(64, 64)))
 			{
-				auto* NewEntity = RWorld::Get()->SpawnEntity<EStaticMesh>();
+				auto Attributes = Panel->EntityPalette[I];
+
+				auto* World = RWorld::Get();
+				auto* NewEntity = World->SpawnEntity<EStaticMesh>();
 				if (!NewEntity)
 					continue;
 
-				auto Attributes = Panel->EntityPalette[I];
-
 				SetEntityAssets(NewEntity, Attributes);
+				FindNameForNewEntity(NewEntity);
 				NewEntity->Position = Camera->Position + (2.f * NewEntity->Scale + 5.f) * Camera->Front;
 				ActivateMoveMode(NewEntity);
 			}

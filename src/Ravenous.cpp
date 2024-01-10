@@ -17,10 +17,9 @@
 #include "Game/Animation/AnUpdate.h"
 #include "Editor/Console/Console.h"
 #include "Editor/Reflection/Serialization.h"
-#include "Game/GeometryData.h"
+#include "Engine/IO/loaders.h"
 #include "Game/Entities/EPlayer.h"
 #include "Engine/Camera/camera.h"
-#include "Engine/Io/loaders.h"
 #include "Engine/MainLoop.h"
 #include "Engine/RavenousEngine.h"
 #include "Engine/Collision/ClController.h"
@@ -30,7 +29,6 @@
 #include "Engine/World/World.h"
 
 // FUNCTION PROTOTYPES
-void LoadShaders();
 void StartFrame();
 void CheckAllEntitiesHaveShaders();
 void CheckAllEntitiesHaveIds();
@@ -82,7 +80,6 @@ int main()
 
 	// Pre-loop checks
 	CheckAllEntitiesHaveShaders();
-	CheckAllEntitiesHaveIds();
 	CheckAllGeometryHasGlData();
 
 	// load pre recorded input recordings
@@ -99,47 +96,36 @@ int main()
 	RavenousMainLoop();
 }
 
-//    ----------------------------------------------------------------
+// =================================
+// Utility / Safety Checks
+// =================================
 
 void CheckAllEntitiesHaveShaders()
 {
 	auto** DefaultShaderPtrPtr = Find(ShaderCatalogue, DefaultEntityShader);
 	if (!DefaultShaderPtrPtr || !*DefaultShaderPtrPtr) {
-		FatalError("Initialization: Default shader \"%s\" not found.", DefaultEntityShader.c_str());
+		FatalError("Initialization: Default shader \"%s\" not found.", DefaultEntityShader.c_str())
 	}
 	
-	auto EntityIterator = RWorld::Get()->GetEntityIterator();
+	auto EntityIterator = RWorld::GetEntityIterator();
 	while (auto* Entity = EntityIterator())
 	{
-		if (Entity->Shader == nullptr)
-		{
-			Log("Initialization: shader is not set for entity '%s'.", Entity->Name.c_str());
+		if (Entity->Shader == nullptr) {
+			Log("Initialization: shader is not set for entity '%s'.", Entity->Name.c_str())
 			Entity->Shader = *DefaultShaderPtrPtr;
 		}
 
 		if (Entity->Mesh->GLData.VAO == 0) {
-			FatalError("Initialization: GL DATA not set for entity '%s'.", Entity->Name.c_str());
-		}
-	}
-}
-
-void CheckAllEntitiesHaveIds()
-{
-	auto EntityIterator = RWorld::Get()->GetEntityIterator();
-	while (auto* Entity = EntityIterator())
-	{
-		if (Entity->ID == -1) {
-			FatalError("There are entities without IDs. Check scene loading code for a flaw.");
+			FatalError("Initialization: GL DATA not set for entity '%s'.", Entity->Name.c_str())
 		}
 	}
 }
 
 void CheckAllGeometryHasGlData()
 {
-	for (auto& [k, Item] : GeometryCatalogue)
-	{
+	for (auto& [k, Item] : GeometryCatalogue) {
 		if (Item->GLData.VAO == 0 || Item->GLData.VBO == 0) {
-			FatalError("GLData not set for entity");
+			FatalError("GLData not set for entity")
 		}
 	}
 }

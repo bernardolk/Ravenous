@@ -10,9 +10,6 @@ namespace RavenousEngine
 	struct RFrameData;
 }
 
-struct RWorldChunkPosition WorldCoordsToCells(float X, float Y, float Z);
-vec3 GetWorldCoordinatesFromWorldCellCoordinates(int i, int j, int k);
-
 enum CellUpdateStatus
 {
 	CellUpdate_OK,
@@ -39,15 +36,17 @@ struct RWorld
 		static RWorld Instance{};
 		return &Instance;
 	}
-	
+
+	// ====================
+	//  DATA
+	// ====================
 	// static constexpr u8 world_chunk_matrix_order = 10;
 	static constexpr uint WorldSizeInChunks = WorldChunkNumX * WorldChunkNumY * WorldChunkNumZ;
 
+	// TODO: deleteme
 	string SceneName;
 
-	// TODO: We can't use world chunk "matrix" position as its ijk position! This is insane! What if we want to unload part A of the world and load part B,
-	//		what are the index going to say? Nothing.
-	//		in the future such vector will be replaced with a memory arena
+	// TODO: We can't use world chunk "matrix" position as its ijk position! This is insane! What if we want to unload part A of the world and load part B, what are the index going to say? Nothing in the future such vector will be replaced with a memory arena
 	Array<RWorldChunk, WorldSizeInChunks> Chunks;
 	map<RWorldChunkPosition, RWorldChunk*> ChunksMap;
 	vector<RWorldChunk*> ActiveChunks;
@@ -62,8 +61,14 @@ struct RWorld
 	vector<EDirectionalLight*> DirectionalLights;
 	// end temp
 
+	// ====================
+	//	METHODS
+	// ====================
+public:
 	void Update();
 	void Erase();
+	void DeleteEntitiesMarkedForDeletion();
+	void DeleteEntity(EEntity* Entity);
 
 	template<typename TEntity>
 	TEntity* SpawnEntity();
@@ -82,14 +87,14 @@ struct RWorld
 	CellUpdate UpdateEntityWorldChunk(EEntity* Entity);
 
 	RavenousEngine::RFrameData& GetFrameData();
-
-
+	
 private:
 	RWorld();
 
-	// This was introduced so that we can go back to the saner vector list of entities approach.
-	// Cranking out space partitioning and generic entity storage solutions was premature optimization and it severely hurts debugging since entities are reduced to bytes in a memory arena.
-	vector<EEntity*> EntityList{};
+	// @EntityListExplanation: This was introduced so that we can go back to the saner vector list of entities approach. Cranking out space partitioning and generic entity storage solutions was premature optimization and it severely hurts debugging since entities are reduced to bytes in a memory arena.
+	vector<EEntity*> EntityList;
+
+	vector<EEntity*> EntitiesToDelete;
 	
 	void UpdateTraits();
 	void UpdateTransforms();
@@ -100,8 +105,7 @@ struct WorldEntityIterator
 	uint8 TotalActiveChunks = 0;
 	uint8 CurrentChunkIndex = 0;
 
-	// This was introduced so that we can go back to the saner vector list of entities approach.
-	// Cranking out space partitioning and generic entity storage solutions was premature optimization and it severely hurts debugging since entities are reduced to bytes in a memory arena.
+	// See @EntityListExplanation
 	uint EntityVectorIndex = 0;
 
 	RWorld* World;

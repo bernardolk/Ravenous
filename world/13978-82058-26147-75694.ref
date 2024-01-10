@@ -1,11 +1,11 @@
-LargeRock1 : EStaticMesh
-ID: RUUID = "15689-45650-91111-27800"
-Position: vec3 = 9.015000 -15.050001 37.078709
+LargeRock2 : EStaticMesh
+ID: RUUID = "13978-82058-26147-75694"
+Position: vec3 = 13.001267 -16.375744 -0.155485
 Rotation: vec3 = 0.000000 0.000000 0.000000
-Scale: vec3 = 1.000000 1.000000 1.000000
+Scale: vec3 = 3.150000 1.050000 3.350000
 Mesh: RMesh* = largeRock001
 Shader: RShader* = model
 TextureDiffuse: RTexture = largeRock1-sandstone_BaseColor
 TextureSpecular: RTexture = null
 TextureNormal: RTexture = null
-CollisionMesh: RCollisionMesh* = LargeRock1_GeneratedCMesh
+CollisionMesh: RCollisionMesh* = LargeRock2_GeneratedCMesh

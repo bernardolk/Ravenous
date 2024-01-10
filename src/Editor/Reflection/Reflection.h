@@ -39,11 +39,14 @@
 		{ \
 			auto InitFunc = [](const string& SerializedEntity) -> EEntity* { auto* NewEntity = RWorld::Get()->SpawnEntity<Self>(); Reflection::Load(SerializedEntity, *NewEntity); return static_cast<EEntity*>(NewEntity); }; \
 			auto CastAndDumpFunc = [](EEntity& Instance) -> string { return Reflection::Dump<Self>(*reinterpret_cast<Self*>(&Instance)); }; \
+			auto NewFunc = []() -> EEntity* { auto* NewEntity = RWorld::Get()->SpawnEntity<Self>(); return static_cast<EEntity*>(NewEntity); }; \
 			Reflection::TypeMetadata Meta; \
 			Meta.TypeName = Reflection_TypeName; \
 			Meta.TypeID = Self::GetTypeID(); \
 			Meta.TypeInitFunction = InitFunc; \
+			Meta.Size = sizeof(Self); \
 			Meta.CastAndDumpFunction = CastAndDumpFunc; \
+			Meta.NewFunction = NewFunc; \
 			Reflection::TypeMetadataManager::Get()->TypeMetadataCollection.push_back(Meta); \
 		} \
 	} inline static __Reflection_TypeInitializer{};
@@ -102,11 +105,14 @@ namespace Reflection
 	{
 		using TypeInitFPtr = EEntity*(*)(const string& SerializedEntity);
 		using CastAndDumpFPtr = string(*)(EEntity& Instance);
+		using NewFunc = EEntity*(*)(void);
 		
-		string TypeName = "";
+		string TypeName;
 		RTypeID TypeID = 0;
+		int64 Size = 0;
 		TypeInitFPtr TypeInitFunction = nullptr;
 		CastAndDumpFPtr CastAndDumpFunction = nullptr;
+		NewFunc NewFunction = nullptr;
 	};
 	
 	struct TypeMetadataManager

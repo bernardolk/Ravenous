@@ -31,7 +31,6 @@ namespace Editor
 		// to be issued.
 		auto& Context = *Editor::GetContext();
 		auto* Player = EPlayer::Get();
-		auto& ProgramConfig = *ProgramConfig::Get();
 		auto* Manager = RCameraManager::Get();
 		auto* Camera = Manager->GetCurrentCamera();
 
@@ -45,10 +44,7 @@ namespace Editor
 
 		if (Pressed(Flags, NKeyInput::KeyLeftCtrl) && PressedOnce(Flags, NKeyInput::KeyS))
 		{
-			Serialization::SaveWorldToDisk();
-			ProgramConfig.InitialScene = RWorld::Get()->SceneName;
-			ConfigSerializer::Save(ProgramConfig);
-			PrintEditorMsg("World Saved");
+			EditorSave();
 			return;
 		}
 
@@ -358,56 +354,72 @@ namespace Editor
 
 		if (PressedOnce(Flags, NKeyInput::KeyComma))
 		{
-			if (Frame.TimeStep > 0)
-			{
-				Frame.TimeStep -= 0.025;
+			if (Frame.TimeStep > 0) {
+				Frame.TimeStep -= 0.025f;
 			}
 		}
+		
 		if (PressedOnce(Flags, NKeyInput::KeyPeriod))
 		{
-			if (Frame.TimeStep < 3)
-			{
-				Frame.TimeStep += 0.025;
+			if (Frame.TimeStep < 3) {
+				Frame.TimeStep += 0.025f;
 			}
 		}
+		
 		if (PressedOnce(Flags, NKeyInput::Key1))
 		{
 			PrintEditorMsg("TIME STEP x0.05");
-			Frame.TimeStep = 0.05;
+			Frame.TimeStep = 0.05f;
 		}
+		
 		if (PressedOnce(Flags, NKeyInput::Key2))
 		{
 			PrintEditorMsg("TIME STEP x0.1");
-			Frame.TimeStep = 0.1;
+			Frame.TimeStep = 0.1f;
 		}
+		
 		if (PressedOnce(Flags, NKeyInput::Key3))
 		{
 			PrintEditorMsg("TIME STEP x0.3");
-			Frame.TimeStep = 0.3;
+			Frame.TimeStep = 0.3f;
 		}
+		
 		if (PressedOnce(Flags, NKeyInput::Key4))
 		{
 			PrintEditorMsg("TIME STEP x1.0");
-			Frame.TimeStep = 1.0;
+			Frame.TimeStep = 1.0f;
 		}
+		
 		if (PressedOnce(Flags, NKeyInput::Key5))
 		{
 			PrintEditorMsg("TIME STEP x2.0");
-			Frame.TimeStep = 2.0;
+			Frame.TimeStep = 2.0f;
 		}
+		
 		if (Pressed(Flags, NKeyInput::KeyK))
 		{
 			Player->Die();
 		}
+		
 		if (PressedOnce(Flags, NKeyInput::KeyF))
 		{
 			REditorState::ToggleProgramMode();
 		}
+		
 		if (PressedOnce(Flags, NKeyInput::KeyGraveTick))
 		{
 			StartConsoleMode();
 		}
+		
 		if (Pressed(Flags, NKeyInput::KeyDelete))
+		{
+			if(auto& EntityPanel = GetContext()->EntityPanel; EntityPanel.Active) {
+				EditorEraseEntity(EntityPanel.Entity);
+				EntityPanel.Active = false;
+			}
+		}
+		
+		if (Pressed(Flags, NKeyInput::KeyPause))
 		{
 			auto* GDC = GlobalDisplayState::Get();
 			glfwSetWindowShouldClose(GDC->GetWindow(), true);

@@ -13,13 +13,15 @@ namespace Editor
 
 	constexpr static float TriaxisScreenposX = -1.80f;
 	constexpr static float TriaxisScreenposY = -1.80f;
-
-
+	
 	void Initialize();
 	void Update(EPlayer* Player, RWorld* World, RCamera* Camera);
 	void Render(EPlayer* Player, RWorld* World, RCamera* Camera);
 	void Terminate();
 
+	EEntity* CopyEntity(EEntity* Entity);
+	void FindNameForNewEntity(EEntity* NewEntity);
+	
 	void UpdateTriaxisGizmo();
 	void CheckSelectionToOpenPanel(EPlayer* Player, RWorld* World, RCamera* Camera);
 	bool CheckSelectionToGrabEntityArrows(RCamera* Camera);
@@ -36,8 +38,9 @@ namespace Editor
 	float GetGizmoScalingFactor(EEntity* Entity, float Min, float Max);
 	void RenderWorldCells(RCamera* Camera, RWorld* World);
 	void RenderLightbulbs(RCamera* Camera, RWorld* World);
-	void StartDearImguiFrame();
-	void EndDearImguiFrame();
 
+	void EditorSave();
+	void CleanupDeletedEntityFiles();
+	
 	inline REditorContext* GetContext() { return REditorContext::Get(); }
 }

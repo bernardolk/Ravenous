@@ -2,20 +2,10 @@
 
 #include "engine/rvn.h"
 #include "engine/entities/Entity.h"
+#include "editor/EditorMain.h"
 
 namespace Editor
 {
-	void RDeletedEntityLog::Add(const EEntity* Entity)
-	{
-		if (Size + 1 == Capacity)
-		{
-			PrintEditorMsg("DeletedEntityLog is FULL!");
-			return;
-		}
-
-		EntityIds[Size++] = Entity->ID;
-	};
-
 	void RUndoStack::Track(EEntity* Entity)
 	{
 		Track(REntityState{Entity, Entity->ID, Entity->Position, Entity->Scale, Entity->Rotation});
@@ -80,7 +70,6 @@ namespace Editor
 		return REntityState{};
 	}
 
-	// internal
 	REntityState RUndoStack::GetStateAndMoveBack()
 	{
 		if (Pos > 1)
@@ -90,7 +79,6 @@ namespace Editor
 		return REntityState{};
 	}
 
-	// internal
 	REntityState RUndoStack::GetStateAndMoveUp()
 	{
 		if (Pos < Limit)
@@ -100,19 +88,19 @@ namespace Editor
 		return REntityState{};
 	}
 
-	// internal
 	bool RUndoStack::IsBufferFull()
 	{
 		return Limit + 1 == Capacity;
 	}
 
-	// internal
-	bool RUndoStack::IsStateValid(REntityState State)
+	bool RUndoStack::IsStateValid(const REntityState& State)
 	{
+		auto* EdContext = GetContext();
 		// if entity was deleted, it isnt valid
-		for (int I = 0; I < DeletionLog.Size; I++)
-			if (DeletionLog.EntityIds[I] == State.ID)
+		for (RUUID ID : EdContext->DeletionLog) {
+			if (ID == State.ID)
 				return false;
+		}
 
 		// if entity current state is equal to state in stack
 		// then is not valid for undo also

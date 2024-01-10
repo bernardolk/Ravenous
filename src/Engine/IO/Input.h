@@ -74,6 +74,7 @@ enum class NKeyInput : uint64
 	KeyComma = 1ULL << 48,
 	KeyPeriod = 1ULL << 49,
 	KeyDelete = 1ULL << 50,
+	KeyPause = 1ULL << 51,
 };
 
 enum class NMouseInput : uint16

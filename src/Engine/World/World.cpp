@@ -27,21 +27,52 @@ void RWorld::Update()
 
 void RWorld::Erase()
 {
-	for (auto* Entity : EntityList)
-	{
+	for (auto* Entity : EntityList) {
 		delete Entity;
 	}
 
 	EntityList.clear();
 }
 
+void RWorld::DeleteEntity(EEntity* Entity)
+{
+	EntitiesToDelete.push_back(Entity);
+}
+
 void RWorld::UpdateTransforms()
 {
 	auto EntityIter = GetEntityIterator();
-	while (auto* Entity = EntityIter())
-	{
+	while (auto* Entity = EntityIter()) {
 		Entity->Update();
 	}
+}
+
+void RWorld::DeleteEntitiesMarkedForDeletion()
+{
+	// todo: I don't like how complicated this logic is just for deleting an item in an array.
+	vector<int> Indexes;
+	for (auto* EntityToDelete: EntitiesToDelete)
+	{
+		int Count = 0;
+		auto EntityIter = GetEntityIterator();
+		while (auto* Entity = EntityIter())
+		{
+			if (Entity->ID == EntityToDelete->ID) {
+				Indexes.push_back(Count);
+			}
+			Count++;
+		}
+	}
+	
+	for (auto* Entity: EntitiesToDelete) {
+		delete Entity;
+	}
+
+	for (auto Index : Indexes) {
+		EntityList.erase(EntityList.begin() + Index);
+	}
+	
+	EntitiesToDelete.clear();
 }
 
 void RWorld::UpdateTraits()
@@ -55,7 +86,8 @@ void RWorld::UpdateTraits()
 	auto* TraitsManager = EntityTraitsManager::Get();
 	for (auto* Entity : EntityList)
 	{
-		for (RTraitID TraitID : Entity->Traits)
+		auto TraitsList = TraitsManager->GetEntityTraits(Entity);
+		for (RTraitID TraitID : TraitsList)
 		{
 			auto* TraitUpdateFunc = TraitsManager->GetUpdateFunc(Entity->TypeID, TraitID);
 			TraitUpdateFunc(Entity);

@@ -226,9 +226,8 @@ namespace Editor
 				if (ImGui::Button("Duplicate", ImVec2(82, 18)))
 				{
 					ActionFlags |= EntityPanelTA_Duplicate;
-					// TODO: reimplement
-					// auto new_entity = EM->CopyEntity(entity);
-					// OpenEntityPanel(new_entity);
+					auto* NewEntity = CopyEntity(Entity);
+					OpenEntityPanel(NewEntity);
 				}
 
 				ImGui::SameLine();

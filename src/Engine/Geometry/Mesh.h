@@ -10,6 +10,8 @@ struct RGLData
 	uint EBO = 0;
 };
 
+// Note: There's an @optimization opportunity by using glDrawElements instead of glDrawArray but that would require restructuring the RMesh data structure, most likely.
+
 struct RMesh
 {
 	vector<RVertex> Vertices;
@@ -18,7 +20,7 @@ struct RMesh
 	uint RenderMethod = 0x0004;
 	RGLData GLData;
 	string Name;
-	//  FILETIME               last_written;
+	// FILETIME last_written;
 
 	void SetupGLData();
 	void SetupGLBuffers();

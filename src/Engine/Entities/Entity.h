@@ -13,10 +13,10 @@ const static string DefaultEntityTexture = "pink";
 
 enum NEntityFlags
 {
-	EntityFlags_EmptyEntity        = (1 << 0),
-	EntityFlags_InvisibleEntity    = (1 << 1),
-	EntityFlags_HiddenEntity       = (1 << 2),
-	EntityFlags_RenderWireframe    = (1 << 3),
+	EntityFlags_EmptyEntity = 1 << 0,
+	EntityFlags_InvisibleEntity = 1 << 1,
+	EntityFlags_HiddenEntity = 1 << 2,
+	EntityFlags_RenderWireframe = 1 << 3
 };
 
 struct VisitorState
@@ -45,11 +45,6 @@ public:
 	RTypeID TypeID = 0;
 	Field(RUUID, ID) = 0;
 	string Name = "NoName";
-
-/* =================
- *	Entity Traits
- * ================= */	
-	static inline Array<RTraitID, EntityTraitsManager::MaxTraits> Traits;
 
 /* =================
  *	Entity flags

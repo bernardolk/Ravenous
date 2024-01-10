@@ -1,3 +1,4 @@
+#include "Editor/EditorMain.h"
 #include "editor/console/console.h"
 #include "engine/camera/camera.h"
 #include "editor/EditorState.h"
@@ -149,16 +150,7 @@ void ExecuteCommand(const string& BufferLine, EPlayer* & Player, RWorld* World, 
 	// ---------------
 	if (Command == "save")
 	{
-		Serialization::SaveWorldToDisk();
-	}
-
-	// ---------------
-	// 'LOAD' COMMAND
-	// ---------------
-	else if (Command == "load")
-	{
-		Serialization::LoadWorldFromDisk();
-		World->Update();
+		Editor::EditorSave();
 	}
 
 	// ----------------

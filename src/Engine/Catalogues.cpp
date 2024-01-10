@@ -55,8 +55,9 @@ RCatalogueSearchResult FindEntityAssetsInCatalogue(const string& MeshName, const
 RMesh* GetOrLoadMesh(const string& MeshName)
 {
 	auto** FindMesh = Find(GeometryCatalogue, MeshName);
-	if (!FindMesh)
-		return LoadWavefrontObjAsMesh(Paths::Models, MeshName);
+	if (!FindMesh) {
+		return LoadWavefrontObjAsMesh(MeshName);
+	}
 
 	return *FindMesh;
 }
@@ -64,8 +65,9 @@ RMesh* GetOrLoadMesh(const string& MeshName)
 RCollisionMesh* GetOrLoadCollisionMesh(const string& CollisionMeshName)
 {
 	auto** FindMesh = Find(CollisionGeometryCatalogue, CollisionMeshName);
-	if (!FindMesh)
-		return LoadWavefrontObjAsCollisionMesh(Paths::Models, CollisionMeshName);
+	if (!FindMesh) {
+		return LoadWavefrontObjAsCollisionMesh(CollisionMeshName);
+	}
 
 	return *FindMesh;
 }

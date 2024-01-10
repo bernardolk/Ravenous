@@ -16,18 +16,18 @@ struct EntityTraitsManager
 
 	static inline constexpr uint MaxTraits = 5;
 
-	map<RTraitID, map<RTypeID, UpdateFuncPtr> > TraitRegistry;
-	map<RTypeID, vector<RTypeID> > TraitInverseRegistry;
-	vector<RTraitID> EntityTraits;
+	vector<RTraitID> TraitsRegistry;
+	map<RTraitID, map<RTypeID, UpdateFuncPtr>> TraitUpdateFunctions;
+	map<RTypeID, vector<RTraitID>> EntityTraitsLists; 
 
 	void Register(RTypeID TypeId, RTraitID TraitId, UpdateFuncPtr Func);
 	void InvokeUpdate(EEntity* Entity, RTraitID TraitId);
-	vector<RTypeID>* GetTypesWithTrait(RTraitID TraitID);
 	UpdateFuncPtr GetUpdateFunc(RTypeID TypeId, RTraitID TraitId);
 
 	template<typename TEntity, typename TTrait>
 	void RegisterTypeAndTraitMatch();
 
+	vector<RTraitID> GetEntityTraits(EEntity* Entity);
 };
 
 template<typename TEntity, typename TTrait>
