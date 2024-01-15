@@ -32,6 +32,7 @@ struct REntityAnimation
 {
 	string Description = "";
 	bool Active = false;
+	//@entityptr
 	EEntity* Entity = nullptr;
 	uint KeyframesCount = 0;
 	REntityAnimationKeyframe Keyframes[AnMaxEntityAnimationKeyframes];

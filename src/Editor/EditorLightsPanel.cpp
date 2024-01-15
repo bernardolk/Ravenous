@@ -138,7 +138,7 @@ namespace Editor
 			}
 
 			if (DeletedLightIndex > -1)
-				EditorEraseLight(DeletedLightIndex, "point", World);
+				EditorDeleteLight(DeletedLightIndex, "point", World);
 
 
 			ImGui::EndTabItem();
@@ -270,7 +270,7 @@ namespace Editor
 			}
 
 			if (DeletedLightIndex > -1)
-				EditorEraseLight(DeletedLightIndex, "spot", World);
+				EditorDeleteLight(DeletedLightIndex, "spot", World);
 
 			ImGui::EndTabItem();
 		}

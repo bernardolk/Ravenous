@@ -83,7 +83,7 @@ void Serialization::SaveWorldToDisk()
 		Writer.close();
 	};
 	
-	auto EntityIterator = RWorld::Get()->GetEntityIterator();
+	REntityIterator EntityIterator;
 	while (auto* Entity = EntityIterator())
 	{
 		SaveEntity(Entity);
@@ -139,7 +139,7 @@ void Serialization::LoadWorldFromDisk()
 		if (Extension == ".ref")
 		{
 			auto* NewEntity = LoadEntityFromString(SerializedData, World);
-			if (NewEntity->ID == 0)
+			if (NewEntity->ID == EPlayer::PlayerID)
 			{
 				EPlayer::SetPlayerSingletonInstance(NewEntity);
 			}
@@ -150,5 +150,25 @@ void Serialization::LoadWorldFromDisk()
 			LoadEditorCameraFromString(SerializedData);	
 		}
 	}
+}
+
+EEntity* Serialization::LoadEntityFromFile(RUUID ID)
+{
+	string QuotedUUID = Reflection::ToString(ID);
+	string UnquotedUUID = QuotedUUID.substr(1, QuotedUUID.length() - 2);
+	string Filepath = Paths::World + UnquotedUUID  + ".ref";
+	
+	auto Reader = std::ifstream(Filepath);
+	if (!Reader.is_open()) {
+		Log("LoadEntityFromFile: Couldn't open .ref file \"%s\"", Filepath.c_str())
+		return nullptr;
+	}
+
+	std::stringstream ss;
+	ss << Reader.rdbuf();
+	Reader.close();
+
+	string SerializedData = ss.str();
+	return LoadEntityFromString(SerializedData, RWorld::Get());
 }
 

@@ -1,6 +1,6 @@
 LargeRock2 : EStaticMesh
 ID: RUUID = "13978-82058-26147-75694"
-Position: vec3 = 13.001267 -16.375744 -0.155485
+Position: vec3 = 13.001267 -16.375742 -0.155485
 Rotation: vec3 = 0.000000 0.000000 0.000000
 Scale: vec3 = 3.150000 1.050000 3.350000
 Mesh: RMesh* = largeRock001

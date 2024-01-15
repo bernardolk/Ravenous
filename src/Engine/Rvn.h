@@ -39,6 +39,7 @@ struct ProgramConfig
 // stores all relevant entity ptrs for collision detection with player during the frame
 struct EntityBufferElement
 {
+	//@entityptr
 	EEntity* Entity = nullptr;
 	bool CollisionChecked = false;
 };

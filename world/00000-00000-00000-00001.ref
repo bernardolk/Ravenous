@@ -1,11 +1,11 @@
-One : EStaticMesh
+Player : EPlayer
 ID: RUUID = "00000-00000-00000-00001"
-Position: vec3 = -12.950000 -16.450001 -1.250000
+Position: vec3 = -4.255295 -15.050001 14.535131
 Rotation: vec3 = 0.000000 0.000000 0.000000
-Scale: vec3 = 27.700006 1.400000 20.750000
-Mesh: RMesh* = aabb
+Scale: vec3 = 1.000000 1.000000 1.000000
+Mesh: RMesh* = capsule
 Shader: RShader* = model
-TextureDiffuse: RTexture = mediumRock3-sandstone_BaseColor
+TextureDiffuse: RTexture = pink
 TextureSpecular: RTexture = null
 TextureNormal: RTexture = null
-CollisionMesh: RCollisionMesh* = aabb
+CollisionMesh: RCollisionMesh* = capsule

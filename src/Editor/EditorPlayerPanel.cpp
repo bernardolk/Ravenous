@@ -42,7 +42,7 @@ namespace Editor
 	{
 		auto& EdContext = *GetContext();
 
-		EdContext.SelectedEntity = Player;
+		EdContext.SelectedEntity = MakeHandle<EEntity>(Player);
 
 		auto& Panel = EdContext.PlayerPanel;
 		Panel.Active = true;

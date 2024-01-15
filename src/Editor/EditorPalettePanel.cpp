@@ -25,15 +25,14 @@ namespace Editor
 			{
 				auto Attributes = Panel->EntityPalette[I];
 
-				auto* World = RWorld::Get();
-				auto* NewEntity = World->SpawnEntity<EStaticMesh>();
-				if (!NewEntity)
-					continue;
+				EHandle<EStaticMesh> NewEntity = SpawnEntity<EStaticMesh>();
 
-				SetEntityAssets(NewEntity, Attributes);
-				FindNameForNewEntity(NewEntity);
+				SetEntityAssets(*NewEntity, Attributes);
+				FindNameForNewEntity(*NewEntity);
+				
 				NewEntity->Position = Camera->Position + (2.f * NewEntity->Scale + 5.f) * Camera->Front;
-				ActivateMoveMode(NewEntity);
+				ActivateMoveMode(*NewEntity);
+				GetContext()->UndoStack.TrackCreation(NewEntity);
 			}
 		}
 
@@ -53,30 +52,30 @@ namespace Editor
 
 		// 0
 		Panel->EntityPalette[Panel->Count++] = REntityAttributes{
-		.Name = "NONAME",
-		.Mesh = "aabb",
-		.Shader = "model",
-		.Texture = "grey",
-		.CollisionMesh = "aabb",
+			.Name = "NONAME",
+			.Mesh = "aabb",
+			.Shader = "model",
+			.Texture = "grey",
+			.CollisionMesh = "aabb",
 		};
 
 		// 1
 		Panel->EntityPalette[Panel->Count++] = REntityAttributes{
-		.Name = "NONAME",
-		.Mesh = "slope",
-		.Shader = "model",
-		.Texture = "grey",
-		.CollisionMesh = "slope",
+			.Name = "NONAME",
+			.Mesh = "slope",
+			.Shader = "model",
+			.Texture = "grey",
+			.CollisionMesh = "slope",
 		};
 
 		// 3
 		Panel->EntityPalette[Panel->Count++] = REntityAttributes{
-		.Name = "NONAME-CHECKPOINT",
-		.Mesh = "aabb",
-		.Shader = "model",
-		.Texture = "grey",
-		.CollisionMesh = "aabb",
-		.Scale = vec3(0.3, 1.2, 0.3)
+			.Name = "NONAME-CHECKPOINT",
+			.Mesh = "aabb",
+			.Shader = "model",
+			.Texture = "grey",
+			.CollisionMesh = "aabb",
+			.Scale = vec3(0.3, 1.2, 0.3)
 		};
 	}
 }

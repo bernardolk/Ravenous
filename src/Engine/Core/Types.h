@@ -36,7 +36,18 @@ using Flags = uint;
 
 using RTypeID = uint;
 using RTraitID = uint;
-using RUUID = uint64;
+
+struct RUUID
+{
+	uint64 Value;
+
+	RUUID() : Value(0) {}
+
+	// Conversion to and from underlying type
+	operator uint64() const { return Value; }
+
+	RUUID(uint64 IDValue) : Value(IDValue) {}
+};
 
 inline const vec3 UnitX = vec3(1, 0, 0);
 inline const vec3 UnitY = vec3(0, 1, 0);

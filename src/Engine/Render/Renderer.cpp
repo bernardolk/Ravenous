@@ -132,8 +132,8 @@ void RenderScene(RWorld* World, RCamera* Camera)
 		SetShaderLightVariables(World, Shader, Camera);
 	}
 
-	auto EntityIter = World->GetEntityIterator();
-	while (auto* Entity = EntityIter())
+	REntityIterator It;
+	while (auto* Entity = It())
 	{
 		if (Entity->Flags & EntityFlags_InvisibleEntity)
 			continue;
@@ -307,8 +307,8 @@ void RenderDepthMap()
 	DepthShader->Use();
 	DepthShader->SetMatrix4("lightSpaceMatrix", RDirLightSpaceMatrix);
 
-	auto EntityIterator = RWorld::Get()->GetEntityIterator();
-	while (auto* Entity = EntityIterator())
+	REntityIterator It;
+	while (auto* Entity = It())
 	{
 		if (Entity->Flags & EntityFlags_InvisibleEntity)
 			continue;
@@ -360,8 +360,8 @@ void RenderDepthCubemap()
 	DepthShader->SetFloat("cubemap_far_plane", RCubemapFarPlane);
 	DepthShader->SetFloat3("lightPos", Light->Position);
 
-	auto EntityIterator = World->GetEntityIterator();
-	while (auto* Entity = EntityIterator())
+	REntityIterator It;
+	while (auto* Entity = It())
 	{
 		if (Entity->Flags & EntityFlags_InvisibleEntity)
 			continue;

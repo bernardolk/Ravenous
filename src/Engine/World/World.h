@@ -1,9 +1,11 @@
 #pragma once
 
+#include "EntitySlot.h"
 #include "WorldChunk.h"
 #include "engine/collision/raycast.h"
 #include "engine/core/core.h"
 #include "Engine/Core/UUIDGenerator.h"
+#include "Engine/Entities/EHandle.h"
 
 namespace RavenousEngine
 {
@@ -29,7 +31,11 @@ struct CellUpdate
 
 struct RWorld
 {
-	friend WorldEntityIterator;
+	friend REntityIterator;
+	template<typename T> friend EHandle<T> MakeHandle(EEntity* Entity);
+	template<typename TEntity> friend EHandle<TEntity> SpawnEntity();
+	template<typename TEntity> friend void DeleteEntity(EHandle<TEntity> Entity);
+	friend EHandle<EEntity> MakeHandleFromID(RUUID ID);
 	
 	static RWorld* Get()
 	{
@@ -68,51 +74,40 @@ public:
 	void Update();
 	void Erase();
 	void DeleteEntitiesMarkedForDeletion();
-	void DeleteEntity(EEntity* Entity);
-
-	template<typename TEntity>
-	TEntity* SpawnEntity();
-
-	template<typename TEntity>
-	TEntity* SpawnEntityAtPosition(vec3 Position);
 
 	TIterator<RWorldChunk> GetChunkIterator();
-	static WorldEntityIterator GetEntityIterator();
 
-	RRaycastTest Raycast(RRay Ray, NRayCastType TestType, const EEntity* Skip = nullptr, float MaxDistance = MaxFloat) const;
-	RRaycastTest Raycast(RRay Ray, const EEntity* Skip = nullptr, float MaxDistance = MaxFloat) const;
+	RRaycastTest Raycast(const RRay& Ray, NRayCastType TestType, const EEntity* Skip = nullptr, float MaxDistance = MaxFloat) const;
+	RRaycastTest Raycast(const RRay& Ray, const EEntity* Skip = nullptr, float MaxDistance = MaxFloat) const;
 	RRaycastTest LinearRaycastArray(RRay FirstRay, int Qty, float Spacing) const;
 	RRaycastTest RaycastLights(RRay Ray) const;
 
 	CellUpdate UpdateEntityWorldChunk(EEntity* Entity);
 
 	RavenousEngine::RFrameData& GetFrameData();
+
+	[[nodiscard]] bool IsEntitySlotValid(const REntitySlot& Slot) const;
 	
 private:
 	RWorld();
 
-	// @EntityListExplanation: This was introduced so that we can go back to the saner vector list of entities approach. Cranking out space partitioning and generic entity storage solutions was premature optimization and it severely hurts debugging since entities are reduced to bytes in a memory arena.
-	vector<EEntity*> EntityList;
-
-	vector<EEntity*> EntitiesToDelete;
+	REntityStorage EntityStorage;
+	vector<RView<REntitySlot>> EntitiesToDelete;
 	
 	void UpdateTraits();
 	void UpdateTransforms();
 };
 
-struct WorldEntityIterator
+struct REntityIterator
 {
-	uint8 TotalActiveChunks = 0;
-	uint8 CurrentChunkIndex = 0;
-
-	// See @EntityListExplanation
-	uint EntityVectorIndex = 0;
+	// uint8 TotalActiveChunks = 0;
+	// uint8 CurrentChunkIndex = 0;
+	// RWorldChunkEntityIterator ChunkIterator;
 
 	RWorld* World;
-	RWorldChunkEntityIterator ChunkIterator;
+	REntitySlot* CurrentEntitySlot = nullptr;
 
-	WorldEntityIterator();
-
+	REntityIterator();
 	EEntity* operator()();
 };
 
@@ -123,18 +118,19 @@ void SetEntityAssets(EEntity* Entity, struct REntityAttributes Attrs);
 
 
 template<typename TEntity>
-TEntity* RWorld::SpawnEntity()
+EHandle<TEntity> SpawnEntity()
 {
 	// This was introduced so that we can go back to the saner vector list of entities approach.
 	// Cranking out space partitioning and generic entity storage solutions was premature optimization and it severely hurts debugging since entities are reduced to bytes in a memory arena.
 	if (auto* NewEntity = new TEntity)
 	{
+		auto* World = RWorld::Get();
 		NewEntity->ID = RUUIDGenerator::GetNewRUUID();
-		EntityList.push_back(NewEntity);
-		return NewEntity;
+		auto* Slot = World->EntityStorage.Add(NewEntity);
+		return EHandle<TEntity>{World->EntityStorage.EntitySlots, *Slot, Slot->Generation};
 	}
 	
-	return nullptr;
+	return {};
 	
 #if 0
 	auto* FirstChunkAvailable = ChunksMap.begin()->second;
@@ -154,25 +150,33 @@ TEntity* RWorld::SpawnEntity()
 // EEntity is an abstract type, it does not contain budget or traits info and shouldn't
 // be directly spanwed. EStaticMesh is the correct basic entity type.
 template<>
-inline EEntity* RWorld::SpawnEntity<EEntity>()
+inline EHandle<EEntity> SpawnEntity<EEntity>()
 {
-	return nullptr;
+	return {};
 }
 
-
 template<typename TEntity>
-TEntity* RWorld::SpawnEntityAtPosition(vec3 Position)
+EHandle<TEntity> MakeHandle(EEntity* Entity)
 {
-	auto* FirstChunkAvailable = ChunksMap.begin()->second;
-	if (!FirstChunkAvailable)
-		return nullptr;
-
-	auto* Entity = FirstChunkAvailable->AddEntity<TEntity>();
-	if (Entity)
-	{
-		Entity->position = Position;
-		UpdateEntityWorldChunk(Entity);
+	auto* World = RWorld::Get();
+	for (auto& Slot : World->EntityStorage.EntitySlots) {
+		if (Slot.Value == Entity) {
+			return EHandle<TEntity>{World->EntityStorage.EntitySlots, Slot, Slot.Generation};
+		}
 	}
 
-	return Entity;
+	// If this this hits, this means there is a dangling entity ptr somewhere. The entity was freed but this ptr still references it. Investigate!
+	assert(false);
+	return {};
+}
+
+EHandle<EEntity> MakeHandleFromID(RUUID ID);
+
+// The rationale behind why this takes a handle is twofold: First, it is more performant to figure out where the entity is if we have a reference to the entity slot (just take the offset in the vector)
+// Second, it suggests to callers to make handles and store these instead of raw entity ptrs.
+template<typename TEntity>
+void DeleteEntity(EHandle<TEntity> Entity)
+{
+	if (!Entity.IsValid()) return;
+	RWorld::Get()->EntitiesToDelete.push_back(Entity.Slot);
 }

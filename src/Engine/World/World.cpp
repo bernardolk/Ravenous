@@ -27,51 +27,26 @@ void RWorld::Update()
 
 void RWorld::Erase()
 {
-	for (auto* Entity : EntityList) {
-		delete Entity;
+	for (auto& EntitySlot : EntityStorage.EntitySlots) {
+		delete EntitySlot.Value;
+		EntityStorage.Empty(&EntitySlot);
 	}
-
-	EntityList.clear();
-}
-
-void RWorld::DeleteEntity(EEntity* Entity)
-{
-	EntitiesToDelete.push_back(Entity);
 }
 
 void RWorld::UpdateTransforms()
 {
-	auto EntityIter = GetEntityIterator();
-	while (auto* Entity = EntityIter()) {
+	REntityIterator It;
+	while (auto* Entity = It()) {
 		Entity->Update();
 	}
 }
 
 void RWorld::DeleteEntitiesMarkedForDeletion()
 {
-	// todo: I don't like how complicated this logic is just for deleting an item in an array.
-	vector<int> Indexes;
-	for (auto* EntityToDelete: EntitiesToDelete)
-	{
-		int Count = 0;
-		auto EntityIter = GetEntityIterator();
-		while (auto* Entity = EntityIter())
-		{
-			if (Entity->ID == EntityToDelete->ID) {
-				Indexes.push_back(Count);
-			}
-			Count++;
-		}
+	for (auto& EntitySlot : EntitiesToDelete) {
+		delete EntitySlot->Value;
+		EntityStorage.Empty(EntitySlot.Get());
 	}
-	
-	for (auto* Entity: EntitiesToDelete) {
-		delete Entity;
-	}
-
-	for (auto Index : Indexes) {
-		EntityList.erase(EntityList.begin() + Index);
-	}
-	
 	EntitiesToDelete.clear();
 }
 
@@ -84,7 +59,8 @@ void RWorld::UpdateTraits()
 	// After PoC for the game is complete, I probably will return to it to have easy loading / unloading of world chunks for streaming the world.
 
 	auto* TraitsManager = EntityTraitsManager::Get();
-	for (auto* Entity : EntityList)
+	REntityIterator It;
+	while(auto* Entity = It())
 	{
 		auto TraitsList = TraitsManager->GetEntityTraits(Entity);
 		for (RTraitID TraitID : TraitsList)
@@ -112,25 +88,25 @@ TIterator<RWorldChunk> RWorld::GetChunkIterator()
 	return Chunks.GetIterator();
 }
 
-WorldEntityIterator RWorld::GetEntityIterator()
+REntityIterator::REntityIterator() : World(RWorld::Get())
 {
-	return WorldEntityIterator();
+	if (World->EntityStorage.EntitySlots.empty()) return;
+	CurrentEntitySlot = &World->EntityStorage.EntitySlots[0];
 }
 
-WorldEntityIterator::WorldEntityIterator() :
-	World(RWorld::Get()), ChunkIterator(World->ActiveChunks[0]->GetIterator())
+EEntity* REntityIterator::operator()()
 {
-	TotalActiveChunks = World->ActiveChunks.size();
-}
+	auto* LastSlot = &World->EntityStorage.EntitySlots.back();
+	if (CurrentEntitySlot == LastSlot + 1) return nullptr;
 
-EEntity* WorldEntityIterator::operator()()
-{
-	if (EntityVectorIndex < World->EntityList.size()) {
-		return World->EntityList[EntityVectorIndex++];
+	while (!World->EntityStorage.SlotContainsEntity(CurrentEntitySlot)) {
+		CurrentEntitySlot++;
+		if (CurrentEntitySlot == LastSlot + 1) return nullptr;
 	}
-	else {
-		return nullptr;
-	}
+
+	auto* Entity = CurrentEntitySlot->Value;
+	CurrentEntitySlot++;
+	return Entity;
 	
 // TODO: Reactivate again when we need more headaches and world partitioning to be online.
 #if 0
@@ -161,23 +137,22 @@ EEntity* RWorldChunkEntityIterator::operator()()
 	return nullptr;
 }
 
-RRaycastTest RWorld::Raycast(const RRay Ray, const NRayCastType TestType, const EEntity* Skip, const float MaxDistance) const
+RRaycastTest RWorld::Raycast(const RRay& Ray, const NRayCastType TestType, const EEntity* Skip, const float MaxDistance) const
 {
 	float MinDistance = MaxFloat;
-	RRaycastTest ClosestHit{false, -1};
+	RRaycastTest ClosestHit;
+	ClosestHit.Hit = false;
+	ClosestHit.Distance = -1;
 
-	auto EntityIterator = GetEntityIterator();
-	while (auto* Entity = EntityIterator())
+	REntityIterator It;
+	while (auto* Entity = It())
 	{
-		if (TestType == RayCast_TestOnlyVisibleEntities && Entity->Flags & EntityFlags_InvisibleEntity)
-			continue;
-
-		if (Skip != nullptr && Entity->ID == Skip->ID)
+		if ((TestType == RayCast_TestOnlyVisibleEntities && Entity->Flags & EntityFlags_InvisibleEntity)
+			|| (Skip != nullptr && Entity->ID == Skip->ID))
 			continue;
 
 		const auto Test = ClTestAgainstRay(Ray, Entity, TestType, MaxDistance);
-		if (Test.Hit && Test.Distance < MinDistance && Test.Distance < MaxDistance)
-		{
+		if (Test.Hit && Test.Distance < MinDistance && Test.Distance < MaxDistance) {
 			ClosestHit = Test;
 			ClosestHit.Entity = Entity;
 			MinDistance = Test.Distance;
@@ -187,7 +162,7 @@ RRaycastTest RWorld::Raycast(const RRay Ray, const NRayCastType TestType, const 
 	return ClosestHit;
 }
 
-RRaycastTest RWorld::Raycast(const RRay Ray, const EEntity* Skip, const float MaxDistance) const
+RRaycastTest RWorld::Raycast(const RRay& Ray, const EEntity* Skip, const float MaxDistance) const
 {
 	return this->Raycast(Ray, RayCast_TestOnlyFromOutsideIn, Skip, MaxDistance);
 }
@@ -347,10 +322,6 @@ CellUpdate RWorld::UpdateEntityWorldChunk(EEntity* Entity)
 					return CellUpdate{CellUpdate_OUT_OF_BOUNDS, "Coordinates not found in chunks_map.", true};
 
 				auto* Chunk = ChunkIt->second;
-
-				if (OriginChunk != vec3(I, J, K))
-					Chunk->AddVisitor(Entity);
-
 				Entity->WorldChunks.push_back(Chunk);
 			}
 		}
@@ -362,6 +333,11 @@ CellUpdate RWorld::UpdateEntityWorldChunk(EEntity* Entity)
 auto RWorld::GetFrameData() -> RavenousEngine::RFrameData&
 {
 	return RavenousEngine::REngineRuntimeState::Get()->Frame;
+}
+
+bool RWorld::IsEntitySlotValid(const REntitySlot& Slot) const
+{
+	return EntityStorage.SlotContainsEntity(&Slot);
 }
 
 // TODO: Move these elsewhere
@@ -390,4 +366,29 @@ void SetEntityAssets(EEntity* Entity, REntityAttributes Attrs)
 	Entity->CollisionMesh =  CollisionMesh;
 	Entity->Collider = * CollisionMesh;
 	Entity->TextureDiffuse = Textures[0];
+}
+
+EHandle<EEntity> MakeHandleFromID(RUUID ID)
+{
+	auto* World = RWorld::Get();
+	for (auto& Slot : World->EntityStorage.EntitySlots)
+	{
+		bool bSkip = false;
+		for (auto* EmptySlot : World->EntityStorage.EmptySlots) {
+			if (&Slot == EmptySlot) {
+				bSkip = true;
+			}
+		}
+		if (bSkip)
+			continue;
+
+		// Todo: I don't like how much work this is. This seems very expensive.
+		if (Slot.Value->ID == ID) {
+			return {World->EntityStorage.EntitySlots, Slot, Slot.Generation};
+		}
+	}
+
+	// If this this hits, this means there is a dangling entity ptr somewhere. The entity was freed but this ptr still references it. Investigate!
+	assert(false);
+	return {};
 }

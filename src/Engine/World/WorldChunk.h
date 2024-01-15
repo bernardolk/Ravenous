@@ -16,18 +16,16 @@ constexpr float WorldChunkOffsetZ = WorldChunkNumZ / 2.f;
 // how many meters the cell occupies in the world
 constexpr float WorldChunkLengthMeters = 5000.0f;
 
-constexpr vec3 WUpperBoundsMeters =
-{
+constexpr vec3 WUpperBoundsMeters = {
 	WorldChunkOffsetX * WorldChunkLengthMeters,
 	WorldChunkOffsetY * WorldChunkLengthMeters,
 	WorldChunkOffsetZ * WorldChunkLengthMeters
 };
 
-constexpr vec3 WLowerBoundsMeters =
-{
--1.0 * WorldChunkOffsetX * WorldChunkLengthMeters,
--1.0 * WorldChunkOffsetX * WorldChunkLengthMeters,
--1.0 * WorldChunkOffsetX * WorldChunkLengthMeters
+constexpr vec3 WLowerBoundsMeters = {
+	-1.0 * WorldChunkOffsetX * WorldChunkLengthMeters,
+	-1.0 * WorldChunkOffsetX * WorldChunkLengthMeters,
+	-1.0 * WorldChunkOffsetX * WorldChunkLengthMeters
 };
 
 
@@ -70,10 +68,6 @@ struct RWorldChunk
 
 	// Low level byte array
 	RWorldChunkStorage ChunkStorage;
-
-	//TODO: I don't think we need this
-	vector<EEntity*> Visitors;
-
 	RWorldChunk() : ChunkStorage(id) {}
 	RWorldChunk(uint I, uint J, uint K) : i(I), j(J), k(K), ChunkStorage(id) {}
 
@@ -82,8 +76,6 @@ struct RWorldChunk
 	RWorldChunkPosition GetPosition() { return RWorldChunkPosition(i, j, k); }
 
 	void RemoveEntity(EEntity* Entity);
-	bool AddVisitor(EEntity* Entity);
-	bool RemoveVisitor(EEntity* Entity);
 
 	template<typename TEntity>
 	TEntity* AddEntity()

@@ -37,9 +37,9 @@
 	{ \
 		Reflection_TypeInitialization() \
 		{ \
-			auto InitFunc = [](const string& SerializedEntity) -> EEntity* { auto* NewEntity = RWorld::Get()->SpawnEntity<Self>(); Reflection::Load(SerializedEntity, *NewEntity); return static_cast<EEntity*>(NewEntity); }; \
+			auto InitFunc = [](const string& SerializedEntity) -> EEntity* { EHandle<Self> NewEntityHandle = SpawnEntity<Self>(); Reflection::Load(SerializedEntity, *(*NewEntityHandle)); return static_cast<EEntity*>(*NewEntityHandle); }; \
 			auto CastAndDumpFunc = [](EEntity& Instance) -> string { return Reflection::Dump<Self>(*reinterpret_cast<Self*>(&Instance)); }; \
-			auto NewFunc = []() -> EEntity* { auto* NewEntity = RWorld::Get()->SpawnEntity<Self>(); return static_cast<EEntity*>(NewEntity); }; \
+			auto NewFunc = []() -> EEntity* { EHandle<Self> NewEntityHandle = SpawnEntity<Self>(); return static_cast<EEntity*>(*NewEntityHandle); }; \
 			Reflection::TypeMetadata Meta; \
 			Meta.TypeName = Reflection_TypeName; \
 			Meta.TypeID = Self::GetTypeID(); \

@@ -31,7 +31,7 @@ namespace Editor
 	{
 		bool Active = false;
 		bool Focused = false;
-		EEntity* Entity = nullptr;
+		EHandle<EEntity> Entity;
 		vec3 OriginalPosition = vec3(0);
 		vec3 OriginalScale = vec3(0);
 		float OriginalRotation = 0;
@@ -60,7 +60,7 @@ namespace Editor
 		bool ShowBoundingBox = false;
 
 		bool ShowRelatedEntity = false;
-		EEntity* RelatedEntity = nullptr;
+		EHandle<EEntity> RelatedEntity;
 
 		void EmptyRenameBuffer()
 		{

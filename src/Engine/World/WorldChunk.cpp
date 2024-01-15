@@ -14,32 +14,6 @@ void RWorldChunk::RemoveEntity(EEntity* EntityToDelete)
 	EntityToDelete->Deleted = true;
 }
 
-
-bool RWorldChunk::AddVisitor(EEntity* Entity)
-{
-	Visitors.push_back(Entity);
-	Entity->VisitorState = VisitorState{true, vec3(i, j, k), this};
-	return true;
-}
-
-bool RWorldChunk::RemoveVisitor(EEntity* Entity)
-{
-	int Count = 0;
-	for (auto* Visitor : Visitors)
-	{
-		// TODO: #PtrToEntity Change to handle futurely
-		if (Visitor == Entity)
-		{
-			Visitors.erase(Visitors.begin() + Count);
-			Entity->VisitorState.Reset();
-		}
-
-		Count++;
-	}
-
-	return false;
-}
-
 vec3 RWorldChunk::GetPositionMetric()
 {
 	return GetWorldCoordinatesFromWorldCellCoordinates(i, j, k);

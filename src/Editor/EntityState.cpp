@@ -1,8 +1,12 @@
 #include "EntityState.h"
+
+#include "Reflection/Serialization.h"
 #include "engine/entities/Entity.h"
 
-REntityState GetEntityState(EEntity* Entity)
+REntityState GetEntityState(const EHandle<EEntity>& Entity)
 {
+	if (!Entity.IsValid()) return {};
+	
 	REntityState State;
 	State.Position = Entity->Position;
 	State.Scale = Entity->Scale;
@@ -12,26 +16,27 @@ REntityState GetEntityState(EEntity* Entity)
 	return State;
 }
 
-void ApplyState(REntityState State)
+void REntityState::Apply()
 {
-	if (State.Entity == nullptr)
-		return;
-
-	State.Entity->Position = State.Position;
-	State.Entity->Scale = State.Scale;
-	State.Entity->Rotation = State.Rotation;
-	State.Entity->Update();
+	if (!Entity.IsValid()) return;
+	
+	Entity->Position = Position;
+	Entity->Scale = Scale;
+	Entity->Rotation = Rotation;
+	Entity->Update();
 }
 
-bool CompareEntityStates(REntityState State1, REntityState State2)
+bool AreEntityStatesEqual(const REntityState& State1, const REntityState& State2)
 {
+	if (!State1.Entity.IsValid() || !State2.Entity.IsValid()) return false;
+	
 	return State1.ID == State2.ID
-	&& State1.Position == State2.Position
-	&& State1.Scale == State2.Scale
-	&& State1.Rotation == State2.Rotation;
+		&& State1.Position == State2.Position
+		&& State1.Scale == State2.Scale
+		&& State1.Rotation == State2.Rotation;
 }
 
-mat4 MatModelFromEntityState(REntityState State)
+mat4 MatModelFromEntityState(const REntityState& State)
 {
 	glm::mat4 Model = translate(Mat4Identity, State.Position);
 	Model = rotate(Model, glm::radians(State.Rotation.x), vec3(1.0f, 0.0f, 0.0f));

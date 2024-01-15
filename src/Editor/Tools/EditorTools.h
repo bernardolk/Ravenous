@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/World/World.h"
 #include "engine/core/core.h"
 #include "editor/EditorContext.h"
 #include "engine/collision/raycast.h"
@@ -8,8 +9,11 @@ namespace Editor
 {
 	void DeactivateEditorModes();
 	bool CheckModesAreActive();
-	void EditorEraseEntity(EEntity* Entity);
-	void EditorEraseLight(int Index, string Type, RWorld* World);
+	
+	template<typename TEntity>
+	void EditorDeleteEntity(EHandle<TEntity> EntityHandle, bool bDontTrack = false);
+	
+	void EditorDeleteLight(int Index, string Type, RWorld* World);
 	void UnhideEntities(RWorld* World);
 
 	// ----------
@@ -100,4 +104,23 @@ namespace Editor
 	// -------------
 	// void CheckForAssetChanges();
 	void RenderAabbBoundaries(EEntity* Entity);
+
+	// =========================
+	//	EditorDeleteEntity
+	// =========================
+	// Any editor tool that can delete an entity should use this method
+	template<typename TEntity>
+	void EditorDeleteEntity(EHandle<TEntity> EntityHandle, bool bDontTrack)
+	{
+		if (!EntityHandle.IsValid()) {
+			Log("Warning : EditorDeleteEntity - Tried to delete an entity from invalid handle."); DEBUG_BREAK
+		}
+		
+		auto* Context = GetContext();
+		if (!bDontTrack) {
+			Context->UndoStack.TrackDeletion(EntityHandle);
+		}
+		Context->DeletionLog.push_back(EntityHandle->ID);
+		DeleteEntity(EntityHandle);
+	}
 }

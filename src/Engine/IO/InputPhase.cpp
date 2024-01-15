@@ -179,6 +179,9 @@ uint64 ProcessKeyboardInputKeyPress(GLFWwindow* Window)
 	if (glfwGetKey(Window, GLFW_KEY_PAUSE) == GLFW_PRESS)
 		Flags = Flags | (uint64)NKeyInput::KeyPause;
 
+	if (glfwGetKey(Window, GLFW_KEY_END) == GLFW_PRESS)
+		Flags = Flags | (uint64)NKeyInput::KeyEnd;
+	
 	return Flags;
 }
 
@@ -333,7 +336,10 @@ uint64 ProcessKeyboardInputKeyRelease(GLFWwindow* Window)
 
 	if (glfwGetKey(Window, GLFW_KEY_PAUSE) == GLFW_RELEASE)
 		Flags = Flags | (uint64)NKeyInput::KeyPause;
-
+	
+	if (glfwGetKey(Window, GLFW_KEY_END) == GLFW_RELEASE)
+		Flags = Flags | (uint64)NKeyInput::KeyEnd;
+	
 	return Flags;
 }
 

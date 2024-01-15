@@ -110,48 +110,56 @@ namespace Editor
 			}
 			if (PressedOnceExclusively(Flags, NKeyInput::KeyX))
 			{
-				if (Context.SnapAxis == 0)
+				if (Context.SnapAxis == 0) {
 					Context.SnapCycle = (Context.SnapCycle + 1) % 3;
+				}
 				else
 				{
-					ApplyState(Context.SnapTrackedState);
+					Context.SnapTrackedState.Apply();
 					Context.SnapCycle = 0;
 					Context.SnapAxis = 0;
 				}
-				if (Context.SnapReference != nullptr)
-					SnapEntityToReference(Context.EntityPanel.Entity);
+
+				if (Context.SnapReference.IsValid()) {
+					SnapEntityToReference(*Context.EntityPanel.Entity);
+				}
 			}
 			if (PressedOnceExclusively(Flags, NKeyInput::KeyY))
 			{
-				if (Context.SnapAxis == 1)
+				if (Context.SnapAxis == 1) {
 					Context.SnapCycle = (Context.SnapCycle + 1) % 3;
-				else
-				{
-					ApplyState(Context.SnapTrackedState);
+				}
+				else {
+					Context.SnapTrackedState.Apply();
 					Context.SnapCycle = 0;
 					Context.SnapAxis = 1;
 				}
-				if (Context.SnapReference != nullptr)
-					SnapEntityToReference(Context.EntityPanel.Entity);
+				
+				if (Context.SnapReference.IsValid()) {
+					SnapEntityToReference(*Context.EntityPanel.Entity);
+				}
 			}
 			if (PressedOnceExclusively(Flags, NKeyInput::KeyZ))
 			{
-				if (Context.SnapAxis == 2)
+				if (Context.SnapAxis == 2) {
 					Context.SnapCycle = (Context.SnapCycle + 1) % 3;
+				}
 				else
 				{
-					ApplyState(Context.SnapTrackedState);
+					Context.SnapTrackedState.Apply();
 					Context.SnapCycle = 0;
 					Context.SnapAxis = 2;
 				}
-				if (Context.SnapReference != nullptr)
-					SnapEntityToReference(Context.EntityPanel.Entity);
+				if (Context.SnapReference.IsValid()) {
+					SnapEntityToReference(*Context.EntityPanel.Entity);
+				}
 			}
 			if (PressedOnceExclusively(Flags, NKeyInput::KeyI))
 			{
 				Context.SnapInside = !Context.SnapInside;
-				if (Context.SnapReference != nullptr)
-					SnapEntityToReference(Context.EntityPanel.Entity);
+				if (Context.SnapReference.IsValid()) {
+					SnapEntityToReference(*Context.EntityPanel.Entity);
+				}
 			}
 		}
 
@@ -202,8 +210,8 @@ namespace Editor
 		// -------------------
 		if (PressedOnce(Flags, NKeyInput::KeyT))
 		{
-			Context.ShowTranslationGizmo = true;
-			Context.ShowRotationGizmo = false;
+			Context.UsingTranslationGizmo = true;
+			Context.UsingRotationGizmo = false;
 		}
 
 		// -------------------
@@ -211,8 +219,8 @@ namespace Editor
 		// -------------------
 		if (PressedOnce(Flags, NKeyInput::KeyR))
 		{
-			Context.ShowTranslationGizmo = false;
-			Context.ShowRotationGizmo = true;
+			Context.UsingTranslationGizmo = false;
+			Context.UsingRotationGizmo = true;
 		}
 
 		// ---------------
@@ -259,8 +267,8 @@ namespace Editor
 				if (Context.EntityPanel.Active)
 				{
 					if (Context.SelectEntityAuxMode) return;
-					if (CheckSelectionToGrabEntityArrows(Camera)) return;
-					if (CheckSelectionToGrabEntityRotationGizmo(Camera)) return;
+					if (Context.UsingTranslationGizmo && CheckSelectionToGrabEntityArrows(Camera)) return;
+					if (Context.UsingRotationGizmo && CheckSelectionToGrabEntityRotationGizmo(Camera)) return;
 				}
 				CheckSelectionToOpenPanel(Player, World, Camera);
 			}
@@ -414,12 +422,12 @@ namespace Editor
 		if (Pressed(Flags, NKeyInput::KeyDelete))
 		{
 			if(auto& EntityPanel = GetContext()->EntityPanel; EntityPanel.Active) {
-				EditorEraseEntity(EntityPanel.Entity);
+				EditorDeleteEntity(EntityPanel.Entity);
 				EntityPanel.Active = false;
 			}
 		}
-		
-		if (Pressed(Flags, NKeyInput::KeyPause))
+
+		if (Pressed(Flags, NKeyInput::KeyEnd))
 		{
 			auto* GDC = GlobalDisplayState::Get();
 			glfwSetWindowShouldClose(GDC->GetWindow(), true);

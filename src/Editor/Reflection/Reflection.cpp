@@ -192,11 +192,11 @@ RUUID Reflection::FromString<RUUID>(const string& Value)
 		}
 	}
 
-	// Convert the string to uint64_t
+	// Convert the string to uint64
 	std::istringstream StringStream(stringValue);
-	RUUID Result = 0;
+	uint64 Result = 0;
 	StringStream >> Result;
-	return Result;
+	return {Result};
 }
 
 template<>

@@ -17,8 +17,6 @@ namespace Editor
 		ImGui::SetNextWindowPos(ImVec2(GlobalDisplayState::ViewportWidth - 230, 180), ImGuiCond_Appearing);
 		ImGui::Begin("Tools", &EdContext.ToolbarActive, ImGuiWindowFlags_AlwaysAutoResize);
 
-		string SceneName = "Scene name: " + RWorld::Get()->SceneName;
-		ImGui::Text(SceneName.c_str());
 		ImGui::NewLine();
 
 		ImGui::InputFloat("##timestep", &World->GetFrameData().TimeStep, 0.5, 1.0, "Timestep = %.1f x");
@@ -30,7 +28,7 @@ namespace Editor
 			bool Track = false;
 
 			ImGui::Text("Cam speed");
-			ImGui::DragFloat("##camspeed", &RCameraManager::Get()->GetCurrentCamera()->Acceleration, 0.1, 0.2, MaxFloat);
+			ImGui::DragFloat("##camspeed", &RCameraManager::Get()->GetCurrentCamera()->Acceleration, 0.1f, 0.2f, MaxFloat);
 			Track = Track || ImGui::IsItemDeactivatedAfterEdit();
 
 			// Ambient light control

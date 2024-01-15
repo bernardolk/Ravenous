@@ -2,6 +2,8 @@
 
 #include "Editor/EditorMain.h"
 #include "EditorTools.h"
+
+#include "Editor/Reflection/Serialization.h"
 #include "engine/camera/camera.h"
 #include "engine/entities/lights.h"
 #include "engine/collision/ClController.h"
@@ -29,44 +31,33 @@ namespace Editor
 	bool CheckModesAreActive()
 	{
 		auto& EdContext = *GetContext();
-
-		return
-		EdContext.MoveMode ||
-		EdContext.SnapMode ||
-		EdContext.MeasureMode ||
-		EdContext.StretchMode ||
-		EdContext.LocateCoordsMode;
+		return EdContext.MoveMode ||
+			EdContext.SnapMode ||
+			EdContext.MeasureMode ||
+			EdContext.StretchMode ||
+			EdContext.LocateCoordsMode;
 	}
 
-	void EditorEraseEntity(EEntity* Entity)
-	{
-		auto* World = RWorld::Get();
-		auto& EdContext = *GetContext();
-		EdContext.DeletionLog.push_back(Entity->ID);
-		World->DeleteEntity(Entity);
-	}
-
-	void EditorEraseLight(int Index, string Type, RWorld* World)
+	void EditorDeleteLight(int Index, string Type, RWorld* World)
 	{
 		auto& EdContext = *GetContext();
 
-		if (Type == "point")
-		{
+		if (Type == "point") {
 			World->PointLights.erase(World->PointLights.begin() + Index);
 		}
-		else if (Type == "spot")
-		{
+		else if (Type == "spot") {
 			World->SpotLights.erase(World->SpotLights.begin() + Index);
 		}
 
-		if (EdContext.LightsPanel.SelectedLight == Index)
+		if (EdContext.LightsPanel.SelectedLight == Index) {
 			EdContext.LightsPanel.SelectedLight = -1;
+		}
 	}
 
 	void UnhideEntities(RWorld* World)
 	{
-		auto EntityIter = World->GetEntityIterator();
-		while (auto* Entity = EntityIter())
+		REntityIterator It;
+		while (auto* Entity = It())
 		{
 			if (Entity->Flags & EntityFlags_HiddenEntity)
 				Entity->Flags &= ~EntityFlags_HiddenEntity;
@@ -395,9 +386,9 @@ namespace Editor
 		EdContext.MoveEntityByArrowsRefPoint = vec3(0);
 
 		EdContext.SelectedEntity->Update();
-		World->UpdateEntityWorldChunk(EdContext.SelectedEntity);
+		World->UpdateEntityWorldChunk(*EdContext.SelectedEntity);
 		ClRecomputeCollisionBufferEntities();
-		EdContext.UndoStack.Track(EdContext.SelectedEntity);
+		EdContext.UndoStack.TrackTransformChange(EdContext.SelectedEntity);
 	}
 
 	RRaycastTest TestRayAgainstEntitySupportPlane(uint16 MoveAxis, EEntity* Entity)
@@ -476,8 +467,8 @@ namespace Editor
 
 		DeactivateEditorModes();
 		EdContext.PlaceMode = true;
-		EdContext.SelectedEntity = Entity;
-		EdContext.UndoStack.Track(Entity);
+		EdContext.SelectedEntity = MakeHandle<EEntity>(Entity);
+		EdContext.UndoStack.TrackTransformChange(EdContext.SelectedEntity);
 	}
 
 	void SelectEntityPlacingWithMouseMove(EEntity* Entity, const RWorld* World)
@@ -504,8 +495,8 @@ namespace Editor
 		DeactivateEditorModes();
 		EdContext.MoveMode = true;
 		EdContext.MoveAxis = 0;
-		EdContext.SelectedEntity = Entity;
-		EdContext.UndoStack.Track(Entity);
+		EdContext.SelectedEntity = MakeHandle<EEntity>(Entity);
+		EdContext.UndoStack.TrackTransformChange(EdContext.SelectedEntity);
 	}
 
 	void MoveEntityWithMouse(EEntity* Entity)
@@ -547,18 +538,17 @@ namespace Editor
 	void ActivateMoveEntityByArrow(uint8 MoveAxis);
 	void MoveEntityByArrows(EEntity* Entity);
 
-
 	void ActivateMoveEntityByArrow(uint8 MoveAxis)
 	{
 		auto& EdContext = *GetContext();
-
-		EdContext.MoveAxis = MoveAxis;
-		EdContext.MoveEntityByArrows = true;
-		auto Test = TestRayAgainstEntitySupportPlane(MoveAxis, EdContext.SelectedEntity);
-		EdContext.MoveEntityByArrowsRefPoint = ClGetPointFromDetection(Test.Ray, Test);
-		EdContext.UndoStack.Track(EdContext.SelectedEntity);
+		auto Test = TestRayAgainstEntitySupportPlane(MoveAxis, *EdContext.SelectedEntity);
+		if (Test.Hit) {
+			EdContext.MoveAxis = MoveAxis;
+			EdContext.MoveEntityByArrows = true;
+			EdContext.MoveEntityByArrowsRefPoint = ClGetPointFromDetection(Test.Ray, Test);
+			EdContext.UndoStack.TrackTransformChange(EdContext.SelectedEntity);
+		}
 	}
-
 
 	void MoveEntityByArrows(EEntity* Entity)
 	{
@@ -596,9 +586,7 @@ namespace Editor
 
 		Entity->Update();
 
-		// TODO: We should _know_ when entities move and be able to act programatically upon that knowledge instead of randomly checking everywhere.
-		UpdateEntityControlArrows(&EdContext.EntityPanel);
-		UpdateEntityRotationGizmo(&EdContext.EntityPanel);
+		EdContext.bGizmoPositionsDirty = true;
 	}
 
 	// ----------------
@@ -754,7 +742,7 @@ namespace Editor
 			GII->MouseCoords.X,
 			GII->MouseCoords.Y
 		);
-		EdContext.UndoStack.Track(EdContext.SelectedEntity);
+		EdContext.UndoStack.TrackTransformChange(EdContext.SelectedEntity);
 	}
 
 	float MouseOffsetToAngularOffset(float MouseOffset)
@@ -797,9 +785,7 @@ namespace Editor
 		EdContext.RotateEntityWithMouseMouseCoordsRef = MouseCoords;
 		Entity->Update();
 
-		// TODO: We should _know_ when entities move and be able to act programatically upon that knowledge instead of randomly checking everywhere.
-		UpdateEntityControlArrows(&EdContext.EntityPanel);
-		UpdateEntityRotationGizmo(&EdContext.EntityPanel);
+		EdContext.bGizmoPositionsDirty = true;
 	}
 
 

@@ -7,9 +7,7 @@ AlignConsecutiveAssignments: false
 AlignConsecutiveDeclarations: false
 AlignOperands: false
 AlignTrailingComments: true
-AllowShortCaseLabelsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: Inline
-AlwaysBreakAfterDefinitionReturnType: false
 AlwaysBreakAfterReturnType: None
 AlwaysBreakTemplateDeclarations: MultiLine
 BinPackArguments: true
@@ -25,7 +23,7 @@ BraceWrapping:
   AfterUnion: true
   AfterExternBlock: false
   BeforeCatch: true
-  BeforeElse: true
+  BeforeElseBeforeElse: true
   BeforeLambdaBody: false
   BeforeWhile: false
   IndentBraces: false
@@ -51,7 +49,6 @@ IncludeCategories:
   - Regex: '.*'
     Priority: 3
 IncludeIsMainRegex: '([-_](test|unittest))?$'
-IndentCaseLabels: true
 IndentWidth: 4
 IndentWrappedFunctionNames: false
 MacroBlockBegin: ''

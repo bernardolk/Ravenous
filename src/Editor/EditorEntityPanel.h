@@ -14,9 +14,7 @@ namespace Editor
 	void RenderEntityControlArrows(REntityPanelContext* Panel);
 	void RenderEntityPanel(REntityPanelContext* Panel, RWorld* World);
 	void EntityPanelUpdateEntityAndEditorContext(const REntityPanelContext* Panel, uint Action, RWorld* World);
-	void EntityPanelTrackEntityChanges(REntityPanelContext* Panel);
-
-
+	
 	enum NEntityPanelTrackableAction
 	{
 		EntityPanelTA_Position  = 1 << 0,

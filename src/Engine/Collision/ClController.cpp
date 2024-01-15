@@ -41,8 +41,8 @@ void ClRecomputeCollisionBufferEntities()
 	// Clears buffer
 	Rvn::EntityBuffer.clear();
 
-	auto EntityIter = RWorld::Get()->GetEntityIterator();
-	while (auto* Entity = EntityIter())
+	REntityIterator It;
+	while (auto* Entity = It())
 	{
 		Rvn::EntityBuffer.push_back(EntityBufferElement{Entity, false});
 	}

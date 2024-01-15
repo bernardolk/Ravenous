@@ -71,40 +71,32 @@ namespace Editor
 		UpdateTriaxisGizmo();
 
 		// ENTITY PANEL
-		if (!EdContext.EntityPanel.Active)
-		{
+		if (!EdContext.EntityPanel.Active) {
 			EdContext.EntityPanel.RenameBuffer[0] = 0;
 			EdContext.SnapMode = false;
 			EdContext.StretchMode = false;
-			EdContext.SnapReference = nullptr;
+			EdContext.SnapReference = {};
 		}
 
 		// unselect lights when not panel is not active
-		if (!EdContext.LightsPanel.Active)
-		{
+		if (!EdContext.LightsPanel.Active) {
 			EdContext.LightsPanel.SelectedLight = -1;
 			EdContext.LightsPanel.SelectedLightType = "";
 		}
-		else if (
-			EdContext.LightsPanel.SelectedLight != -1 &&
-			EdContext.LightsPanel.SelectedLightType != ""
-		)
-		{
+		else if (EdContext.LightsPanel.SelectedLight != -1 && EdContext.LightsPanel.SelectedLightType != "") {
 			EdContext.ShowLightbulbs = true;
 		}
 
 
 		// set editor mode values to initial if not active
-		if (!EdContext.MeasureMode)
-		{
+		if (!EdContext.MeasureMode) {
 			EdContext.FirstPointFound = false;
 			EdContext.SecondPointFound = false;
 		}
-		if (!EdContext.SnapMode)
-		{
+		if (!EdContext.SnapMode) {
 			EdContext.SnapCycle = 0;
 			EdContext.SnapAxis = 1;
-			EdContext.SnapReference = nullptr;
+			EdContext.SnapReference = {};
 		}
 
 		// respond to mouse if necessary
@@ -119,10 +111,12 @@ namespace Editor
 			}
 			else
 			{
-				if (EdContext.SelectedLight > -1)
+				if (EdContext.SelectedLight > -1) {
 					MoveLightWithMouse(EdContext.SelectedLightType, EdContext.SelectedLight, World);
-				else
-					MoveEntityWithMouse(EdContext.SelectedEntity);
+				}
+				else {
+					MoveEntityWithMouse(*EdContext.SelectedEntity);
+				}
 			}
 		}
 
@@ -136,36 +130,41 @@ namespace Editor
 
 		if (EdContext.MoveEntityByArrows)
 		{
-			if (EdContext.MouseDragging)
-				MoveEntityByArrows(EdContext.SelectedEntity);
-				// the below condition is to prevent from deactivating too early
-			else if (!EdContext.MouseClick)
+			if (EdContext.MouseDragging) {
+				MoveEntityByArrows(*EdContext.SelectedEntity);
+			}
+			// the below condition is to prevent from deactivating too early
+			else if (!EdContext.MouseClick) {
 				PlaceEntity(World);
+			}
 		}
 
 		if (EdContext.RotateEntityWithMouse)
 		{
-			if (EdContext.MouseDragging)
-				RotateEntityWithMouse(EdContext.SelectedEntity);
-				// the below condition is to prevent from deactivating too early
-			else if (!EdContext.MouseClick)
+			if (EdContext.MouseDragging) {
+				RotateEntityWithMouse(*EdContext.SelectedEntity);
+			}
+			// the below condition is to prevent from deactivating too early
+			else if (!EdContext.MouseClick) {
 				PlaceEntity(World);
+			}
 		}
 
 
 		if (EdContext.PlaceMode)
 		{
-			if (EdContext.MouseClick)
+			if (EdContext.MouseClick) {
 				PlaceEntity(World);
-			else
-				SelectEntityPlacingWithMouseMove(EdContext.SelectedEntity, World);
+			}
+			else {
+				SelectEntityPlacingWithMouseMove(*EdContext.SelectedEntity, World);
+			}
 		}
 
-		if (EdContext.ScaleEntityWithMouse)
-		{
-			ScaleEntityWithMouse(EdContext.SelectedEntity);
+		if (EdContext.ScaleEntityWithMouse) {
+			ScaleEntityWithMouse(*EdContext.SelectedEntity);
 		}
-
+		
 		// resets mouse click event
 		EdContext.MouseClick = false;
 
@@ -266,22 +265,29 @@ namespace Editor
 				// compute color intensity based on time
 				float TimeValue = glfwGetTime();
 				float Intensity = sin(TimeValue) * 2;
-				if (Intensity < 0)
-					Intensity *= -1.0;
-				Intensity += 1.0;
+				if (Intensity < 0) {
+					Intensity *= -1.0f;
+				}
+				Intensity += 1.0f;
 
 				// render
 				auto GlowingLine = ShaderCatalogue.find("color")->second;
 				GlowingLine->Use();
 				GlowingLine->SetMatrix4("model", Model);
-				GlowingLine->SetFloat3("color", Intensity * 0.941, Intensity * 0.776, Intensity * 0);
+				GlowingLine->SetFloat3("color", Intensity * 0.941f, Intensity * 0.776f, Intensity * 0);
 				GlowingLine->SetFloat("opacity", 1);
 				RenderMesh(EdContext.EntityPanel.RelatedEntity->Mesh, RenderOptions{true, false, 3});
 			}
+
+			if (EdContext.bGizmoPositionsDirty) {
+				UpdateEntityControlArrows(&EdContext.EntityPanel);
+				UpdateEntityRotationGizmo(&EdContext.EntityPanel);
+				EdContext.bGizmoPositionsDirty = false;
+		}
 		}
 
 		// render glowing wireframe on top of snap reference entity
-		if (EdContext.SnapMode && EdContext.SnapReference != nullptr)
+		if (EdContext.SnapMode && EdContext.SnapReference.IsValid())
 		{
 			// update
 			auto State = GetEntityState(EdContext.SnapReference);
@@ -291,14 +297,14 @@ namespace Editor
 			float TimeValue = glfwGetTime();
 			float Intensity = sin(TimeValue) * 2;
 			if (Intensity < 0)
-				Intensity *= -1.0;
-			Intensity += 1.0;
+				Intensity *= -1.0f;
+			Intensity += 1.0f;
 
 			// render
 			auto GlowingLine = ShaderCatalogue.find("color")->second;
 			GlowingLine->Use();
 			GlowingLine->SetMatrix4("model", Model);
-			GlowingLine->SetFloat3("color", Intensity * 0.952, Intensity * 0.843, Intensity * 0.105);
+			GlowingLine->SetFloat3("color", Intensity * 0.952f, Intensity * 0.843f, Intensity * 0.105f);
 			GlowingLine->SetFloat("opacity", 1);
 			RenderMesh(EdContext.SnapReference->Mesh, RenderOptions{true, false, 3});
 		}
@@ -370,10 +376,10 @@ namespace Editor
 		if (EdContext.EntityPanel.Active)
 		{
 			auto& Panel = EdContext.EntityPanel;
-			if (EdContext.ShowTranslationGizmo) {
+			if (EdContext.UsingTranslationGizmo) {
 				RenderEntityControlArrows(&Panel, World, Camera);
 			}
-			if (EdContext.ShowRotationGizmo) {
+			if (EdContext.UsingRotationGizmo) {
 				RenderEntityRotationGizmo(&Panel, World, Camera);
 			}
 		}
@@ -551,8 +557,8 @@ namespace Editor
 		//todo: This is not really great because iterating over all entities is expensive, plus string operations for each, but I am really not sure what's a good solve. We can't cache names because they could change, unless we invalidate the cache on every possible name change. Would need to encapsulate get/set name to ensure that. In editor builds could add the invalidation logic in the GetName call and then for game builds we dont do anything, we can forceinline each call.
 		string MeshName = NewEntity->Mesh->Name;
 		int N = 1;
-		auto Iter = RWorld::GetEntityIterator();
-		while (auto* Entity = Iter())
+		REntityIterator It;
+		while (auto* Entity = It())
 		{
 			if (Entity->Name.starts_with(MeshName))
 			{
@@ -673,26 +679,31 @@ namespace Editor
 
 			// if position is changed and not commited, render text yellow
 			vec3 SnapModeSubtextColor;
-			if (EdContext.SnapReference == nullptr)
+			if (EdContext.SnapReference.IsValid())
+			{
 				SnapModeSubtextColor = ToolTextColorYellow;
+			}
 			else
 			{
-				auto State = EdContext.UndoStack.Check();
-				if (State.Entity != nullptr && State.Position != EdContext.EntityPanel.Entity->Position)
+				auto StateChange = EdContext.UndoStack.GetStateChangeAtPosition();
+				if (StateChange.State.Entity.IsValid() && StateChange.State.Position != EdContext.EntityPanel.Entity->Position) {
 					SnapModeSubtextColor = ToolTextColorYellow;
-				else
+				}
+				else {
 					SnapModeSubtextColor = ToolTextColorGreen;
+				}
 			}
 
 			// selects text based on situation of snap tool
 			string SubText;
-			if (EdContext.SnapReference == nullptr)
+			if (EdContext.SnapReference.IsValid()) {
 				SubText = "select another entity to snap to.";
-			else
+			}
+			else {
 				SubText = "press Enter to commit position. x/y/z to change axis.";
+			}
 
 			RenderText(FontCenter, GlobalDisplayState::ViewportWidth / 2, CenteredTextHeight, ToolTextColorYellow, true, "SNAP MODE (" + SnapAxis + "-" + SnapCycle + ")");
-
 			RenderText(FontCenterSmall, GlobalDisplayState::ViewportWidth / 2, CenteredTextHeightSmall, SnapModeSubtextColor, true, SubText);
 		}
 
@@ -833,23 +844,23 @@ namespace Editor
 			RenderOptions Opts;
 			Opts.Wireframe = true;
 
-			vec3 Color;
-			if (EdContext.WorldPanel.ChunkPositionVec.x == Chunk->i &&
-				EdContext.WorldPanel.ChunkPositionVec.y == Chunk->j &&
-				EdContext.WorldPanel.ChunkPositionVec.z == Chunk->k)
+			vec3 Color = vec3(0.27, 0.55, 0.65);
+			if ((int) EdContext.WorldPanel.ChunkPositionVec.x == Chunk->i &&
+				(int) EdContext.WorldPanel.ChunkPositionVec.y == Chunk->j &&
+				(int) EdContext.WorldPanel.ChunkPositionVec.z == Chunk->k)
 			{
 				Opts.LineWidth = 1.5;
 				Color = vec3(0.8, 0.4, 0.2);
 			}
-			else if ((Chunk->i == WorldChunkNumX || Chunk->i == 0) ||
+			
+			else if (
+				(Chunk->i == WorldChunkNumX || Chunk->i == 0) ||
 				(Chunk->j == WorldChunkNumY || Chunk->j == 0) ||
 				(Chunk->k == WorldChunkNumZ || Chunk->k == 0))
 			{
 				Color = vec3(0.0, 0.0, 0.0);
 			}
-			else
-				Color = vec3(0.27, 0.55, 0.65);
-
+			
 			// creates model matrix
 			vec3 Position = GetWorldCoordinatesFromWorldCellCoordinates(Chunk->i, Chunk->j, Chunk->k);
 			glm::mat4 Model = translate(Mat4Identity, Position);
@@ -858,7 +869,7 @@ namespace Editor
 			//render
 			Shader->Use();
 			Shader->SetFloat3("color", Color);
-			Shader->SetFloat("opacity", 0.85);
+			Shader->SetFloat("opacity", 0.85f);
 			Shader->SetMatrix4("model", Model);
 			Shader->SetMatrix4("view", Camera->MatView);
 			Shader->SetMatrix4("projection", Camera->MatProjection);
@@ -1021,28 +1032,6 @@ namespace Editor
 		RenderEditorEntity(Panel->RotationGizmoZ, World, Camera);
 	}
 
-	float GetGizmoScalingFactor(EEntity* Entity, float Min, float Max)
-	{
-		/* Editor gizmos need to follow entities' dimensions so they don't look too big or too small in comparison with the entity 
-		   when displayed. */
-
-		float ScalingFactor = Min;
-		float MinDimension = MaxFloat;
-		if (Entity->Scale.x < MinDimension)
-			MinDimension = Entity->Scale.x;
-		if (Entity->Scale.y < MinDimension)
-			MinDimension = Entity->Scale.y;
-		if (Entity->Scale.z < MinDimension)
-			MinDimension = Entity->Scale.z;
-
-		if (MinDimension < Min)
-			ScalingFactor = MinDimension;
-		else if (MinDimension >= Max)
-			ScalingFactor = MinDimension / Max;
-
-		return ScalingFactor;
-	}
-
 	void UpdateEntityControlArrows(REntityPanelContext* Panel)
 	{
 		// arrow positioning settings
@@ -1065,15 +1054,11 @@ namespace Editor
 		// StartingModel = rotate(StartingModel, glm::radians(Entity->Rotation.x), UnitX);
 		// StartingModel = rotate(StartingModel, glm::radians(Entity->Rotation.y), UnitY);
 		// StartingModel = rotate(StartingModel, glm::radians(Entity->Rotation.z), UnitZ);
-
-		// TODO: Gizmos should always occupy the same size on screen independently of camera distance
-		float ScaleValue = GetGizmoScalingFactor(Entity, 0.8, 3.0);
-
+		
 		for (int i = 0; i < 3; i++)
 		{
 			auto Arrow = Arrows[i];
 			auto Model = rotate(StartingModel, glm::radians(Angles[i]), RotAxis[i]);
-			Model = scale(Model, vec3(ScaleValue));
 			Arrow->MatModel = Model;
 			Arrow->UpdateCollider();
 			Arrow->UpdateBoundingBox();
@@ -1091,13 +1076,9 @@ namespace Editor
 
 		auto StartingModel = translate(Mat4Identity, Entity->BoundingBox.GetCentroid());
 
-		// TODO: Gizmos should always occupy the same size on screen independently of camera distance
-		float ScaleValue = GetGizmoScalingFactor(Entity, 1.0, 3.0);
-
 		for (auto* Gizmo : {Panel->RotationGizmoX, Panel->RotationGizmoY, Panel->RotationGizmoZ})
 		{
 			auto Model = rotate(StartingModel, glm::radians(Angles[i]), RotAxis[i]);
-			Model = scale(Model, vec3(ScaleValue));
 			Gizmo->MatModel = Model;
 			Gizmo->UpdateCollider();
 			Gizmo->UpdateBoundingBox();
@@ -1144,6 +1125,7 @@ namespace Editor
 						// );
 						break;
 					}
+					default: break;
 				}
 			}
 		}
@@ -1157,36 +1139,32 @@ namespace Editor
 		auto Pickray = CastPickray(Camera, GII->MouseCoords.X, GII->MouseCoords.Y);
 		auto Test = World->Raycast(Pickray, RayCast_TestOnlyVisibleEntities);
 		auto TestLight = World->RaycastLights(Pickray);
-		if (Test.Hit && (!TestLight.Hit || TestLight.Distance > Test.Distance))
+		if (Test.Hit && (!TestLight.Hit || TestLight.Distance > Test.Distance)) {
 			ActivateMoveMode(Test.Entity);
-		else if (TestLight.Hit)
+		}
+		else if (TestLight.Hit) {
 			ActivateMoveLightMode(TestLight.ObjHitType, TestLight.ObjHitIndex);
+		}
 	}
-
-
+	
 	bool CheckSelectionToGrabEntityArrows(RCamera* Camera)
 	{
 		auto* GII = GlobalInputInfo::Get();
 		auto& EdContext = *GetContext();
 
 		auto Pickray = CastPickray(Camera, GII->MouseCoords.X, GII->MouseCoords.Y);
-		RRaycastTest Test;
-
 		EEntity* Arrows[3] = {EdContext.EntityPanel.XArrow, EdContext.EntityPanel.YArrow, EdContext.EntityPanel.ZArrow};
 
 		for (int i = 0; i < 3; i++)
 		{
-			Test = ClTestAgainstRay(Pickray, Arrows[i]);
-			if (Test.Hit)
-			{
+			RRaycastTest Test = ClTestAgainstRay(Pickray, Arrows[i]);
+			if (Test.Hit) {
 				ActivateMoveEntityByArrow(i + 1);
 				return true;
 			}
 		}
-
 		return false;
 	}
-
 
 	bool CheckSelectionToGrabEntityRotationGizmo(RCamera* Camera)
 	{
@@ -1197,9 +1175,9 @@ namespace Editor
 		RRaycastTest Test;
 
 		EEntity* RotGizmos[3] = {
-		EdContext.EntityPanel.RotationGizmoX,
-		EdContext.EntityPanel.RotationGizmoY,
-		EdContext.EntityPanel.RotationGizmoZ
+			EdContext.EntityPanel.RotationGizmoX,
+			EdContext.EntityPanel.RotationGizmoY,
+			EdContext.EntityPanel.RotationGizmoZ
 		};
 
 		for (int i = 0; i < 3; i++)

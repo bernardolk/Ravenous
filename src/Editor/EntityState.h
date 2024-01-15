@@ -1,17 +1,19 @@
 #pragma once
+#include "Engine/Entities/EHandle.h"
 #include "engine/core/core.h"
 
 struct REntityState
 {
-	EEntity* Entity = nullptr;
-	uint64 ID;
 	vec3 Position;
 	vec3 Scale;
 	vec3 Rotation;
+
+	RUUID ID;
+	EHandle<EEntity> Entity;
+
+	void Apply();
 };
 
-//todo Refactor into methods
-REntityState GetEntityState(EEntity* Entity);
-void ApplyState(REntityState State);
-bool CompareEntityStates(REntityState State1, REntityState State2);
-mat4 MatModelFromEntityState(REntityState State);
+REntityState GetEntityState(const EHandle<EEntity>& Entity);
+bool AreEntityStatesEqual(const REntityState& State1, const REntityState& State2);
+mat4 MatModelFromEntityState(const REntityState& State);

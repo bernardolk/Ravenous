@@ -107,8 +107,8 @@ void CheckAllEntitiesHaveShaders()
 		FatalError("Initialization: Default shader \"%s\" not found.", DefaultEntityShader.c_str())
 	}
 	
-	auto EntityIterator = RWorld::GetEntityIterator();
-	while (auto* Entity = EntityIterator())
+	REntityIterator It;
+	while (auto* Entity = It())
 	{
 		if (Entity->Shader == nullptr) {
 			Log("Initialization: shader is not set for entity '%s'.", Entity->Name.c_str())

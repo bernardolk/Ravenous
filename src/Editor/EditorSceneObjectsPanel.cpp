@@ -22,8 +22,8 @@ namespace Editor
 		SearchText.assign(Panel->SearchText);
 		Tolower(&SearchText);
 
-		auto EntityIterator = World->GetEntityIterator();
-		while (auto* Entity = EntityIterator())
+		REntityIterator It;
+		while (auto* Entity = It())
 		{
 			string Name = Entity->Name;
 			Tolower(&Name);

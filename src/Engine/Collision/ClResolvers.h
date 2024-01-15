@@ -8,6 +8,7 @@ struct ClVtraceResult
 {
 	bool Hit = false;
 	float DeltaY;
+	//@entityptr
 	EEntity* Entity;
 };
 

@@ -34,6 +34,7 @@ enum class NPlayerState: uint32_t
 struct RPlayerStateChangeArgs
 {
 	// collision
+	//@entityptr
 	EEntity* Entity = nullptr;
 	vec3 Normal = vec3(0);
 	float Penetration = 0;
@@ -72,6 +73,11 @@ struct EntityType(EPlayer)
 	Reflected(EPlayer)
 
 	friend struct GlobalSceneInfo;
+
+/* ==========================================
+ *	Player ID
+ * ========================================== */	
+	static inline RUUID PlayerID = 1;				// ID = 00000-00000-00000-00001 is reserved to Player
 	
 /* ==========================================
  *	Capsule Geometry
@@ -107,7 +113,7 @@ struct EntityType(EPlayer)
 	static const vec3 Gravity;
 
 	// other constants
-	static constexpr float SlopeMinAngle = 0.4;
+	static constexpr float SlopeMinAngle = 0.4f;
 
 /* ==========================================
  *	Movement states
@@ -148,7 +154,7 @@ struct EntityType(EPlayer)
  * ========================================== */
 	vec3 LastTerrainContactNormal = vec3(0, 1.f, 0);
 	EEntity* GrabbingEntity = nullptr;
-	float GrabReach = 0.9; // radius + arms reach, 0.5 + 0.4  
+	float GrabReach = 0.9f; // radius + arms reach, 0.5 + 0.4  
 
 /* ==========================================
  *	Sliding
@@ -169,6 +175,7 @@ struct EntityType(EPlayer)
 /* ==========================================
  *	Checkpoints
  * ========================================== */
+	//@entityptr
 	EEntity* Checkpoint = nullptr;
 	vec3 CheckpointPos;
 

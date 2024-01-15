@@ -15,6 +15,7 @@ namespace Editor
 
 	struct REditorToolCallbackArgs
 	{
+		//@entityptr
 		EEntity* Entity;
 	};
 
@@ -25,6 +26,8 @@ namespace Editor
 			static REditorContext Instance{};
 			return &Instance;
 		}
+
+		void RemoveFromDeletedEntityList(RUUID ID);
 		
 		struct ImGuiStyle* ImStyle = nullptr;
 
@@ -54,7 +57,7 @@ namespace Editor
 		bool MouseClick = false;
 		bool MouseDragging = false;
 
-		EEntity* SelectedEntity = nullptr;
+		EHandle<EEntity> SelectedEntity;
 
 		// move mode
 		bool MoveMode = false;
@@ -72,8 +75,9 @@ namespace Editor
 		// place mode
 		bool PlaceMode = false;
 
-		// move light @todo: will disappear!
-		string SelectedLightType = "";
+		// move light
+		// @todo: will disappear!
+		string SelectedLightType;
 		int SelectedLight = -1;
 
 		// scale mode
@@ -97,7 +101,8 @@ namespace Editor
 		uint8 SnapCycle = 0;
 		uint8 SnapAxis = 1;
 		bool SnapInside = false;
-		EEntity* SnapReference = nullptr;
+		
+		EHandle<EEntity> SnapReference;
 		REntityState SnapTrackedState;
 
 		// stretch mode
@@ -105,6 +110,8 @@ namespace Editor
 
 		// select entity aux tool
 		bool SelectEntityAuxMode = false;
+
+		//@entityptr
 		EEntity** SelectEntityAuxModeEntitySlot = nullptr;
 		NEdToolCallback SelectEntityAuxModeCallback = EdToolCallback_NoCallback;
 		REditorToolCallbackArgs SelectEntityAuxModeCallbackArgs = REditorToolCallbackArgs{};
@@ -115,13 +122,19 @@ namespace Editor
 		bool ShowLightbulbs = true;
 
 		// gizmos
+		//@entityptr
 		EEntity* TriAxis[3];
 		EEntity* TriAxisLetters[3];
 
-		bool ShowTranslationGizmo = true;
-		bool ShowRotationGizmo;
+		bool UsingTranslationGizmo = true;
+		bool UsingRotationGizmo;
 		
 		// debug options
 		bool DebugLedgeDetection = false;
+		
+		bool bGizmoPositionsDirty = false;
 	};
+
+	inline REditorContext* GetContext() { return REditorContext::Get(); }
+
 }

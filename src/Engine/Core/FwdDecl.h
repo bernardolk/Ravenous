@@ -47,6 +47,6 @@ struct RTexture;
 struct RWorld;
 struct WorldCell;
 struct RWorldChunk;
-struct WorldEntityIterator;
+struct REntityIterator;
 struct RWorldChunkEntityIterator;
 struct RWorldChunkPosition;
