@@ -39,30 +39,22 @@ struct BaseEntityType(EEntity)
 	friend RWorldChunk;
 
 public:
-/* ======================================================================
- * Basic data needed for lower level systems to recognize an Entity type.
- * ====================================================================== */
-	RTypeID TypeID = 0;
+	// Basic data needed for lower level systems to recognize an Entity type.
+	REntityTypeID TypeID = 0;
 	Field(RUUID, ID) = 0;
 	string Name = "NoName";
 
-/* =================
- *	Entity flags
- * ================= */	
+	//	Entity flags
 	Flags Flags = 0;
 
-/* =================
- *	Simulation Data
- * ================= */
+	// Simulation Data
 	Field(vec3, Position) = vec3(0.0f);
 	Field(vec3, Rotation) = vec3(0.0f);
 	Field(vec3, Scale) = vec3(1.0f);
 	vec3 Velocity = vec3(0.0f);
 	//glm::quat quaternion{};
 
-/* =================
- *	Render Data
- * ================= */
+	// Render Data
 	Field(RMesh*, Mesh) = nullptr;
 	Field(RShader*, Shader) = nullptr;
 	Field(RTexture, TextureDiffuse){};
@@ -75,32 +67,23 @@ public:
 	RCollisionMesh Collider{};							// dynamic collision mesh, obtained by multiplying static collision mesh with model matrix
 	RBoundingBox BoundingBox{};							// computed using the collider mesh, used for fast first pass collision tests
 
-/* =================
- *	TODO: Temp, Move
- * ================= */
-	int UvTileWrap[6] = {1, 1, 1, 1, 1, 1};		// should probably be part of a texture data struct
+	// @TODO temp
 	bool Slidable = false;						// collider settings
 
-/* =================
- *	World Data
- * ================= */
+	// World Data
 	// Array<WorldCell*, MaxEntityWorldCells> world_cells{};
 	vector<RWorldChunk*> WorldChunks{};
 	int WorldChunksCount = 0;
 	VisitorState VisitorState;
 
-/* ===================
- *	Event Trigger Data
- * =================== */
+	// Event Trigger Data
 	// TODO: Will only be necessary on I_Interactable
 	RMesh* Trigger = nullptr;
 	vec3 TriggerScale = vec3(1.5f, 1.f, 0.f);
 	vec3 TriggerPos = vec3(0.0f);
 	mat4 TriggerMatModel{};
 	
-/* =================
- *	Methods
- * ================= */
+	// Methods
 	void Update();
 	void UpdateCollider();
 	void UpdateModelMatrix();
@@ -115,11 +98,13 @@ public:
 	void MakeInvisible();
 	void MakeVisible();
 
+	vec3 GetForwardVector() const;
+
 protected:
 	bool Deleted = false;
 
 	// You shouldn't instantiate an EEntity directly. For a basic entity type, use EStaticMesh.
 	EEntity() = default;
 
-	void SetTypeID(RTypeID ID) { TypeID = ID; }
+	void SetTypeID(REntityTypeID ID) { TypeID = ID; }
 };

@@ -6,6 +6,7 @@
 #include "Serialization.h"
 #include "engine/catalogues.h"
 #include "Engine/Collision/CollisionMesh.h"
+#include "Engine/Geometry/Cylinder.h"
 #include "Engine/Render/Shader.h"
 #include "Engine/Geometry/Mesh.h"
 #include "engine/serialization/parsing/parser.h"
@@ -111,6 +112,12 @@ string Reflection::ToString(RTexture Field)
 	
 	return Field.Name;
 }
+
+string Reflection::ToString(RCylinder& Field)
+{
+	return ToString(Field.Position) + " " +  ToString(Field.Radius) + " " + ToString(Field.Height); 
+}
+
 /* ====================================
  * FromString specializations
  * ==================================== */
@@ -222,6 +229,24 @@ template<>
 RTexture Reflection::FromString<RTexture>(const string& Value)
 {
 	return GetOrLoadTexture(Value);
+}
+
+template<>
+RCylinder Reflection::FromString<RCylinder>(const string& Value)
+{
+	RCylinder Cylinder;
+	
+	Parser p{Value, (int)Value.size()};
+	p.ParseVec3();
+	Cylinder.Position = GetParsed<vec3>(p);
+	p.ParseAllWhitespace();
+	p.ParseFloat();
+	Cylinder.Radius = GetParsed<float>(p);
+	p.ParseAllWhitespace();
+	p.ParseFloat();
+	Cylinder.Height = GetParsed<float>(p);
+
+	return Cylinder;
 }
 
 /* ====================================

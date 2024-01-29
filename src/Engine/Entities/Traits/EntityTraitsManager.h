@@ -17,12 +17,12 @@ struct EntityTraitsManager
 	static inline constexpr uint MaxTraits = 5;
 
 	vector<RTraitID> TraitsRegistry;
-	map<RTraitID, map<RTypeID, UpdateFuncPtr>> TraitUpdateFunctions;
-	map<RTypeID, vector<RTraitID>> EntityTraitsLists; 
+	map<RTraitID, map<REntityTypeID, UpdateFuncPtr>> TraitEntities;
+	map<REntityTypeID, vector<RTraitID>> EntityTraitsLists; 
 
-	void Register(RTypeID TypeId, RTraitID TraitId, UpdateFuncPtr Func);
+	void Register(REntityTypeID EntityTypeID, RTraitID TraitID, UpdateFuncPtr Func);
 	void InvokeUpdate(EEntity* Entity, RTraitID TraitId);
-	UpdateFuncPtr GetUpdateFunc(RTypeID TypeId, RTraitID TraitId);
+	UpdateFuncPtr GetUpdateFunc(REntityTypeID TypeId, RTraitID TraitId);
 
 	template<typename TEntity, typename TTrait>
 	void RegisterTypeAndTraitMatch();
@@ -33,14 +33,17 @@ struct EntityTraitsManager
 template<typename TEntity, typename TTrait>
 void EntityTraitsManager::RegisterTypeAndTraitMatch()
 {
-	printf("Registering entity of id '%i' and trait of id '%i'.\n", TEntity::GetTypeId(), TTrait::trait_id);
+	auto EntityTypeID = TEntity::GetTypeID();
+	auto TraitID = TTrait::TraitID;
+	
+	printf("Registering entity of id '%i' and trait of id '%i'.\n", EntityTypeID, TraitID);
 
-	Register(TEntity::GetTypeId(), TTrait::trait_id,
+	Register(EntityTypeID, TraitID,
 		[](EEntity* InEntity) {
 			auto* FullyCastEntity = static_cast<TEntity*>(InEntity);
 			TTrait::Update(*FullyCastEntity);
 		}
 	);
 
-	TEntity::traits.Add(TTrait::trait_id);
+	TEntity::Traits.Add(TraitID);
 }

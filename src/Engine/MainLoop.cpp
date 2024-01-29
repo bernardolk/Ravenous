@@ -85,6 +85,8 @@ void RavenousMainLoop()
 		//	UPDATE PHASE
 		// -------------
 		{
+			World->UpdateTraits();
+			
 			if (ES->CurrentMode == REditorState::ProgramMode::Game) {
 				CamManager->UpdateGameCamera(GlobalDisplayState::ViewportWidth, GlobalDisplayState::ViewportHeight, Player->GetEyePosition());
 			}

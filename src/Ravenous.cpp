@@ -62,7 +62,6 @@ int main()
 	Serialization::LoadWorldFromDisk();
 
 	EPlayer* Player = EPlayer::Get();
-	Player->CheckpointPos = Player->Position; // set player initial checkpoint position
 
 	// set scene attrs from global config
 	RCameraManager::Get()->GetCurrentCamera()->Acceleration = ProgramConfig.Camspeed;

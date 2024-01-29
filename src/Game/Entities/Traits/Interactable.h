@@ -2,14 +2,18 @@
 #include "engine/core/core.h"
 #include "engine/entities/traits/EntityTraits.h"
 #include "game/entities/EPlayer.h"
+#include "Engine/Geometry/Cylinder.h"
 
-/*
- * Trait that allows entities to be interacted with via action key or touching their trigger volume.
- */
+/*  ===========================================================================================================
+ *	Interactable
+ *		Trait that allows entities to be interacted with via action key or touching their trigger volume.
+ *	=========================================================================================================== */
 
 struct Trait(TInteractable)
 {
-	REQUIRES_METHOD(void Interact())
+	Reflected_Trait(TInteractable)
+	
+	REQUIRES_METHOD( void Interact() )
 
 	void BlockInteractions();
 	void UnblockInteractions();
@@ -24,12 +28,9 @@ struct Trait(TInteractable)
 	template<typename T>
 	static void Update(T& Entity)
 	{
-		if (!Entity.bBlockInteraction)
-		{
-			if (Entity.bPassiveInteraction || EPlayer::Get()->bInteractButton)
-			{
-				if (Entity.IsVolumeCollidingWithPlayer())
-				{
+		if (!Entity.bBlockInteraction) {
+			if (Entity.bPassiveInteraction || EPlayer::Get()->bInteractButton) {
+				if (Entity.IsVolumeCollidingWithPlayer()) {
 					Entity.Interact();
 				}
 			}
@@ -37,20 +38,11 @@ struct Trait(TInteractable)
 	}
 
 protected:
-	struct Cylinder
-	{
-		float Radius = 0.f;
-		struct
-		{
-			float X = 0.f;
-			float Y = 0.f;
-			float Z = 0.f;
-		} Position;
-	} CollisionVolume;
+	Field(RCylinder, Cylinder);
 
 	bool IsVolumeCollidingWithPlayer();
 
 private:
-	bool bBlockInteraction = false;
-	bool bPassiveInteraction = false;
+	Field(bool, bBlockInteraction) = false;
+	Field(bool, bPassiveInteraction) = false;
 };

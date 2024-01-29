@@ -1,5 +1,6 @@
 #include "game/entities/EPlayer.h"
 
+#include "ECheckpoint.h"
 #include "engine/catalogues.h"
 #include "engine/rvn.h"
 #include "engine/camera/camera.h"
@@ -570,21 +571,9 @@ void EPlayer::RestoreHealth()
 	Lives = InitialLives;
 }
 
-void EPlayer::SetCheckpoint(EEntity* Entity)
-{
-	return;
-	/*
-	if (entity->type != EntityType_Checkpoint)
-		assert(false);
-
-	checkpoint_pos = position;
-	checkpoint = entity;
-	*/
-}
-
 void EPlayer::GotoCheckpoint()
 {
-	Position = CheckpointPos;
+	Position = Checkpoint->GetPlayerSpawnPosition();
 }
 
 void EPlayer::Die()

@@ -100,3 +100,8 @@ void EEntity::MakeVisible()
 {
 	Flags &= ~EntityFlags_InvisibleEntity;
 }
+
+vec3 EEntity::GetForwardVector() const
+{
+	return normalize(Rotation);
+}

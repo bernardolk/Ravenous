@@ -175,10 +175,8 @@ struct EntityType(EPlayer)
 /* ==========================================
  *	Checkpoints
  * ========================================== */
-	//@entityptr
-	EEntity* Checkpoint = nullptr;
-	vec3 CheckpointPos;
-
+	EHandle<struct ECheckpoint> Checkpoint; 
+	
 /* ==========================================
  *	Animation
  * ========================================== */
@@ -226,7 +224,6 @@ struct EntityType(EPlayer)
 
 	bool MaybeHurtFromFall();
 	void RestoreHealth();
-	void SetCheckpoint(EEntity* Entity);
 	void GotoCheckpoint();
 	void Die();
 	void BruteStop();

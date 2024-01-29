@@ -1,6 +1,5 @@
 #pragma once
 
-#include "engine/catalogues.h"
 #include "engine/entities/Entity.h"
 
 struct EntityType(EStaticMesh)

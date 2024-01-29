@@ -35,7 +35,7 @@ using string = std::string;
 
 using Flags = uint;
 
-using RTypeID = uint;
+using REntityTypeID = uint;
 using RTraitID = uint;
 
 struct RUUID

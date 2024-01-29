@@ -87,15 +87,15 @@ public:
 	RavenousEngine::RFrameData& GetFrameData();
 
 	[[nodiscard]] bool IsEntitySlotValid(const REntitySlot& Slot) const;
+
+	void UpdateTraits();
+	void UpdateTransforms();
 	
 private:
 	RWorld();
 
 	REntityStorage EntityStorage;
 	vector<RView<REntitySlot>> EntitiesToDelete;
-	
-	void UpdateTraits();
-	void UpdateTransforms();
 };
 
 struct REntityIterator

@@ -1,28 +1,28 @@
 #include "Engine/Entities/Entity.h"
 #include "EntityTraitsManager.h"
 
-void EntityTraitsManager::Register(RTypeID TypeId, RTraitID TraitId, UpdateFuncPtr Func)
+void EntityTraitsManager::Register(REntityTypeID EntityTypeID, RTraitID TraitID, UpdateFuncPtr Func)
 {
-	if (!Find(TraitUpdateFunctions, TraitId)) {
-		TraitUpdateFunctions[TraitId] = map<RTypeID, UpdateFuncPtr>();
+	// Add entity first time it appears
+	if (!Find(EntityTraitsLists, EntityTypeID)) {
+		EntityTraitsLists.insert({EntityTypeID, {}});
 	}
 	
-	if (auto* EntityTraitList = Find(EntityTraitsLists, TypeId)) {
-		EntityTraitList->push_back(TypeId);
-	}
-	else {
-		EntityTraitsLists[TypeId] = vector<RTraitID>{TypeId};
+	auto* Traits = Find(EntityTraitsLists, EntityTypeID);
+	Traits->push_back(TraitID);
+
+	// Add trait first time it appears
+	if (!Find(TraitEntities, TraitID)) {
+		TraitEntities.insert({TraitID, {}});
 	}
 
-	auto& EntityUpdateFunctions = TraitUpdateFunctions[TraitId];
-	if (Find(EntityUpdateFunctions, TypeId)) {
-		EntityUpdateFunctions[TypeId] = Func;
-	}
+	auto* Entities = Find(TraitEntities, TraitID);
+	Entities->insert({EntityTypeID, Func});
 }
 
-auto EntityTraitsManager::GetUpdateFunc(RTypeID TypeId, RTraitID TraitId) -> UpdateFuncPtr
+auto EntityTraitsManager::GetUpdateFunc(REntityTypeID TypeId, RTraitID TraitId) -> UpdateFuncPtr
 {
-	if (auto* TypeMap = Find(TraitUpdateFunctions, TraitId))
+	if (auto* TypeMap = Find(TraitEntities, TraitId))
 	{
 		if (auto* UpdateFunc = Find(*TypeMap, TypeId)) {
 			return *UpdateFunc;

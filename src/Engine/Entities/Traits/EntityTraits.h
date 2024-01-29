@@ -63,9 +63,9 @@ namespace EntityTypeSystem
 template<typename TEntity>
 struct TEntityTypeBase
 {
-	static RTypeID GetTypeID()
+	static REntityTypeID GetTypeID()
 	{
-		static RTypeID EntityTypeID = EntityTypeSystem::GetNextTypeID();
+		static REntityTypeID EntityTypeID = EntityTypeSystem::GetNextTypeID();
 		return EntityTypeID;
 	}
 	

@@ -55,6 +55,9 @@
 #define Reflected_BaseEEntity(Type) \
 	Reflected_Common(Type)
 
+#define Reflected_Trait(Type) \
+	Reflected_Common(Type)
+
 
 /* =============================================================================================
  * Field (Macro):
@@ -119,6 +122,8 @@
     } inline static Reflection__discard_ ##Name{}; \
     __VA_ARGS__ Type Name
 
+struct RCylinder;
+
 /* ===================================
  * Reflection namespace
  * ==================================== */
@@ -137,7 +142,7 @@ namespace Reflection
 		using NewFunc = EEntity*(*)(void);
 		
 		string TypeName;
-		RTypeID TypeID = 0;
+		REntityTypeID TypeID = 0;
 		int64 Size = 0;
 		TypeInitFPtr TypeInitFunction = nullptr;
 		CastAndDumpFPtr CastAndDumpFunction = nullptr;
@@ -154,7 +159,7 @@ namespace Reflection
 			return &Instance;
 		}
 
-		TypeMetadata* FindTypeMetadata(RTypeID TypeID)
+		TypeMetadata* FindTypeMetadata(REntityTypeID TypeID)
 		{
 			for (auto& Data : TypeMetadataCollection)
 			{
@@ -361,6 +366,7 @@ namespace Reflection
 	string ToString(RMesh* Field);
 	string ToString(RCollisionMesh* Field);
 	string ToString(RTexture Field);
+	string ToString(RCylinder& Field);
 
 	// default template for serialization of fields (check note on decltype usage below)
 	template<typename TField>
