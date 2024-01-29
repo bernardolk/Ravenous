@@ -34,6 +34,10 @@ namespace Editor
 		auto* Manager = RCameraManager::Get();
 		auto* Camera = Manager->GetCurrentCamera();
 
+		if (Pressed(Flags, NKeyInput::KeyLeftCtrl)) {
+			Context.CtrlIsPressed = true;
+		}
+		
 		if (Pressed(Flags, NKeyInput::KeyLeftCtrl) && PressedOnce(Flags, NKeyInput::KeyZ))
 		{
 			// snap mode controls the undo stack while it is active.
@@ -289,11 +293,11 @@ namespace Editor
 		// -------------------------------
 		if (PressedOnce(Flags, NKeyInput::KeyC))
 		{
-			auto Pickray = CastPickray(Camera, GII->MouseCoords.X, GII->MouseCoords.Y);
+			auto Pickray = CastPickray();
 			auto Test = World->Raycast(Pickray);
 			if (Test.Hit)
 			{
-				auto SurfacePoint = ClGetPointFromDetection(Pickray, Test);
+				auto SurfacePoint = Test.GetPoint();
 				Player->Position = SurfacePoint;
 				Player->PlayerState = NPlayerState::Standing;
 				Player->Velocity = vec3(0, 0, 0);

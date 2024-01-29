@@ -10,6 +10,11 @@ struct RVertex
 	vec3 Tangent;
 	vec3 Bitangent;
 
+	RVertex() : Position({}), Normal({}), TexCoords({}), Tangent({}), Bitangent({}) {}
+	RVertex(vec3 Position) : Position(Position), Normal({}), TexCoords({}), Tangent({}), Bitangent({}) {}
+	RVertex(vec3 Position, vec3 Normal, vec2 TexCoords) : Position(Position), Normal(Normal), TexCoords(TexCoords), Tangent({}), Bitangent({}) {}
+	RVertex(vec3 Position, vec3 Normal, vec2 TexCoords, vec3 Tangent, vec3 Bitangent) : Position(Position), Normal(Normal), TexCoords(TexCoords), Tangent(Tangent), Bitangent(Bitangent) {}
+	
 	RVertex operator*(mat4 Mat)
 	{
 		// should do something for tex_coords ???

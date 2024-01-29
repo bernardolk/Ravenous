@@ -62,7 +62,7 @@ void EPlayer::UpdateState()
 
 		vec3 PlayerBtmSphereCenter = Position + vec3(0, Radius, 0);
 		vec3 ContactPoint = PlayerBtmSphereCenter + (-LastTerrainContactNormal * Radius);
-		RImDraw::AddLine(IMHASH, PlayerBtmSphereCenter, ContactPoint, COLOR_YELLOW_1);
+		RImDraw::AddLine(IMHASH, PlayerBtmSphereCenter, ContactPoint, 0, COLOR_YELLOW_1);
 
 		/* Current system: Here we are looping at most twice on the:
 		   "Do stepover Vtrace, Adjust player's position to terrain, check collisions" loop
@@ -228,7 +228,7 @@ void EPlayer::UpdateState()
 			else
 				IfState(Sliding)
 				{
-					RImDraw::AddLine(IMHASH, Position, Position + 1.f * SlidingDirection, COLOR_RED_2);
+					RImDraw::AddLine(IMHASH, Position, Position + 1.f * SlidingDirection, 0, COLOR_RED_2);
 
 					Velocity = VDir * SlideSpeed;
 

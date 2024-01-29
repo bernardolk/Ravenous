@@ -16,7 +16,7 @@ inline unsigned int RDepthCubemapTexture;
 inline float RCubemapNearPlane = 1.0f;
 inline float RCubemapFarPlane = 25.0f;
 
-struct RenderOptions
+struct RRenderOptions
 {
 	bool Wireframe = false;
 	bool AlwaysOnTop = false;
@@ -35,7 +35,7 @@ inline int PFloor = -1;
 // --------------
 // RENDER MESH
 // --------------
-void RenderMesh(const RMesh* Mesh, RenderOptions Opts = RenderOptions{});
+void RenderMesh(const RMesh* Mesh, RRenderOptions Opts = RRenderOptions{});
 
 // --------------
 // RENDER ENTITY

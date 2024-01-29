@@ -35,7 +35,7 @@ struct RWorld
 	template<typename T> friend EHandle<T> MakeHandle(EEntity* Entity);
 	template<typename TEntity> friend EHandle<TEntity> SpawnEntity();
 	template<typename TEntity> friend void DeleteEntity(EHandle<TEntity> Entity);
-	friend EHandle<EEntity> MakeHandleFromID(RUUID ID);
+	template<typename TEntity> friend EHandle<TEntity> MakeHandleFromID(RUUID ID);
 	
 	static RWorld* Get()
 	{
@@ -170,7 +170,29 @@ EHandle<TEntity> MakeHandle(EEntity* Entity)
 	return {};
 }
 
-EHandle<EEntity> MakeHandleFromID(RUUID ID);
+template<typename TEntity>
+EHandle<TEntity> MakeHandleFromID(RUUID ID)
+{
+	auto* World = RWorld::Get();
+	for (auto& Slot : World->EntityStorage.EntitySlots)
+	{
+		bool bSkip = false;
+		for (auto* EmptySlot : World->EntityStorage.EmptySlots) {
+			if (&Slot == EmptySlot) {
+				bSkip = true;
+			}
+		}
+		if (bSkip)
+			continue;
+
+		// Todo: I don't like how much work this is. This seems very expensive.
+		if (GetID(Slot) == ID) {
+			return {World->EntityStorage.EntitySlots, Slot, Slot.Generation};
+		}
+	}
+
+	return {};
+}
 
 // The rationale behind why this takes a handle is twofold: First, it is more performant to figure out where the entity is if we have a reference to the entity slot (just take the offset in the vector)
 // Second, it suggests to callers to make handles and store these instead of raw entity ptrs.

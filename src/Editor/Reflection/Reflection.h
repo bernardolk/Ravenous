@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Serialization.h"
 #include "Engine/Core/Core.h"
 #include "Engine/Serialization/Parsing/Parser.h"
 #include "Engine/World/World.h"
@@ -90,6 +91,34 @@
     } inline static Reflection__discard_ ##Name{}; \
     __VA_ARGS__ Type Name
 
+//@TODO @speed string copy in getters
+#define Handle(Type, Name, ...) ;  \
+    static string Reflection_Getter_ ##Name(Self& instance) \
+    { \
+		string SerializedField; \
+		SerializedField.reserve(Reflection::ReflectionGetterSerializationBufferSize); \
+		int BytesWritten = sprintf_s(&SerializedField[0], Reflection::ReflectionGetterSerializationBufferSize, "%s: %s = %s", #Name, #Type, Reflection::ToString(instance.Name).c_str()); \
+		if (BytesWritten == -1) { \
+			FatalError("ReflectionGetter failed"); \
+		} \
+		return SerializedField; \
+    } \
+    \
+    static void Reflection_Setter_ ##Name(Self* instance, const string& Value) \
+    { \
+        instance->Name = Reflection::FromStringHandle<Type>(Value); \
+    } \
+    \
+    struct Reflection_HelperType_ ##Name \
+    { \
+        Reflection_HelperType_ ##Name() \
+        { \
+            Reflection_GetterFuncPtrs.push_back(&Self::Reflection_Getter_ ##Name); \
+			Reflection_SetterFuncPtrs.push_back({#Name, &Self::Reflection_Setter_ ##Name}); \
+        } \
+    } inline static Reflection__discard_ ##Name{}; \
+    __VA_ARGS__ Type Name
+
 /* ===================================
  * Reflection namespace
  * ==================================== */
@@ -161,7 +190,27 @@ namespace Reflection
  *	Templated function to convert string values into actual valid instances of that type
  * ============================================================================================ */
 	template<typename TField>
-	TField FromString(const string& StringValue);
+	TField FromString(const string& Value);
+
+	// template<typename T>
+	// EHandle<T> FromString(const string& Value);
+
+	template<typename T>
+	EHandle<T> FromStringHandle(const string& Value)
+	{
+		RUUID ID = FromString<RUUID>(Value);
+		EHandle<T> Handle = MakeHandleFromID<T>(ID);
+		if(!Handle.IsValid())
+		{
+			auto* RestoredEntity = Serialization::LoadEntityFromFile(ID);
+			if (!RestoredEntity) {
+				Break("Error: Couldn't load entity from file while deserializing handle for entity with ID: %s", Value.c_str())
+				return {};
+			}
+			return MakeHandle<T>(RestoredEntity);
+		}
+		return Handle;
+	}
 
 /* ====================================
  * Dump Iterative
@@ -327,6 +376,11 @@ namespace Reflection
 		return Dump<TField>(Field, false);
 	};
 
+	template<typename T>
+	string ToString(EHandle<T>& Field)
+	{	
+		return ToString(Field.EntityID);	
+	}
 
 	/* ===================================================================================================
 	 * Note on usage of decltype in templated function declarations:

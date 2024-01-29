@@ -2,6 +2,7 @@
 
 #include "Deps.h"
 #include "Constants.h"
+#include "Macros.h"
 
 /** Primitive types */
 using uint8 = unsigned char;
@@ -111,9 +112,24 @@ inline bool operator!=(const vec2& Lhs, const vec2& Rhs)
 	return !IsEqual(Lhs, Rhs);
 }
 
-inline vec3 Cross(vec3 A, vec3 B, vec3 C)
+FORCEINLINE inline vec3 Cross(vec3 A, vec3 B, vec3 C)
 {
 	return cross(cross(A, B), C);
+}
+
+FORCEINLINE inline vec3 Cross(vec3 A, vec3 B)
+{
+	return cross(A, B);
+}
+
+FORCEINLINE inline vec3 Normalize(vec3 A)
+{
+	return normalize(A);
+}
+
+FORCEINLINE inline float Dot(vec3 A, vec3 B)
+{
+	return glm::dot(A, B);
 }
 
 inline vec3 ToVec3(vec4 Vector)

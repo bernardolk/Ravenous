@@ -1,6 +1,6 @@
 Seven : EStaticMesh
 ID: RUUID = "00000-00000-00000-00007"
-Position: vec3 = 5.892100 -15.401000 10.479062
+Position: vec3 = 5.892100 -15.401000 10.479053
 Rotation: vec3 = 0.000000 0.000000 0.000000
 Scale: vec3 = 1.000000 1.000000 1.000000
 Mesh: RMesh* = longRock005

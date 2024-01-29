@@ -1,6 +1,6 @@
 Player : EPlayer
 ID: RUUID = "00000-00000-00000-00001"
-Position: vec3 = -4.255295 -15.050001 14.535131
+Position: vec3 = 8.879822 -14.241383 -2.033110
 Rotation: vec3 = 0.000000 0.000000 0.000000
 Scale: vec3 = 1.000000 1.000000 1.000000
 Mesh: RMesh* = capsule

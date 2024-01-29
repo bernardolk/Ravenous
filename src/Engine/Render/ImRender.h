@@ -16,16 +16,15 @@
 
 #include "engine/core/core.h"
 #include "renderer.h"
+#include "Engine/Geometry/Quad.h"
 #include "engine/geometry/mesh.h"
 #include "engine/utils/colors.h"
 
 #define IMCUSTOMHASH(x) ImHasher(x)
 #define IM_ITERHASH(x) ImHasher(std::string(__FILE__) + "-" + std::to_string(__LINE__) + "-" + std::to_string(x))
-#define IMHASH ImHasher(std::string(__FILE__) + "-" + std::to_string(__LINE__))
-#define IM_R_FIND_SLOT() FindElementOrEmptySlot(_hash); if(Slot.Empty && Slot.Index == -1) return;
+#define IMHASH ImHasher(string(__FILE__) + "-" + to_string(__LINE__))
 
-
-struct RenderOptions;
+struct RRenderOptions;
 constexpr inline std::hash<std::string> ImHasher;
 
 struct RImDrawElement
@@ -33,19 +32,13 @@ struct RImDrawElement
 	uint Hash;
 	bool Empty;
 	RMesh Mesh;
-	RenderOptions RenderOptions;
+	RRenderOptions RRenderOptions;
 	int Duration;
 	bool IsMesh;
 	vec3 Position;
 	vec3 Rotation;
 	vec3 Scale;
 	bool IsMultplByMatmodel;
-};
-
-struct RImDrawSlot
-{
-	bool Empty;
-	int Index;
 };
 
 struct RImDraw
@@ -56,29 +49,40 @@ struct RImDraw
 	static void Init();
 	static void Update(float FrameDuration);
 	static void Render(RCamera* Camera);
-	static auto Add(uint Hash, vector<RVertex> VertexVec, GLenum DrawMethod, RenderOptions Opts = RenderOptions{}) -> void;
-	static void Add(uint Hash, vector<RTriangle> Triangles, GLenum DrawMethod, RenderOptions);
-	static void AddLine(uint Hash, vec3 PointA, vec3 PointB, vec3 Color);
-	static void AddLine(uint Hash, vec3 PointA, vec3 PointB, float LineWidth = 1.0, bool AlwaysOnTop = false, vec3 Color = vec3(0), float Duration = 0.f);
-	static void AddLineLoop(uint Hash, vector<vec3> Points, float LineWidth = 1.0, bool AlwaysOnTop = false);
-	static void AddPoint(uint Hash, vec3 Point, float PointSize = 1.0, bool AlwaysOnTop = false, vec3 Color = vec3(0.f), float Duration = 0.f);
-	static void AddPoint(uint Hash, vec3 Point, vec3 Color = vec3(0.f));
-	static void AddTriangle(uint Hash, RTriangle Triangle, float LineWidth = 1.0, bool AlwaysOnTop = false, vec3 Color = vec3{0.8f, 0.2f, 0.2f});
-	static void AddMesh(uint Hash, RMesh* Mesh, vec3 Position, vec3 Rotation, vec3 Scale, vec3 Color = COLOR_BLUE_1, int Duration = 2000);
-	static void AddMesh(uint Hash, RMesh* Mesh, vec3 Color = COLOR_BLUE_1, float Duration = 2000.f);
-	static void AddMesh(uint Hash, EEntity* Entity, int Duration);
-	static void AddMesh(uint Hash, EEntity* Entity);
-	static void AddMesh(uint Hash, EEntity* Entity, vec3 Position);
-	static void AddCollisionMesh(uint _hash, RCollisionMesh* CollisionMesh, vec3 Color, float Duration = 0.f);
 
+	// Entity
+	static void AddEntity(uint Hash, EEntity* Entity, int Duration = DefaultDuration, RRenderOptions Opts = {});
+
+	// Meshes
+	static void AddMesh(uint Hash, RMesh* Mesh, int Duration = DefaultDuration, RRenderOptions Opts = {.Wireframe =  true});
+	static void AddMeshWithTransform(uint Hash, RMesh* Mesh, vec3 Position, vec3 Rotation, vec3 Scale, int Duration = DefaultDuration, RRenderOptions Opts = {.Wireframe =  true});
+	static void AddMeshAtPosition(uint Hash, EEntity* Entity, vec3 Position, int Duration = DefaultDuration, RRenderOptions Opts = {.Wireframe =  true});
+	static void AddCollisionMesh(uint _hash, RCollisionMesh* CollisionMesh, int Duration = DefaultDuration, RRenderOptions Opts = {.Wireframe =  true, .AlwaysOnTop = true, .DontCullFace = true});
+
+	// Lines
+	static void AddLine(uint Hash, vec3 PointA, vec3 PointB, int Duration = DefaultDuration, vec3 Color = vec3(0.f), float LineWidth = 1.f, bool AlwaysOnTop = false);
+	static void AddLineLoop(uint _hash, vector<RVertex>& Vertices, int Duration = DefaultDuration, vec3 Color = vec3{0.f}, RRenderOptions Opts = {});
+
+	// Points
+	static void AddPoint(uint Hash, vec3 Point, int Duration = DefaultDuration, vec3 Color = vec3{0.f}, float PointSize = 1.0, bool AlwaysOnTop = false);
+
+	// Quads
+	static void AddQuad(uint _hash, RQuad Quad, int Duration = DefaultDuration, vec3 Color = COLOR_BLACK, RRenderOptions Opts = RRenderOptions{});
+	
+	// Low level vertices
+	static void AddVertexList(uint _hash, vector<RVertex>& VertexVec, int Duration = DefaultDuration, RRenderOptions Opts = {}, GLenum DrawMethod = 4);
+	
 private:
-	static void SetMesh(int Index, vector<RVertex> Vertices, GLenum DrawMethod, RenderOptions Opts);
-	static void SetMesh(int Index, RMesh* Mesh, RenderOptions Opts);
-	static void UpdateMesh(int Index, vec3 Position, vec3 Rotation, vec3 Scale, vec3 Color, int Duration);
-	static void UpdateMesh(int Index, vec3 Color, int Duration);
+	static inline int DefaultDuration = 40;
+	
+	static void AddOrUpdateDrawElement(uint _hash, vector<RVertex>& Vertices, int Duration, RRenderOptions Opts, uint DrawMethod);
+	static void SetMeshFromVertices(int Index, vector<RVertex>& Vertices, GLenum DrawMethod, RRenderOptions Opts);
+	static void SetMesh(int Index, RMesh* Mesh, RRenderOptions Opts);
+	static void UpdateMeshTransform(int Index, vec3 Position, vec3 Rotation, vec3 Scale, vec3 Color, int Duration);
+	static void UpdateMeshDuration(int Index, int Duration);
+	static void UpdateMeshColor(int Index, vec3 Color);
 	static mat4 GetMatModel(vec3 Position, vec3 Rotation, vec3 Scale);
-	static void SetIndices(int Index, vector<uint> Indices);
 	static void EmptySlot(int Index);
-
-	static RImDrawSlot FindElementOrEmptySlot(uint Hash);
+	static int GetNewSlotIndex();
+	static int FindDrawElement(uint Hash);
 };

@@ -167,7 +167,8 @@ namespace Editor
 		
 		// resets mouse click event
 		EdContext.MouseClick = false;
-
+		EdContext.CtrlIsPressed = false;
+		
 		// check for debug flags
 		if (EdContext.DebugLedgeDetection)
 		{
@@ -252,7 +253,7 @@ namespace Editor
 				GlowingLine->SetMatrix4("model", Model);
 				GlowingLine->SetFloat3("color", Intensity * 0.890f, Intensity * 0.168f, Intensity * 0.6f);
 				GlowingLine->SetFloat("opacity", 1);
-				RenderMesh(EdContext.SelectedEntity->Mesh, RenderOptions{true, false, 3});
+				RenderMesh(EdContext.SelectedEntity->Mesh, RRenderOptions{true, false, 3});
 			}
 
 			// Render glowing yellow wireframe on top of an arbitrary related entity
@@ -276,7 +277,7 @@ namespace Editor
 				GlowingLine->SetMatrix4("model", Model);
 				GlowingLine->SetFloat3("color", Intensity * 0.941f, Intensity * 0.776f, Intensity * 0);
 				GlowingLine->SetFloat("opacity", 1);
-				RenderMesh(EdContext.EntityPanel.RelatedEntity->Mesh, RenderOptions{true, false, 3});
+				RenderMesh(EdContext.EntityPanel.RelatedEntity->Mesh, RRenderOptions{true, false, 3});
 			}
 
 			if (EdContext.bGizmoPositionsDirty) {
@@ -306,7 +307,7 @@ namespace Editor
 			GlowingLine->SetMatrix4("model", Model);
 			GlowingLine->SetFloat3("color", Intensity * 0.952f, Intensity * 0.843f, Intensity * 0.105f);
 			GlowingLine->SetFloat("opacity", 1);
-			RenderMesh(EdContext.SnapReference->Mesh, RenderOptions{true, false, 3});
+			RenderMesh(EdContext.SnapReference->Mesh, RRenderOptions{true, false, 3});
 		}
 
 		// --------------
@@ -325,7 +326,7 @@ namespace Editor
 			RenderEntityPanel(&Panel, World);
 			
 			if (Panel.ShowBoundingBox) {
-				RImDraw::AddCollisionMesh(IMHASH, &Panel.Entity->Collider, vec3{}); 
+				RImDraw::AddCollisionMesh(IMHASH, &Panel.Entity->Collider); 
 			}
 		}
 
@@ -352,7 +353,7 @@ namespace Editor
 		glClear(GL_DEPTH_BUFFER_BIT);
 		if (EdContext.MeasureMode && EdContext.FirstPointFound && EdContext.SecondPointFound)
 		{
-			auto RenderOpts = RenderOptions();
+			RRenderOptions RenderOpts;
 			RenderOpts.AlwaysOnTop = true;
 			RenderOpts.LineWidth = 2.0;
 			RenderOpts.Color = EdRed;
@@ -365,7 +366,8 @@ namespace Editor
 			if (EdContext.MeasureAxis == 2)
 				SecondPoint = vec3(EdContext.MeasureFrom.x, EdContext.MeasureFrom.y, EdContext.MeasureTo);
 
-			RImDraw::Add(IMHASH, vector<RVertex>{RVertex{EdContext.MeasureFrom}, RVertex{SecondPoint}}, GL_LINE_LOOP, RenderOpts);
+			auto VertexList = vector<RVertex>{RVertex{EdContext.MeasureFrom}, RVertex{SecondPoint}};
+			RImDraw::AddVertexList(IMHASH, VertexList, 0, RenderOpts, GL_LINE_LOOP);
 		}
 
 		if (EdContext.LocateCoordsMode && EdContext.LocateCoordsFoundPoint)
@@ -378,6 +380,7 @@ namespace Editor
 			auto& Panel = EdContext.EntityPanel;
 			if (EdContext.UsingTranslationGizmo) {
 				RenderEntityControlArrows(&Panel, World, Camera);
+				RImDraw::AddCollisionMesh(IMHASH, Panel.XArrow->CollisionMesh);
 			}
 			if (EdContext.UsingRotationGizmo) {
 				RenderEntityRotationGizmo(&Panel, World, Camera);
@@ -827,7 +830,7 @@ namespace Editor
 			Shader->SetMatrix4("model", checkpoint->trigger_mat_model);
 			Shader->SetFloat3("color", 0.5, 0.5, 0.3);
 			Shader->SetFloat("opacity", 0.6);
-			RenderMesh(checkpoint->trigger, RenderOptions{});
+			RenderMesh(checkpoint->trigger, RRenderOptions{});
 		}
 		*/
 	}
@@ -841,7 +844,7 @@ namespace Editor
 		auto ChunkIterator = World->GetChunkIterator();
 		while (auto* Chunk = ChunkIterator())
 		{
-			RenderOptions Opts;
+			RRenderOptions Opts;
 			Opts.Wireframe = true;
 
 			vec3 Color = vec3(0.27, 0.55, 0.65);
@@ -898,7 +901,7 @@ namespace Editor
 		{
 			auto Model = translate(Mat4Identity, Light->Position + vec3{0, 0.5, 0});
 			Model = scale(Model, vec3{0.1f});
-			RenderOptions Opts;
+			RRenderOptions Opts;
 			//opts.wireframe = true;
 			//render
 			Shader->Use();
@@ -917,7 +920,7 @@ namespace Editor
 		{
 			auto Model = translate(Mat4Identity, Light->Position + vec3{0, 0.5, 0});
 			Model = scale(Model, vec3{0.1f});
-			RenderOptions Opts;
+			RRenderOptions Opts;
 			//opts.wireframe = true;
 			//render
 			Shader->Use();
@@ -950,7 +953,7 @@ namespace Editor
 			// selection box
 			auto AabbModel = translate(Mat4Identity, LightPosition - vec3{0.1575, 0, 0.1575});
 			AabbModel = scale(AabbModel, vec3{0.3f, 0.6f, 0.3f});
-			RenderOptions Opts;
+			RRenderOptions Opts;
 			Opts.Wireframe = true;
 
 			Shader->Use();
@@ -998,7 +1001,7 @@ namespace Editor
 			// Shader->setMatrix4("model", arrow_model);
 			// Shader->setMatrix4("view", camera->View4x4);
 			// Shader->setMatrix4("projection", camera->Projection4x4);
-			// render_mesh(arrow_mesh, RenderOptions{});
+			// render_mesh(arrow_mesh, RRenderOptions{});
 		}
 	}
 
@@ -1018,8 +1021,6 @@ namespace Editor
 
 	void RenderEntityRotationGizmo(REntityPanelContext* Panel, RWorld* World, RCamera* Camera)
 	{
-		RImDraw::AddPoint(IMHASH, {Panel->Entity->BoundingBox.MinX, Panel->Entity->BoundingBox.MinY, Panel->Entity->BoundingBox.MinZ}, 4.f, true, vec3{1.f});
-		
 		auto RotGizmoShader = Panel->RotationGizmoX->Shader;
 		RotGizmoShader->Use();
 		RotGizmoShader->SetFloat3("color", 0.f, 0.f, 1.f);
@@ -1088,25 +1089,23 @@ namespace Editor
 
 	void CheckSelectionToOpenPanel(EPlayer* Player, RWorld* World, RCamera* Camera)
 	{
-		auto* GII = GlobalInputInfo::Get();
-		auto Pickray = CastPickray(Camera, GII->MouseCoords.X, GII->MouseCoords.Y);
+		auto Pickray = CastPickray();
 		auto Test = World->Raycast(Pickray, RayCast_TestOnlyVisibleEntities);
 		auto TestLight = World->RaycastLights(Pickray);
 
-		if (Test.Hit && (!TestLight.Hit || TestLight.Distance > Test.Distance))
-		{
+		if (Test.Hit && (!TestLight.Hit || TestLight.Distance > Test.Distance)) {
 			OpenEntityPanel(Test.Entity);
 		}
-		else if (TestLight.Hit)
+		else if (TestLight.Hit) {
 			OpenLightsPanel(TestLight.ObjHitType, TestLight.ObjHitIndex, true);
+		}
 	}
 
 	void CheckSelectionToSelectRelatedEntity(RWorld* World, RCamera* Camera)
 	{
-		auto* GII = GlobalInputInfo::Get();
 		auto& EdContext = *GetContext();
 
-		auto Pickray = CastPickray(Camera, GII->MouseCoords.X, GII->MouseCoords.Y);
+		auto Pickray = CastPickray();
 		auto Test = World->Raycast(Pickray, RayCast_TestOnlyVisibleEntities);
 		if (Test.Hit)
 		{
@@ -1130,13 +1129,10 @@ namespace Editor
 			}
 		}
 	}
-
-
+	
 	void CheckSelectionToMoveEntity(RWorld* World, RCamera* Camera)
 	{
-		auto* GII = GlobalInputInfo::Get();
-
-		auto Pickray = CastPickray(Camera, GII->MouseCoords.X, GII->MouseCoords.Y);
+		auto Pickray = CastPickray();
 		auto Test = World->Raycast(Pickray, RayCast_TestOnlyVisibleEntities);
 		auto TestLight = World->RaycastLights(Pickray);
 		if (Test.Hit && (!TestLight.Hit || TestLight.Distance > Test.Distance)) {
@@ -1149,15 +1145,14 @@ namespace Editor
 	
 	bool CheckSelectionToGrabEntityArrows(RCamera* Camera)
 	{
-		auto* GII = GlobalInputInfo::Get();
 		auto& EdContext = *GetContext();
 
-		auto Pickray = CastPickray(Camera, GII->MouseCoords.X, GII->MouseCoords.Y);
+		auto Pickray = CastPickray();
 		EEntity* Arrows[3] = {EdContext.EntityPanel.XArrow, EdContext.EntityPanel.YArrow, EdContext.EntityPanel.ZArrow};
 
 		for (int i = 0; i < 3; i++)
 		{
-			RRaycastTest Test = ClTestAgainstRay(Pickray, Arrows[i]);
+			RRaycastTest Test = TestRayAgainstEntity(Pickray, Arrows[i]);
 			if (Test.Hit) {
 				ActivateMoveEntityByArrow(i + 1);
 				return true;
@@ -1168,10 +1163,9 @@ namespace Editor
 
 	bool CheckSelectionToGrabEntityRotationGizmo(RCamera* Camera)
 	{
-		auto* GII = GlobalInputInfo::Get();
 		auto& EdContext = *GetContext();
 
-		auto Pickray = CastPickray(Camera, GII->MouseCoords.X, GII->MouseCoords.Y);
+		auto Pickray = CastPickray();
 		RRaycastTest Test;
 
 		EEntity* RotGizmos[3] = {
@@ -1182,9 +1176,8 @@ namespace Editor
 
 		for (int i = 0; i < 3; i++)
 		{
-			Test = ClTestAgainstRay(Pickray, RotGizmos[i]);
-			if (Test.Hit)
-			{
+			Test = TestRayAgainstEntity(Pickray, RotGizmos[i]);
+			if (Test.Hit) {
 				ActivateRotateEntityWithMouse(i + 1);
 				return true;
 			}

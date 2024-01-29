@@ -140,6 +140,7 @@ EEntity* RWorldChunkEntityIterator::operator()()
 RRaycastTest RWorld::Raycast(const RRay& Ray, const NRayCastType TestType, const EEntity* Skip, const float MaxDistance) const
 {
 	float MinDistance = MaxFloat;
+	
 	RRaycastTest ClosestHit;
 	ClosestHit.Hit = false;
 	ClosestHit.Distance = -1;
@@ -151,7 +152,7 @@ RRaycastTest RWorld::Raycast(const RRay& Ray, const NRayCastType TestType, const
 			|| (Skip != nullptr && Entity->ID == Skip->ID))
 			continue;
 
-		const auto Test = ClTestAgainstRay(Ray, Entity, TestType, MaxDistance);
+		const auto Test = TestRayAgainstEntity(Ray, Entity, TestType);
 		if (Test.Hit && Test.Distance < MinDistance && Test.Distance < MaxDistance) {
 			ClosestHit = Test;
 			ClosestHit.Entity = Entity;
@@ -164,7 +165,7 @@ RRaycastTest RWorld::Raycast(const RRay& Ray, const NRayCastType TestType, const
 
 RRaycastTest RWorld::Raycast(const RRay& Ray, const EEntity* Skip, const float MaxDistance) const
 {
-	return this->Raycast(Ray, RayCast_TestOnlyFromOutsideIn, Skip, MaxDistance);
+	return this->Raycast(Ray, RayCast_TestOnlyFromOutsideIn, Skip);
 }
 
 RRaycastTest RWorld::LinearRaycastArray(const RRay FirstRay, int Qty, float Spacing) const
@@ -194,15 +195,15 @@ RRaycastTest RWorld::LinearRaycastArray(const RRay FirstRay, int Qty, float Spac
 			}
 		}
 
-		RImDraw::AddLine(IM_ITERHASH(i), Ray.Origin, Ray.Origin + Ray.Direction * Player->GrabReach, 1.2f, false, COLOR_GREEN_1);
+		RImDraw::AddLine(IM_ITERHASH(i), Ray.Origin, Ray.Origin + Ray.Direction * Player->GrabReach, 0, COLOR_GREEN_1, 1.2f, false);
 
 		Ray = RRay{Ray.Origin + UnitY * Spacing, Ray.Direction};
 	}
 
 	if (BestHitResults.Hit)
 	{
-		vec3 Hitpoint = ClGetPointFromDetection(BestHitResults.Ray, BestHitResults);
-		RImDraw::AddPoint(IMHASH, Hitpoint, 2.0, true, COLOR_RED_1);
+		vec3 Hitpoint = BestHitResults.GetPoint();
+		RImDraw::AddPoint(IMHASH, Hitpoint, 0, COLOR_RED_1, 2.0, true);
 	}
 
 	return BestHitResults;
@@ -223,7 +224,7 @@ RRaycastTest RWorld::RaycastLights(const RRay Ray) const
 		auto AabbModel = translate(Mat4Identity, Position);
 		AabbModel = scale(AabbModel, vec3{0.3f, 0.6f, 0.3f});
 
-		auto Test = ClTestAgainstRay(Ray, AabbMesh, AabbModel, RayCast_TestBothSidesOfTriangle);
+		auto Test = TestRayAgainstMesh(Ray, AabbMesh, AabbModel, RayCast_TestBothSidesOfTriangle);
 		if (Test.Hit && Test.Distance < MinDistance)
 		{
 			ClosestHit = {true, Test.Distance, nullptr, PointC, "point"};
@@ -240,7 +241,7 @@ RRaycastTest RWorld::RaycastLights(const RRay Ray) const
 		auto AabbModel = translate(Mat4Identity, Position);
 		AabbModel = scale(AabbModel, vec3{0.3f, 0.6f, 0.3f});
 
-		const auto Test = ClTestAgainstRay(Ray, AabbMesh, AabbModel, RayCast_TestBothSidesOfTriangle);
+		const auto Test = TestRayAgainstMesh(Ray, AabbMesh, AabbModel, RayCast_TestBothSidesOfTriangle);
 		if (Test.Hit && Test.Distance < MinDistance)
 		{
 			ClosestHit = {.Hit = true, .Distance = Test.Distance, .Entity = nullptr, .ObjHitIndex = SpotC, .ObjHitType = "spot"};
@@ -366,29 +367,4 @@ void SetEntityAssets(EEntity* Entity, REntityAttributes Attrs)
 	Entity->CollisionMesh =  CollisionMesh;
 	Entity->Collider = * CollisionMesh;
 	Entity->TextureDiffuse = Textures[0];
-}
-
-EHandle<EEntity> MakeHandleFromID(RUUID ID)
-{
-	auto* World = RWorld::Get();
-	for (auto& Slot : World->EntityStorage.EntitySlots)
-	{
-		bool bSkip = false;
-		for (auto* EmptySlot : World->EntityStorage.EmptySlots) {
-			if (&Slot == EmptySlot) {
-				bSkip = true;
-			}
-		}
-		if (bSkip)
-			continue;
-
-		// Todo: I don't like how much work this is. This seems very expensive.
-		if (Slot.Value->ID == ID) {
-			return {World->EntityStorage.EntitySlots, Slot, Slot.Generation};
-		}
-	}
-
-	// If this this hits, this means there is a dangling entity ptr somewhere. The entity was freed but this ptr still references it. Investigate!
-	assert(false);
-	return {};
 }

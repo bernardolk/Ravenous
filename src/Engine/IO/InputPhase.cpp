@@ -9,12 +9,13 @@
 
 RInputFlags StartInputPhase()
 {
-	// first, check if last frame we had a click, if so, se it as btn hold (so we dont register clicks more than one time)
-	// @TODO: maybe the best approach here is to pool it like we do with the keys instead of using a callback. If so, need to check whether we would need sticky mouse click input config set to true or not
+	auto* GII = GlobalInputInfo::Get();
+	GII->MouseCoords.LastX = GII->MouseCoords.X;
+	GII->MouseCoords.LastY = GII->MouseCoords.Y;
+	
 	CheckMouseClickHold();
-	// then respond to all glfw callbacks
 	glfwPollEvents();
-	// set the flags and return
+	
 	auto* GDC = GlobalDisplayState::Get();
 	auto KeyPressFlags = ProcessKeyboardInputKeyPress(GDC->GetWindow());
 	auto KeyReleaseFlags = ProcessKeyboardInputKeyRelease(GDC->GetWindow());
@@ -391,8 +392,8 @@ void OnMouseMove(GLFWwindow* Window, double Xpos, double Ypos)
 		}
 
 		// calculates offsets and updates last x and y pos
-		float Xoffset = Xpos - GII->MouseCoords.LastX;
-		float Yoffset = GII->MouseCoords.LastY - Ypos;
+		double Xoffset = Xpos - GII->MouseCoords.LastX;
+		double Yoffset = GII->MouseCoords.LastY - Ypos;
 		GII->MouseCoords.LastX = Xpos;
 		GII->MouseCoords.LastY = Ypos;
 

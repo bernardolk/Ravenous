@@ -4,6 +4,7 @@
 #include "editor/EditorPanelContexts.h"
 #include "editor/EditorUndo.h"
 #include "EntityState.h"
+#include "Engine/Geometry/Plane.h"
 
 namespace Editor
 {
@@ -66,8 +67,9 @@ namespace Editor
 
 		// move entity by arrows
 		bool MoveEntityByArrows = false;
-		vec3 MoveEntityByArrowsRefPoint = vec3(0);
-
+		RPlane MoveEntityByArrowsReferencePlane;
+		vec3 MoveEntityByArrowsRefPoint;
+		
 		// rotate entity with mouse
 		bool RotateEntityWithMouse = false;
 		vec2 RotateEntityWithMouseMouseCoordsRef = vec2(0);
@@ -128,6 +130,8 @@ namespace Editor
 
 		bool UsingTranslationGizmo = true;
 		bool UsingRotationGizmo;
+
+		bool CtrlIsPressed = false;
 		
 		// debug options
 		bool DebugLedgeDetection = false;

@@ -1,0 +1,11 @@
+stoneDoorArch1_Ceiling : EStaticMesh
+ID: RUUID = "03179-34608-32121-07684"
+Position: vec3 = -5.534060 -15.050001 18.129169
+Rotation: vec3 = 0.000000 0.000000 0.000000
+Scale: vec3 = 1.000000 1.000000 1.000000
+Mesh: RMesh* = stoneDoorArch_ceiling
+Shader: RShader* = model
+TextureDiffuse: RTexture = stoneDoorArch_BaseColor
+TextureSpecular: RTexture = null
+TextureNormal: RTexture = null
+CollisionMesh: RCollisionMesh* = DoorArch1_Ceiling_GeneratedCMesh

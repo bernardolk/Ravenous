@@ -69,7 +69,7 @@ bool RUndoStack::ApplyStateChange(REntityStateChange& StateChange)
 		{
 			if (!StateChange.State.Entity.IsValid())
 			{
-				auto NewHandle = MakeHandleFromID(StateChange.State.ID);
+				auto NewHandle = MakeHandleFromID<EEntity>(StateChange.State.ID);
 				if (!NewHandle.IsValid()) {
 					Log("Error RUndo::ApplyStateChange: There was a state change in stack with an entity that was not found."); DEBUG_BREAK
 					return false;
@@ -120,7 +120,7 @@ bool RUndoStack::ApplyStateChange(REntityStateChange& StateChange)
 			// If the entity is not deleted, update handle if necessary (find new entity location in memory since it could have been moved around)
 			if (!StateChange.State.Entity.IsValid())
 			{
-				auto NewHandle = MakeHandleFromID(StateChange.State.ID);
+				auto NewHandle = MakeHandleFromID<EEntity>(StateChange.State.ID);
 				if (!NewHandle.IsValid()) {
 					Log("Error RUndo::ApplyStateChange: There was a state change in stack with an entity that was not found."); DEBUG_BREAK
 					return false;

@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <sstream>
 
+#include "Serialization.h"
 #include "engine/catalogues.h"
 #include "Engine/Collision/CollisionMesh.h"
 #include "Engine/Render/Shader.h"

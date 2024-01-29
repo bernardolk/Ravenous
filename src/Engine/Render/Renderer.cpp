@@ -9,7 +9,7 @@
 #include "engine/world/World.h"
 #include "text/TextRenderer.h"
 
-void RenderMesh(const RMesh* Mesh, RenderOptions Opts)
+void RenderMesh(const RMesh* Mesh, RRenderOptions Opts)
 {
 	glBindVertexArray(Mesh->GLData.VAO);
 
@@ -97,7 +97,7 @@ void RenderEntity(EEntity* Entity)
 	}
 
 	// draw mesh
-	RenderOptions RenderOpts;
+	RRenderOptions RenderOpts;
 	RenderOpts.Wireframe = Entity->Flags & EntityFlags_RenderWireframe || Entity->Flags & EntityFlags_HiddenEntity;
 	RenderMesh(Entity->Mesh, RenderOpts);
 
@@ -314,7 +314,7 @@ void RenderDepthMap()
 			continue;
 
 		DepthShader->SetMatrix4("model", Entity->MatModel);
-		RenderMesh(Entity->Mesh, RenderOptions{});
+		RenderMesh(Entity->Mesh, RRenderOptions{});
 	}
 
 	// de-setup
@@ -367,7 +367,7 @@ void RenderDepthCubemap()
 			continue;
 
 		DepthShader->SetMatrix4("model", Entity->MatModel);
-		RenderMesh(Entity->Mesh, RenderOptions{});
+		RenderMesh(Entity->Mesh, RRenderOptions{});
 	}
 
 	// de-setup

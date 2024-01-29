@@ -4,7 +4,8 @@
 
 struct RWorld;
 struct EEntity;
-
+RUUID GetID(REntitySlot& Slot);
+	
 // ===================================
 //	EHandle
 // ===================================
@@ -17,12 +18,11 @@ struct EEntity;
 template<typename TEntity>
 struct EHandle
 {
-	// Friends
 	template<typename T> friend EHandle<T> MakeHandle(EEntity* Entity);
 	template<typename T> EHandle<T> friend SpawnEntity();
 	template<typename T> friend void DeleteEntity(EHandle<T> Entity);
 	template<typename T> friend struct EHandle;														// Necessary to provide the converting constructor access to private members of the EHandle being converted 
-	friend EHandle<EEntity> MakeHandleFromID(RUUID ID);
+	template<typename T> friend EHandle<T> MakeHandleFromID(RUUID ID);
 	
 public:
 	TEntity* operator->()
@@ -46,17 +46,17 @@ public:
 	}
 
 	EHandle() = default;
-
+	
 	// Allows conversion of Handles of child entities to Handles of EEntity
 	template <typename TChildEntity, std::enable_if_t<std::is_base_of_v<TEntity, TChildEntity>, int> = 0>
 	EHandle(EHandle<TChildEntity> InHandle) : Slot(InHandle.Slot), Generation(InHandle.Generation) {}
 	
 private:
-	EHandle(vector<REntitySlot>& Collection, REntitySlot& Slot, int Generation) : Slot(&Collection, &Slot), Generation(Generation) {}
+	EHandle(vector<REntitySlot>& Collection, REntitySlot& Slot, int Generation) : Slot(&Collection, &Slot), Generation(Generation), EntityID(GetID(Slot)) {}
 	RView<REntitySlot> Slot;
 	int Generation = -1;
+	RUUID EntityID;
 };
-
 
 
 

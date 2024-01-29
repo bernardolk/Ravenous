@@ -1,9 +1,8 @@
-#pragma once
-
 #include "Editor/EditorMain.h"
 #include "EditorTools.h"
 
 #include "Editor/Reflection/Serialization.h"
+#include "Engine/Render/ImRender.h"
 #include "engine/camera/camera.h"
 #include "engine/entities/lights.h"
 #include "engine/collision/ClController.h"
@@ -67,11 +66,6 @@ namespace Editor
 	// ----------
 	// SNAP TOOL
 	// ----------
-	void ActivateSnapMode(EEntity* Entity);
-	void SnapEntityToReference(EEntity* Entity);
-	void CheckSelectionToSnap();
-	void SnapCommit();
-
 	void ActivateSnapMode(EEntity* Entity)
 	{
 		// deactivate_editor_modes();
@@ -146,12 +140,6 @@ namespace Editor
 	// -------------
 	// STRETCH TOOL
 	// -------------
-	void ActivateStretchMode(EEntity* Entity);
-	void StretchCommit();
-	auto GetScaleAndPositionChange(EEntity* Entity, float OldPos, float NewPos, float N);
-	void StretchEntityToReference(EEntity* Entity);
-	void CheckSelectionToStretch(REntityPanelContext* Panel);
-
 	void ActivateStretchMode(EEntity* Entity)
 	{
 		// deactivate_editor_modes();
@@ -279,9 +267,7 @@ namespace Editor
 		// assert(axis_count == 1);
 		// return;
 	}
-
-
-
+	
 	void CheckSelectionToStretch()
 	{
 		// auto pickray = cast_pickray(G_SCENE_INFO.camera, G_INPUT_INFO.MouseCoords.x, G_INPUT_INFO.MouseCoords.y);
@@ -293,13 +279,9 @@ namespace Editor
 		// }
 	}
 
-
 	// -------------
 	// MEASURE TOOL
 	// -------------
-	void ActivateMeasureMode(uint8 Axis);
-	void CheckSelectionToMeasure(const RWorld* World);
-
 	void ActivateMeasureMode(uint8 Axis)
 	{
 		auto& EdContext = *GetContext();
@@ -311,11 +293,9 @@ namespace Editor
 
 	void CheckSelectionToMeasure(const RWorld* World)
 	{
-		auto* GII = GlobalInputInfo::Get();
-		auto* CamManager = RCameraManager::Get();
 		auto& EdContext = *GetContext();
 
-		auto Pickray = CastPickray(CamManager->GetCurrentCamera(), GII->MouseCoords.X, GII->MouseCoords.Y);
+		auto Pickray = CastPickray();
 		auto Test = World->Raycast(Pickray);
 		if (Test.Hit)
 		{
@@ -324,12 +304,12 @@ namespace Editor
 				if (EdContext.SecondPointFound)
 					EdContext.SecondPointFound = false;
 				EdContext.FirstPointFound = true;
-				EdContext.MeasureFrom = ClGetPointFromDetection(Pickray, Test);
+				EdContext.MeasureFrom = Test.GetPoint();
 			}
 			else if (!EdContext.SecondPointFound)
 			{
 				EdContext.SecondPointFound = true;
-				vec3 Point = ClGetPointFromDetection(Pickray, Test);
+				vec3 Point = Test.GetPoint();
 				if (EdContext.MeasureAxis == 0)
 					EdContext.MeasureTo = Point.x;
 				else if (EdContext.MeasureAxis == 1)
@@ -343,9 +323,6 @@ namespace Editor
 	// ------------------------
 	// LOCATE COORDINATES MODE
 	// ------------------------
-	void ActivateLocateCoordsMode();
-	void CheckSelectionToLocateCoords(const RWorld* World);
-
 	void ActivateLocateCoordsMode()
 	{
 		auto& EdContext = *GetContext();
@@ -357,15 +334,14 @@ namespace Editor
 
 	void CheckSelectionToLocateCoords(const RWorld* World)
 	{
-		auto* GII = GlobalInputInfo::Get();
 		auto& EdContext = *GetContext();
 
-		auto Pickray = CastPickray(RCameraManager::Get()->GetCurrentCamera(), GII->MouseCoords.X, GII->MouseCoords.Y);
+		auto Pickray = CastPickray();
 		auto Test = World->Raycast(Pickray);
 		if (Test.Hit)
 		{
 			EdContext.LocateCoordsFoundPoint = true;
-			EdContext.LocateCoordsPosition = ClGetPointFromDetection(Pickray, Test);
+			EdContext.LocateCoordsPosition = Test.GetPoint();
 		}
 	}
 
@@ -442,15 +418,13 @@ namespace Editor
 		}
 
 		// ray casts against created plane
-		auto* GII = GlobalInputInfo::Get();
-
-		auto Ray = CastPickray(Camera, GII->MouseCoords.X, GII->MouseCoords.Y);
+		auto Ray = CastPickray();
 		RRaycastTest Test;
 
-		Test = ClTestAgainstRay(Ray, T1);
+		Test = TestRayAgainstTriangle(Ray, T1);
 		if (!Test.Hit)
 		{
-			Test = ClTestAgainstRay(Ray, T2);
+			Test = TestRayAgainstTriangle(Ray, T2);
 			if (!Test.Hit)
 				Log("warning: can't find plane to place entity!");
 		}
@@ -473,13 +447,11 @@ namespace Editor
 
 	void SelectEntityPlacingWithMouseMove(EEntity* Entity, const RWorld* World)
 	{
-		auto* GII = GlobalInputInfo::Get();
-
-		auto Pickray = CastPickray(RCameraManager::Get()->GetCurrentCamera(), GII->MouseCoords.X, GII->MouseCoords.Y);
+		auto Pickray = CastPickray();
 		auto Test = World->Raycast(Pickray, Entity);
 		if (Test.Hit)
 		{
-			Entity->Position = ClGetPointFromDetection(Pickray, Test);
+			Entity->Position = Test.GetPoint();
 			Entity->Update();
 		}
 	}
@@ -535,72 +507,59 @@ namespace Editor
 	// -------------------------
 	// >> MOVE ENTITY BY ARROWS
 	// -------------------------
-	void ActivateMoveEntityByArrow(uint8 MoveAxis);
-	void MoveEntityByArrows(EEntity* Entity);
-
 	void ActivateMoveEntityByArrow(uint8 MoveAxis)
 	{
 		auto& EdContext = *GetContext();
-		auto Test = TestRayAgainstEntitySupportPlane(MoveAxis, *EdContext.SelectedEntity);
-		if (Test.Hit) {
-			EdContext.MoveAxis = MoveAxis;
-			EdContext.MoveEntityByArrows = true;
-			EdContext.MoveEntityByArrowsRefPoint = ClGetPointFromDetection(Test.Ray, Test);
-			EdContext.UndoStack.TrackTransformChange(EdContext.SelectedEntity);
+		auto Ray = CastPickray();
+		vec3 PlaneCenter = EdContext.SelectedEntity->Position + Ray.Direction * 10.f;
+		auto Plane = RPlane(Ray.Direction, PlaneCenter, 500.f);
+		EdContext.MoveEntityByArrowsReferencePlane = Plane;
+		EdContext.MoveAxis = MoveAxis;
+		EdContext.MoveEntityByArrows = true;
+		EdContext.UndoStack.TrackTransformChange(EdContext.SelectedEntity);
+		
+		auto Quad = EdContext.MoveEntityByArrowsReferencePlane.GetQuad();
+		auto RayTest = TestRayAgainstQuad(Ray, Quad);
+		if (RayTest.Hit) {
+			EdContext.MoveEntityByArrowsRefPoint = RayTest.GetPoint();	
+		}
+		else {
+			Log("Warning ActivateMoveEntityByArrow: Couldn't find a point in support plane.");
 		}
 	}
 
 	void MoveEntityByArrows(EEntity* Entity)
 	{
 		auto& EdContext = *GetContext();
-
-		RRaycastTest Test = TestRayAgainstEntitySupportPlane(EdContext.MoveAxis, Entity);
-		if (!Test.Hit)
-			return;
-
-		RRay Ray = Test.Ray;
-		vec3 Pos = Ray.Origin + Ray.Direction * Test.Distance;
-
-		// gets the offset from the mouse drag starting point, and not absolute Position
-		vec3 Diff = Pos - EdContext.MoveEntityByArrowsRefPoint;
-
-		// modifies entity Position
-		switch (EdContext.MoveAxis)
-		{
-			case 0: // XZ 
-				Entity->Position.x += Diff.x;
-				Entity->Position.z += Diff.z;
-				break;
-			case 1: // X
-				Entity->Position.x += Diff.x;
-				break;
-			case 2: // Y
-				Entity->Position.y += Diff.y;
-				break;
-			case 3: // Z
-				Entity->Position.z += Diff.z;
-				break;
+		auto Quad = EdContext.MoveEntityByArrowsReferencePlane.GetQuad();
+		auto RayTest = TestRayAgainstQuad(CastPickray(), Quad);
+		if (!RayTest.Hit) return;
+		
+		vec3 RefAxis;
+		if (EdContext.MoveAxis == 1) {
+			RefAxis = UnitX;
 		}
+		else if (EdContext.MoveAxis == 2) {
+			RefAxis = UnitY;
+		}
+		else if (EdContext.MoveAxis == 3) {
+			RefAxis = UnitZ;
+		}
+		else return;
 
-		EdContext.MoveEntityByArrowsRefPoint = Pos;
-
+		auto RefPoint = RayTest.GetPoint();
+		auto DistVec = RefPoint - EdContext.MoveEntityByArrowsRefPoint;
+		auto ProjectedDistVec = ProjectVecIntoRef(DistVec, RefAxis);
+		Entity->Position += ProjectedDistVec;
 		Entity->Update();
 
+		EdContext.MoveEntityByArrowsRefPoint = RefPoint;
 		EdContext.bGizmoPositionsDirty = true;
 	}
 
 	// ----------------
 	// MOVE LIGHT TOOL
 	// ----------------
-	// @todo: This will DISAPPEAR after lights become entities!
-	//       We need to provide entity rights to lights too! revolution now!
-
-	void MoveLightWithMouse(std::string Type, int Index, RWorld* World);
-	void ActivateMoveLightMode(std::string Type, int Index);
-	void PlaceLight(std::string Type, int Index);
-	void OpenLightsPanel(std::string Type, int Index, bool FocusTab); //fwd
-
-
 	void ActivateMoveLightMode(std::string Type, int Index)
 	{
 		auto& EdContext = *GetContext();
@@ -616,16 +575,18 @@ namespace Editor
 	void MoveLightWithMouse(std::string Type, int Index, RWorld* World)
 	{
 		vec3 Position;
-		if (Type == "point" && Index > -1)
+		if (Type == "point" && Index > -1) {
 			Position = World->PointLights[Index]->Position;
-		else if (Type == "spot" && Index > -1)
+		}
+		else if (Type == "spot" && Index > -1) {
 			Position = World->SpotLights[Index]->Position;
-		else
+		}
+		else {
 			assert(false);
+		}
 
-		auto* GII = GlobalInputInfo::Get();
+		auto Ray = CastPickray();
 		auto* Camera = RCameraManager::Get()->GetCurrentCamera();
-		auto Ray = CastPickray(Camera, GII->MouseCoords.X, GII->MouseCoords.Y);
 
 		// create a big plane for placing entity in the world with the mouse using raycast from camera to mouse
 		// Position. In the case of Y placement, we need to compute the plane considering the camera orientation.
@@ -678,10 +639,10 @@ namespace Editor
 		// ray casts against created plane
 		RRaycastTest Test;
 
-		Test = ClTestAgainstRay(Ray, T1);
+		Test = TestRayAgainstTriangle(Ray, T1);
 		if (!Test.Hit)
 		{
-			Test = ClTestAgainstRay(Ray, T2);
+			Test = TestRayAgainstTriangle(Ray, T2);
 			if (!Test.Hit)
 			{
 				Log("warning: can't find plane to place light!");
@@ -727,10 +688,6 @@ namespace Editor
 	// ---------------------
 	// > ROTATE ENTITY TOOL
 	// ---------------------
-	void ActivateRotateEntityWithMouse(uint8 MoveAxis);
-	float MouseOffsetToAngularOffset(float MouseOffset);
-	void RotateEntityWithMouse(EEntity* Entity);
-
 	void ActivateRotateEntityWithMouse(uint8 MoveAxis)
 	{
 		auto* GII = GlobalInputInfo::Get();
@@ -817,7 +774,6 @@ namespace Editor
 	// MISCELANEOUS
 	// -------------
 	// void CheckForAssetChanges();
-	void RenderAabbBoundaries(EEntity* Entity);
 
 	// void CheckForAssetChanges()
 	// {

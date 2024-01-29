@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Geometry/Quad.h"
 #include "engine/core/core.h"
 #include "primitives/ray.h"
 #include "engine/geometry/triangle.h"
@@ -17,6 +18,8 @@ struct RRaycastTest
 	RRay Ray;
 	RTriangle Triangle;
 	uint16 TriangleIndex = 0;
+
+	vec3 GetPoint() { return Ray.Origin + Ray.Direction * Distance; }
 };
 
 enum NRayCastType
@@ -26,11 +29,10 @@ enum NRayCastType
 	RayCast_TestOnlyVisibleEntities = 2
 };
 
-RRay CastPickray(RCamera* Camera, double ScreenX, double ScreenY);
-RRaycastTest ClTestAgainstRay(const RRay& Ray, EEntity* Entity, NRayCastType TestType, float MaxDistance);
-RRaycastTest ClTestAgainstRay(const RRay& Ray, EEntity* Entity);
-RRaycastTest ClTestAgainstRay(const RRay& Ray, RMesh* Mesh, glm::mat4 MatModel, NRayCastType TestType);
-RRaycastTest ClTestAgainstRay(const RRay& Ray, RTriangle Triangle, bool TestBothSides = true);
-RRaycastTest ClTestAgainstRay(const RRay& Ray, RCollisionMesh* Collider, NRayCastType TestType);
-vec3 ClGetPointFromDetection(const RRay& Ray, RRaycastTest Result);
-bool ClTestAgainstRay(const RRay& Ray, RBoundingBox Box);
+RRay CastPickray();
+RRaycastTest TestRayAgainstEntity(const RRay& Ray, EEntity* Entity, NRayCastType TestType = RayCast_TestOnlyFromOutsideIn);
+RRaycastTest TestRayAgainstMesh(const RRay& Ray, RMesh* Mesh, mat4 MatModel, NRayCastType TestType);
+RRaycastTest TestRayAgainstTriangle(const RRay& Ray, RTriangle Triangle, bool TestBothSides = true);
+RRaycastTest TestRayAgainstQuad(const RRay& Ray, const RQuad& Quad, bool TestBothSides = true);
+RRaycastTest TestRayAgainstCollider(const RRay& Ray, RCollisionMesh* Collider, NRayCastType TestType);
+bool TestRayAgainstBoundingBox(const RRay& Ray, RBoundingBox Box);

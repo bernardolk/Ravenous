@@ -11,6 +11,8 @@
 #define TO_DEPRECATE_BEGIN
 #define TO_DEPRECATE_END
 
+#define FORCEINLINE __forceinline
+
 #define DEBUG_BREAK __asm__ volatile("int $0x03");
 #define FatalError(...) { printf(__VA_ARGS__); printf("\n"); assert(false); }
 #define Assert(Expression, Message) { if (Expression){ printf(Message); printf("\n"); assert(false); } }

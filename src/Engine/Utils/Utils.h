@@ -121,16 +121,9 @@ inline vec3 ToXz(vec3 Vector)
 	return vec3(Vector.x, 0, Vector.z);
 }
 
-
-inline vec3 Cross(vec3 a, vec3 b)
-{
-	return glm::cross(a, b);
-}
-
 inline vec3 ProjectVecIntoRef(vec3 Vec, vec3 Ref)
 {
-	auto Proj = dot(Vec, Ref) / (Abs(Ref) * Abs(Ref)) * Ref;
-	return Proj;
+	return dot(Vec, Ref) / (Abs(Ref) * Abs(Ref)) * Ref;
 }
 
 inline vec3 ProjectVecOntoPlane(vec3 v, vec3 n)

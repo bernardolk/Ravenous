@@ -24,7 +24,7 @@ RLedge ClPerformLedgeDetection(EPlayer* Player, RWorld* World)
 	
 	if (auto FrontTest = World->LinearRaycastArray(FirstRay, FrontRayQty, FrontRaySpacing); FrontTest.Hit)
 	{
-		vec3 FrontalHitpoint = ClGetPointFromDetection(FrontTest.Ray, FrontTest);
+		vec3 FrontalHitpoint = FrontTest.GetPoint();
 		vec3 FrontFaceN = FrontTest.Triangle.GetNormal();
 
 		if (dot(UnitY, FrontFaceN) > 0.0001f)
@@ -37,14 +37,14 @@ RLedge ClPerformLedgeDetection(EPlayer* Player, RWorld* World)
 
 		if (TopTest.Hit)
 		{
-			vec3 TopHitpoint = ClGetPointFromDetection(TopTest.Ray, TopTest);
+			vec3 TopHitpoint = TopTest.GetPoint();
 			Ledge.SurfacePoint = TopHitpoint;
 
 			if (TopTest.Distance <= Player->Height || TopHitpoint.y - FrontalHitpoint.y > FrontRaySpacing)
 				return Ledge;
 
-			RImDraw::AddLine(IMHASH, TopRay.Origin, FrontalHitpoint, 1.2f, false, COLOR_PURPLE_1);
-			RImDraw::AddPoint(IMHASH, TopHitpoint, 2.0, true, COLOR_PURPLE_1);
+			RImDraw::AddLine(IMHASH, TopRay.Origin, FrontalHitpoint, 0, COLOR_PURPLE_1, 1.2f, false);
+			RImDraw::AddPoint(IMHASH, TopHitpoint, 0, COLOR_PURPLE_1, 2.0, true);
 
 			// test edges
 			vec3 Edge1 = TopTest.Triangle.B - TopTest.Triangle.A; // 1
@@ -53,13 +53,13 @@ RLedge ClPerformLedgeDetection(EPlayer* Player, RWorld* World)
 
 			// for debug: show face normal
 			vec3 FrontFaceCenter = FrontTest.Triangle.GetBarycenter();
-			RImDraw::AddLine(IMHASH, FrontFaceCenter, FrontFaceCenter + 1.f * FrontFaceN, 2.0, false, COLOR_BLUE_1);
+			RImDraw::AddLine(IMHASH, FrontFaceCenter, FrontFaceCenter + 1.f * FrontFaceN, 0.f, COLOR_BLUE_1, 2.0, false);
 
 			if (abs(dot(Edge1, FrontFaceN)) < 0.0001f)
 			{
-				RImDraw::AddLine(IMHASH, TopTest.Triangle.A, TopTest.Triangle.A + Edge1, 2.0, true, COLOR_YELLOW_1);
-				RImDraw::AddPoint(IMHASH, TopTest.Triangle.A, 2.0, false, COLOR_YELLOW_1);
-				RImDraw::AddPoint(IMHASH, TopTest.Triangle.B, 2.0, false, COLOR_YELLOW_1);
+				RImDraw::AddLine(IMHASH, TopTest.Triangle.A, TopTest.Triangle.A + Edge1, 0, COLOR_YELLOW_1, 2.0, true);
+				RImDraw::AddPoint(IMHASH, TopTest.Triangle.A, 0, COLOR_YELLOW_1, 2.0, false);
+				RImDraw::AddPoint(IMHASH, TopTest.Triangle.B, 0, COLOR_YELLOW_1, 2.0, false);
 
 				Ledge.A = TopTest.Triangle.A;
 				Ledge.B = TopTest.Triangle.B;
@@ -69,9 +69,9 @@ RLedge ClPerformLedgeDetection(EPlayer* Player, RWorld* World)
 			}
 			if (abs(dot(Edge2, FrontFaceN)) < 0.0001f)
 			{
-				RImDraw::AddLine(IMHASH, TopTest.Triangle.B, TopTest.Triangle.B + Edge2, 2.0, true, COLOR_YELLOW_1);
-				RImDraw::AddPoint(IMHASH, TopTest.Triangle.B, 2.0, false, COLOR_YELLOW_1);
-				RImDraw::AddPoint(IMHASH, TopTest.Triangle.C, 2.0, false, COLOR_YELLOW_1);
+				RImDraw::AddLine(IMHASH, TopTest.Triangle.B, TopTest.Triangle.B + Edge2, 0, COLOR_YELLOW_1, 2.0, true);
+				RImDraw::AddPoint(IMHASH, TopTest.Triangle.B, 0,  COLOR_YELLOW_1, 2.0, false);
+				RImDraw::AddPoint(IMHASH, TopTest.Triangle.C, 0,  COLOR_YELLOW_1, 2.0, false);
 
 				Ledge.A = TopTest.Triangle.B;
 				Ledge.B = TopTest.Triangle.C;
@@ -81,9 +81,9 @@ RLedge ClPerformLedgeDetection(EPlayer* Player, RWorld* World)
 			}
 			if (abs(dot(Edge3, FrontFaceN)) < 0.0001f)
 			{
-				RImDraw::AddLine(IMHASH, TopTest.Triangle.C, TopTest.Triangle.C + Edge3, 2.0, true, COLOR_YELLOW_1);
-				RImDraw::AddPoint(IMHASH, TopTest.Triangle.C, 2.0, false, COLOR_YELLOW_1);
-				RImDraw::AddPoint(IMHASH, TopTest.Triangle.A, 2.0, false, COLOR_YELLOW_1);
+				RImDraw::AddLine(IMHASH, TopTest.Triangle.C, TopTest.Triangle.C + Edge3, 0, COLOR_YELLOW_1, 2.0, true);
+				RImDraw::AddPoint(IMHASH, TopTest.Triangle.C, 0, COLOR_YELLOW_1, 2.0, false);
+				RImDraw::AddPoint(IMHASH, TopTest.Triangle.A, 0, COLOR_YELLOW_1, 2.0, false);
 
 				Ledge.A = TopTest.Triangle.C;
 				Ledge.B = TopTest.Triangle.A;

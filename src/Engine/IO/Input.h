@@ -92,10 +92,10 @@ struct MouseCoordinates
 {
 	double LastX = 0;
 	double LastY = 0;
-	double ClickX;
-	double ClickY;
-	double X;
-	double Y;
+	double ClickX = 0;
+	double ClickY = 0;
+	double X = 0;
+	double Y = 0;
 };
 
 struct GlobalInputInfo

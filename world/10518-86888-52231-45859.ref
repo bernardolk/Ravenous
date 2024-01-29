@@ -1,0 +1,11 @@
+stoneDoorArch1_pillar2 : EStaticMesh
+ID: RUUID = "10518-86888-52231-45859"
+Position: vec3 = -5.634000 -15.050001 18.129169
+Rotation: vec3 = 0.000000 0.000000 0.000000
+Scale: vec3 = 1.000000 1.000000 1.000000
+Mesh: RMesh* = stoneDoorArch_pillar2
+Shader: RShader* = model
+TextureDiffuse: RTexture = stoneDoorArch_BaseColor
+TextureSpecular: RTexture = null
+TextureNormal: RTexture = null
+CollisionMesh: RCollisionMesh* = stoneDoorArch1_pillar2_GeneratedCMesh

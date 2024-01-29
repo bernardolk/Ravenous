@@ -33,33 +33,35 @@ void ClResolveCollision(RCollisionResults Results, EPlayer* Player)
 
 ClVtraceResult ClDoStepoverVtrace(EPlayer* Player, RWorld* World)
 {
-	/* 
-	   Cast a ray at player's last point of contact with terrain to look for something steppable (terrain).
-	   Will cull out any results that are to be considered too high (is a wall) or too low (is a hole) considering
-	   player's current height. */
+	// Cast a ray at player's last point of contact with terrain to look for something steppable (terrain).
+	// Will cull out any results that are to be considered too high (is a wall) or too low (is a hole) considering
+	// player's current height.
 
+	ClVtraceResult Result;
+	Result.Hit = false;
+	
 	vec3 RayOrigin = Player->GetLastTerrainContactPoint() + vec3(0, 0.21, 0);
 	auto DownwardRay = RRay{RayOrigin, -UnitY};
 	RRaycastTest Raytest = World->Raycast(DownwardRay, RayCast_TestOnlyFromOutsideIn);
-
-	if (!Raytest.Hit)
-		return ClVtraceResult{false};
+	if (!Raytest.Hit) return Result;
 
 	// auto angle = dot(get_triangle_normal(raytest.t), UNIT_Y);
 	// std::cout << "Angle is: " << to_string(angle) << "\n";
 	// if(angle < 1 - 0.866)
 	//    return CL_VtraceResult{ false };
 
-
 	// draw arrow
-	auto Hitpoint = ClGetPointFromDetection(DownwardRay, Raytest);
-	RImDraw::AddLine(IMHASH, Hitpoint, RayOrigin, 1.0, true, COLOR_GREEN_1);
-	RImDraw::AddPoint(IMHASH, Hitpoint, 1.0, true, COLOR_GREEN_3);
+	auto Hitpoint = Raytest.GetPoint();
+	RImDraw::AddLine(IMHASH, Hitpoint, RayOrigin, 0, COLOR_GREEN_1, 1.f, true);
+	RImDraw::AddPoint(IMHASH, Hitpoint, 0, COLOR_GREEN_3, 1.f, true);
 
-	if (abs(Player->Position.y - Hitpoint.y) <= PlayerStepoverLimit)
-		return ClVtraceResult{true, Player->GetLastTerrainContactPoint().y - Hitpoint.y, Raytest.Entity};
+	if (abs(Player->Position.y - Hitpoint.y) <= PlayerStepoverLimit) {
+		Result.Hit = true;
+		Result.Entity = Raytest.Entity;
+		Result.DeltaY = Player->GetLastTerrainContactPoint().y - Hitpoint.y;
+	}
 
-	return ClVtraceResult{false};
+	return Result;
 }
 
 
@@ -77,14 +79,14 @@ bool GpSimulatePlayerCollisionInFallingTrajectory(EPlayer* Player, vec2 XzVeloci
 
 	float MaxIterations = 120;
 
-	RImDraw::AddPoint(IMHASH, Player->Position, 2.0, false, COLOR_GREEN_1, 1);
+	RImDraw::AddPoint(IMHASH, Player->Position, 0, COLOR_GREEN_1, 2.0, false);
 
 	int Iteration = 0;
 	while (true)
 	{
 		Velocity += DFrame * Player->Gravity;
 		Player->Position += Velocity * DFrame;
-		RImDraw::AddPoint(IM_ITERHASH(Iteration), Player->Position, 2.0, true, COLOR_GREEN_1, 1);
+		RImDraw::AddPoint(IM_ITERHASH(Iteration), Player->Position, 0, COLOR_GREEN_1, 2.0, true);
 
 		Player->Update();
 
