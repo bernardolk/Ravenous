@@ -17,7 +17,7 @@
 #include "editor/EditorSceneObjectsPanel.h"
 #include "editor/EditorColors.h"
 #include "engine/utils/colors.h"
-#include "game/entities/EPlayer.h"
+#include "..\Game\Entities\Player.h"
 #include "engine/render/renderer.h"
 #include "engine/utils/utils.h"
 #include "engine/camera/camera.h"
@@ -280,11 +280,11 @@ namespace Editor
 				RenderMesh(EdContext.EntityPanel.RelatedEntity->Mesh, RRenderOptions{true, false, 3});
 			}
 
-			if (EdContext.bGizmoPositionsDirty) {
+			// if (EdContext.bGizmoPositionsDirty) {
 				UpdateEntityControlArrows(&EdContext.EntityPanel);
 				UpdateEntityRotationGizmo(&EdContext.EntityPanel);
 				EdContext.bGizmoPositionsDirty = false;
-		}
+			// }
 		}
 
 		// render glowing wireframe on top of snap reference entity
@@ -1044,18 +1044,17 @@ namespace Editor
 
 		if (Panel->ReverseScale)
 		{
-			for (int i = 0; i < 3; i++)
-				Angles[i] += 180;
+			for (float& Angle : Angles) {
+				Angle += 180;
+			}
 		}
-
-		// update arrow mat models doing correct matrix multiplication order
-		auto StartingModel = translate(Mat4Identity, Entity->BoundingBox.GetCentroid());
-		// auto StartingModel = translate(Mat4Identity, vec3{0.f});
 		
-		// StartingModel = rotate(StartingModel, glm::radians(Entity->Rotation.x), UnitX);
-		// StartingModel = rotate(StartingModel, glm::radians(Entity->Rotation.y), UnitY);
-		// StartingModel = rotate(StartingModel, glm::radians(Entity->Rotation.z), UnitZ);
+		static float ScaleFactor = 20.0f;
+		vec3 CameraPos = RCameraManager::Get()->GetEditorCamera()->Position;
+		vec3 DirectionVec = Normalize(Entity->BoundingBox.GetCentroid() - CameraPos);
+		vec3 GizmoPosition = CameraPos + DirectionVec * ScaleFactor;
 		
+		auto StartingModel = translate(Mat4Identity, GizmoPosition);
 		for (int i = 0; i < 3; i++)
 		{
 			auto Arrow = Arrows[i];
@@ -1074,9 +1073,13 @@ namespace Editor
 		int i = 0;
 		
 		auto Entity = Panel->Entity;
-
-		auto StartingModel = translate(Mat4Identity, Entity->BoundingBox.GetCentroid());
-
+		
+		static float ScaleFactor = 20.0f;
+		vec3 CameraPos = RCameraManager::Get()->GetEditorCamera()->Position;
+		vec3 DirectionVec = Normalize(Entity->BoundingBox.GetCentroid() - CameraPos);
+		vec3 GizmoPosition = CameraPos + DirectionVec * ScaleFactor;
+		
+		auto StartingModel = translate(Mat4Identity, GizmoPosition);
 		for (auto* Gizmo : {Panel->RotationGizmoX, Panel->RotationGizmoY, Panel->RotationGizmoZ})
 		{
 			auto Model = rotate(StartingModel, glm::radians(Angles[i]), RotAxis[i]);
@@ -1096,9 +1099,9 @@ namespace Editor
 		if (Test.Hit && (!TestLight.Hit || TestLight.Distance > Test.Distance)) {
 			OpenEntityPanel(Test.Entity);
 		}
-		else if (TestLight.Hit) {
-			OpenLightsPanel(TestLight.ObjHitType, TestLight.ObjHitIndex, true);
-		}
+		//else if (TestLight.Hit) {
+		//	OpenLightsPanel(TestLight.ObjHitType, TestLight.ObjHitIndex, true);
+		//}
 	}
 
 	void CheckSelectionToSelectRelatedEntity(RWorld* World, RCamera* Camera)
@@ -1138,9 +1141,9 @@ namespace Editor
 		if (Test.Hit && (!TestLight.Hit || TestLight.Distance > Test.Distance)) {
 			ActivateMoveMode(Test.Entity);
 		}
-		else if (TestLight.Hit) {
-			ActivateMoveLightMode(TestLight.ObjHitType, TestLight.ObjHitIndex);
-		}
+		//else if (TestLight.Hit) {
+		//	ActivateMoveLightMode(TestLight.ObjHitType, TestLight.ObjHitIndex);
+		//}
 	}
 	
 	bool CheckSelectionToGrabEntityArrows(RCamera* Camera)

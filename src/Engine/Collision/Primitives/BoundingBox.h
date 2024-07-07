@@ -88,13 +88,34 @@ struct RBoundingBox
 		return
 		{
 			{MaxX, MaxY, MaxZ},
-			{MaxX, MinY, MaxZ},
-			{MinX, MaxY, MaxZ},
-			{MinX, MinY, MaxZ},
 			{MaxX, MaxY, MinZ},
-			{MaxX, MinY, MinZ},
+			{MinX, MaxY, MinZ},
+			{MinX, MaxY, MaxZ},
+			
+			{MinX, MinY, MaxZ},
+			{MinX, MaxY, MaxZ},
 			{MinX, MaxY, MinZ},
 			{MinX, MinY, MinZ},
+
+			{MinX, MinY, MinZ},
+			{MinX, MaxY, MinZ},
+			{MaxX, MaxY, MinZ},
+			{MaxX, MinY, MinZ},
+
+			{MaxX, MinY, MinZ},
+			{MaxX, MinY, MaxZ},
+			{MinX, MinY, MaxZ},
+			{MinX, MinY, MinZ},
+
+			{MaxX, MinY, MaxZ},
+			{MaxX, MaxY, MaxZ},
+			{MinX, MaxY, MaxZ},
+			{MinX, MinY, MaxZ},
+
+			{MaxX, MinY, MinZ},
+			{MaxX, MaxY, MinZ},
+			{MaxX, MaxY, MaxZ},
+			{MaxX, MinY, MaxZ}
 		};
 	}
 };

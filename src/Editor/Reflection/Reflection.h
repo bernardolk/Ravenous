@@ -120,7 +120,7 @@
 			Reflection_SetterFuncPtrs.push_back({#Name, &Self::Reflection_Setter_ ##Name}); \
         } \
     } inline static Reflection__discard_ ##Name{}; \
-    __VA_ARGS__ Type Name
+    __VA_ARGS__ EHandle<Type> Name
 
 struct RCylinder;
 

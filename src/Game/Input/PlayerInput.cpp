@@ -2,7 +2,7 @@
 
 #include "game/input/PlayerInput.h"
 #include "editor/console/console.h"
-#include "game/entities/EPlayer.h"
+#include "..\Entities\Player.h"
 #include "engine/utils/utils.h"
 #include "engine/camera/camera.h"
 #include "editor/EditorState.h"
@@ -40,27 +40,27 @@ void InProcessMoveKeys(RInputFlags Flags, vec3& VDir, bool ShortCircuit)
 
 	if (Pressed(Flags, RGameInputKey::MoveForward))
 	{
-		VDir += normalize(ToXz(PlayerCamera->Front));
+		VDir += normalize(ToXZ(PlayerCamera->Front));
 		if (ShortCircuit)
 			return;
 	}
 	if (Pressed(Flags, RGameInputKey::MoveLeft))
 	{
 		vec3 OnwardsVector = Cross(PlayerCamera->Front, PlayerCamera->Up);
-		VDir -= normalize(ToXz(OnwardsVector));
+		VDir -= normalize(ToXZ(OnwardsVector));
 		if (ShortCircuit)
 			return;
 	}
 	if (Pressed(Flags, RGameInputKey::MoveBackward))
 	{
-		VDir -= normalize(ToXz(PlayerCamera->Front));
+		VDir -= normalize(ToXZ(PlayerCamera->Front));
 		if (ShortCircuit)
 			return;
 	}
 	if (Pressed(Flags, RGameInputKey::MoveRight))
 	{
 		vec3 OnwardsVector = Cross(PlayerCamera->Front, PlayerCamera->Up);
-		VDir += normalize(ToXz(OnwardsVector));
+		VDir += normalize(ToXZ(OnwardsVector));
 		if (ShortCircuit)
 			return;
 	}

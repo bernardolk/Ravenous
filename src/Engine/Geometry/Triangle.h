@@ -3,9 +3,9 @@
 
 struct RTriangle
 {
-	vec3 A;
-	vec3 B;
-	vec3 C;
+	vec3 A = vec3{0.f};
+	vec3 B = vec3{0.f};
+	vec3 C = vec3{0.f};
 
 	vec3 GetNormal() { return triangleNormal(A, B, C); }
 

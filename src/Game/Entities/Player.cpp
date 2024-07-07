@@ -1,8 +1,7 @@
-#include "game/entities/EPlayer.h"
+#include "Player.h"
 
-#include "ECheckpoint.h"
+#include "Checkpoint.h"
 #include "engine/catalogues.h"
-#include "engine/rvn.h"
 #include "engine/camera/camera.h"
 #include "engine/collision/ClController.h"
 #include "engine/collision/ClTypes.h"
@@ -38,7 +37,7 @@ const vec3 EPlayer::Gravity = vec3(0, -18.0, 0);
 void EPlayer::Update()
 {
 	static_cast<EEntity*>(this)->Update();
-
+	
 // World cells dont matter for now
 #if 0
 	if (ClUpdatePlayerWorldCells(this))
@@ -63,7 +62,7 @@ void EPlayer::UpdateState()
 
 		vec3 PlayerBtmSphereCenter = Position + vec3(0, Radius, 0);
 		vec3 ContactPoint = PlayerBtmSphereCenter + (-LastTerrainContactNormal * Radius);
-		RImDraw::AddLine(IMHASH, PlayerBtmSphereCenter, ContactPoint, 0, COLOR_YELLOW_1);
+		//RImDraw::AddLine(IMHASH, PlayerBtmSphereCenter, ContactPoint, 0, COLOR_YELLOW_1);
 
 		/* Current system: Here we are looping at most twice on the:
 		   "Do stepover Vtrace, Adjust player's position to terrain, check collisions" loop
@@ -263,6 +262,19 @@ void EPlayer::UpdateState()
 				}
 }
 
+EPlayer::EPlayer()
+{
+	InitialPlayerState = NPlayerState::Standing;
+	PlayerState = NPlayerState::Standing;
+}
+
+void EPlayer::Initialize(EEntity* PlayerEntity)
+{
+	Instance = reinterpret_cast<EPlayer*>(PlayerEntity);
+	Instance->HeightBeforeFall = Instance->Position.y;
+	Instance->PlayerInitialPosition = Instance->Position;
+}
+
 void EPlayer::UpdateAirMovement(float DeltaTime)
 {
 	Velocity += Gravity * DeltaTime;
@@ -273,12 +285,12 @@ void EPlayer::UpdateAirMovement(float DeltaTime)
 	// Air steering
 	if (bPressingLeftWhileInAir)
 	{
-		vec3 RelativeMotionVec = IsEqual(HSpeed, 0) ? VDir : -normalize(ToXz(Cross(JumpingDirection, UnitY)));
+		vec3 RelativeMotionVec = IsEqual(HSpeed, 0) ? VDir : -normalize(ToXZ(Cross(JumpingDirection, UnitY)));
 		Position += RelativeMotionVec * AirSteeringVelocity * DeltaTime;
 	}
 	if (bPressingRightWhileInAir)
 	{
-		vec3 RelativeMotionVec = IsEqual(HSpeed, 0) ? VDir : normalize(ToXz(Cross(JumpingDirection, UnitY)));
+		vec3 RelativeMotionVec = IsEqual(HSpeed, 0) ? VDir : normalize(ToXZ(Cross(JumpingDirection, UnitY)));
 		Position += RelativeMotionVec * AirSteeringVelocity * DeltaTime;
 	}
 	// Extra steering if jumping upwards
@@ -315,192 +327,180 @@ void EPlayer::ChangeStateTo(NPlayerState NewState, RPlayerStateChangeArgs Args)
 		// jumping_upwards = false;
 	}
 
-	else
-		IfStateChange(Standing, Jumping)
+	else IfStateChange(Standing, Jumping)
+	{
+		// If jumping up
+		if (!IsMovingThisFrame() && IsEqual(GetSpeed(), 0)) {
+			BruteStop();
+		}
+		
+		else if (bPressingForwardWhileStanding)
 		{
-			// If jumping up
-			if (!IsMovingThisFrame() && GetSpeed() == 0)
-			{
-				BruteStop();
-			}
-			else if (bPressingForwardWhileStanding)
-			{
-				float HorizontalThrust = GetHorizontalSpeed();
-				if (bDashing && HorizontalThrust < MinimumJumpHorizontalThrustWhenDashing)
-					HorizontalThrust = MinimumJumpHorizontalThrustWhenDashing;
-				else if (!bDashing && HorizontalThrust < MinimumJumpHorizontalThrustWhenRunning)
-					HorizontalThrust = MinimumJumpHorizontalThrustWhenRunning;
+			float HorizontalThrust = GetHorizontalSpeed();
+			if (bDashing && HorizontalThrust < MinimumJumpHorizontalThrustWhenDashing)
+				HorizontalThrust = MinimumJumpHorizontalThrustWhenDashing;
+			else if (!bDashing && HorizontalThrust < MinimumJumpHorizontalThrustWhenRunning)
+				HorizontalThrust = MinimumJumpHorizontalThrustWhenRunning;
 
-				auto* PlayerCamera = RCameraManager::Get()->GetGameCamera();
-				Velocity = PlayerCamera->Front * HorizontalThrust;
-			}
-
-			Velocity.y = JumpInitialSpeed;
-			PlayerState = NPlayerState::Jumping;
-			AnimState = RPlayerAnimationState::Jumping;
-			HeightBeforeFall = Position.y;
+			auto* PlayerCamera = RCameraManager::Get()->GetGameCamera();
+			Velocity = PlayerCamera->Front * HorizontalThrust;
 		}
 
+		Velocity.y = JumpInitialSpeed;
+		PlayerState = NPlayerState::Jumping;
+		AnimState = RPlayerAnimationState::Jumping;
+		HeightBeforeFall = Position.y;
+	}
+
+	else IfStateChange(Standing, Falling)
+	{
+		PlayerState = NPlayerState::Falling;
+		Velocity.y = -1 * FallSpeed;
+		Velocity.x *= 0.5;
+		Velocity.z *= 0.5;
+		HeightBeforeFall = Position.y;
+	}
+
+	else IfStateChange(Falling, Standing)
+	{
+		Velocity.y = 0;
+
+		PlayerState = NPlayerState::Standing;
+
+		// conditional animation: if falling from jump, land, else, land from fall
+		if (Height < Height) // TODO: WTF??
+			AnimState = RPlayerAnimationState::Landing;
 		else
-			IfStateChange(Standing, Falling)
-			{
-				PlayerState = NPlayerState::Falling;
-				Velocity.y = -1 * FallSpeed;
-				Velocity.x *= 0.5;
-				Velocity.z *= 0.5;
-				HeightBeforeFall = Position.y;
-			}
+			AnimState = RPlayerAnimationState::LandingFall;
 
-			else
-				IfStateChange(Falling, Standing)
-				{
-					Velocity.y = 0;
+		MaybeHurtFromFall();
+	}
 
-					PlayerState = NPlayerState::Standing;
+	else IfStateChange(Jumping, Standing)
+	{
+		Velocity.y = 0;
 
-					// conditional animation: if falling from jump, land, else, land from fall
-					if (Height < Height) // TODO: WTF??
-						AnimState = RPlayerAnimationState::Landing;
-					else
-						AnimState = RPlayerAnimationState::LandingFall;
+		MultiplySpeed(0.f);
 
-					MaybeHurtFromFall();
-				}
+		PlayerState = NPlayerState::Standing;
+		AnimState = RPlayerAnimationState::Landing;
+		//MaybeHurtFromFall();
+	}
 
-				else
-					IfStateChange(Jumping, Standing)
-					{
-						Velocity.y = 0;
+	else IfStateChange(Standing, Sliding)
+	{
+		/* Parameters:
+		   - vec3 normal : the normal of the slope (collider triangle) player is currently sliding
+		*/
 
-						MultiplySpeed(0.f);
+		PlayerState = NPlayerState::Sliding;
 
-						PlayerState = NPlayerState::Standing;
-						AnimState = RPlayerAnimationState::Landing;
-						//MaybeHurtFromFall();
-					}
+		auto DownVecIntoN = ProjectVecIntoRef(-UnitY, Args.Normal);
+		auto SlidingDirection = normalize(-UnitY - DownVecIntoN);
+		SlidingDirection = SlidingDirection;
+		SlidingNormal = Args.Normal;
+	}
 
-					else
-						IfStateChange(Standing, Sliding)
-						{
-							/* Parameters:
-							   - vec3 normal : the normal of the slope (collider triangle) player is currently sliding
-							*/
+	else IfStateChange(Standing, SlideFalling)
+	{
+		// make player 'snap' to slope velocity-wise
+		// velocity = SlideSpeed * ramp->collision_geometry.slope.tangent;
 
-							PlayerState = NPlayerState::Sliding;
+		PlayerState = NPlayerState::SlideFalling;
+	}
 
-							auto DownVecIntoN = ProjectVecIntoRef(-UnitY, Args.Normal);
-							auto SlidingDirection = normalize(-UnitY - DownVecIntoN);
-							SlidingDirection = SlidingDirection;
-							SlidingNormal = Args.Normal;
-						}
+	else IfStateChange(Jumping, Grabbing)
+	{
+		// vec3 rev_normal = rev_2Dnormal(normal_vec);
 
-						else
-							IfStateChange(Standing, SlideFalling)
-							{
-								// make player 'snap' to slope velocity-wise
-								// velocity = SlideSpeed * ramp->collision_geometry.slope.tangent;
+		// // this will be an animation in the future
+		// float turn_angle = glm::degrees(vector_angle_signed(to2d_xz(pCam->Front), normal_vec)) - 180;
+		// camera_change_direction(pCam, turn_angle, 0.f);
+		// // CL_snap_player(player, normal_vec, penetration);
 
-								PlayerState = NPlayerState::SlideFalling;
-							}
+		// player_state          = PlayerState::Grabbing;
+		// grabbing_entity       = entity;
+		// velocity  = vec3(0);
+		// // after we are able to move while grabbing the ledge, this should move away from here
+		// {
+		//    anim_final_dir        = rev_normal;
+		//    anim_final_pos        = FinalPosition;
+		//    anim_orig_pos         = position;
+		//    anim_orig_dir         = normalize(to_xz(pCam->Front));
+		//    velocity  = vec3(0);
+		// }
+	}
 
-							else
-								IfStateChange(Jumping, Grabbing)
-								{
-									// vec3 rev_normal = rev_2Dnormal(normal_vec);
+	else IfStateChange(Grabbing, Vaulting)
+	{
+		PlayerState = NPlayerState::Vaulting;
+		AnimState = RPlayerAnimationState::Vaulting;
+		GrabbingEntity = nullptr;
+	}
 
-									// // this will be an animation in the future
-									// float turn_angle = glm::degrees(vector_angle_signed(to2d_xz(pCam->Front), normal_vec)) - 180;
-									// camera_change_direction(pCam, turn_angle, 0.f);
-									// // CL_snap_player(player, normal_vec, penetration);
+	else IfStateChange(Standing, Vaulting)
+	{
+		auto* GII = GlobalInputInfo::Get();
+		GII->BlockMouseMove = true;
+		auto* PlayerCamera = RCameraManager::Get()->GetGameCamera();
 
-									// player_state          = PlayerState::Grabbing;
-									// grabbing_entity       = entity;
-									// velocity  = vec3(0);
-									// // after we are able to move while grabbing the ledge, this should move away from here
-									// {
-									//    anim_final_dir        = rev_normal;
-									//    anim_final_pos        = FinalPosition;
-									//    anim_orig_pos         = position;
-									//    anim_orig_dir         = normalize(to_xz(pCam->Front));
-									//    velocity  = vec3(0);
-									// }
-								}
+		PlayerState = NPlayerState::Vaulting;
+		AnimState = RPlayerAnimationState::Vaulting;
+		Velocity = vec3(0);
 
-								else
-									IfStateChange(Grabbing, Vaulting)
-									{
-										PlayerState = NPlayerState::Vaulting;
-										AnimState = RPlayerAnimationState::Vaulting;
-										GrabbingEntity = nullptr;
-									}
+		AnimOrigPos = Position;
+		AnimOrigDir = normalize(ToXZ(PlayerCamera->Front));
 
-									else
-										IfStateChange(Standing, Vaulting)
-										{
-											auto* GII = GlobalInputInfo::Get();
-											GII->BlockMouseMove = true;
-											auto* PlayerCamera = RCameraManager::Get()->GetGameCamera();
+		auto InwardNormal = normalize(Cross(Args.VaultingData.Ledge.A - Args.VaultingData.Ledge.B, UnitY));
+		AnimFinalPos = Args.VaultingData.FinalPosition;
+		AnimFinalDir = InwardNormal;
+	}
 
-											PlayerState = NPlayerState::Vaulting;
-											AnimState = RPlayerAnimationState::Vaulting;
-											Velocity = vec3(0);
+	else IfStateChange(Vaulting, Standing)
+	{
+		auto* GII = GlobalInputInfo::Get();
 
-											AnimOrigPos = Position;
-											AnimOrigDir = normalize(ToXz(PlayerCamera->Front));
+		GII->ForgetLastMouseCoords = true;
+		GII->BlockMouseMove = false;
+		PlayerState = NPlayerState::Standing;
+		AnimFinishedTurning = false;
+	}
 
-											auto InwardNormal = normalize(Cross(Args.VaultingData.Ledge.A - Args.VaultingData.Ledge.B, UnitY));
-											AnimFinalPos = Args.VaultingData.FinalPosition;
-											AnimFinalDir = InwardNormal;
-										}
+	else IfStateChange(Sliding, Standing)
+	{
+		SlidingDirection = vec3(0);
+		SlidingNormal = vec3(0);
+		PlayerState = NPlayerState::Standing;
+	}
 
-										else
-											IfStateChange(Vaulting, Standing)
-											{
-												auto* GII = GlobalInputInfo::Get();
+	else IfStateChange(Sliding, Jumping)
+	{
+		VDir = SlidingNormal;
+		SlidingNormal = vec3(0);
 
-												GII->ForgetLastMouseCoords = true;
-												GII->BlockMouseMove = false;
-												PlayerState = NPlayerState::Standing;
-												AnimFinishedTurning = false;
-											}
+		Velocity = VDir * JumpFromSlopeHorizontalThrust;
+		Velocity.y = JumpInitialSpeed;
 
-											else
-												IfStateChange(Sliding, Standing)
-												{
-													SlidingDirection = vec3(0);
-													SlidingNormal = vec3(0);
-													PlayerState = NPlayerState::Standing;
-												}
+		PlayerState = NPlayerState::Jumping;
+		AnimState = RPlayerAnimationState::Jumping;
+		HeightBeforeFall = Position.y;
+	}
 
-												else
-													IfStateChange(Sliding, Jumping)
-													{
-														VDir = SlidingNormal;
-														SlidingNormal = vec3(0);
+	else IfStateChange(Sliding, Falling)
+	{
+		PlayerState = NPlayerState::Falling;
+		Velocity.y = -FallSpeed;
+		HeightBeforeFall = Position.y;
+	}
 
-														Velocity = VDir * JumpFromSlopeHorizontalThrust;
-														Velocity.y = JumpInitialSpeed;
-
-														PlayerState = NPlayerState::Jumping;
-														AnimState = RPlayerAnimationState::Jumping;
-														HeightBeforeFall = Position.y;
-													}
-
-													else
-														IfStateChange(Sliding, Falling)
-														{
-															PlayerState = NPlayerState::Falling;
-															Velocity.y = -FallSpeed;
-															HeightBeforeFall = Position.y;
-														}
-
-														else
-															FatalError("There is no link to change Player State from %i to %i.", PlayerState, NewState);
+	else {
+		FatalError("There is no link to change Player State from %i to %i.", PlayerState, NewState);
+	}
 }
 
 vec3 EPlayer::MoveForward()
 {
-	bool NoMoveCommand = VDir.x == 0 && VDir.z == 0;
+	bool NoMoveCommand = IsEqual(VDir.x, 0) && IsEqual(VDir.z, 0);
 
 	float DeltaTime = RavenousEngine::GetFrameDuration();
 
@@ -523,7 +523,7 @@ vec3 EPlayer::MoveForward()
 	if (!IsEqual(length(VDir), 0))
 		LastRecordedMovementDirection = VDir;
 	else if (LastRecordedMovementDirection == vec3(0))
-		LastRecordedMovementDirection = normalize(ToXz(RCameraManager::Get()->GetGameCamera()->Front));
+		LastRecordedMovementDirection = normalize(ToXZ(RCameraManager::Get()->GetGameCamera()->Front));
 
 	float DSpeed = Acceleration * DeltaTime;
 
@@ -549,21 +549,20 @@ vec3 EPlayer::GetLastTerrainContactPoint() const
 	return PlayerBtmSphereCenter + -LastTerrainContactNormal * Radius;
 }
 
-bool EPlayer::MaybeHurtFromFall()
+void EPlayer::MaybeHurtFromFall()
 {
 	float FallHeight = HeightBeforeFall - Position.y;
 	FallHeightLog = FallHeight;
-	if (FallHeight >= HurtHeight2)
-	{
+	if (FallHeight >= HurtHeight2) {
 		Lives -= 2;
-		return true;
 	}
-	if (FallHeight >= HurtHeight1)
-	{
+	if (FallHeight >= HurtHeight1) {
 		Lives -= 1;
-		return true;
 	}
-	return false;
+
+	if (Lives <= 0) {
+		Die();
+	}
 }
 
 void EPlayer::RestoreHealth()
@@ -573,7 +572,12 @@ void EPlayer::RestoreHealth()
 
 void EPlayer::GotoCheckpoint()
 {
-	Position = Checkpoint->GetPlayerSpawnPosition();
+	if (Checkpoint.IsValid()) {
+		Position = Checkpoint->GetPlayerSpawnPosition();
+	}
+	else {
+		Position = PlayerInitialPosition;
+	}
 }
 
 void EPlayer::Die()

@@ -1,5 +1,4 @@
 #pragma once
 
-struct RQuad;
-
-void QuickLog(RQuad& Quad);
+void QuickLog(struct RQuad& Quad);
+void QuickLog(struct RRay& Ray);

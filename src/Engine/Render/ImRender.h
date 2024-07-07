@@ -54,13 +54,13 @@ struct RImDraw
 	static void AddEntity(uint Hash, EEntity* Entity, int Duration = DefaultDuration, RRenderOptions Opts = {});
 
 	// Meshes
-	static void AddMesh(uint Hash, RMesh* Mesh, int Duration = DefaultDuration, RRenderOptions Opts = {.Wireframe =  true});
 	static void AddMeshWithTransform(uint Hash, RMesh* Mesh, vec3 Position, vec3 Rotation, vec3 Scale, int Duration = DefaultDuration, RRenderOptions Opts = {.Wireframe =  true});
-	static void AddMeshAtPosition(uint Hash, EEntity* Entity, vec3 Position, int Duration = DefaultDuration, RRenderOptions Opts = {.Wireframe =  true});
+	static void AddMeshAtPosition(uint Hash, RMesh* Mesh, vec3 Position, int Duration = DefaultDuration, RRenderOptions Opts = {.Wireframe =  true});
 	static void AddCollisionMesh(uint _hash, RCollisionMesh* CollisionMesh, int Duration = DefaultDuration, RRenderOptions Opts = {.Wireframe =  true, .AlwaysOnTop = true, .DontCullFace = true});
-
+	static void AddBoundingBox(uint _hash, RBoundingBox& BoundingBox, int Duration = DefaultDuration, RRenderOptions Opts = {.Wireframe = true, .AlwaysOnTop = true, .DontCullFace = true});
+	
 	// Lines
-	static void AddLine(uint Hash, vec3 PointA, vec3 PointB, int Duration = DefaultDuration, vec3 Color = vec3(0.f), float LineWidth = 1.f, bool AlwaysOnTop = false);
+	static void AddLine(uint Hash, vec3 PointA, vec3 PointB, int Duration = DefaultDuration, vec3 Color = vec3(0.f), float LineWidth = 2.f, bool AlwaysOnTop = true);
 	static void AddLineLoop(uint _hash, vector<RVertex>& Vertices, int Duration = DefaultDuration, vec3 Color = vec3{0.f}, RRenderOptions Opts = {});
 
 	// Points

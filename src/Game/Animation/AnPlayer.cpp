@@ -1,6 +1,6 @@
 #include "engine/core/core.h"
 #include "game/animation/AnPlayer.h"
-#include "game/entities/EPlayer.h"
+#include "..\Entities\Player.h"
 #include "engine/utils/utils.h"
 #include "engine/camera/camera.h"
 #include "engine/rvn.h"

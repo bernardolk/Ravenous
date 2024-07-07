@@ -116,7 +116,7 @@ inline float VectorCos(vec2 a, vec2 b)
 }
 
 // VECTOR DIMENSION CONVERSION
-inline vec3 ToXz(vec3 Vector)
+inline vec3 ToXZ(vec3 Vector)
 {
 	return vec3(Vector.x, 0, Vector.z);
 }

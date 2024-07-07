@@ -1,5 +1,5 @@
 #include "ClEdgeDetection.h"
-#include "game/entities/EPlayer.h"
+#include "..\..\Game\Entities\Player.h"
 #include "engine/utils/utils.h"
 #include "engine/collision/raycast.h"
 #include "engine/collision/primitives/ray.h"
@@ -17,7 +17,7 @@ RLedge ClPerformLedgeDetection(EPlayer* Player, RWorld* World)
 	constexpr float FrontRaySpacing = 0.03f;
 	constexpr int FrontRayQty = 24;
 
-	auto OrientationXz = ToXz(Player->Orientation);
+	auto OrientationXz = ToXZ(Player->GetForwardVector());
 	auto FirstRay = RRay{Player->GetEyePosition() - UnitY * FrontRayFirstRayDeltaY, OrientationXz};
 	Ledge.DetectionDirection = FirstRay.Direction;
 

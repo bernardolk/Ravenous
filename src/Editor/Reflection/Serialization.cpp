@@ -8,7 +8,7 @@
 #include "engine/entities/Entity.h"
 #include "Engine/Platform/Platform.h"
 #include "engine/world/World.h"
-#include "Game/Entities/EPlayer.h"
+#include "..\..\Game\Entities\Player.h"
 
 static void LoadEditorCameraFromString(std::string& Data)
 {
@@ -141,7 +141,7 @@ void Serialization::LoadWorldFromDisk()
 			auto* NewEntity = LoadEntityFromString(SerializedData, World);
 			if (NewEntity->ID == EPlayer::PlayerID)
 			{
-				EPlayer::SetPlayerSingletonInstance(NewEntity);
+				EPlayer::Initialize(NewEntity);
 			}
 		}
 

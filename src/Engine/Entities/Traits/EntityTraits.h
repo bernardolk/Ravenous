@@ -38,7 +38,13 @@
 
 template<typename T> constexpr bool DependentFalse = false;
 
-#define REQUIRES_METHOD(x)
+// Macro used to define a helper to compile check if base classes (entities) implement a required method
+#define RequiredMethod(MethodName) \
+    template<typename T> \
+    static constexpr auto _HasMethod_#MethodName(int) -> decltype(std::declval<T>().#MethodName(), bool()) { return true; } \
+    template<typename T> \
+    static constexpr bool _HasMethod_#MethodName(...) { return false; }
+
 
 /* ===================================================================
  * EntityTypeSystem
@@ -98,7 +104,7 @@ struct TEntityTraitBase
 	static void Update(TEntity& Entity)
 	{
 		static_assert(DependentFalse<TEntity>, "You forgot to implement Update function for a Trait");
-	};
+	}
 
 	TEntityTraitBase()
 	{

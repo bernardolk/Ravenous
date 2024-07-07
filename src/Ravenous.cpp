@@ -18,7 +18,7 @@
 #include "Editor/Console/Console.h"
 #include "Editor/Reflection/Serialization.h"
 #include "Engine/IO/loaders.h"
-#include "Game/Entities/EPlayer.h"
+#include "Game\Entities\Player.h"
 #include "Engine/Camera/camera.h"
 #include "Engine/MainLoop.h"
 #include "Engine/RavenousEngine.h"

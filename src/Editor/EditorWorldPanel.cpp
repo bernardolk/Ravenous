@@ -2,7 +2,7 @@
 #include <imgui.h>
 #include "EditorPanelContexts.h"
 #include "engine/world/World.h"
-#include "game/entities/EPlayer.h"
+#include "..\Game\Entities\Player.h"
 
 namespace Editor
 {

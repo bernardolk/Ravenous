@@ -1,8 +1,9 @@
 #pragma once
 #include "engine/core/core.h"
 #include "engine/entities/traits/EntityTraits.h"
-#include "game/entities/EPlayer.h"
 #include "Engine/Geometry/Cylinder.h"
+#include "Engine/Render/ImRender.h"
+#include "engine/rvn.h"
 
 /*  ===========================================================================================================
  *	Interactable
@@ -12,26 +13,38 @@
 struct Trait(TInteractable)
 {
 	Reflected_Trait(TInteractable)
-	
-	REQUIRES_METHOD( void Interact() )
 
-	void BlockInteractions();
-	void UnblockInteractions();
-	bool IsInteractionBlocked();
-	void SetPassiveInteraction(bool Value);
-	bool IsInteractionPassive();
+	Field(bool, bBlockInteraction) = false;
+	Field(bool, bPassiveInteraction) = false;
+	Field(bool, bInteractOnlyWhenLookingAtEntity) = true;
 
    /* ========================================
 	* Update
 	* ======================================== */	
-	
 	template<typename T>
 	static void Update(T& Entity)
 	{
+		auto Centroid = Entity.BoundingBox.GetCentroid();
+		Entity.Cylinder.Position = {Centroid.x, Entity.Position.y, Centroid.z};
+		static RMesh** Cylinder = Find(GeometryCatalogue, "cylinder");
+		if (Cylinder) {
+			RImDraw::AddMeshWithTransform(IMHASH, *Cylinder, Entity.Cylinder.Position, vec3{0.f}, vec3{Entity.Cylinder.Radius, Entity.Cylinder.Height, Entity.Cylinder.Radius});
+		}
+
+		SetEditorMsgDuration(0.f);
+		if (!Entity.IsPlayerLookingAtEntity(&Entity)) {
+			PrintEditorMsg("No");
+		}
+		else {
+			PrintEditorMsg("Yes");
+			Draw();
+		}
 		if (!Entity.bBlockInteraction) {
-			if (Entity.bPassiveInteraction || EPlayer::Get()->bInteractButton) {
+			if (Entity.bPassiveInteraction || Entity.IsPlayerInteracting()) {
 				if (Entity.IsVolumeCollidingWithPlayer()) {
-					Entity.Interact();
+					if (!Entity.bInteractOnlyWhenLookingAtEntity || Entity.IsPlayerLookingAtEntity(&Entity)) {
+						Entity.Interact();
+					}
 				}
 			}
 		}
@@ -40,9 +53,9 @@ struct Trait(TInteractable)
 protected:
 	Field(RCylinder, Cylinder);
 
-	bool IsVolumeCollidingWithPlayer();
-
 private:
-	Field(bool, bBlockInteraction) = false;
-	Field(bool, bPassiveInteraction) = false;
+	bool IsVolumeCollidingWithPlayer();
+	bool IsPlayerLookingAtEntity(EEntity* Entity);
+	bool IsPlayerInteracting();
+	static void Draw();
 };

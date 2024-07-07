@@ -5,7 +5,7 @@
 #include "engine/entities/lights.h"
 #include "engine/render/ImRender.h"
 #include "engine/utils/utils.h"
-#include "game/entities/EPlayer.h"
+#include "..\..\Game\Entities\Player.h"
 
 RWorld::RWorld()
 {
@@ -148,8 +148,7 @@ RRaycastTest RWorld::Raycast(const RRay& Ray, const NRayCastType TestType, const
 	REntityIterator It;
 	while (auto* Entity = It())
 	{
-		if ((TestType == RayCast_TestOnlyVisibleEntities && Entity->Flags & EntityFlags_InvisibleEntity)
-			|| (Skip != nullptr && Entity->ID == Skip->ID))
+		if ((TestType == RayCast_TestOnlyVisibleEntities && Entity->Flags & EntityFlags_InvisibleEntity) || (Skip != nullptr && Entity->ID == Skip->ID))
 			continue;
 
 		const auto Test = TestRayAgainstEntity(Ray, Entity, TestType);
@@ -212,7 +211,7 @@ RRaycastTest RWorld::LinearRaycastArray(const RRay FirstRay, int Qty, float Spac
 RRaycastTest RWorld::RaycastLights(const RRay Ray) const
 {
 	float MinDistance = MaxFloat;
-	RRaycastTest ClosestHit{.Hit = false, .Distance = -1};
+	RRaycastTest ClosestHit;
 
 	const auto AabbMesh = GeometryCatalogue.find("aabb")->second;
 
@@ -227,7 +226,8 @@ RRaycastTest RWorld::RaycastLights(const RRay Ray) const
 		auto Test = TestRayAgainstMesh(Ray, AabbMesh, AabbModel, RayCast_TestBothSidesOfTriangle);
 		if (Test.Hit && Test.Distance < MinDistance)
 		{
-			ClosestHit = {true, Test.Distance, nullptr, PointC, "point"};
+			ClosestHit.Hit = true;
+			ClosestHit.Distance = Test.Distance;
 			MinDistance = Test.Distance;
 		}
 		PointC++;
@@ -244,7 +244,8 @@ RRaycastTest RWorld::RaycastLights(const RRay Ray) const
 		const auto Test = TestRayAgainstMesh(Ray, AabbMesh, AabbModel, RayCast_TestBothSidesOfTriangle);
 		if (Test.Hit && Test.Distance < MinDistance)
 		{
-			ClosestHit = {.Hit = true, .Distance = Test.Distance, .Entity = nullptr, .ObjHitIndex = SpotC, .ObjHitType = "spot"};
+			ClosestHit.Hit = true;
+			ClosestHit.Distance = Test.Distance;
 			MinDistance = Test.Distance;
 		}
 		SpotC++;

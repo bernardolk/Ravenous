@@ -2,7 +2,7 @@
 #include <imgui.h>
 #include "EditorMain.h"
 #include "EditorPanelContexts.h"
-#include "game/entities/EPlayer.h"
+#include "..\Game\Entities\Player.h"
 #include "engine/utils/utils.h"
 #include "engine/io/display.h"
 

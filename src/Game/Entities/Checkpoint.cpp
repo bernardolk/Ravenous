@@ -1,4 +1,11 @@
-#include "ECheckpoint.h"
+#include "Checkpoint.h"
+#include "Player.h"
+
+ECheckpoint::ECheckpoint()
+{
+	Cylinder.Height = 1.f;
+	Cylinder.Radius = 1.f;
+}
 
 void ECheckpoint::Interact()
 {

@@ -8,6 +8,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <engine/collision/CollisionMesh.h>
 
+#include "Engine/Geometry/Quad.h"
 #include "Engine/IO/Input.h"
 #include "engine/entities/Entity.h"
 #include "engine/io/display.h"
@@ -53,7 +54,6 @@ RRaycastTest TestRayAgainstEntity(const RRay& Ray, EEntity* Entity, NRayCastType
 
 	// first check collision with bounding box
 	if (TestRayAgainstBoundingBox(Ray, Entity->BoundingBox)) {
-		//@TODO: We are not updating player's collider everytime now, so we must do it now on a raycast call
 		Entity->UpdateCollider();
 		return TestRayAgainstCollider(Ray, &Entity->Collider, TestType);
 	}
@@ -68,19 +68,16 @@ RRaycastTest TestRayAgainstEntity(const RRay& Ray, EEntity* Entity, NRayCastType
 // This doesn't take a MatModel
 RRaycastTest TestRayAgainstCollider(const RRay& Ray, RCollisionMesh* Collider, NRayCastType TestType)
 {
-
 	int Triangles = Collider->Indices.size() / 3;
 	float MinDistance = MaxFloat;
-	RRaycastTest MinHitTest{false, -1};
+	RRaycastTest MinHitTest{};
 	for (int I = 0; I < Triangles; I++)
 	{
 		RTriangle T = GetTriangleForColliderIndexedMesh(Collider, I);
 		bool TestBothSides = TestType == RayCast_TestBothSidesOfTriangle;
 		auto Test = TestRayAgainstTriangle(Ray, T, TestBothSides);
-		if (Test.Hit && Test.Distance < MinDistance)
-		{
+		if (Test.Hit && Test.Distance < MinDistance) {
 			MinHitTest = Test;
-			MinHitTest.TriangleIndex = I;
 			MinDistance = Test.Distance;
 		}
 	}
@@ -96,16 +93,14 @@ RRaycastTest TestRayAgainstMesh(const RRay& Ray, RMesh* Mesh, glm::mat4 MatModel
 {
 	int Triangles = Mesh->Indices.size() / 3;
 	float MinDistance = MaxFloat;
-	RRaycastTest MinHitTest{false, -1};
+	RRaycastTest MinHitTest{};
 	for (int i = 0; i < Triangles; i++)
 	{
 		RTriangle T = GetTriangleForIndexedMesh(Mesh, MatModel, i);
 		bool TestBothSides = TestType == RayCast_TestBothSidesOfTriangle;
 		auto Test = TestRayAgainstTriangle(Ray, T, TestBothSides);
-		if (Test.Hit && Test.Distance < MinDistance)
-		{
+		if (Test.Hit && Test.Distance < MinDistance) {
 			MinHitTest = Test;
-			MinHitTest.TriangleIndex = i;
 			MinDistance = Test.Distance;
 		}
 	}
@@ -176,22 +171,34 @@ RRaycastTest TestRayAgainstQuad(const RRay& Ray, const RQuad& Quad, bool TestBot
 // ---------------
 // > CAST PICKRAY
 // ---------------
-RRay CastPickray()
+RRay CastPickray(RCamera* Camera)
 {
-	auto* GII = GlobalInputInfo::Get();
-	double ScreenX = GII->MouseCoords.X;
-	double ScreenY = GII->MouseCoords.Y;
+	if (!Camera) {
+		Camera = RCameraManager::Get()->GetCurrentCamera();
+	}
+	
+	double ScreenX = Camera->MouseCoordinates.X;
+	double ScreenY = Camera->MouseCoordinates.Y;
 	float ScreenXNormalized = ((ScreenX - GlobalDisplayState::ViewportWidth / 2) / (GlobalDisplayState::ViewportWidth / 2));
 	float ScreenYNormalized = (-1 * (ScreenY - GlobalDisplayState::ViewportHeight / 2) / (GlobalDisplayState::ViewportHeight / 2));
-	
-	auto RayClip = glm::vec4(ScreenXNormalized, ScreenYNormalized, -1.0, 1.0);
-	auto* Camera = RCameraManager::Get()->GetCurrentCamera();
-	glm::mat4 InvView = glm::inverse(Camera->MatView);
-	glm::mat4 InvProj = glm::inverse(Camera->MatProjection);
+	auto RayClip = vec4(ScreenXNormalized, ScreenYNormalized, -1.0, 1.0);
+	mat4 InvView = Inverse(Camera->MatView);
+	mat4 InvProj = Inverse(Camera->MatProjection);
 	vec3 RayEye3 = (InvProj * RayClip);
-	auto RayEye = glm::vec4(RayEye3.x, RayEye3.y, -1.0, 0.0);
-	auto Direction = glm::normalize(InvView * RayEye);
+	auto RayEye = vec4(RayEye3.x, RayEye3.y, -1.0, 0.0);
+	auto Direction = Normalize(InvView * RayEye);
 	auto Origin = Camera->Position;
 
 	return RRay{Origin, Direction};
+}
+
+RRay CastFirstPersonRay()
+{
+	auto* Camera = RCameraManager::Get()->GetGameCamera();
+	auto RayClip = vec4(0.5f, 0.5f, -1.0, 1.0);
+	mat4 InvView = Inverse(Camera->MatView);
+	mat4 InvProj = Inverse(Camera->MatProjection);
+	vec3 RayEye3 = (InvProj * RayClip);
+	auto RayEye = vec4(RayEye3.x, RayEye3.y, -1.0, 0.0);
+	return RRay{Camera->Position, Normalize(InvView * RayEye)};
 }

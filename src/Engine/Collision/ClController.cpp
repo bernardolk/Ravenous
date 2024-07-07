@@ -3,7 +3,7 @@
 #include <engine/collision/primitives/BoundingBox.h>
 #include <engine/collision/ClGjk.h>
 #include <engine/collision/ClEpa.h>
-#include "game/entities/EPlayer.h"
+#include "..\..\Game\Entities\Player.h"
 #include <engine/collision/ClTypes.h>
 #include <engine/collision/ClController.h >
 #include "engine/world/World.h"
@@ -182,3 +182,4 @@ RCollisionResults ClTestPlayerVsEntity(EEntity* Entity, EPlayer* Player)
 
 	return ClResults;
 }
+

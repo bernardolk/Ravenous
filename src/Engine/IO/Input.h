@@ -108,6 +108,8 @@ struct GlobalInputInfo
 	
 	bool ForgetLastMouseCoords = true;
 	MouseCoordinates MouseCoords;
+	MouseCoordinates LastRecordedEditorMouseCoords;
+	MouseCoordinates LastRecordedGameMouseCoords;
 	uint64 KeyState = 0;
 	uint8 MouseState = 0;
 	bool BlockMouseMove = false;

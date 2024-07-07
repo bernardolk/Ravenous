@@ -8,7 +8,7 @@
 #include "engine/collision/ClController.h"
 #include "engine/io/input.h"
 #include "engine/world/World.h"
-#include "game/entities/EPlayer.h"
+#include "..\..\Game\Entities\Player.h"
 
 namespace Editor
 {

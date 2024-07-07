@@ -377,7 +377,7 @@ void OnMouseMove(GLFWwindow* Window, double Xpos, double Ypos)
 
 	// @todo: should refactor this out of here
 	// MOVE CAMERA WITH MOUSE IF APPROPRIATE
-	if (ES->CurrentMode == REditorState::ProgramMode::Game || (GII->MouseState & (uint64)NMouseInput::RightButtonDragging))
+	if (ES->CurrentMode == REditorState::NProgramMode::Game || (GII->MouseState & (uint64)NMouseInput::RightButtonDragging))
 	{
 		if (GII->BlockMouseMove)
 			return;

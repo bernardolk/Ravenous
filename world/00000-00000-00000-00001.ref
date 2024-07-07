@@ -1,6 +1,7 @@
 Player : EPlayer
+Checkpoint: ECheckpoint = "00888-26655-65672-67054"
 ID: RUUID = "00000-00000-00000-00001"
-Position: vec3 = 8.879822 -14.241384 -2.033110
+Position: vec3 = 18.466330 -14.241483 -1.888785
 Rotation: vec3 = 0.000000 0.000000 0.000000
 Scale: vec3 = 1.000000 1.000000 1.000000
 Mesh: RMesh* = capsule

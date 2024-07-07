@@ -4,7 +4,7 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include "ClController.h"
-#include "game/entities/EPlayer.h"
+#include "..\..\Game\Entities\Player.h"
 #include "engine/collision/ClTypes.h"
 #include "engine/utils/colors.h"
 #include "engine/render/ImRender.h"
@@ -52,8 +52,8 @@ ClVtraceResult ClDoStepoverVtrace(EPlayer* Player, RWorld* World)
 
 	// draw arrow
 	auto Hitpoint = Raytest.GetPoint();
-	RImDraw::AddLine(IMHASH, Hitpoint, RayOrigin, 0, COLOR_GREEN_1, 1.f, true);
-	RImDraw::AddPoint(IMHASH, Hitpoint, 0, COLOR_GREEN_3, 1.f, true);
+	//RImDraw::AddLine(IMHASH, Hitpoint, RayOrigin, 0, COLOR_GREEN_1, 1.f, true);
+	//RImDraw::AddPoint(IMHASH, Hitpoint, 0, COLOR_GREEN_3, 1.f, true);
 
 	if (abs(Player->Position.y - Hitpoint.y) <= PlayerStepoverLimit) {
 		Result.Hit = true;

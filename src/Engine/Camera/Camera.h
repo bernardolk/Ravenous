@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/IO/Input.h"
 #include "engine/core/core.h"
 
 struct EPlayer;
@@ -22,8 +23,10 @@ struct RCamera
 	float NearPlane = 0.1f;
 	float Sensitivity = 0.1f;
 
-	glm::mat4 MatView;
-	glm::mat4 MatProjection;
+	mat4 MatView{};
+	mat4 MatProjection{};
+
+	MouseCoordinates MouseCoordinates;
 
 	NCameraType Type = FreeRoam;
 	float OrbitalAngle = 0;
@@ -57,9 +60,9 @@ struct RCameraManager
 
 	static void ComputeAnglesFromDirection(float& Pitch, float& Yaw, vec3 Direction);
 	static void ChangeCameraDirection(RCamera* Camera, float YawOffset, float PitchOffset);
-
+	
 private:
-	RCamera GameCamera{};
-	RCamera EditorCamera{};
+	RCamera GameCamera;
+	RCamera EditorCamera;
 	RCamera* CurrentCamera = &EditorCamera;
 };

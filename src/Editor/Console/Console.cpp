@@ -9,7 +9,7 @@
 #include "engine/render/text/TextRenderer.h"
 #include "engine/serialization/parsing/parser.h"
 #include "engine/world/World.h"
-#include "game/entities/EPlayer.h"
+#include "..\..\Game\Entities\Player.h"
 
 void InitializeConsoleBuffers()
 {
@@ -72,14 +72,14 @@ void StartConsoleMode()
 {
 	auto* ES = REditorState::Get();
 	ES->LastMode = ES->CurrentMode;
-	ES->CurrentMode = REditorState::ProgramMode::Console;
+	ES->CurrentMode = REditorState::NProgramMode::Console;
 }
 
 void QuitConsoleMode()
 {
 	auto* ES = REditorState::Get();
 	ES->CurrentMode = ES->LastMode;
-	ES->LastMode = REditorState::ProgramMode::Console;
+	ES->LastMode = REditorState::NProgramMode::Console;
 }
 
 string CommitBuffer()

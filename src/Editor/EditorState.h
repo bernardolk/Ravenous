@@ -11,15 +11,15 @@ struct REditorState
 		return &Instance;
 	}
 	
-	enum class ProgramMode : uint8
+	enum class NProgramMode : uint8
 	{
 		Game,
 		Editor,
 		Console
 	};
 
-	ProgramMode CurrentMode = ProgramMode::Editor;
-	ProgramMode LastMode = ProgramMode::Editor;
+	NProgramMode CurrentMode = NProgramMode::Editor;
+	NProgramMode LastMode = NProgramMode::Editor;
 
 	static bool IsInGameMode();
 	static bool IsInEditorMode();

@@ -25,6 +25,8 @@ struct EHandle
 	template<typename T> friend EHandle<T> MakeHandleFromID(RUUID ID);
 	
 public:
+	RUUID EntityID;
+
 	TEntity* operator->()
 	{
 		return IsValid() ? (TEntity*) Slot->Value : nullptr; 
@@ -52,10 +54,9 @@ public:
 	EHandle(EHandle<TChildEntity> InHandle) : Slot(InHandle.Slot), Generation(InHandle.Generation) {}
 	
 private:
-	EHandle(vector<REntitySlot>& Collection, REntitySlot& Slot, int Generation) : Slot(&Collection, &Slot), Generation(Generation), EntityID(GetID(Slot)) {}
+	EHandle(vector<REntitySlot>& Collection, REntitySlot& Slot, int Generation) : EntityID(GetID(Slot)), Slot(&Collection, &Slot), Generation(Generation) {}
 	RView<REntitySlot> Slot;
 	int Generation = -1;
-	RUUID EntityID;
 };
 
 

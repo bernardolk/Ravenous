@@ -158,13 +158,11 @@ namespace Editor
 					NewCollisionMesh->Vertices.push_back(Vertex.Position);
 				}
 
-				// Build a bounding box for the mesh and then set the aabb vertices as collision mesh vertices. Indices should be the same as the aabb collision mesh .obj model so we just copy over.
-				// NOTE: The collision mesh version of aabb.obj has significantly less vertices / indices due to the fact that it doesn't need to hold normal / texel information, therefore there's no need to split a corner vertice
-				// into multiple RVertex instances. So we can't use the vertex data from a regular, non RCollisionMesh, RMesh aabb for collision mesh purposes.
 				auto BoundingBox = NewCollisionMesh->ComputeBoundingBox();
 				NewCollisionMesh->Vertices.clear();
+				
 				for (auto& Position : BoundingBox.GetVertexPositions()) {
-					NewCollisionMesh->Vertices.push_back(Position);
+					NewCollisionMesh->Vertices.push_back({Position});
 				}
 				if (auto** AABB = Find(CollisionGeometryCatalogue, "aabb")) {
 					NewCollisionMesh->Indices = (*AABB)->Indices;
@@ -308,7 +306,7 @@ namespace Editor
 			Panel->Entity->Update();
 			auto UpdateCells = World->UpdateEntityWorldChunk(*Panel->Entity);
 			if (UpdateCells.Status != CellUpdate_OK) {
-				PrintEditorMsg(UpdateCells.Message);
+				// PrintEditorMsg(UpdateCells.Message);
 			}
 			
 			EdContext.bGizmoPositionsDirty = true;

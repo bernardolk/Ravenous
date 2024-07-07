@@ -1,6 +1,6 @@
 #include "engine/render/renderer.h"
 #include "glad/glad.h"
-#include "game/entities/EPlayer.h"
+#include "..\..\Game\Entities\Player.h"
 #include "Shader.h"
 #include "engine/camera/camera.h"
 #include "engine/entities/lights.h"
@@ -109,8 +109,6 @@ void RenderEntity(EEntity* Entity)
 void RenderEditorEntity(EEntity* Entity, RWorld* World, RCamera* Camera)
 {
 	Entity->Shader->Use();
-	// important that the gizmo dont have a position set.
-	Entity->Shader->SetMatrix4("model", Entity->MatModel);
 	Entity->Shader->SetMatrix4("view", Camera->MatView);
 	Entity->Shader->SetMatrix4("projection", Camera->MatProjection);
 	RenderEntity(Entity);

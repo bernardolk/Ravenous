@@ -114,17 +114,22 @@ inline bool operator!=(const vec2& Lhs, const vec2& Rhs)
 
 FORCEINLINE inline vec3 Cross(vec3 A, vec3 B, vec3 C)
 {
-	return cross(cross(A, B), C);
+	return glm::cross(cross(A, B), C);
 }
 
 FORCEINLINE inline vec3 Cross(vec3 A, vec3 B)
 {
-	return cross(A, B);
+	return glm::cross(A, B);
 }
 
 FORCEINLINE inline vec3 Normalize(vec3 A)
 {
-	return normalize(A);
+	return glm::normalize(A);
+}
+
+FORCEINLINE inline mat4 Inverse(mat4 M)
+{
+	return glm::inverse(M);
 }
 
 FORCEINLINE inline float Dot(vec3 A, vec3 B)

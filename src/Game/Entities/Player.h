@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Checkpoint.h"
 #include "engine/core/core.h"
 #include "engine/entities/Entity.h"
 #include "engine/utils/utils.h"
@@ -67,33 +68,27 @@ enum class RPlayerAnimationState
 
 /* ==========================================
  *	Player
+ *		Player singleton entity
  * ========================================== */
 struct EntityType(EPlayer)
 {
 	Reflected(EPlayer)
 
 	friend struct GlobalSceneInfo;
+	template<typename TEntity> friend EHandle<TEntity> SpawnEntity();
 
-/* ==========================================
- *	Player ID
- * ========================================== */	
+	// Player ID	
 	static inline RUUID PlayerID = 1;				// ID = 00000-00000-00000-00001 is reserved to Player
 	
-/* ==========================================
- *	Capsule Geometry
- * ========================================== */
+	//Capsule Geometry
 	float Radius = 0.2f;
 	float Height = 1.75f;
 
-/* ==========================================
- *	Movement
- * ========================================== */
+	// Movement
 	vec3 VDir = vec3(0.f);								// intended movement direction
 	vec3 LastRecordedMovementDirection = vec3(0.f);		// last non zero movement direction
 
-/* ==========================================
- *	Constants
- * ========================================== */
+	// Constants
 	static const float Acceleration;
 	static const float RunSpeed;
 	static const float DashSpeed;
@@ -112,12 +107,10 @@ struct EntityType(EPlayer)
 	static const float FallFromEdgePushSpeed;
 	static const vec3 Gravity;
 
-	// other constants
+	// Other Constants (TODO: Move)
 	static constexpr float SlopeMinAngle = 0.4f;
 
-/* ==========================================
- *	Movement states
- * ========================================== */
+	// Movement States
 	// TODO: Turn into flags
 	bool bDashing = false;
 	bool bWalking = false;
@@ -143,56 +136,45 @@ struct EntityType(EPlayer)
 
 	NPlayerState PlayerState;
 	NPlayerState InitialPlayerState;
+	vec3 PlayerInitialPosition = vec3{0.0f};
 
-	vec3 PriorPosition = vec3(0);
-	vec3 InitialVelocity = vec3(0);
-
-	vec3 Orientation;
-
-/* ==========================================
- *	Random Gameplay Systems Data
- * ========================================== */
+	vec3 PriorPosition = vec3{0.0f};
+	vec3 InitialVelocity = vec3{0.0f};
+	
+	// Random Gameplay Systems Data
 	vec3 LastTerrainContactNormal = vec3(0, 1.f, 0);
 	EEntity* GrabbingEntity = nullptr;
 	float GrabReach = 0.9f; // radius + arms reach, 0.5 + 0.4  
 
-/* ==========================================
- *	Sliding
- * ========================================== */
-	vec3 SlidingDirection = vec3(0);
-	vec3 SlidingNormal = vec3(0);
+	// Sliding
+	vec3 SlidingDirection = vec3{0.0f};
+	vec3 SlidingNormal = vec3{0.0f};
 
-/* ==========================================
- *	Health
- * ========================================== */
+	// Health
 	int InitialLives = 2;
 	int Lives = 2;
-	float HurtHeight1 = 5.0;
-	float HurtHeight2 = 8.0;
-	float HeightBeforeFall;
-	float FallHeightLog = 0; // set when checking for fall, read-only!
 
-/* ==========================================
- *	Checkpoints
- * ========================================== */
-	EHandle<struct ECheckpoint> Checkpoint; 
+	// Fall damage
+	float HurtHeight1 = 5.0f;
+	float HurtHeight2 = 8.0f;
+	float HeightBeforeFall = 0.0f;
+	float FallHeightLog = 0.0f;
+
+	// Checkpoints
+	Handle(ECheckpoint, Checkpoint); 
 	
-/* ==========================================
- *	Animation
- * ========================================== */
-	float AnimT = 0;                                                      // animation timer
-	RPlayerAnimationState AnimState = RPlayerAnimationState::NoAnimation; // animation state
-	vec3 AnimFinalPos = vec3(0);                                         // final position after translation animation
-	vec3 AnimOrigPos = vec3(0);                                          // original position
-	vec3 AnimFinalDir = vec3(0);                                         // final player orientation
-	vec3 AnimOrigDir = vec3(0);                                          // original player orientation
-	bool AnimFinishedTurning = false;                                    // player has finished turning his camera
+	// Animation
+	float AnimT = 0;														// animation timer
+	RPlayerAnimationState AnimState = RPlayerAnimationState::NoAnimation;	// animation state
+	vec3 AnimFinalPos = vec3{0.0f};                                         // final position after translation animation
+	vec3 AnimOrigPos = vec3{0.0f};                                          // original position
+	vec3 AnimFinalDir = vec3{0.0f};                                         // final player orientation
+	vec3 AnimOrigDir = vec3{0.0f};                                          // original player orientation
+	bool AnimFinishedTurning = false;										// player has finished turning his camera
 
-/* ==========================================
- *	Methods
- * ========================================== */
-
-	// WARNING: Player pointers can't live between frames as the instance address CAN CHANGE!
+	// =======================
+	// Methods
+	// =======================
 	static EPlayer* Get() { return Instance; }
 	
 	void Update();
@@ -207,7 +189,7 @@ struct EntityType(EPlayer)
 	float GetSpeedLimit() const;
 	float GetHorizontalSpeed() const { return length(vec2(Velocity.xz)); }
 
-	vec3 GetHorizontalMovementForwardVector() const { return normalize(ToXz(Velocity)); }
+	vec3 GetHorizontalMovementForwardVector() const { return normalize(ToXZ(Velocity)); }
 
 	void MultiplySpeed(float Multiplier) { Velocity = length(Velocity) * Multiplier * VDir; }
 	void SetSpeed(float NewSpeed) { Velocity = NewSpeed * VDir; }
@@ -222,7 +204,7 @@ struct EntityType(EPlayer)
 
 	bool IsMovingThisFrame() const { return length(VDir) > FloatEpsilon; }
 
-	bool MaybeHurtFromFall();
+	void MaybeHurtFromFall();
 	void RestoreHealth();
 	void GotoCheckpoint();
 	void Die();
@@ -231,10 +213,11 @@ struct EntityType(EPlayer)
 	void ChangeStateTo(NPlayerState NewState, RPlayerStateChangeArgs Args = {});
 
 	// TO BE USED ONLY BY SERIALIZATION CODE
-	static void SetPlayerSingletonInstance(EEntity* PlayerEntity) { Instance = reinterpret_cast<EPlayer*>(PlayerEntity); }
+	static void Initialize(EEntity* PlayerEntity);
 
 private:
 	inline static EPlayer* Instance = nullptr;
-	
+
+	EPlayer();
 	void UpdateAirMovement(float Dt);
 };

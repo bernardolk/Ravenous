@@ -8,7 +8,7 @@
 #include "console/console.h"
 #include "editor/EditorState.h"
 #include "tools/EditorTools.h"
-#include "game/entities/EPlayer.h"
+#include "..\Game\Entities\Player.h"
 #include "engine/Camera/Camera.h"
 #include "engine/rvn.h"
 #include "engine/collision/raycast.h"

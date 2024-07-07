@@ -6,7 +6,7 @@
 #include "RavenousEngine.h"
 #include "game/animation/AnPlayer.h"
 #include "game/animation/AnUpdate.h"
-#include "game/entities/EPlayer.h"
+#include "..\Game\Entities\Player.h"
 #include "editor/EditorMain.h"
 #include "editor/tools/InputRecorder.h"
 #include "editor/EditorState.h"
@@ -47,11 +47,14 @@ void RavenousMainLoop()
 			InputFlags = InputRecorder->Play();
 		}
 
+		// Update mouse coordinates cached in camera (so that if we switch between program states, the previous mode camera will still hold the correct mouse coords for raycasting in game simulation when switching from game to editor mode for example)
+		CamManager->GetCurrentCamera()->MouseCoordinates = GlobalInputInfo::Get()->MouseCoords;
+
 		// -------------
 		// START FRAME
 		// -------------
 		RavenousEngine::StartFrame();
-		if (ES->CurrentMode == REditorState::ProgramMode::Editor) {
+		if (ES->CurrentMode == REditorState::NProgramMode::Editor) {
 			Editor::StartDearImguiFrame();
 		}
 
@@ -87,10 +90,10 @@ void RavenousMainLoop()
 		{
 			World->UpdateTraits();
 			
-			if (ES->CurrentMode == REditorState::ProgramMode::Game) {
+			if (ES->CurrentMode == REditorState::NProgramMode::Game) {
 				CamManager->UpdateGameCamera(GlobalDisplayState::ViewportWidth, GlobalDisplayState::ViewportHeight, Player->GetEyePosition());
 			}
-			else if (ES->CurrentMode == REditorState::ProgramMode::Editor) {
+			else if (ES->CurrentMode == REditorState::NProgramMode::Editor) {
 				CamManager->UpdateEditorCamera(GlobalDisplayState::ViewportWidth, GlobalDisplayState::ViewportHeight, Player->Position);
 			}
 			
@@ -114,18 +117,18 @@ void RavenousMainLoop()
 			//render_depth_map_debug();
 			switch (ES->CurrentMode)
 			{
-				case REditorState::ProgramMode::Console:
+				case REditorState::NProgramMode::Console:
 				{
 					RenderConsole();
 					break;
 				}
-				case REditorState::ProgramMode::Editor:
+				case REditorState::NProgramMode::Editor:
 				{
 					Editor::Update(Player, World, Camera);
 					Editor::Render(Player, World, Camera);
 					break;
 				}
-				case REditorState::ProgramMode::Game:
+				case REditorState::NProgramMode::Game:
 				{
 					RenderGameGui(Player);
 					break;
@@ -142,7 +145,7 @@ void RavenousMainLoop()
 		Rvn::EditorMsgManager->Update();
 		World->DeleteEntitiesMarkedForDeletion();
 		glfwSwapBuffers(GlobalDisplayState::Get()->GetWindow());
-		if (ES->CurrentMode == REditorState::ProgramMode::Editor) {
+		if (ES->CurrentMode == REditorState::NProgramMode::Editor) {
 			Editor::EndDearImguiFrame();
 		}
 	}

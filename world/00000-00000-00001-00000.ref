@@ -1,4 +1,4 @@
-One : EStaticMesh
+CheckpointDebug : ECheckpoint
 ID: RUUID = "00000-00000-00001-00000"
 Position: vec3 = -12.950000 -16.450001 -1.250000
 Rotation: vec3 = 0.000000 0.000000 0.000000
@@ -9,3 +9,7 @@ TextureDiffuse: RTexture = mediumRock3-sandstone_BaseColor
 TextureSpecular: RTexture = null
 TextureNormal: RTexture = null
 CollisionMesh: RCollisionMesh* = aabb
+bBlockInteraction: bool = false
+bPassiveInteraction: bool = false
+bInteractOnlyWhenLookingAtEntity: bool = true
+Cylinder: RCylinder = 0.900003 -16.450001 9.125000 1.000000 1.000000

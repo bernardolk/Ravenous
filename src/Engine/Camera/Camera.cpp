@@ -78,7 +78,6 @@ void RCameraManager::ChangeCameraDirection(RCamera* Camera, float YawOffset, flo
 	Camera->Front = normalize(Camera->Front);
 }
 
-
 void RCameraManager::CameraLookAt(RCamera* Camera, vec3 Reference, bool IsPosition)
 {
 	// vec3 ref -> either a position or a direction vector (no need to be normalised)

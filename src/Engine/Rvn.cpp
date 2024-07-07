@@ -12,6 +12,8 @@ void Rvn::Init()
 
 void REditorMsgManager::AddMessage(uint& MsgId, const string MsgString, float Duration, vec3 Color)
 {
+	NextMsgDuration = DefaultMsgDuration;
+	
 	// refresh Message instead of adding if already exists
 	for (auto& Msg : Messages) {
 		if (Msg.Id == MsgId) {

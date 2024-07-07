@@ -7,7 +7,7 @@
 /* ================================================================== */
 void EEntity::Update()
 {
-	/* Order here is very important */
+	// Order here is very important
 	UpdateModelMatrix();
 	UpdateCollider();
 	UpdateBoundingBox();
@@ -15,17 +15,10 @@ void EEntity::Update()
 
 void EEntity::UpdateCollider()
 {
-	// // empty collider
-	// collider.vertices.clear();
-
-	if (Collider.Vertices.size() == 0)
-	{
+	if (Collider.Vertices.empty()) {
 		Collider = *CollisionMesh;
 	}
-
-	// multiplies model matrix to collision mesh
-	for (int i = 0; i < CollisionMesh->Vertices.size(); i++)
-	{
+	for (int i = 0; i < CollisionMesh->Vertices.size(); i++) {
 		Collider.Vertices[i] = vec3(MatModel * vec4(CollisionMesh->Vertices[i], 1.0));
 	}
 }

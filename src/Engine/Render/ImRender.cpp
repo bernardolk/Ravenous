@@ -80,31 +80,7 @@ void RImDraw::Render(RCamera* Camera)
 
 void RImDraw::AddEntity(uint Hash, EEntity* Entity, int Duration, RRenderOptions Opts)
 {
-	AddMesh(Hash, Entity->Mesh, Duration, Opts);
-}
-
-
-// ==============================
-//	Add Mesh           
-// ==============================
-void RImDraw::AddMesh(uint _hash, RMesh* Mesh, int Duration, RRenderOptions Opts)
-{
-	int Index = FindDrawElement(_hash);
-	if (Index != -1) {
-		UpdateMeshDuration(Index, Duration);
-		return;
-	}
-
-	Index = GetNewSlotIndex();
-	if (Index == -1) return;
-	
-	auto& Obj = List[Index];
-	Obj.Hash = _hash;
-	Obj.Duration = Duration;
-	Obj.IsMultplByMatmodel = true;
-	Obj.Empty = false;
-
-	SetMesh(Index, Mesh, Opts);
+	AddMeshAtPosition(Hash, Entity->Mesh, Entity->Position, Duration, Opts);
 }
 
 // ==============================
@@ -135,9 +111,9 @@ void RImDraw::AddMeshWithTransform(uint _hash, RMesh* Mesh, vec3 Position, vec3 
 // ==============================
 //	Add Mesh At Position           
 // ==============================
-void RImDraw::AddMeshAtPosition(uint Hash, EEntity* Entity, vec3 Position, int Duration, RRenderOptions Opts)
+void RImDraw::AddMeshAtPosition(uint Hash, RMesh* Mesh, vec3 Position, int Duration, RRenderOptions Opts)
 {
-	AddMeshWithTransform(Hash, Entity->Mesh, Position, Entity->Rotation, Entity->Scale, Duration, Opts);
+	AddMeshWithTransform(Hash, Mesh, Position, vec3{0.f}, vec3{1.f}, Duration, Opts);
 }
 
 // ==============================
@@ -172,6 +148,36 @@ void RImDraw::AddCollisionMesh(uint _hash, RCollisionMesh* CollisionMesh, int Du
 	Obj.Mesh.Indices = CollisionMesh->Indices;
 
 	Obj.Mesh.SetupGLData();
+	Obj.Mesh.SendDataToGLBuffer();
+}
+
+void RImDraw::AddBoundingBox(uint _hash, RBoundingBox& BoundingBox, int Duration, RRenderOptions Opts)
+{
+	int Index = FindDrawElement(_hash);
+	if (Index != -1) {
+		UpdateMeshDuration(Index, Duration);
+		return;
+	}
+
+	Index = GetNewSlotIndex();
+	if (Index == -1) return;
+
+	auto& Obj = List[Index];
+	Obj.Hash = _hash;
+	Obj.Duration = Duration;
+	Obj.Empty = false;
+	Obj.IsMesh = true;
+	Obj.IsMultplByMatmodel = true;
+	Obj.RRenderOptions = Opts;
+	Obj.Mesh.RenderMethod = GL_TRIANGLES;
+
+	auto** AABB = Find(GeometryCatalogue, "aabb");
+	Obj.Mesh.Indices = (*AABB)->Indices;
+	
+	for (auto& Coordinates : BoundingBox.GetVertexPositions()) {
+		Obj.Mesh.Vertices.push_back({Coordinates});
+	}
+	
 	Obj.Mesh.SendDataToGLBuffer();
 }
 

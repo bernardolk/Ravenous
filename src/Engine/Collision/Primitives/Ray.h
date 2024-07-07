@@ -2,8 +2,8 @@
 
 struct RRay
 {
-	vec3 Origin;
-	vec3 Direction;
+	vec3 Origin = vec3{0.f};
+	vec3 Direction = vec3{0.f};
 
 	RRay() = default;
 	RRay(vec3 Origin, vec3 Direction) : Origin(Origin), Direction(Direction) {}

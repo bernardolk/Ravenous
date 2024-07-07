@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/core/core.h"
+#include <format>
 
 namespace Paths
 {
@@ -73,13 +74,12 @@ struct Rvn
 // ======================
 //	Editor Messages
 // ======================
-
-
-#define PrintEditorMsg(msg) \
+#define PrintEditorMsg(...) \
 { \
 	static uint MsgId = 0; \
-	Rvn::EditorMsgManager->AddMessage(MsgId, msg); \
+	Rvn::EditorMsgManager->AddMessage(MsgId, std::format(__VA_ARGS__)); \
 }
+
 
 // stores messages to be displayed on screen during a certain duration
 struct REditorMsg
@@ -98,8 +98,10 @@ struct REditorMsgManager
 	
 public:
 	static constexpr inline uint MaxMessagesToRender = 4;
+	static inline float DefaultMsgDuration = 2.f;
+	static inline float NextMsgDuration = DefaultMsgDuration;
 
-	void AddMessage(uint& MsgId, const string MsgString, float Duration = 2.f, vec3 Color = vec3{-1.f});
+	void AddMessage(uint& MsgId, const string MsgString, float Duration = NextMsgDuration, vec3 Color = vec3{-1.f});
 	void Update();
 	void Render();
 	
@@ -107,3 +109,8 @@ private:
 	vector<REditorMsg> Messages;
 	static inline constexpr std::hash<std::string> Hasher;
 };
+
+inline void SetEditorMsgDuration(float Duration)
+{
+	Rvn::EditorMsgManager->NextMsgDuration = Duration;
+}
