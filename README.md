@@ -19,3 +19,8 @@ Screenshots:
 ![alt text](https://i.imgur.com/gNzEtAQ.png)
 
 ![alt text](https://i.imgur.com/aYF0bqz.png)
+
+License:
+
+Ravenous's own source code is released under the MIT License, see [LICENSE](LICENSE).
+Third-party code and assets bundled in this repository (everything under `include/` and `depsrc/`, and the fonts in `assets/fonts/`) are not covered by it and remain under their respective owners' licenses.
