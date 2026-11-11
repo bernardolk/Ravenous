@@ -1,11 +1,11 @@
-aabb_1 : EStaticMesh
+Cube : EStaticMesh
 ID: RUUID = "16194-04384-72249-53344"
-Position: vec3 = -2.893000 -25.200581 -16.563999
+Position: vec3 = -5.000000 -1.000000 -5.000000
 Rotation: vec3 = 0.000000 0.000000 0.000000
-Scale: vec3 = 14.700000 1.000000 13.700000
+Scale: vec3 = 10.000000 1.000000 10.000000
 Mesh: RMesh* = aabb
 Shader: RShader* = model
-TextureDiffuse: RTexture = grey
+TextureDiffuse: RTexture = brickwall
 TextureSpecular: RTexture = null
-TextureNormal: RTexture = null
+TextureNormal: RTexture = brickwall_normal
 CollisionMesh: RCollisionMesh* = aabb

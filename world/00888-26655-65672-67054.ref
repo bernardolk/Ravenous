@@ -1,15 +1,15 @@
 Checkpoint1 : ECheckpoint
 ID: RUUID = "00888-26655-65672-67054"
-Position: vec3 = 14.816193 -14.341002 1.724148
+Position: vec3 = 2.000000 0.000000 2.000000
 Rotation: vec3 = 0.000000 0.000000 0.000000
 Scale: vec3 = 0.300000 1.200000 0.300000
 Mesh: RMesh* = aabb
 Shader: RShader* = model
-TextureDiffuse: RTexture = red
+TextureDiffuse: RTexture = blue
 TextureSpecular: RTexture = null
 TextureNormal: RTexture = null
 CollisionMesh: RCollisionMesh* = aabb
 bBlockInteraction: bool = false
 bPassiveInteraction: bool = false
 bInteractOnlyWhenLookingAtEntity: bool = true
-Cylinder: RCylinder = 14.966192 -14.341002 1.874148 1.000000 1.000000
+Cylinder: RCylinder = 2.150000 0.000000 2.150000 1.000000 1.000000
