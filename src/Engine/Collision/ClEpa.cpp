@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <engine/core/types.h>
 #include <engine/collision/simplex.h>
 #include <engine/collision/ClGjk.h>

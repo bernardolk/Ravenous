@@ -5,7 +5,7 @@
 #include <engine/collision/ClEpa.h>
 #include "..\..\Game\Entities\Player.h"
 #include <engine/collision/ClTypes.h>
-#include <engine/collision/ClController.h >
+#include <engine/collision/ClController.h>
 #include "engine/world/World.h"
 
 // ----------------------------
